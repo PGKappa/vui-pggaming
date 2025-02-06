@@ -1,5 +1,9 @@
 'use client'
 
+import { RootContext } from '@/contexts/root-context'
+import { useContext } from 'react'
+
 export default function Home() {
-  return <h1>Hello World!</h1>
+  const { currentUser } = useContext(RootContext)
+  return <h1>Hello World! {currentUser}</h1>
 }
