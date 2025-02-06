@@ -1,15 +1,9 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
 import { RootContext } from '@/contexts/root-context'
 import { useContext } from 'react'
 
 export default function Home() {
   const { currentUser } = useContext(RootContext)
-  return (
-    <div className="flex flex-row justify-center gap-2">
-      <h1>Hello World! {currentUser}</h1>
-      <Button>Click me</Button>
-    </div>
-  )
+  return <div className="flex flex-row justify-center gap-2"></div>
 }
