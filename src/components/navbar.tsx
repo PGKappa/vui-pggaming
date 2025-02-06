@@ -5,14 +5,17 @@ export default function Navbar() {
   return (
     <nav className="flex flex-row justify-center gap-1">
       <Link
-        href="external/dogs"
-        className={buttonVariants({ variant: 'ghost' })}
+        href="dogs"
+        className={buttonVariants({ variant: 'ghost', className: 'hover:bg-red-300' })}
       >
         Dogs
       </Link>
       <Link
-        href="external/horses"
-        className={buttonVariants({ variant: 'ghost' })}
+        href="horses"
+        className={buttonVariants({
+          variant: 'ghost',
+          className: 'hover:bg-red-300',
+        })}
       >
         Horses
       </Link>
@@ -20,7 +23,7 @@ export default function Navbar() {
         href="/"
         className={buttonVariants({
           variant: 'default',
-          className: 'bg-red-600',
+          className: 'bg-red-600 hover:bg-red-700',
         })}
       >
         Live Virtual Football
