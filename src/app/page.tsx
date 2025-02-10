@@ -1,9 +1,21 @@
 'use client'
 
-import { RootContext } from '@/contexts/root-context'
-import { useContext } from 'react'
+import BettingSlip from '@/components/betting-slip'
+import RoundLiveScores from '@/components/round-live-scores'
+import VideoStreamCard from '@/components/video-stream-card'
 
 export default function Home() {
-  const { currentUser } = useContext(RootContext)
-  return <div className="flex flex-row justify-center gap-2"></div>
+  return (
+    <div className="grid grid-cols-12 justify-center gap-2 border border-black px-10 py-4">
+      <div className="col-span-6 border border-black p-2">
+        <VideoStreamCard />
+      </div>
+      <div className="col-span-3 border border-black p-2">
+        <RoundLiveScores />
+      </div>
+      <div className="col-span-3 border border-black p-2">
+        <BettingSlip />
+      </div>
+    </div>
+  )
 }
