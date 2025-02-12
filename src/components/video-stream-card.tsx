@@ -1,27 +1,27 @@
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
-import Player from '@/components/video-player'
+'use client'
 
-export default function VideoStreamCard() {
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
+import ReactPlayer from 'react-player';
+
+export default function VideoStreamCard(props: { streamUrl: string | undefined }) {
   return (
     <Card>
       <CardHeader>
         <CardTitle>Football</CardTitle>
       </CardHeader>
       <CardContent>
-        <Player
-          streamUrl="https://st7.net4media.net:8082/PG/Dogs/1qasw5/playlist.m3u8"
-          width="full"
-          height="auto"
+        {props.streamUrl && <ReactPlayer
+          // onEnded={() => {
+          //   setReplayMode(false);
+          // }}
+          playing={true}
+          className="details-video"
           controls={false}
-          autoplay={true}
-          muted={false}
-          sldpOptions={{
-            adaptive_bitrate: {
-              initial_rendition: '240p',
-            },
-            buffering: 500,
-          }}
-        />
+          url={props.streamUrl}
+          width="100%"
+          height="100%"
+          muted={true}
+        />}
       </CardContent>
     </Card>
   )

@@ -28,6 +28,7 @@ function getRootContext(): RootContextType {
               { team1: 'CHE', team2: 'LIV', score1: 1, score2: 1 },
             ],
             startingAt: new Date('2025-02-10T20:00:00Z'),
+            streamUrl: 'https://st7.net4media.net:8082/PG/Dogs/1qasw5/playlist.m3u8',
           },
           teamRankings: [
             {
