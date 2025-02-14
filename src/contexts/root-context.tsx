@@ -54,15 +54,25 @@ function getRootContext(): RootContextType {
           upcomingRounds: [
             {
               name: 'Super League',
-              number: 2,
-              startingAt: new Date('2025-02-10T14:00:00Z'),
-              betAmounts: [2.84, 2.84, 2.84, 20],
+              number: 30,
+              startingAt: new Date('2025-02-13T14:00:00Z'),
+              duration: 30,
+              matches: [
+                {teams: 'MCI - MUN', odds: [1.5, 3.5, 4.5] },
+                {teams: 'TOT - ARS', odds: [2.5, 3.5, 2.5] },
+                {teams: 'CHE - LIV', odds: [3.5, 3.5, 1.5] },
+              ]
             },
             {
               name: 'Super League',
-              number: 3,
+              number: 31,
               startingAt: new Date('2025-10-10T18:00:00Z'),
-              betAmounts: [2.84, 2.84, 2.84, 2.84],
+              duration: 30,
+              matches: [
+                {teams: 'MIL - JUV', odds: [2.8, 1.5, 2.5] },
+                {teams: 'REA - NAP', odds: [1.5, 2.5, 3.5] },
+                {teams: 'SAS - PIS', odds: [2.5, 3.5, 1.5] },
+              ]
             },
           ],
         }
