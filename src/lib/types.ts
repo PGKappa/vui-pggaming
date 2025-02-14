@@ -27,5 +27,9 @@ export type UpcomingRound = {
   name: string
   number: number
   startingAt: Date
-  betAmounts: number[]
+  duration: number
+  matches: {
+    teams: string
+    odds: number[]
+  }[]
 }
