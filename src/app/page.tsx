@@ -10,11 +10,12 @@ import { RootContext } from '@/contexts/root-context'
 import { useContext } from 'react'
 
 export default function Home() {
-  const { upcomingRounds } = useContext(RootContext)
+  const { upcomingRounds, liveRound } = useContext(RootContext)
+
   return (
     <div className="grid grid-cols-12 justify-center gap-2 border border-black px-10 py-4">
       <div className="col-span-6 space-y-3 border border-black p-2">
-        <VideoStreamCard />
+        <VideoStreamCard streamUrl={liveRound?.streamUrl} />
         {upcomingRounds ? (
           <ol className="space-y-2">
             {upcomingRounds.map((round) => (

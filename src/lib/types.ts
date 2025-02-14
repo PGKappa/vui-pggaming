@@ -10,6 +10,7 @@ export type LiveRound = {
   number: number
   scores: Score[]
   startingAt: Date
+  streamUrl: string
 }
 
 export type TeamRanking = {

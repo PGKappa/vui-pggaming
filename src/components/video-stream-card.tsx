@@ -1,9 +1,28 @@
-import { Card, CardContent } from './ui/card'
+'use client'
 
-export default function VideoStreamCard() {
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
+import ReactPlayer from 'react-player';
+
+export default function VideoStreamCard(props: { streamUrl: string | undefined }) {
   return (
     <Card>
-      <CardContent>VideoStreamCard</CardContent>
+      <CardHeader>
+        <CardTitle>Football</CardTitle>
+      </CardHeader>
+      <CardContent>
+        {props.streamUrl && <ReactPlayer
+          // onEnded={() => {
+          //   setReplayMode(false);
+          // }}
+          playing={true}
+          className="details-video"
+          controls={false}
+          url={props.streamUrl}
+          width="100%"
+          height="100%"
+          muted={true}
+        />}
+      </CardContent>
     </Card>
   )
 }
