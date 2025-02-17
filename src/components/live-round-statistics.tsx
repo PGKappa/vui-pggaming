@@ -36,8 +36,8 @@ export default function LiveRoundStatistics() {
   <Table>
     <TableHeader>
       <TableRow>
-        <TableHead className="text-center"></TableHead>
-        <TableHead className="text-center"></TableHead>
+        <TableHead></TableHead>
+        <TableHead></TableHead>
         <TableHead className="text-center">1</TableHead>
         <TableHead className="text-center">X</TableHead>
         <TableHead className="text-center">2</TableHead>
