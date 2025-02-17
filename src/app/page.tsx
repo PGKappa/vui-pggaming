@@ -3,6 +3,7 @@
 import BettingSlip from '@/components/betting-slip'
 import Leaderboard from '@/components/leaderboard'
 import LiveRoundScores from '@/components/live-round-scores'
+import LiveRoundStatistics from '@/components/live-round-statistics'
 import LoadingSpinner from '@/components/loading-spinner'
 import UpcomingRoundCard from '@/components/upcoming-round-card'
 import VideoStreamCard from '@/components/video-stream-card'
@@ -29,7 +30,8 @@ export default function Home() {
         )}
       </div>
       <div className="col-span-3 space-y-3 border border-black p-2">
-        <LiveRoundScores />
+        {/* <LiveRoundScores /> */}
+        <LiveRoundStatistics />
         <Leaderboard />
       </div>
       <div className="col-span-3 border border-black p-2">

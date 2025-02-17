@@ -1,10 +1,11 @@
 'use client'
-import { LiveRound, TeamRanking, UpcomingRound } from '@/lib/types'
+import { LiveRound, TeamRanking, UpcomingRound, RoundStatistics } from '@/lib/types'
 import { createContext, useEffect, useState } from 'react'
 
 export type RootContextType = {
   currentUser?: string
   liveRound?: LiveRound
+  roundStatistics?: RoundStatistics[]
   teamRankings?: TeamRanking[]
   upcomingRounds?: UpcomingRound[]
 }
@@ -30,6 +31,34 @@ function getRootContext(): RootContextType {
             startingAt: new Date('2025-02-10T20:00:00Z'),
             streamUrl: 'https://st7.net4media.net:8082/PG/Dogs/1qasw5/playlist.m3u8',
           },
+          roundStatistics: [
+            {
+              name: 'Statistics',
+              number: 29,
+              matches: [
+                {
+                  teams: 'BUR - EVE',
+                  probabilities: [30, 50, 20],
+                  startTime: new Date('2025-02-10T00:01:00Z'),
+                },
+                {
+                  teams: 'CAT - ELE',
+                  probabilities: [30, 50, 20],
+                  startTime: new Date('2025-02-10T00:01:00Z'),
+                },
+                {
+                  teams: 'JUV - MIL',
+                  probabilities: [30, 50, 20],
+                  startTime: new Date('2025-02-10T00:01:00Z'),
+                },
+                {
+                  teams: 'INT - ROM',
+                  probabilities: [30, 50, 20],
+                  startTime: new Date('2025-02-10T00:01:00Z'),
+                },
+              ],
+            },
+          ],
           teamRankings: [
             {
               position: 1,
@@ -59,10 +88,10 @@ function getRootContext(): RootContextType {
               startingAt: new Date('2025-02-13T14:00:00Z'),
               duration: 30,
               matches: [
-                {teams: 'MCI - MUN', odds: [1.5, 3.5, 4.5] },
-                {teams: 'TOT - ARS', odds: [2.5, 3.5, 2.5] },
-                {teams: 'CHE - LIV', odds: [3.5, 3.5, 1.5] },
-              ]
+                { teams: 'MCI - MUN', odds: [1.5, 3.5, 4.5] },
+                { teams: 'TOT - ARS', odds: [2.5, 3.5, 2.5] },
+                { teams: 'CHE - LIV', odds: [3.5, 3.5, 1.5] },
+              ],
             },
             {
               name: 'Super League',
@@ -70,10 +99,10 @@ function getRootContext(): RootContextType {
               startingAt: new Date('2025-10-10T18:00:00Z'),
               duration: 30,
               matches: [
-                {teams: 'MIL - JUV', odds: [2.8, 1.5, 2.5] },
-                {teams: 'REA - NAP', odds: [1.5, 2.5, 3.5] },
-                {teams: 'SAS - PIS', odds: [2.5, 3.5, 1.5] },
-              ]
+                { teams: 'MIL - JUV', odds: [2.8, 1.5, 2.5] },
+                { teams: 'REA - NAP', odds: [1.5, 2.5, 3.5] },
+                { teams: 'SAS - PIS', odds: [2.5, 3.5, 1.5] },
+              ],
             },
           ],
         }
