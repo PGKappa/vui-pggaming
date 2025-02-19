@@ -7,7 +7,7 @@ export default function Navbar() {
         href="/dogs"
         className="flex w-full flex-row items-center justify-center gap-2 py-1 transition-all"
       >
-        <img className="h-full" src="/calcio/dogs.svg" alt="Dogs" />
+        <img src="/calcio/dogs.png" alt="Dogs" />
         <div className="flex flex-col leading-none">
           <span className="text-xs font-medium">Dogs</span>
           <span className="text-[10px] text-gray-500">00:00</span>
@@ -18,7 +18,7 @@ export default function Navbar() {
         href="/horses"
         className="flex w-full flex-row items-center justify-center gap-2 py-1 transition-all"
       >
-        <img className="h-full" src="/calcio/horses.svg" alt="Horses" />
+        <img src="/calcio/horses.png" alt="Horses" />
         <div className="flex flex-col leading-none">
           <span className="text-xs font-medium">Horses</span>
           <span className="text-[10px] text-gray-500">00:00</span>
@@ -29,7 +29,7 @@ export default function Navbar() {
         href="/"
         className="flex w-full flex-col items-center justify-center rounded-md bg-red-600 py-1 transition-all"
       >
-        <img className="h-full" src="/calcio/ball.svg" alt="Football" />
+        <img src="/calcio/ball.svg" alt="Football" />
       </Link>
     </nav>
   )
