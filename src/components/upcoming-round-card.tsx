@@ -56,29 +56,23 @@ export default function UpcomingRoundCard(props: { round: UpcomingRound }) {
               return (
                 <TableRow key={index}>
                   <TableCell>
-                    <Badge className="ml-16 flex h-9 w-14 flex-col items-center justify-center px-0.5 py-4">
-                      <span>
-                        {dayLabel}
-                      </span>
-                      <span >
-                        {formattedDate}
-                      </span>
+                    <Badge className="flex flex-col">
+                      <span>{dayLabel}</span>
+                      <span>{formattedDate}</span>
                     </Badge>
                   </TableCell>
 
-                  <TableCell className="px-0 text-left">
-                    {match.teams}
-                  </TableCell>
+                  <TableCell className="text-left">{match.teams}</TableCell>
 
                   {match.odds.map((odd, i) => (
-                    <TableCell key={i} className="p-1 text-center">
+                    <TableCell key={i} className="text-center">
                       <Button>{odd}</Button>
                     </TableCell>
                   ))}
 
-                  <TableCell className="p-1 text-center">
+                  <TableCell className="text-center">
                     <Button variant="ghost" size="icon">
-                      <PlusIcon/>
+                      <PlusIcon />
                     </Button>
                   </TableCell>
                 </TableRow>
