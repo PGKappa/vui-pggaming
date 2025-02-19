@@ -1,8 +1,9 @@
 'use client'
 
 import BettingSlip from '@/components/betting-slip'
+import BettingSlipSheet from '@/components/betting-slip-sheet'
 import Leaderboard from '@/components/leaderboard'
-import LiveRoundScores from '@/components/live-round-scores'
+import LeaderboardSheet from '@/components/leaderboard-sheet'
 import LiveRoundStatistics from '@/components/live-round-statistics'
 import LoadingSpinner from '@/components/loading-spinner'
 import UpcomingRoundCard from '@/components/upcoming-round-card'
@@ -14,8 +15,8 @@ export default function Home() {
   const { upcomingRounds, liveRound } = useContext(RootContext)
 
   return (
-    <div className="grid grid-cols-12 justify-center gap-2 border border-black px-10 py-4">
-      <div className="col-span-6 space-y-3 border border-black p-2">
+    <div className="container grid grid-cols-1 justify-center gap-3 py-4 lg:grid-cols-4">
+      <div className="space-y-3 lg:col-span-2">
         <VideoStreamCard streamUrl={liveRound?.streamUrl} />
         {upcomingRounds ? (
           <ol className="space-y-2">
@@ -26,16 +27,26 @@ export default function Home() {
             ))}
           </ol>
         ) : (
-          <LoadingSpinner />
+          <div className="flex justify-center">
+            <LoadingSpinner />
+          </div>
         )}
       </div>
-      <div className="col-span-3 space-y-3 border border-black p-2">
+      <div className="space-y-3 lg:col-span-1">
         {/* <LiveRoundScores /> */}
         <LiveRoundStatistics />
-        <Leaderboard />
+        <div className="hidden lg:block">
+          <Leaderboard />
+        </div>
       </div>
-      <div className="col-span-3 border border-black p-2">
-        <BettingSlip />
+      <div className="lg:col-span-1">
+        <div className="hidden lg:block">
+          <BettingSlip />
+        </div>
+      </div>
+      <div className="fixed bottom-0 flex w-full justify-center gap-2 lg:hidden">
+        <LeaderboardSheet />
+        <BettingSlipSheet />
       </div>
     </div>
   )
