@@ -15,9 +15,6 @@ export default function LeaderboardSheet() {
         <Button size="lg">Classifica</Button>
       </SheetTrigger>
       <SheetContent side="top" className="p-0">
-        <SheetHeader>
-          <SheetTitle>Classifica</SheetTitle>
-        </SheetHeader>
         <Leaderboard />
       </SheetContent>
     </Sheet>
