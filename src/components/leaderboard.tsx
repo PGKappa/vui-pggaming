@@ -42,13 +42,15 @@ export default function Leaderboard() {
                   <TableCell className="font-medium">
                     {ranking.position}
                   </TableCell>
-                  <TableCell>{ranking.team}</TableCell>
+                  <TableCell className="text-left font-bold">
+                    {ranking.team}
+                  </TableCell>
                   <TableCell>{ranking.played}</TableCell>
                   <TableCell>{ranking.wins}</TableCell>
                   <TableCell>{ranking.draws}</TableCell>
                   <TableCell>{ranking.losses}</TableCell>
                   <TableCell>{ranking.points}</TableCell>
-                  <TableCell>
+                  <TableCell className="text-right">
                     <div className="flex gap-1">
                       {ranking.last8.map((result, i) => {
                         const textColor =
@@ -60,7 +62,7 @@ export default function Leaderboard() {
                         return (
                           <span
                             key={i}
-                            className={`inline-block text-sm font-medium ${textColor}`}
+                            className={`inline-block font-mono text-sm font-medium ${textColor}`}
                           >
                             {result}
                           </span>
