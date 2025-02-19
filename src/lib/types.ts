@@ -62,3 +62,15 @@ export type Bet = {
   teams: string
   odd: number
 }
+
+export type MatchStatistics = {
+  teams: string
+  probabilities: [number, number, number]
+  startTime: Date
+}
+
+export type RoundStatistics = {
+  name: string
+  number: number
+  matches: MatchStatistics[]
+}

@@ -27,10 +27,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} flex flex-col gap-2 antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Navbar />
-        <RootContextProvider>{children}</RootContextProvider>
+        <header>
+          <Navbar />
+        </header>
+        <main className="mb-3">
+          <RootContextProvider>{children}</RootContextProvider>
+        </main>
       </body>
     </html>
   )

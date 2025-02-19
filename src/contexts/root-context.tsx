@@ -1,10 +1,18 @@
 'use client'
-import { Bet, LiveRound, TeamRanking, UpcomingRound } from '@/lib/types'
+
+import {
+  Bet,
+  LiveRound,
+  TeamRanking,
+  UpcomingRound,
+  RoundStatistics,
+} from '@/lib/types'
 import { createContext, useEffect, useState } from 'react'
 
 export type RootContextType = {
   currentUser?: string
   liveRound?: LiveRound
+  roundStatistics?: RoundStatistics[]
   teamRankings?: TeamRanking[]
   upcomingRounds?: UpcomingRound[]
   bets: Bet[]
@@ -24,6 +32,34 @@ const defaultRootContext: RootContextType = {
     startingAt: new Date('2025-02-10T20:00:00Z'),
     streamUrl: 'https://st7.net4media.net:8082/PG/Dogs/1qasw5/playlist.m3u8',
   },
+  roundStatistics: [
+    {
+      name: 'Statistics',
+      number: 29,
+      matches: [
+        {
+          teams: 'BUR - EVE',
+          probabilities: [30, 50, 20],
+          startTime: new Date('2025-02-10T00:01:00Z'),
+        },
+        {
+          teams: 'CAT - ELE',
+          probabilities: [30, 50, 20],
+          startTime: new Date('2025-02-10T00:01:00Z'),
+        },
+        {
+          teams: 'JUV - MIL',
+          probabilities: [30, 50, 20],
+          startTime: new Date('2025-02-10T00:01:00Z'),
+        },
+        {
+          teams: 'INT - ROM',
+          probabilities: [30, 50, 20],
+          startTime: new Date('2025-02-10T00:01:00Z'),
+        },
+      ],
+    },
+  ],
   teamRankings: [
     {
       position: 1,

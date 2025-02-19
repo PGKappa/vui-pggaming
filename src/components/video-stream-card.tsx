@@ -1,28 +1,29 @@
 'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
-import ReactPlayer from 'react-player';
+import dynamic from 'next/dynamic'
+import LoadingSpinner from './loading-spinner'
 
-export default function VideoStreamCard(props: { streamUrl: string | undefined }) {
+const ReactPlayer = dynamic(() => import('react-player'), { ssr: false })
+
+export default function VideoStreamCard(props: {
+  streamUrl: string | undefined
+}) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Football</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {props.streamUrl && <ReactPlayer
-          // onEnded={() => {
-          //   setReplayMode(false);
-          // }}
+    <div className="aspect-video">
+      {props.streamUrl ? (
+        <ReactPlayer
           playing={true}
-          className="details-video"
           controls={false}
           url={props.streamUrl}
           width="100%"
           height="100%"
           muted={true}
-        />}
-      </CardContent>
-    </Card>
+        />
+      ) : (
+        <div className="flex h-full items-center justify-center">
+          <LoadingSpinner />
+        </div>
+      )}
+    </div>
   )
 }
