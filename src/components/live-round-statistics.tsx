@@ -1,6 +1,9 @@
 'use client'
 import { RootContext } from '@/contexts/root-context'
+import { format } from 'date-fns'
+import { enUS } from 'date-fns/locale'
 import { useContext } from 'react'
+import LoadingSpinner from './loading-spinner'
 import { Badge } from './ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import {
@@ -11,9 +14,6 @@ import {
   TableHeader,
   TableRow,
 } from './ui/table'
-import { format } from 'date-fns'
-import { enUS } from 'date-fns/locale'
-import LoadingSpinner from './loading-spinner'
 
 export default function LiveRoundStatistics() {
   const { roundStatistics } = useContext(RootContext)
@@ -61,12 +61,12 @@ export default function LiveRoundStatistics() {
                   <TableCell>
                     <Badge>{formattedTime}</Badge>
                   </TableCell>
-                  <TableCell className="text-nowrap">{match.teams}</TableCell>
+                  <TableCell className="text-nowrap font-bold">
+                    {match.teams}
+                  </TableCell>
                   {match.probabilities.map((probability, index) => (
                     <TableCell key={index} className="text-center">
-                      <span className="flex w-12 items-center justify-center">
-                        {probability}%
-                      </span>
+                      {probability}%
                     </TableCell>
                   ))}
                 </TableRow>
