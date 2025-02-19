@@ -15,7 +15,7 @@ export default {
         sm: '0rem',
         md: '0rem',
         lg: '0rem',
-        xl: '2rem',
+        xl: '0.1rem',
       },
     },
     extend: {
