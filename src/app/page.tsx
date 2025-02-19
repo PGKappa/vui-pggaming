@@ -14,7 +14,7 @@ export default function Home() {
   const { upcomingRounds, liveRound } = useContext(RootContext)
 
   return (
-    <div className="grid grid-cols-12 justify-center gap-2 border border-black px-10 py-4">
+    <div className="grid grid-cols-12 justify-center gap-2 border border-black">
       <div className="col-span-6 space-y-3 border border-black p-2">
         <VideoStreamCard streamUrl={liveRound?.streamUrl} />
         {upcomingRounds ? (
