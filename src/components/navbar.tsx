@@ -1,32 +1,35 @@
 import Link from 'next/link'
-import { buttonVariants } from './ui/button'
 
 export default function Navbar() {
   return (
-    <nav className="flex flex-row justify-center gap-1">
+    <nav className="h-15 flex w-full flex-row justify-center gap-6">
       <Link
-        href="dogs"
-        className={buttonVariants({ variant: 'ghost', className: 'hover:bg-red-300' })}
+        href="/dogs"
+        className="flex w-full flex-row items-center justify-center gap-2 py-1 transition-all"
       >
-        Dogs
+        <img src="/calcio/dogs.png" alt="Dogs" />
+        <div className="flex flex-col leading-none">
+          <span className="text-xs font-medium">Dogs</span>
+          <span className="text-[10px] text-gray-500">00:00</span>
+        </div>
       </Link>
+
       <Link
-        href="horses"
-        className={buttonVariants({
-          variant: 'ghost',
-          className: 'hover:bg-red-300',
-        })}
+        href="/horses"
+        className="flex w-full flex-row items-center justify-center gap-2 py-1 transition-all"
       >
-        Horses
+        <img src="/calcio/horses.png" alt="Horses" />
+        <div className="flex flex-col leading-none">
+          <span className="text-xs font-medium">Horses</span>
+          <span className="text-[10px] text-gray-500">00:00</span>
+        </div>
       </Link>
+
       <Link
         href="/"
-        className={buttonVariants({
-          variant: 'default',
-          className: 'bg-red-600 hover:bg-red-700',
-        })}
+        className="flex w-full flex-col items-center justify-center rounded-md bg-red-600 py-1 transition-all"
       >
-        Live Virtual Football
+        <img src="/calcio/ball.svg" alt="Football" />
       </Link>
     </nav>
   )
