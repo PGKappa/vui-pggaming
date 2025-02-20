@@ -27,12 +27,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} container antialiased`}
       >
         <header>
           <Navbar />
         </header>
-        <main className="mb-3">
+        <main>
           <RootContextProvider>{children}</RootContextProvider>
         </main>
       </body>
