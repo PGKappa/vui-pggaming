@@ -1,10 +1,11 @@
 import { RootContext } from '@/contexts/root-context'
-import { useContext, useMemo } from 'react'
-import { Card, CardContent, CardFooter, CardHeader } from './ui/card'
-import { Button } from './ui/button'
 import { Bet } from '@/lib/types'
+import { format, formatDistanceToNow } from 'date-fns'
 import { Trash2Icon } from 'lucide-react'
-import { Separator } from './ui/separator'
+import { useContext, useMemo } from 'react'
+import { Badge } from './ui/badge'
+import { Button } from './ui/button'
+import { Card, CardContent, CardFooter, CardHeader } from './ui/card'
 
 enum ToggledTab {
   SINGLE,
@@ -14,32 +15,34 @@ enum ToggledTab {
 
 export default function BettingSlip() {
   const { bets } = useContext(RootContext)
-  const betsByRound = useMemo(
-    () =>
-      bets?.reduce(
-        (acc, bet) => {
-          if (!acc[bet.round.number]) {
-            acc[bet.round.number] = []
-          }
-          acc[bet.round.number].push(bet)
-          return acc
-        },
-        {} as Record<number, Bet[]>,
-      ),
-    [bets],
-  )
+  const betsByMatch = useMemo(() => {
+    return bets.reduce((groupedBets: { [key: string]: Bet[] }, bet) => {
+      const key = `${bet.round.number}-${bet.teams}`
+      if (!groupedBets[key]) {
+        groupedBets[key] = []
+      }
+      groupedBets[key].push(bet)
+      return groupedBets
+    }, {})
+  }, [bets])
 
   return (
-    <Card>
-      <div className="grid grid-cols-2 grid-rows-2">
-        <Button variant="ghost">Schedina ({bets.length})</Button>
-        <Button variant="ghost">Le mie scommesse</Button>
-        <Button variant="ghost">
-          {bets.length > 1 ? `Multipla (${bets.length})` : 'Singola'}
-        </Button>
-        <Button variant="ghost">Sistema</Button>
-      </div>
-      <div className="h-80 p-2">
+    <Card className="bg-primary-foreground text-primary">
+      <CardHeader className="p-0">
+        <div className="grid grid-cols-2 grid-rows-2">
+          <span className="flex flex-col items-center justify-center text-md">
+            Schedina ({bets.length})
+          </span>
+          <Button variant="ghost">Le mie scommesse</Button>
+          <span className="flex flex-col items-center justify-center">
+            {bets.length > 1 ? `Multipla (${bets.length})` : 'Singola'}
+          </span>
+          <span className="flex flex-col items-center justify-center">
+            Sistema
+          </span>
+        </div>
+      </CardHeader>
+      <CardContent className="h-80">
         {bets.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center">
             <small className="text-sm font-medium leading-none">
@@ -47,31 +50,45 @@ export default function BettingSlip() {
             </small>
           </div>
         ) : (
-          <ul className="flex flex-col">
-            {Object.entries(betsByRound).map(([round, bets]) => (
-              <li key={round} className="flex flex-col gap-1 border">
-                <div className="flex flex-row items-center justify-between p-1">
-                  <h3 className="text-sm font-semibold">
-                    {bets[0].round.name} Round {round}
-                  </h3>
-                  <h4 className="text-sm font-semibold"></h4>
-                  <Button variant="ghost" size="icon">
-                    <Trash2Icon />
-                  </Button>
+          <ul className="flex flex-col gap-1">
+            {Object.entries(betsByMatch).map(([matchKey, matchBets]) => (
+              <li key={matchKey} className="flex flex-col">
+                <div className="flex flex-col gap-1 border border-primary p-1">
+                  <div className="flex flex-row justify-end">
+                    <Button variant="ghost" size="icon-sm" className="">
+                      <Trash2Icon />
+                    </Button>
+                  </div>
+                  <div className="flex flex-row items-center justify-between">
+                    <span className="text-sm font-semibold">Football</span>
+                    <div className="flex flex-row items-center gap-2">
+                      <span className="text-sm">
+                        {format(matchBets[0].round.startingAt, 'HH:mm')}
+                      </span>
+                      <Badge className="rounded-none">
+                        {formatDistanceToNow(matchBets[0].round.startingAt)}
+                      </Badge>
+                    </div>
+                  </div>
+                  <span className="text-sm">{matchBets[0].teams}</span>
                 </div>
-                <Separator />
-                <ul className="p-1">
-                  {bets.map((bet) => (
-                    <li key={bet.teams}>
-                      {bet.teams} - {bet.odd}
+                {/* <Separator />
+                <ul>
+                  {matchBets.map((bet) => (
+                    <li
+                      key={bet.}
+                      className="flex flex-row items-center gap-2"
+                    >
+                      <span className="text-sm">{bet.type}</span>
+                      <span className="text-sm font-semibold">{bet.odd}</span>
                     </li>
                   ))}
-                </ul>
+                </ul> */}
               </li>
             ))}
           </ul>
         )}
-      </div>
+      </CardContent>
       <CardFooter>
         <Button
           variant="betNow"
