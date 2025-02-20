@@ -17,7 +17,7 @@ export default function Home() {
   return (
     <div className="grid grid-cols-12 justify-center gap-2 border border-black">
       <div className="col-span-6 space-y-3 border border-black p-2">
-        {/* <VideoStreamCard streamUrl={liveRound?.streamUrl} /> */}
+        <VideoStreamCard streamUrl={liveRound?.streamUrl} />
         {upcomingRounds ? (
           <ol className="space-y-2">
             {upcomingRounds.map((round) => (
