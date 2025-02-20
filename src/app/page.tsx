@@ -1,5 +1,4 @@
 'use client'
-
 import BettingSlip from '@/components/betting-slip'
 import BettingSlipSheet from '@/components/betting-slip-sheet'
 import Leaderboard from '@/components/leaderboard'
@@ -10,10 +9,8 @@ import UpcomingRoundCard from '@/components/upcoming-round-card'
 import VideoStreamCard from '@/components/video-stream-card'
 import { RootContext } from '@/contexts/root-context'
 import { useContext } from 'react'
-
 export default function Home() {
   const { upcomingRounds, liveRound } = useContext(RootContext)
-
   return (
     <>
       <div className="container grid grid-cols-1 justify-center gap-3 py-4 lg:grid-cols-4">
@@ -35,7 +32,8 @@ export default function Home() {
         </div>
         <div className="space-y-3 lg:col-span-1">
           {/* <LiveRoundScores /> */}
-          <LiveRoundStatistics />
+          {/* <LiveRoundStatistics /> */}
+          <MatchStatistics />
           <div className="hidden lg:block">
             <Leaderboard />
           </div>
