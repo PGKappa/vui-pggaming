@@ -5,6 +5,7 @@ import Leaderboard from '@/components/leaderboard'
 import LiveRoundScores from '@/components/live-round-scores'
 import LiveRoundStatistics from '@/components/live-round-statistics'
 import LoadingSpinner from '@/components/loading-spinner'
+import MatchStatistics from '@/components/match-statistics'
 import UpcomingRoundCard from '@/components/upcoming-round-card'
 import VideoStreamCard from '@/components/video-stream-card'
 import { RootContext } from '@/contexts/root-context'
@@ -16,7 +17,7 @@ export default function Home() {
   return (
     <div className="grid grid-cols-12 justify-center gap-2 border border-black">
       <div className="col-span-6 space-y-3 border border-black p-2">
-        <VideoStreamCard streamUrl={liveRound?.streamUrl} />
+        {/* <VideoStreamCard streamUrl={liveRound?.streamUrl} /> */}
         {upcomingRounds ? (
           <ol className="space-y-2">
             {upcomingRounds.map((round) => (
@@ -31,7 +32,8 @@ export default function Home() {
       </div>
       <div className="col-span-3 space-y-3 border border-black p-2">
         {/* <LiveRoundScores /> */}
-        <LiveRoundStatistics />
+        {/* <LiveRoundStatistics /> */}
+        <MatchStatistics />
         <Leaderboard />
       </div>
       <div className="col-span-3 border border-black p-2">
