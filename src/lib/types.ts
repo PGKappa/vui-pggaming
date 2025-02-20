@@ -35,6 +35,34 @@ export type UpcomingRound = {
   }[]
 }
 
+export enum BetType {
+  TEAM1,
+  DRAW,
+  TEAM2,
+}
+
+export enum BetOption {
+  MAIN,
+  NEXT_GOAL,
+  MULTIGOAL,
+  GG_NG,
+  UNDER_OVER,
+  HANDICAP,
+  EXACT_SCORE,
+  DOUBLE_CHANCE,
+}
+
+export type Bet = {
+  round: {
+    name: string
+    number: number
+    startingAt: Date
+  }
+  betType: BetType
+  teams: string
+  odd: number
+}
+
 export type MatchStatistics = {
   teams: string
   probabilities: [number, number, number]

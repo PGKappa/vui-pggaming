@@ -29,7 +29,7 @@ export default function UpcomingRoundCard(props: { round: UpcomingRound }) {
       <CardContent className="pt-0">
         <Table className="w-full">
           <TableHeader>
-            <TableRow className="border-b">
+            <TableRow>
               <TableHead></TableHead>
               <TableHead></TableHead>
               <TableHead className="text-center">1</TableHead>
@@ -56,13 +56,15 @@ export default function UpcomingRoundCard(props: { round: UpcomingRound }) {
               return (
                 <TableRow key={index}>
                   <TableCell>
-                    <Badge className="flex flex-col">
+                    <Badge variant="secondary" className="flex w-fit flex-col">
                       <span>{dayLabel}</span>
                       <span>{formattedDate}</span>
                     </Badge>
                   </TableCell>
 
-                  <TableCell className="text-left">{match.teams}</TableCell>
+                  <TableCell className="text-left font-bold">
+                    {match.teams}
+                  </TableCell>
 
                   {match.odds.map((odd, i) => (
                     <TableCell key={i} className="text-center">
