@@ -16,7 +16,7 @@ export default function BettingSlip() {
   const { bets } = useContext(RootContext)
   const betsByRound = useMemo(
     () =>
-      bets.reduce(
+      bets?.reduce(
         (acc, bet) => {
           if (!acc[bet.round.number]) {
             acc[bet.round.number] = []
