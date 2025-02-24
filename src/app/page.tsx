@@ -10,15 +10,16 @@ import UpcomingRoundCard from '@/components/upcoming-round-card'
 import VideoStreamCard from '@/components/video-stream-card'
 import { RootContext } from '@/contexts/root-context'
 import { useContext } from 'react'
+
 export default function Home() {
   const { upcomingRounds, liveRound } = useContext(RootContext)
   return (
     <>
-      <div className="grid grid-cols-1 justify-center gap-3 py-4 lg:grid-cols-4">
-        <div className="space-y-3 lg:col-span-2">
+      <div className="container grid grid-cols-1 justify-center gap-3 py-4 lg:grid-cols-4">
+        <div className="space-y-10 lg:col-span-2">
           <VideoStreamCard streamUrl={liveRound?.streamUrl} />
           {upcomingRounds ? (
-            <ol className="space-y-2">
+            <ol className="space-y-7">
               {upcomingRounds.map((round) => (
                 <li key={round.number}>
                   <UpcomingRoundCard round={round} />
