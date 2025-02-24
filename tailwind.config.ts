@@ -12,9 +12,6 @@ export default {
       center: true,
       padding: {
         DEFAULT: '0rem',
-        sm: '0rem',
-        md: '0rem',
-        lg: '0rem',
         xl: '0.1rem',
       },
     },
@@ -30,6 +27,7 @@ export default {
         card: {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
+          header: 'hsl(var(--card-header))',
         },
         popover: {
           DEFAULT: 'hsl(var(--popover))',

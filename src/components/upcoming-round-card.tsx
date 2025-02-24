@@ -16,21 +16,19 @@ import { PlusIcon } from 'lucide-react'
 
 export default function UpcomingRoundCard(props: { round: UpcomingRound }) {
   return (
-    <Card className="shadow-d border">
-      <CardHeader className="mx-6 flex items-center justify-between pb-0 pt-4">
-        <CardTitle className="flex w-full items-center justify-between">
+    <Card className="border-b border-t border-card-foreground">
+      <CardHeader className="flex flex-row items-center justify-between px-6">
+        <CardTitle>
           <span>
             {props.round.name} Round {props.round.number}
           </span>
-          <span>30:00</span>
         </CardTitle>
+        <span>30:00</span>
       </CardHeader>
-
-      <CardContent className="pt-0">
-        <Table className="w-full">
-          <TableHeader>
-            <TableRow>
-              <TableHead></TableHead>
+      <CardContent className="px-0">
+        <Table>
+          <TableHeader className="bg-card-header">
+            <TableRow className="hover:bg-card-header border-card-foreground transition-none *:text-card-foreground">
               <TableHead></TableHead>
               <TableHead className="text-center">1</TableHead>
               <TableHead className="text-center">X</TableHead>
@@ -54,21 +52,18 @@ export default function UpcomingRoundCard(props: { round: UpcomingRound }) {
 
               const formattedDate = format(matchStart, 'HH:mm')
               return (
-                <TableRow key={index}>
-                  <TableCell>
+                <TableRow key={index} className="border-card-foreground">
+                  <TableCell className="flex flex-row items-center gap-2">
                     <Badge variant="secondary" className="flex w-fit flex-col">
                       <span>{dayLabel}</span>
                       <span>{formattedDate}</span>
                     </Badge>
-                  </TableCell>
-
-                  <TableCell className="text-left font-bold">
-                    {match.teams}
+                    <span className="font-bold">{match.teams}</span>
                   </TableCell>
 
                   {match.odds.map((odd, i) => (
                     <TableCell key={i} className="text-center">
-                      <Button>{odd}</Button>
+                      <Button size="lg">{odd}</Button>
                     </TableCell>
                   ))}
 
