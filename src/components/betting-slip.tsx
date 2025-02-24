@@ -28,21 +28,19 @@ export default function BettingSlip() {
 
   return (
     <Card className="bg-primary-foreground text-primary">
-      <CardHeader className="p-0">
-        <div className="grid grid-cols-2 grid-rows-2">
-          <span className="flex flex-col items-center justify-center text-md">
-            Schedina ({bets.length})
-          </span>
-          <Button variant="ghost">Le mie scommesse</Button>
-          <span className="flex flex-col items-center justify-center">
-            {bets.length > 1 ? `Multipla (${bets.length})` : 'Singola'}
-          </span>
-          <span className="flex flex-col items-center justify-center">
-            Sistema
-          </span>
-        </div>
-      </CardHeader>
-      <CardContent className="h-80">
+      <div className="grid grid-cols-2 grid-rows-2">
+        <span className="flex flex-col items-center justify-center text-md">
+          Schedina ({bets.length})
+        </span>
+        <Button variant="ghost">Le mie scommesse</Button>
+        <span className="flex flex-col items-center justify-center">
+          {bets.length > 1 ? `Multipla (${bets.length})` : 'Singola'}
+        </span>
+        <span className="flex flex-col items-center justify-center">
+          Sistema
+        </span>
+      </div>
+      <CardContent className="h-80 px-1">
         {bets.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center">
             <small className="text-sm font-medium leading-none">
