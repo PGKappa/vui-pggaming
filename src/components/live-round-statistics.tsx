@@ -32,8 +32,8 @@ export default function LiveRoundStatistics() {
   }
 
   return (
-    <Card>
-      <CardHeader className="flex justify-between">
+    <Card className="border-b border-t border-card-foreground">
+      <CardHeader>
         <CardTitle>
           {roundStatistics[0].name} Round {roundStatistics[0].number}
         </CardTitle>
@@ -41,9 +41,8 @@ export default function LiveRoundStatistics() {
 
       <CardContent>
         <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead></TableHead>
+          <TableHeader className="bg-card-header">
+            <TableRow className="hover:bg-card-header border-card-foreground transition-none *:text-card-foreground">
               <TableHead></TableHead>
               <TableHead className="text-center">1</TableHead>
               <TableHead className="text-center">X</TableHead>
@@ -57,12 +56,10 @@ export default function LiveRoundStatistics() {
                 locale: enUS,
               })
               return (
-                <TableRow key={index}>
-                  <TableCell>
+                <TableRow key={index} className="border-card-foreground">
+                  <TableCell className="flex flex-row items-center gap-2">
                     <Badge>{formattedTime}</Badge>
-                  </TableCell>
-                  <TableCell className="text-nowrap font-bold">
-                    {match.teams}
+                    <span className="text-nowrap font-bold">{match.teams}</span>
                   </TableCell>
                   {match.probabilities.map((probability, index) => (
                     <TableCell key={index} className="text-center">
