@@ -1,5 +1,5 @@
-import { useContext } from 'react'
 import { RootContext } from '@/contexts/root-context'
+import { useContext } from 'react'
 
 export default function LiveMatchInfo() {
   const { liveRound } = useContext(RootContext)
@@ -13,14 +13,14 @@ export default function LiveMatchInfo() {
   })
 
   return (
-    <div className="flex items-center gap-2 p-2">
+    <div className="flex w-full flex-row items-center justify-between">
       <img
         src="/calcio/ball.svg"
         alt="Football"
         className="h-8 w-8 invert filter"
       />
       <span>Football</span>
-      <span className='ml-auto'>{formattedTime}</span>
+      <span className="ml-auto">{formattedTime}</span>
     </div>
   )
 }
