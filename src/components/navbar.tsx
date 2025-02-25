@@ -31,8 +31,10 @@ export default function Navbar() {
         href="/"
         className="flex w-full flex-row items-center justify-center gap-2 rounded bg-accent transition-all hover:bg-accent/90"
       >
-        <img src="/calcio/ball.svg" alt="Football" />
-        <span className="text-xs font-medium">Football</span>
+        <img src="/calcio/ball.svg" alt="Football" className="h-6" />
+        <span className="text-xs font-medium text-accent-foreground">
+          Football
+        </span>
       </Link>
     </nav>
   )
