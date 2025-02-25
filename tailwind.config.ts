@@ -16,6 +16,9 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['Arial', 'sans-serif'],
+      },
       fontSize: {
         sm: '0.75rem',
         md: '1rem',
