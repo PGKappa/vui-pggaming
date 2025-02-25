@@ -13,18 +13,19 @@ import { useContext } from 'react'
 import LiveMatchInfo from '@/components/live-match-info'
 import MatchEndBadge from '@/components/match-end-badge'
 
-
 export default function Home() {
   const { upcomingRounds, liveRound } = useContext(RootContext)
   return (
     <>
       <div className="container grid grid-cols-1 justify-center gap-3 py-4 lg:grid-cols-4">
-        <div className="space-y-10 lg:col-span-2">
-          <LiveMatchInfo />
-          <VideoStreamCard streamUrl={liveRound?.streamUrl} />
+        <div className="flex flex-col items-center gap-4 lg:col-span-2">
+          <div className="flex w-full flex-col gap-1">
+            <LiveMatchInfo />
+            <VideoStreamCard streamUrl={liveRound?.streamUrl} />
+          </div>
           <MatchEndBadge />
           {upcomingRounds ? (
-            <ol className="space-y-7">
+            <ol className="w-full space-y-7">
               {upcomingRounds.map((round) => (
                 <li key={round.number}>
                   <UpcomingRoundCard round={round} />
