@@ -16,10 +16,10 @@ export default function MatchEndBadge() {
   const formattedTime = `${minutes}:${seconds.toString().padStart(2, '0')}`
 
   return (
-      <Badge className="flex flex-row items-center justify-center w-fit gap-1 py-0">
-        <span className='pr-2'>TERMINE GIOCATA</span>
-        <Separator orientation="vertical" className="h-4 bg-accent/30" />
-        <span className='pl-2'>{formattedTime}</span>
+      <Badge className="flex flex-row items-center justify-center w-fit gap-2 py-0">
+        <span>TERMINE GIOCATA</span>
+        <Separator orientation="vertical" className="h-4 bg-destructive"/>
+        <span>{formattedTime}</span>
       </Badge>
   )
 }
