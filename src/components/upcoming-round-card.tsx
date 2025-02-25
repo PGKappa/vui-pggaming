@@ -1,6 +1,6 @@
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import {
   Table,
   TableBody,
@@ -17,18 +17,16 @@ import { PlusIcon } from 'lucide-react'
 export default function UpcomingRoundCard(props: { round: UpcomingRound }) {
   return (
     <Card className="border-b border-t border-card-foreground">
-      <CardHeader className="flex flex-row items-center justify-between px-6">
-        <CardTitle>
-          <span>
-            {props.round.name} Round {props.round.number}
-          </span>
-        </CardTitle>
+      <CardHeader className="flex flex-row items-center justify-between px-6 md:pl-14">
+        <span>
+          {props.round.name} Round {props.round.number}
+        </span>
         <span>30:00</span>
       </CardHeader>
       <CardContent className="px-0">
         <Table>
           <TableHeader className="bg-card-header">
-            <TableRow className="hover:bg-card-header border-card-foreground transition-none *:text-card-foreground">
+            <TableRow className="border-card-foreground transition-none *:text-card-foreground hover:bg-card-header">
               <TableHead></TableHead>
               <TableHead className="text-center">1</TableHead>
               <TableHead className="text-center">X</TableHead>
@@ -53,8 +51,8 @@ export default function UpcomingRoundCard(props: { round: UpcomingRound }) {
               const formattedDate = format(matchStart, 'HH:mm')
               return (
                 <TableRow key={index} className="border-card-foreground">
-                  <TableCell className="flex flex-row items-center gap-2">
-                    <Badge variant="secondary" className="flex w-fit flex-col">
+                  <TableCell className="flex w-full flex-row items-center gap-2 md:pl-14">
+                    <Badge variant="secondary" className="flex flex-col py-0">
                       <span>{dayLabel}</span>
                       <span>{formattedDate}</span>
                     </Badge>
@@ -62,12 +60,14 @@ export default function UpcomingRoundCard(props: { round: UpcomingRound }) {
                   </TableCell>
 
                   {match.odds.map((odd, i) => (
-                    <TableCell key={i} className="text-center">
-                      <Button size="lg">{odd}</Button>
+                    <TableCell key={i}>
+                      <Button size="sm" className="w-full">
+                        {odd}
+                      </Button>
                     </TableCell>
                   ))}
 
-                  <TableCell className="text-center">
+                  <TableCell className="text-right">
                     <Button variant="ghost" size="icon">
                       <PlusIcon />
                     </Button>
