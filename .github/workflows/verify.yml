@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: yarn
-      - run: ./node_modules/eslint/bin/eslint.js "{src,apps,libs,test}/**/*.ts" --ignore-pattern "*.spec.ts"
+      - run: ./node_modules/eslint/bin/eslint.js "{src,apps,libs,test}/**/*.ts"
 
   dependencies:
     name: Dependencies Analisys
