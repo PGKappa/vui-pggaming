@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: pnpm
+      - run: npm i -g pnpm && pnpm i
       - run: ./node_modules/eslint/bin/eslint.js "{src,apps,libs,test}/**/*.ts" --no-ignore
 
   dependencies:
