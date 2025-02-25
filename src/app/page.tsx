@@ -19,10 +19,8 @@ export default function Home() {
   return (
     <>
       <div className="container grid grid-cols-1 justify-center gap-3 py-4 lg:grid-cols-4">
-
-        <div className="space-y-3 lg:col-span-2">
-          <LiveMatchInfo />
         <div className="space-y-10 lg:col-span-2">
+          <LiveMatchInfo />
           <VideoStreamCard streamUrl={liveRound?.streamUrl} />
           <MatchEndBadge />
           {upcomingRounds ? (
