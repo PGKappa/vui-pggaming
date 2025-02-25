@@ -1,7 +1,8 @@
+import Navbar from '@/components/navbar'
+import RootContextProvider from '@/contexts/root-context'
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
-import RootContextProvider from '@/contexts/root-context'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -28,7 +29,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <RootContextProvider>{children}</RootContextProvider>
+        <header className="container">
+          <Navbar />
+        </header>
+        <main>
+          <RootContextProvider>{children}</RootContextProvider>
+        </main>
       </body>
     </html>
   )
