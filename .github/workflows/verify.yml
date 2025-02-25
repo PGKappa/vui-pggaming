@@ -22,7 +22,7 @@ jobs:
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install
-      - run: ./node_modules/eslint/bin/eslint.js "{src,apps,libs,test}/**/*.ts" --no-ignore
+      - run: pnpm run lint 
 
   dependencies:
     name: Dependencies Analisys
@@ -33,7 +33,7 @@ jobs:
         with:
           version: 10
           run_install: false
-      - run: pnpm audit --groups dependencies
+      - run: pnpm audit --prod
 
   sast:
     name: SAST Analisys

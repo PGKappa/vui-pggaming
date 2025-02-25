@@ -17,4 +17,4 @@ FROM nginx AS runner
 
 WORKDIR /usr/share/nginx/html
 
-COPY --from=builder /app/out ./
+COPY --from=builder /app/out ./calcio
