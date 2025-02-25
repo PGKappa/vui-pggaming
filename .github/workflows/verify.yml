@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: yarn
+      - run: pnpm
       - run: ./node_modules/eslint/bin/eslint.js "{src,apps,libs,test}/**/*.ts" --no-ignore
 
   dependencies:
@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: yarn audit --groups dependencies
+      - run: pnpm audit --groups dependencies
 
   sast:
     name: SAST Analisys
