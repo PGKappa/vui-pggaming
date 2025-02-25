@@ -25,7 +25,7 @@ jobs:
         with:
           push: true
           target: "runner"
-          tags: ghcr.io/${{ github.repository }}/node:staging
+          tags: ghcr.io/${{ github.repository }}/nginx:staging
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
       - name: Update Image on staging
@@ -36,6 +36,6 @@ jobs:
           chmod -R 700 ~/.ssh
           ssh-add ~/.ssh/id_rsa
           ssh -o StrictHostKeyChecking=no root@5.75.148.253 docker login -u ${{ github.repository_owner }} -p ${{ secrets.GITHUB_TOKEN }} ghcr.io
-          ssh -o StrictHostKeyChecking=no root@5.75.148.253 docker pull ghcr.io/${{ github.repository }}/node:staging
+          ssh -o StrictHostKeyChecking=no root@5.75.148.253 docker pull ghcr.io/${{ github.repository }}/nginx:staging
           ssh -o StrictHostKeyChecking=no root@5.75.148.253 docker compose --project-directory /mnt/data/srv/pg-gaming -f /mnt/data/srv/pg-gaming/docker-compose.yaml up -d
           ssh -o StrictHostKeyChecking=no root@5.75.148.253 docker image prune -f
