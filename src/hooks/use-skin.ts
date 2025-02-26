@@ -1,7 +1,7 @@
 'use client'
 
-import { useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useCallback, useEffect, useState } from 'react'
 
 //TODO: Add actual skins
 export enum SkinType {
@@ -12,6 +12,16 @@ export enum SkinType {
 export default function useSkin() {
   const [skin, setSkin] = useState<SkinType>(SkinType.DEFAULT)
   const searchParams = useSearchParams()
+  const router = useRouter()
+
+  const updateUrlWithSkin = useCallback(
+    (skinValue: string) => {
+      const params = new URLSearchParams(searchParams.toString())
+      params.set('skin', skinValue)
+      router.push(`?${params.toString()}`, { scroll: false })
+    },
+    [searchParams, router],
+  )
 
   useEffect(() => {
     const skinParam = searchParams.get('skin')
@@ -23,24 +33,13 @@ export default function useSkin() {
       const storedSkin = localStorage.getItem('skin')
       if (storedSkin) {
         setSkin(storedSkin as SkinType)
-        window.location.search = `?skin=${storedSkin}`
+        updateUrlWithSkin(storedSkin)
       }
     } else {
       setSkin(SkinType.DEFAULT)
-      window.location.search = '?skin=default'
+      updateUrlWithSkin(SkinType.DEFAULT)
     }
-  }, [searchParams])
-
-  // Apply skin class to html element
-  useEffect(() => {
-    const root = document.documentElement
-
-    // Remove all skin classes
-    root.classList.remove(...Object.values(SkinType))
-
-    // Add the current skin class
-    root.classList.add(skin)
-  }, [skin])
+  }, [searchParams, updateUrlWithSkin])
 
   return [skin, setSkin]
 }
