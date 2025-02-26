@@ -29,15 +29,10 @@ export default function useSkin() {
     if (skinParam && Object.values(SkinType).includes(skinParam as SkinType)) {
       setSkin(skinParam as SkinType)
       localStorage.setItem('skin', skinParam)
-    } else if (!skinParam) {
-      const storedSkin = localStorage.getItem('skin')
-      if (storedSkin) {
-        setSkin(storedSkin as SkinType)
-        updateUrlWithSkin(storedSkin)
-      }
     } else {
-      setSkin(SkinType.DEFAULT)
-      updateUrlWithSkin(SkinType.DEFAULT)
+      const storedSkin = localStorage.getItem('skin') ?? SkinType.DEFAULT
+      setSkin(storedSkin as SkinType)
+      updateUrlWithSkin(storedSkin)
     }
   }, [searchParams, updateUrlWithSkin])
 
