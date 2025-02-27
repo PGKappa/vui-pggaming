@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
 import { buttonVariants } from './ui/button'
