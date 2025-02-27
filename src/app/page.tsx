@@ -3,16 +3,16 @@ import BettingSlip from '@/components/betting-slip'
 import BettingSlipSheet from '@/components/betting-slip-sheet'
 import Leaderboard from '@/components/leaderboard'
 import LeaderboardSheet from '@/components/leaderboard-sheet'
+import LiveMatchInfo from '@/components/live-match-info'
 import LiveRoundScores from '@/components/live-round-scores'
 import LiveRoundStatistics from '@/components/live-round-statistics'
-import MatchStatistics from '@/components/match-statistics'
 import LoadingSpinner from '@/components/loading-spinner'
+import MatchEndBadge from '@/components/match-end-badge'
+import MatchStatistics from '@/components/match-statistics'
 import UpcomingRoundCard from '@/components/upcoming-round-card'
 import VideoStreamCard from '@/components/video-stream-card'
 import { RootContext } from '@/contexts/root-context'
 import { useContext } from 'react'
-import LiveMatchInfo from '@/components/live-match-info'
-import MatchEndBadge from '@/components/match-end-badge'
 
 export default function Home() {
   const { upcomingRounds, liveRound } = useContext(RootContext)
@@ -40,8 +40,8 @@ export default function Home() {
           )}
         </div>
         <div className="space-y-3 lg:col-span-1">
-          {/* <LiveRoundScores /> */}
-          {/* <LiveRoundStatistics /> */}
+          <LiveRoundScores />
+          <LiveRoundStatistics />
           <MatchStatistics />
           <div className="hidden lg:block">
             <Leaderboard />

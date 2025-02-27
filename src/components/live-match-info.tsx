@@ -14,6 +14,7 @@ export default function LiveMatchInfo() {
 
   return (
     <div className="flex w-full flex-row items-center justify-between">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/calcio/ball.svg"
         alt="Football"

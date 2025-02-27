@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 
-interface UseFetchOptions extends RequestInit {}
+type UseFetchOptions = RequestInit
 
 interface UseFetchResponse<T> {
   data: T | null
@@ -37,7 +37,7 @@ export default function useFetch<T>(
     } finally {
       setLoading(false)
     }
-  }, [url, JSON.stringify(options)]) //switch to lodash.isequal if options is too complex
+  }, [url, options]) //switch to lodash.isequal if options is too complex
 
   useEffect(() => {
     fetchData()
