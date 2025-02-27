@@ -37,7 +37,7 @@ export default function useFetch<T>(
     } finally {
       setLoading(false)
     }
-  }, [url, JSON.stringify(options)]) //switch to lodash.isequal if options is too complex
+  }, [url, options]) //switch to lodash.isequal if options is too complex
 
   useEffect(() => {
     fetchData()
