@@ -1,7 +1,7 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { createContext, useCallback, useEffect, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
 
 export enum SkinType {
   DEFAULT = 'default',
@@ -19,20 +19,26 @@ export default function SkinProvider({
   children: React.ReactNode
 }) {
   const [skin, setSkin] = useState<SkinType>(SkinType.DEFAULT)
-  const searchParams = useSearchParams()
   const router = useRouter()
+
+  const getSearchParams = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      return new URLSearchParams(window.location.search)
+    }
+    return new URLSearchParams()
+  }, [])
 
   const updateUrlWithSkin = useCallback(
     (skinValue: string) => {
-      const params = new URLSearchParams(searchParams.toString())
+      const params = new URLSearchParams(getSearchParams().toString())
       params.set('skin', skinValue)
       router.push(`?${params.toString()}`, { scroll: false })
     },
-    [searchParams, router],
+    [getSearchParams, router],
   )
 
   useEffect(() => {
-    const skinParam = searchParams.get('skin')
+    const skinParam = getSearchParams().get('skin')
 
     if (skinParam && Object.values(SkinType).includes(skinParam as SkinType)) {
       setSkin(skinParam as SkinType)
@@ -42,7 +48,7 @@ export default function SkinProvider({
       setSkin(storedSkin as SkinType)
       updateUrlWithSkin(storedSkin)
     }
-  }, [searchParams, updateUrlWithSkin])
+  }, [getSearchParams, updateUrlWithSkin])
 
   return (
     <SkinContext.Provider value={[skin, setSkin]}>
