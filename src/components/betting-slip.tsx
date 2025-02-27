@@ -140,7 +140,7 @@ export default function BettingSlip() {
         </div>
         <div className="flex justify-between">
           <span>Vincita Potenziale</span>
-          <span>{potentialWinning} €</span>
+          <span>{potentialWinning.toFixed(2)} €</span>
         </div>
       </div>
 
