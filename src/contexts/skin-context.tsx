@@ -1,15 +1,23 @@
 'use client'
 
+import { createContext, useCallback, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useCallback, useEffect, useState } from 'react'
 
-//TODO: Add actual skins
 export enum SkinType {
   DEFAULT = 'default',
   DARK = 'dark',
 }
 
-export default function useSkin() {
+export const SkinContext = createContext<[SkinType, (skin: SkinType) => void]>([
+  SkinType.DEFAULT,
+  () => {},
+])
+
+export default function SkinProvider({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   const [skin, setSkin] = useState<SkinType>(SkinType.DEFAULT)
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -36,5 +44,9 @@ export default function useSkin() {
     }
   }, [searchParams, updateUrlWithSkin])
 
-  return [skin, setSkin]
+  return (
+    <SkinContext.Provider value={[skin, setSkin]}>
+      {children}
+    </SkinContext.Provider>
+  )
 }

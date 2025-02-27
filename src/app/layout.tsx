@@ -2,8 +2,9 @@
 
 import Navbar from '@/components/navbar'
 import RootContextProvider from '@/contexts/root-context'
-import useSkin from '@/hooks/use-skin'
+import SkinProvider, { SkinContext } from '@/contexts/skin-context'
 import { Geist, Geist_Mono } from 'next/font/google'
+import { Suspense, useContext } from 'react'
 import './globals.css'
 
 const geistSans = Geist({
@@ -21,29 +22,38 @@ const metadata = {
   description: 'Gaming platform',
 }
 
+function AppContent({ children }: { children: React.ReactNode }) {
+  const [skin] = useContext(SkinContext)
+  return (
+    <body
+      className={`${geistSans.variable} ${geistMono.variable} ${skin} antialiased`}
+    >
+      <header className="container">
+        <Navbar />
+      </header>
+      <main>
+        <RootContextProvider>{children}</RootContextProvider>
+      </main>
+    </body>
+  )
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const [skin] = useSkin()
-
   return (
     <html lang="en">
       <head>
         <title>{metadata.title}</title>
         <meta name="description" content={metadata.description} />
       </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} ${skin} antialiased`}
-      >
-        <header className="container">
-          <Navbar />
-        </header>
-        <main>
-          <RootContextProvider>{children}</RootContextProvider>
-        </main>
-      </body>
+      <Suspense fallback={<body className="loading">Loading...</body>}>
+        <SkinProvider>
+          <AppContent>{children}</AppContent>
+        </SkinProvider>
+      </Suspense>
     </html>
   )
 }
