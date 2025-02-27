@@ -4,9 +4,8 @@ import { Button } from './ui/button'
 import {
   Sheet,
   SheetContent,
-  SheetHeader,
   SheetTitle,
-  SheetTrigger,
+  SheetTrigger
 } from './ui/sheet'
 
 export default function BettingSlipSheet() {

@@ -1,13 +1,12 @@
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 import Leaderboard from './leaderboard'
 import { Button } from './ui/button'
 import {
   Sheet,
   SheetContent,
-  SheetHeader,
   SheetTitle,
-  SheetTrigger,
+  SheetTrigger
 } from './ui/sheet'
-import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 
 export default function LeaderboardSheet() {
   return (
