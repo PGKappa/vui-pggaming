@@ -34,10 +34,10 @@ export default function MatchStatistics() {
         <CardTitle className="font-extrabold">STATISTICS</CardTitle>
       </CardHeader>
 
-      <CardContent className="flex flex-col items-center gap-2">
+      <CardContent className="flex flex-col items-center gap-2 bg-card-header">
         <div className="flex w-full items-center justify-between px-4">
           <div className="flex flex-col items-center">
-            <div className="mb-1 h-5 w-5 rounded-full bg-orange-400"></div>
+            <div className="mb-1 h-5 w-5 rounded-full bg-[#ffffff]"></div>
             <span className="text-lg font-semibold">{team1}</span>
           </div>
 
@@ -50,7 +50,7 @@ export default function MatchStatistics() {
                 cy="50"
                 r={radius}
                 fill="none"
-                stroke="gray"
+                stroke="#d9d9d9"
                 strokeWidth={strokeWidth}
               />
               <circle
@@ -58,7 +58,7 @@ export default function MatchStatistics() {
                 cy="50"
                 r={radius}
                 fill="none"
-                stroke="blue"
+                stroke="#e2001a"
                 strokeWidth={strokeWidth}
                 strokeDasharray={`${awayStroke} ${circumference}`}
                 strokeDashoffset={circumference - homeStroke}
@@ -70,7 +70,7 @@ export default function MatchStatistics() {
                 cy="50"
                 r={radius}
                 fill="none"
-                stroke="orange"
+                stroke="#ffffff"
                 strokeWidth={strokeWidth}
                 strokeDasharray={`${homeStroke} ${circumference}`}
                 strokeDashoffset={circumference - homeStroke}
@@ -90,7 +90,7 @@ export default function MatchStatistics() {
           <span className="mx-3 text-xl font-semibold">{away}%</span>
 
           <div className="flex flex-col items-center">
-            <div className="mb-1 h-5 w-5 rounded-full bg-blue-800"></div>
+            <div className="mb-1 h-5 w-5 rounded-full bg-[#e2001a]"></div>
             <span className="text-lg font-semibold">{team2}</span>
           </div>
         </div>
@@ -99,14 +99,14 @@ export default function MatchStatistics() {
         <div className="grid grid-cols-2 gap-x-16 font-semibold">
           {['1-1', '1-1', '1-1', '1-1'].map((match, index) => (
             <div key={index} className="flex items-center gap-1">
-              <div className="h-3 w-5 bg-orange-400"></div>
+              <div className="h-3 w-5 bg-[#ffffff]"></div>
               <div
                 key={index}
                 className="flex h-8 w-8 items-center justify-center"
               >
                 {match}
               </div>
-              <div className="h-3 w-4 bg-blue-800"></div>
+              <div className="h-3 w-4 bg-[#e2001a]"></div>
             </div>
           ))}
         </div>
