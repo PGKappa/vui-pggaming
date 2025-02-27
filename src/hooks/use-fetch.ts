@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 
-interface UseFetchOptions extends RequestInit {}
+type UseFetchOptions = RequestInit
 
 interface UseFetchResponse<T> {
   data: T | null
