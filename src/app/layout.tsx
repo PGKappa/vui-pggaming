@@ -4,7 +4,7 @@ import Navbar from '@/components/navbar'
 import RootContextProvider from '@/contexts/root-context'
 import SkinProvider, { SkinContext } from '@/contexts/skin-context'
 import { Geist, Geist_Mono } from 'next/font/google'
-import { Suspense, useContext } from 'react'
+import { useContext } from 'react'
 import './globals.css'
 
 const geistSans = Geist({
@@ -49,11 +49,9 @@ export default function RootLayout({
         <title>{metadata.title}</title>
         <meta name="description" content={metadata.description} />
       </head>
-      <Suspense fallback={<body className="loading">Loading...</body>}>
-        <SkinProvider>
-          <AppContent>{children}</AppContent>
-        </SkinProvider>
-      </Suspense>
+      <SkinProvider>
+        <AppContent>{children}</AppContent>
+      </SkinProvider>
     </html>
   )
 }
