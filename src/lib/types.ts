@@ -60,6 +60,7 @@ export type Bet = {
   }
   betType: BetType
   teams: string
+  selectedTeam: string
   odd: number
 }
 
