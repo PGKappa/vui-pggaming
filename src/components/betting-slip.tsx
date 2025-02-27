@@ -26,22 +26,24 @@ export default function BettingSlip() {
   const totalOdds = bets.reduce((total, bet) => total * bet.odd, 1)
 
   const potentialWinning = global * totalOdds
-  
 
   return (
-    <Card className="bg-primary-foreground text-primary rounded w-full">
-      <div className="grid grid-cols-2 grid-rows-2 p-1 text-center gap-2">
-        <span className="text-md pt-1">Schedina ({bets.length})</span>
-        <Button variant="ghost" className="text-md min-w-[60px] whitespace-normal leading-tight p-0">
+    <Card className="w-full rounded bg-primary-foreground text-primary">
+      <div className="grid grid-cols-2 grid-rows-2 gap-2 p-1 text-center">
+        <span className="pt-1 text-md">Schedina ({bets.length})</span>
+        <Button
+          variant="ghost"
+          className="min-w-[60px] whitespace-normal p-0 text-md leading-tight"
+        >
           Le mie scommesse
         </Button>
         <div className="flex flex-col items-center">
-        <span className="text-md">
-          {bets.length > 1 ? `Multipla (${bets.length})` : 'Singola'}
-        </span>
+          <span className="text-md">
+            {bets.length > 1 ? `Multipla (${bets.length})` : 'Singola'}
+          </span>
         </div>
         <div className="flex flex-col items-center">
-        <span className="text-md">Sistema</span>
+          <span className="text-md">Sistema</span>
         </div>
       </div>
 
@@ -88,7 +90,7 @@ export default function BettingSlip() {
                       <span className="text-sm">{BetType[bet.betType]}</span>
                       <span className="text-sm">{bet.odd}</span>
                       <Button variant="ghost" size="icon-sm">
-                        <CircleXIcon className="h-5 w-5"/>
+                        <CircleXIcon className="h-5 w-5" />
                       </Button>
                     </div>
                   ))}
@@ -99,38 +101,32 @@ export default function BettingSlip() {
         )}
       </CardContent>
       <Separator className="my-2" />
-      <div className="flex justify-end bg-betSlip mx-1 p-2">
+      <div className="mx-1 flex justify-end bg-betSlip p-2">
         <span className="font-semibold">Importo</span>
       </div>
 
       <div className="flex flex-row items-center justify-between p-2">
         <span className="text-sm font-semibold">Totale</span>
-        <div className="flex items-center border border-border w-fit"> 
+        <div className="flex w-fit items-center border border-border">
           <Button
             variant="ghost"
             size="sm"
-            className="h-5 w-5 bg-betSlip p-3 rounded-none"
-            onClick={() =>
-              setGlobal((prev) => (Math.max((global) - 1)))
-            }
+            className="h-5 w-5 rounded-none bg-betSlip p-3"
+            onClick={() => setGlobal((prev) => Math.max(prev - 1))}
           >
             -
           </Button>
           <Input
             type="number"
-            value= {global}
-            className="w-16 text-center border-x bg-background-foreground"
-            onChange={(e) =>
-              setGlobal(parseFloat(e.target.value))
-            }
+            value={global}
+            className="bg-background-foreground w-16 border-x text-center"
+            onChange={(e) => setGlobal(parseFloat(e.target.value))}
           />
           <Button
             variant="ghost"
             size="sm"
-            className="h-5 w-4 bg-betSlip p-3 rounded-none"
-            onClick={() =>
-              setGlobal((prev) => (Math.max((global) + 1)))
-            }
+            className="h-5 w-4 rounded-none bg-betSlip p-3"
+            onClick={() => setGlobal((prev) => Math.max(prev + 1))}
           >
             +
           </Button>
@@ -151,7 +147,7 @@ export default function BettingSlip() {
       <div className="flex items-center justify-end py-4">
         <span className="text-sm">Rimuovi Tutto</span>
         <Button variant="ghost" size="icon-sm">
-          <CircleXIcon className="h-10 w-10"/>
+          <CircleXIcon className="h-10 w-10" />
         </Button>
       </div>
 
