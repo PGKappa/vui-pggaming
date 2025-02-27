@@ -5,13 +5,7 @@ import { Trash2Icon } from 'lucide-react'
 import { useContext, useMemo } from 'react'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
-import { Card, CardContent, CardFooter, CardHeader } from './ui/card'
-
-enum ToggledTab {
-  SINGLE,
-  MULTIPLE,
-  MULTIPLE_SYSTEM,
-}
+import { Card, CardContent, CardFooter } from './ui/card'
 
 export default function BettingSlip() {
   const { bets } = useContext(RootContext)
