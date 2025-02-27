@@ -7,6 +7,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from './ui/sheet'
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 
 export default function LeaderboardSheet() {
   return (
@@ -15,6 +16,9 @@ export default function LeaderboardSheet() {
         <Button size="lg">Classifica</Button>
       </SheetTrigger>
       <SheetContent side="top" className="p-0">
+        <VisuallyHidden>
+          <SheetTitle>Classifica</SheetTitle>
+        </VisuallyHidden>
         <Leaderboard />
       </SheetContent>
     </Sheet>
