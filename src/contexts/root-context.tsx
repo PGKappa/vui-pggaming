@@ -110,31 +110,34 @@ const defaultRootContext: RootContextType = {
     {
       round: {
         name: 'Super League',
-        number: 1,
+        number: 29,
         startingAt: new Date('2025-02-10T20:00:00Z'),
       },
       betType: 0,
       teams: 'BNF-MIL',
+      selectedTeam: 'BNF',
       odd: 1.5,
     },
     {
       round: {
         name: 'Super League',
-        number: 1,
+        number: 29,
         startingAt: new Date('2025-02-10T20:00:00Z'),
       },
       betType: 1,
       teams: 'WHM-ARS',
+      selectedTeam: 'ARS',
       odd: 3.5,
     },
     {
       round: {
         name: 'Super League',
-        number: 1,
+        number: 29,
         startingAt: new Date('2025-02-10T20:00:00Z'),
       },
       betType: 2,
       teams: 'MCI-LIV',
+      selectedTeam: 'MCI',
       odd: 4.5,
     },
   ],
