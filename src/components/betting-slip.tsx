@@ -11,8 +11,7 @@ import { Separator } from './ui/separator'
 
 export default function BettingSlip() {
   const { bets } = useContext(RootContext)
-  const [ betAmounts, setBetAmounts ] = useState<{ [key: string]: number }>({})
-
+  const [global, setGlobal] = useState(1)
   const betsByMatch = useMemo(() => {
     return bets.reduce((groupedBets: { [key: string]: Bet[] }, bet) => {
       const key = `${bet.round.number}-${bet.teams}`
@@ -24,18 +23,10 @@ export default function BettingSlip() {
     }, {})
   }, [bets])
 
-  const totalOdds = bets.reduce((sum, bet) => sum + bet.odd, 0)
+  const totalOdds = bets.reduce((total, bet) => total * bet.odd, 1)
 
-  const potentialWinning = Object.entries(betAmounts)
-    .reduce((sum, [matchKey, amount]) => sum + amount * totalOdds, 0)
-    .toFixed(2)
-
-  const handleBetAmountChange = (matchKey: string, amount: number) => {
-    setBetAmounts((prev) => ({
-      ...prev,
-      [matchKey]: amount,
-    }))
-  }
+  const potentialWinning = global * totalOdds
+  
 
   return (
     <Card className="bg-primary-foreground text-primary rounded w-full">
@@ -120,20 +111,17 @@ export default function BettingSlip() {
             size="sm"
             className="h-5 w-5 bg-betSlip p-3 rounded-none"
             onClick={() =>
-              handleBetAmountChange(
-                'global',
-                Math.max((betAmounts['global'] || 0) - 1, 0),
-              )
+              setGlobal((prev) => (Math.max((global) - 1)))
             }
           >
             -
           </Button>
           <Input
             type="number"
-            value={betAmounts['global'] || 0}
+            value= {global}
             className="w-16 text-center border-x bg-background-foreground"
             onChange={(e) =>
-              handleBetAmountChange('global', parseFloat(e.target.value) || 0)
+              setGlobal(parseFloat(e.target.value))
             }
           />
           <Button
@@ -141,7 +129,7 @@ export default function BettingSlip() {
             size="sm"
             className="h-5 w-4 bg-betSlip p-3 rounded-none"
             onClick={() =>
-              handleBetAmountChange('global', (betAmounts['global'] || 0) + 1)
+              setGlobal((prev) => (Math.max((global) + 1)))
             }
           >
             +
