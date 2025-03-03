@@ -75,3 +75,11 @@ export type RoundStatistics = {
   number: number
   matches: MatchStatistics[]
 }
+
+export type BetsHistory = {
+  id: number
+  date: Date
+  amount: number
+  winning: number
+  status: 'Vincente' | 'Perdente'
+}

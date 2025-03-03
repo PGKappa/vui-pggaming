@@ -6,6 +6,7 @@ import {
   TeamRanking,
   UpcomingRound,
   RoundStatistics,
+  BetsHistory,
 } from '@/lib/types'
 import { createContext, useEffect, useState } from 'react'
 
@@ -16,6 +17,7 @@ export type RootContextType = {
   teamRankings?: TeamRanking[]
   upcomingRounds?: UpcomingRound[]
   bets: Bet[]
+  betsHistory: BetsHistory[]
 }
 
 const defaultRootContext: RootContextType = {
@@ -150,6 +152,36 @@ const defaultRootContext: RootContextType = {
       teams: 'INT-MIL',
       selectedTeam: 'INT',
       odd: 6.5,
+    },
+  ],
+  betsHistory: [
+    {
+      id: 1278,
+      date: new Date('2025-02-24T15:15:11Z'),
+      amount: 2.0,
+      winning: 0.56,
+      status: 'Vincente',
+    },
+    {
+      id: 1269,
+      date: new Date('2025-02-01T09:38:18Z'),
+      amount: 1.5,
+      winning: 0.0,
+      status: 'Perdente',
+    },
+    {
+      id: 1268,
+      date: new Date('2025-02-01T09:20:15Z'),
+      amount: 3.5,
+      winning: 0.78,
+      status: 'Vincente',
+    },
+    {
+      id: 1240,
+      date: new Date('2025-01-11T11:20:27Z'),
+      amount: 1.8,
+      winning: 0.0,
+      status: 'Perdente',
     },
   ],
 }
