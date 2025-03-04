@@ -7,15 +7,27 @@ import LiveMatchInfo from '@/components/live-match-info'
 import LiveRoundScores from '@/components/live-round-scores'
 import LiveRoundStatistics from '@/components/live-round-statistics'
 import LoadingSpinner from '@/components/loading-spinner'
+import MatchBettingOptions from '@/components/match-betting-options'
 import MatchEndBadge from '@/components/match-end-badge'
 import MatchStatistics from '@/components/match-statistics'
 import UpcomingRoundCard from '@/components/upcoming-round-card'
 import VideoStreamCard from '@/components/video-stream-card'
 import { RootContext } from '@/contexts/root-context'
-import { useContext } from 'react'
+import { BetOption, BetOptionMarket } from '@/lib/types'
+import { useContext, useState } from 'react'
 
 export default function Home() {
   const { upcomingRounds, liveRound } = useContext(RootContext)
+  const [matchBetOptions, setMatchBetOptions] = useState<{
+    round: {
+      name: string
+      number: number
+      startingAt: Date
+    }
+    teams: string
+    betOptions: Array<{ market: BetOptionMarket; options: BetOption[] }>
+  }>()
+
   return (
     <>
       <div className="container grid grid-cols-1 justify-center gap-3 py-4 lg:grid-cols-4">
@@ -26,13 +38,25 @@ export default function Home() {
           </div>
           <MatchEndBadge />
           {upcomingRounds ? (
-            <ol className="w-full space-y-7">
-              {upcomingRounds.map((round) => (
-                <li key={round.number}>
-                  <UpcomingRoundCard round={round} />
-                </li>
-              ))}
-            </ol>
+            matchBetOptions ? (
+              <MatchBettingOptions
+                round={matchBetOptions.round}
+                teams={matchBetOptions.teams}
+                betOptions={matchBetOptions.betOptions}
+                close={() => setMatchBetOptions(undefined)}
+              />
+            ) : (
+              <ol className="w-full space-y-7">
+                {upcomingRounds.map((round) => (
+                  <li key={round.number}>
+                    <UpcomingRoundCard
+                      round={round}
+                      viewMatchBettingOptions={setMatchBetOptions}
+                    />
+                  </li>
+                ))}
+              </ol>
+            )
           ) : (
             <div className="flex justify-center">
               <LoadingSpinner />
