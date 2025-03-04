@@ -24,7 +24,7 @@ const defaultRootContext: RootContextType = {
   //TODO: remove mock data
   liveRound: {
     name: 'Super League',
-    number: 1,
+    number: 28,
     scores: [
       { team1: 'BUR', team2: 'EVE', score1: 2, score2: 0 },
       { team1: 'MCI', team2: 'MUN', score1: 1, score2: 1 },
@@ -40,7 +40,7 @@ const defaultRootContext: RootContextType = {
       number: 29,
       matches: [
         {
-          teams: 'BUR - EVE',
+          teams: 'NAP - GEN',
           probabilities: [30, 50, 20],
           startTime: new Date('2025-02-10T00:01:00Z'),
         },
