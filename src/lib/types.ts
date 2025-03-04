@@ -31,25 +31,43 @@ export type UpcomingRound = {
   duration: number
   matches: {
     teams: string
-    odds: number[]
+    betOptions: Array<{ market: BetOptionMarket; options: BetOption[] }>
   }[]
 }
 
 export enum BetType {
-  TEAM1,
-  DRAW,
-  TEAM2,
+  TEAM1 = '1',
+  DRAW = 'X',
+  TEAM2 = '2',
 }
 
-export enum BetOption {
+export enum BetOptionMarket {
   MAIN,
   NEXT_GOAL,
   MULTIGOAL,
   GG_NG,
   UNDER_OVER,
+  COMBO,
   HANDICAP,
   EXACT_SCORE,
   DOUBLE_CHANCE,
+}
+
+export const BetOptionMarketLabels = {
+  [BetOptionMarket.MAIN]: 'PRINCIPALI',
+  [BetOptionMarket.NEXT_GOAL]: 'PROSSIMO GOL',
+  [BetOptionMarket.MULTIGOAL]: 'MULTIGOL',
+  [BetOptionMarket.GG_NG]: 'GG / NG',
+  [BetOptionMarket.UNDER_OVER]: 'UNDER / OVER',
+  [BetOptionMarket.COMBO]: 'COMBO',
+  [BetOptionMarket.HANDICAP]: 'HANDICAP',
+  [BetOptionMarket.EXACT_SCORE]: 'RIS. ESATTO',
+  [BetOptionMarket.DOUBLE_CHANCE]: 'DOPPIA CHANCE',
+}
+
+export type BetOption = {
+  betType: BetType
+  odd: number
 }
 
 export type Bet = {
