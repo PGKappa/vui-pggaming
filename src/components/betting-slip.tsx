@@ -1,14 +1,14 @@
 import { RootContext } from '@/contexts/root-context'
-import { Bet, BetType } from '@/lib/types'
+import { Bet } from '@/lib/types'
 import { format, formatDistanceToNow } from 'date-fns'
-import { Trash2Icon, CircleXIcon } from 'lucide-react'
+import { CircleXIcon, Trash2Icon } from 'lucide-react'
 import { useContext, useMemo, useState } from 'react'
+import BetsHistoryDialog from './bets-history-dialog'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
 import { Card, CardContent, CardFooter } from './ui/card'
 import { Input } from './ui/input'
 import { Separator } from './ui/separator'
-import BetsHistoryDialog from './bets-history-dialog'
 
 export default function BettingSlip() {
   const { bets } = useContext(RootContext)
@@ -30,7 +30,7 @@ export default function BettingSlip() {
 
   return (
     <>
-      <Card className="w-full rounded bg-primary-foreground text-primary">
+      <Card className="w-full rounded-sm bg-primary-foreground text-primary">
         <div className="grid grid-cols-2 grid-rows-2 gap-2 p-1 text-center">
           <span className="pt-1 text-md">Schedina ({bets.length})</span>
           <BetsHistoryDialog />
@@ -68,7 +68,7 @@ export default function BettingSlip() {
                         <span className="text-sm">
                           {format(matchBets[0].round.startingAt, 'HH:mm')}
                         </span>
-                        <Badge className="rounded-1">
+                        <Badge className="rounded-sm">
                           {formatDistanceToNow(matchBets[0].round.startingAt)}
                         </Badge>
                       </div>
@@ -84,7 +84,7 @@ export default function BettingSlip() {
                         className="flex items-center justify-between text-sm"
                       >
                         <span className="text-sm">{bet.selectedTeam}</span>
-                        <span className="text-sm">{BetType[bet.betType]}</span>
+                        <span className="text-sm">{bet.betType}</span>
                         <span className="text-sm">{bet.odd}</span>
                         <Button variant="ghost" size="icon-sm">
                           <CircleXIcon className="h-5 w-5" />
@@ -159,7 +159,6 @@ export default function BettingSlip() {
           </Button>
         </CardFooter>
       </Card>
-
     </>
   )
 }
