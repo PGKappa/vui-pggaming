@@ -30,7 +30,7 @@ export default function Navbar() {
 
       <Link
         href="/"
-        className="flex w-full flex-row items-center justify-center gap-2 rounded bg-accent transition-all hover:bg-accent/90"
+        className="flex w-full flex-row items-center justify-center gap-2 rounded-sm bg-accent transition-all hover:bg-accent/90"
       >
         <img src="/calcio/ball.svg" alt="Football" className="h-6" />
       </Link>
