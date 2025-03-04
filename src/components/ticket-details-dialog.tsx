@@ -15,9 +15,10 @@ import {
 } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@radix-ui/react-scroll-area'
+import { BetsHistory } from '@/lib/types'
 
-export default function TicketDetailsDialog({ ticket }: { ticket: any }) {
-  /* if (!ticket || !ticket.round) {
+export default function TicketDetailsDialog({ ticket }: { ticket: BetsHistory }) {
+  if (!ticket || !ticket.id) {
     return (
       <Dialog>
         <DialogTrigger asChild>
@@ -34,7 +35,7 @@ export default function TicketDetailsDialog({ ticket }: { ticket: any }) {
         </DialogContent>
       </Dialog>
     )
-  } */
+  }
 
   return (
     <Dialog>
