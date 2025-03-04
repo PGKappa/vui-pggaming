@@ -2,10 +2,12 @@
 
 import {
   Bet,
+  BetOptionMarket,
+  BetType,
   LiveRound,
+  RoundStatistics,
   TeamRanking,
   UpcomingRound,
-  RoundStatistics,
 } from '@/lib/types'
 import { createContext, useEffect, useState } from 'react'
 
@@ -89,20 +91,66 @@ const defaultRootContext: RootContextType = {
       startingAt: new Date('2025-02-13T14:00:00Z'),
       duration: 30,
       matches: [
-        { teams: 'MCI - MUN', odds: [1.5, 3.5, 4.5] },
-        { teams: 'TOT - ARS', odds: [2.5, 3.5, 2.5] },
-        { teams: 'CHE - LIV', odds: [3.5, 3.5, 1.5] },
-      ],
-    },
-    {
-      name: 'Super League',
-      number: 31,
-      startingAt: new Date('2025-10-10T18:00:00Z'),
-      duration: 30,
-      matches: [
-        { teams: 'MIL - JUV', odds: [2.8, 1.5, 2.5] },
-        { teams: 'REA - NAP', odds: [1.5, 2.5, 3.5] },
-        { teams: 'SAS - PIS', odds: [2.5, 3.5, 1.5] },
+        {
+          teams: 'MCI - MUN',
+          betOptions: [
+            {
+              market: BetOptionMarket.MAIN,
+              options: [
+                { betType: BetType.TEAM1, odd: 1.5 },
+                { betType: BetType.DRAW, odd: 3.5 },
+                { betType: BetType.TEAM2, odd: 2.5 },
+              ],
+            },
+            {
+              market: BetOptionMarket.NEXT_GOAL,
+              options: [
+                { betType: BetType.TEAM1, odd: 1.5 },
+                { betType: BetType.DRAW, odd: 3.5 },
+                { betType: BetType.TEAM2, odd: 2.5 },
+              ],
+            },
+          ],
+        },
+        {
+          teams: 'BUR - EVE',
+          betOptions: [
+            {
+              market: BetOptionMarket.MAIN,
+              options: [
+                { betType: BetType.TEAM1, odd: 1.5 },
+                { betType: BetType.DRAW, odd: 3.5 },
+                { betType: BetType.TEAM2, odd: 2.5 },
+              ],
+            },
+          ],
+        },
+        {
+          teams: 'TOT - ARS',
+          betOptions: [
+            {
+              market: BetOptionMarket.MAIN,
+              options: [
+                { betType: BetType.TEAM1, odd: 1.5 },
+                { betType: BetType.DRAW, odd: 3.5 },
+                { betType: BetType.TEAM2, odd: 2.5 },
+              ],
+            },
+          ],
+        },
+        {
+          teams: 'CHE - LIV',
+          betOptions: [
+            {
+              market: BetOptionMarket.MAIN,
+              options: [
+                { betType: BetType.TEAM1, odd: 1.5 },
+                { betType: BetType.DRAW, odd: 3.5 },
+                { betType: BetType.TEAM2, odd: 2.5 },
+              ],
+            },
+          ],
+        },
       ],
     },
   ],
@@ -113,7 +161,7 @@ const defaultRootContext: RootContextType = {
         number: 29,
         startingAt: new Date('2025-02-10T20:00:00Z'),
       },
-      betType: 0,
+      betType: BetType.TEAM1,
       teams: 'BNF-MIL',
       selectedTeam: 'BNF',
       odd: 1.5,
@@ -124,7 +172,7 @@ const defaultRootContext: RootContextType = {
         number: 29,
         startingAt: new Date('2025-02-10T20:00:00Z'),
       },
-      betType: 1,
+      betType: BetType.DRAW,
       teams: 'WHM-ARS',
       selectedTeam: 'ARS',
       odd: 3.5,
@@ -135,7 +183,7 @@ const defaultRootContext: RootContextType = {
         number: 29,
         startingAt: new Date('2025-02-10T20:00:00Z'),
       },
-      betType: 2,
+      betType: BetType.TEAM2,
       teams: 'MCI-LIV',
       selectedTeam: 'MCI',
       odd: 4.5,
