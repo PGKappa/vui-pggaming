@@ -9,12 +9,29 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { UpcomingRound } from '@/lib/types'
+import { BetOption, BetOptionMarket, UpcomingRound } from '@/lib/types'
 import { format, isToday, isTomorrow } from 'date-fns'
 import { enUS } from 'date-fns/locale'
 import { PlusIcon } from 'lucide-react'
+import { Dispatch, SetStateAction } from 'react'
 
-export default function UpcomingRoundCard(props: { round: UpcomingRound }) {
+export default function UpcomingRoundCard(props: {
+  round: UpcomingRound
+  viewMatchBettingOptions: Dispatch<
+    SetStateAction<
+      | {
+          round: {
+            name: string
+            number: number
+            startingAt: Date
+          }
+          teams: string
+          betOptions: Array<{ market: BetOptionMarket; options: BetOption[] }>
+        }
+      | undefined
+    >
+  >
+}) {
   return (
     <Card className="border-b border-t border-card-foreground">
       <CardHeader className="flex flex-row items-center justify-between px-6 md:pl-14">
@@ -59,16 +76,30 @@ export default function UpcomingRoundCard(props: { round: UpcomingRound }) {
                     <span className="font-bold">{match.teams}</span>
                   </TableCell>
 
-                  {match.odds.map((odd, i) => (
-                    <TableCell key={i}>
-                      <Button size="sm" className="w-full">
-                        {odd}
-                      </Button>
-                    </TableCell>
-                  ))}
+                  {match.betOptions
+                    .find(
+                      (betOption) => betOption.market === BetOptionMarket.MAIN,
+                    )
+                    ?.options.map((option, i) => (
+                      <TableCell key={i}>
+                        <Button size="sm" className="w-full">
+                          {option.odd}
+                        </Button>
+                      </TableCell>
+                    ))}
 
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="icon">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() =>
+                        props.viewMatchBettingOptions({
+                          round: props.round,
+                          teams: match.teams,
+                          betOptions: match.betOptions,
+                        })
+                      }
+                    >
                       <PlusIcon />
                     </Button>
                   </TableCell>
