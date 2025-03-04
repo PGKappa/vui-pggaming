@@ -32,7 +32,7 @@ export default function LiveRoundStatistics() {
   }
 
   return (
-    <Card className="border-b border-t border-card-foreground">
+    <Card>
       <CardHeader>
         <CardTitle>
           {roundStatistics[0].name} Round {roundStatistics[0].number}
@@ -44,13 +44,13 @@ export default function LiveRoundStatistics() {
           <TableHeader className="bg-card-header">
             <TableRow className="hover:bg-card-header border-card-foreground transition-none *:text-card-foreground">
               <TableHead></TableHead>
-              <TableHead className="text-center">1</TableHead>
-              <TableHead className="text-center">X</TableHead>
-              <TableHead className="text-center">2</TableHead>
+              <TableHead className="text-center font-bold">1</TableHead>
+              <TableHead className="text-center font-bold">X</TableHead>
+              <TableHead className="text-center font-bold">2</TableHead>
             </TableRow>
           </TableHeader>
 
-          <TableBody>
+          <TableBody className="border-b border-t border-card-foreground">
             {roundStatistics[0].matches.map((match, index) => {
               const formattedTime = format(match.startTime, 'HH:mm', {
                 locale: enUS,
@@ -62,7 +62,7 @@ export default function LiveRoundStatistics() {
                     <span className="text-nowrap font-bold">{match.teams}</span>
                   </TableCell>
                   {match.probabilities.map((probability, index) => (
-                    <TableCell key={index} className="text-center">
+                    <TableCell key={index} className="text-center font-bold">
                       {probability}%
                     </TableCell>
                   ))}

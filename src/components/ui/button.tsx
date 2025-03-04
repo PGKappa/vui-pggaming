@@ -21,6 +21,7 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
         betNow: "bg-accent text-accent-foreground shadow hover:bg-accent/90",
         navbar: "hover:text-accent-foreground hover:bg-accent/90",
+        history: "bg-accent text-accent-foreground",
       },
       size: {
         default: "h-9 px-4 py-2",
@@ -28,6 +29,7 @@ const buttonVariants = cva(
         lg: "h-10 px-8",
         icon: "h-9 w-9",
         "icon-sm": "h-7 w-7",
+        "icon-history": "px-10 py-0.5 text-md",
       },
     },
     defaultVariants: {
