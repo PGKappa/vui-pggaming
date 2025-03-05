@@ -19,6 +19,7 @@ import { format } from 'date-fns'
 import React, { useContext, useMemo } from 'react'
 import { Button } from './ui/button'
 import { BetsHistory } from '@/lib/types'
+import TicketDetailsDialog from './ticket-details-dialog'
 
 export default function BetsHistoryDialog() {
   const { betsHistory } = useContext(RootContext)
@@ -62,7 +63,7 @@ export default function BetsHistoryDialog() {
           <ScrollArea>
             <Table>
               <TableHeader>
-                <TableRow className="bg-betSlip text-md">
+                <TableRow className="bg-betSlip text-md h-12">
                   <TableHead className="text-center text-primary">
                     Codice Ticket
                   </TableHead>
@@ -101,7 +102,8 @@ export default function BetsHistoryDialog() {
                       >
                         <TableCell className="text-center">{bet.id}</TableCell>
                         <TableCell className="text-center">
-                          {new Date(bet.date).toLocaleDateString()} - {new Date(bet.date).toLocaleTimeString()}
+                          {new Date(bet.date).toLocaleDateString()} -{' '}
+                          {new Date(bet.date).toLocaleTimeString()}
                         </TableCell>
                         <TableCell className="text-center">
                           € {bet.amount.toFixed(2)}
@@ -113,13 +115,7 @@ export default function BetsHistoryDialog() {
                           {bet.status}
                         </TableCell>
                         <TableCell>
-                          <Button
-                            variant="history"
-                            size="icon-history"
-                            className="font-semibold"
-                          >
-                            Dettagli
-                          </Button>
+                          <TicketDetailsDialog ticket={bet} />
                         </TableCell>
                       </TableRow>
                     ))}
