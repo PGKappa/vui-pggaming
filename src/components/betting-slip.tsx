@@ -1,4 +1,4 @@
-import { RootContext } from '@/contexts/root-context'
+import { BetsContext } from '@/contexts/bets-context'
 import { Bet } from '@/lib/types'
 import { format, formatDistanceToNow } from 'date-fns'
 import { CircleXIcon, Trash2Icon } from 'lucide-react'
@@ -11,11 +11,12 @@ import { Input } from './ui/input'
 import { Separator } from './ui/separator'
 
 export default function BettingSlip() {
-  const { bets } = useContext(RootContext)
+  const { bets, removeBet, removeMatchBets, removeAllBets } =
+    useContext(BetsContext)
   const [global, setGlobal] = useState(1)
   const betsByMatch = useMemo(() => {
     return bets.reduce((groupedBets: { [key: string]: Bet[] }, bet) => {
-      const key = `${bet.round.number}-${bet.teams}`
+      const key = `${bet.round.number}.${bet.teams}`
       if (!groupedBets[key]) {
         groupedBets[key] = []
       }
@@ -24,7 +25,7 @@ export default function BettingSlip() {
     }, {})
   }, [bets])
 
-  const totalOdds = bets.reduce((total, bet) => total * bet.odd, 1)
+  const totalOdds = bets.reduce((total, bet) => total * bet.option.odd, 1)
 
   const potentialWinning = global * totalOdds
 
@@ -57,7 +58,11 @@ export default function BettingSlip() {
                 <li key={matchKey}>
                   <div className="flex flex-col gap-1 border border-primary p-1">
                     <div className="flex flex-row justify-end">
-                      <Button variant="ghost" size="icon-sm">
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={() => removeMatchBets(matchKey)}
+                      >
                         <Trash2Icon />
                       </Button>
                     </div>
@@ -83,10 +88,14 @@ export default function BettingSlip() {
                         key={bet.teams}
                         className="flex items-center justify-between text-sm"
                       >
-                        <span className="text-sm">{bet.selectedTeam}</span>
-                        <span className="text-sm">{bet.betType}</span>
-                        <span className="text-sm">{bet.odd}</span>
-                        <Button variant="ghost" size="icon-sm">
+                        <span className="text-sm">{bet.option.market}</span>
+                        <span className="text-sm">{bet.option.betType}</span>
+                        <span className="text-sm">{bet.option.odd}</span>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          onClick={() => removeBet(bet.id)}
+                        >
                           <CircleXIcon className="h-5 w-5" />
                         </Button>
                       </div>
@@ -143,7 +152,7 @@ export default function BettingSlip() {
 
         <div className="flex items-center justify-end py-4">
           <span className="text-sm">Rimuovi Tutto</span>
-          <Button variant="ghost" size="icon-sm">
+          <Button variant="ghost" size="icon-sm" onClick={removeAllBets}>
             <CircleXIcon className="h-10 w-10" />
           </Button>
         </div>
