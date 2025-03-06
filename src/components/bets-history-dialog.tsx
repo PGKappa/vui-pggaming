@@ -49,7 +49,7 @@ export default function BetsHistoryDialog() {
         </Button>
       </DialogTrigger>
 
-      <DialogContent>
+      <DialogContent aria-describedby={undefined}>
         <DialogHeader>
           <DialogTitle>Storico Tickets</DialogTitle>
         </DialogHeader>
@@ -63,7 +63,7 @@ export default function BetsHistoryDialog() {
           <ScrollArea>
             <Table>
               <TableHeader>
-                <TableRow className="bg-betSlip text-md h-12">
+                <TableRow className="h-12 bg-betSlip text-md">
                   <TableHead className="text-center text-primary">
                     Codice Ticket
                   </TableHead>
