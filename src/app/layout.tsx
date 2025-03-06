@@ -6,6 +6,7 @@ import SkinProvider, { SkinContext } from '@/contexts/skin-context'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { useContext } from 'react'
 import './globals.css'
+import BetsContextProvider, { BetsContext } from '@/contexts/bets-context'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -32,7 +33,9 @@ function AppContent({ children }: { children: React.ReactNode }) {
         <Navbar />
       </header>
       <main>
-        <RootContextProvider>{children}</RootContextProvider>
+        <RootContextProvider>
+          <BetsContextProvider>{children}</BetsContextProvider>
+        </RootContextProvider>
       </main>
     </body>
   )
