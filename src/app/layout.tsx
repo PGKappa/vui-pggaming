@@ -1,12 +1,12 @@
 'use client'
 
 import Navbar from '@/components/navbar'
+import BetsContextProvider from '@/contexts/bets-context'
 import RootContextProvider from '@/contexts/root-context'
 import SkinProvider, { SkinContext } from '@/contexts/skin-context'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { useContext } from 'react'
 import './globals.css'
-import BetsContextProvider, { BetsContext } from '@/contexts/bets-context'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
