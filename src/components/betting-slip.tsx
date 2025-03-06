@@ -85,7 +85,7 @@ export default function BettingSlip() {
                   <div className="border border-primary bg-primary-foreground p-1">
                     {matchBets.map((bet) => (
                       <div
-                        key={bet.teams}
+                        key={bet.id}
                         className="flex items-center justify-between text-sm"
                       >
                         <span className="text-sm">{bet.option.market}</span>
