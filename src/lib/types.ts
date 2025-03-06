@@ -66,20 +66,20 @@ export const BetOptionMarketLabels = {
 }
 
 export type BetOption = {
+  market: BetOptionMarket
   betType: BetType
   odd: number
 }
 
 export type Bet = {
+  id: number
   round: {
     name: string
     number: number
     startingAt: Date
   }
-  betType: BetType
   teams: string
-  selectedTeam: string
-  odd: number
+  option: BetOption
 }
 
 export type MatchStatistics = {
