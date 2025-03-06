@@ -1,3 +1,5 @@
+'use client'
+
 import { RootContext } from '@/contexts/root-context'
 import { useContext } from 'react'
 
