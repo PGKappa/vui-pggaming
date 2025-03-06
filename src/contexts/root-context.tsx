@@ -1,14 +1,13 @@
 'use client'
 
 import {
-  Bet,
   BetOptionMarket,
   BetsHistory,
   BetType,
   LiveRound,
   RoundStatistics,
   TeamRanking,
-  UpcomingRound,
+  UpcomingRound
 } from '@/lib/types'
 import { createContext, useEffect, useState } from 'react'
 
@@ -18,7 +17,6 @@ export type RootContextType = {
   roundStatistics?: RoundStatistics[]
   teamRankings?: TeamRanking[]
   upcomingRounds?: UpcomingRound[]
-  bets: Bet[]
   betsHistory: BetsHistory[]
 }
 
@@ -99,17 +97,17 @@ const defaultRootContext: RootContextType = {
             {
               market: BetOptionMarket.MAIN,
               options: [
-                { betType: BetType.TEAM1, odd: 1.5 },
-                { betType: BetType.DRAW, odd: 3.5 },
-                { betType: BetType.TEAM2, odd: 2.5 },
+                { market: BetOptionMarket.MAIN, betType: BetType.TEAM1, odd: 1.5 },
+                { market: BetOptionMarket.MAIN, betType: BetType.DRAW, odd: 3.5 },
+                { market: BetOptionMarket.MAIN, betType: BetType.TEAM2, odd: 2.5 },
               ],
             },
             {
               market: BetOptionMarket.NEXT_GOAL,
               options: [
-                { betType: BetType.TEAM1, odd: 1.5 },
-                { betType: BetType.DRAW, odd: 3.5 },
-                { betType: BetType.TEAM2, odd: 2.5 },
+                { market: BetOptionMarket.NEXT_GOAL, betType: BetType.TEAM1, odd: 1.5 },
+                { market: BetOptionMarket.NEXT_GOAL, betType: BetType.DRAW, odd: 3.5 },
+                { market: BetOptionMarket.NEXT_GOAL, betType: BetType.TEAM2, odd: 2.5 },
               ],
             },
           ],
@@ -120,9 +118,9 @@ const defaultRootContext: RootContextType = {
             {
               market: BetOptionMarket.MAIN,
               options: [
-                { betType: BetType.TEAM1, odd: 1.5 },
-                { betType: BetType.DRAW, odd: 3.5 },
-                { betType: BetType.TEAM2, odd: 2.5 },
+                { market: BetOptionMarket.MAIN, betType: BetType.TEAM1, odd: 1.5 },
+                { market: BetOptionMarket.MAIN, betType: BetType.DRAW, odd: 3.5 },
+                { market: BetOptionMarket.MAIN, betType: BetType.TEAM2, odd: 2.5 },
               ],
             },
           ],
@@ -133,9 +131,9 @@ const defaultRootContext: RootContextType = {
             {
               market: BetOptionMarket.MAIN,
               options: [
-                { betType: BetType.TEAM1, odd: 1.5 },
-                { betType: BetType.DRAW, odd: 3.5 },
-                { betType: BetType.TEAM2, odd: 2.5 },
+                { market: BetOptionMarket.MAIN, betType: BetType.TEAM1, odd: 1.5 },
+                { market: BetOptionMarket.MAIN, betType: BetType.DRAW, odd: 3.5 },
+                { market: BetOptionMarket.MAIN, betType: BetType.TEAM2, odd: 2.5 },
               ],
             },
           ],
@@ -146,60 +144,14 @@ const defaultRootContext: RootContextType = {
             {
               market: BetOptionMarket.MAIN,
               options: [
-                { betType: BetType.TEAM1, odd: 1.5 },
-                { betType: BetType.DRAW, odd: 3.5 },
-                { betType: BetType.TEAM2, odd: 2.5 },
+                { market: BetOptionMarket.MAIN, betType: BetType.TEAM1, odd: 1.5 },
+                { market: BetOptionMarket.MAIN, betType: BetType.DRAW, odd: 3.5 },
+                { market: BetOptionMarket.MAIN, betType: BetType.TEAM2, odd: 2.5 },
               ],
             },
           ],
         },
       ],
-    },
-  ],
-  bets: [
-    {
-      round: {
-        name: 'Super League',
-        number: 29,
-        startingAt: new Date('2025-02-10T20:00:00Z'),
-      },
-      betType: BetType.TEAM1,
-      teams: 'BNF-MIL',
-      selectedTeam: 'BNF',
-      odd: 1.5,
-    },
-    {
-      round: {
-        name: 'Super League',
-        number: 29,
-        startingAt: new Date('2025-02-10T20:00:00Z'),
-      },
-      betType: BetType.DRAW,
-      teams: 'WHM-ARS',
-      selectedTeam: 'ARS',
-      odd: 3.5,
-    },
-    {
-      round: {
-        name: 'Super League',
-        number: 29,
-        startingAt: new Date('2025-02-10T20:00:00Z'),
-      },
-      betType: BetType.TEAM2,
-      teams: 'MCI-LIV',
-      selectedTeam: 'MCI',
-      odd: 4.5,
-    },
-    {
-      round: {
-        name: 'Super League',
-        number: 29,
-        startingAt: new Date('2025-02-10T20:00:00Z'),
-      },
-      betType: BetType.TEAM2,
-      teams: 'INT-MIL',
-      selectedTeam: 'INT',
-      odd: 6.5,
     },
   ],
   betsHistory: [

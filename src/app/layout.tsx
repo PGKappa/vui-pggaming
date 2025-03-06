@@ -1,6 +1,7 @@
 'use client'
 
 import Navbar from '@/components/navbar'
+import BetsContextProvider from '@/contexts/bets-context'
 import RootContextProvider from '@/contexts/root-context'
 import SkinProvider, { SkinContext } from '@/contexts/skin-context'
 import { Geist, Geist_Mono } from 'next/font/google'
@@ -32,7 +33,9 @@ function AppContent({ children }: { children: React.ReactNode }) {
         <Navbar />
       </header>
       <main>
-        <RootContextProvider>{children}</RootContextProvider>
+        <RootContextProvider>
+          <BetsContextProvider>{children}</BetsContextProvider>
+        </RootContextProvider>
       </main>
     </body>
   )
