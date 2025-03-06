@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 import { cn } from '@/lib/utils'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -13,6 +12,7 @@ export default function Navbar() {
           buttonVariants({ variant: 'navbar' }),
           'flex w-full flex-row items-center justify-center gap-2',
         )}
+        prefetch={false}
       >
         <Image
           src="/calcio/dogs.png"
@@ -20,6 +20,7 @@ export default function Navbar() {
           width={69}
           height={33}
           className="h-6 w-auto"
+          priority
         />
         <span className="text-xs font-medium">Dogs</span>
       </Link>
@@ -30,6 +31,7 @@ export default function Navbar() {
           buttonVariants({ variant: 'navbar' }),
           'flex w-full flex-row items-center justify-center gap-2',
         )}
+        prefetch={false}
       >
         <Image
           src="/calcio/horses.png"
@@ -37,6 +39,7 @@ export default function Navbar() {
           width={60}
           height={36}
           className="h-6 w-auto"
+          priority
         />
         <span className="text-xs font-medium">Horses</span>
       </Link>
@@ -44,6 +47,7 @@ export default function Navbar() {
       <Link
         href="/"
         className="flex w-full flex-row items-center justify-center gap-2 rounded-sm bg-accent transition-all hover:bg-accent/90"
+        prefetch={false}
       >
         <Image
           src="/calcio/ball.svg"
@@ -51,6 +55,7 @@ export default function Navbar() {
           width={50}
           height={50}
           className="h-6 w-auto"
+          priority
         />
       </Link>
     </nav>
