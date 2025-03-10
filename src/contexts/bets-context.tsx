@@ -18,6 +18,7 @@ export type BetsContextType = {
   removeBet: (id: number) => void
   removeMatchBets: (matchId: string) => void
   removeAllBets: () => void
+  refreshBets: () => void
 }
 
 const defaultBetsContext: BetsContextType = {
@@ -27,6 +28,7 @@ const defaultBetsContext: BetsContextType = {
   removeBet: () => {},
   removeMatchBets: () => {},
   removeAllBets: () => {},
+  refreshBets: () => {},
 }
 
 export const BetsContext = createContext<BetsContextType>(defaultBetsContext)
@@ -88,6 +90,10 @@ export default function BetsContextProvider(props: {
     setBetsContext((prev) => ({ ...prev, bets: [] }))
   }
 
+  const refreshBets = () => {
+    setBetsContext(getBetsContext())
+  }
+
   useEffect(() => {
     const betsContext = getBetsContext()
     setBetsContext({
@@ -97,6 +103,7 @@ export default function BetsContextProvider(props: {
       removeBet,
       removeMatchBets,
       removeAllBets,
+      refreshBets,
     })
   }, [])
 

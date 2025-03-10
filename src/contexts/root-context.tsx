@@ -153,6 +153,66 @@ const defaultRootContext: RootContextType = {
         },
       ],
     },
+    {
+      name: 'Super League',
+      number: 31,
+      startingAt: new Date('2025-02-20T14:00:00Z'),
+      duration: 30,
+      matches: [
+        {
+          teams: 'SPE - NAP',
+          betOptions: [
+            {
+              market: BetOptionMarket.MAIN,
+              options: [
+                { market: BetOptionMarket.MAIN, betType: BetType.TEAM1, odd: 2.84 },
+                { market: BetOptionMarket.MAIN, betType: BetType.DRAW, odd: 3.52 },
+                { market: BetOptionMarket.MAIN, betType: BetType.TEAM2, odd: 1.55 },
+              ],
+            },
+          ],
+        },
+        {
+          teams: 'CAG - CAT',
+          betOptions: [
+            {
+              market: BetOptionMarket.MAIN,
+              options: [
+                { market: BetOptionMarket.MAIN, betType: BetType.TEAM1, odd: 2.84 },
+                { market: BetOptionMarket.MAIN, betType: BetType.DRAW, odd: 3.52 },
+                { market: BetOptionMarket.MAIN, betType: BetType.TEAM2, odd: 1.55 },
+              ],
+            },
+          ],
+        },
+        {
+          teams: 'VER - STA',
+          betOptions: [
+            {
+              market: BetOptionMarket.MAIN,
+              options: [
+                { market: BetOptionMarket.MAIN, betType: BetType.TEAM1, odd: 2.84 },
+                { market: BetOptionMarket.MAIN, betType: BetType.DRAW, odd: 3.52 },
+                { market: BetOptionMarket.MAIN, betType: BetType.TEAM2, odd: 1.55 },
+              ],
+            },
+          ],
+        },
+        {
+          teams: 'LOC - MAN',
+          betOptions: [
+            {
+              market: BetOptionMarket.MAIN,
+              options: [
+                { market: BetOptionMarket.MAIN, betType: BetType.TEAM1, odd: 2.84 },
+                { market: BetOptionMarket.MAIN, betType: BetType.DRAW, odd: 3.52 },
+                { market: BetOptionMarket.MAIN, betType: BetType.TEAM2, odd: 1.55 },
+              ],
+            },
+          ],
+        },
+      ],
+    },
   ],
   betsHistory: [
     {
