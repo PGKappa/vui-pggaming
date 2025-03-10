@@ -45,7 +45,7 @@ export default function BetsHistoryDialog() {
       <DialogTrigger asChild>
         <Button
           variant="ghost"
-          className="whitespace-normal p-0 text-md leading-tight"
+          className="whitespace-normal py-6 text-md leading-tight"
         >
           Le mie scommesse
         </Button>
