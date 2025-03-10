@@ -1,7 +1,7 @@
 import { BetsContext } from '@/contexts/bets-context'
 import { Bet } from '@/lib/types'
 import { format, formatDistanceToNow } from 'date-fns'
-import { CircleXIcon, Trash2Icon } from 'lucide-react'
+import { CircleXIcon, RotateCcwIcon, Trash2Icon } from 'lucide-react'
 import { useContext, useMemo, useState } from 'react'
 import BetsHistoryDialog from './bets-history-dialog'
 import { Badge } from './ui/badge'
@@ -11,7 +11,7 @@ import { Input } from './ui/input'
 import { Separator } from './ui/separator'
 
 export default function BettingSlip() {
-  const { bets, removeBet, removeMatchBets, removeAllBets } =
+  const { bets, removeBet, removeMatchBets, removeAllBets, refreshBets } =
     useContext(BetsContext)
   const [global, setGlobal] = useState(1)
   const betsByMatch = useMemo(() => {
@@ -29,28 +29,52 @@ export default function BettingSlip() {
 
   const potentialWinning = global * totalOdds
 
+  const roundsLength = new Set(bets.map((bet) => bet.round.number)).size
+
   return (
     <>
       <Card className="w-full rounded-sm bg-primary-foreground text-primary">
-        <div className="grid grid-cols-2 grid-rows-2 gap-2 p-1 text-center">
-          <span className="pt-1 text-md">Schedina ({bets.length})</span>
+        <div className="grid grid-cols-2 grid-rows-2 text-center">
+          <span className="flex w-full flex-col items-center justify-center text-md">
+            Schedina ({bets.length})
+          </span>
           <BetsHistoryDialog />
-          <div className="flex flex-col items-center">
-            <span className="text-md">
-              {bets.length > 1 ? `Multipla (${bets.length})` : 'Singola'}
-            </span>
-          </div>
-          <div className="flex flex-col items-center">
-            <span className="text-md">Sistema</span>
-          </div>
+
+          <span
+            className={`flex w-full flex-col items-center justify-center text-md ${
+              bets.length <= 1
+                ? 'border-b-2 border-accent bg-betSlip'
+                : 'bg-gray-100'
+            }`}
+          >
+            {roundsLength > 1 ? `Multipla (${roundsLength})` : 'Singola'}
+          </span>
+
+          <span
+            className={`flex w-full flex-col items-center justify-center text-md ${
+              bets.length > 1
+                ? 'border-b-2 border-accent bg-betSlip'
+                : 'bg-gray-100'
+            }`}
+          >
+            Sistema
+          </span>
         </div>
 
-        <CardContent className="px-1">
+        <CardContent className="p-3">
           {bets.length === 0 ? (
-            <div className="flex h-full flex-col items-center justify-center">
-              <small className="text-sm font-medium leading-none">
+            <div className="flex h-full flex-row items-center justify-center gap-3">
+              <small className="text-md font-medium leading-none">
                 Nessuna Selezione
               </small>
+              <Button
+                variant="betNow"
+                size="icon-sm"
+                className="font-bold"
+                onClick={refreshBets}
+              >
+                <RotateCcwIcon />
+              </Button>
             </div>
           ) : (
             <ul className="flex flex-col gap-1">
