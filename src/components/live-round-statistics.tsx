@@ -14,6 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from './ui/table'
+import { t } from 'i18next'
 
 export default function LiveRoundStatistics() {
   const { roundStatistics } = useContext(RootContext)
@@ -22,7 +23,7 @@ export default function LiveRoundStatistics() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Live Round Loading...</CardTitle>
+          <CardTitle>{t("live_round_loading")}...</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col items-center">
           <LoadingSpinner />
@@ -35,7 +36,7 @@ export default function LiveRoundStatistics() {
     <Card>
       <CardHeader>
         <CardTitle>
-          {roundStatistics[0].name} Round {roundStatistics[0].number}
+          {t("statistics")} {roundStatistics[0].name} {t("round")} {roundStatistics[0].number}
         </CardTitle>
       </CardHeader>
 

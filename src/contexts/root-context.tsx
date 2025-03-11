@@ -38,7 +38,7 @@ const defaultRootContext: RootContextType = {
   },
   roundStatistics: [
     {
-      name: 'Statistics',
+      name: 'Super League',
       number: 29,
       matches: [
         {
