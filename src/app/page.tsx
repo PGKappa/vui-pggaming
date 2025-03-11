@@ -12,6 +12,7 @@ import MatchEndBadge from '@/components/match-end-badge'
 import MatchStatistics from '@/components/match-statistics'
 import UpcomingRoundCard from '@/components/upcoming-round-card'
 import VideoStreamCard from '@/components/video-stream-card'
+import MatchResult from '@/components/match-result'
 import { RootContext } from '@/contexts/root-context'
 import { BetOption, BetOptionMarket } from '@/lib/types'
 import { useContext, useState } from 'react'
@@ -67,6 +68,7 @@ export default function Home() {
           <LiveRoundScores />
           <LiveRoundStatistics />
           <MatchStatistics />
+          <MatchResult />
           <div className="hidden lg:block">
             <Leaderboard />
           </div>
