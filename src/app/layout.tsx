@@ -6,7 +6,9 @@ import RootContextProvider from '@/contexts/root-context'
 import SkinProvider, { SkinContext } from '@/contexts/skin-context'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { useContext } from 'react'
+import { useTranslation } from 'react-i18next'
 import './globals.css'
+import './i18n'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -46,8 +48,10 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const { i18n } = useTranslation()
+
   return (
-    <html lang="en">
+    <html lang={i18n.language}>
       <head>
         <title>{metadata.title}</title>
         <meta name="description" content={metadata.description} />

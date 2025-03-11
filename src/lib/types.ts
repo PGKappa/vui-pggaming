@@ -101,3 +101,13 @@ export type BetsHistory = {
   winning: number
   status: 'Vincente' | 'Perdente'
 }
+
+export type MatchResult = {
+  round: {
+    name: string
+    number: number
+  }
+  teams: string
+  score1: number
+  score2: number
+}
