@@ -7,12 +7,16 @@ import {
   LiveRound,
   RoundStatistics,
   TeamRanking,
-  UpcomingRound
+  UpcomingRound,
+  User,
 } from '@/lib/types'
+import { BASE_API_URL } from '@/lib/utils'
 import { createContext, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 export type RootContextType = {
-  currentUser?: string
+  initCode: string
+  currentUser?: User
   liveRound?: LiveRound
   roundStatistics?: RoundStatistics[]
   teamRankings?: TeamRanking[]
@@ -21,6 +25,7 @@ export type RootContextType = {
 }
 
 const defaultRootContext: RootContextType = {
+  initCode: 'TEST-EUR-it-IT',
   //TODO: remove mock data
   liveRound: {
     name: 'Super League',
@@ -373,10 +378,62 @@ export default function RootContextProvider(props: {
 }) {
   const [rootContext, setRootContext] =
     useState<RootContextType>(defaultRootContext)
+  const { i18n } = useTranslation()
+
+  type UserApiResponse = {
+    status: string
+    description: string
+    playerId: string
+    currency: string
+    lang: string
+    level: number
+    group: string[]
+  }
 
   useEffect(() => {
     setRootContext(getRootContext())
   }, [])
+
+  useEffect(() => {
+    if (!rootContext.initCode) return
+
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch(
+          `${BASE_API_URL}/football/validate/?init_code=${rootContext.initCode}`,
+          {
+            method: 'GET',
+            mode: 'cors',
+          },
+        )
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`)
+        }
+
+        const userData = (await response.json()) as UserApiResponse
+
+        if (userData?.status === '1024') {
+          setRootContext((prev) => ({
+            ...prev,
+            initCode: rootContext.initCode,
+            currentUser: {
+              playerId: userData.playerId,
+              currency: userData.currency,
+              lang: userData.lang,
+              level: userData.level,
+              group: userData.group,
+            },
+          }))
+          i18n.changeLanguage(userData.lang.substring(0, 2))
+        }
+      } catch (error) {
+        console.error('Failed to fetch user data:', error)
+      }
+    }
+
+    fetchUserData()
+  }, [i18n, rootContext.initCode])
 
   useEffect(() => {
     localStorage.setItem('rootContext', JSON.stringify(rootContext))
