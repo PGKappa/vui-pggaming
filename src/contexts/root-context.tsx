@@ -9,6 +9,7 @@ import {
   TeamRanking,
   UpcomingRound,
   User,
+  MatchResult
 } from '@/lib/types'
 import { BASE_API_URL } from '@/lib/utils'
 import { createContext, useEffect, useState } from 'react'
@@ -22,6 +23,7 @@ export type RootContextType = {
   teamRankings?: TeamRanking[]
   upcomingRounds?: UpcomingRound[]
   betsHistory: BetsHistory[]
+  matchResult?: MatchResult[]
 }
 
 const defaultRootContext: RootContextType = {
@@ -356,6 +358,14 @@ const defaultRootContext: RootContextType = {
       winning: 0.0,
       status: 'Perdente',
     },
+  ],
+  matchResult: [
+    {
+      round: { name: 'Super League', number: 28 },
+      teams: 'NAP - GEN',
+      score1: 2,
+      score2: 0,
+    }
   ],
 }
 
