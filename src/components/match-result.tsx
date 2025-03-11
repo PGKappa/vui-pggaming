@@ -31,7 +31,7 @@ export default function MatchResult() {
         return (
           <CardContent
             key={index}
-            className="flex w-full items-center justify-between bg-card-header px-10 py-16 xl:px-10 sm:px-4"
+            className="flex w-full items-center justify-around py-16 bg-card-header"
           >
             <div className="flex flex-row gap-4">
               <div className="flex flex-col items-center gap-2">
