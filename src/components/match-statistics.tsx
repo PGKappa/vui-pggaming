@@ -1,14 +1,19 @@
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
-import { useContext } from 'react'
 import { RootContext } from '@/contexts/root-context'
+import { useContext } from 'react'
+import { useTranslation } from 'react-i18next'
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
+
 export default function MatchStatistics() {
   const { roundStatistics } = useContext(RootContext)
+  const { t } = useTranslation()
 
   if (!roundStatistics || roundStatistics.length === 0) {
     return (
       <Card className="w-full">
         <CardHeader className="text-center">
-          <CardTitle className="font-extrabold">STATISTICS</CardTitle>
+          <CardTitle className="font-extrabold">
+            {t('statistics').toUpperCase()}
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <p>No statistics available</p>
@@ -31,7 +36,9 @@ export default function MatchStatistics() {
   return (
     <Card className="w-full">
       <CardHeader className="text-center">
-        <CardTitle className="font-extrabold">STATISTICS</CardTitle>
+        <CardTitle className="font-extrabold">
+          {t('statistics').toUpperCase()}
+        </CardTitle>
       </CardHeader>
 
       <CardContent className="flex flex-col items-center gap-2 bg-card-header">
@@ -79,7 +86,7 @@ export default function MatchStatistics() {
               />
             </svg>
 
-            <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[1] flex flex-col gap-1'>
+            <div className="absolute left-1/2 top-1/2 z-[1] flex -translate-x-1/2 -translate-y-1/2 flex-col gap-1">
               <span className="text-[3vw] font-semibold sm:text-base">
                 {draw}%
               </span>
