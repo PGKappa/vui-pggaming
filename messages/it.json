@@ -1,3 +1,21 @@
 {
-  "statistics": "Statistiche"
+  "horses": "Cavalli",
+  "dogs": "Cani",
+  "football": "Calcio",
+  "end_play": "Fine giocata",
+  "live_round_loading": "Caricamento round live",
+  "round": "Turno",
+  "statistics": "Statistiche",
+  "no_statistics": "Nessuna statistica disponibile",
+  "draw": "Pareggio",
+  "last_4_matches": "Ultimi 4 incontri",
+  "results": "Risultati",
+  "no_match_results": "Nessun risultato disponibile",
+  "ranking": "Classifica",
+  "P": "G",
+  "W": "V",
+  "D": "N",
+  "L": "P",
+  "pts": "PT",
+  "last": "ULTIME"
 }
