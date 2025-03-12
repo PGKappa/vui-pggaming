@@ -439,7 +439,7 @@ export default function RootContextProvider(props: {
   useEffect(() => {
     if (!rootContext.initCode) return
 
-    const fetchUserData = async () => {
+    const fetchUserData = async (retryCount = 0, maxRetries = 3) => {
       try {
         const response = await fetch(
           `${BASE_API_URL}/football/validate/?init_code=${rootContext.initCode}`,
@@ -463,14 +463,23 @@ export default function RootContextProvider(props: {
           }))
           i18n.changeLanguage(userData.lang.substring(0, 2))
         }
-      } catch {
-        setRootContext((prev) => ({
-          ...prev,
-          initCode: undefined,
-          userData: undefined,
-        }))
-      } finally {
-        setIsLoading(false)
+      } catch (error) {
+        console.error(`Fetch attempt ${retryCount + 1} failed:`, error)
+
+        if (retryCount < maxRetries) {
+          const delay = Math.pow(2, retryCount) * 1000
+          console.log(`Retrying in ${delay}ms...`)
+
+          setTimeout(() => fetchUserData(retryCount + 1, maxRetries), delay)
+        } else {
+          console.error(`All ${maxRetries + 1} attempts failed. Giving up.`)
+          setRootContext((prev) => ({
+            ...prev,
+            initCode: undefined,
+            userData: undefined,
+          }))
+          setIsLoading(false)
+        }
       }
     }
 
@@ -481,6 +490,15 @@ export default function RootContextProvider(props: {
     return (
       <div className="flex h-full flex-col items-center justify-center">
         <LoadingSpinner />
+      </div>
+    )
+  }
+
+  if (!rootContext.initCode) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-4">
+        <h1 className="text-2xl font-bold">Error</h1>
+        <p className="text-lg">Unable to fetch user data</p>
       </div>
     )
   }
