@@ -2,7 +2,7 @@ FROM node:20 AS builder
 
 WORKDIR /app
 
-ARG REACT_APP_API_BASE_URL=http://localhost:3000
+ARG NEXT_PUBLIC_BASE_API_URL=https://pg-gaming.stg.startegois.com/proxy
 
 COPY package*.json /app/
 COPY pnpm-lock.yaml /app/
