@@ -407,6 +407,7 @@ export default function RootContextProvider(props: {
   const [rootContext, setRootContext] =
     useState<RootContextType>(defaultRootContext)
   const { i18n } = useTranslation()
+  const [isLoading, setIsLoading] = useState(true)
 
   type UserApiResponse = {
     status: string
@@ -465,15 +466,18 @@ export default function RootContextProvider(props: {
       } catch {
         setRootContext((prev) => ({
           ...prev,
+          initCode: undefined,
           userData: undefined,
         }))
+      } finally {
+        setIsLoading(false)
       }
     }
 
     fetchUserData()
   }, [i18n, rootContext.initCode])
 
-  if (!rootContext.initCode) {
+  if (isLoading) {
     return (
       <div className="flex h-full flex-col items-center justify-center">
         <LoadingSpinner />
