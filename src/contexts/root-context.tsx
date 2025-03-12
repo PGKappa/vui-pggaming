@@ -1,23 +1,28 @@
 'use client'
 
+import LoadingSpinner from '@/components/loading-spinner'
 import {
   BetOptionMarket,
   BetsHistory,
   BetType,
   LiveRound,
+  MatchResult,
   RoundStatistics,
   TeamRanking,
   UpcomingRound,
   User,
-  MatchResult
 } from '@/lib/types'
 import { BASE_API_URL } from '@/lib/utils'
 import { createContext, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 export type RootContextType = {
-  initCode: string
-  currentUser?: User
+  initCode?: string
+  userData?: User
+  apiRequest: <T>(
+    input: string | URL | globalThis.Request,
+    init?: RequestInit,
+  ) => Promise<T>
   liveRound?: LiveRound
   roundStatistics?: RoundStatistics[]
   teamRankings?: TeamRanking[]
@@ -26,8 +31,25 @@ export type RootContextType = {
   matchResult?: MatchResult[]
 }
 
+async function apiRequest<T>(
+  input: string | URL | globalThis.Request,
+  init?: RequestInit,
+): Promise<T> {
+  return await fetch(`${BASE_API_URL}${input}`, init)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`)
+      }
+      return response.json()
+    })
+    .catch((error) => {
+      console.error('API request failed:', error)
+      throw error
+    })
+}
+
 const defaultRootContext: RootContextType = {
-  initCode: 'TEST-EUR-it-IT',
+  apiRequest,
   //TODO: remove mock data
   liveRound: {
     name: 'Super League',
@@ -365,22 +387,18 @@ const defaultRootContext: RootContextType = {
       teams: 'NAP - GEN',
       score1: 2,
       score2: 0,
-    }
+    },
   ],
 }
 
 export const RootContext = createContext<RootContextType>(defaultRootContext)
 
-function getRootContext(): RootContextType {
-  try {
-    const rootContext = localStorage.getItem('rootContext')
-    return rootContext
-      ? (JSON.parse(rootContext) as RootContextType)
-      : defaultRootContext
-  } catch (error) {
-    console.error('Failed to parse rootContext from localStorage:', error)
-    return defaultRootContext
-  }
+function getInitCodeFromUrl(): string | undefined {
+  if (typeof window === 'undefined') return undefined
+
+  const params = new URLSearchParams(window.location.search)
+
+  return params.get('init_code') || undefined
 }
 
 export default function RootContextProvider(props: {
@@ -389,6 +407,7 @@ export default function RootContextProvider(props: {
   const [rootContext, setRootContext] =
     useState<RootContextType>(defaultRootContext)
   const { i18n } = useTranslation()
+  const [isLoading, setIsLoading] = useState(true)
 
   type UserApiResponse = {
     status: string
@@ -401,13 +420,26 @@ export default function RootContextProvider(props: {
   }
 
   useEffect(() => {
-    setRootContext(getRootContext())
+    const initCode = getInitCodeFromUrl()
+
+    if (initCode) {
+      const storedInitCode = localStorage.getItem('initCode')
+      if (storedInitCode && storedInitCode !== initCode) {
+        localStorage.removeItem('betsContext')
+      }
+
+      localStorage.setItem('initCode', initCode)
+    } else {
+      localStorage.removeItem('initCode')
+    }
+
+    setRootContext({ ...defaultRootContext, initCode })
   }, [])
 
   useEffect(() => {
     if (!rootContext.initCode) return
 
-    const fetchUserData = async () => {
+    const fetchUserData = async (retryCount = 0, maxRetries = 3) => {
       try {
         const response = await fetch(
           `${BASE_API_URL}/football/validate/?init_code=${rootContext.initCode}`,
@@ -427,27 +459,49 @@ export default function RootContextProvider(props: {
           setRootContext((prev) => ({
             ...prev,
             initCode: rootContext.initCode,
-            currentUser: {
-              playerId: userData.playerId,
-              currency: userData.currency,
-              lang: userData.lang,
-              level: userData.level,
-              group: userData.group,
-            },
+            userData,
           }))
           i18n.changeLanguage(userData.lang.substring(0, 2))
         }
       } catch (error) {
-        console.error('Failed to fetch user data:', error)
+        console.error(`Fetch attempt ${retryCount + 1} failed:`, error)
+
+        if (retryCount < maxRetries) {
+          const delay = Math.pow(2, retryCount) * 1000
+          console.log(`Retrying in ${delay}ms...`)
+
+          setTimeout(() => fetchUserData(retryCount + 1, maxRetries), delay)
+        } else {
+          console.error(`All ${maxRetries + 1} attempts failed. Giving up.`)
+          setRootContext((prev) => ({
+            ...prev,
+            initCode: undefined,
+            userData: undefined,
+          }))
+          setIsLoading(false)
+        }
       }
     }
 
     fetchUserData()
   }, [i18n, rootContext.initCode])
 
-  useEffect(() => {
-    localStorage.setItem('rootContext', JSON.stringify(rootContext))
-  }, [rootContext])
+  if (isLoading) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center">
+        <LoadingSpinner />
+      </div>
+    )
+  }
+
+  if (!rootContext.initCode) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-4">
+        <h1 className="text-2xl font-bold">Error</h1>
+        <p className="text-lg">Unable to fetch user data</p>
+      </div>
+    )
+  }
 
   return (
     <RootContext.Provider value={rootContext}>

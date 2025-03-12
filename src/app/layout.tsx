@@ -29,12 +29,12 @@ function AppContent({ children }: { children: React.ReactNode }) {
   const [skin] = useContext(SkinContext)
   return (
     <body
-      className={`${geistSans.variable} ${geistMono.variable} ${skin} antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${skin} flex h-screen flex-col antialiased`}
     >
       <header className="container">
         <Navbar />
       </header>
-      <main>
+      <main className="flex-1">
         <RootContextProvider>
           <BetsContextProvider>{children}</BetsContextProvider>
         </RootContextProvider>

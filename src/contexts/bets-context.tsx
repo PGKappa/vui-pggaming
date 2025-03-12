@@ -48,8 +48,9 @@ function getBetsContext(): BetsContextType {
 export default function BetsContextProvider(props: {
   children: React.ReactNode
 }) {
+  const initialBetsContext = getBetsContext()
   const [betsContext, setBetsContext] =
-    useState<BetsContextType>(defaultBetsContext)
+    useState<BetsContextType>(initialBetsContext)
 
   const addBet = (bet: {
     round: {
@@ -76,7 +77,7 @@ export default function BetsContextProvider(props: {
 
   const removeMatchBets = (matchId: string) => {
     const [roundNumber, teams] = matchId.split('.')
-    console.log(roundNumber, teams)
+
     setBetsContext((prev) => ({
       ...prev,
       bets: prev.bets.filter(
@@ -87,7 +88,7 @@ export default function BetsContextProvider(props: {
   }
 
   const removeAllBets = () => {
-    setBetsContext((prev) => ({ ...prev, bets: [] }))
+    setBetsContext((prev) => ({ ...prev, bets: [], lastId: 0 }))
   }
 
   const refreshBets = () => {
@@ -95,19 +96,18 @@ export default function BetsContextProvider(props: {
   }
 
   useEffect(() => {
-    const betsContext = getBetsContext()
-    setBetsContext({
-      ...betsContext,
-      lastId: Math.max(...betsContext.bets.map((bet) => bet.id), 0),
+    setBetsContext((prev) => ({
+      ...prev,
       addBet,
       removeBet,
       removeMatchBets,
       removeAllBets,
       refreshBets,
-    })
+    }))
   }, [])
 
   useEffect(() => {
+    if (!betsContext) return
     localStorage.setItem('betsContext', JSON.stringify(betsContext))
   }, [betsContext])
 
