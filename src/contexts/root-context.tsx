@@ -430,6 +430,7 @@ export default function RootContextProvider(props: {
 
       localStorage.setItem('initCode', initCode)
     } else {
+      setIsLoading(false)
       localStorage.removeItem('initCode')
     }
 
