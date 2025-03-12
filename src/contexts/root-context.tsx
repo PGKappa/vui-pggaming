@@ -17,8 +17,12 @@ import { createContext, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 export type RootContextType = {
-  initCode: string
-  currentUser?: User
+  initCode?: string
+  userData?: User
+  apiRequest: <T>(
+    input: string | URL | globalThis.Request,
+    init?: RequestInit,
+  ) => Promise<T>
   liveRound?: LiveRound
   roundStatistics?: RoundStatistics[]
   teamRankings?: TeamRanking[]
@@ -27,8 +31,25 @@ export type RootContextType = {
   matchResult?: MatchResult[]
 }
 
+async function apiRequest<T>(
+  input: string | URL | globalThis.Request,
+  init?: RequestInit,
+): Promise<T> {
+  return await fetch(`${BASE_API_URL}${input}`, init)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`)
+      }
+      return response.json()
+    })
+    .catch((error) => {
+      console.error('API request failed:', error)
+      throw error
+    })
+}
+
 const defaultRootContext: RootContextType = {
-  initCode: 'TEST-EUR-it-IT',
+  apiRequest,
   //TODO: remove mock data
   liveRound: {
     name: 'Super League',
@@ -372,20 +393,12 @@ const defaultRootContext: RootContextType = {
 
 export const RootContext = createContext<RootContextType>(defaultRootContext)
 
-function saveAuthData(initCode: string, currentUser?: User) {
-  localStorage.setItem('authData', JSON.stringify({ initCode, currentUser }))
-}
+function getInitCodeFromUrl(): string | undefined {
+  if (typeof window === 'undefined') return undefined
 
-function getAuthData(): { initCode: string; currentUser?: User } {
-  try {
-    const authData = localStorage.getItem('authData')
-    return authData
-      ? JSON.parse(authData)
-      : { initCode: defaultRootContext.initCode }
-  } catch (error) {
-    console.error('Failed to parse authData from localStorage:', error)
-    return { initCode: defaultRootContext.initCode }
-  }
+  const params = new URLSearchParams(window.location.search)
+
+  return params.get('init_code') || undefined
 }
 
 export default function RootContextProvider(props: {
@@ -406,14 +419,21 @@ export default function RootContextProvider(props: {
   }
 
   useEffect(() => {
-    const { initCode, currentUser } = getAuthData()
-    setRootContext({ ...defaultRootContext, initCode, currentUser })
-  }, [])
+    const initCode = getInitCodeFromUrl()
 
-  useEffect(() => {
-    if (!rootContext.initCode) return
-    saveAuthData(rootContext.initCode, rootContext.currentUser)
-  }, [rootContext.initCode, rootContext.currentUser])
+    if (initCode) {
+      const storedInitCode = localStorage.getItem('initCode')
+      if (storedInitCode && storedInitCode !== initCode) {
+        localStorage.removeItem('betsContext')
+      }
+
+      localStorage.setItem('initCode', initCode)
+    } else {
+      localStorage.removeItem('initCode')
+    }
+
+    setRootContext({ ...defaultRootContext, initCode })
+  }, [])
 
   useEffect(() => {
     if (!rootContext.initCode) return
@@ -438,20 +458,14 @@ export default function RootContextProvider(props: {
           setRootContext((prev) => ({
             ...prev,
             initCode: rootContext.initCode,
-            currentUser: {
-              playerId: userData.playerId,
-              currency: userData.currency,
-              lang: userData.lang,
-              level: userData.level,
-              group: userData.group,
-            },
+            userData,
           }))
           i18n.changeLanguage(userData.lang.substring(0, 2))
         }
       } catch {
         setRootContext((prev) => ({
           ...prev,
-          currentUser: undefined,
+          userData: undefined,
         }))
       }
     }
@@ -459,7 +473,7 @@ export default function RootContextProvider(props: {
     fetchUserData()
   }, [i18n, rootContext.initCode])
 
-  if (!rootContext.currentUser) {
+  if (!rootContext.initCode) {
     return (
       <div className="flex h-full flex-col items-center justify-center">
         <LoadingSpinner />
