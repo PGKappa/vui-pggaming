@@ -478,8 +478,9 @@ export default function RootContextProvider(props: {
             initCode: undefined,
             userData: undefined,
           }))
-          setIsLoading(false)
         }
+      } finally {
+        setIsLoading(false)
       }
     }
 
