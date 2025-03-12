@@ -1,5 +1,6 @@
 'use client'
 
+import LoadingSpinner from '@/components/loading-spinner'
 import {
   BetOptionMarket,
   BetsHistory,
@@ -410,6 +411,7 @@ export default function RootContextProvider(props: {
   }, [])
 
   useEffect(() => {
+    if (!rootContext.initCode) return
     saveAuthData(rootContext.initCode, rootContext.currentUser)
   }, [rootContext.initCode, rootContext.currentUser])
 
@@ -446,13 +448,24 @@ export default function RootContextProvider(props: {
           }))
           i18n.changeLanguage(userData.lang.substring(0, 2))
         }
-      } catch (error) {
-        console.error('Failed to fetch user data:', error)
+      } catch {
+        setRootContext((prev) => ({
+          ...prev,
+          currentUser: undefined,
+        }))
       }
     }
 
     fetchUserData()
   }, [i18n, rootContext.initCode])
+
+  if (!rootContext.currentUser) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center">
+        <LoadingSpinner />
+      </div>
+    )
+  }
 
   return (
     <RootContext.Provider value={rootContext}>
