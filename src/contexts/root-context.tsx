@@ -5,11 +5,11 @@ import {
   BetsHistory,
   BetType,
   LiveRound,
+  MatchResult,
   RoundStatistics,
   TeamRanking,
   UpcomingRound,
   User,
-  MatchResult
 } from '@/lib/types'
 import { BASE_API_URL } from '@/lib/utils'
 import { createContext, useEffect, useState } from 'react'
@@ -365,21 +365,25 @@ const defaultRootContext: RootContextType = {
       teams: 'NAP - GEN',
       score1: 2,
       score2: 0,
-    }
+    },
   ],
 }
 
 export const RootContext = createContext<RootContextType>(defaultRootContext)
 
-function getRootContext(): RootContextType {
+function saveAuthData(initCode: string, currentUser?: User) {
+  localStorage.setItem('authData', JSON.stringify({ initCode, currentUser }))
+}
+
+function getAuthData(): { initCode: string; currentUser?: User } {
   try {
-    const rootContext = localStorage.getItem('rootContext')
-    return rootContext
-      ? (JSON.parse(rootContext) as RootContextType)
-      : defaultRootContext
+    const authData = localStorage.getItem('authData')
+    return authData
+      ? JSON.parse(authData)
+      : { initCode: defaultRootContext.initCode }
   } catch (error) {
-    console.error('Failed to parse rootContext from localStorage:', error)
-    return defaultRootContext
+    console.error('Failed to parse authData from localStorage:', error)
+    return { initCode: defaultRootContext.initCode }
   }
 }
 
@@ -401,8 +405,13 @@ export default function RootContextProvider(props: {
   }
 
   useEffect(() => {
-    setRootContext(getRootContext())
+    const { initCode, currentUser } = getAuthData()
+    setRootContext({ ...defaultRootContext, initCode, currentUser })
   }, [])
+
+  useEffect(() => {
+    saveAuthData(rootContext.initCode, rootContext.currentUser)
+  }, [rootContext.initCode, rootContext.currentUser])
 
   useEffect(() => {
     if (!rootContext.initCode) return
@@ -444,10 +453,6 @@ export default function RootContextProvider(props: {
 
     fetchUserData()
   }, [i18n, rootContext.initCode])
-
-  useEffect(() => {
-    localStorage.setItem('rootContext', JSON.stringify(rootContext))
-  }, [rootContext])
 
   return (
     <RootContext.Provider value={rootContext}>
