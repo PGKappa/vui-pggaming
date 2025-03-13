@@ -31,7 +31,7 @@ export default function Home() {
 
   return (
     <>
-      <div className="container grid grid-cols-1 justify-center gap-3 py-4 lg:grid-cols-4">
+      <div className="container grid grid-cols-1 justify-center gap-3 pt-4 pb-10 lg:pb-4 lg:grid-cols-4">
         <div className="flex flex-col items-center gap-4 lg:col-span-2">
           <div className="flex w-full flex-col gap-1">
             <LiveMatchInfo />

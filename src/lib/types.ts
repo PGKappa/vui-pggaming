@@ -1,3 +1,11 @@
+export type User = {
+  playerId: string
+  currency: string
+  lang: string
+  level: number
+  group: string[]
+}
+
 export type Score = {
   team1: string
   team2: string
