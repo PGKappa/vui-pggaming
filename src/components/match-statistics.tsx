@@ -16,7 +16,7 @@ export default function MatchStatistics() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p>No statistics available</p>
+          <p>{t('no_statistics')}</p>
         </CardContent>
       </Card>
     )
@@ -89,7 +89,7 @@ export default function MatchStatistics() {
 
             <div className="absolute left-1/2 top-1/2 z-[1] flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-1">
               <span className="text-md font-semibold sm:text-lg">{draw}%</span>
-              <p className="text-sm sm:text-md">Draw</p>
+              <p className="text-sm">{t('draw')}</p>
             </div>
           </div>
 
@@ -107,7 +107,7 @@ export default function MatchStatistics() {
           </div>
         </div>
 
-        <p className="text-sm">Last 4 matches</p>
+        <p className="text-sm">{t("last_4_matches")}</p>
         <div className="grid grid-cols-2 gap-x-16 font-semibold">
           {['1-1', '1-1', '1-1', '1-1'].map((match, index) => (
             <div key={index} className="flex items-center gap-1">

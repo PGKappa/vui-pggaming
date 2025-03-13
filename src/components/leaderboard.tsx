@@ -12,6 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from './ui/table'
+import { t } from 'i18next'
 
 export default function Leaderboard() {
   const { teamRankings } = useContext(RootContext)
@@ -19,7 +20,7 @@ export default function Leaderboard() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Ranking</CardTitle>
+        <CardTitle>{t("ranking")}</CardTitle>
       </CardHeader>
       <CardContent>
         {teamRankings ? (
@@ -28,12 +29,12 @@ export default function Leaderboard() {
               <TableRow>
                 <TableHead className="w-[100px]"></TableHead>
                 <TableHead></TableHead>
-                <TableHead>P</TableHead>
-                <TableHead>W</TableHead>
-                <TableHead>D</TableHead>
-                <TableHead>L</TableHead>
-                <TableHead>Pts</TableHead>
-                <TableHead className="text-right">LAST 8</TableHead>
+                <TableHead>{t('P')}</TableHead>
+                <TableHead>{t('W')}</TableHead>
+                <TableHead>{t('D')}</TableHead>
+                <TableHead>{t('L')}</TableHead>
+                <TableHead>{t('pts')}</TableHead>
+                <TableHead className="text-right">{t("last")} 8</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

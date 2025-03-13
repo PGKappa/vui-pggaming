@@ -1,6 +1,7 @@
 'use client'
 
 import { RootContext } from '@/contexts/root-context'
+import { t } from 'i18next'
 import { useContext } from 'react'
 
 export default function LiveMatchInfo() {
@@ -22,7 +23,7 @@ export default function LiveMatchInfo() {
         alt="Football"
         className="h-8 w-8 invert filter"
       />
-      <span>Football</span>
+      <span>{t("football")}</span>
       <span className="ml-auto">{formattedTime}</span>
     </div>
   )

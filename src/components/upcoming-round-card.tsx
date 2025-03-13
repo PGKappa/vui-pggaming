@@ -11,10 +11,11 @@ import {
 } from '@/components/ui/table'
 import { BetsContext } from '@/contexts/bets-context'
 import { BetOption, BetOptionMarket, UpcomingRound } from '@/lib/types'
-import { format, isToday, isTomorrow } from 'date-fns'
-import { enUS } from 'date-fns/locale'
+import { Locale, format, isToday } from 'date-fns'
+import { itCH, enGB, zhCN } from 'date-fns/locale'
 import { PlusIcon } from 'lucide-react'
 import { Dispatch, SetStateAction, useContext } from 'react'
+import { useTranslation } from 'react-i18next'
 
 export default function UpcomingRoundCard(props: {
   round: UpcomingRound
@@ -34,11 +35,14 @@ export default function UpcomingRoundCard(props: {
   >
 }) {
   const { addBet } = useContext(BetsContext)
+
+  const { t, i18n } = useTranslation()
+  const currentLocale = getLocale(i18n.language)
   return (
     <Card className="border-b border-t border-card-foreground">
       <CardHeader className="flex flex-row items-center justify-between px-6 md:pl-14">
         <span>
-          {props.round.name} Round {props.round.number}
+          {props.round.name} {t('round')} {props.round.number}
         </span>
         <span>30:00</span>
       </CardHeader>
@@ -59,15 +63,17 @@ export default function UpcomingRoundCard(props: {
               const roundStart = new Date(props.round.startingAt)
               const matchStart = new Date(roundStart.getTime())
               let dayLabel = format(matchStart, 'EEE', {
-                locale: enUS,
+                locale: currentLocale,
               }).toUpperCase()
+
               if (isToday(matchStart)) {
-                dayLabel = 'TODAY'
-              } else if (isTomorrow(matchStart)) {
-                dayLabel = 'TOMORROW'
+                dayLabel = t('today')
               }
 
-              const formattedDate = format(matchStart, 'HH:mm')
+              const formattedDate = format(matchStart, 'HH:mm', {
+                locale: currentLocale,
+              })
+
               return (
                 <TableRow key={index} className="border-card-foreground">
                   <TableCell className="flex w-full flex-row items-center gap-2 md:pl-14">
@@ -127,4 +133,13 @@ export default function UpcomingRoundCard(props: {
       </CardContent>
     </Card>
   )
+}
+
+function getLocale(lang: string) {
+  const locales: Record<string, Locale> = {
+    en: enGB,
+    it: itCH,
+    cn: zhCN,
+  }
+  return locales[lang] || enGB
 }
