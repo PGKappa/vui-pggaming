@@ -8,7 +8,7 @@ import {
   RoundStatistics,
   TeamRanking,
   UpcomingRound,
-  MatchResult
+  MatchResult,
 } from '@/lib/types'
 import { createContext, useEffect, useState } from 'react'
 
@@ -99,17 +99,41 @@ const defaultRootContext: RootContextType = {
             {
               market: BetOptionMarket.MAIN,
               options: [
-                { market: BetOptionMarket.MAIN, betType: BetType.TEAM1, odd: 1.5 },
-                { market: BetOptionMarket.MAIN, betType: BetType.DRAW, odd: 3.5 },
-                { market: BetOptionMarket.MAIN, betType: BetType.TEAM2, odd: 2.5 },
+                {
+                  market: BetOptionMarket.MAIN,
+                  betType: BetType.TEAM1,
+                  odd: 1.5,
+                },
+                {
+                  market: BetOptionMarket.MAIN,
+                  betType: BetType.DRAW,
+                  odd: 3.5,
+                },
+                {
+                  market: BetOptionMarket.MAIN,
+                  betType: BetType.TEAM2,
+                  odd: 2.5,
+                },
               ],
             },
             {
               market: BetOptionMarket.NEXT_GOAL,
               options: [
-                { market: BetOptionMarket.NEXT_GOAL, betType: BetType.TEAM1, odd: 1.5 },
-                { market: BetOptionMarket.NEXT_GOAL, betType: BetType.DRAW, odd: 3.5 },
-                { market: BetOptionMarket.NEXT_GOAL, betType: BetType.TEAM2, odd: 2.5 },
+                {
+                  market: BetOptionMarket.NEXT_GOAL,
+                  betType: BetType.TEAM1,
+                  odd: 1.5,
+                },
+                {
+                  market: BetOptionMarket.NEXT_GOAL,
+                  betType: BetType.DRAW,
+                  odd: 3.5,
+                },
+                {
+                  market: BetOptionMarket.NEXT_GOAL,
+                  betType: BetType.TEAM2,
+                  odd: 2.5,
+                },
               ],
             },
           ],
@@ -120,9 +144,21 @@ const defaultRootContext: RootContextType = {
             {
               market: BetOptionMarket.MAIN,
               options: [
-                { market: BetOptionMarket.MAIN, betType: BetType.TEAM1, odd: 1.5 },
-                { market: BetOptionMarket.MAIN, betType: BetType.DRAW, odd: 3.5 },
-                { market: BetOptionMarket.MAIN, betType: BetType.TEAM2, odd: 2.5 },
+                {
+                  market: BetOptionMarket.MAIN,
+                  betType: BetType.TEAM1,
+                  odd: 1.5,
+                },
+                {
+                  market: BetOptionMarket.MAIN,
+                  betType: BetType.DRAW,
+                  odd: 3.5,
+                },
+                {
+                  market: BetOptionMarket.MAIN,
+                  betType: BetType.TEAM2,
+                  odd: 2.5,
+                },
               ],
             },
           ],
@@ -133,9 +169,21 @@ const defaultRootContext: RootContextType = {
             {
               market: BetOptionMarket.MAIN,
               options: [
-                { market: BetOptionMarket.MAIN, betType: BetType.TEAM1, odd: 1.5 },
-                { market: BetOptionMarket.MAIN, betType: BetType.DRAW, odd: 3.5 },
-                { market: BetOptionMarket.MAIN, betType: BetType.TEAM2, odd: 2.5 },
+                {
+                  market: BetOptionMarket.MAIN,
+                  betType: BetType.TEAM1,
+                  odd: 1.5,
+                },
+                {
+                  market: BetOptionMarket.MAIN,
+                  betType: BetType.DRAW,
+                  odd: 3.5,
+                },
+                {
+                  market: BetOptionMarket.MAIN,
+                  betType: BetType.TEAM2,
+                  odd: 2.5,
+                },
               ],
             },
           ],
@@ -146,9 +194,21 @@ const defaultRootContext: RootContextType = {
             {
               market: BetOptionMarket.MAIN,
               options: [
-                { market: BetOptionMarket.MAIN, betType: BetType.TEAM1, odd: 1.5 },
-                { market: BetOptionMarket.MAIN, betType: BetType.DRAW, odd: 3.5 },
-                { market: BetOptionMarket.MAIN, betType: BetType.TEAM2, odd: 2.5 },
+                {
+                  market: BetOptionMarket.MAIN,
+                  betType: BetType.TEAM1,
+                  odd: 1.5,
+                },
+                {
+                  market: BetOptionMarket.MAIN,
+                  betType: BetType.DRAW,
+                  odd: 3.5,
+                },
+                {
+                  market: BetOptionMarket.MAIN,
+                  betType: BetType.TEAM2,
+                  odd: 2.5,
+                },
               ],
             },
           ],
@@ -158,7 +218,7 @@ const defaultRootContext: RootContextType = {
     {
       name: 'Super League',
       number: 31,
-      startingAt: new Date('2025-02-20T14:00:00Z'),
+      startingAt: new Date('2025-03-13T14:00:00Z'),
       duration: 30,
       matches: [
         {
@@ -167,9 +227,21 @@ const defaultRootContext: RootContextType = {
             {
               market: BetOptionMarket.MAIN,
               options: [
-                { market: BetOptionMarket.MAIN, betType: BetType.TEAM1, odd: 2.84 },
-                { market: BetOptionMarket.MAIN, betType: BetType.DRAW, odd: 3.52 },
-                { market: BetOptionMarket.MAIN, betType: BetType.TEAM2, odd: 1.55 },
+                {
+                  market: BetOptionMarket.MAIN,
+                  betType: BetType.TEAM1,
+                  odd: 2.84,
+                },
+                {
+                  market: BetOptionMarket.MAIN,
+                  betType: BetType.DRAW,
+                  odd: 3.52,
+                },
+                {
+                  market: BetOptionMarket.MAIN,
+                  betType: BetType.TEAM2,
+                  odd: 1.55,
+                },
               ],
             },
           ],
@@ -180,9 +252,21 @@ const defaultRootContext: RootContextType = {
             {
               market: BetOptionMarket.MAIN,
               options: [
-                { market: BetOptionMarket.MAIN, betType: BetType.TEAM1, odd: 2.84 },
-                { market: BetOptionMarket.MAIN, betType: BetType.DRAW, odd: 3.52 },
-                { market: BetOptionMarket.MAIN, betType: BetType.TEAM2, odd: 1.55 },
+                {
+                  market: BetOptionMarket.MAIN,
+                  betType: BetType.TEAM1,
+                  odd: 2.84,
+                },
+                {
+                  market: BetOptionMarket.MAIN,
+                  betType: BetType.DRAW,
+                  odd: 3.52,
+                },
+                {
+                  market: BetOptionMarket.MAIN,
+                  betType: BetType.TEAM2,
+                  odd: 1.55,
+                },
               ],
             },
           ],
@@ -193,9 +277,21 @@ const defaultRootContext: RootContextType = {
             {
               market: BetOptionMarket.MAIN,
               options: [
-                { market: BetOptionMarket.MAIN, betType: BetType.TEAM1, odd: 2.84 },
-                { market: BetOptionMarket.MAIN, betType: BetType.DRAW, odd: 3.52 },
-                { market: BetOptionMarket.MAIN, betType: BetType.TEAM2, odd: 1.55 },
+                {
+                  market: BetOptionMarket.MAIN,
+                  betType: BetType.TEAM1,
+                  odd: 2.84,
+                },
+                {
+                  market: BetOptionMarket.MAIN,
+                  betType: BetType.DRAW,
+                  odd: 3.52,
+                },
+                {
+                  market: BetOptionMarket.MAIN,
+                  betType: BetType.TEAM2,
+                  odd: 1.55,
+                },
               ],
             },
           ],
@@ -206,9 +302,21 @@ const defaultRootContext: RootContextType = {
             {
               market: BetOptionMarket.MAIN,
               options: [
-                { market: BetOptionMarket.MAIN, betType: BetType.TEAM1, odd: 2.84 },
-                { market: BetOptionMarket.MAIN, betType: BetType.DRAW, odd: 3.52 },
-                { market: BetOptionMarket.MAIN, betType: BetType.TEAM2, odd: 1.55 },
+                {
+                  market: BetOptionMarket.MAIN,
+                  betType: BetType.TEAM1,
+                  odd: 2.84,
+                },
+                {
+                  market: BetOptionMarket.MAIN,
+                  betType: BetType.DRAW,
+                  odd: 3.52,
+                },
+                {
+                  market: BetOptionMarket.MAIN,
+                  betType: BetType.TEAM2,
+                  odd: 1.55,
+                },
               ],
             },
           ],
@@ -252,7 +360,7 @@ const defaultRootContext: RootContextType = {
       teams: 'NAP - GEN',
       score1: 2,
       score2: 0,
-    }
+    },
   ],
 }
 
