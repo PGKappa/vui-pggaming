@@ -11,6 +11,7 @@ import {
   TableCell,
 } from './ui/table'
 import { Badge } from './ui/badge'
+import { t } from 'i18next'
 
 export default function LiveRoundScores() {
   const { liveRound } = useContext(RootContext)
@@ -19,7 +20,7 @@ export default function LiveRoundScores() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Live Round Loading...</CardTitle>
+          <CardTitle>{t("live_round_loading")}...</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col items-center">
           <LoadingSpinner />
@@ -32,7 +33,7 @@ export default function LiveRoundScores() {
     <Card>
       <CardHeader>
         <CardTitle className="h-5">
-          {liveRound.name} Round {liveRound.number}
+          {liveRound.name} {t("round")} {liveRound.number}
         </CardTitle>
       </CardHeader>
       <CardContent>

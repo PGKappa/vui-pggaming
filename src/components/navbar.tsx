@@ -2,6 +2,7 @@ import { cn } from '@/lib/utils'
 import Image from 'next/image'
 import Link from 'next/link'
 import { buttonVariants } from './ui/button'
+import { t } from 'i18next'
 
 export default function Navbar() {
   return (
@@ -22,7 +23,7 @@ export default function Navbar() {
           className="h-6 w-auto"
           priority
         />
-        <span className="text-xs font-medium">Dogs</span>
+        <span className="text-xs font-medium">{t("dogs")}</span>
       </Link>
 
       <Link
@@ -41,7 +42,7 @@ export default function Navbar() {
           className="h-6 w-auto"
           priority
         />
-        <span className="text-xs font-medium">Horses</span>
+        <span className="text-xs font-medium">{t("horses")}</span>
       </Link>
 
       <Link

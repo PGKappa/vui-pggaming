@@ -10,6 +10,7 @@ import {
   RoundStatistics,
   TeamRanking,
   UpcomingRound,
+  MatchResult,
   User,
 } from '@/lib/types'
 import { BASE_API_URL } from '@/lib/utils'
@@ -65,7 +66,7 @@ const defaultRootContext: RootContextType = {
   },
   roundStatistics: [
     {
-      name: 'Statistics',
+      name: 'Super League',
       number: 29,
       matches: [
         {
@@ -245,7 +246,7 @@ const defaultRootContext: RootContextType = {
     {
       name: 'Super League',
       number: 31,
-      startingAt: new Date('2025-02-20T14:00:00Z'),
+      startingAt: new Date('2025-03-13T14:00:00Z'),
       duration: 30,
       matches: [
         {

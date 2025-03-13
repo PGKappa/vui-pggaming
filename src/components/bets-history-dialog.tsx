@@ -22,6 +22,7 @@ import React, { useContext, useMemo } from 'react'
 import { Button } from './ui/button'
 import { BetsHistory } from '@/lib/types'
 import TicketDetailsDialog from './ticket-details-dialog'
+import { t } from 'i18next'
 
 export default function BetsHistoryDialog() {
   const { betsHistory } = useContext(RootContext)
@@ -47,19 +48,19 @@ export default function BetsHistoryDialog() {
           variant="ghost"
           className="whitespace-normal py-6 text-md leading-tight"
         >
-          Le mie scommesse
+          {t('my_bets')}
         </Button>
       </DialogTrigger>
 
       <DialogContent aria-describedby={undefined}>
         <DialogHeader>
-          <DialogTitle>Storico Tickets</DialogTitle>
+          <DialogTitle>{t('ticket_history')}</DialogTitle>
         </DialogHeader>
 
         {betsHistory.length === 0 ? (
           <div className="flex h-40 items-center justify-center">
             {' '}
-            Nessuna scomessa effettuata.
+            {t('no_bets_placed')}
           </div>
         ) : (
           <ScrollArea>
@@ -67,19 +68,19 @@ export default function BetsHistoryDialog() {
               <TableHeader>
                 <TableRow className="h-12 bg-betSlip text-md">
                   <TableHead className="text-center text-primary">
-                    Codice Ticket
+                    {t('ticket_code')}
                   </TableHead>
                   <TableHead className="text-center text-primary">
-                    Data e Ora
+                    {t('date_hour')}
                   </TableHead>
                   <TableHead className="text-center text-primary">
-                    Importo Giocato
+                    {t('amount_played')}
                   </TableHead>
                   <TableHead className="text-center text-primary">
-                    Vincita
+                    {t('winning')}
                   </TableHead>
                   <TableHead className="text-center text-primary">
-                    Stato Ticket
+                    {t('ticket_status')}
                   </TableHead>
                   <TableHead className="text-center text-primary"></TableHead>
                 </TableRow>
