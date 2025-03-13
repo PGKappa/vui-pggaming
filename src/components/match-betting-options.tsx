@@ -11,6 +11,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from './ui/accordion'
+import { t } from 'i18next'
 
 export default function MatchBettingOptions(props: {
   round: {
@@ -30,7 +31,7 @@ export default function MatchBettingOptions(props: {
             <ChevronsLeftIcon />
           </Button>
           <span>
-            {props.round.name} Round {props.round.number} /
+            {props.round.name} {t('round')} {props.round.number} /
           </span>
           <span className="text-sm font-semibold">{props.teams}</span>
         </div>
