@@ -17,6 +17,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@radix-ui/react-scroll-area'
 import { BetsHistory } from '@/lib/types'
+import { t } from 'i18next'
 
 export default function TicketDetailsDialog({
   ticket,
@@ -32,14 +33,14 @@ export default function TicketDetailsDialog({
             size="icon-history"
             className="font-semibold"
           >
-            Dettagli
+            {t('details')}
           </Button>
         </DialogTrigger>
         <DialogContent
           className="w-full max-w-lg p-6 text-center text-primary"
           aria-describedby={undefined}
         >
-          <p className="font-semibold">Errore! Dettagli non disponibili</p>
+          <p className="font-semibold">{t('details_not_available')}</p>
         </DialogContent>
       </Dialog>
     )
@@ -49,7 +50,7 @@ export default function TicketDetailsDialog({
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="history" size="icon-history" className="font-semibold">
-          Dettagli
+          {t('details')}
         </Button>
       </DialogTrigger>
 
@@ -59,7 +60,7 @@ export default function TicketDetailsDialog({
       >
         <DialogHeader>
           <DialogTitle className="text-lg font-bold">
-            Ticket {ticket.id}
+            {t('ticket')} {ticket.id}
           </DialogTitle>
         </DialogHeader>
 
@@ -68,7 +69,7 @@ export default function TicketDetailsDialog({
             <TableHeader>
               <TableRow className="h-14 bg-betSlip">
                 <TableHead className="text-center text-lg text-primary">
-                  Data e Ora - {new Date(ticket.date).toLocaleString()}
+                  {t('date_hour')} - {new Date(ticket.date).toLocaleString()}
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -79,7 +80,7 @@ export default function TicketDetailsDialog({
                     <TableHeader>
                       <TableRow className="h-14">
                         <TableHead className="text-left text-base text-primary">
-                          Football
+                          {t('football')}
                           <span className="block text-sm">
                             INT -{' '}
                             <span className="text-xs">ID {ticket.id}</span>
