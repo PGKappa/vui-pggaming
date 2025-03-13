@@ -10,7 +10,6 @@ import {
   RoundStatistics,
   TeamRanking,
   UpcomingRound,
-  MatchResult,
   User,
 } from '@/lib/types'
 import { BASE_API_URL } from '@/lib/utils'
