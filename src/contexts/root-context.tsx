@@ -214,6 +214,93 @@ export default function RootContextProvider(props: {
     setInitCode(initCode)
   }, [])
 
+  const prepareNextLiveRound = useCallback(async () => {
+    if (
+      !rootContext.upcomingRounds ||
+      rootContext.upcomingRounds.length === 0
+    ) {
+      console.log('No upcoming rounds available')
+      return
+    }
+
+    const nextRound = rootContext.upcomingRounds[0]
+
+    try {
+      const liveData = await apiRequest<{
+        scores: Score[]
+        streamUrl: string
+      }>(`/football/live/${nextRound.scheduleId}`, {
+        method: 'GET',
+      })
+
+      const newLiveRound: LiveRound = {
+        name: nextRound.scheduleName,
+        number: nextRound.scheduleId,
+        scores: liveData.scores,
+        startingAt: new Date(nextRound.mag_event[0]?.startTime),
+        streamUrl: liveData.streamUrl,
+      }
+
+      setRootContext((prev) => ({
+        ...prev,
+        liveRound: newLiveRound,
+        upcomingRounds: prev.upcomingRounds?.slice(1) || [],
+      }))
+
+      console.log(`Round ${nextRound.scheduleId} is now live`)
+    } catch (error) {
+      console.error('Failed to prepare next live round:', error)
+    }
+  }, [rootContext.upcomingRounds, apiRequest])
+
+  useEffect(() => {
+    if (!initCode) return
+
+    if (!rootContext.liveRound && rootContext.upcomingRounds?.length) {
+      prepareNextLiveRound()
+    }
+  }, [
+    initCode,
+    rootContext.upcomingRounds,
+    rootContext.liveRound,
+    prepareNextLiveRound,
+  ])
+
+  useEffect(() => {
+    if (!initCode) return
+
+    const checkRoundTransition = () => {
+      if (rootContext.liveRound) {
+        const roundEndTime = new Date(rootContext.liveRound.startingAt)
+        roundEndTime.setMinutes(roundEndTime.getMinutes() + 30)
+
+        if (new Date() > roundEndTime && rootContext.upcomingRounds?.length) {
+          prepareNextLiveRound()
+        }
+      } else if (rootContext.upcomingRounds?.length) {
+        const nextRoundStart = new Date(
+          rootContext.upcomingRounds[0].mag_event[0].startTime,
+        )
+
+        if (new Date() >= nextRoundStart) {
+          console.log('Time to start the next round')
+          prepareNextLiveRound()
+        }
+      }
+    }
+
+    checkRoundTransition()
+
+    const intervalId = setInterval(checkRoundTransition, 60000)
+
+    return () => clearInterval(intervalId)
+  }, [
+    rootContext.liveRound,
+    rootContext.upcomingRounds,
+    initCode,
+    prepareNextLiveRound,
+  ])
+
   useEffect(() => {
     if (!initCode) return
 
