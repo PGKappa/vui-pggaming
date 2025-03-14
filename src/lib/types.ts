@@ -32,64 +32,104 @@ export type TeamRanking = {
   last8: Array<'W' | 'L' | 'X'>
 }
 
-export type UpcomingRound = {
+export type Team = {
+  kitChoice: string
   name: string
-  number: number
-  startingAt: Date
-  duration: number
-  matches: {
-    teams: string
-    betOptions: Array<{ market: BetOptionMarket; options: BetOption[] }>
+  position: number
+  form: string
+  homeKit: string
+  homeKitId: number
+  homeKitIdSpecified: boolean
+  awayKit: string
+  awayKitId: number
+  awayKitIdSpecified: boolean
+  strenght: number
+  strenghtSpecified: boolean
+  teamId: number
+  teamIdSpecified: boolean
+  kitChoiceSpecified: boolean
+}
+
+export type Selection = {
+  outcome: string
+  decPrice: number
+  order: number
+  externCode: string
+  extraInfo?: string
+}
+
+export type Market = {
+  selections: {
+    selection: Selection[]
   }[]
+  name: string
+  code: string
+  externCode: string
+  margin: number
+  marginSpecified?: boolean
 }
 
-export enum BetType {
-  TEAM1 = '1',
-  DRAW = 'X',
-  TEAM2 = '2',
+export type EventIdentity = {
+  eventId: number
+  scheduleId: number
+  scheduleIdSpecified: boolean
+  scheduleUUID: string
+  eventName: string
+  startTime: Date
+  eventType: string
+  externEventIdSpecified: boolean
+  externOfferIdSpecified: boolean
+  displayCode: string
+  groupId: number
+  groupIdSpecified: boolean
+  eventStatus: string
+  scheduleType: string
+  scheduleSubType: string
+  roundIdSpecified: boolean
+  parentGroupIdSpecified: boolean
 }
 
-export enum BetOptionMarket {
-  MAIN,
-  NEXT_GOAL,
-  MULTIGOAL,
-  GG_NG,
-  UNDER_OVER,
-  COMBO,
-  HANDICAP,
-  EXACT_SCORE,
-  DOUBLE_CHANCE,
+export type UpcomingMatch = {
+  eventIdentity: EventIdentity
+  eventName: string
+  groupId: number
+  markets: { market: Market[] }
+  maxRoundIdSpecified: boolean
+  racer: { racer: [] }
+  roundIdSpecified: boolean
+  startTime: string
+  teams: {
+    team: Team[]
+  }
+  timeOfDay: string
 }
 
-export const BetOptionMarketLabels = {
-  [BetOptionMarket.MAIN]: 'PRINCIPALI',
-  [BetOptionMarket.NEXT_GOAL]: 'PROSSIMO GOL',
-  [BetOptionMarket.MULTIGOAL]: 'MULTIGOL',
-  [BetOptionMarket.GG_NG]: 'GG / NG',
-  [BetOptionMarket.UNDER_OVER]: 'UNDER / OVER',
-  [BetOptionMarket.COMBO]: 'COMBO',
-  [BetOptionMarket.HANDICAP]: 'HANDICAP',
-  [BetOptionMarket.EXACT_SCORE]: 'RIS. ESATTO',
-  [BetOptionMarket.DOUBLE_CHANCE]: 'DOPPIA CHANCE',
-}
-
-export type BetOption = {
-  market: BetOptionMarket
-  betType: BetType
-  odd: number
+export type UpcomingRound = {
+  channel: number
+  oddsFormat: string
+  scheduleId: number
+  scheduleName: string
+  scheduleUUID: string
+  subType: string
+  type: string
+  mag_event: UpcomingMatch[]
 }
 
 export type Bet = {
-  id: number
   round: {
     name: string
     number: number
     startingAt: Date
   }
   teams: string
-  option: BetOption
+  option: Selection
 }
 
+export type BetEntry = {
+  id: number
+  market: string
+  bet: Bet
+}
 export type MatchStatistics = {
   teams: string
   probabilities: [number, number, number]
