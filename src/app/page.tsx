@@ -9,12 +9,12 @@ import LiveRoundStatistics from '@/components/live-round-statistics'
 import LoadingSpinner from '@/components/loading-spinner'
 import MatchBettingOptions from '@/components/match-betting-options'
 import MatchEndBadge from '@/components/match-end-badge'
+import MatchResult from '@/components/match-result'
 import MatchStatistics from '@/components/match-statistics'
 import UpcomingRoundCard from '@/components/upcoming-round-card'
 import VideoStreamCard from '@/components/video-stream-card'
-import MatchResult from '@/components/match-result'
 import { RootContext } from '@/contexts/root-context'
-import { BetOption, BetOptionMarket } from '@/lib/types'
+import { Market } from '@/lib/types'
 import { useContext, useState } from 'react'
 
 export default function Home() {
@@ -26,12 +26,12 @@ export default function Home() {
       startingAt: Date
     }
     teams: string
-    betOptions: Array<{ market: BetOptionMarket; options: BetOption[] }>
+    markets: Market[]
   }>()
 
   return (
     <>
-      <div className="container grid grid-cols-1 justify-center gap-3 pt-4 pb-10 lg:pb-4 lg:grid-cols-4">
+      <div className="container grid grid-cols-1 justify-center gap-3 pb-10 pt-4 lg:grid-cols-4 lg:pb-4">
         <div className="flex flex-col items-center gap-4 lg:col-span-2">
           <div className="flex w-full flex-col gap-1">
             <LiveMatchInfo />
@@ -43,13 +43,13 @@ export default function Home() {
               <MatchBettingOptions
                 round={matchBetOptions.round}
                 teams={matchBetOptions.teams}
-                betOptions={matchBetOptions.betOptions}
+                markets={matchBetOptions.markets}
                 close={() => setMatchBetOptions(undefined)}
               />
             ) : (
               <ol className="w-full space-y-7">
                 {upcomingRounds.map((round) => (
-                  <li key={round.number}>
+                  <li key={round.scheduleId}>
                     <UpcomingRoundCard
                       round={round}
                       viewMatchBettingOptions={setMatchBetOptions}
