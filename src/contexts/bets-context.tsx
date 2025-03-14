@@ -4,7 +4,7 @@ import { Bet, BetEntry } from '@/lib/types'
 import { createContext, useEffect, useState } from 'react'
 
 export type BetsContextType = {
-  bets: BetEntry[]
+  betEntries: BetEntry[]
   lastId: number
   addBet: (market: string, bet: Bet) => void
   removeBet: (id: number) => void
@@ -14,7 +14,7 @@ export type BetsContextType = {
 }
 
 const defaultBetsContext: BetsContextType = {
-  bets: [],
+  betEntries: [],
   lastId: 0,
   addBet: () => {},
   removeBet: () => {},
@@ -47,7 +47,7 @@ export default function BetsContextProvider(props: {
   const addBet = (market: string, bet: Bet) => {
     setBetsContext((prev) => ({
       ...prev,
-      bets: [...prev.bets, { id: prev.lastId + 1, bet, market }],
+      betEntries: [...prev.betEntries, { id: prev.lastId + 1, bet, market }],
       lastId: prev.lastId + 1,
     }))
   }
@@ -55,7 +55,7 @@ export default function BetsContextProvider(props: {
   const removeBet = (id: number) => {
     setBetsContext((prev) => ({
       ...prev,
-      bets: prev.bets.filter((bet) => bet.id !== id),
+      betEntries: prev.betEntries.filter((bet) => bet.id !== id),
     }))
   }
 
@@ -64,16 +64,16 @@ export default function BetsContextProvider(props: {
 
     setBetsContext((prev) => ({
       ...prev,
-      bets: prev.bets.filter(
-        (bet) =>
-          bet.bet.round.number !== parseInt(roundNumber) ||
-          bet.bet.teams !== teams,
+      betEntries: prev.betEntries.filter(
+        (betEntry) =>
+          betEntry.bet.round.number !== parseInt(roundNumber) ||
+          betEntry.bet.teams !== teams,
       ),
     }))
   }
 
   const removeAllBets = () => {
-    setBetsContext((prev) => ({ ...prev, bets: [], lastId: 0 }))
+    setBetsContext((prev) => ({ ...prev, betEntries: [], lastId: 0 }))
   }
 
   const refreshBets = () => {
