@@ -1,16 +1,10 @@
 'use client'
 import { RootContext } from '@/contexts/root-context'
 import { useContext } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import LoadingSpinner from './loading-spinner'
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableCell,
-} from './ui/table'
 import { Badge } from './ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
+import { Table, TableBody, TableCell, TableRow } from './ui/table'
 
 export default function LiveRoundScores() {
   const { liveRound } = useContext(RootContext)
@@ -37,14 +31,6 @@ export default function LiveRoundScores() {
       </CardHeader>
       <CardContent>
         <Table>
-          <TableHeader />
-          {/* <TableHeader>
-            <TableRow>
-              <TableHead className="text-center">Stato</TableHead>
-              <TableHead className="text-center">Partita</TableHead>
-              <TableHead className="text-center">Punteggio</TableHead>
-            </TableRow>
-          </TableHeader> */}
           <TableBody className="border-b border-t border-card-foreground">
             {liveRound.scores.map((score, index) => (
               <TableRow
