@@ -1,16 +1,18 @@
 'use client'
 
-import { BetOption, BetOptionMarket, BetOptionMarketLabels } from '@/lib/types'
-import { Button } from './ui/button'
-import { ChevronsLeftIcon } from 'lucide-react'
-import { Badge } from './ui/badge'
 import { format } from 'date-fns'
+import { ChevronsLeftIcon } from 'lucide-react'
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from './ui/accordion'
+import { Badge } from './ui/badge'
+import { Button } from './ui/button'
+import { Market } from '@/lib/types'
+import { useContext } from 'react'
+import { BetsContext } from '@/contexts/bets-context'
 
 export default function MatchBettingOptions(props: {
   round: {
@@ -19,9 +21,11 @@ export default function MatchBettingOptions(props: {
     startingAt: Date
   }
   teams: string
-  betOptions: Array<{ market: BetOptionMarket; options: BetOption[] }>
+  markets: Market[]
   close: () => void
 }) {
+  const { addBet } = useContext(BetsContext)
+
   return (
     <div className="flex w-full flex-col gap-2">
       <div className="flex flex-row items-center justify-between">
@@ -30,25 +34,32 @@ export default function MatchBettingOptions(props: {
             <ChevronsLeftIcon />
           </Button>
           <span>
-            {props.round.name} Round {props.round.number} /
+            {props.round.name} Round {props.round.number}
           </span>
           <span className="text-sm font-semibold">{props.teams}</span>
         </div>
         <Badge>{format(props.round.startingAt, 'HH:mm')}</Badge>
       </div>
       <Accordion type="multiple">
-        {props.betOptions.map(({ market, options }) => (
-          <AccordionItem key={market} value={market.toString()}>
-            <AccordionTrigger>{BetOptionMarketLabels[market]}</AccordionTrigger>
+        {props.markets.map((market) => (
+          <AccordionItem key={market.name} value={market.name}>
+            <AccordionTrigger>{market.name.toUpperCase()}</AccordionTrigger>
             <AccordionContent>
               <div className="grid grid-cols-3 gap-4 px-8">
-                {options?.map((option) => (
+                {market.selections[0].selection.map((option) => (
                   <Button
-                    key={option.betType}
+                    key={option.outcome}
                     className="flex flex-row justify-between"
+                    onClick={() =>
+                      addBet(market.name, {
+                        round: props.round,
+                        teams: props.teams,
+                        option,
+                      })
+                    }
                   >
-                    <span>{option.betType}</span>
-                    <span className="font-bold">{option.odd}</span>
+                    <span>{option.outcome}</span>
+                    <span className="font-bold">{option.decPrice}</span>
                   </Button>
                 ))}
               </div>
