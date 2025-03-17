@@ -2,6 +2,7 @@ import { RootContext } from '@/contexts/root-context'
 import { useContext } from 'react'
 import { MatchResult } from '@/lib/types'
 import { Card, CardTitle, CardContent, CardHeader } from './ui/card'
+import { t } from 'i18next'
 
 export default function MatchResult() {
   const { matchResult } = useContext(RootContext)
@@ -10,10 +11,10 @@ export default function MatchResult() {
     return (
       <Card className="w-full">
         <CardHeader className="text-center">
-          <CardTitle className="font-extrabold">RESULT</CardTitle>
+          <CardTitle className="font-extrabold">{t('results').toUpperCase()}</CardTitle>
         </CardHeader>
         <CardContent className="py-4 text-center">
-          <p>No match result available</p>
+          <p>{t("no_match_results")}</p>
         </CardContent>
       </Card>
     )
@@ -22,7 +23,7 @@ export default function MatchResult() {
   return (
     <Card className="w-full">
       <CardHeader className="text-center">
-        <CardTitle className="font-extrabold">RESULT</CardTitle>
+        <CardTitle className="font-extrabold">{t('results').toUpperCase()}</CardTitle>
       </CardHeader>
 
       {matchResult.map((match, index) => {

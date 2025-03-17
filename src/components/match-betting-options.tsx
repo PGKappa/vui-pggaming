@@ -1,7 +1,11 @@
 'use client'
 
+import { BetsContext } from '@/contexts/bets-context'
+import { Market } from '@/lib/types'
 import { format } from 'date-fns'
+import { t } from 'i18next'
 import { ChevronsLeftIcon } from 'lucide-react'
+import { useContext } from 'react'
 import {
   Accordion,
   AccordionContent,
@@ -10,9 +14,6 @@ import {
 } from './ui/accordion'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
-import { Market } from '@/lib/types'
-import { useContext } from 'react'
-import { BetsContext } from '@/contexts/bets-context'
 
 export default function MatchBettingOptions(props: {
   round: {
@@ -34,7 +35,7 @@ export default function MatchBettingOptions(props: {
             <ChevronsLeftIcon />
           </Button>
           <span>
-            {props.round.name} Round {props.round.number}
+            {props.round.name} {t('round')} {props.round.number} /
           </span>
           <span className="text-sm font-semibold">{props.teams}</span>
         </div>

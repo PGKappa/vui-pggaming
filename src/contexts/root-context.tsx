@@ -6,10 +6,9 @@ import {
   LiveRound,
   MatchResult,
   RoundStatistics,
-  Score,
   TeamRanking,
   UpcomingRound,
-  User,
+  User
 } from '@/lib/types'
 import { BASE_API_URL } from '@/lib/utils'
 import { createContext, useCallback, useEffect, useRef, useState } from 'react'
@@ -46,7 +45,7 @@ const defaultRootContext: RootContextType = {
   },
   roundStatistics: [
     {
-      name: 'Statistics',
+      name: 'Super League',
       number: 29,
       matches: [
         {

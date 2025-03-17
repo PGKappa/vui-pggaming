@@ -1,5 +1,6 @@
 'use client'
 import { RootContext } from '@/contexts/root-context'
+import { t } from 'i18next'
 import { useContext } from 'react'
 import LoadingSpinner from './loading-spinner'
 import { Badge } from './ui/badge'
@@ -13,7 +14,7 @@ export default function LiveRoundScores() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Live Round Loading...</CardTitle>
+          <CardTitle>{t('live_round_loading')}...</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col items-center">
           <LoadingSpinner />
@@ -26,7 +27,7 @@ export default function LiveRoundScores() {
     <Card>
       <CardHeader>
         <CardTitle className="h-5">
-          {liveRound.name} Round {liveRound.number}
+          {liveRound.name} {t('round')} {liveRound.number}
         </CardTitle>
       </CardHeader>
       <CardContent>
