@@ -10,9 +10,9 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { BetsContext } from '@/contexts/bets-context'
-import { BetOption, BetOptionMarket, UpcomingRound } from '@/lib/types'
-import { Locale, format, isToday } from 'date-fns'
-import { itCH, enGB, zhCN } from 'date-fns/locale'
+import { Market, UpcomingRound } from '@/lib/types'
+import { Locale, format, isToday, isTomorrow } from 'date-fns'
+import { enGB, itCH, zhCN } from 'date-fns/locale'
 import { PlusIcon } from 'lucide-react'
 import { Dispatch, SetStateAction, useContext } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -28,7 +28,7 @@ export default function UpcomingRoundCard(props: {
             startingAt: Date
           }
           teams: string
-          betOptions: Array<{ market: BetOptionMarket; options: BetOption[] }>
+          markets: Market[]
         }
       | undefined
     >
@@ -42,7 +42,7 @@ export default function UpcomingRoundCard(props: {
     <Card className="border-b border-t border-card-foreground">
       <CardHeader className="flex flex-row items-center justify-between px-6 md:pl-14">
         <span>
-          {props.round.name} {t('round')} {props.round.number}
+          {props.round.scheduleName} {t('round')} {props.round.scheduleId}
         </span>
         <span>30:00</span>
       </CardHeader>
@@ -59,75 +59,94 @@ export default function UpcomingRoundCard(props: {
           </TableHeader>
 
           <TableBody>
-            {props.round.matches.map((match, index) => {
-              const roundStart = new Date(props.round.startingAt)
-              const matchStart = new Date(roundStart.getTime())
-              let dayLabel = format(matchStart, 'EEE', {
-                locale: currentLocale,
-              }).toUpperCase()
+            {props.round.mag_event.length ? (
+              props.round.mag_event.map((match, index) => {
+                const matchStart = match.eventIdentity.startTime || new Date()
+                let dayLabel = format(matchStart, 'EEE', {
+                  locale: currentLocale,
+                }).toUpperCase()
+                if (isToday(matchStart)) {
+                  dayLabel = 'TODAY'
+                } else if (isTomorrow(matchStart)) {
+                  dayLabel = 'TOMORROW'
+                }
 
-              if (isToday(matchStart)) {
-                dayLabel = t('today')
-              }
+                const formattedDate = format(matchStart, 'HH:mm', {
+                  locale: currentLocale,
+                })
+                const teamNames = match.teams.team
+                  .map((t) => t.name || '')
+                  .join(' - ')
 
-              const formattedDate = format(matchStart, 'HH:mm', {
-                locale: currentLocale,
-              })
+                const mainMarket = match.markets.market.find(
+                  (m) => m.name === 'Esito finale 1X2',
+                )
+                const marketOptions =
+                  mainMarket?.selections.flatMap(
+                    ({ selection }) => selection,
+                  ) || []
 
-              return (
-                <TableRow key={index} className="border-card-foreground">
-                  <TableCell className="flex w-full flex-row items-center gap-2 md:pl-14">
-                    <Badge variant="secondary" className="flex flex-col py-0">
-                      <span>{dayLabel}</span>
-                      <span>{formattedDate}</span>
-                    </Badge>
-                    <span className="font-bold">{match.teams}</span>
-                  </TableCell>
+                return (
+                  <TableRow key={index} className="border-card-foreground">
+                    <TableCell className="flex w-full flex-row items-center gap-2 md:pl-14">
+                      <Badge variant="secondary" className="flex flex-col py-0">
+                        <span>{dayLabel}</span>
+                        <span>{formattedDate}</span>
+                      </Badge>
+                      <span className="font-bold">{teamNames}</span>
+                    </TableCell>
 
-                  {match.betOptions
-                    .find(
-                      (betOption) => betOption.market === BetOptionMarket.MAIN,
-                    )
-                    ?.options.map((option, i) => (
+                    {marketOptions.map((option, i) => (
                       <TableCell key={i}>
                         <Button
                           size="sm"
                           className="w-full"
                           onClick={() =>
-                            addBet({
+                            addBet('Esito finale 1X2', {
                               round: {
-                                name: props.round.name,
-                                number: props.round.number,
-                                startingAt: props.round.startingAt,
+                                name: props.round.scheduleName,
+                                number: props.round.scheduleId,
+                                startingAt: matchStart,
                               },
-                              teams: match.teams,
+                              teams: teamNames,
                               option,
                             })
                           }
                         >
-                          {option.odd}
+                          {option.decPrice}
                         </Button>
                       </TableCell>
                     ))}
 
-                  <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() =>
-                        props.viewMatchBettingOptions({
-                          round: props.round,
-                          teams: match.teams,
-                          betOptions: match.betOptions,
-                        })
-                      }
-                    >
-                      <PlusIcon />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              )
-            })}
+                    <TableCell className="text-right">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() =>
+                          props.viewMatchBettingOptions({
+                            round: {
+                              name: props.round.scheduleName,
+                              number: props.round.scheduleId,
+                              startingAt: matchStart,
+                            },
+                            teams: teamNames,
+                            markets: match.markets.market,
+                          })
+                        }
+                      >
+                        <PlusIcon />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                )
+              })
+            ) : (
+              <TableRow>
+                <TableCell colSpan={5} className="py-4 text-center">
+                  No upcoming matches available
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
         </Table>
       </CardContent>

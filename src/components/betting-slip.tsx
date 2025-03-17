@@ -1,6 +1,7 @@
 import { BetsContext } from '@/contexts/bets-context'
-import { Bet } from '@/lib/types'
+import { BetEntry } from '@/lib/types'
 import { format, formatDistanceToNow } from 'date-fns'
+import { t } from 'i18next'
 import { CircleXIcon, RotateCcwIcon, Trash2Icon } from 'lucide-react'
 import { useContext, useMemo, useState } from 'react'
 import BetsHistoryDialog from './bets-history-dialog'
@@ -9,41 +10,48 @@ import { Button } from './ui/button'
 import { Card, CardContent, CardFooter } from './ui/card'
 import { Input } from './ui/input'
 import { Separator } from './ui/separator'
-import { t } from 'i18next'
 
 export default function BettingSlip() {
-  const { bets, removeBet, removeMatchBets, removeAllBets, refreshBets } =
+  const { betEntries, removeBet, removeMatchBets, removeAllBets, refreshBets } =
     useContext(BetsContext)
   const [global, setGlobal] = useState(1)
   const betsByMatch = useMemo(() => {
-    return bets.reduce((groupedBets: { [key: string]: Bet[] }, bet) => {
-      const key = `${bet.round.number}.${bet.teams}`
-      if (!groupedBets[key]) {
-        groupedBets[key] = []
-      }
-      groupedBets[key].push(bet)
-      return groupedBets
-    }, {})
-  }, [bets])
+    return betEntries.reduce(
+      (groupedBets: { [key: string]: BetEntry[] }, betEntry) => {
+        const key = `${betEntry.bet.round.number}.${betEntry.bet.teams}`
+        if (!groupedBets[key]) {
+          groupedBets[key] = []
+        }
+        groupedBets[key].push(betEntry)
+        return groupedBets
+      },
+      {},
+    )
+  }, [betEntries])
 
-  const totalOdds = bets.reduce((total, bet) => total * bet.option.odd, 1)
+  const totalOdds = betEntries.reduce(
+    (total, betEntry) => total * betEntry.bet.option.decPrice,
+    1,
+  )
 
   const potentialWinning = global * totalOdds
 
-  const roundsLength = new Set(bets.map((bet) => bet.round.number)).size
+  const roundsLength = new Set(
+    betEntries.map((betEntry) => betEntry.bet.round.number),
+  ).size
 
   return (
     <>
       <Card className="w-full rounded-sm bg-primary-foreground text-primary">
         <div className="grid grid-cols-2 grid-rows-2 text-center">
           <span className="flex w-full flex-col items-center justify-center text-md">
-            {t('bet_slip')} ({bets.length})
+            {t('bet_slip')} ({betEntries.length})
           </span>
           <BetsHistoryDialog />
 
           <span
             className={`flex w-full flex-col items-center justify-center text-md ${
-              bets.length <= 1
+              betEntries.length <= 1
                 ? 'border-b-2 border-accent bg-betSlip'
                 : 'bg-gray-100'
             }`}
@@ -53,7 +61,7 @@ export default function BettingSlip() {
 
           <span
             className={`flex w-full flex-col items-center justify-center text-md ${
-              bets.length > 1
+              betEntries.length > 1
                 ? 'border-b-2 border-accent bg-betSlip'
                 : 'bg-gray-100'
             }`}
@@ -63,7 +71,7 @@ export default function BettingSlip() {
         </div>
 
         <CardContent className="p-3">
-          {bets.length === 0 ? (
+          {betEntries.length === 0 ? (
             <div className="flex h-full flex-row items-center justify-center gap-3">
               <small className="text-md font-medium leading-none">
                 {t('no_selection')}
@@ -96,30 +104,36 @@ export default function BettingSlip() {
                       <span className="text-sm font-semibold">Football</span>
                       <div className="flex items-center gap-2">
                         <span className="text-sm">
-                          {format(matchBets[0].round.startingAt, 'HH:mm')}
+                          {format(matchBets[0].bet.round.startingAt, 'HH:mm')}
                         </span>
                         <Badge className="rounded-sm">
-                          {formatDistanceToNow(matchBets[0].round.startingAt)}
+                          {formatDistanceToNow(
+                            matchBets[0].bet.round.startingAt,
+                          )}
                         </Badge>
                       </div>
                     </div>
 
-                    <span className="text-sm">{matchBets[0].teams}</span>
+                    <span className="text-sm">{matchBets[0].bet.teams}</span>
                   </div>
 
                   <div className="border border-primary bg-primary-foreground p-1">
-                    {matchBets.map((bet) => (
+                    {matchBets.map((betEntry) => (
                       <div
-                        key={bet.id}
+                        key={betEntry.id}
                         className="flex items-center justify-between text-sm"
                       >
-                        <span className="text-sm">{bet.option.market}</span>
-                        <span className="text-sm">{bet.option.betType}</span>
-                        <span className="text-sm">{bet.option.odd}</span>
+                        <span className="text-sm">{betEntry.market}</span>
+                        <span className="text-sm">
+                          {betEntry.bet.option.outcome}
+                        </span>
+                        <span className="text-sm">
+                          {betEntry.bet.option.decPrice}
+                        </span>
                         <Button
                           variant="ghost"
                           size="icon-sm"
-                          onClick={() => removeBet(bet.id)}
+                          onClick={() => removeBet(betEntry.id)}
                         >
                           <CircleXIcon className="h-5 w-5" />
                         </Button>
@@ -185,7 +199,7 @@ export default function BettingSlip() {
         <CardFooter>
           <Button
             variant="betNow"
-            disabled={bets.length === 0}
+            disabled={betEntries.length === 0}
             size="lg"
             className="w-full font-bold"
           >

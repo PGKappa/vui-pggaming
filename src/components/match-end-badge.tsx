@@ -9,7 +9,7 @@ export default function MatchEndBadge() {
 
   if (!upcomingRounds || upcomingRounds.length === 0) return null
 
-  const nextRoundStart = new Date(upcomingRounds[0].startingAt)
+  const nextRoundStart = new Date(upcomingRounds[0].mag_event[0].startTime)
   const timeLeftMs = Math.max(
     nextRoundStart.getTime() - new Date().getTime(),
     0,
