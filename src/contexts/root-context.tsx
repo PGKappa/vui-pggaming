@@ -2,27 +2,24 @@
 
 import LoadingSpinner from '@/components/loading-spinner'
 import {
-  BetOptionMarket,
   BetsHistory,
-  BetType,
   LiveRound,
   MatchResult,
   RoundStatistics,
   TeamRanking,
   UpcomingRound,
-  MatchResult,
-  User,
+  User
 } from '@/lib/types'
 import { BASE_API_URL } from '@/lib/utils'
-import { createContext, useEffect, useState } from 'react'
+import { createContext, useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 export type RootContextType = {
-  initCode?: string
   userData?: User
-  apiRequest: <T>(
+  apiRequest?: <T>(
     input: string | URL | globalThis.Request,
     init?: RequestInit,
+    params?: Record<string, string>,
   ) => Promise<T>
   liveRound?: LiveRound
   roundStatistics?: RoundStatistics[]
@@ -32,25 +29,7 @@ export type RootContextType = {
   matchResult?: MatchResult[]
 }
 
-async function apiRequest<T>(
-  input: string | URL | globalThis.Request,
-  init?: RequestInit,
-): Promise<T> {
-  return await fetch(`${BASE_API_URL}${input}`, init)
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`)
-      }
-      return response.json()
-    })
-    .catch((error) => {
-      console.error('API request failed:', error)
-      throw error
-    })
-}
-
 const defaultRootContext: RootContextType = {
-  apiRequest,
   //TODO: remove mock data
   liveRound: {
     name: 'Super League',
@@ -114,244 +93,6 @@ const defaultRootContext: RootContextType = {
       last8: ['L', 'W', 'L', 'X', 'W', 'X', 'W', 'X'],
     },
   ],
-  upcomingRounds: [
-    {
-      name: 'Super League',
-      number: 30,
-      startingAt: new Date('2025-02-13T14:00:00Z'),
-      duration: 30,
-      matches: [
-        {
-          teams: 'MCI - MUN',
-          betOptions: [
-            {
-              market: BetOptionMarket.MAIN,
-              options: [
-                {
-                  market: BetOptionMarket.MAIN,
-                  betType: BetType.TEAM1,
-                  odd: 1.5,
-                },
-                {
-                  market: BetOptionMarket.MAIN,
-                  betType: BetType.DRAW,
-                  odd: 3.5,
-                },
-                {
-                  market: BetOptionMarket.MAIN,
-                  betType: BetType.TEAM2,
-                  odd: 2.5,
-                },
-              ],
-            },
-            {
-              market: BetOptionMarket.NEXT_GOAL,
-              options: [
-                {
-                  market: BetOptionMarket.NEXT_GOAL,
-                  betType: BetType.TEAM1,
-                  odd: 1.5,
-                },
-                {
-                  market: BetOptionMarket.NEXT_GOAL,
-                  betType: BetType.DRAW,
-                  odd: 3.5,
-                },
-                {
-                  market: BetOptionMarket.NEXT_GOAL,
-                  betType: BetType.TEAM2,
-                  odd: 2.5,
-                },
-              ],
-            },
-          ],
-        },
-        {
-          teams: 'BUR - EVE',
-          betOptions: [
-            {
-              market: BetOptionMarket.MAIN,
-              options: [
-                {
-                  market: BetOptionMarket.MAIN,
-                  betType: BetType.TEAM1,
-                  odd: 1.5,
-                },
-                {
-                  market: BetOptionMarket.MAIN,
-                  betType: BetType.DRAW,
-                  odd: 3.5,
-                },
-                {
-                  market: BetOptionMarket.MAIN,
-                  betType: BetType.TEAM2,
-                  odd: 2.5,
-                },
-              ],
-            },
-          ],
-        },
-        {
-          teams: 'TOT - ARS',
-          betOptions: [
-            {
-              market: BetOptionMarket.MAIN,
-              options: [
-                {
-                  market: BetOptionMarket.MAIN,
-                  betType: BetType.TEAM1,
-                  odd: 1.5,
-                },
-                {
-                  market: BetOptionMarket.MAIN,
-                  betType: BetType.DRAW,
-                  odd: 3.5,
-                },
-                {
-                  market: BetOptionMarket.MAIN,
-                  betType: BetType.TEAM2,
-                  odd: 2.5,
-                },
-              ],
-            },
-          ],
-        },
-        {
-          teams: 'CHE - LIV',
-          betOptions: [
-            {
-              market: BetOptionMarket.MAIN,
-              options: [
-                {
-                  market: BetOptionMarket.MAIN,
-                  betType: BetType.TEAM1,
-                  odd: 1.5,
-                },
-                {
-                  market: BetOptionMarket.MAIN,
-                  betType: BetType.DRAW,
-                  odd: 3.5,
-                },
-                {
-                  market: BetOptionMarket.MAIN,
-                  betType: BetType.TEAM2,
-                  odd: 2.5,
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    },
-    {
-      name: 'Super League',
-      number: 31,
-      startingAt: new Date('2025-03-13T14:00:00Z'),
-      duration: 30,
-      matches: [
-        {
-          teams: 'SPE - NAP',
-          betOptions: [
-            {
-              market: BetOptionMarket.MAIN,
-              options: [
-                {
-                  market: BetOptionMarket.MAIN,
-                  betType: BetType.TEAM1,
-                  odd: 2.84,
-                },
-                {
-                  market: BetOptionMarket.MAIN,
-                  betType: BetType.DRAW,
-                  odd: 3.52,
-                },
-                {
-                  market: BetOptionMarket.MAIN,
-                  betType: BetType.TEAM2,
-                  odd: 1.55,
-                },
-              ],
-            },
-          ],
-        },
-        {
-          teams: 'CAG - CAT',
-          betOptions: [
-            {
-              market: BetOptionMarket.MAIN,
-              options: [
-                {
-                  market: BetOptionMarket.MAIN,
-                  betType: BetType.TEAM1,
-                  odd: 2.84,
-                },
-                {
-                  market: BetOptionMarket.MAIN,
-                  betType: BetType.DRAW,
-                  odd: 3.52,
-                },
-                {
-                  market: BetOptionMarket.MAIN,
-                  betType: BetType.TEAM2,
-                  odd: 1.55,
-                },
-              ],
-            },
-          ],
-        },
-        {
-          teams: 'VER - STA',
-          betOptions: [
-            {
-              market: BetOptionMarket.MAIN,
-              options: [
-                {
-                  market: BetOptionMarket.MAIN,
-                  betType: BetType.TEAM1,
-                  odd: 2.84,
-                },
-                {
-                  market: BetOptionMarket.MAIN,
-                  betType: BetType.DRAW,
-                  odd: 3.52,
-                },
-                {
-                  market: BetOptionMarket.MAIN,
-                  betType: BetType.TEAM2,
-                  odd: 1.55,
-                },
-              ],
-            },
-          ],
-        },
-        {
-          teams: 'LOC - MAN',
-          betOptions: [
-            {
-              market: BetOptionMarket.MAIN,
-              options: [
-                {
-                  market: BetOptionMarket.MAIN,
-                  betType: BetType.TEAM1,
-                  odd: 2.84,
-                },
-                {
-                  market: BetOptionMarket.MAIN,
-                  betType: BetType.DRAW,
-                  odd: 3.52,
-                },
-                {
-                  market: BetOptionMarket.MAIN,
-                  betType: BetType.TEAM2,
-                  odd: 1.55,
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    },
-  ],
   betsHistory: [
     {
       id: 1278,
@@ -405,10 +146,12 @@ function getInitCodeFromUrl(): string | undefined {
 export default function RootContextProvider(props: {
   children: React.ReactNode
 }) {
+  const [initCode, setInitCode] = useState<string | undefined>(undefined)
   const [rootContext, setRootContext] =
     useState<RootContextType>(defaultRootContext)
   const { i18n } = useTranslation()
   const [isLoading, setIsLoading] = useState(true)
+  const previousRoundNumber = useRef<number | undefined>(undefined)
 
   type UserApiResponse = {
     status: string
@@ -419,6 +162,38 @@ export default function RootContextProvider(props: {
     level: number
     group: string[]
   }
+
+  const apiRequest = useCallback(
+    async <T,>(
+      input: string | URL | globalThis.Request,
+      init?: RequestInit,
+      params?: Record<string, string>,
+    ): Promise<T> => {
+      let url = `${BASE_API_URL}${input}`
+
+      const urlObj = new URL(url)
+      urlObj.searchParams.set('init_code', initCode || '')
+      if (params && Object.keys(params).length > 0) {
+        Object.entries(params).forEach(([key, value]) => {
+          urlObj.searchParams.append(key, value)
+        })
+      }
+      url = urlObj.toString()
+
+      return await fetch(url, init)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`)
+          }
+          return response.json()
+        })
+        .catch((error) => {
+          console.error('API request failed:', error) //TODO: Swap all console.logs and errors with toast messages using Sonner
+          throw error
+        })
+    },
+    [initCode],
+  )
 
   useEffect(() => {
     const initCode = getInitCodeFromUrl()
@@ -435,16 +210,16 @@ export default function RootContextProvider(props: {
       localStorage.removeItem('initCode')
     }
 
-    setRootContext({ ...defaultRootContext, initCode })
+    setInitCode(initCode)
   }, [])
 
   useEffect(() => {
-    if (!rootContext.initCode) return
+    if (!initCode) return
 
     const fetchUserData = async (retryCount = 0, maxRetries = 3) => {
       try {
         const response = await fetch(
-          `${BASE_API_URL}/football/validate/?init_code=${rootContext.initCode}`,
+          `${BASE_API_URL}/football/validate/?init_code=${initCode}`,
           {
             method: 'GET',
             mode: 'cors',
@@ -460,10 +235,11 @@ export default function RootContextProvider(props: {
         if (userData?.status === '1024') {
           setRootContext((prev) => ({
             ...prev,
-            initCode: rootContext.initCode,
             userData,
           }))
           i18n.changeLanguage(userData.lang.substring(0, 2))
+        } else {
+          setInitCode(undefined)
         }
       } catch (error) {
         console.error(`Fetch attempt ${retryCount + 1} failed:`, error)
@@ -475,19 +251,52 @@ export default function RootContextProvider(props: {
           setTimeout(() => fetchUserData(retryCount + 1, maxRetries), delay)
         } else {
           console.error(`All ${maxRetries + 1} attempts failed. Giving up.`)
+          setInitCode(undefined)
           setRootContext((prev) => ({
             ...prev,
-            initCode: undefined,
             userData: undefined,
           }))
         }
       } finally {
         setIsLoading(false)
+        console.log('User data fetch completed')
       }
     }
 
     fetchUserData()
-  }, [i18n, rootContext.initCode])
+  }, [i18n, initCode])
+
+  useEffect(() => {
+    if (!initCode || !rootContext.liveRound?.number) return
+
+    previousRoundNumber.current = rootContext.liveRound?.number
+
+    const fetchUpcomingRounds = async () => {
+      try {
+        const { schedules } = await apiRequest<{
+          schedules: {
+            schedule: UpcomingRound[]
+          }
+        }>('/football/2/', {
+          method: 'GET',
+        })
+
+        if (schedules && schedules.schedule) {
+          setRootContext((prev) => ({
+            ...prev,
+            upcomingRounds: schedules.schedule.map((round) => ({
+              ...round,
+              mag_event: round.mag_event.slice(0, 4),
+            })),
+          }))
+        }
+      } catch (error) {
+        console.error('Failed to fetch upcoming rounds:', error)
+      }
+    }
+
+    fetchUpcomingRounds()
+  }, [rootContext.liveRound?.number, initCode, apiRequest])
 
   if (isLoading) {
     return (
@@ -497,7 +306,7 @@ export default function RootContextProvider(props: {
     )
   }
 
-  if (!rootContext.initCode) {
+  if (!initCode) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-4">
         <h1 className="text-2xl font-bold">Error</h1>
