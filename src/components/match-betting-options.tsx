@@ -1,7 +1,7 @@
 'use client'
 
 import { BetsContext } from '@/contexts/bets-context'
-import { Market } from '@/lib/types'
+import { Market, Selection } from '@/lib/types'
 import { format } from 'date-fns'
 import { t } from 'i18next'
 import { ChevronsLeftIcon } from 'lucide-react'
@@ -14,6 +14,7 @@ import {
 } from './ui/accordion'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
+import { Toggle } from './ui/toggle'
 
 export default function MatchBettingOptions(props: {
   round: {
@@ -25,7 +26,20 @@ export default function MatchBettingOptions(props: {
   markets: Market[]
   close: () => void
 }) {
-  const { addBet } = useContext(BetsContext)
+  const { addBet, betEntries, removeBet } = useContext(BetsContext)
+
+  const isBetSelected = (
+    marketName: string,
+    option: Selection,
+    teams: string,
+  ) => {
+    return betEntries.some(
+      (entry) =>
+        entry.market === marketName &&
+        entry.bet.teams === teams &&
+        entry.bet.option.outcome === option.outcome,
+    )
+  }
 
   return (
     <div className="flex w-full flex-col gap-2">
@@ -48,20 +62,25 @@ export default function MatchBettingOptions(props: {
             <AccordionContent>
               <div className="grid grid-cols-3 gap-4 px-8">
                 {market.selections[0].selection.map((option) => (
-                  <Button
+                  <Toggle
                     key={option.outcome}
-                    className="flex flex-row justify-between"
-                    onClick={() =>
-                      addBet(market.name, {
-                        round: props.round,
-                        teams: props.teams,
-                        option,
-                      })
-                    }
+                    pressed={isBetSelected(market.name, option, props.teams)}
+                    onPressedChange={(pressed) => {
+                      if (pressed) {
+                        addBet(market.name, {
+                          round: props.round,
+                          teams: props.teams,
+                          option,
+                        })
+                      } else {
+                        removeBet(market.name, option, props.teams)
+                      }
+                    }}
+                    className="w-full"
                   >
                     <span>{option.outcome}</span>
-                    <span className="font-bold">{option.decPrice}</span>
-                  </Button>
+                    <span>{option.decPrice}</span>
+                  </Toggle>
                 ))}
               </div>
             </AccordionContent>
