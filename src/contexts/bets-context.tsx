@@ -45,7 +45,7 @@ export default function BetsContextProvider(props: {
     useState<BetsContextType>(initialBetsContext)
 
   const addBet = (market: string, bet: Bet) => {
-    let lastId = betsContext.lastId
+    const lastId = betsContext.lastId
     setBetsContext((prev) => ({
       ...prev,
       betEntries: [...prev.betEntries, { id: prev.lastId + 1, bet, market }],
@@ -59,11 +59,9 @@ export default function BetsContextProvider(props: {
       ...prev,
       betEntries: prev.betEntries.filter(
         (betEntry) =>
-          betEntry.market !==
-            marketName ||
+          betEntry.market !== marketName ||
           betEntry.bet.teams !== teams ||
-          betEntry.bet.option.outcome !==
-            option.outcome,
+          betEntry.bet.option.outcome !== option.outcome,
       ),
     }))
   }
