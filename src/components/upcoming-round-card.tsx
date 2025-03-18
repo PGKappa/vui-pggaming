@@ -9,15 +9,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { BetsContext } from '@/contexts/bets-context'
 import { Market, UpcomingRound } from '@/lib/types'
 import { Locale, format, isToday, isTomorrow } from 'date-fns'
 import { enGB, itCH, zhCN } from 'date-fns/locale'
 import { PlusIcon } from 'lucide-react'
-import { Dispatch, SetStateAction, useContext } from 'react'
+import { Dispatch, SetStateAction } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Selection } from '@/lib/types'
-import { Toggle } from '@/components/ui/toggle'
 import BetEntryToggle from './bet-entry-toggle'
 
 export default function UpcomingRoundCard(props: {
@@ -37,23 +34,6 @@ export default function UpcomingRoundCard(props: {
     >
   >
 }) {
-  const { addBet, betEntries, removeBet } = useContext(BetsContext)
-
-  const isBetSelected = (
-    marketName: string,
-    option: Selection,
-    teams: string,
-  ) => {
-    return betEntries.some((entry) => {
-      return (
-        entry.market.toLowerCase().trim() === marketName.toLowerCase().trim() &&
-        entry.bet.round.number === props.round.scheduleId &&
-        entry.bet.teams.toLowerCase().trim() === teams.toLowerCase().trim() &&
-        entry.bet.option.outcome.toLowerCase().trim() ===
-          option.outcome.toLowerCase().trim()
-      )
-    })
-  }
   const { t, i18n } = useTranslation()
   const currentLocale = getLocale(i18n.language)
   return (
@@ -128,7 +108,7 @@ export default function UpcomingRoundCard(props: {
                       ))
                     ) : (
                       <TableCell colSpan={3} className="text-center">
-                        {t("no_odds")}
+                        {t('no_odds')}
                       </TableCell>
                     )}
 
