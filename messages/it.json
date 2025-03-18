@@ -5,6 +5,8 @@
   "end_play": "Fine giocata",
   "live_round_loading": "Caricamento round live",
   "round": "Turno",
+  "no_matches": "Non ci sono partite disponibili",
+  "no_odds": "Nessuna quota disponibile",
   "statistics": "Statistiche",
   "no_statistics": "Nessuna statistica disponibile",
   "draw": "Pareggio",
