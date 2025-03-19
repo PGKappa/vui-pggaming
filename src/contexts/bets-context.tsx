@@ -45,13 +45,11 @@ export default function BetsContextProvider(props: {
     useState<BetsContextType>(initialBetsContext)
 
   const addBet = (market: string, bet: Bet) => {
-    const lastId = betsContext.lastId
     setBetsContext((prev) => ({
       ...prev,
       betEntries: [...prev.betEntries, { id: prev.lastId + 1, bet, market }],
       lastId: prev.lastId + 1,
     }))
-    return lastId + 1
   }
 
   const removeBet = (marketName: string, option: Selection, teams: string) => {
