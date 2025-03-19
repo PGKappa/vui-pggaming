@@ -9,6 +9,7 @@ import { useContext } from 'react'
 import { useTranslation } from 'react-i18next'
 import './globals.css'
 import './i18n'
+import { Toaster } from '@/components/ui/sonner'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -39,6 +40,7 @@ function AppContent({ children }: { children: React.ReactNode }) {
           <BetsContextProvider>{children}</BetsContextProvider>
         </RootContextProvider>
       </main>
+      <Toaster />
     </body>
   )
 }
