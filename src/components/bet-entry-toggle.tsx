@@ -5,10 +5,14 @@ import { Toggle } from './ui/toggle'
 
 export default function BetEntryToggle(props: {
   matchStart: Date
-  round: UpcomingRound
+  round: {
+    scheduleName: string
+    scheduleId: number
+  }
   teams: string
   marketName: string
   option: Selection
+  showOutcome?: boolean
 }) {
   const { addBet, removeBet, betEntries } = useContext(BetsContext)
 
@@ -38,7 +42,8 @@ export default function BetEntryToggle(props: {
       }}
       className="w-full"
     >
-      {props.option.decPrice}
+      <span>{props.option.decPrice}</span>
+      {props.showOutcome && <span>{props.option.outcome}</span>}
     </Toggle>
   )
 }
