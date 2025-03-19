@@ -6,6 +6,7 @@ import { format } from 'date-fns'
 import { t } from 'i18next'
 import { ChevronsLeftIcon } from 'lucide-react'
 import { useContext } from 'react'
+import BetEntryToggle from './bet-entry-toggle'
 import {
   Accordion,
   AccordionContent,
@@ -14,7 +15,6 @@ import {
 } from './ui/accordion'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
-import { Toggle } from './ui/toggle'
 
 export default function MatchBettingOptions(props: {
   round: {
@@ -62,25 +62,18 @@ export default function MatchBettingOptions(props: {
             <AccordionContent>
               <div className="grid grid-cols-3 gap-4 px-8">
                 {market.selections[0].selection.map((option) => (
-                  <Toggle
+                  <BetEntryToggle
                     key={option.outcome}
-                    pressed={isBetSelected(market.name, option, props.teams)}
-                    onPressedChange={(pressed) => {
-                      if (pressed) {
-                        addBet(market.name, {
-                          round: props.round,
-                          teams: props.teams,
-                          option,
-                        })
-                      } else {
-                        removeBet(market.name, option, props.teams)
-                      }
+                    matchStart={props.round.startingAt}
+                    marketName={market.name}
+                    option={option}
+                    round={{
+                      scheduleName: props.round.name,
+                      scheduleId: props.round.number,
                     }}
-                    className="w-full"
-                  >
-                    <span>{option.outcome}</span>
-                    <span>{option.decPrice}</span>
-                  </Toggle>
+                    teams={props.teams}
+                    showOutcome
+                  />
                 ))}
               </div>
             </AccordionContent>
