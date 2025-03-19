@@ -133,7 +133,13 @@ export default function BettingSlip() {
                         <Button
                           variant="ghost"
                           size="icon-sm"
-                          onClick={() => removeBet(betEntry.id)}
+                          onClick={() =>
+                            removeBet(
+                              betEntry.market,
+                              betEntry.bet.option,
+                              betEntry.bet.teams,
+                            )
+                          }
                         >
                           <CircleXIcon className="h-5 w-5" />
                         </Button>

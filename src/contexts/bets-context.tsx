@@ -1,13 +1,13 @@
 'use client'
 
-import { Bet, BetEntry } from '@/lib/types'
+import { Bet, BetEntry, Selection } from '@/lib/types'
 import { createContext, useEffect, useState } from 'react'
 
 export type BetsContextType = {
   betEntries: BetEntry[]
   lastId: number
   addBet: (market: string, bet: Bet) => void
-  removeBet: (id: number) => void
+  removeBet: (marketName: string, option: Selection, teams: string) => void
   removeMatchBets: (matchId: string) => void
   removeAllBets: () => void
   refreshBets: () => void
@@ -52,10 +52,15 @@ export default function BetsContextProvider(props: {
     }))
   }
 
-  const removeBet = (id: number) => {
+  const removeBet = (marketName: string, option: Selection, teams: string) => {
     setBetsContext((prev) => ({
       ...prev,
-      betEntries: prev.betEntries.filter((bet) => bet.id !== id),
+      betEntries: prev.betEntries.filter(
+        (betEntry) =>
+          betEntry.market !== marketName ||
+          betEntry.bet.teams !== teams ||
+          betEntry.bet.option.outcome !== option.outcome,
+      ),
     }))
   }
 

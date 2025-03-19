@@ -9,13 +9,13 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { BetsContext } from '@/contexts/bets-context'
 import { Market, UpcomingRound } from '@/lib/types'
 import { Locale, format, isToday, isTomorrow } from 'date-fns'
 import { enGB, itCH, zhCN } from 'date-fns/locale'
 import { PlusIcon } from 'lucide-react'
-import { Dispatch, SetStateAction, useContext } from 'react'
+import { Dispatch, SetStateAction } from 'react'
 import { useTranslation } from 'react-i18next'
+import BetEntryToggle from './bet-entry-toggle'
 
 export default function UpcomingRoundCard(props: {
   round: UpcomingRound
@@ -34,8 +34,6 @@ export default function UpcomingRoundCard(props: {
     >
   >
 }) {
-  const { addBet } = useContext(BetsContext)
-
   const { t, i18n } = useTranslation()
   const currentLocale = getLocale(i18n.language)
   return (
@@ -96,27 +94,23 @@ export default function UpcomingRoundCard(props: {
                       <span className="font-bold">{teamNames}</span>
                     </TableCell>
 
-                    {marketOptions.map((option, i) => (
-                      <TableCell key={i}>
-                        <Button
-                          size="sm"
-                          className="w-full"
-                          onClick={() =>
-                            addBet('Esito finale 1X2', {
-                              round: {
-                                name: props.round.scheduleName,
-                                number: props.round.scheduleId,
-                                startingAt: matchStart,
-                              },
-                              teams: teamNames,
-                              option,
-                            })
-                          }
-                        >
-                          {option.decPrice}
-                        </Button>
+                    {mainMarket ? (
+                      marketOptions.map((option, i) => (
+                        <TableCell key={i}>
+                          <BetEntryToggle
+                            matchStart={matchStart}
+                            round={props.round}
+                            teams={teamNames}
+                            marketName={mainMarket.name}
+                            option={option}
+                          />
+                        </TableCell>
+                      ))
+                    ) : (
+                      <TableCell colSpan={3} className="text-center">
+                        {t('no_odds')}
                       </TableCell>
-                    ))}
+                    )}
 
                     <TableCell className="text-right">
                       <Button
@@ -143,7 +137,7 @@ export default function UpcomingRoundCard(props: {
             ) : (
               <TableRow>
                 <TableCell colSpan={5} className="py-4 text-center">
-                  No upcoming matches available
+                  {t('no_matches')}
                 </TableCell>
               </TableRow>
             )}
