@@ -10,11 +10,11 @@ import LoadingSpinner from '@/components/loading-spinner'
 import MatchBettingOptions from '@/components/match-betting-options'
 import MatchEndBadge from '@/components/match-end-badge'
 import MatchResult from '@/components/match-result'
-import MatchStatistics from '@/components/match-statistics'
+import MatchStatisticsCard from '@/components/match-statistics-card'
 import UpcomingRoundCard from '@/components/upcoming-round-card'
 import VideoStreamCard from '@/components/video-stream-card'
 import { RootContext } from '@/contexts/root-context'
-import { Market } from '@/lib/types'
+import { Market, MatchStatistics } from '@/lib/types'
 import { useContext, useState } from 'react'
 
 export default function Home() {
@@ -29,6 +29,7 @@ export default function Home() {
     markets: Market[]
   }>()
 
+  const [selectedMatch, setSelectedMatch] = useState<MatchStatistics>()
   return (
     <>
       <div className="container grid grid-cols-1 justify-center gap-3 pb-10 pt-4 lg:grid-cols-4 lg:pb-4">
@@ -66,8 +67,14 @@ export default function Home() {
         </div>
         <div className="space-y-3 lg:col-span-1">
           <LiveRoundScores />
-          <LiveRoundStatistics />
-          <MatchStatistics />
+          {selectedMatch ? (
+            <MatchStatisticsCard
+              match={selectedMatch}
+              onBack={() => setSelectedMatch(undefined)}
+            />
+          ) : (
+            <LiveRoundStatistics onMatchSelect={setSelectedMatch} />
+          )}
           <MatchResult />
           <div className="hidden lg:block">
             <Leaderboard />
