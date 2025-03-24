@@ -1,8 +1,10 @@
 'use client'
 import { RootContext } from '@/contexts/root-context'
+import { MatchStatistics } from '@/lib/types'
 import { Locale, format } from 'date-fns'
-import { itCH, enGB, zhCN } from 'date-fns/locale'
+import { enGB, itCH, zhCN } from 'date-fns/locale'
 import { useContext } from 'react'
+import { useTranslation } from 'react-i18next'
 import LoadingSpinner from './loading-spinner'
 import { Badge } from './ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
@@ -14,9 +16,10 @@ import {
   TableHeader,
   TableRow,
 } from './ui/table'
-import { useTranslation } from 'react-i18next'
 
-export default function LiveRoundStatistics() {
+export default function LiveRoundStatistics(props: {
+  onMatchSelect: (match: MatchStatistics) => void
+}) {
   const { roundStatistics } = useContext(RootContext)
   const { t, i18n } = useTranslation()
   const currentLocale = getLocale(i18n.language)
@@ -60,7 +63,11 @@ export default function LiveRoundStatistics() {
                 locale: currentLocale,
               })
               return (
-                <TableRow key={index} className="border-card-foreground">
+                <TableRow
+                  key={index}
+                  className="cursor-pointer border-card-foreground hover:bg-muted"
+                  onClick={() => props.onMatchSelect(match)}
+                >
                   <TableCell className="flex flex-row items-center gap-2">
                     <Badge>{formattedTime}</Badge>
                     <span className="text-nowrap font-bold">{match.teams}</span>

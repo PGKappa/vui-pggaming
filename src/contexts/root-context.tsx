@@ -192,7 +192,6 @@ export default function RootContextProvider(props: {
           toast.error('API request failed!', {
             description: error.message,
           })
-          throw error
         })
     },
     [initCode],
