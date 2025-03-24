@@ -8,11 +8,12 @@ import {
   RoundStatistics,
   TeamRanking,
   UpcomingRound,
-  User
+  User,
 } from '@/lib/types'
 import { BASE_API_URL } from '@/lib/utils'
 import { createContext, useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 
 export type RootContextType = {
   userData?: User
@@ -188,7 +189,9 @@ export default function RootContextProvider(props: {
           return response.json()
         })
         .catch((error) => {
-          console.error('API request failed:', error) //TODO: Swap all console.logs and errors with toast messages using Sonner
+          toast.error('API request failed!', {
+            description: error.message,
+          })
           throw error
         })
     },
