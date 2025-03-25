@@ -75,7 +75,7 @@ const defaultRootContext: RootContextType = {
   teamRankings: [
     {
       position: 1,
-      team: 'BNF',
+      team: 'NAP',
       played: 26,
       wins: 14,
       draws: 8,
@@ -85,13 +85,33 @@ const defaultRootContext: RootContextType = {
     },
     {
       position: 2,
-      team: 'WHM',
+      team: 'JUV',
+      played: 26,
+      wins: 14,
+      draws: 8,
+      losses: 4,
+      points: 50,
+      last8: ['W', 'W', 'L', 'W', 'W', 'X', 'L', 'L'],
+    },
+    {
+      position: 3,
+      team: 'GEN',
       played: 26,
       wins: 13,
       draws: 7,
       losses: 6,
       points: 46,
       last8: ['L', 'W', 'L', 'X', 'W', 'X', 'W', 'X'],
+    },
+    {
+      position: 4,
+      team: 'MIL',
+      played: 26,
+      wins: 13,
+      draws: 7,
+      losses: 6,
+      points: 46,
+      last8: ['L', 'W', 'L', 'X', 'W', 'X', 'W', 'W'],
     },
   ],
   betsHistory: [
