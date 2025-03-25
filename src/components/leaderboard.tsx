@@ -1,6 +1,7 @@
 'use client'
 
 import { RootContext } from '@/contexts/root-context'
+import { t } from 'i18next'
 import { useContext } from 'react'
 import LoadingSpinner from './loading-spinner'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
@@ -12,15 +13,18 @@ import {
   TableHeader,
   TableRow,
 } from './ui/table'
-import { t } from 'i18next'
 
-export default function Leaderboard() {
+export default function Leaderboard({
+  highlightedTeams = [],
+}: {
+  highlightedTeams: string[]
+}) {
   const { teamRankings } = useContext(RootContext)
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{t("ranking")}</CardTitle>
+        <CardTitle>{t('ranking')}</CardTitle>
       </CardHeader>
       <CardContent>
         {teamRankings ? (
@@ -34,16 +38,20 @@ export default function Leaderboard() {
                 <TableHead>{t('D')}</TableHead>
                 <TableHead>{t('L')}</TableHead>
                 <TableHead>{t('pts')}</TableHead>
-                <TableHead className="text-right">{t("last")} 8</TableHead>
+                <TableHead className="text-right">{t('last')} 8</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {teamRankings.map((ranking) => (
                 <TableRow key={ranking.team}>
-                  <TableCell className="font-medium">
+                  <TableCell
+                    className={`font-medium ${highlightedTeams.includes(ranking.team) ? 'bg-foreground text-primary' : ''}`}
+                  >
                     {ranking.position}
                   </TableCell>
-                  <TableCell className="text-left font-bold">
+                  <TableCell
+                    className={`text-left ${highlightedTeams.includes(ranking.team) ? 'bg-foreground text-primary' : ''}`}
+                  >
                     {ranking.team}
                   </TableCell>
                   <TableCell>{ranking.played}</TableCell>
