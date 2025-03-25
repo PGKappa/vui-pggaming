@@ -30,6 +30,7 @@ export default function Home() {
   }>()
 
   const [selectedMatch, setSelectedMatch] = useState<MatchStatistics>()
+  const [highlightedTeams, setHighlightedTeams] = useState<string[]>([])
   return (
     <>
       <div className="container grid grid-cols-1 justify-center gap-3 pb-10 pt-4 lg:grid-cols-4 lg:pb-4">
@@ -70,14 +71,18 @@ export default function Home() {
           {selectedMatch ? (
             <MatchStatisticsCard
               match={selectedMatch}
-              onBack={() => setSelectedMatch(undefined)}
+              onBack={() => {
+                setSelectedMatch(undefined)
+                setHighlightedTeams([])
+              }}
+              onHighlightTeam={setHighlightedTeams}
             />
           ) : (
             <LiveRoundStatistics onMatchSelect={setSelectedMatch} />
           )}
           <MatchResult />
           <div className="hidden lg:block">
-            <Leaderboard />
+            <Leaderboard highlightedTeams={highlightedTeams} />
           </div>
         </div>
         <div className="lg:col-span-1">
