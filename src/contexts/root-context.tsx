@@ -299,17 +299,29 @@ export default function RootContextProvider(props: {
           schedules: {
             schedule: UpcomingRound[]
           }
-        }>('/football/2/', {
+        }>('/football/10/', {
           method: 'GET',
         })
 
-        if (schedules && schedules.schedule) {
+        if (schedules?.schedule?.length) {
+          const allEvents = schedules.schedule[0].mag_event || []
+          const eventsPerRound = 4
+
+          const rounds: UpcomingRound[] = []
+          for (let i = 0; i < allEvents.length; i += eventsPerRound) {
+            rounds.push({
+              ...schedules.schedule[0],
+              scheduleId:
+                schedules.schedule[0].scheduleId +
+                Math.floor(i / eventsPerRound),
+              scheduleName: `${schedules.schedule[0].scheduleName} ${Math.floor(i / eventsPerRound) + 1}`,
+              mag_event: allEvents.slice(i, i + eventsPerRound),
+            })
+          }
+
           setRootContext((prev) => ({
             ...prev,
-            upcomingRounds: schedules.schedule.map((round) => ({
-              ...round,
-              mag_event: round.mag_event.slice(0, 4),
-            })),
+            upcomingRounds: rounds,
           }))
         }
       } catch (error) {
