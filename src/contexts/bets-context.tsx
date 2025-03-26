@@ -82,7 +82,7 @@ export default function BetsContextProvider(props: {
   }
 
   const refreshBets = () => {
-    setBetsContext(getBetsContext())
+    //TODO: Fetch bets from real endpoint
   }
 
   useEffect(() => {
