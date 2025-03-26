@@ -294,39 +294,48 @@ export default function RootContextProvider(props: {
     previousRoundNumber.current = rootContext.liveRound?.number
 
     const fetchUpcomingRounds = async () => {
-      try {
-        const { schedules } = await apiRequest<{
-          schedules: {
-            schedule: UpcomingRound[]
-          }
-        }>('/football/10/', {
-          method: 'GET',
-        })
-
-        if (schedules?.schedule?.length) {
-          const allEvents = schedules.schedule[0].mag_event || []
-          const eventsPerRound = 4
-
-          const rounds: UpcomingRound[] = []
-          for (let i = 0; i < allEvents.length; i += eventsPerRound) {
-            rounds.push({
-              ...schedules.schedule[0],
-              scheduleId:
-                schedules.schedule[0].scheduleId +
-                Math.floor(i / eventsPerRound),
-              scheduleName: `${schedules.schedule[0].scheduleName} ${Math.floor(i / eventsPerRound) + 1}`,
-              mag_event: allEvents.slice(i, i + eventsPerRound),
-            })
-          }
-
-          setRootContext((prev) => ({
-            ...prev,
-            upcomingRounds: rounds,
-          }))
+      const response = await apiRequest<{
+        schedules: {
+          schedule: UpcomingRound[]
         }
-      } catch (error) {
-        console.error('Failed to fetch upcoming rounds:', error)
-      }
+      }>('/football/10/', {
+        method: 'GET',
+      })
+
+      if (!response?.schedules?.schedule?.length) return
+
+      const allEvents = response.schedules.schedule[0].mag_event || []
+
+      const eventsByGroup: Record<number, (typeof allEvents)[number][]> = {}
+
+      allEvents.forEach((event) => {
+        const groupId = event.eventIdentity?.groupId
+        if (groupId !== undefined) {
+          if (!eventsByGroup[groupId]) {
+            eventsByGroup[groupId] = []
+          }
+          eventsByGroup[groupId].push(event)
+        }
+      })
+
+      const rounds: UpcomingRound[] = Object.entries(eventsByGroup).map(
+        ([groupId, events]) => {
+          const firstEvent = events[0]
+          return {
+            ...response.schedules.schedule[0],
+            scheduleId: Number(groupId),
+            scheduleName: firstEvent?.eventIdentity?.scheduleType
+              ? `${firstEvent.eventIdentity.scheduleType}`
+              : `${response.schedules.schedule[0].scheduleName}`,
+            mag_event: events,
+          }
+        },
+      )
+
+      setRootContext((prev) => ({
+        ...prev,
+        upcomingRounds: rounds,
+      }))
     }
 
     fetchUpcomingRounds()
