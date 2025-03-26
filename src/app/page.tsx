@@ -15,7 +15,7 @@ import UpcomingRoundCard from '@/components/upcoming-round-card'
 import VideoStreamCard from '@/components/video-stream-card'
 import { RootContext } from '@/contexts/root-context'
 import { Market, MatchStatistics } from '@/lib/types'
-import { useContext, useState } from 'react'
+import { useContext, useMemo, useState } from 'react'
 
 export default function Home() {
   const { upcomingRounds, liveRound } = useContext(RootContext)
@@ -30,7 +30,10 @@ export default function Home() {
   }>()
 
   const [selectedMatch, setSelectedMatch] = useState<MatchStatistics>()
-  const [highlightedTeams, setHighlightedTeams] = useState<string[]>([])
+  const highlightedTeams = useMemo(() => {
+    return selectedMatch ? selectedMatch.teams.split(' - ') : []
+  }, [selectedMatch])
+
   return (
     <>
       <div className="container grid grid-cols-1 justify-center gap-3 pb-10 pt-4 lg:grid-cols-4 lg:pb-4">
@@ -71,11 +74,7 @@ export default function Home() {
           {selectedMatch ? (
             <MatchStatisticsCard
               match={selectedMatch}
-              onBack={() => {
-                setSelectedMatch(undefined)
-                setHighlightedTeams([])
-              }}
-              onHighlightTeam={setHighlightedTeams}
+              onBack={() => setSelectedMatch(undefined)}
             />
           ) : (
             <LiveRoundStatistics onMatchSelect={setSelectedMatch} />
