@@ -1,10 +1,15 @@
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
+import { useTranslation } from 'react-i18next'
 import Leaderboard from './leaderboard'
 import { Button } from './ui/button'
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from './ui/sheet'
-import { t } from 'i18next'
 
-export default function LeaderboardSheet() {
+export default function LeaderboardSheet({
+  highlightedTeams = [],
+}: {
+  highlightedTeams: string[]
+}) {
+  const { t } = useTranslation()
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -14,7 +19,7 @@ export default function LeaderboardSheet() {
         <VisuallyHidden>
           <SheetTitle>{t('ranking')}</SheetTitle>
         </VisuallyHidden>
-        <Leaderboard />
+        <Leaderboard highlightedTeams={highlightedTeams} />
       </SheetContent>
     </Sheet>
   )

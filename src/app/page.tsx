@@ -91,7 +91,7 @@ export default function Home() {
         </div>
       </div>
       <div className="fixed bottom-0 flex w-full justify-center gap-2 lg:hidden">
-        <LeaderboardSheet />
+        <LeaderboardSheet highlightedTeams={highlightedTeams} />
         <BettingSlipSheet />
       </div>
     </>
