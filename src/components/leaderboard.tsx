@@ -1,8 +1,8 @@
 'use client'
 
 import { RootContext } from '@/contexts/root-context'
-import { t } from 'i18next'
 import { useContext } from 'react'
+import { useTranslation } from 'react-i18next'
 import LoadingSpinner from './loading-spinner'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import {
@@ -20,6 +20,7 @@ export default function Leaderboard({
   highlightedTeams: string[]
 }) {
   const { teamRankings } = useContext(RootContext)
+  const { t } = useTranslation()
 
   return (
     <Card>
