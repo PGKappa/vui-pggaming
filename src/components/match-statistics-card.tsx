@@ -1,9 +1,18 @@
 import { RootContext } from '@/contexts/root-context'
+import { MatchStatistics } from '@/lib/types'
+import { ArrowLeft } from 'lucide-react'
 import { useContext } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Button } from './ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 
-export default function MatchStatistics() {
+export default function MatchStatisticsCard({
+  match,
+  onBack,
+}: {
+  match: MatchStatistics
+  onBack: () => void
+}) {
   const { roundStatistics } = useContext(RootContext)
   const { t } = useTranslation()
 
@@ -16,13 +25,12 @@ export default function MatchStatistics() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p>No statistics available</p>
+          <p>{t('no_statistics')}</p>
         </CardContent>
       </Card>
     )
   }
 
-  const match = roundStatistics[0].matches[0]
   const [home, draw, away] = match.probabilities
   const [team1, team2] = match.teams.split(' - ')
 
@@ -35,8 +43,16 @@ export default function MatchStatistics() {
 
   return (
     <Card className="w-full">
-      <CardHeader className="text-center">
+      <CardHeader className="relative flex items-center justify-between">
         <CardTitle className="font-extrabold">
+          <Button
+            onClick={onBack}
+            variant="ghost"
+            size="icon"
+            className="absolute left-0 top-0"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
           {t('statistics').toUpperCase()}
         </CardTitle>
       </CardHeader>
@@ -89,7 +105,7 @@ export default function MatchStatistics() {
 
             <div className="absolute left-1/2 top-1/2 z-[1] flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-1">
               <span className="text-md font-semibold sm:text-lg">{draw}%</span>
-              <p className="text-sm sm:text-md">Draw</p>
+              <p className="text-sm">{t('draw')}</p>
             </div>
           </div>
 
@@ -107,7 +123,7 @@ export default function MatchStatistics() {
           </div>
         </div>
 
-        <p className="text-sm">Last 4 matches</p>
+        <p className="text-sm">{t('last_4_matches')}</p>
         <div className="grid grid-cols-2 gap-x-16 font-semibold">
           {['1-1', '1-1', '1-1', '1-1'].map((match, index) => (
             <div key={index} className="flex items-center gap-1">

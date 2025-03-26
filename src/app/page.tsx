@@ -10,12 +10,12 @@ import LoadingSpinner from '@/components/loading-spinner'
 import MatchBettingOptions from '@/components/match-betting-options'
 import MatchEndBadge from '@/components/match-end-badge'
 import MatchResult from '@/components/match-result'
-import MatchStatistics from '@/components/match-statistics'
+import MatchStatisticsCard from '@/components/match-statistics-card'
 import UpcomingRoundCard from '@/components/upcoming-round-card'
 import VideoStreamCard from '@/components/video-stream-card'
 import { RootContext } from '@/contexts/root-context'
-import { Market } from '@/lib/types'
-import { useContext, useState } from 'react'
+import { Market, MatchStatistics } from '@/lib/types'
+import { useContext, useMemo, useState } from 'react'
 
 export default function Home() {
   const { upcomingRounds, liveRound } = useContext(RootContext)
@@ -28,6 +28,11 @@ export default function Home() {
     teams: string
     markets: Market[]
   }>()
+
+  const [selectedMatch, setSelectedMatch] = useState<MatchStatistics>()
+  const highlightedTeams = useMemo(() => {
+    return selectedMatch ? selectedMatch.teams.split(' - ') : []
+  }, [selectedMatch])
 
   return (
     <>
@@ -66,11 +71,17 @@ export default function Home() {
         </div>
         <div className="space-y-3 lg:col-span-1">
           <LiveRoundScores />
-          <LiveRoundStatistics />
-          <MatchStatistics />
+          {selectedMatch ? (
+            <MatchStatisticsCard
+              match={selectedMatch}
+              onBack={() => setSelectedMatch(undefined)}
+            />
+          ) : (
+            <LiveRoundStatistics onMatchSelect={setSelectedMatch} />
+          )}
           <MatchResult />
           <div className="hidden lg:block">
-            <Leaderboard />
+            <Leaderboard highlightedTeams={highlightedTeams} />
           </div>
         </div>
         <div className="lg:col-span-1">
@@ -80,7 +91,7 @@ export default function Home() {
         </div>
       </div>
       <div className="fixed bottom-0 flex w-full justify-center gap-2 lg:hidden">
-        <LeaderboardSheet />
+        <LeaderboardSheet highlightedTeams={highlightedTeams} />
         <BettingSlipSheet />
       </div>
     </>

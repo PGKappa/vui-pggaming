@@ -2,6 +2,7 @@
 
 import { RootContext } from '@/contexts/root-context'
 import { useContext } from 'react'
+import { useTranslation } from 'react-i18next'
 import LoadingSpinner from './loading-spinner'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import {
@@ -13,13 +14,18 @@ import {
   TableRow,
 } from './ui/table'
 
-export default function Leaderboard() {
+export default function Leaderboard({
+  highlightedTeams = [],
+}: {
+  highlightedTeams: string[]
+}) {
   const { teamRankings } = useContext(RootContext)
+  const { t } = useTranslation()
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Ranking</CardTitle>
+        <CardTitle>{t('ranking')}</CardTitle>
       </CardHeader>
       <CardContent>
         {teamRankings ? (
@@ -28,21 +34,25 @@ export default function Leaderboard() {
               <TableRow>
                 <TableHead className="w-[100px]"></TableHead>
                 <TableHead></TableHead>
-                <TableHead>P</TableHead>
-                <TableHead>W</TableHead>
-                <TableHead>D</TableHead>
-                <TableHead>L</TableHead>
-                <TableHead>Pts</TableHead>
-                <TableHead className="text-right">LAST 8</TableHead>
+                <TableHead>{t('P')}</TableHead>
+                <TableHead>{t('W')}</TableHead>
+                <TableHead>{t('D')}</TableHead>
+                <TableHead>{t('L')}</TableHead>
+                <TableHead>{t('pts')}</TableHead>
+                <TableHead className="text-right">{t('last')} 8</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {teamRankings.map((ranking) => (
                 <TableRow key={ranking.team}>
-                  <TableCell className="font-medium">
+                  <TableCell
+                    className={`font-medium ${highlightedTeams.includes(ranking.team) ? 'bg-foreground text-primary' : ''}`}
+                  >
                     {ranking.position}
                   </TableCell>
-                  <TableCell className="text-left font-bold">
+                  <TableCell
+                    className={`text-left ${highlightedTeams.includes(ranking.team) ? 'bg-foreground text-primary' : ''}`}
+                  >
                     {ranking.team}
                   </TableCell>
                   <TableCell>{ranking.played}</TableCell>

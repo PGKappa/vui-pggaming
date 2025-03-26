@@ -1,7 +1,10 @@
 'use client'
 
+import { Market } from '@/lib/types'
 import { format } from 'date-fns'
+import { t } from 'i18next'
 import { ChevronsLeftIcon } from 'lucide-react'
+import BetEntryToggle from './bet-entry-toggle'
 import {
   Accordion,
   AccordionContent,
@@ -10,9 +13,6 @@ import {
 } from './ui/accordion'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
-import { Market } from '@/lib/types'
-import { useContext } from 'react'
-import { BetsContext } from '@/contexts/bets-context'
 
 export default function MatchBettingOptions(props: {
   round: {
@@ -24,8 +24,6 @@ export default function MatchBettingOptions(props: {
   markets: Market[]
   close: () => void
 }) {
-  const { addBet } = useContext(BetsContext)
-
   return (
     <div className="flex w-full flex-col gap-2">
       <div className="flex flex-row items-center justify-between">
@@ -34,7 +32,7 @@ export default function MatchBettingOptions(props: {
             <ChevronsLeftIcon />
           </Button>
           <span>
-            {props.round.name} Round {props.round.number}
+            {props.round.name} {t('round')} {props.round.number} /
           </span>
           <span className="text-sm font-semibold">{props.teams}</span>
         </div>
@@ -47,20 +45,18 @@ export default function MatchBettingOptions(props: {
             <AccordionContent>
               <div className="grid grid-cols-3 gap-4 px-8">
                 {market.selections[0].selection.map((option) => (
-                  <Button
+                  <BetEntryToggle
                     key={option.outcome}
-                    className="flex flex-row justify-between"
-                    onClick={() =>
-                      addBet(market.name, {
-                        round: props.round,
-                        teams: props.teams,
-                        option,
-                      })
-                    }
-                  >
-                    <span>{option.outcome}</span>
-                    <span className="font-bold">{option.decPrice}</span>
-                  </Button>
+                    matchStart={props.round.startingAt}
+                    marketName={market.name}
+                    option={option}
+                    round={{
+                      scheduleName: props.round.name,
+                      scheduleId: props.round.number,
+                    }}
+                    teams={props.teams}
+                    showOutcome
+                  />
                 ))}
               </div>
             </AccordionContent>

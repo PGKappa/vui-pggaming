@@ -1,6 +1,7 @@
 import { BetsContext } from '@/contexts/bets-context'
 import { BetEntry } from '@/lib/types'
 import { format, formatDistanceToNow } from 'date-fns'
+import { t } from 'i18next'
 import { CircleXIcon, RotateCcwIcon, Trash2Icon } from 'lucide-react'
 import { useContext, useMemo, useState } from 'react'
 import BetsHistoryDialog from './bets-history-dialog'
@@ -44,7 +45,7 @@ export default function BettingSlip() {
       <Card className="w-full rounded-sm bg-primary-foreground text-primary">
         <div className="grid grid-cols-2 grid-rows-2 text-center">
           <span className="flex w-full flex-col items-center justify-center text-md">
-            Schedina ({betEntries.length})
+            {t('bet_slip')} ({betEntries.length})
           </span>
           <BetsHistoryDialog />
 
@@ -55,7 +56,7 @@ export default function BettingSlip() {
                 : 'bg-gray-100'
             }`}
           >
-            {roundsLength > 1 ? `Multipla (${roundsLength})` : 'Singola'}
+            {roundsLength > 1 ? `t('multiple') (${roundsLength})` : t('single')}
           </span>
 
           <span
@@ -65,7 +66,7 @@ export default function BettingSlip() {
                 : 'bg-gray-100'
             }`}
           >
-            Sistema
+            {t('system')}
           </span>
         </div>
 
@@ -73,7 +74,7 @@ export default function BettingSlip() {
           {betEntries.length === 0 ? (
             <div className="flex h-full flex-row items-center justify-center gap-3">
               <small className="text-md font-medium leading-none">
-                Nessuna Selezione
+                {t('no_selection')}
               </small>
               <Button
                 variant="betNow"
@@ -132,7 +133,13 @@ export default function BettingSlip() {
                         <Button
                           variant="ghost"
                           size="icon-sm"
-                          onClick={() => removeBet(betEntry.id)}
+                          onClick={() =>
+                            removeBet(
+                              betEntry.market,
+                              betEntry.bet.option,
+                              betEntry.bet.teams,
+                            )
+                          }
                         >
                           <CircleXIcon className="h-5 w-5" />
                         </Button>
@@ -146,11 +153,11 @@ export default function BettingSlip() {
         </CardContent>
         <Separator className="my-2" />
         <div className="mx-1 flex justify-end bg-betSlip p-2">
-          <span className="font-semibold">Importo</span>
+          <span className="font-semibold">{t('amount')}</span>
         </div>
 
         <div className="flex flex-row items-center justify-between p-2">
-          <span className="text-sm font-semibold">Totale</span>
+          <span className="text-sm font-semibold">{t('total')}</span>
           <div className="flex w-fit items-center border border-border">
             <Button
               variant="ghost"
@@ -179,17 +186,17 @@ export default function BettingSlip() {
 
         <div className="flex flex-col gap-1 px-2 text-sm">
           <div className="flex justify-between">
-            <span>Quota Totale</span>
+            <span>{t('total_odd')}</span>
             <span>{totalOdds.toFixed(2)}</span>
           </div>
           <div className="flex justify-between">
-            <span>Vincita Potenziale</span>
+            <span>{t('potential_win')}</span>
             <span>{potentialWinning.toFixed(2)} €</span>
           </div>
         </div>
 
         <div className="flex items-center justify-end py-4">
-          <span className="text-sm">Rimuovi Tutto</span>
+          <span className="text-sm">{t('remove_all')}</span>
           <Button variant="ghost" size="icon-sm" onClick={removeAllBets}>
             <CircleXIcon className="h-10 w-10" />
           </Button>
@@ -202,7 +209,7 @@ export default function BettingSlip() {
             size="lg"
             className="w-full font-bold"
           >
-            Scommetti ora
+            {t('bet_now')}
           </Button>
         </CardFooter>
       </Card>

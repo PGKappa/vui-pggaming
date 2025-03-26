@@ -1,8 +1,10 @@
 'use client'
 import { RootContext } from '@/contexts/root-context'
-import { format } from 'date-fns'
-import { enUS } from 'date-fns/locale'
+import { MatchStatistics } from '@/lib/types'
+import { Locale, format } from 'date-fns'
+import { enGB, itCH, zhCN } from 'date-fns/locale'
 import { useContext } from 'react'
+import { useTranslation } from 'react-i18next'
 import LoadingSpinner from './loading-spinner'
 import { Badge } from './ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
@@ -15,14 +17,18 @@ import {
   TableRow,
 } from './ui/table'
 
-export default function LiveRoundStatistics() {
+export default function LiveRoundStatistics(props: {
+  onMatchSelect: (match: MatchStatistics) => void
+}) {
   const { roundStatistics } = useContext(RootContext)
+  const { t, i18n } = useTranslation()
+  const currentLocale = getLocale(i18n.language)
 
   if (!roundStatistics) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Live Round Loading...</CardTitle>
+          <CardTitle>{t('live_round_loading')}...</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col items-center">
           <LoadingSpinner />
@@ -35,14 +41,15 @@ export default function LiveRoundStatistics() {
     <Card>
       <CardHeader>
         <CardTitle>
-          {roundStatistics[0].name} Round {roundStatistics[0].number}
+          {t('statistics')} {roundStatistics[0].name} {t('round')}{' '}
+          {roundStatistics[0].number}
         </CardTitle>
       </CardHeader>
 
       <CardContent>
         <Table>
           <TableHeader className="bg-card-header">
-            <TableRow className="hover:bg-card-header border-card-foreground transition-none *:text-card-foreground">
+            <TableRow className="border-card-foreground transition-none *:text-card-foreground hover:bg-card-header">
               <TableHead></TableHead>
               <TableHead className="text-center font-bold">1</TableHead>
               <TableHead className="text-center font-bold">X</TableHead>
@@ -53,10 +60,14 @@ export default function LiveRoundStatistics() {
           <TableBody className="border-b border-t border-card-foreground">
             {roundStatistics[0].matches.map((match, index) => {
               const formattedTime = format(match.startTime, 'HH:mm', {
-                locale: enUS,
+                locale: currentLocale,
               })
               return (
-                <TableRow key={index} className="border-card-foreground">
+                <TableRow
+                  key={index}
+                  className="cursor-pointer border-card-foreground hover:bg-muted"
+                  onClick={() => props.onMatchSelect(match)}
+                >
                   <TableCell className="flex flex-row items-center gap-2">
                     <Badge>{formattedTime}</Badge>
                     <span className="text-nowrap font-bold">{match.teams}</span>
@@ -74,4 +85,12 @@ export default function LiveRoundStatistics() {
       </CardContent>
     </Card>
   )
+}
+function getLocale(lang: string) {
+  const locales: Record<string, Locale> = {
+    en: enGB,
+    it: itCH,
+    cn: zhCN,
+  }
+  return locales[lang] || enGB
 }

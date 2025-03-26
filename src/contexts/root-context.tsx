@@ -6,7 +6,6 @@ import {
   LiveRound,
   MatchResult,
   RoundStatistics,
-  Score,
   TeamRanking,
   UpcomingRound,
   User,
@@ -14,6 +13,7 @@ import {
 import { BASE_API_URL } from '@/lib/utils'
 import { createContext, useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 
 export type RootContextType = {
   userData?: User
@@ -46,7 +46,7 @@ const defaultRootContext: RootContextType = {
   },
   roundStatistics: [
     {
-      name: 'Statistics',
+      name: 'Super League',
       number: 29,
       matches: [
         {
@@ -75,7 +75,7 @@ const defaultRootContext: RootContextType = {
   teamRankings: [
     {
       position: 1,
-      team: 'BNF',
+      team: 'NAP',
       played: 26,
       wins: 14,
       draws: 8,
@@ -85,13 +85,33 @@ const defaultRootContext: RootContextType = {
     },
     {
       position: 2,
-      team: 'WHM',
+      team: 'JUV',
+      played: 26,
+      wins: 14,
+      draws: 8,
+      losses: 4,
+      points: 50,
+      last8: ['W', 'W', 'L', 'W', 'W', 'X', 'L', 'L'],
+    },
+    {
+      position: 3,
+      team: 'GEN',
       played: 26,
       wins: 13,
       draws: 7,
       losses: 6,
       points: 46,
       last8: ['L', 'W', 'L', 'X', 'W', 'X', 'W', 'X'],
+    },
+    {
+      position: 4,
+      team: 'MIL',
+      played: 26,
+      wins: 13,
+      draws: 7,
+      losses: 6,
+      points: 46,
+      last8: ['L', 'W', 'L', 'X', 'W', 'X', 'W', 'W'],
     },
   ],
   betsHistory: [
@@ -189,8 +209,9 @@ export default function RootContextProvider(props: {
           return response.json()
         })
         .catch((error) => {
-          console.error('API request failed:', error) //TODO: Swap all console.logs and errors with toast messages using Sonner
-          throw error
+          toast.error('API request failed!', {
+            description: error.message,
+          })
         })
     },
     [initCode],
@@ -360,27 +381,48 @@ export default function RootContextProvider(props: {
     previousRoundNumber.current = rootContext.liveRound?.number
 
     const fetchUpcomingRounds = async () => {
-      try {
-        const { schedules } = await apiRequest<{
-          schedules: {
-            schedule: UpcomingRound[]
-          }
-        }>('/football/2/', {
-          method: 'GET',
-        })
-
-        if (schedules && schedules.schedule) {
-          setRootContext((prev) => ({
-            ...prev,
-            upcomingRounds: schedules.schedule.map((round) => ({
-              ...round,
-              mag_event: round.mag_event.slice(0, 4),
-            })),
-          }))
+      const response = await apiRequest<{
+        schedules: {
+          schedule: UpcomingRound[]
         }
-      } catch (error) {
-        console.error('Failed to fetch upcoming rounds:', error)
-      }
+      }>('/football/10/', {
+        method: 'GET',
+      })
+
+      if (!response?.schedules?.schedule?.length) return
+
+      const allEvents = response.schedules.schedule[0].mag_event || []
+
+      const eventsByGroup: Record<number, (typeof allEvents)[number][]> = {}
+
+      allEvents.forEach((event) => {
+        const groupId = event.eventIdentity?.groupId
+        if (groupId !== undefined) {
+          if (!eventsByGroup[groupId]) {
+            eventsByGroup[groupId] = []
+          }
+          eventsByGroup[groupId].push(event)
+        }
+      })
+
+      const rounds: UpcomingRound[] = Object.entries(eventsByGroup).map(
+        ([groupId, events]) => {
+          const firstEvent = events[0]
+          return {
+            ...response.schedules.schedule[0],
+            scheduleId: Number(groupId),
+            scheduleName: firstEvent?.eventIdentity?.scheduleType
+              ? `${firstEvent.eventIdentity.scheduleType}`
+              : `${response.schedules.schedule[0].scheduleName}`,
+            mag_event: events,
+          }
+        },
+      )
+
+      setRootContext((prev) => ({
+        ...prev,
+        upcomingRounds: rounds,
+      }))
     }
 
     fetchUpcomingRounds()
