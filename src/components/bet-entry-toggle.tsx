@@ -40,7 +40,7 @@ export default function BetEntryToggle(props: {
           })
         }
       }}
-      className="w-full"
+      className={`w-full ${props.showOutcome ? 'flex flex-row justify-between' : ''}`}
     >
       <span>{props.option.decPrice}</span>
       {props.showOutcome && <span>{props.option.outcome}</span>}
