@@ -1,7 +1,7 @@
 import { RootContext } from '@/contexts/root-context'
 import { MatchStatistics } from '@/lib/types'
 import { ArrowLeft } from 'lucide-react'
-import { useContext, useEffect } from 'react'
+import { useContext } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from './ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
@@ -9,18 +9,12 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 export default function MatchStatisticsCard({
   match,
   onBack,
-  onHighlightTeam,
 }: {
   match: MatchStatistics
   onBack: () => void
-  onHighlightTeam: (team: string[]) => void
 }) {
   const { roundStatistics } = useContext(RootContext)
   const { t } = useTranslation()
-  useEffect(() => {
-    const [team1, team2] = match.teams.split(' - ')
-    onHighlightTeam([team1.trim(), team2.trim()])
-  }, [match, onHighlightTeam])
 
   if (!roundStatistics || roundStatistics.length === 0) {
     return (
