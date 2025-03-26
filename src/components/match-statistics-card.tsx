@@ -6,7 +6,10 @@ import { useTranslation } from 'react-i18next'
 import { Button } from './ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 
-export default function MatchStatisticsCard(props: {
+export default function MatchStatisticsCard({
+  match,
+  onBack,
+}: {
   match: MatchStatistics
   onBack: () => void
 }) {
@@ -28,7 +31,6 @@ export default function MatchStatisticsCard(props: {
     )
   }
 
-  const match = roundStatistics[0].matches[0]
   const [home, draw, away] = match.probabilities
   const [team1, team2] = match.teams.split(' - ')
 
@@ -44,7 +46,7 @@ export default function MatchStatisticsCard(props: {
       <CardHeader className="relative flex items-center justify-between">
         <CardTitle className="font-extrabold">
           <Button
-            onClick={props.onBack}
+            onClick={onBack}
             variant="ghost"
             size="icon"
             className="absolute left-0 top-0"
