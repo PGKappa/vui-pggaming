@@ -36,13 +36,14 @@ export default function UpcomingRoundCard(props: {
 }) {
   const { t, i18n } = useTranslation()
   const currentLocale = getLocale(i18n.language)
+
   return (
     <Card className="border-b border-t border-card-foreground">
       <CardHeader className="flex flex-row items-center justify-between px-6 md:pl-14">
         <span>
           {props.round.scheduleName} {t('round')} {props.round.scheduleId}
         </span>
-        <span>30:00</span>
+        <span>3:00</span>
       </CardHeader>
       <CardContent className="px-0">
         <Table>
