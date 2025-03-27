@@ -7,6 +7,7 @@ import {
   MatchResult,
   RoundStatistics,
   TeamRanking,
+  UpcomingMatch,
   UpcomingRound,
   User,
 } from '@/lib/types'
@@ -42,7 +43,8 @@ const defaultRootContext: RootContextType = {
       { team1: 'CHE', team2: 'LIV', score1: 1, score2: 1 },
     ],
     startingAt: new Date('2025-02-10T20:00:00Z'),
-    streamUrl: 'https://st7.net4media.net:8082/PG/Dogs/1qasw5/playlist.m3u8',
+    streamUrl:
+      'https://st12.net4media.net:8082/nuvometa/c510a754-V140-Trident-Football-492d2a7a15b5/playlist.m3u8',
   },
   roundStatistics: [
     {
@@ -172,7 +174,7 @@ export default function RootContextProvider(props: {
     useState<RootContextType>(defaultRootContext)
   const { i18n } = useTranslation()
   const [isLoading, setIsLoading] = useState(true)
-  const previousRoundNumber = useRef<number | undefined>(undefined)
+  const processedRoundIdRef = useRef<number | undefined>(undefined)
 
   type UserApiResponse = {
     status: string
@@ -238,6 +240,48 @@ export default function RootContextProvider(props: {
   useEffect(() => {
     if (!initCode) return
 
+    const checkRoundTransition = () => {
+      const upcomingRounds = rootContext.upcomingRounds
+
+      if (upcomingRounds?.length) {
+        const currentDate = new Date()
+        const nextRound = upcomingRounds.find((round) => {
+          const startTime = new Date(round.mag_event[0]?.startTime)
+          return currentDate >= startTime
+        })
+
+        if (nextRound) {
+          if (processedRoundIdRef.current === nextRound.scheduleId) {
+            return
+          }
+
+          processedRoundIdRef.current = nextRound.scheduleId
+
+          setRootContext((prev) => ({
+            ...prev,
+            liveRound: {
+              name: nextRound.scheduleName,
+              number: nextRound.scheduleId,
+              scores: prev.liveRound?.scores || [],
+              startingAt: new Date(nextRound.mag_event[0]?.startTime),
+              streamUrl: prev.liveRound?.streamUrl || '',
+            },
+            upcomingRounds: prev.upcomingRounds?.slice(1) || [],
+          }))
+        }
+      }
+    }
+
+    checkRoundTransition()
+
+    const intervalId = setInterval(checkRoundTransition, 60000)
+
+    return () => clearInterval(intervalId)
+  }, [initCode, rootContext.upcomingRounds])
+
+  useEffect(() => {
+    if (!initCode) return
+
     const fetchUserData = async (retryCount = 0, maxRetries = 3) => {
       try {
         const response = await fetch(
@@ -263,16 +307,18 @@ export default function RootContextProvider(props: {
         } else {
           setInitCode(undefined)
         }
+        toast.success('User data fetched successfully!')
       } catch (error) {
         console.error(`Fetch attempt ${retryCount + 1} failed:`, error)
 
         if (retryCount < maxRetries) {
           const delay = Math.pow(2, retryCount) * 1000
-          console.log(`Retrying in ${delay}ms...`)
-
+          toast.loading('Retrying...', {
+            description: `Attempt ${retryCount + 1} failed. Retrying in ${delay / 1000} seconds.`,
+          })
           setTimeout(() => fetchUserData(retryCount + 1, maxRetries), delay)
         } else {
-          console.error(`All ${maxRetries + 1} attempts failed. Giving up.`)
+          toast.error(`All ${maxRetries + 1} attempts failed. Giving up.`)
           setInitCode(undefined)
           setRootContext((prev) => ({
             ...prev,
@@ -281,7 +327,6 @@ export default function RootContextProvider(props: {
         }
       } finally {
         setIsLoading(false)
-        console.log('User data fetch completed')
       }
     }
 
@@ -289,24 +334,22 @@ export default function RootContextProvider(props: {
   }, [i18n, initCode])
 
   useEffect(() => {
-    if (!initCode || !rootContext.liveRound?.number) return
-
-    previousRoundNumber.current = rootContext.liveRound?.number
+    if (!initCode) return
 
     const fetchUpcomingRounds = async () => {
       const response = await apiRequest<{
         schedules: {
           schedule: UpcomingRound[]
         }
-      }>('/football/10/', {
+      }>('/football/20/', {
         method: 'GET',
       })
 
       if (!response?.schedules?.schedule?.length) return
 
-      const allEvents = response.schedules.schedule[0].mag_event || []
+      const allEvents = response.schedules.schedule[0].mag_event.slice(4) || [] //TODO: remove this slice
 
-      const eventsByGroup: Record<number, (typeof allEvents)[number][]> = {}
+      const eventsByGroup: Record<number, UpcomingMatch[]> = {}
 
       allEvents.forEach((event) => {
         const groupId = event.eventIdentity?.groupId
@@ -321,13 +364,25 @@ export default function RootContextProvider(props: {
       const rounds: UpcomingRound[] = Object.entries(eventsByGroup).map(
         ([groupId, events]) => {
           const firstEvent = events[0]
+
           return {
             ...response.schedules.schedule[0],
             scheduleId: Number(groupId),
-            scheduleName: firstEvent?.eventIdentity?.scheduleType
-              ? `${firstEvent.eventIdentity.scheduleType}`
-              : `${response.schedules.schedule[0].scheduleName}`,
-            mag_event: events,
+            scheduleName:
+              firstEvent.eventIdentity.scheduleType ??
+              response.schedules.schedule[0].scheduleName,
+            mag_event: events.map((event) => {
+              //TODO: remove this map
+              const startTime = new Date()
+              startTime.setMinutes(new Date(event.startTime).getMinutes())
+              startTime.setSeconds(0)
+              startTime.setMilliseconds(0)
+
+              return {
+                ...event,
+                startTime: startTime.toISOString(),
+              }
+            }),
           }
         },
       )
@@ -339,7 +394,7 @@ export default function RootContextProvider(props: {
     }
 
     fetchUpcomingRounds()
-  }, [rootContext.liveRound?.number, initCode, apiRequest])
+  }, [initCode, apiRequest])
 
   if (isLoading) {
     return (
