@@ -1,29 +1,41 @@
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { RootContext } from '@/contexts/root-context'
+import { format } from 'date-fns'
 import { t } from 'i18next'
-import { useContext } from 'react'
+import { useContext, useEffect, useState } from 'react'
 
 export default function MatchEndBadge() {
   const { upcomingRounds } = useContext(RootContext)
+  const [timeToNextRound, setTimeToNextRound] = useState('')
 
-  if (!upcomingRounds || upcomingRounds.length === 0) return null
+  useEffect(() => {
+    const updateTimeToNextRound = () => {
+      if (!upcomingRounds || upcomingRounds.length === 0) {
+        setTimeToNextRound('')
+        return
+      }
 
-  const nextRoundStart = new Date(upcomingRounds[0].mag_event[0].startTime)
-  const timeLeftMs = Math.max(
-    nextRoundStart.getTime() - new Date().getTime(),
-    0,
-  )
+      const nextRoundStart = new Date(upcomingRounds[0].mag_event[0].startTime)
+      const time = new Date(nextRoundStart.getTime() - Date.now())
 
-  const minutes = Math.floor(timeLeftMs / 60000)
-  const seconds = Math.floor((timeLeftMs % 60000) / 1000)
-  const formattedTime = `${minutes}:${seconds.toString().padStart(2, '0')}`
+      const timeString = format(time, 'mm:ss')
+
+      setTimeToNextRound(timeString)
+    }
+
+    updateTimeToNextRound()
+
+    const intervalId = setInterval(updateTimeToNextRound, 1000)
+
+    return () => clearInterval(intervalId)
+  }, [upcomingRounds])
 
   return (
     <Badge className="flex w-fit flex-row items-center justify-center gap-2 py-0">
-      <span className="text-md">{t("end_play")}</span>
+      <span className="text-md">{t('end_play')}</span>
       <Separator orientation="vertical" className="h-5 bg-destructive" />
-      <span className="text-md font-normal">{formattedTime}</span>
+      <span className="text-md font-normal">{timeToNextRound}</span>
     </Badge>
   )
 }
