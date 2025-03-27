@@ -60,7 +60,7 @@ export default function UpcomingRoundCard(props: {
           <TableBody>
             {props.round.mag_event.length ? (
               props.round.mag_event.map((match, index) => {
-                const matchStart = match.eventIdentity.startTime || new Date()
+                const matchStart = new Date(match.startTime)
                 let dayLabel = format(matchStart, 'EEE', {
                   locale: currentLocale,
                 }).toUpperCase()
