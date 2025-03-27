@@ -341,7 +341,7 @@ export default function RootContextProvider(props: {
         schedules: {
           schedule: UpcomingRound[]
         }
-      }>('/football/20/', {
+      }>('/football/180/', {
         method: 'GET',
       })
 
