@@ -341,13 +341,13 @@ export default function RootContextProvider(props: {
         schedules: {
           schedule: UpcomingRound[]
         }
-      }>('/football/180/', {
+      }>('/football/20/', {
         method: 'GET',
       })
 
       if (!response?.schedules?.schedule?.length) return
 
-      const allEvents = response.schedules.schedule[0].mag_event || []
+      const allEvents = response.schedules.schedule[0].mag_event.slice(4) || [] //TODO: remove this slice
 
       const eventsByGroup: Record<number, UpcomingMatch[]> = {}
 
@@ -364,13 +364,25 @@ export default function RootContextProvider(props: {
       const rounds: UpcomingRound[] = Object.entries(eventsByGroup).map(
         ([groupId, events]) => {
           const firstEvent = events[0]
+
           return {
             ...response.schedules.schedule[0],
             scheduleId: Number(groupId),
             scheduleName:
               firstEvent.eventIdentity.scheduleType ??
               response.schedules.schedule[0].scheduleName,
-            mag_event: events,
+            mag_event: events.map((event) => {
+              //TODO: remove this map
+              const startTime = new Date()
+              startTime.setMinutes(new Date(event.startTime).getMinutes())
+              startTime.setSeconds(0)
+              startTime.setMilliseconds(0)
+
+              return {
+                ...event,
+                startTime: startTime.toISOString(),
+              }
+            }),
           }
         },
       )
