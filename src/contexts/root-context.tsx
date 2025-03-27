@@ -347,7 +347,7 @@ export default function RootContextProvider(props: {
 
       if (!response?.schedules?.schedule?.length) return
 
-      const allEvents = response.schedules.schedule[0].mag_event.slice(4) || [] //TODO: remove this slice
+      const allEvents = response.schedules.schedule[0].mag_event.slice(4) || [] //TODO: remove .slice(4) when the API is fixed
 
       const eventsByGroup: Record<number, UpcomingMatch[]> = {}
 
@@ -372,7 +372,7 @@ export default function RootContextProvider(props: {
               firstEvent.eventIdentity.scheduleType ??
               response.schedules.schedule[0].scheduleName,
             mag_event: events.map((event) => {
-              //TODO: remove this map
+              //TODO: replace this events.map() with events when the API is fixed
               const startTime = new Date()
               startTime.setMinutes(new Date(event.startTime).getMinutes())
               startTime.setSeconds(0)
