@@ -142,7 +142,7 @@ export type RoundStatistics = {
   matches: MatchStatistics[]
 }
 
-export type BetsHistory = {
+export type Ticket = {
   id: number
   date: Date
   amount: number

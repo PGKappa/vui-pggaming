@@ -16,13 +16,13 @@ import {
 } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@radix-ui/react-scroll-area'
-import { BetsHistory } from '@/lib/types'
+import { Ticket } from '@/lib/types'
 import { t } from 'i18next'
 
 export default function TicketDetailsDialog({
   ticket,
 }: {
-  ticket: BetsHistory
+  ticket: Ticket
 }) {
   if (!ticket || !ticket.id) {
     return (

@@ -2,7 +2,7 @@
 
 import LoadingSpinner from '@/components/loading-spinner'
 import {
-  BetsHistory,
+  Ticket,
   LiveRound,
   MatchResult,
   RoundStatistics,
@@ -27,7 +27,7 @@ export type RootContextType = {
   roundStatistics?: RoundStatistics[]
   teamRankings?: TeamRanking[]
   upcomingRounds?: UpcomingRound[]
-  betsHistory: BetsHistory[]
+  betsHistory: Ticket[]
   matchResult?: MatchResult[]
 }
 
