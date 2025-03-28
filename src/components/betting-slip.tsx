@@ -1,7 +1,7 @@
 import { BetsContext } from '@/contexts/bets-context'
-import { BetEntry } from '@/lib/types'
+import { BetEntry, SubmittedTicket } from '@/lib/types'
 import { format, formatDistanceToNow } from 'date-fns'
-import { t } from 'i18next'
+import { useTranslation } from 'react-i18next'
 import { CircleXIcon, RotateCcwIcon, Trash2Icon } from 'lucide-react'
 import { useContext, useMemo, useState } from 'react'
 import BetsHistoryDialog from './bets-history-dialog'
@@ -40,6 +40,8 @@ export default function BettingSlip() {
     betEntries.map((betEntry) => betEntry.bet.round.number),
   ).size
 
+  const { t } = useTranslation()
+
   return (
     <>
       <Card className="w-full rounded-sm bg-primary-foreground text-primary">
@@ -56,7 +58,9 @@ export default function BettingSlip() {
                 : 'bg-gray-100'
             }`}
           >
-            {roundsLength > 1 ? `t('multiple') (${roundsLength})` : t('single')}
+            {roundsLength > 1
+              ? `${t('multiple')} (${roundsLength})`
+              : t('single')}
           </span>
 
           <span
@@ -208,6 +212,26 @@ export default function BettingSlip() {
             disabled={betEntries.length === 0}
             size="lg"
             className="w-full font-bold"
+            onClick={() => {
+              const newTicket: SubmittedTicket = {
+                date: new Date(),
+                amount: global,
+                winning: potentialWinning,
+                betEntries: betEntries,
+              }
+
+              const STORAGE_KEY = 'submittedTickets'
+              const stored = localStorage.getItem(STORAGE_KEY)
+              const tickets: SubmittedTicket[] = stored
+                ? JSON.parse(stored)
+                : []
+
+              tickets.push(newTicket)
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(tickets))
+
+              console.log('[BettingSlip] Ticket submitted:', newTicket)
+              removeAllBets()
+            }}
           >
             {t('bet_now')}
           </Button>
