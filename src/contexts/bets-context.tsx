@@ -1,6 +1,6 @@
 'use client'
 
-import { Bet, BetEntry, Selection } from '@/lib/types'
+import { Bet, BetEntry, Selection, SubmittedTicket } from '@/lib/types'
 import { createContext, useEffect, useState } from 'react'
 
 export type BetsContextType = {
@@ -82,7 +82,22 @@ export default function BetsContextProvider(props: {
   }
 
   const refreshBets = () => {
-    //TODO: Fetch bets from real endpoint
+    const STORAGE_KEY = 'submittedTickets'
+    const stored = localStorage.getItem(STORAGE_KEY)
+    if (!stored) return
+
+    const tickets: SubmittedTicket[] = JSON.parse(stored)
+    const lastTicket = tickets[tickets.length - 1]
+    if (!lastTicket) return
+
+    setBetsContext((prev) => ({
+      ...prev,
+      betEntries: lastTicket.betEntries,
+      lastId:
+        lastTicket.betEntries.length > 0
+          ? Math.max(...lastTicket.betEntries.map((b) => b.id))
+          : 0,
+    }))
   }
 
   useEffect(() => {
