@@ -147,7 +147,15 @@ export type Ticket = {
   date: Date
   amount: number
   winning: number
-  status: 'Vincente' | 'Perdente'
+  betEntries: BetEntry[]
+  status: 'Vincente' | 'Pending' | 'Perdente'
+}
+
+export type SubmittedTicket = {
+  date: Date
+  amount: number
+  winning: number
+  betEntries: BetEntry[]
 }
 
 export type MatchResult = {
