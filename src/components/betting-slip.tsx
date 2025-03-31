@@ -1,9 +1,9 @@
 import { BetsContext } from '@/contexts/bets-context'
 import { BetEntry, SubmittedTicket } from '@/lib/types'
 import { format, formatDistanceToNow } from 'date-fns'
-import { useTranslation } from 'react-i18next'
 import { CircleXIcon, RotateCcwIcon, Trash2Icon } from 'lucide-react'
 import { useContext, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import BetsHistoryDialog from './bets-history-dialog'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
@@ -12,8 +12,13 @@ import { Input } from './ui/input'
 import { Separator } from './ui/separator'
 
 export default function BettingSlip() {
-  const { betEntries, removeBet, removeMatchBets, removeAllBets, refreshBets } =
-    useContext(BetsContext)
+  const {
+    betEntries,
+    removeBet,
+    removeMatchBets,
+    removeAllBets,
+    restoreLastSubmittedTicket,
+  } = useContext(BetsContext)
   const [global, setGlobal] = useState(1)
   const betsByMatch = useMemo(() => {
     return betEntries.reduce(
@@ -84,7 +89,7 @@ export default function BettingSlip() {
                 variant="betNow"
                 size="icon-sm"
                 className="font-bold"
-                onClick={refreshBets}
+                onClick={restoreLastSubmittedTicket}
               >
                 <RotateCcwIcon />
               </Button>
@@ -220,14 +225,10 @@ export default function BettingSlip() {
                 betEntries: betEntries,
               }
 
-              const STORAGE_KEY = 'submittedTickets'
-              const stored = localStorage.getItem(STORAGE_KEY)
-              const tickets: SubmittedTicket[] = stored
-                ? JSON.parse(stored)
-                : []
-
-              tickets.push(newTicket)
-              localStorage.setItem(STORAGE_KEY, JSON.stringify(tickets))
+              localStorage.setItem(
+                'lastSubmittedTicket',
+                JSON.stringify(newTicket),
+              )
 
               console.log('[BettingSlip] Ticket submitted:', newTicket)
               removeAllBets()
