@@ -1,7 +1,8 @@
 'use client'
 
-import { Bet, BetEntry, Selection } from '@/lib/types'
+import { Bet, BetEntry, Selection, SubmittedTicket } from '@/lib/types'
 import { createContext, useEffect, useState } from 'react'
+import { toast } from 'sonner'
 
 export type BetsContextType = {
   betEntries: BetEntry[]
@@ -10,7 +11,7 @@ export type BetsContextType = {
   removeBet: (marketName: string, option: Selection, teams: string) => void
   removeMatchBets: (matchId: string) => void
   removeAllBets: () => void
-  refreshBets: () => void
+  restoreLastSubmittedTicket: () => void
 }
 
 const defaultBetsContext: BetsContextType = {
@@ -20,7 +21,7 @@ const defaultBetsContext: BetsContextType = {
   removeBet: () => {},
   removeMatchBets: () => {},
   removeAllBets: () => {},
-  refreshBets: () => {},
+  restoreLastSubmittedTicket: () => {},
 }
 
 export const BetsContext = createContext<BetsContextType>(defaultBetsContext)
@@ -81,8 +82,24 @@ export default function BetsContextProvider(props: {
     setBetsContext((prev) => ({ ...prev, betEntries: [], lastId: 0 }))
   }
 
-  const refreshBets = () => {
-    //TODO: Fetch bets from real endpoint
+  const restoreLastSubmittedTicket = () => {
+    const stored = localStorage.getItem('lastSubmittedTicket')
+    if (!stored) {
+      toast.error('There is no last ticket to restore!')
+      return
+    }
+
+    const lastTicket: SubmittedTicket = JSON.parse(stored)
+    if (!lastTicket) return
+
+    setBetsContext((prev) => ({
+      ...prev,
+      betEntries: lastTicket.betEntries,
+      lastId:
+        lastTicket.betEntries.length > 0
+          ? Math.max(...lastTicket.betEntries.map((b) => b.id))
+          : 0,
+    }))
   }
 
   useEffect(() => {
@@ -92,7 +109,7 @@ export default function BetsContextProvider(props: {
       removeBet,
       removeMatchBets,
       removeAllBets,
-      refreshBets,
+      restoreLastSubmittedTicket,
     }))
   }, [])
 

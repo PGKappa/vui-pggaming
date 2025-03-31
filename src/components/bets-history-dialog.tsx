@@ -20,7 +20,7 @@ import { RootContext } from '@/contexts/root-context'
 import { format } from 'date-fns'
 import React, { useContext, useMemo } from 'react'
 import { Button } from './ui/button'
-import { BetsHistory } from '@/lib/types'
+import { Ticket } from '@/lib/types'
 import TicketDetailsDialog from './ticket-details-dialog'
 import { t } from 'i18next'
 
@@ -37,7 +37,7 @@ export default function BetsHistoryDialog() {
         acc[dateKey].push(bet)
         return acc
       },
-      {} as Record<string, BetsHistory[]>,
+      {} as Record<string, Ticket[]>,
     )
   }, [betsHistory])
 
