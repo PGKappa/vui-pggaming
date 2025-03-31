@@ -230,8 +230,8 @@ export default function RootContextProvider(props: {
 
       localStorage.setItem('initCode', initCode)
     } else {
-      setIsLoading(false)
       localStorage.removeItem('initCode')
+      setIsLoading(false)
     }
 
     setInitCode(initCode)
@@ -299,34 +299,35 @@ export default function RootContextProvider(props: {
         const userData = (await response.json()) as UserApiResponse
 
         if (userData?.status === '1024') {
+          i18n.changeLanguage(userData.lang.substring(0, 2))
           setRootContext((prev) => ({
             ...prev,
             userData,
           }))
-          i18n.changeLanguage(userData.lang.substring(0, 2))
+          toast.success('User data fetched successfully!')
+          setIsLoading(false)
         } else {
           setInitCode(undefined)
+          throw new Error('Could not fetch User Data!')
         }
-        toast.success('User data fetched successfully!')
-      } catch (error) {
-        console.error(`Fetch attempt ${retryCount + 1} failed:`, error)
-
+      } catch {
         if (retryCount < maxRetries) {
           const delay = Math.pow(2, retryCount) * 1000
           toast.loading('Retrying...', {
+            id: 'retry-toast',
             description: `Attempt ${retryCount + 1} failed. Retrying in ${delay / 1000} seconds.`,
           })
           setTimeout(() => fetchUserData(retryCount + 1, maxRetries), delay)
         } else {
+          toast.dismiss('retry-toast')
           toast.error(`All ${maxRetries + 1} attempts failed. Giving up.`)
           setInitCode(undefined)
           setRootContext((prev) => ({
             ...prev,
             userData: undefined,
           }))
+          setIsLoading(false)
         }
-      } finally {
-        setIsLoading(false)
       }
     }
 
@@ -405,6 +406,15 @@ export default function RootContextProvider(props: {
   }
 
   if (!initCode) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-4">
+        <h1 className="text-2xl font-bold">Error</h1>
+        <p className="text-lg">Missing init_code</p>
+      </div>
+    )
+  }
+
+  if (!rootContext.userData) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-4">
         <h1 className="text-2xl font-bold">Error</h1>
