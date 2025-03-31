@@ -310,7 +310,7 @@ export default function RootContextProvider(props: {
           setInitCode(undefined)
           throw new Error('Could not fetch User Data!')
         }
-      } catch (error) {
+      } catch {
         if (retryCount < maxRetries) {
           const delay = Math.pow(2, retryCount) * 1000
           toast.loading('Retrying...', {
