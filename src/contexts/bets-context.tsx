@@ -2,6 +2,7 @@
 
 import { Bet, BetEntry, Selection, SubmittedTicket } from '@/lib/types'
 import { createContext, useEffect, useState } from 'react'
+import { toast } from 'sonner'
 
 export type BetsContextType = {
   betEntries: BetEntry[]
@@ -10,7 +11,7 @@ export type BetsContextType = {
   removeBet: (marketName: string, option: Selection, teams: string) => void
   removeMatchBets: (matchId: string) => void
   removeAllBets: () => void
-  refreshBets: () => void
+  restoreLastSubmittedTicket: () => void
 }
 
 const defaultBetsContext: BetsContextType = {
@@ -20,7 +21,7 @@ const defaultBetsContext: BetsContextType = {
   removeBet: () => {},
   removeMatchBets: () => {},
   removeAllBets: () => {},
-  refreshBets: () => {},
+  restoreLastSubmittedTicket: () => {},
 }
 
 export const BetsContext = createContext<BetsContextType>(defaultBetsContext)
@@ -81,13 +82,14 @@ export default function BetsContextProvider(props: {
     setBetsContext((prev) => ({ ...prev, betEntries: [], lastId: 0 }))
   }
 
-  const refreshBets = () => {
-    const STORAGE_KEY = 'submittedTickets'
-    const stored = localStorage.getItem(STORAGE_KEY)
-    if (!stored) return
+  const restoreLastSubmittedTicket = () => {
+    const stored = localStorage.getItem('lastSubmittedTicket')
+    if (!stored) {
+      toast.error('There is no last ticket to restore!')
+      return
+    }
 
-    const tickets: SubmittedTicket[] = JSON.parse(stored)
-    const lastTicket = tickets[tickets.length - 1]
+    const lastTicket: SubmittedTicket = JSON.parse(stored)
     if (!lastTicket) return
 
     setBetsContext((prev) => ({
@@ -107,7 +109,7 @@ export default function BetsContextProvider(props: {
       removeBet,
       removeMatchBets,
       removeAllBets,
-      refreshBets,
+      restoreLastSubmittedTicket,
     }))
   }, [])
 
