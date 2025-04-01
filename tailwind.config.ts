@@ -3,7 +3,7 @@ import tailwindCssAnimate from 'tailwindcss-animate'
 
 export default {
   darkMode: ['class'],
-  safelist: ['default', 'dark'],
+  safelist: ['default', 'dark', 'sportradar', 'pgcompany', 'dp', 'sc'],
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
