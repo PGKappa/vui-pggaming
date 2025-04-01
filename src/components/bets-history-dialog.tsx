@@ -60,7 +60,7 @@ export default function BetsHistoryDialog() {
         {betsHistory.length === 0 ? (
           <div className="flex h-40 items-center justify-center">
             {' '}
-            {t('no_bets_placed')}
+            <span className="text-primary">{t('no_bets_placed')}</span>
           </div>
         ) : (
           <ScrollArea>
