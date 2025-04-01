@@ -65,9 +65,9 @@ export default function UpcomingRoundCard(props: {
                   locale: currentLocale,
                 }).toUpperCase()
                 if (isToday(matchStart)) {
-                  dayLabel = 'TODAY'
+                  dayLabel = t('today')
                 } else if (isTomorrow(matchStart)) {
-                  dayLabel = 'TOMORROW'
+                  dayLabel = t('tomorrow')
                 }
 
                 const formattedDate = format(matchStart, 'HH:mm', {
