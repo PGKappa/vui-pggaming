@@ -60,8 +60,8 @@ export default function Leaderboard({
                   <TableCell>{ranking.draws}</TableCell>
                   <TableCell>{ranking.losses}</TableCell>
                   <TableCell>{ranking.points}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex gap-1">
+                  <TableCell>
+                    <div className="flex flex-row justify-end gap-1">
                       {ranking.last8.map((result, i) => {
                         const textColor =
                           result === 'W'

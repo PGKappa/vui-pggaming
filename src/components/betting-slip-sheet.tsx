@@ -8,7 +8,12 @@ export default function BettingSlipSheet() {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button size="lg">{t('bet_slip')}</Button>
+        <Button
+          size="lg"
+          className="bg-footer-betslip text-footer-betslip-foreground hover:bg-footer-betslip/90 text-md font-semibold"
+        >
+          {t('bet_slip')}
+        </Button>
       </SheetTrigger>
       <SheetContent side="top" className="p-0">
         <VisuallyHidden>
