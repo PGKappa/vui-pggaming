@@ -61,7 +61,7 @@ export default {
   			border: 'hsl(var(--border))',
   			input: 'hsl(var(--input))',
   			ring: 'hsl(var(--ring))',
-  			betSlip: 'hsl(var(--betSlip-secondary))',
+  			betSlip: 'hsl(var(--betSlip))',
 			bet: 'hsl(var(--bet))',
 			'bet-foreground': 'hsl(var(--bet-foreground))',
   			chart: {
