@@ -38,11 +38,9 @@
 
     --betSlip: 0 0% 85%;
 
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    --chart-1: 0 0% 63%;
+    --chart-2: 353 100% 44%;
+    --chart-3: 0 0% 100%;
   }
 
   .dark {
@@ -69,8 +67,6 @@
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
   }
 
   .sportradar {
@@ -84,8 +80,8 @@
     --primary: 240 100% 11.8%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 9% 65%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 218 100% 93%;
+    --secondary-foreground: 218 53% 11%;
 
     --muted: 220 9% 65%;
     --muted-foreground: 0 0% 0%;
@@ -107,11 +103,9 @@
 
     --betSlip: 0 0% 85%;
 
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    --chart-1: 0 0% 63%;
+    --chart-2: 358 100% 62%;
+    --chart-3: 218 80% 83%;
   }
 
   .pgcompany {
