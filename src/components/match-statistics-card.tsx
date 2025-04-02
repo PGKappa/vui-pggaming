@@ -61,7 +61,7 @@ export default function MatchStatisticsCard({
         <div className="flex w-full flex-row items-center justify-around">
           <div className="grid grid-cols-2 lg:grid-cols-1 2xl:grid-cols-2">
             <div className="flex flex-col items-center gap-2">
-              <div className="h-5 w-5 rounded-full bg-card-foreground"></div>
+              <div className="h-5 w-5 rounded-full bg-chart-3"></div>
               <span className="text-lg font-semibold">{team1}</span>
             </div>
             <span className="text-xl font-semibold">{home}%</span>
@@ -74,7 +74,7 @@ export default function MatchStatisticsCard({
                 cy="50"
                 r={radius}
                 fill="none"
-                stroke="#d9d9d9"
+                className="stroke-chart-1"
                 strokeWidth={strokeWidth}
               />
               <circle
@@ -82,7 +82,7 @@ export default function MatchStatisticsCard({
                 cy="50"
                 r={radius}
                 fill="none"
-                stroke="#e2001a"
+                className="stroke-chart-2"
                 strokeWidth={strokeWidth}
                 strokeDasharray={`${awayStroke} ${circumference}`}
                 strokeDashoffset={circumference - homeStroke}
@@ -94,7 +94,7 @@ export default function MatchStatisticsCard({
                 cy="50"
                 r={radius}
                 fill="none"
-                stroke="#ffffff"
+                className="stroke-chart-3"
                 strokeWidth={strokeWidth}
                 strokeDasharray={`${homeStroke} ${circumference}`}
                 strokeDashoffset={circumference - homeStroke}
@@ -114,7 +114,7 @@ export default function MatchStatisticsCard({
               {away}%
             </span>
             <div className="flex flex-col items-center gap-2">
-              <div className="h-5 w-5 rounded-full bg-accent"></div>
+              <div className="h-5 w-5 rounded-full bg-chart-2"></div>
               <span className="text-lg font-semibold">{team2}</span>
             </div>
             <span className="hidden text-xl font-semibold lg:block 2xl:hidden">
@@ -127,14 +127,14 @@ export default function MatchStatisticsCard({
         <div className="grid grid-cols-2 gap-x-16 font-semibold">
           {['1-1', '1-1', '1-1', '1-1'].map((match, index) => (
             <div key={index} className="flex items-center gap-1">
-              <div className="h-3 w-5 bg-card-foreground"></div>
+              <div className="h-3 w-5 bg-chart-3"></div>
               <div
                 key={index}
                 className="flex h-8 w-8 items-center justify-center"
               >
                 {match}
               </div>
-              <div className="h-3 w-4 bg-accent"></div>
+              <div className="h-3 w-4 bg-chart-2"></div>
             </div>
           ))}
         </div>
