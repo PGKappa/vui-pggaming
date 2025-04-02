@@ -41,6 +41,12 @@
     --chart-1: 0 0% 63%;
     --chart-2: 353 100% 44%;
     --chart-3: 0 0% 100%;
+
+    --footer-ranking: 0 0% 100%;
+    --footer-ranking-foreground: 0 0% 0%;
+
+    --footer-betslip: 353 100% 44%;
+    --footer-betslip-foreground: 0 0% 100%;
   }
 
   .dark {
@@ -106,6 +112,12 @@
     --chart-1: 0 0% 63%;
     --chart-2: 358 100% 62%;
     --chart-3: 218 80% 83%;
+
+    --footer-ranking: 218 80% 88%;
+    --footer-ranking-foreground: 218 53% 11%;
+
+    --footer-betslip: 358 100% 62%;
+    --footer-betslip-foreground: 0 0% 100%;
   }
 
   .pgcompany {
