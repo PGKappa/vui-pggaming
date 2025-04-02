@@ -19,7 +19,7 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        betNow: "bg-accent text-accent-foreground shadow hover:bg-accent/90",
+        betNow: "bg-bet text-bet-foreground shadow hover:bg-bet/90",
         navbar: "hover:text-accent-foreground hover:bg-accent/90",
         history: "bg-accent text-accent-foreground",
       },
