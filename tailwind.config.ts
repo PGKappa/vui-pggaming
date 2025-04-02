@@ -62,6 +62,8 @@ export default {
   			input: 'hsl(var(--input))',
   			ring: 'hsl(var(--ring))',
   			betSlip: 'hsl(var(--betSlip-secondary))',
+			bet: 'hsl(var(--bet))',
+			'bet-foreground': 'hsl(var(--bet-foreground))',
   			chart: {
   				'1': 'hsl(var(--chart-1))',
   				'2': 'hsl(var(--chart-2))',
