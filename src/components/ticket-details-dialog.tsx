@@ -55,7 +55,7 @@ export default function TicketDetailsDialog({
       </DialogTrigger>
 
       <DialogContent
-        className="w-full max-w-lg bg-foreground text-primary"
+        className="w-full max-w-lg text-primary"
         aria-describedby={undefined}
       >
         <DialogHeader>
