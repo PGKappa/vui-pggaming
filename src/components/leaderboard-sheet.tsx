@@ -13,7 +13,12 @@ export default function LeaderboardSheet({
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button size="lg">{t('ranking')}</Button>
+        <Button
+          size="lg"
+          className="bg-footer-ranking text-footer-ranking-foreground hover:bg-footer-ranking/90 text-md font-semibold"
+        >
+          {t('ranking')}
+        </Button>
       </SheetTrigger>
       <SheetContent side="top" className="p-0">
         <VisuallyHidden>
