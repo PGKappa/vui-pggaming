@@ -3,6 +3,7 @@
 import { RootContext } from '@/contexts/root-context'
 import { t } from 'i18next'
 import { useContext } from 'react'
+import BallSvg from './ball'
 
 export default function LiveMatchInfo() {
   const { liveRound } = useContext(RootContext)
@@ -17,14 +18,11 @@ export default function LiveMatchInfo() {
 
   return (
     <div className="flex w-full flex-row items-center justify-between">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src="/calcio/ball.svg"
-        alt="Football"
-        className="h-8 w-8 invert filter"
-      />
-      <span>{t("football")}</span>
-      <span className="ml-auto">{formattedTime}</span>
+      <div className="flex flex-row items-center gap-1">
+        <BallSvg className="stroke-foreground" />
+        <span>{t('football')}</span>
+      </div>
+      <span className="text-lg">{formattedTime}</span>
     </div>
   )
 }

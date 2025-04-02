@@ -3,6 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { buttonVariants } from './ui/button'
 import { t } from 'i18next'
+import BallSvg from './ball'
 
 export default function Navbar() {
   return (
@@ -23,7 +24,7 @@ export default function Navbar() {
           className="h-6 w-auto"
           priority
         />
-        <span className="text-xs font-medium">{t("dogs")}</span>
+        <span className="text-xs font-medium">{t('dogs')}</span>
       </Link>
 
       <Link
@@ -42,7 +43,7 @@ export default function Navbar() {
           className="h-6 w-auto"
           priority
         />
-        <span className="text-xs font-medium">{t("horses")}</span>
+        <span className="text-xs font-medium">{t('horses')}</span>
       </Link>
 
       <Link
@@ -50,14 +51,7 @@ export default function Navbar() {
         className="flex w-full flex-row items-center justify-center gap-2 rounded-sm bg-accent transition-all hover:bg-accent/90"
         prefetch={false}
       >
-        <Image
-          src="/calcio/ball.svg"
-          alt="Football"
-          width={50}
-          height={50}
-          className="h-6 w-auto"
-          priority
-        />
+        <BallSvg className="stroke-accent-foreground" />
       </Link>
     </nav>
   )
