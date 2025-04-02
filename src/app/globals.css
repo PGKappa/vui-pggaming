@@ -40,7 +40,7 @@
     --bet: 353 100% 44%;
     --bet-foreground: 0 0% 100%;
 
-    --betSlip-secondary: 0 0% 85%;
+    --betSlip: 0 0% 85%;
 
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
@@ -71,7 +71,7 @@
     --ring: 24 5.7% 82.9%;
     --bet: 358 100% 62%;
     --bet-foreground: 0 0% 100%;
-    --betSlip-secondary: 0 0% 85%;
+    --betSlip: 0 0% 85%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
@@ -107,7 +107,7 @@
     --bet: 358 100% 62%;
     --bet-foreground: 0 0% 100%;
 
-    --betSlip-secondary: 0 0% 85%;
+    --betSlip: 0 0% 85%;
 
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
