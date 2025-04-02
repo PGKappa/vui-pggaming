@@ -3,7 +3,7 @@ import tailwindCssAnimate from 'tailwindcss-animate'
 
 export default {
   darkMode: ['class'],
-  safelist: ['default', 'dark'],
+  safelist: ['default', 'dark', 'sportradar', 'pgcompany', 'dp', 'sc'],
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
@@ -61,7 +61,9 @@ export default {
   			border: 'hsl(var(--border))',
   			input: 'hsl(var(--input))',
   			ring: 'hsl(var(--ring))',
-  			betSlip: 'hsl(var(--betSlip-secondary))',
+  			betSlip: 'hsl(var(--betSlip))',
+			bet: 'hsl(var(--bet))',
+			'bet-foreground': 'hsl(var(--bet-foreground))',
   			chart: {
   				'1': 'hsl(var(--chart-1))',
   				'2': 'hsl(var(--chart-2))',

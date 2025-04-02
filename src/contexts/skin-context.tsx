@@ -6,6 +6,10 @@ import { createContext, useCallback, useEffect, useState } from 'react'
 export enum SkinType {
   DEFAULT = 'default',
   DARK = 'dark',
+  SPORTRADAR = 'sportradar',
+  PGCOMPANY = 'pgcompany',
+  DP = 'dp',
+  SC = 'sc',
 }
 
 export const SkinContext = createContext<[SkinType, (skin: SkinType) => void]>([

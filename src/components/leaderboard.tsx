@@ -46,12 +46,12 @@ export default function Leaderboard({
               {teamRankings.map((ranking) => (
                 <TableRow key={ranking.team}>
                   <TableCell
-                    className={`font-medium ${highlightedTeams.includes(ranking.team) ? 'bg-foreground text-primary' : ''}`}
+                    className={`font-medium ${highlightedTeams.includes(ranking.team) ? 'bg-accent text-accent-foreground' : ''}`}
                   >
                     {ranking.position}
                   </TableCell>
                   <TableCell
-                    className={`text-left ${highlightedTeams.includes(ranking.team) ? 'bg-foreground text-primary' : ''}`}
+                    className={`text-left ${highlightedTeams.includes(ranking.team) ? 'bg-accent text-accent-foreground' : ''}`}
                   >
                     {ranking.team}
                   </TableCell>
