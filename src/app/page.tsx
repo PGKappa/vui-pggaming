@@ -36,7 +36,7 @@ export default function Home() {
 
   return (
     <>
-      <div className="container grid grid-cols-1 justify-center gap-3 pb-10 pt-4 lg:grid-cols-4 lg:pb-4">
+      <div className="bg-columnL-background text-columnL-foreground container mb-10 mt-1 grid grid-cols-1 justify-center gap-3 lg:grid-cols-4 lg:mb-4">
         <div className="flex flex-col items-center gap-4 lg:col-span-2">
           <div className="flex w-full flex-col gap-1">
             <LiveMatchInfo />
@@ -84,7 +84,7 @@ export default function Home() {
             <Leaderboard highlightedTeams={highlightedTeams} />
           </div>
         </div>
-        <div className="lg:col-span-1">
+        <div className="bg-background text-foreground lg:col-span-1">
           <div className="hidden lg:block">
             <BettingSlip />
           </div>
