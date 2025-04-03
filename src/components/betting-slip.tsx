@@ -49,7 +49,7 @@ export default function BettingSlip() {
 
   return (
     <>
-      <Card className="w-full rounded-sm bg-primary-foreground text-primary">
+      <Card className="w-full rounded-sm bg-primary-foreground text-betSlip-foreground">
         <div className="grid grid-cols-2 grid-rows-2 text-center">
           <span className="flex w-full flex-col items-center justify-center text-md">
             {t('bet_slip')} ({betEntries.length})
