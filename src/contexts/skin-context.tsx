@@ -5,7 +5,6 @@ import { createContext, useCallback, useEffect, useState } from 'react'
 
 export enum SkinType {
   DEFAULT = 'default',
-  DARK = 'dark',
   SPORTRADAR = 'sportradar',
   DP = 'dp',
   SC = 'sc',
