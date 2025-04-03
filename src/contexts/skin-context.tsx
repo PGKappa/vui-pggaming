@@ -7,7 +7,6 @@ export enum SkinType {
   DEFAULT = 'default',
   DARK = 'dark',
   SPORTRADAR = 'sportradar',
-  PGCOMPANY = 'pgcompany',
   DP = 'dp',
   SC = 'sc',
 }
