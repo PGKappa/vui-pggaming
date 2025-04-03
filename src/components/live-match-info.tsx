@@ -19,7 +19,7 @@ export default function LiveMatchInfo() {
   return (
     <div className="flex w-full flex-row items-center justify-between">
       <div className="flex flex-row items-center gap-1">
-        <BallSvg className="stroke-foreground" />
+        <BallSvg className="stroke-columnL-foreground" />
         <span>{t('football')}</span>
       </div>
       <span className="text-lg">{formattedTime}</span>
