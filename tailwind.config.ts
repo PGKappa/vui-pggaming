@@ -33,7 +33,10 @@ export default {
         card: {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
-          header: 'hsl(var(--card-header))',
+          header: {
+            DEFAULT: 'hsl(var(--card-header))',
+            foreground: 'hsl(var(--card-header-foreground))',
+          },
         },
         popover: {
           DEFAULT: 'hsl(var(--popover))',
@@ -61,6 +64,15 @@ export default {
         },
         table: {
           DEFAULT: 'hsl(var(--table-foreground))',
+        },
+        badge: {
+          DEFAULT: 'hsl(var(--badge-background))',
+          foreground: 'hsl(var(--badge-foreground))',
+        },
+        betEntry: {
+          DEFAULT: 'hsl(var(--betEntry-background))',
+          foreground: 'hsl(var(--betEntry-foreground))',
+          border: 'hsl(var(--betEntry-border))',
         },
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
