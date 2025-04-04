@@ -26,10 +26,10 @@ export default {
       colors: {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
-		columnL: {
-			background: 'hsl(var(--columnL-background))',
-			foreground: 'hsl(var(--columnL-foreground))',
-		},
+        columnL: {
+          background: 'hsl(var(--columnL-background))',
+          foreground: 'hsl(var(--columnL-foreground))',
+        },
         card: {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
@@ -59,6 +59,9 @@ export default {
           DEFAULT: 'hsl(var(--destructive))',
           foreground: 'hsl(var(--destructive-foreground))',
         },
+        table: {
+          DEFAULT: 'hsl(var(--table-foreground))',
+        },
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
@@ -70,11 +73,11 @@ export default {
           DEFAULT: 'hsl(var(--betSlip))',
           foreground: 'hsl(var(--betSlip-foreground))',
         },
-		betHistory: {
-			DEFAULT: 'hsl(var(--betHistory))',
-			foreground: 'hsl(var(--betHistory-foreground))',
-			header: 'hsl(var(--betHistory-header))',
-		},
+        betHistory: {
+          DEFAULT: 'hsl(var(--betHistory))',
+          foreground: 'hsl(var(--betHistory-foreground))',
+          header: 'hsl(var(--betHistory-header))',
+        },
         chart: {
           '1': 'hsl(var(--chart-1))',
           '2': 'hsl(var(--chart-2))',
