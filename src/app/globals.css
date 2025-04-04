@@ -15,6 +15,7 @@
     --card: 0 0% 16%;
     --card-foreground: 0 0% 100%;
     --card-header: 0 0% 23%;
+    --card-header-foreground: 0 0% 100%;
 
     --primary: 0 0% 0%;
     --primary-foreground: 0 0% 100%;
@@ -32,6 +33,13 @@
     --destructive-foreground: 0 0% 100%;
 
     --table-foreground: 0 0% 0%;
+
+    --badge-background: 353 100% 44%;
+    --badge-foreground: 0 0% 100%;
+
+    --betEntry-background: 0 0% 0%;
+    --betEntry-foreground: 0 0% 100%;
+    --betEntry-border: 0 0% 0%;
 
     --border: 0 0% 20%;
     --input: 0 0% 20%;
@@ -71,6 +79,7 @@
     --card: 0 0% 100%;
     --card-foreground: 0 0% 0%;
     --card-header: 0 0% 90%;
+    --card-header-foreground: 0 0% 0%;
 
     --primary: 240 100% 11.8%;
     --primary-foreground: 0 0% 100%;
@@ -88,6 +97,13 @@
     --destructive-foreground: 0 0% 0%;
 
     --table-foreground: 0 0% 0%;
+
+    --badge-background: 240 100% 11.8%;
+    --badge-foreground: 0 0% 100%;
+
+    --betEntry-background: 240 100% 11.8%;
+    --betEntry-foreground: 0 0% 100%;
+    --betEntry-border: 240 100% 11.8%;
 
     --border: 0 0% 20%;
     --input: 0 0% 20%;
@@ -127,6 +143,7 @@
     --card: 0 0% 100%;
     --card-foreground: 0 0% 0%;
     --card-header: 0 0% 90%;
+    --card-header-foreground: 0 0% 0%;
 
     --primary: 213 61% 51%;
     --primary-foreground: 0 0% 100%;
@@ -134,7 +151,7 @@
     --secondary: 220 9% 65%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 220 9% 65%;
+    --muted: 213 61% 65%;
     --muted-foreground: 0 0% 0%;
 
     --accent: 213 61% 51%;
@@ -143,7 +160,14 @@
     --destructive: 0 0% 100%;
     --destructive-foreground: 0 0% 0%;
 
-    --table-foreground: 0 0% 0%;
+    --table-foreground: 0 0% 0%; 
+
+    --badge-background: 169 97% 38%;
+    --badge-foreground: 0 0% 100%;
+
+    --betEntry-background: 0 0% 100%;
+    --betEntry-foreground: 213 61% 51%;
+    --betEntry-border: 213 61% 51%;
 
     --border: 0 0% 0%;
     --input: 0 0% 20%;
@@ -151,7 +175,7 @@
 
     --radius: 0.4rem;
 
-    --bet: 358 100% 62%;
+    --bet: 213 61% 51%;
     --bet-foreground: 0 0% 100%;
 
     --betSlip: 0 0% 85%;
@@ -181,10 +205,11 @@
     --columnL-foreground: 0 0% 100%;
 
     --card: 198 42% 15%;
-    --card-foreground: 0 0% 0%;
+    --card-foreground: 0 0% 100%;
     --card-header: 198 42% 15%;
+    --card-header-foreground: 0 0% 100%;
 
-    --primary: 198 42% 15%;
+    --primary: 198 42% 35%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 198 42% 35%;
@@ -200,6 +225,13 @@
     --destructive-foreground: 0 0% 0%;
 
     --table-foreground: 0 0% 100%;
+
+    --badge-background: 344 100% 42%;
+    --badge-foreground: 0 0% 100%;
+
+    --betEntry-background: 198 42% 35%;
+    --betEntry-foreground: 0 0% 100%;
+    --betEntry-border: 198 42% 15%;
 
     --border: 0 0% 0%;
     --input: 0 0% 20%;
