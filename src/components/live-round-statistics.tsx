@@ -49,7 +49,7 @@ export default function LiveRoundStatistics(props: {
       <CardContent>
         <Table>
           <TableHeader className="bg-card-header">
-            <TableRow className="border-card-foreground transition-none *:text-card-foreground hover:bg-card-header">
+            <TableRow className="border-card-foreground transition-none *:text-table-foreground hover:bg-card-header">
               <TableHead></TableHead>
               <TableHead className="text-center font-bold">1</TableHead>
               <TableHead className="text-center font-bold">X</TableHead>
