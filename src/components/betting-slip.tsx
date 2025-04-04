@@ -79,7 +79,7 @@ export default function BettingSlip() {
           </span>
         </div>
 
-        <CardContent className="p-3">
+        <CardContent className="p-3 text-betSlip-foreground">
           {betEntries.length === 0 ? (
             <div className="flex h-full flex-row items-center justify-center gap-3">
               <small className="text-md font-medium leading-none">
