@@ -7,7 +7,7 @@ import BallSvg from './ball'
 
 export default function Navbar() {
   return (
-    <nav className="flex w-full flex-row gap-1 bg-primary-foreground p-0.5 text-primary">
+    <nav className="flex w-full flex-row gap-1 bg-primary-foreground p-0.5 text-black">
       <Link
         href="/dogs"
         className={cn(

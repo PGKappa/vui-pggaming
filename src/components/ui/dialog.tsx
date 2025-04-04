@@ -58,7 +58,7 @@ const DialogHeader = ({
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
     className={cn(
-      "bg-accent p-5 text-center",
+      "bg-betHistory p-5 text-center",
       className
     )}
     {...props}

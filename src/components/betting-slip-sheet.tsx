@@ -1,7 +1,7 @@
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 import BettingSlip from './betting-slip'
 import { Button } from './ui/button'
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from './ui/sheet'
+import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from './ui/sheet'
 import { t } from 'i18next'
 
 export default function BettingSlipSheet() {
@@ -18,6 +18,7 @@ export default function BettingSlipSheet() {
       <SheetContent side="top" className="p-0">
         <VisuallyHidden>
           <SheetTitle>{t('bet_slip')}</SheetTitle>
+          <SheetDescription />
         </VisuallyHidden>
         <BettingSlip />
       </SheetContent>

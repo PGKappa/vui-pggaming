@@ -3,7 +3,7 @@ import tailwindCssAnimate from 'tailwindcss-animate'
 
 export default {
   darkMode: ['class'],
-  safelist: ['default', 'dark', 'sportradar', 'pgcompany', 'dp', 'sc'],
+  safelist: ['default', 'sportradar', 'dp', 'sc'],
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
@@ -26,10 +26,17 @@ export default {
       colors: {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
+        columnL: {
+          background: 'hsl(var(--columnL-background))',
+          foreground: 'hsl(var(--columnL-foreground))',
+        },
         card: {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
-          header: 'hsl(var(--card-header))',
+          header: {
+            DEFAULT: 'hsl(var(--card-header))',
+            foreground: 'hsl(var(--card-header-foreground))',
+          },
         },
         popover: {
           DEFAULT: 'hsl(var(--popover))',
@@ -55,12 +62,34 @@ export default {
           DEFAULT: 'hsl(var(--destructive))',
           foreground: 'hsl(var(--destructive-foreground))',
         },
+        table: {
+          DEFAULT: 'hsl(var(--table-foreground))',
+        },
+        badge: {
+          DEFAULT: 'hsl(var(--badge-background))',
+          foreground: 'hsl(var(--badge-foreground))',
+        },
+        betEntry: {
+          DEFAULT: 'hsl(var(--betEntry-background))',
+          foreground: 'hsl(var(--betEntry-foreground))',
+          border: 'hsl(var(--betEntry-border))',
+        },
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
-        betSlip: 'hsl(var(--betSlip))',
-        bet: 'hsl(var(--bet))',
-        'bet-foreground': 'hsl(var(--bet-foreground))',
+        bet: {
+          DEFAULT: 'hsl(var(--bet))',
+          foreground: 'hsl(var(--bet-foreground))',
+        },
+        betSlip: {
+          DEFAULT: 'hsl(var(--betSlip))',
+          foreground: 'hsl(var(--betSlip-foreground))',
+        },
+        betHistory: {
+          DEFAULT: 'hsl(var(--betHistory))',
+          foreground: 'hsl(var(--betHistory-foreground))',
+          header: 'hsl(var(--betHistory-header))',
+        },
         chart: {
           '1': 'hsl(var(--chart-1))',
           '2': 'hsl(var(--chart-2))',

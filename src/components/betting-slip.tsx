@@ -49,7 +49,7 @@ export default function BettingSlip() {
 
   return (
     <>
-      <Card className="w-full rounded-sm bg-primary-foreground text-primary">
+      <Card className="w-full rounded-sm bg-primary-foreground text-betSlip-foreground">
         <div className="grid grid-cols-2 grid-rows-2 text-center">
           <span className="flex w-full flex-col items-center justify-center text-md">
             {t('bet_slip')} ({betEntries.length})
@@ -79,7 +79,7 @@ export default function BettingSlip() {
           </span>
         </div>
 
-        <CardContent className="p-3">
+        <CardContent className="p-3 text-betSlip-foreground">
           {betEntries.length === 0 ? (
             <div className="flex h-full flex-row items-center justify-center gap-3">
               <small className="text-md font-medium leading-none">
@@ -98,7 +98,7 @@ export default function BettingSlip() {
             <ul className="flex flex-col gap-1">
               {Object.entries(betsByMatch).map(([matchKey, matchBets]) => (
                 <li key={matchKey}>
-                  <div className="flex flex-col gap-1 border border-primary p-1">
+                  <div className="flex flex-col gap-1 border border-betSlip-foreground p-1">
                     <div className="flex flex-row justify-end">
                       <Button
                         variant="ghost"
@@ -126,7 +126,7 @@ export default function BettingSlip() {
                     <span className="text-sm">{matchBets[0].bet.teams}</span>
                   </div>
 
-                  <div className="border border-primary bg-primary-foreground p-1">
+                  <div className="border border-betSlip-foreground bg-primary-foreground p-1">
                     {matchBets.map((betEntry) => (
                       <div
                         key={betEntry.id}
