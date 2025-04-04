@@ -98,7 +98,7 @@ export default function BettingSlip() {
             <ul className="flex flex-col gap-1">
               {Object.entries(betsByMatch).map(([matchKey, matchBets]) => (
                 <li key={matchKey}>
-                  <div className="flex flex-col gap-1 border border-primary p-1">
+                  <div className="flex flex-col gap-1 border border-betSlip-foreground p-1">
                     <div className="flex flex-row justify-end">
                       <Button
                         variant="ghost"
@@ -126,7 +126,7 @@ export default function BettingSlip() {
                     <span className="text-sm">{matchBets[0].bet.teams}</span>
                   </div>
 
-                  <div className="border border-primary bg-primary-foreground p-1">
+                  <div className="border border-betSlip-foreground bg-primary-foreground p-1">
                     {matchBets.map((betEntry) => (
                       <div
                         key={betEntry.id}
