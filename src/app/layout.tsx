@@ -42,7 +42,7 @@ function AppContent({ children }: { children: React.ReactNode }) {
       </main>
 
       <Toaster
-        position={window?.innerWidth >= 1024 ? 'bottom-right' : 'top-center'}
+        position={typeof window !== 'undefined' && window.innerWidth >= 1024 ? 'bottom-right' : 'top-center'}
       />
     </body>
   )
