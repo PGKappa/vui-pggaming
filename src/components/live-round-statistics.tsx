@@ -3,10 +3,12 @@ import { RootContext } from '@/contexts/root-context'
 import { MatchStatistics } from '@/lib/types'
 import { Locale, format } from 'date-fns'
 import { enGB, itCH, zhCN } from 'date-fns/locale'
+import { PlusIcon } from 'lucide-react'
 import { useContext } from 'react'
 import { useTranslation } from 'react-i18next'
 import LoadingSpinner from './loading-spinner'
 import { Badge } from './ui/badge'
+import { Button } from './ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import {
   Table,
@@ -49,11 +51,12 @@ export default function LiveRoundStatistics(props: {
       <CardContent>
         <Table>
           <TableHeader className="bg-card-header">
-            <TableRow className="border-card-foreground transition-none *:text-table-foreground hover:bg-card-header">
+            <TableRow className="*:text-table-foreground border-card-foreground transition-none hover:bg-card-header">
               <TableHead></TableHead>
               <TableHead className="text-center font-bold">1</TableHead>
               <TableHead className="text-center font-bold">X</TableHead>
               <TableHead className="text-center font-bold">2</TableHead>
+              <TableHead></TableHead>
             </TableRow>
           </TableHeader>
 
@@ -65,18 +68,38 @@ export default function LiveRoundStatistics(props: {
               return (
                 <TableRow
                   key={index}
-                  className="cursor-pointer border-card-foreground hover:bg-muted"
-                  onClick={() => props.onMatchSelect(match)}
+                  className="cursor-pointer border-card-foreground hover:bg-muted lg:cursor-default lg:hover:bg-transparent"
                 >
-                  <TableCell className="flex flex-row items-center gap-2">
-                    <Badge>{formattedTime}</Badge>
-                    <span className="text-nowrap font-bold">{match.teams}</span>
+                  <TableCell>
+                    <div className="flex flex-row items-center gap-2">
+                      <Badge>{formattedTime}</Badge>
+                      <span className="text-nowrap font-bold">
+                        {match.teams}
+                      </span>
+                    </div>
                   </TableCell>
+
                   {match.probabilities.map((probability, index) => (
                     <TableCell key={index} className="text-center font-bold">
                       {probability}%
                     </TableCell>
                   ))}
+
+                  <TableCell>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      className="hidden text-center lg:flex"
+                      onClick={() => props.onMatchSelect(match)}
+                    >
+                      <PlusIcon className="h-4 w-4" />
+                    </Button>
+
+                    <div
+                      className="absolute inset-0 block h-full w-full lg:hidden"
+                      onClick={() => props.onMatchSelect(match)}
+                    />
+                  </TableCell>
                 </TableRow>
               )
             })}
