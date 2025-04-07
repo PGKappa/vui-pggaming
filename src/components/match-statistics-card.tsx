@@ -1,7 +1,5 @@
-import { RootContext } from '@/contexts/root-context'
 import { MatchStatistics } from '@/lib/types'
 import { ArrowLeft } from 'lucide-react'
-import { useContext } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from './ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
