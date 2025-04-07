@@ -13,23 +13,7 @@ export default function MatchStatisticsCard({
   match: MatchStatistics
   onBack: () => void
 }) {
-  const { roundStatistics } = useContext(RootContext)
   const { t } = useTranslation()
-
-  if (!roundStatistics || roundStatistics.length === 0) {
-    return (
-      <Card className="w-full">
-        <CardHeader className="text-center">
-          <CardTitle className="font-extrabold">
-            {t('statistics').toUpperCase()}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p>{t('no_statistics')}</p>
-        </CardContent>
-      </Card>
-    )
-  }
 
   const [home, draw, away] = match.probabilities
   const [team1, team2] = match.teams.split(' - ')

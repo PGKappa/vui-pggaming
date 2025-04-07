@@ -24,7 +24,7 @@ export type RootContextType = {
     params?: Record<string, string>,
   ) => Promise<T>
   liveRound?: LiveRound
-  roundStatistics?: RoundStatistics[]
+  roundStatistics?: RoundStatistics
   teamRankings?: TeamRanking[]
   upcomingRounds?: UpcomingRound[]
   betsHistory: Ticket[]
@@ -46,7 +46,7 @@ const defaultRootContext: RootContextType = {
     streamUrl:
       'https://st12.net4media.net:8082/nuvometa/c510a754-V140-Trident-Football-492d2a7a15b5/playlist.m3u8',
   },
-  roundStatistics: [
+  roundStatistics: 
     {
       name: 'Super League',
       number: 29,
@@ -73,7 +73,6 @@ const defaultRootContext: RootContextType = {
         },
       ],
     },
-  ],
   teamRankings: [
     {
       position: 1,
