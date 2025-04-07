@@ -43,8 +43,8 @@ export default function LiveRoundStatistics(props: {
     <Card>
       <CardHeader>
         <CardTitle>
-          {t('statistics')} {roundStatistics[0].name} {t('round')}{' '}
-          {roundStatistics[0].number}
+          {t('statistics')} {roundStatistics.name} {t('round')}{' '}
+          {roundStatistics.number}
         </CardTitle>
       </CardHeader>
 
@@ -61,14 +61,14 @@ export default function LiveRoundStatistics(props: {
           </TableHeader>
 
           <TableBody className="border-b border-t border-card-foreground">
-            {roundStatistics[0].matches.map((match, index) => {
+            {roundStatistics.matches.map((match, index) => {
               const formattedTime = format(match.startTime, 'HH:mm', {
                 locale: currentLocale,
               })
               return (
                 <TableRow
                   key={index}
-                  className="cursor-pointer border-card-foreground hover:bg-muted lg:cursor-default lg:hover:bg-transparent"
+                  className="relative cursor-pointer border-card-foreground hover:bg-muted lg:cursor-default lg:hover:bg-transparent"
                 >
                   <TableCell>
                     <div className="flex flex-row items-center gap-2">
@@ -96,7 +96,7 @@ export default function LiveRoundStatistics(props: {
                     </Button>
 
                     <div
-                      className="absolute inset-0 block h-full w-full lg:hidden"
+                      className="absolute inset-0 h-full w-full lg:hidden"
                       onClick={() => props.onMatchSelect(match)}
                     />
                   </TableCell>
