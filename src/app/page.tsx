@@ -36,22 +36,31 @@ export default function Home() {
 
   return (
     <>
-      <div className="bg-columnL-background text-columnL-foreground container mb-10 mt-1 grid grid-cols-1 justify-center gap-3 lg:grid-cols-4 lg:mb-4">
+      <div className="container mb-10 mt-1 grid grid-cols-1 justify-center gap-3 bg-columnL-background text-columnL-foreground lg:mb-4 lg:grid-cols-4">
+        {/* First column - top content */}
         <div className="flex flex-col items-center gap-4 lg:col-span-2">
           <div className="flex w-full flex-col gap-1">
             <LiveMatchInfo />
             <VideoStreamCard streamUrl={liveRound?.streamUrl} />
           </div>
           <MatchEndBadge />
-          {upcomingRounds ? (
-            matchBetOptions ? (
-              <MatchBettingOptions
-                round={matchBetOptions.round}
-                teams={matchBetOptions.teams}
-                markets={matchBetOptions.markets}
-                close={() => setMatchBetOptions(undefined)}
-              />
-            ) : (
+          {matchBetOptions && (
+            <MatchBettingOptions
+              round={matchBetOptions.round}
+              teams={matchBetOptions.teams}
+              markets={matchBetOptions.markets}
+              close={() => setMatchBetOptions(undefined)}
+            />
+          )}
+          {!upcomingRounds && (
+            <div className="flex justify-center">
+              <LoadingSpinner />
+            </div>
+          )}
+
+          {/* Upcoming rounds - visible on desktop */}
+          <div className="hidden w-full lg:block">
+            {upcomingRounds && !matchBetOptions && (
               <ol className="w-full space-y-7">
                 {upcomingRounds.map((round) => (
                   <li key={round.scheduleId}>
@@ -62,13 +71,11 @@ export default function Home() {
                   </li>
                 ))}
               </ol>
-            )
-          ) : (
-            <div className="flex justify-center">
-              <LoadingSpinner />
-            </div>
-          )}
+            )}
+          </div>
         </div>
+
+        {/* Second column content - appears after first column but before upcoming rounds on mobile */}
         <div className="space-y-3 lg:col-span-1">
           <LiveRoundScores />
           {selectedMatch ? (
@@ -84,6 +91,24 @@ export default function Home() {
             <Leaderboard highlightedTeams={highlightedTeams} />
           </div>
         </div>
+
+        {/* Upcoming rounds - visible only on mobile, appears at the bottom */}
+        <div className="block lg:hidden">
+          {upcomingRounds && !matchBetOptions && (
+            <ol className="w-full space-y-7">
+              {upcomingRounds.map((round) => (
+                <li key={round.scheduleId}>
+                  <UpcomingRoundCard
+                    round={round}
+                    viewMatchBettingOptions={setMatchBetOptions}
+                  />
+                </li>
+              ))}
+            </ol>
+          )}
+        </div>
+
+        {/* Betting slip - rightmost column */}
         <div className="bg-background text-foreground lg:col-span-1">
           <div className="hidden lg:block">
             <BettingSlip />
