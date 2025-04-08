@@ -9,9 +9,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import useLocale from '@/hooks/use-locale'
 import { Market, UpcomingRound } from '@/lib/types'
-import { Locale, format, isToday, isTomorrow } from 'date-fns'
-import { enGB, itCH, zhCN } from 'date-fns/locale'
+import { format, isToday, isTomorrow } from 'date-fns'
 import { PlusIcon } from 'lucide-react'
 import { Dispatch, SetStateAction } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -34,8 +34,8 @@ export default function UpcomingRoundCard(props: {
     >
   >
 }) {
-  const { t, i18n } = useTranslation()
-  const currentLocale = getLocale(i18n.language)
+  const { t } = useTranslation()
+  const currentLocale = useLocale()
 
   return (
     <Card className="border-b border-t border-card-foreground text-table-foreground">
@@ -149,11 +149,3 @@ export default function UpcomingRoundCard(props: {
   )
 }
 
-function getLocale(lang: string) {
-  const locales: Record<string, Locale> = {
-    en: enGB,
-    it: itCH,
-    cn: zhCN,
-  }
-  return locales[lang] || enGB
-}
