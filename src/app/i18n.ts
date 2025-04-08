@@ -6,6 +6,7 @@ import itTranslations from '../../messages/it.json'
 import esTranslations from '../../messages/es.json'
 import frTranslations from '../../messages/fr.json'
 import cnTranslations from '../../messages/cn.json'
+import ruTransaltions from '../../messages/ru.json'
 
 const resources = {
   en: {
@@ -23,11 +24,14 @@ const resources = {
   cn: {
     translation: cnTranslations,
   },
+  ru: {
+    translation: ruTransaltions,
+  },
 }
 
 i18n.use(initReactI18next).init({
   resources,
-  fallbackLng: 'it',
+  fallbackLng: 'en',
   debug: process.env.NODE_ENV === 'development',
   interpolation: {
     escapeValue: false,
