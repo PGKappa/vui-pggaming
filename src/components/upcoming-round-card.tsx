@@ -9,9 +9,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import useLocale from '@/hooks/use-locale'
+import useLanguage from '@/hooks/use-language'
 import { Market, UpcomingRound } from '@/lib/types'
-import { format, isToday, isTomorrow } from 'date-fns'
 import { PlusIcon } from 'lucide-react'
 import { Dispatch, SetStateAction } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -35,10 +34,14 @@ export default function UpcomingRoundCard(props: {
   >
 }) {
   const { t } = useTranslation()
-  const currentLocale = useLocale()
+  const language = useLanguage()
+
+  const today = new Date()
+  const tomorrow = new Date()
+  tomorrow.setDate(today.getDate() + 1)
 
   return (
-    <Card className="border-b border-t border-card-foreground text-table-foreground">
+    <Card className="text-table-foreground border-b border-t border-card-foreground">
       <CardHeader className="flex flex-row items-center justify-between px-6 md:pl-14">
         <span>
           {props.round.scheduleName} {t('round')} {props.round.scheduleId}
@@ -48,7 +51,7 @@ export default function UpcomingRoundCard(props: {
       <CardContent className="px-0">
         <Table>
           <TableHeader className="bg-card-header">
-            <TableRow className="border-card-foreground transition-none *:text-table-foreground hover:bg-card-header">
+            <TableRow className="*:text-table-foreground border-card-foreground transition-none hover:bg-card-header">
               <TableHead></TableHead>
               <TableHead className="text-center">1</TableHead>
               <TableHead className="text-center">X</TableHead>
@@ -61,18 +64,20 @@ export default function UpcomingRoundCard(props: {
             {props.round.mag_event.length ? (
               props.round.mag_event.map((match, index) => {
                 const matchStart = new Date(match.startTime)
-                let dayLabel = format(matchStart, 'EEE', {
-                  locale: currentLocale,
-                }).toUpperCase()
-                if (isToday(matchStart)) {
-                  dayLabel = t('today')
-                } else if (isTomorrow(matchStart)) {
-                  dayLabel = t('tomorrow')
+                
+                let dayLabel = matchStart.toLocaleDateString(language, { weekday: 'short' }).toUpperCase()
+                if (matchStart.toDateString() === today.toDateString()) {
+                  dayLabel = t('today').toUpperCase()
+                } else if (matchStart.toDateString() === tomorrow.toDateString()) {
+                  dayLabel = t('tomorrow').toUpperCase()
                 }
 
-                const formattedDate = format(matchStart, 'HH:mm', {
-                  locale: currentLocale,
+                const formattedDate = matchStart.toLocaleTimeString(language, {
+                  hour: '2-digit',
+                  minute: '2-digit',
                 })
+
+
                 const teamNames = match.teams.team
                   .map((t) => t.name || '')
                   .join(' - ')
@@ -148,4 +153,3 @@ export default function UpcomingRoundCard(props: {
     </Card>
   )
 }
-
