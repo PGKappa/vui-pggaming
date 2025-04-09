@@ -1,7 +1,7 @@
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { RootContext } from '@/contexts/root-context'
-import { format } from 'date-fns'
+import { getCountdown } from '@/lib/utils'
 import { t } from 'i18next'
 import { useContext, useEffect, useState } from 'react'
 
@@ -17,11 +17,9 @@ export default function MatchEndBadge() {
       }
 
       const nextRoundStart = new Date(upcomingRounds[0].mag_event[0].startTime)
-      const time = new Date(nextRoundStart.getTime() - Date.now())
+      const { formatted } = getCountdown(nextRoundStart)
 
-      const timeString = format(time, 'mm:ss')
-
-      setTimeToNextRound(timeString)
+      setTimeToNextRound(formatted)
     }
 
     updateTimeToNextRound()
