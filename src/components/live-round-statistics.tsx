@@ -1,8 +1,6 @@
 'use client'
 import { RootContext } from '@/contexts/root-context'
-import useLocale from '@/hooks/use-locale'
 import { MatchStatistics } from '@/lib/types'
-import { format } from 'date-fns'
 import { PlusIcon } from 'lucide-react'
 import { useContext } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -23,8 +21,7 @@ export default function LiveRoundStatistics(props: {
   onMatchSelect: (match: MatchStatistics) => void
 }) {
   const { roundStatistics } = useContext(RootContext)
-  const { t } = useTranslation()
-  const currentLocale = useLocale()
+  const { t, i18n } = useTranslation()
 
   if (!roundStatistics) {
     return (
@@ -62,8 +59,11 @@ export default function LiveRoundStatistics(props: {
 
           <TableBody className="border-b border-t border-card-foreground">
             {roundStatistics.matches.map((match, index) => {
-              const formattedTime = format(match.startTime, 'HH:mm', {
-                locale: currentLocale,
+              const formattedTime = new Date(
+                match.startTime,
+              ).toLocaleTimeString(i18n.language, {
+                hour: '2-digit',
+                minute: '2-digit',
               })
               return (
                 <TableRow

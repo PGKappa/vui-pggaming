@@ -17,12 +17,11 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { RootContext } from '@/contexts/root-context'
-import { format } from 'date-fns'
-import React, { useContext, useMemo } from 'react'
-import { Button } from './ui/button'
 import { Ticket } from '@/lib/types'
-import TicketDetailsDialog from './ticket-details-dialog'
 import { t } from 'i18next'
+import React, { useContext, useMemo } from 'react'
+import TicketDetailsDialog from './ticket-details-dialog'
+import { Button } from './ui/button'
 
 export default function BetsHistoryDialog() {
   const { betsHistory } = useContext(RootContext)
@@ -30,7 +29,7 @@ export default function BetsHistoryDialog() {
   const groupedBets = useMemo(() => {
     return betsHistory.reduce(
       (acc, bet) => {
-        const dateKey = format(bet.date, 'dd/MM/yyyy')
+        const dateKey = new Date(bet.date).toLocaleDateString()
         if (!acc[dateKey]) {
           acc[dateKey] = []
         }
