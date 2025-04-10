@@ -1,6 +1,5 @@
 'use client'
 import { RootContext } from '@/contexts/root-context'
-import useLanguage from '@/hooks/use-language'
 import { MatchStatistics } from '@/lib/types'
 import { PlusIcon } from 'lucide-react'
 import { useContext } from 'react'
@@ -22,8 +21,7 @@ export default function LiveRoundStatistics(props: {
   onMatchSelect: (match: MatchStatistics) => void
 }) {
   const { roundStatistics } = useContext(RootContext)
-  const { t } = useTranslation()
-  const language = useLanguage()
+  const { t, i18n } = useTranslation()
 
   if (!roundStatistics) {
     return (
@@ -63,7 +61,7 @@ export default function LiveRoundStatistics(props: {
             {roundStatistics.matches.map((match, index) => {
               const formattedTime = new Date(
                 match.startTime,
-              ).toLocaleTimeString(language, {
+              ).toLocaleTimeString(i18n.language, {
                 hour: '2-digit',
                 minute: '2-digit',
               })
