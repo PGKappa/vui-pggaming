@@ -1,7 +1,7 @@
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { RootContext } from '@/contexts/root-context'
-import { getCountdown } from '@/lib/utils'
+import { getTimeDistanceFromNow } from '@/lib/utils'
 import { t } from 'i18next'
 import { useContext, useEffect, useState } from 'react'
 
@@ -17,7 +17,7 @@ export default function MatchEndBadge() {
       }
 
       const nextRoundStart = new Date(upcomingRounds[0].mag_event[0].startTime)
-      const { formatted } = getCountdown(nextRoundStart)
+      const formatted = getTimeDistanceFromNow(nextRoundStart)
 
       setTimeToNextRound(formatted)
     }
