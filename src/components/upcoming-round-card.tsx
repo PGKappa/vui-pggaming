@@ -9,7 +9,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import useLanguage from '@/hooks/use-language'
 import { Market, UpcomingRound } from '@/lib/types'
 import { PlusIcon } from 'lucide-react'
 import { Dispatch, SetStateAction } from 'react'
@@ -33,8 +32,7 @@ export default function UpcomingRoundCard(props: {
     >
   >
 }) {
-  const { t } = useTranslation()
-  const language = useLanguage()
+  const { t, i18n } = useTranslation()
 
   const today = new Date()
   const tomorrow = new Date()
@@ -65,14 +63,14 @@ export default function UpcomingRoundCard(props: {
               props.round.mag_event.map((match, index) => {
                 const matchStart = new Date(match.startTime)
                 
-                let dayLabel = matchStart.toLocaleDateString(language, { weekday: 'short' }).toUpperCase()
+                let dayLabel = matchStart.toLocaleDateString(i18n.language, { weekday: 'short' }).toUpperCase()
                 if (matchStart.toDateString() === today.toDateString()) {
                   dayLabel = t('today').toUpperCase()
                 } else if (matchStart.toDateString() === tomorrow.toDateString()) {
                   dayLabel = t('tomorrow').toUpperCase()
                 }
 
-                const formattedDate = matchStart.toLocaleTimeString(language, {
+                const formattedDate = matchStart.toLocaleTimeString(i18n.language, {
                   hour: '2-digit',
                   minute: '2-digit',
                 })
