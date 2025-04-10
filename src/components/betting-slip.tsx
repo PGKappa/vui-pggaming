@@ -57,7 +57,7 @@ export default function BettingSlip() {
       const updated: Record<string, string> = {}
       for (const [matchKey, matchBets] of Object.entries(betsByMatch)) {
         const distance = getTimeDistanceFromNow(
-          new Date(matchBets[0].bet.round.startingAt),
+          matchBets[0].bet.round.startingAt,
         )
         updated[matchKey] = distance
       }
