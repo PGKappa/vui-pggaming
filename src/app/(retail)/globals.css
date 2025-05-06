@@ -1,0 +1,273 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+
+  :root,
+  .default {
+    --background: 0 0% 16%;
+    --foreground: 0 0% 100%;
+
+    --columnL-background: 0 0% 16%;
+    --columnL-foreground: 0 0% 100%;
+
+    --card: 0 0% 16%;
+    --card-foreground: 0 0% 100%;
+    --card-header: 0 0% 23%;
+    --card-header-foreground: 0 0% 100%;
+
+    --primary: 0 0% 0%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 352 23% 19%;
+    --secondary-foreground: 0 0% 90%;
+
+    --muted: 0 0% 14%;
+    --muted-foreground: 220 9% 65%;
+
+    --accent: 212 62% 23%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 0 0% 100%;
+
+    --table-foreground: 0 0% 0%;
+
+    --badge-background: 212 62% 23%;
+    --badge-foreground: 0 0% 100%;
+
+    --betEntry-background: 0 0% 0%;
+    --betEntry-foreground: 0 0% 100%;
+    --betEntry-border: 0 0% 0%;
+
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 0 0% 20%;
+
+    --radius: 0.4rem;
+    
+    --bet: 353 100% 44%;
+    --bet-foreground: 0 0% 100%;
+
+    --betSlip: 0 0% 85%;
+    --betSlip-foreground: 0 0% 0%;
+    --betSlip-header: 0 0% 100%;
+
+    --betHistory: 353 100% 44%;
+    --betHistory-foreground: 0 0% 0%;
+    --betHistory-header: 0 0% 100%;
+
+    --chart-1: 0 0% 63%;
+    --chart-2: 353 100% 44%;
+    --chart-3: 0 0% 100%;
+
+    --footer-ranking: 0 0% 100%;
+    --footer-ranking-foreground: 0 0% 0%;
+
+    --footer-betslip: 353 100% 44%;
+    --footer-betslip-foreground: 0 0% 100%;
+  }
+
+  .sportradar {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%;
+
+    --columnL-background: 0 0% 100%;
+    --columnL-foreground: 0 0% 0%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 0%;
+    --card-header: 0 0% 90%;
+    --card-header-foreground: 0 0% 0%;
+
+    --primary: 240 100% 11.8%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 218 100% 93%;
+    --secondary-foreground: 218 53% 11%;
+
+    --muted: 220 9% 65%;
+    --muted-foreground: 0 0% 0%;
+
+    --accent: 240 100% 11.8%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 0% 100%;
+    --destructive-foreground: 0 0% 0%;
+
+    --table-foreground: 0 0% 0%;
+
+    --badge-background: 240 100% 11.8%;
+    --badge-foreground: 0 0% 100%;
+
+    --betEntry-background: 240 100% 11.8%;
+    --betEntry-foreground: 0 0% 100%;
+    --betEntry-border: 240 100% 11.8%;
+
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 0 0% 20%;
+
+    --radius: 0.4rem;
+
+    --bet: 358 100% 62%;
+    --bet-foreground: 0 0% 100%;
+
+    --betSlip: 0 0% 85%;
+    --betSlip-foreground: 0 0% 0%;
+    --betSlip-header: 0 0% 100%;
+
+    --betHistory: 240 100% 11.8%;
+    --betHistory-foreground: 0 0% 0%;
+    --betHistory-header: 0 0% 100%;
+
+    --chart-1: 0 0% 63%;
+    --chart-2: 358 100% 62%;
+    --chart-3: 218 80% 83%;
+
+    --footer-ranking: 218 80% 88%;
+    --footer-ranking-foreground: 218 53% 11%;
+
+    --footer-betslip: 358 100% 62%;
+    --footer-betslip-foreground: 0 0% 100%;
+  }
+
+  .dp {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%;
+
+    --columnL-background: 0 0% 100%;
+    --columnL-foreground: 0 0% 0%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 0%;
+    --card-header: 0 0% 90%;
+    --card-header-foreground: 0 0% 0%;
+
+    --primary: 213 61% 51%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 9% 65%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 213 61% 65%;
+    --muted-foreground: 0 0% 0%;
+
+    --accent: 213 61% 51%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 0% 100%;
+    --destructive-foreground: 0 0% 0%;
+
+    --table-foreground: 0 0% 0%; 
+
+    --badge-background: 169 97% 38%;
+    --badge-foreground: 0 0% 100%;
+
+    --betEntry-background: 0 0% 100%;
+    --betEntry-foreground: 213 61% 51%;
+    --betEntry-border: 213 61% 51%;
+
+    --border: 0 0% 0%;
+    --input: 0 0% 20%;
+    --ring: 0 0% 20%;
+
+    --radius: 0.4rem;
+
+    --bet: 213 61% 51%;
+    --bet-foreground: 0 0% 100%;
+
+    --betSlip: 0 0% 85%;
+    --betSlip-foreground: 0 0% 0%;
+    --betSlip-header: 0 0% 100%;
+
+    --betHistory: 213 61% 51%;
+    --betHistory-foreground: 0 0% 0%;
+    --betHistory-header: 0 0% 100%;
+
+    --chart-1: 0 0% 63%;
+    --chart-2: 358 100% 62%;
+    --chart-3: 218 80% 83%;
+
+    --footer-ranking: 213 21% 71%;
+    --footer-ranking-foreground: 213 61% 21%;
+
+    --footer-betslip: 358 100% 62%;
+    --footer-betslip-foreground: 0 0% 100%;
+  }
+
+  .sc {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%;
+
+    --columnL-background: 198 42% 15%;
+    --columnL-foreground: 0 0% 100%;
+
+    --card: 198 42% 15%;
+    --card-foreground: 0 0% 100%;
+    --card-header: 198 42% 15%;
+    --card-header-foreground: 0 0% 100%;
+
+    --primary: 198 42% 35%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 198 42% 35%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 198 42% 35%;
+    --muted-foreground: 0 0% 100%;
+
+    --accent: 344 100% 42%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 0% 100%;
+    --destructive-foreground: 0 0% 0%;
+
+    --table-foreground: 0 0% 100%;
+
+    --badge-background: 344 100% 42%;
+    --badge-foreground: 0 0% 100%;
+
+    --betEntry-background: 198 42% 35%;
+    --betEntry-foreground: 0 0% 100%;
+    --betEntry-border: 198 42% 15%;
+
+    --border: 0 0% 0%;
+    --input: 0 0% 20%;
+    --ring: 0 0% 20%;
+
+    --radius: 0.4rem;
+
+    --bet: 358 100% 62%;
+    --bet-foreground: 0 0% 100%;
+
+    --betSlip: 0 0% 85%;
+    --betSlip-foreground: 0 0% 0%;
+    --betSlip-header: 0 0% 100%;
+
+    --betHistory: 198 42% 15%;
+    --betHistory-foreground: 0 0% 0%;
+    --betHistory-header: 0 0% 100%;
+
+    --chart-1: 0 0% 63%;
+    --chart-2: 358 100% 62%;
+    --chart-3: 218 80% 83%;
+
+    --footer-ranking: 213 21% 71%;
+    --footer-ranking-foreground: 198 42% 35%;
+
+    --footer-betslip: 358 100% 62%;
+    --footer-betslip-foreground: 0 0% 100%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
