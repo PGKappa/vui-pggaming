@@ -1,24 +1,14 @@
 'use client'
+import { Market, UpcomingRound } from '@/lib/types'
 import BettingSlip from '@/retail-components/betting-slip'
-import BettingSlipSheet from '@/retail-components/betting-slip-sheet'
-import Leaderboard from '@/retail-components/leaderboard'
-import LeaderboardSheet from '@/retail-components/leaderboard-sheet'
-import LiveMatchInfo from '@/retail-components/live-match-info'
-import LiveRoundScores from '@/retail-components/live-round-scores'
-import LiveRoundStatistics from '@/retail-components/live-round-statistics'
-import LoadingSpinner from '@/retail-components/loading-spinner'
 import MatchBettingOptions from '@/retail-components/match-betting-options'
-import MatchEndBadge from '@/retail-components/match-end-badge'
-import MatchResult from '@/retail-components/match-result'
-import MatchStatisticsCard from '@/retail-components/match-statistics-card'
 import UpcomingRoundCard from '@/retail-components/upcoming-round-card'
-import VideoStreamCard from '@/retail-components/video-stream-card'
+import UpcomingRoundsCard from '@/retail-components/upcoming-rounds-card'
 import { RootContext } from '@/retail-contexts/root-context'
-import { Market, MatchStatistics } from '@/lib/types'
-import { useContext, useMemo, useState } from 'react'
+import { useContext, useState } from 'react'
 
 export default function Home() {
-  const { upcomingRounds, liveRound } = useContext(RootContext)
+  const { upcomingRounds } = useContext(RootContext)
   const [matchBetOptions, setMatchBetOptions] = useState<{
     round: {
       name: string
@@ -29,96 +19,48 @@ export default function Home() {
     markets: Market[]
   }>()
 
-  const [selectedMatch, setSelectedMatch] = useState<MatchStatistics>()
-  const highlightedTeams = useMemo(() => {
-    return selectedMatch ? selectedMatch.teams.split(' - ') : []
-  }, [selectedMatch])
+  const [selectedRound, setSelectedRound] = useState<UpcomingRound>()
+  const [accordionOpen, setAccordionOpen] = useState(false)
 
   return (
-    <>
-      <div className="container mb-10 mt-1 grid grid-cols-1 justify-center gap-3 bg-columnL-background text-columnL-foreground lg:mb-4 lg:grid-cols-4">
-        {/* First column - top content */}
-        <div className="flex flex-col items-center gap-4 lg:col-span-2">
-          <div className="flex w-full flex-col gap-1">
-            <LiveMatchInfo />
-            <VideoStreamCard streamUrl={liveRound?.streamUrl} />
-          </div>
-          <MatchEndBadge />
-          {matchBetOptions && (
+    <div className="grid grid-cols-4 justify-center gap-3">
+      {/* First column - top content */}
+      <div className="col-span-1 flex flex-col items-center gap-4">
+        <UpcomingRoundsCard
+          rounds={upcomingRounds}
+          selectedRound={selectedRound}
+          setSelectedRound={setSelectedRound}
+          onCollapse={() => setAccordionOpen(!accordionOpen)}
+        />
+      </div>
+
+      {/* SECOND COLUMN*/}
+      <div className="col-span-2 space-y-3">
+        {selectedRound ? (
+          matchBetOptions ? (
             <MatchBettingOptions
               round={matchBetOptions.round}
               teams={matchBetOptions.teams}
               markets={matchBetOptions.markets}
               close={() => setMatchBetOptions(undefined)}
             />
-          )}
-          {!upcomingRounds && (
-            <div className="flex justify-center">
-              <LoadingSpinner />
-            </div>
-          )}
-
-          {/* Upcoming rounds - visible on desktop */}
-          <div className="hidden w-full lg:block">
-            {upcomingRounds && !matchBetOptions && (
-              <ol className="w-full space-y-7">
-                {upcomingRounds.map((round) => (
-                  <li key={round.scheduleId}>
-                    <UpcomingRoundCard
-                      round={round}
-                      viewMatchBettingOptions={setMatchBetOptions}
-                    />
-                  </li>
-                ))}
-              </ol>
-            )}
-          </div>
-        </div>
-
-        {/* Second column content - appears after first column but before upcoming rounds on mobile */}
-        <div className="space-y-3 lg:col-span-1">
-          <LiveRoundScores />
-          {selectedMatch ? (
-            <MatchStatisticsCard
-              match={selectedMatch}
-              onBack={() => setSelectedMatch(undefined)}
-            />
           ) : (
-            <LiveRoundStatistics onMatchSelect={setSelectedMatch} />
-          )}
-          <MatchResult />
-          <div className="hidden lg:block">
-            <Leaderboard highlightedTeams={highlightedTeams} />
+            <UpcomingRoundCard
+              round={selectedRound}
+              viewMatchBettingOptions={setMatchBetOptions}
+            />
+          )
+        ) : (
+          <div className="flex h-full items-center justify-center">
+            No round selected
           </div>
-        </div>
-
-        {/* Upcoming rounds - visible only on mobile, appears at the bottom */}
-        <div className="block lg:hidden">
-          {upcomingRounds && !matchBetOptions && (
-            <ol className="w-full space-y-7">
-              {upcomingRounds.map((round) => (
-                <li key={round.scheduleId}>
-                  <UpcomingRoundCard
-                    round={round}
-                    viewMatchBettingOptions={setMatchBetOptions}
-                  />
-                </li>
-              ))}
-            </ol>
-          )}
-        </div>
-
-        {/* Betting slip - rightmost column */}
-        <div className="bg-background text-foreground lg:col-span-1">
-          <div className="hidden lg:block">
-            <BettingSlip />
-          </div>
-        </div>
+        )}
       </div>
-      <div className="fixed bottom-0 flex w-full justify-center gap-2 lg:hidden">
-        <LeaderboardSheet highlightedTeams={highlightedTeams} />
-        <BettingSlipSheet />
+
+      {/*RIGHT COLUMN - Betting slip*/}
+      <div className="col-span-1 bg-background text-foreground">
+        <BettingSlip />
       </div>
-    </>
+    </div>
   )
 }

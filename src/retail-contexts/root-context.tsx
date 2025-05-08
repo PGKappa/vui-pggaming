@@ -46,33 +46,32 @@ const defaultRootContext: RootContextType = {
     streamUrl:
       'https://st12.net4media.net:8082/nuvometa/c510a754-V140-Trident-Football-492d2a7a15b5/playlist.m3u8',
   },
-  roundStatistics: 
-    {
-      name: 'Super League',
-      number: 29,
-      matches: [
-        {
-          teams: 'NAP - GEN',
-          probabilities: [30, 50, 20],
-          startTime: new Date('2025-02-10T00:01:00Z'),
-        },
-        {
-          teams: 'CAT - ELE',
-          probabilities: [30, 50, 20],
-          startTime: new Date('2025-02-10T00:01:00Z'),
-        },
-        {
-          teams: 'JUV - MIL',
-          probabilities: [30, 50, 20],
-          startTime: new Date('2025-02-10T00:01:00Z'),
-        },
-        {
-          teams: 'INT - ROM',
-          probabilities: [30, 50, 20],
-          startTime: new Date('2025-02-10T00:01:00Z'),
-        },
-      ],
-    },
+  roundStatistics: {
+    name: 'Super League',
+    number: 29,
+    matches: [
+      {
+        teams: 'NAP - GEN',
+        probabilities: [30, 50, 20],
+        startTime: new Date('2025-02-10T00:01:00Z'),
+      },
+      {
+        teams: 'CAT - ELE',
+        probabilities: [30, 50, 20],
+        startTime: new Date('2025-02-10T00:01:00Z'),
+      },
+      {
+        teams: 'JUV - MIL',
+        probabilities: [30, 50, 20],
+        startTime: new Date('2025-02-10T00:01:00Z'),
+      },
+      {
+        teams: 'INT - ROM',
+        probabilities: [30, 50, 20],
+        startTime: new Date('2025-02-10T00:01:00Z'),
+      },
+    ],
+  },
   teamRankings: [
     {
       position: 1,

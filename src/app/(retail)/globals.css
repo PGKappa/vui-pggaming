@@ -3,24 +3,20 @@
 @tailwind utilities;
 
 @layer base {
-
   :root,
   .default {
-    --background: 0 0% 16%;
-    --foreground: 0 0% 100%;
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%;
 
-    --columnL-background: 0 0% 16%;
-    --columnL-foreground: 0 0% 100%;
-
-    --card: 0 0% 16%;
-    --card-foreground: 0 0% 100%;
-    --card-header: 0 0% 23%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 0%;
+    --card-header: 212 63% 23%;
     --card-header-foreground: 0 0% 100%;
 
     --primary: 0 0% 0%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 352 23% 19%;
+    --secondary: 211 34% 48%;
     --secondary-foreground: 0 0% 90%;
 
     --muted: 0 0% 14%;
@@ -37,17 +33,17 @@
     --badge-background: 212 62% 23%;
     --badge-foreground: 0 0% 100%;
 
-    --betEntry-background: 0 0% 0%;
-    --betEntry-foreground: 0 0% 100%;
-    --betEntry-border: 0 0% 0%;
+    --betEntry-background: 0 0% 90%;
+    --betEntry-foreground: 0 0% 0%;
+    --betEntry-border: 0 0% 31%;
 
     --border: 0 0% 20%;
     --input: 0 0% 20%;
     --ring: 0 0% 20%;
 
-    --radius: 0.4rem;
-    
-    --bet: 353 100% 44%;
+    --radius: 0rem;
+
+    --bet: 109 100% 35%;
     --bet-foreground: 0 0% 100%;
 
     --betSlip: 0 0% 85%;
@@ -160,7 +156,7 @@
     --destructive: 0 0% 100%;
     --destructive-foreground: 0 0% 0%;
 
-    --table-foreground: 0 0% 0%; 
+    --table-foreground: 0 0% 0%;
 
     --badge-background: 169 97% 38%;
     --badge-foreground: 0 0% 100%;

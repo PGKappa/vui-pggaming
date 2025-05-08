@@ -32,17 +32,21 @@ function AppContent({ children }: { children: React.ReactNode }) {
     <body
       className={`${geistSans.variable} ${geistMono.variable} ${skin} flex h-screen flex-col antialiased`}
     >
-      <header className="container">
+      <header>
         <Navbar />
       </header>
-      <main className="flex-1">
+      <main className="p-2 overflow-hidden h-full">
         <RootContextProvider>
           <BetsContextProvider>{children}</BetsContextProvider>
         </RootContextProvider>
       </main>
 
       <Toaster
-        position={typeof window !== 'undefined' && window.innerWidth >= 1024 ? 'bottom-right' : 'top-center'}
+        position={
+          typeof window !== 'undefined' && window.innerWidth >= 1024
+            ? 'bottom-right'
+            : 'top-center'
+        }
       />
     </body>
   )

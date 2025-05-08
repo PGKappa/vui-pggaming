@@ -39,7 +39,7 @@ export default function UpcomingRoundCard(props: {
   tomorrow.setDate(today.getDate() + 1)
 
   return (
-    <Card className="text-table-foreground border-b border-t border-card-foreground">
+    <Card className="border-b border-t border-card-foreground">
       <CardHeader className="flex flex-row items-center justify-between px-6 md:pl-14">
         <span>
           {props.round.scheduleName} {t('round')} {props.round.scheduleId}
@@ -49,7 +49,7 @@ export default function UpcomingRoundCard(props: {
       <CardContent className="px-0">
         <Table>
           <TableHeader className="bg-card-header">
-            <TableRow className="*:text-table-foreground border-card-foreground transition-none hover:bg-card-header">
+            <TableRow className="border-card-foreground transition-none hover:bg-card-header">
               <TableHead></TableHead>
               <TableHead className="text-center">1</TableHead>
               <TableHead className="text-center">X</TableHead>
