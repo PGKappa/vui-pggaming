@@ -6,12 +6,11 @@ import { Card, CardContent, CardFooter } from '@/retail-components/ui/card'
 import { Input } from '@/retail-components/ui/input'
 import { Separator } from '@/retail-components/ui/separator'
 import { BetsContext } from '@/contexts/bets-context'
-import { BetEntry, SubmittedTicket } from '@/lib/types'
-import { getTimeDistanceFromNow } from '@/lib/utils'
+import { BetEntry, SubmittedTicket } from '@/retail-lib/types'
+import { getTimeDistanceFromNow } from '@/retail-lib/utils'
 import { CircleXIcon, RotateCcwIcon, Trash2Icon } from 'lucide-react'
 import { useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import BetsHistoryDialog from './bets-history-dialog'
 
 export default function BettingSlip() {
   const {
@@ -69,17 +68,16 @@ export default function BettingSlip() {
 
   return (
     <Card
-      className="w-full rounded-sm bg-primary-foreground text-betSlip-foreground"
+      className="flex h-full w-full flex-col rounded-sm bg-primary-foreground text-betSlip-foreground"
       data-testid="betting-slip"
     >
       <div className="grid grid-cols-2 grid-rows-2 text-center">
-        <span className="flex w-full flex-col items-center justify-center text-md">
+        <span className="col-span-2 flex h-12 w-full flex-col items-center justify-center text-md">
           {t('bet_slip')} ({betEntries.length})
         </span>
-        <BetsHistoryDialog />
 
         <span
-          className={`flex w-full flex-col items-center justify-center text-md ${
+          className={`flex w-full flex-col items-center justify-center text-md font-semibold text-betSlip-header-foreground ${
             betEntries.length <= 1
               ? 'border-b-2 border-accent bg-betSlip'
               : 'bg-gray-100'
@@ -91,9 +89,9 @@ export default function BettingSlip() {
         </span>
 
         <span
-          className={`flex w-full flex-col items-center justify-center text-md ${
+          className={`flex w-full flex-col items-center justify-center text-md  ${
             betEntries.length > 1
-              ? 'border-b-2 border-accent bg-betSlip'
+              ? 'border-b-2 border-accent bg-betSlip-header'
               : 'bg-gray-100'
           }`}
         >
@@ -101,7 +99,7 @@ export default function BettingSlip() {
         </span>
       </div>
 
-      <CardContent className="p-3 text-betSlip-foreground">
+      <CardContent className="flex-1 overflow-y-auto p-3 text-betSlip-foreground">
         {betEntries.length === 0 ? (
           <div className="flex h-full flex-row items-center justify-center gap-3">
             <small className="text-md font-medium leading-none">
@@ -188,8 +186,8 @@ export default function BettingSlip() {
 
       <Separator className="my-2" />
 
-      <div className="mx-1 flex justify-end bg-betSlip p-2">
-        <span className="font-semibold">{t('amount')}</span>
+      <div className="mx-1 flex justify-end bg-accent p-2 px-8">
+        <span className="font-semibold text-accent-foreground">{t('amount')}</span>
       </div>
 
       <div className="flex flex-row items-center justify-between p-2">

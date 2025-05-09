@@ -93,6 +93,10 @@ export default {
         betSlip: {
           DEFAULT: 'hsl(var(--betSlip))',
           foreground: 'hsl(var(--betSlip-foreground))',
+          header: {
+            DEFAULT: 'hsl(var(--betSlip-header))',
+            foreground: 'hsl(var(--betSlip-header-foreground))',
+          },
         },
         betHistory: {
           DEFAULT: 'hsl(var(--betHistory))',

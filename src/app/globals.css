@@ -306,9 +306,10 @@
     --bet: 353 100% 44%;
     --bet-foreground: 0 0% 100%;
 
-    --betSlip: 0 0% 85%;
+    --betSlip: 0 0% 62%;
     --betSlip-foreground: 0 0% 0%;
-    --betSlip-header: 0 0% 100%;
+    --betSlip-header: 207 18% 76%;
+    --betSlip-header-foreground: 0 0% 100%;
 
     --betHistory: 353 100% 44%;
     --betHistory-foreground: 0 0% 0%;
