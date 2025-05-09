@@ -1,11 +1,12 @@
 'use client'
-import { Market, UpcomingRound } from '@/lib/types'
+import { Market, UpcomingRound } from '@/retail-lib/types'
 import BettingSlip from '@/retail-components/betting-slip'
 import MatchBettingOptions from '@/retail-components/match-betting-options'
 import UpcomingRoundCard from '@/retail-components/upcoming-round-card'
 import UpcomingRoundsCard from '@/retail-components/upcoming-rounds-card'
 import { RootContext } from '@/retail-contexts/root-context'
 import { useContext, useState } from 'react'
+import LastRoundsResults from '@/retail-components/last-rounds-results'
 
 export default function Home() {
   const { upcomingRounds } = useContext(RootContext)
@@ -20,7 +21,7 @@ export default function Home() {
   }>()
 
   const [selectedRound, setSelectedRound] = useState<UpcomingRound>()
-  const [accordionOpen, setAccordionOpen] = useState(false)
+  const [lastResultsOpen, setLastResultsOpen] = useState(false)
 
   return (
     <div className="grid h-full grid-cols-4 justify-center gap-3">
@@ -30,7 +31,56 @@ export default function Home() {
           rounds={upcomingRounds}
           selectedRound={selectedRound}
           setSelectedRound={setSelectedRound}
-          onCollapse={() => setAccordionOpen(!accordionOpen)}
+          collapsed={lastResultsOpen}
+          toggleCollapse={() => setLastResultsOpen((prev) => !prev)}
+        />
+        <LastRoundsResults
+          roundsResults={[
+            {
+              round: {
+                name: 'Triden',
+                number: 17,
+              },
+              startTime: new Date(),
+            },
+            {
+              round: {
+                name: 'Triden',
+                number: 16,
+              },
+              startTime: new Date(),
+            },
+            {
+              round: {
+                name: 'Triden',
+                number: 15,
+              },
+              startTime: new Date(),
+            },
+            {
+              round: {
+                name: 'Triden',
+                number: 14,
+              },
+              startTime: new Date(),
+            },
+            {
+              round: {
+                name: 'Triden',
+                number: 13,
+              },
+              startTime: new Date(),
+            },
+            {
+              round: {
+                name: 'Triden',
+                number: 12,
+              },
+              startTime: new Date(),
+            },
+          ]}
+          open={lastResultsOpen}
+          toggleOpen={() => setLastResultsOpen((prev) => !prev)}
         />
       </div>
 
