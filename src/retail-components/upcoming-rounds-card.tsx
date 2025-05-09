@@ -1,23 +1,25 @@
 'use client'
 
-import { UpcomingRound } from '@/lib/types'
+import { UpcomingRound } from '@/retail-lib/types'
 import { Button } from '@/retail-components/ui/button'
 import { Card, CardContent, CardHeader } from '@/retail-components/ui/card'
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, ChevronUp } from 'lucide-react'
 import BallSvg from './ball'
 
-interface UpcomingRoundsCardProps {
+type UpcomingRoundsCardProps = {
   rounds?: UpcomingRound[]
   selectedRound?: UpcomingRound
   setSelectedRound: (round: UpcomingRound) => void
-  onCollapse?: () => void
+  collapsed: boolean
+  toggleCollapse: () => void
 }
 
 export default function UpcomingRoundsCard({
   rounds,
   selectedRound,
   setSelectedRound,
-  onCollapse,
+  collapsed,
+  toggleCollapse 
 }: UpcomingRoundsCardProps) {
   // Function to format the date from the startTime
   const formatStartTime = (dateString: string) => {
@@ -34,8 +36,8 @@ export default function UpcomingRoundsCard({
         <div className="w-full text-center">
           <h3 className="text-xl font-bold">Next Events</h3>
         </div>
-        <Button variant="ghost" size="icon-lg" onClick={onCollapse}>
-          <ChevronDown />
+        <Button variant="ghost" size="icon-lg" onClick={toggleCollapse}>
+          {collapsed ? <ChevronDown style={{scale: 2}} /> : <ChevronUp style={{scale: 2}} />}
         </Button>
       </CardHeader>
       <CardContent className="overflow-y-auto p-0">
@@ -56,7 +58,9 @@ export default function UpcomingRoundsCard({
                 >
                   <div className="flex items-center gap-3">
                     <BallSvg className="h-8 w-8 stroke-foreground" />
-                    <span className="text-md">{round.scheduleName}</span>
+                    <span className="text-md">
+                      {round.scheduleName} Round {round.scheduleId}
+                    </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-bold">{startTime}</span>
