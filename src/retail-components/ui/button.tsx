@@ -20,8 +20,11 @@ const buttonVariants = cva(
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
         betNow: "bg-bet text-bet-foreground shadow hover:bg-bet/90",
-        navbar: "hover:text-accent-foreground hover:bg-accent/90",
+        navbar: " bg-secondary text-accent-foreground hover:bg-secondary/90",
+        navbarSelected: "bg-tertiary text-tertiary-foreground",
         history: "bg-accent text-accent-foreground",
+        ticketButton: "bg-navbarButton text-muted font-bold",
+        info: "bg-chart-1 text-muted",
       },
       size: {
         default: "h-9 px-4 py-2",

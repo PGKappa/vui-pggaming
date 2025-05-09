@@ -23,7 +23,7 @@ export default function Home() {
   const [accordionOpen, setAccordionOpen] = useState(false)
 
   return (
-    <div className="grid grid-cols-4 justify-center gap-3">
+    <div className="grid h-full grid-cols-4 justify-center gap-3">
       {/* First column - top content */}
       <div className="col-span-1 flex flex-col items-center gap-4">
         <UpcomingRoundsCard
@@ -58,7 +58,7 @@ export default function Home() {
       </div>
 
       {/*RIGHT COLUMN - Betting slip*/}
-      <div className="col-span-1 bg-background text-foreground">
+      <div className="col-span-1 h-full bg-background text-foreground">
         <BettingSlip />
       </div>
     </div>

@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import { createContext, useCallback, useEffect, useState } from 'react'
 
 export enum SkinType {
-  DEFAULT = 'default',
+  DEFAULT = 'retail-default',
   SPORTRADAR = 'sportradar',
   DP = 'dp',
   SC = 'sc',
