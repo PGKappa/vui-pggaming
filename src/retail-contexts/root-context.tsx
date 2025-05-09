@@ -10,8 +10,8 @@ import {
   UpcomingMatch,
   UpcomingRound,
   User,
-} from '@/lib/types'
-import { BASE_API_URL } from '@/lib/utils'
+} from '@/retail-lib/types'
+import { BASE_API_URL } from '@/retail-lib/utils'
 import { createContext, useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'

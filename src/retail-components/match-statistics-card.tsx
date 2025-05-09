@@ -1,4 +1,4 @@
-import { MatchStatistics } from '@/lib/types'
+import { MatchStatistics } from '@/retail-lib/types'
 import { ArrowLeft } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Button } from './ui/button'

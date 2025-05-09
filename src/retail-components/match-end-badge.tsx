@@ -1,7 +1,7 @@
 import { Badge } from '@/retail-components/ui/badge'
 import { Separator } from '@/retail-components/ui/separator'
 import { RootContext } from '@/retail-contexts/root-context'
-import { getTimeDistanceFromNow } from '@/lib/utils'
+import { getTimeDistanceFromNow } from '@/retail-lib/utils'
 import { t } from 'i18next'
 import { useContext, useEffect, useState } from 'react'
 

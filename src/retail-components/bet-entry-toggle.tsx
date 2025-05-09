@@ -1,5 +1,5 @@
 import { BetsContext } from '@/retail-contexts/bets-context'
-import { Selection } from '@/lib/types'
+import { Selection } from '@/retail-lib/types'
 import { useContext } from 'react'
 import { Toggle } from './ui/toggle'
 

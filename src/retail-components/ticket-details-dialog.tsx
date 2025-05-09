@@ -16,7 +16,7 @@ import {
 } from '@/retail-components/ui/table'
 import { Button } from '@/retail-components/ui/button'
 import { ScrollArea } from '@radix-ui/react-scroll-area'
-import { Ticket } from '@/lib/types'
+import { Ticket } from '@/retail-lib/types'
 import { t } from 'i18next'
 
 export default function TicketDetailsDialog({

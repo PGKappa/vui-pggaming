@@ -1,6 +1,6 @@
 'use client'
 
-import { Market } from '@/lib/types'
+import { Market } from '@/retail-lib/types'
 import { format } from 'date-fns'
 import { t } from 'i18next'
 import { ChevronsLeftIcon } from 'lucide-react'

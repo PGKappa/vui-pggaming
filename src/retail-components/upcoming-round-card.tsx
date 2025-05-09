@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/retail-components/ui/table'
-import { Market, UpcomingRound } from '@/lib/types'
+import { Market, UpcomingRound } from '@/retail-lib/types'
 import { PlusIcon } from 'lucide-react'
 import { Dispatch, SetStateAction } from 'react'
 import { useTranslation } from 'react-i18next'

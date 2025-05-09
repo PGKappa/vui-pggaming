@@ -17,7 +17,7 @@ import {
   TableRow,
 } from '@/retail-components/ui/table'
 import { RootContext } from '@/retail-contexts/root-context'
-import { Ticket } from '@/lib/types'
+import { Ticket } from '@/retail-lib/types'
 import { t } from 'i18next'
 import React, { useContext, useMemo } from 'react'
 import TicketDetailsDialog from './ticket-details-dialog'

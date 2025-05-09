@@ -1,6 +1,6 @@
 'use client'
 
-import { Bet, BetEntry, Selection, SubmittedTicket } from '@/lib/types'
+import { Bet, BetEntry, Selection, SubmittedTicket } from '@/retail-lib/types'
 import { createContext, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
