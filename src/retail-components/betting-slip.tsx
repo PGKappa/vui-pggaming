@@ -4,6 +4,7 @@ import { Badge } from '@/retail-components/ui/badge'
 import { Button } from '@/retail-components/ui/button'
 import { Card, CardContent, CardFooter } from '@/retail-components/ui/card'
 import { Input } from '@/retail-components/ui/input'
+import { ScrollArea } from '@/retail-components/ui/scroll-area'
 import { Separator } from '@/retail-components/ui/separator'
 import { BetsContext } from '@/retail-contexts/bets-context'
 import { BetEntry, SubmittedTicket } from '@/retail-lib/types'
@@ -52,7 +53,7 @@ export default function BettingSlip() {
 
   return (
     <Card
-      className="flex h-full w-full flex-col rounded-sm bg-primary-foreground text-betSlip-foreground"
+      className="flex h-full w-full flex-col overflow-hidden rounded-sm bg-primary-foreground text-betSlip-foreground"
       data-testid="betting-slip"
     >
       <div className="grid grid-cols-2 grid-rows-2 text-center">
@@ -83,7 +84,7 @@ export default function BettingSlip() {
         </span>
       </div>
 
-      <CardContent className="h-full p-3 text-betSlip-foreground">
+      <CardContent className="h-full overflow-hidden p-2 text-betSlip-foreground">
         {betEntries.length === 0 ? (
           <div className="flex h-full flex-row items-center justify-center gap-3">
             <small className="text-md font-medium leading-none">
@@ -99,7 +100,8 @@ export default function BettingSlip() {
             </Button>
           </div>
         ) : (
-          <ul className="flex flex-col gap-1">
+          <ScrollArea className="h-full">
+            <ul className="flex flex-col gap-1">
             {Object.entries(betsByMatch).map(([matchKey, matchBets]) => (
               <li key={matchKey}>
                 <div className="flex flex-col gap-1 border border-betSlip-foreground p-1">
@@ -125,7 +127,9 @@ export default function BettingSlip() {
                         })}
                       </span>
                       <Badge className="rounded-sm">
-                        {getTimeDistanceFromNow(new Date(matchBets[0].bet.round.startingAt))}
+                        {getTimeDistanceFromNow(
+                          new Date(matchBets[0].bet.round.startingAt),
+                        )}
                       </Badge>
                     </div>
                   </div>
@@ -164,7 +168,8 @@ export default function BettingSlip() {
                 </div>
               </li>
             ))}
-          </ul>
+            </ul>
+          </ScrollArea>
         )}
       </CardContent>
 
