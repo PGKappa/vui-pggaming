@@ -108,7 +108,7 @@ export default function Home() {
       </div>
 
       {/*RIGHT COLUMN - Betting slip*/}
-      <div className="col-span-1 h-full bg-background text-foreground">
+      <div className="col-span-1 bg-background text-foreground">
         <BettingSlip />
       </div>
     </div>

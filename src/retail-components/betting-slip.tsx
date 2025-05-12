@@ -90,7 +90,7 @@ export default function BettingSlip() {
         </span>
 
         <span
-          className={`flex w-full flex-col items-center justify-center text-md  ${
+          className={`flex w-full flex-col items-center justify-center text-md ${
             betEntries.length > 1
               ? 'border-b-2 border-accent bg-betSlip-header'
               : 'bg-gray-100'
@@ -100,7 +100,7 @@ export default function BettingSlip() {
         </span>
       </div>
 
-      <CardContent className="flex-1 overflow-y-auto p-3 text-betSlip-foreground">
+      <CardContent className="h-full p-3 text-betSlip-foreground">
         {betEntries.length === 0 ? (
           <div className="flex h-full flex-row items-center justify-center gap-3">
             <small className="text-md font-medium leading-none">
@@ -185,59 +185,61 @@ export default function BettingSlip() {
         )}
       </CardContent>
 
-      <Separator className="my-2" />
+      <CardFooter className="flex flex-col gap-2">
+        <Separator className="my-2" />
 
-      <div className="mx-1 flex justify-end bg-accent p-2 px-8">
-        <span className="font-semibold text-accent-foreground">{t('amount')}</span>
-      </div>
+        <div className="mx-1 flex justify-end bg-accent p-2 px-8">
+          <span className="font-semibold text-accent-foreground">
+            {t('amount')}
+          </span>
+        </div>
 
-      <div className="flex flex-row items-center justify-between p-2">
-        <span className="text-sm font-semibold">{t('total')}</span>
-        <div className="flex w-fit items-center border border-border">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-5 w-5 rounded-none bg-betSlip p-3"
-            onClick={() => setGlobal((prev) => Math.max(prev - 1, 1))}
-          >
-            -
+        <div className="flex flex-row items-center justify-between p-2">
+          <span className="text-sm font-semibold">{t('total')}</span>
+          <div className="flex w-fit items-center border border-border">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-5 w-5 rounded-none bg-betSlip p-3"
+              onClick={() => setGlobal((prev) => Math.max(prev - 1, 1))}
+            >
+              -
+            </Button>
+            <Input
+              type="number"
+              value={global}
+              className="bg-background-foreground w-16 border-x text-center"
+              onChange={(e) => setGlobal(parseFloat(e.target.value))}
+            />
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-5 w-4 rounded-none bg-betSlip p-3"
+              onClick={() => setGlobal((prev) => prev + 1)}
+            >
+              +
+            </Button>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-1 px-2 text-sm">
+          <div className="flex justify-between">
+            <span>{t('total_odd')}</span>
+            <span>{totalOdds.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>{t('potential_win')}</span>
+            <span>{potentialWinning.toFixed(2)} €</span>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-end py-4">
+          <span className="text-sm">{t('remove_all')}</span>
+          <Button variant="ghost" size="icon-sm" onClick={removeAllBets}>
+            <CircleXIcon className="h-10 w-10" />
           </Button>
-          <Input
-            type="number"
-            value={global}
-            className="bg-background-foreground w-16 border-x text-center"
-            onChange={(e) => setGlobal(parseFloat(e.target.value))}
-          />
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-5 w-4 rounded-none bg-betSlip p-3"
-            onClick={() => setGlobal((prev) => prev + 1)}
-          >
-            +
-          </Button>
         </div>
-      </div>
 
-      <div className="flex flex-col gap-1 px-2 text-sm">
-        <div className="flex justify-between">
-          <span>{t('total_odd')}</span>
-          <span>{totalOdds.toFixed(2)}</span>
-        </div>
-        <div className="flex justify-between">
-          <span>{t('potential_win')}</span>
-          <span>{potentialWinning.toFixed(2)} €</span>
-        </div>
-      </div>
-
-      <div className="flex items-center justify-end py-4">
-        <span className="text-sm">{t('remove_all')}</span>
-        <Button variant="ghost" size="icon-sm" onClick={removeAllBets}>
-          <CircleXIcon className="h-10 w-10" />
-        </Button>
-      </div>
-
-      <CardFooter className='flex flex-col gap-2'>
         <Button
           variant="betNow"
           disabled={betEntries.length === 0}
