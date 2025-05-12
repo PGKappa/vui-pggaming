@@ -26,7 +26,7 @@ export default function Home() {
   return (
     <div className="grid h-full grid-cols-4 justify-center gap-3">
       {/* First column - top content */}
-      <div className="col-span-1 flex flex-col items-center gap-4">
+      <div className="col-span-1 flex flex-col items-center justify-between gap-4">
         <UpcomingRoundsCard
           rounds={upcomingRounds}
           selectedRound={selectedRound}

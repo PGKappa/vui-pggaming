@@ -11,6 +11,7 @@ import { getTimeDistanceFromNow } from '@/retail-lib/utils'
 import { CircleXIcon, RotateCcwIcon, Trash2Icon } from 'lucide-react'
 import { useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import FastBet from './fast-bet'
 
 export default function BettingSlip() {
   const {
@@ -236,7 +237,7 @@ export default function BettingSlip() {
         </Button>
       </div>
 
-      <CardFooter>
+      <CardFooter className='flex flex-col gap-2'>
         <Button
           variant="betNow"
           disabled={betEntries.length === 0}
@@ -261,6 +262,7 @@ export default function BettingSlip() {
         >
           {t('bet_now')}
         </Button>
+        <FastBet />
       </CardFooter>
     </Card>
   )
