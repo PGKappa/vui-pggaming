@@ -1,14 +1,14 @@
 'use client'
 
-import Navbar from '@/components/navbar'
-import { Toaster } from '@/components/ui/sonner'
-import BetsContextProvider from '@/contexts/bets-context'
-import RootContextProvider from '@/contexts/root-context'
-import SkinProvider, { SkinContext } from '@/contexts/skin-context'
+import Navbar from '@/retail-components/navbar'
+import { Toaster } from '@/retail-components/ui/sonner'
+import BetsContextProvider from '@/retail-contexts/bets-context'
+import RootContextProvider from '@/retail-contexts/root-context'
+import SkinProvider, { SkinContext } from '@/retail-contexts/skin-context'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { useContext } from 'react'
 import { useTranslation } from 'react-i18next'
-import './globals.css'
+import '../globals.css'
 import './i18n'
 
 const geistSans = Geist({
@@ -32,17 +32,21 @@ function AppContent({ children }: { children: React.ReactNode }) {
     <body
       className={`${geistSans.variable} ${geistMono.variable} ${skin} flex h-screen flex-col antialiased`}
     >
-      <header className="container">
+      <header>
         <Navbar />
       </header>
-      <main className="flex-1">
+      <main className="p-2 overflow-hidden h-full">
         <RootContextProvider>
           <BetsContextProvider>{children}</BetsContextProvider>
         </RootContextProvider>
       </main>
 
       <Toaster
-        position={typeof window !== 'undefined' && window.innerWidth >= 1024 ? 'bottom-right' : 'top-center'}
+        position={
+          typeof window !== 'undefined' && window.innerWidth >= 1024
+            ? 'bottom-right'
+            : 'top-center'
+        }
       />
     </body>
   )

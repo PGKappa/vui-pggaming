@@ -260,6 +260,74 @@
     --footer-betslip: 358 100% 62%;
     --footer-betslip-foreground: 0 0% 100%;
   }
+
+  .retail-default {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 0%;
+    --card-header: 212 63% 23%;
+    --card-header-foreground: 0 0% 100%;
+
+    --primary: 0 0% 0%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 211 64% 26%;
+    --secondary-foreground: 0 0% 90%;
+
+    --tertiary: 210 64% 14%;
+    --tertiary-foreground: 0 0% 100%;
+
+    --muted: 0 0% 14%;
+    --muted-foreground: 220 9% 65%;
+
+    --accent: 212 62% 23%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 0 0% 100%;
+
+    --table-foreground: 0 0% 0%;
+
+    --badge-background: 211 34% 48%;
+    --badge-foreground: 0 0% 100%;
+
+    --betEntry-background: 0 0% 90%;
+    --betEntry-foreground: 0 0% 0%;
+    --betEntry-border: 0 0% 31%;
+
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 0 0% 20%;
+
+    --radius: 0rem;
+
+    --bet: 353 100% 44%;
+    --bet-foreground: 0 0% 100%;
+
+    --betSlip: 0 0% 62%;
+    --betSlip-foreground: 0 0% 0%;
+    --betSlip-header: 207 18% 76%;
+    --betSlip-header-foreground: 0 0% 100%;
+
+    --betHistory: 353 100% 44%;
+    --betHistory-foreground: 0 0% 0%;
+    --betHistory-header: 0 0% 100%;
+
+    --navbarButton: 207 18% 76%;
+    --navbarButton-foreground: 0 0% 100%;
+
+    --chart-1: 0 0% 63%;
+    --chart-2: 353 100% 44%;
+    --chart-3: 0 0% 100%;
+
+    --footer-ranking: 0 0% 100%;
+    --footer-ranking-foreground: 0 0% 0%;
+
+    --footer-betslip: 353 100% 44%;
+    --footer-betslip-foreground: 0 0% 100%;
+  }
 }
 
 @layer base {

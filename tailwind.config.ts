@@ -3,10 +3,11 @@ import tailwindCssAnimate from 'tailwindcss-animate'
 
 export default {
   darkMode: ['class'],
-  safelist: ['default', 'sportradar', 'dp', 'sc'],
+  safelist: ['default', 'sportradar', 'dp', 'sc', 'retail-default'],
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/retail-components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
@@ -50,6 +51,10 @@ export default {
           DEFAULT: 'hsl(var(--secondary))',
           foreground: 'hsl(var(--secondary-foreground))',
         },
+        tertiary: {
+          DEFAULT: 'hsl(var(--tertiary))',
+          foreground: 'hsl(var(--tertiary-foreground))',
+        },
         muted: {
           DEFAULT: 'hsl(var(--muted))',
           foreground: 'hsl(var(--muted-foreground))',
@@ -74,6 +79,10 @@ export default {
           foreground: 'hsl(var(--betEntry-foreground))',
           border: 'hsl(var(--betEntry-border))',
         },
+        navbarButton:{
+          DEFAULT: 'hsl(var(--navbarButton))',
+          foreground: 'hsl(var(--navbarButton-foreground))',
+        },
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
@@ -84,6 +93,10 @@ export default {
         betSlip: {
           DEFAULT: 'hsl(var(--betSlip))',
           foreground: 'hsl(var(--betSlip-foreground))',
+          header: {
+            DEFAULT: 'hsl(var(--betSlip-header))',
+            foreground: 'hsl(var(--betSlip-header-foreground))',
+          },
         },
         betHistory: {
           DEFAULT: 'hsl(var(--betHistory))',

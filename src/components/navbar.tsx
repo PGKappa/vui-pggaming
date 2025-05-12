@@ -17,7 +17,7 @@ export default function Navbar() {
         prefetch={false}
       >
         <Image
-          src="/calcio/dogs.png"
+          src="/dogs.png"
           alt="Dogs"
           width={69}
           height={33}
@@ -36,7 +36,7 @@ export default function Navbar() {
         prefetch={false}
       >
         <Image
-          src="/calcio/horses.png"
+          src="/horses.png"
           alt="Horses"
           width={60}
           height={36}
