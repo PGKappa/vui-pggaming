@@ -13,25 +13,6 @@ export type Score = {
   score2: number
 }
 
-export type LiveRound = {
-  name: string
-  number: number
-  scores: Score[]
-  startingAt: Date
-  streamUrl: string
-}
-
-export type TeamRanking = {
-  position: number
-  team: string
-  played: number
-  wins: number
-  draws: number
-  losses: number
-  points: number
-  last8: Array<'W' | 'L' | 'X'>
-}
-
 export type Team = {
   kitChoice: string
   name: string
@@ -121,6 +102,8 @@ export type LastRoundResults = {
     number: number
   }
   startTime: Date
+  duration: number
+  matchResults: MatchResult[]
 }
 
 export type Bet = {
@@ -137,17 +120,6 @@ export type BetEntry = {
   id: number
   market: string
   bet: Bet
-}
-export type MatchStatistics = {
-  teams: string
-  probabilities: [number, number, number]
-  startTime: Date
-}
-
-export type RoundStatistics = {
-  name: string
-  number: number
-  matches: MatchStatistics[]
 }
 
 export type Ticket = {

@@ -3,18 +3,17 @@
 import LoadingSpinner from '@/retail-components/loading-spinner'
 import {
   Ticket,
-  LiveRound,
   MatchResult,
-  RoundStatistics,
-  TeamRanking,
   UpcomingMatch,
   UpcomingRound,
   User,
+  LastRoundResults,
 } from '@/retail-lib/types'
 import { BASE_API_URL } from '@/retail-lib/utils'
-import { createContext, useCallback, useEffect, useRef, useState } from 'react'
+import { createContext, useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import upcomingRoundsJson from './upcoming-rounds.json'
 
 export type RootContextType = {
   userData?: User
@@ -23,95 +22,33 @@ export type RootContextType = {
     init?: RequestInit,
     params?: Record<string, string>,
   ) => Promise<T>
-  liveRound?: LiveRound
-  roundStatistics?: RoundStatistics
-  teamRankings?: TeamRanking[]
   upcomingRounds?: UpcomingRound[]
+  lastRoundsResults?: LastRoundResults[]
   betsHistory: Ticket[]
   matchResult?: MatchResult[]
 }
 
 const defaultRootContext: RootContextType = {
   //TODO: remove mock data
-  liveRound: {
-    name: 'Super League',
-    number: 28,
-    scores: [
-      { team1: 'BUR', team2: 'EVE', score1: 2, score2: 0 },
-      { team1: 'MCI', team2: 'MUN', score1: 1, score2: 1 },
-      { team1: 'TOT', team2: 'ARS', score1: 0, score2: 0 },
-      { team1: 'CHE', team2: 'LIV', score1: 1, score2: 1 },
-    ],
-    startingAt: new Date('2025-02-10T20:00:00Z'),
-    streamUrl:
-      'https://st12.net4media.net:8082/nuvometa/c510a754-V140-Trident-Football-492d2a7a15b5/playlist.m3u8',
-  },
-  roundStatistics: {
-    name: 'Super League',
-    number: 29,
-    matches: [
-      {
-        teams: 'NAP - GEN',
-        probabilities: [30, 50, 20],
-        startTime: new Date('2025-02-10T00:01:00Z'),
-      },
-      {
-        teams: 'CAT - ELE',
-        probabilities: [30, 50, 20],
-        startTime: new Date('2025-02-10T00:01:00Z'),
-      },
-      {
-        teams: 'JUV - MIL',
-        probabilities: [30, 50, 20],
-        startTime: new Date('2025-02-10T00:01:00Z'),
-      },
-      {
-        teams: 'INT - ROM',
-        probabilities: [30, 50, 20],
-        startTime: new Date('2025-02-10T00:01:00Z'),
-      },
-    ],
-  },
-  teamRankings: [
+  lastRoundsResults: [
     {
-      position: 1,
-      team: 'NAP',
-      played: 26,
-      wins: 14,
-      draws: 8,
-      losses: 4,
-      points: 50,
-      last8: ['W', 'W', 'L', 'W', 'W', 'X', 'L', 'W'],
-    },
-    {
-      position: 2,
-      team: 'JUV',
-      played: 26,
-      wins: 14,
-      draws: 8,
-      losses: 4,
-      points: 50,
-      last8: ['W', 'W', 'L', 'W', 'W', 'X', 'L', 'L'],
-    },
-    {
-      position: 3,
-      team: 'GEN',
-      played: 26,
-      wins: 13,
-      draws: 7,
-      losses: 6,
-      points: 46,
-      last8: ['L', 'W', 'L', 'X', 'W', 'X', 'W', 'X'],
-    },
-    {
-      position: 4,
-      team: 'MIL',
-      played: 26,
-      wins: 13,
-      draws: 7,
-      losses: 6,
-      points: 46,
-      last8: ['L', 'W', 'L', 'X', 'W', 'X', 'W', 'W'],
+      round: { name: 'Triden', number: 17 },
+      startTime: new Date(),
+      duration: 30,
+      matchResults: [
+        {
+          round: { name: 'Super League', number: 28 },
+          teams: 'NAP - GEN',
+          score1: 2,
+          score2: 0,
+        },
+        {
+          round: { name: 'Super League', number: 28 },
+          teams: 'MIL - ROM',
+          score1: 1,
+          score2: 1,
+        },
+      ],
     },
   ],
   betsHistory: [],
@@ -145,7 +82,6 @@ export default function RootContextProvider(props: {
     useState<RootContextType>(defaultRootContext)
   const { i18n } = useTranslation()
   const [isLoading, setIsLoading] = useState(true)
-  const processedRoundIdRef = useRef<number | undefined>(undefined)
 
   type UserApiResponse = {
     status: string
@@ -211,48 +147,6 @@ export default function RootContextProvider(props: {
   useEffect(() => {
     if (!initCode) return
 
-    const checkRoundTransition = () => {
-      const upcomingRounds = rootContext.upcomingRounds
-
-      if (upcomingRounds?.length) {
-        const currentDate = new Date()
-        const nextRound = upcomingRounds.find((round) => {
-          const startTime = new Date(round.mag_event[0]?.startTime)
-          return currentDate >= startTime
-        })
-
-        if (nextRound) {
-          if (processedRoundIdRef.current === nextRound.scheduleId) {
-            return
-          }
-
-          processedRoundIdRef.current = nextRound.scheduleId
-
-          setRootContext((prev) => ({
-            ...prev,
-            liveRound: {
-              name: nextRound.scheduleName,
-              number: nextRound.scheduleId,
-              scores: prev.liveRound?.scores || [],
-              startingAt: new Date(nextRound.mag_event[0]?.startTime),
-              streamUrl: prev.liveRound?.streamUrl || '',
-            },
-            upcomingRounds: prev.upcomingRounds?.slice(1) || [],
-          }))
-        }
-      }
-    }
-
-    checkRoundTransition()
-
-    const intervalId = setInterval(checkRoundTransition, 60000)
-
-    return () => clearInterval(intervalId)
-  }, [initCode, rootContext.upcomingRounds])
-
-  useEffect(() => {
-    if (!initCode) return
-
     const fetchUserData = async (retryCount = 0, maxRetries = 3) => {
       try {
         const response = await fetch(
@@ -309,13 +203,11 @@ export default function RootContextProvider(props: {
     if (!initCode) return
 
     const fetchUpcomingRounds = async () => {
-      const response = await apiRequest<{
+      const response = upcomingRoundsJson as {
         schedules: {
           schedule: UpcomingRound[]
         }
-      }>('/football/20/', {
-        method: 'GET',
-      })
+      }
 
       if (!response?.schedules?.schedule?.length) return
 
