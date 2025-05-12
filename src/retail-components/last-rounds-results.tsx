@@ -33,7 +33,9 @@ export default function LastRoundsResults(props: {
     .sort((a, b) => b.round.number - a.round.number)
 
   return (
-    <Card className="flex w-full flex-col overflow-hidden">
+    <Card
+      className={`flex ${props.open ? 'h-full' : 'h-14'} w-full flex-col overflow-hidden`}
+    >
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Last Results</CardTitle>
         <div className="flex flex-row items-center justify-center">
