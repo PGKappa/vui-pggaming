@@ -40,8 +40,8 @@ export default function UpcomingRoundCard(props: {
 
   return (
     <Card className="border-b border-t border-card-foreground">
-      <CardHeader className="flex flex-row items-center justify-between px-6 md:pl-14">
-        <span>
+      <CardHeader className="flex flex-row items-center justify-between px-6">
+        <span className='font-bold'>
           {props.round.scheduleName} {t('round')} {props.round.scheduleId}
         </span>
         <span>3:00</span>
@@ -111,8 +111,8 @@ export default function UpcomingRoundCard(props: {
 
                 return (
                   <TableRow key={index} className="border-card-foreground">
-                    <TableCell className="flex w-full flex-row items-center gap-2 md:pl-14">
-                      <Badge variant="secondary" className="flex flex-col py-0">
+                    <TableCell className="flex w-full flex-row items-center gap-2">
+                      <Badge variant="secondary" className="flex flex-col py-0 bg-badge text-badge-foreground rounded-lg">
                         <span>{dayLabel}</span>
                         <span>{formattedDate}</span>
                       </Badge>
@@ -121,7 +121,7 @@ export default function UpcomingRoundCard(props: {
 
                     {mainMarket ? (
                       marketOptions.map((option, i) => (
-                        <TableCell key={i}>
+                        <TableCell key={i} className="text-center">
                           <BetEntryToggle
                             matchStart={matchStart}
                             round={props.round}
@@ -139,7 +139,7 @@ export default function UpcomingRoundCard(props: {
 
                     {underOverMarket ? (
                       underOverOptions.map((option, i) => (
-                        <TableCell key={i}>
+                        <TableCell key={i} className="text-center">
                           <BetEntryToggle
                             matchStart={matchStart}
                             round={props.round}
@@ -157,7 +157,7 @@ export default function UpcomingRoundCard(props: {
 
                     {goalMarket ? (
                       goalOptions.map((option, i) => (
-                        <TableCell key={i}>
+                        <TableCell key={i} className="text-center">
                           <BetEntryToggle
                             matchStart={matchStart}
                             round={props.round}
@@ -175,7 +175,7 @@ export default function UpcomingRoundCard(props: {
 
                     <TableCell className="text-right">
                       <Button
-                        variant="ghost"
+                        variant="history"
                         size="icon"
                         onClick={() =>
                           props.viewMatchBettingOptions({
