@@ -24,9 +24,9 @@ export default function Home() {
   const [lastResultsOpen, setLastResultsOpen] = useState(false)
 
   return (
-    <div className="grid h-full grid-cols-4 justify-center gap-3">
+    <div className="grid h-full grid-cols-4 gap-3 overflow-hidden">
       {/* First column - top content */}
-      <div className="col-span-1 flex flex-col items-center justify-between gap-4">
+      <div className="col-span-1 flex h-full max-h-full flex-col items-center justify-between gap-4 overflow-hidden">
         <UpcomingRoundsCard
           rounds={upcomingRounds}
           selectedRound={selectedRound}
@@ -85,7 +85,7 @@ export default function Home() {
       </div>
 
       {/* SECOND COLUMN*/}
-      <div className="col-span-2 space-y-3">
+      <div className="col-span-2 h-full overflow-y-auto">
         {selectedRound ? (
           matchBetOptions ? (
             <MatchBettingOptions
@@ -108,7 +108,7 @@ export default function Home() {
       </div>
 
       {/*RIGHT COLUMN - Betting slip*/}
-      <div className="col-span-1 h-full bg-background text-foreground">
+      <div className="col-span-1 h-full max-h-full overflow-y-auto bg-background text-foreground">
         <BettingSlip />
       </div>
     </div>

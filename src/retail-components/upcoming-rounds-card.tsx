@@ -5,6 +5,7 @@ import { Button } from '@/retail-components/ui/button'
 import { Card, CardContent, CardHeader } from '@/retail-components/ui/card'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import BallSvg from './ball'
+import { ScrollArea } from '@/retail-components/ui/scroll-area'
 
 type UpcomingRoundsCardProps = {
   rounds?: UpcomingRound[]
@@ -19,7 +20,7 @@ export default function UpcomingRoundsCard({
   selectedRound,
   setSelectedRound,
   collapsed,
-  toggleCollapse 
+  toggleCollapse,
 }: UpcomingRoundsCardProps) {
   // Function to format the date from the startTime
   const formatStartTime = (dateString: string) => {
@@ -31,19 +32,23 @@ export default function UpcomingRoundsCard({
   }
 
   return (
-    <Card className="w-full overflow-hidden">
+    <Card className="flex h-full w-full flex-col overflow-hidden">
       <CardHeader className="flex flex-row items-center justify-between">
         <div className="w-full text-center">
           <h3 className="text-xl font-bold">Next Events</h3>
         </div>
         <Button variant="ghost" size="icon-lg" onClick={toggleCollapse}>
-          {collapsed ? <ChevronDown style={{scale: 2}} /> : <ChevronUp style={{scale: 2}} />}
+          {collapsed ? (
+            <ChevronDown style={{ scale: 2 }} />
+          ) : (
+            <ChevronUp style={{ scale: 2 }} />
+          )}
         </Button>
       </CardHeader>
-      <CardContent className="overflow-y-auto p-0">
-        {rounds && rounds.length > 0 ? (
-          <div>
-            {rounds.map((round) => {
+      <CardContent className="flex-grow overflow-hidden p-0">
+        <ScrollArea className="h-full">
+          {rounds && rounds.length > 0 ? (
+            rounds.map((round) => {
               // Take the first match in the round to get the start time
               const firstMatch = round.mag_event?.[0]
               if (!firstMatch) return null
@@ -56,23 +61,23 @@ export default function UpcomingRoundsCard({
                   className={`flex w-full cursor-pointer flex-row items-center justify-between border-b border-border p-1 ${round.scheduleId === selectedRound?.scheduleId ? 'bg-' : ''}`}
                   onClick={() => setSelectedRound(round)}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-row items-center gap-3">
                     <BallSvg className="h-8 w-8 stroke-foreground" />
                     <span className="text-md">
                       {round.scheduleName} Round {round.scheduleId}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-row items-center gap-2">
                     <span className="text-sm font-bold">{startTime}</span>
                     <span className="text-sm">0:30</span>
                   </div>
                 </button>
               )
-            })}
-          </div>
-        ) : (
-          <div className="p-4 text-center">No upcoming rounds</div>
-        )}
+            })
+          ) : (
+            <div className="p-4 text-center">No upcoming rounds</div>
+          )}
+        </ScrollArea>
       </CardContent>
     </Card>
   )

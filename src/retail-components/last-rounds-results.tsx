@@ -7,6 +7,7 @@ import {
 } from '@/retail-components/ui/card'
 import { ChevronDown, ChevronUp, SearchIcon } from 'lucide-react'
 import BallSvg from './ball'
+import { ScrollArea } from '@/retail-components/ui/scroll-area'
 
 export default function LastRoundsResults(props: {
   roundsResults: {
@@ -31,10 +32,10 @@ export default function LastRoundsResults(props: {
     .filter((r) => r.round.number > firstUpcomingRound)
     .sort((a, b) => b.round.number - a.round.number)
 
-    console.log('LastRoundsResults', props.roundsResults)
-    console.log('UpcomingRound', props.upcomingRound)
+  console.log('LastRoundsResults', props.roundsResults)
+  console.log('UpcomingRound', props.upcomingRound)
   return (
-    <Card className="w-full">
+    <Card className="flex w-full flex-col overflow-hidden">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Last Results</CardTitle>
         <div className="flex flex-row gap-1">
@@ -52,14 +53,14 @@ export default function LastRoundsResults(props: {
       </CardHeader>
 
       {props.open && (
-        <CardContent className="overflow-y-auto p-0">
-          {filteredRounds.length < 0 ? (
-            <div className="text-center text-sm text-muted-foreground">
-              No past results available
-            </div>
-          ) : (
-            <div>
-              {filteredRounds.map((result) => (
+        <CardContent className="flex-grow overflow-hidden p-0">
+          <ScrollArea className="h-full">
+            {filteredRounds.length < 0 ? (
+              <div className="text-center text-sm text-muted-foreground">
+                No past results available
+              </div>
+            ) : (
+              filteredRounds.map((result) => (
                 <button
                   key={result.round.number}
                   className={`flex w-full cursor-pointer flex-row items-center justify-between border-b border-border p-1`}
@@ -77,13 +78,11 @@ export default function LastRoundsResults(props: {
                     <span className="text-sm">0:30</span>
                   </div>
                 </button>
-              ))}
-            </div>
-          )}
+              ))
+            )}
+          </ScrollArea>
         </CardContent>
       )}
     </Card>
   )
-    
-  
 }
