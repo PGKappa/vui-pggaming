@@ -26,7 +26,7 @@ export default function MatchBettingOptions(props: {
 }) {
   return (
     <div className="flex w-full flex-col gap-2">
-      <div className="flex flex-row items-center justify-between">
+      <div className="flex flex-row items-center justify-between bg-accent text-accent-foreground">
         <div className="flex flex-row items-center gap-2">
           <Button variant="ghost" onClick={props.close} size="icon">
             <ChevronsLeftIcon />
@@ -36,11 +36,11 @@ export default function MatchBettingOptions(props: {
           </span>
           <span className="text-sm font-semibold">{props.teams}</span>
         </div>
-        <Badge>{format(props.round.startingAt, 'HH:mm')}</Badge>
+        <Badge className='mr-5'>{format(props.round.startingAt, 'HH:mm')}</Badge>
       </div>
-      <Accordion type="multiple">
+      <Accordion type="multiple" className='space-y-2'>
         {props.markets.map((market) => (
-          <AccordionItem key={market.name} value={market.name}>
+          <AccordionItem key={market.name} value={market.name} className='text-accent-foreground'>
             <AccordionTrigger>{market.name.toUpperCase()}</AccordionTrigger>
             <AccordionContent>
               <div className="grid grid-cols-3 gap-4 px-8">
