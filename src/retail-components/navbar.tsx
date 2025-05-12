@@ -6,7 +6,7 @@ import { Info } from 'lucide-react'
 
 export default function Navbar() {
   return (
-    <nav className="flex w-full flex-row items-center justify-between gap-1 bg-accent p-1 px-4">
+    <nav className="flex w-full flex-row items-center justify-between gap-1 bg-accent p-3 px-4">
       <div className="flex items-center gap-1">
         <Link
           href="/dogs-horses"
@@ -72,6 +72,7 @@ export default function Navbar() {
           className={buttonVariants({
             variant: 'navbarSelected',
             size: 'sm',
+            className: 'p-0 m-0',
           })}
         >
           <BallSvg className="size-full stroke-accent-foreground" />
