@@ -45,42 +45,21 @@ export default function Home() {
             {
               round: {
                 name: 'Triden',
-                number: 17,
+                number: 3,
               },
               startTime: new Date(),
             },
             {
               round: {
                 name: 'Triden',
-                number: 16,
+                number: 2,
               },
               startTime: new Date(),
             },
             {
               round: {
                 name: 'Triden',
-                number: 15,
-              },
-              startTime: new Date(),
-            },
-            {
-              round: {
-                name: 'Triden',
-                number: 14,
-              },
-              startTime: new Date(),
-            },
-            {
-              round: {
-                name: 'Triden',
-                number: 13,
-              },
-              startTime: new Date(),
-            },
-            {
-              round: {
-                name: 'Triden',
-                number: 12,
+                number: 1,
               },
               startTime: new Date(),
             },
