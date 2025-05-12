@@ -5,7 +5,7 @@ import MatchBettingOptions from '@/retail-components/match-betting-options'
 import UpcomingRoundCard from '@/retail-components/upcoming-round-card'
 import UpcomingRoundsCard from '@/retail-components/upcoming-rounds-card'
 import { RootContext } from '@/retail-contexts/root-context'
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import LastRoundsResults from '@/retail-components/last-rounds-results'
 
 export default function Home() {
@@ -21,6 +21,12 @@ export default function Home() {
   }>()
 
   const [selectedRound, setSelectedRound] = useState<UpcomingRound>()
+  useEffect(() => {
+    if (!selectedRound && upcomingRounds && upcomingRounds.length > 0) {
+      setSelectedRound(upcomingRounds[0])
+    }
+  }, [upcomingRounds, selectedRound])
+  
   const [lastResultsOpen, setLastResultsOpen] = useState(false)
 
   return (
