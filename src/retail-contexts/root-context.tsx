@@ -203,7 +203,7 @@ export default function RootContextProvider(props: {
     if (!initCode) return
 
     const fetchUpcomingRounds = async () => {
-      const response = upcomingRoundsJson as {
+      const response = upcomingRoundsJson as unknown as {
         schedules: {
           schedule: UpcomingRound[]
         }
