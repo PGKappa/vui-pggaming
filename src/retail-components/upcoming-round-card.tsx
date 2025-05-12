@@ -48,12 +48,16 @@ export default function UpcomingRoundCard(props: {
       </CardHeader>
       <CardContent className="px-0">
         <Table>
-          <TableHeader className="bg-card-header">
-            <TableRow className="border-card-foreground transition-none hover:bg-card-header">
+          <TableHeader className="bg-card-header text-card-header-foreground">
+            <TableRow className="border-card-foreground transition-none">
               <TableHead></TableHead>
-              <TableHead className="text-center">1</TableHead>
-              <TableHead className="text-center">X</TableHead>
-              <TableHead className="text-center">2</TableHead>
+              <TableHead className="text-center font-bold">1</TableHead>
+              <TableHead className="text-center font-bold">X</TableHead>
+              <TableHead className="text-center font-bold">2</TableHead>
+              <TableHead className="text-center font-bold">UNDER</TableHead>
+              <TableHead className="text-center font-bold">OVER</TableHead>
+              <TableHead className="text-center font-bold">GOAL</TableHead>
+              <TableHead className="text-center font-bold">NO GOAL</TableHead>
               <TableHead></TableHead>
             </TableRow>
           </TableHeader>
@@ -83,8 +87,25 @@ export default function UpcomingRoundCard(props: {
                 const mainMarket = match.markets.market.find(
                   (m) => m.name === 'Esito finale 1X2',
                 )
+                const underOverMarket = match.markets.market.find(
+                  (m) => m.name === 'Under\/Over 1.5',
+                )
+                const goalMarket = match.markets.market.find(
+                  (m) => m.name === 'Gol no gol',
+                )
+
                 const marketOptions =
                   mainMarket?.selections.flatMap(
+                    ({ selection }) => selection,
+                  ) || []
+
+                const underOverOptions =
+                  underOverMarket?.selections.flatMap(
+                    ({ selection }) => selection,
+                  ) || []
+
+                const goalOptions =
+                  goalMarket?.selections.flatMap(
                     ({ selection }) => selection,
                   ) || []
 
@@ -112,6 +133,42 @@ export default function UpcomingRoundCard(props: {
                       ))
                     ) : (
                       <TableCell colSpan={3} className="text-center">
+                        {t('no_odds')}
+                      </TableCell>
+                    )}
+
+                    {underOverMarket ? (
+                      underOverOptions.map((option, i) => (
+                        <TableCell key={i}>
+                          <BetEntryToggle
+                            matchStart={matchStart}
+                            round={props.round}
+                            teams={teamNames}
+                            marketName={underOverMarket.name}
+                            option={option}
+                          />
+                        </TableCell>
+                      ))
+                    ) : (
+                      <TableCell colSpan={2} className="text-center">
+                        {t('no_odds')}
+                      </TableCell>
+                    )}
+
+                    {goalMarket ? (
+                      goalOptions.map((option, i) => (
+                        <TableCell key={i}>
+                          <BetEntryToggle
+                            matchStart={matchStart}
+                            round={props.round}
+                            teams={teamNames}
+                            marketName={goalMarket.name}
+                            option={option}
+                          />
+                        </TableCell>
+                      ))
+                    ) : (
+                      <TableCell colSpan={2} className="text-center">
                         {t('no_odds')}
                       </TableCell>
                     )}
