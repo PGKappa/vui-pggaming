@@ -26,6 +26,7 @@ export default function BetEntryToggle(props: {
     <Toggle
       pressed={isSelected}
       onPressedChange={() => {
+        console.log('pressed', isSelected)
         if (isSelected) {
           removeBet(props.marketName, props.option, props.teams)
         } else {

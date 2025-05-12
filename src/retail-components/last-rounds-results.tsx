@@ -32,8 +32,6 @@ export default function LastRoundsResults(props: {
     .filter((r) => r.round.number > firstUpcomingRound)
     .sort((a, b) => b.round.number - a.round.number)
 
-  console.log('LastRoundsResults', props.roundsResults)
-  console.log('UpcomingRound', props.upcomingRound)
   return (
     <Card className="flex w-full flex-col overflow-hidden">
       <CardHeader className="flex flex-row items-center justify-between">
