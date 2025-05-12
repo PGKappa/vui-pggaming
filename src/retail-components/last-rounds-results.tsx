@@ -72,10 +72,10 @@ export default function LastRoundsResults(props: {
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold">
+                    <span className="text-md font-bold">
                       {formatStartTime(new Date(result.startTime))}
                     </span>
-                    <span className="text-sm">0:30</span>
+                    <span className="text-md">0:30</span>
                   </div>
                 </button>
               ))
