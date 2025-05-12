@@ -68,8 +68,8 @@ export default function UpcomingRoundsCard({
                     </span>
                   </div>
                   <div className="flex flex-row items-center gap-2">
-                    <span className="text-sm font-bold">{startTime}</span>
-                    <span className="text-sm">0:30</span>
+                    <span className="text-md font-bold">{startTime}</span>
+                    <span className="text-md">0:30</span>
                   </div>
                 </button>
               )
