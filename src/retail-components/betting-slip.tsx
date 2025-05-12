@@ -5,11 +5,11 @@ import { Button } from '@/retail-components/ui/button'
 import { Card, CardContent, CardFooter } from '@/retail-components/ui/card'
 import { Input } from '@/retail-components/ui/input'
 import { Separator } from '@/retail-components/ui/separator'
-import { BetsContext } from '@/contexts/bets-context'
+import { BetsContext } from '@/retail-contexts/bets-context'
 import { BetEntry, SubmittedTicket } from '@/retail-lib/types'
 import { getTimeDistanceFromNow } from '@/retail-lib/utils'
 import { CircleXIcon, RotateCcwIcon, Trash2Icon } from 'lucide-react'
-import { useContext, useEffect, useMemo, useState } from 'react'
+import { useContext, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import FastBet from './fast-bet'
 
@@ -49,23 +49,6 @@ export default function BettingSlip() {
   ).size
 
   const { t } = useTranslation()
-
-  const [distances, setDistances] = useState<Record<string, string>>({})
-
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      const updated: Record<string, string> = {}
-      for (const [matchKey, matchBets] of Object.entries(betsByMatch)) {
-        const distance = getTimeDistanceFromNow(
-          matchBets[0].bet.round.startingAt,
-        )
-        updated[matchKey] = distance
-      }
-      setDistances(updated)
-    }, 1000)
-
-    return () => clearInterval(intervalId)
-  }, [betsByMatch])
 
   return (
     <Card
@@ -142,7 +125,7 @@ export default function BettingSlip() {
                         })}
                       </span>
                       <Badge className="rounded-sm">
-                        {distances[matchKey]}
+                        {getTimeDistanceFromNow(new Date(matchBets[0].bet.round.startingAt))}
                       </Badge>
                     </div>
                   </div>
