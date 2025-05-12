@@ -41,7 +41,7 @@ export default function UpcomingRoundCard(props: {
   return (
     <Card className="border-b border-t border-card-foreground">
       <CardHeader className="flex flex-row items-center justify-between px-6">
-        <span className='font-bold'>
+        <span className="font-bold">
           {props.round.scheduleName} {t('round')} {props.round.scheduleId}
         </span>
         <span>3:00</span>
@@ -54,8 +54,12 @@ export default function UpcomingRoundCard(props: {
               <TableHead className="text-center font-bold">1</TableHead>
               <TableHead className="text-center font-bold">X</TableHead>
               <TableHead className="text-center font-bold">2</TableHead>
-              <TableHead className="text-center font-bold">UNDER</TableHead>
-              <TableHead className="text-center font-bold">OVER</TableHead>
+              <TableHead className="w-[1px] bg-card-header-foreground p-0" />
+
+              <TableHead className="text-center font-bold">UNDER 1.5</TableHead>
+              <TableHead className="text-center font-bold">OVER 1.5</TableHead>
+              <TableHead className="w-[1px] bg-card-header-foreground p-0" />
+
               <TableHead className="text-center font-bold">GOAL</TableHead>
               <TableHead className="text-center font-bold">NO GOAL</TableHead>
               <TableHead></TableHead>
@@ -66,19 +70,25 @@ export default function UpcomingRoundCard(props: {
             {props.round.mag_event.length ? (
               props.round.mag_event.map((match, index) => {
                 const matchStart = new Date(match.startTime)
-                
-                let dayLabel = matchStart.toLocaleDateString(i18n.language, { weekday: 'short' }).toUpperCase()
+
+                let dayLabel = matchStart
+                  .toLocaleDateString(i18n.language, { weekday: 'short' })
+                  .toUpperCase()
                 if (matchStart.toDateString() === today.toDateString()) {
                   dayLabel = t('today').toUpperCase()
-                } else if (matchStart.toDateString() === tomorrow.toDateString()) {
+                } else if (
+                  matchStart.toDateString() === tomorrow.toDateString()
+                ) {
                   dayLabel = t('tomorrow').toUpperCase()
                 }
 
-                const formattedDate = matchStart.toLocaleTimeString(i18n.language, {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })
-
+                const formattedDate = matchStart.toLocaleTimeString(
+                  i18n.language,
+                  {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  },
+                )
 
                 const teamNames = match.teams.team
                   .map((t) => t.name || '')
@@ -112,16 +122,19 @@ export default function UpcomingRoundCard(props: {
                 return (
                   <TableRow key={index} className="border-card-foreground">
                     <TableCell className="flex w-full flex-row items-center gap-2">
-                      <Badge variant="secondary" className="flex flex-col py-0 bg-badge text-badge-foreground rounded-lg">
+                      <Badge
+                        variant="secondary"
+                        className="flex flex-col rounded-lg bg-badge py-0 text-badge-foreground"
+                      >
                         <span>{dayLabel}</span>
                         <span>{formattedDate}</span>
                       </Badge>
-                      <span className="font-bold">{teamNames}</span>
+                      <span className="font-bold ">{teamNames}</span>
                     </TableCell>
 
                     {mainMarket ? (
                       marketOptions.map((option, i) => (
-                        <TableCell key={i} className="text-center">
+                        <TableCell key={i} className="text-center w-20">
                           <BetEntryToggle
                             matchStart={matchStart}
                             round={props.round}
@@ -137,9 +150,11 @@ export default function UpcomingRoundCard(props: {
                       </TableCell>
                     )}
 
+                    <TableCell className="w-[1px] bg-border p-0" />
+
                     {underOverMarket ? (
                       underOverOptions.map((option, i) => (
-                        <TableCell key={i} className="text-center">
+                        <TableCell key={i} className="text-center w-20">
                           <BetEntryToggle
                             matchStart={matchStart}
                             round={props.round}
@@ -155,9 +170,11 @@ export default function UpcomingRoundCard(props: {
                       </TableCell>
                     )}
 
+                    <TableCell className="w-[1px] bg-border p-0" />
+
                     {goalMarket ? (
                       goalOptions.map((option, i) => (
-                        <TableCell key={i} className="text-center">
+                        <TableCell key={i} className="text-center w-20">
                           <BetEntryToggle
                             matchStart={matchStart}
                             round={props.round}

@@ -26,7 +26,6 @@ export default function BetEntryToggle(props: {
     <Toggle
       pressed={isSelected}
       onPressedChange={() => {
-        console.log('pressed', isSelected)
         if (isSelected) {
           removeBet(props.marketName, props.option, props.teams)
         } else {
@@ -41,7 +40,7 @@ export default function BetEntryToggle(props: {
           })
         }
       }}
-      className={`w-14 ${props.showOutcome ? 'flex flex-row justify-between' : ''}`}
+      className={`w-full ${props.showOutcome ? 'flex flex-row justify-between' : ''}`}
     >
       <span>{props.option.decPrice}</span>
       {props.showOutcome && <span>{props.option.outcome}</span>}
