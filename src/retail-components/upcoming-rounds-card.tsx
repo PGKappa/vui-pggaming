@@ -31,7 +31,7 @@ export default function UpcomingRoundsCard({
   }
 
   return (
-    <Card className="h-full w-full overflow-hidden">
+    <Card className="w-full overflow-hidden">
       <CardHeader className="flex flex-row items-center justify-between">
         <div className="w-full text-center">
           <h3 className="text-xl font-bold">Next Events</h3>
@@ -53,7 +53,7 @@ export default function UpcomingRoundsCard({
               return (
                 <button
                   key={round.scheduleId}
-                  className={`flex w-full cursor-pointer flex-row items-center justify-between border-b border-border p-1 hover:bg-primary/80 ${round.scheduleId === selectedRound?.scheduleId ? 'bg-' : ''}`}
+                  className={`flex w-full cursor-pointer flex-row items-center justify-between border-b border-border p-1 ${round.scheduleId === selectedRound?.scheduleId ? 'bg-' : ''}`}
                   onClick={() => setSelectedRound(round)}
                 >
                   <div className="flex items-center gap-3">

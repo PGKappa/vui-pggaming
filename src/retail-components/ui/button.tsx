@@ -19,7 +19,7 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        betNow: "bg-bet text-bet-foreground shadow hover:bg-bet/90",
+        betNow: "font-bold text-lg bg-bet text-bet-foreground shadow hover:bg-bet/90",
         navbar: " bg-secondary text-accent-foreground hover:bg-secondary/90",
         navbarSelected: "bg-tertiary text-tertiary-foreground",
         history: "bg-accent text-accent-foreground",
@@ -27,7 +27,7 @@ const buttonVariants = cva(
         info: "bg-chart-1 text-muted",
       },
       size: {
-        default: "h-9 px-4 py-2",
+        default: "h-10 px-4 py-2",
         sm: "h-8 px-3 text-xs",
         lg: "h-10 px-8",
         icon: "h-9 w-9",
