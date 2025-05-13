@@ -149,19 +149,15 @@ export default function RootContextProvider(props: {
 
     const fetchUserData = async (retryCount = 0, maxRetries = 3) => {
       try {
-        const response = await fetch(
-          `${BASE_API_URL}/football/validate/?init_code=${initCode}`,
-          {
-            method: 'GET',
-            mode: 'cors',
-          },
-        )
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`)
-        }
-
-        const userData = (await response.json()) as UserApiResponse
+        const userData = {
+          status: '1024',
+          description: 'Success',
+          playerId: 'daniel1983-306#29',
+          currency: 'EUR',
+          lang: 'it-IT',
+          level: 1,
+          group: [],
+        } as UserApiResponse
 
         if (userData?.status === '1024') {
           i18n.changeLanguage(userData.lang.substring(0, 2))
