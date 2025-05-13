@@ -129,7 +129,7 @@ export default function UpcomingRoundCard(props: {
                         <span>{dayLabel}</span>
                         <span>{formattedDate}</span>
                       </Badge>
-                      <span className="font-bold ">{teamNames}</span>
+                      <span className="font-bold">{teamNames}</span>
                     </TableCell>
 
                     {mainMarket ? (
