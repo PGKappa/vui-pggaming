@@ -5,7 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/retail-components/ui/card'
-import { ChevronDown, ChevronUp, SearchIcon } from 'lucide-react'
+import { ChevronDown, ChevronUp, /* SearchIcon  */} from 'lucide-react'
 import BallSvg from './ball'
 import { ScrollArea } from '@/retail-components/ui/scroll-area'
 
