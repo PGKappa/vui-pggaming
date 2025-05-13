@@ -5,11 +5,20 @@ import MatchBettingOptions from '@/retail-components/match-betting-options'
 import UpcomingRoundCard from '@/retail-components/upcoming-round-card'
 import UpcomingRoundsCard from '@/retail-components/upcoming-rounds-card'
 import { RootContext } from '@/retail-contexts/root-context'
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useMemo, useState } from 'react'
 import LastRoundsResults from '@/retail-components/last-rounds-results'
 
 export default function Home() {
   const { upcomingRounds } = useContext(RootContext)
+
+  const referenceDate = useMemo(() => {
+    if (upcomingRounds && upcomingRounds.length > 0) {
+      const firstMatch = upcomingRounds[0].mag_event?.[0]
+      return firstMatch ? new Date(firstMatch.startTime) : new Date()
+    }
+    return new Date()
+  }, [upcomingRounds])
+
   const [matchBetOptions, setMatchBetOptions] = useState<{
     round: {
       name: string
@@ -26,7 +35,7 @@ export default function Home() {
       setSelectedRound(upcomingRounds[0])
     }
   }, [upcomingRounds, selectedRound])
-  
+
   const [lastResultsOpen, setLastResultsOpen] = useState(false)
 
   return (
@@ -41,29 +50,18 @@ export default function Home() {
           toggleCollapse={() => setLastResultsOpen((prev) => !prev)}
         />
         <LastRoundsResults
-          roundsResults={[
-            {
+          roundsResults={Array.from({ length: 3 }, (_, index) => {
+            const date = new Date(referenceDate)
+            date.setMinutes(date.getMinutes() - (index + 1) * 3)
+
+            return {
               round: {
                 name: 'Triden',
-                number: 3,
+                number: 3 - index,
               },
-              startTime: new Date(),
-            },
-            {
-              round: {
-                name: 'Triden',
-                number: 2,
-              },
-              startTime: new Date(),
-            },
-            {
-              round: {
-                name: 'Triden',
-                number: 1,
-              },
-              startTime: new Date(),
-            },
-          ]}
+              startTime: date,
+            }
+          })}
           open={lastResultsOpen}
           toggleOpen={() => setLastResultsOpen((prev) => !prev)}
         />
