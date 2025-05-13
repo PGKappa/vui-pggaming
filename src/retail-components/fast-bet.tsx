@@ -13,16 +13,14 @@ function CodeList() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="w-20 bg-bet text-sm font-bold text-bet-foreground">
+        <Button className="w-20 bg-bet text-sm font-bold text-bet-foreground hover:bg-bet/70">
           Code List
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Are you absolutely sure?</DialogTitle>
+          <DialogTitle>Code List</DialogTitle>
           <DialogDescription>
-            This action cannot be undone. This will permanently delete your
-            account and remove your data from our servers.
           </DialogDescription>
         </DialogHeader>
       </DialogContent>
