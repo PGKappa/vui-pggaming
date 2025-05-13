@@ -13,7 +13,7 @@ function CodeList() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="font-bold text-sm bg-bet text-bet-foreground">
+        <Button className="w-20 bg-bet text-sm font-bold text-bet-foreground">
           Code List
         </Button>
       </DialogTrigger>

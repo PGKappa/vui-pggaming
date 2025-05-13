@@ -27,9 +27,9 @@ const buttonVariants = cva(
         info: "bg-chart-1 text-muted",
       },
       size: {
-        default: "h-10 px-4 py-2",
+        default: "h-10 w-10",
         sm: "h-8 px-3 text-xs",
-        lg: "h-10 px-8",
+        lg: "h-10 px-2",
         icon: "h-9 w-9",
         "icon-sm": "h-7 w-7",
         "icon-lg": "h-10 w-10",
