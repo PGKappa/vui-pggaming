@@ -62,10 +62,10 @@ export default function BettingSlip() {
         </span>
 
         <span
-          className={`flex w-full flex-col items-center justify-center text-md font-semibold text-betSlip-header-foreground ${
+          className={`flex w-full flex-col items-center justify-center text-md font-semibold ${
             betEntries.length <= 1
-              ? 'border-b-2 border-accent bg-betSlip'
-              : 'bg-gray-100'
+              ? 'border-b-2 border-accent bg-betSlip text-betSlip-header-foreground'
+              : 'bg-betSlip text-betSlip-header-foreground'
           }`}
         >
           {roundsLength > 1
