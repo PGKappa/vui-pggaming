@@ -5,7 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/retail-components/ui/card'
-import { ChevronDown, ChevronUp, SearchIcon } from 'lucide-react'
+import { ChevronDown, ChevronUp, /* SearchIcon  */} from 'lucide-react'
 import BallSvg from './ball'
 import { ScrollArea } from '@/retail-components/ui/scroll-area'
 
@@ -39,9 +39,9 @@ export default function LastRoundsResults(props: {
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Last Results</CardTitle>
         <div className="flex flex-row items-center justify-center">
-          <Button variant="ghost" size="icon">
+          {/* <Button variant="ghost" size="icon">
             <SearchIcon style={{ scale: 1.5 }} />
-          </Button>
+          </Button> */}
           <Button variant="ghost" size="icon" onClick={props.toggleOpen}>
             {props.open ? (
               <ChevronUp style={{ scale: 1.5 }} />
