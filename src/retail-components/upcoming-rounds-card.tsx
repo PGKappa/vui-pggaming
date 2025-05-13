@@ -58,7 +58,7 @@ export default function UpcomingRoundsCard({
               return (
                 <button
                   key={round.scheduleId}
-                  className={`flex w-full cursor-pointer flex-row items-center justify-between border-b border-border p-1 ${round.scheduleId === selectedRound?.scheduleId ? 'bg-' : ''}`}
+                  className={`flex w-full cursor-pointer flex-row items-center justify-between border-b border-border p-1 ${round.scheduleId === selectedRound?.scheduleId ? 'bg-muted' : 'hover:bg-accent hover:text-accent-foreground'}`}
                   onClick={() => setSelectedRound(round)}
                 >
                   <div className="flex flex-row items-center gap-3">

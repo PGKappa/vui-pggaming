@@ -23,7 +23,7 @@ const buttonVariants = cva(
         navbar: " bg-secondary text-accent-foreground hover:bg-secondary/90",
         navbarSelected: "bg-tertiary text-tertiary-foreground",
         history: "bg-accent text-accent-foreground",
-        ticketButton: "bg-navbarButton text-muted font-bold",
+        ticketButton: "bg-navbarButton text-black font-bold",
         info: "bg-chart-1 text-muted",
       },
       size: {
