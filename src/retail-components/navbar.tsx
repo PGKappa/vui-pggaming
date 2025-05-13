@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { Button, buttonVariants } from './ui/button'
+import { buttonVariants } from './ui/button'
 import BallSvg from './ball'
 import { Info } from 'lucide-react'
 
@@ -12,7 +12,7 @@ export default function Navbar() {
           href="/dogs-horses"
           className={buttonVariants({
             variant: 'navbar',
-            size: 'sm',
+            size: 'lg',
           })}
         >
           <Image
@@ -35,7 +35,7 @@ export default function Navbar() {
           href="/dogs"
           className={buttonVariants({
             variant: 'navbar',
-            size: 'sm',
+            size: 'lg',
           })}
         >
           <Image
@@ -45,37 +45,32 @@ export default function Navbar() {
             height={20}
             className="object-contain"
           />
-          <span className="text-xs font-bold">Ch1</span>
+          <span className="text-sm font-bold">Ch1</span>
         </Link>
 
-        <Button variant="navbar" size="sm" asChild>
-          <Link
-            href="/horses"
-            className={buttonVariants({
-              variant: 'navbar',
-              size: 'sm',
-            })}
-          >
-            <Image
-              src="/horse-image.png"
-              alt="Horses"
-              width={40}
-              height={20}
-              className="object-contain"
-            />
-            <span className="text-xs font-bold">Ch3</span>
-          </Link>
-        </Button>
+        <Link
+          href="/horses"
+          className={buttonVariants({
+            variant: 'navbar',
+            size: 'lg',
+          })}
+        >
+          <Image
+            src="/horse-image.png"
+            alt="Horses"
+            width={40}
+            height={20}
+            className="object-contain"
+          />
+          <span className="text-sm font-bold">Ch3</span>
+        </Link>
 
         <Link
           href="/retail"
-          className={buttonVariants({
-            variant: 'navbarSelected',
-            size: 'sm',
-            className: 'p-0 m-0',
-          })}
+          className="h-10 w-10 flex items-center justify-center bg-tertiary text-tertiary-foreground"
+
         >
-          <BallSvg className="size-full stroke-accent-foreground" />
+          <BallSvg className="h-6 w-6 stroke-accent-foreground" />
         </Link>
       </div>
 
@@ -84,30 +79,30 @@ export default function Navbar() {
           href="/ticket-list"
           className={buttonVariants({
             variant: 'ticketButton',
-            size: 'sm',
+            size: 'lg',
           })}
         >
-          <span className="font-bold">Ticket List</span>
+          <span className="font-bold text-[13px]">Ticket List</span>
         </Link>
 
         <Link
           href="/ticket-list"
           className={buttonVariants({
             variant: 'ticketButton',
-            size: 'sm',
+            size: 'lg',
           })}
         >
-          <span className="font-bold">Ticket Check</span>
+          <span className="font-bold text-[13px]">Ticket Check</span>
         </Link>
 
         <Link
           href="/info"
           className={buttonVariants({
             variant: 'ticketButton',
-            size: 'sm',
+            size: 'default',
           })}
         >
-          <Info className="h-4 w-4" />
+          <Info />
         </Link>
       </div>
     </nav>

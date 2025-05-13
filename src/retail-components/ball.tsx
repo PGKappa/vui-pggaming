@@ -1,4 +1,4 @@
-import { cn } from "@/retail-lib/utils";
+import { cn } from '@/retail-lib/utils'
 
 export default function BallSvg(props: { className?: string }) {
   return (
@@ -7,9 +7,7 @@ export default function BallSvg(props: { className?: string }) {
       height="40"
       viewBox="0 0 29 29"
       xmlns="http://www.w3.org/2000/svg"
-      className={cn(
-        'h-6 w-auto',
-        props.className,)}
+      className={cn(props.className)}
       fill="none"
       stroke="currentColor"
       strokeWidth="1.3"
