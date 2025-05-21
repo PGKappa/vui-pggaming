@@ -13,6 +13,7 @@ import { CircleXIcon, RotateCcwIcon, Trash2Icon } from 'lucide-react'
 import { useContext, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import FastBet from './fast-bet'
+import StakeInputDialog from './stake-input-dialog'
 
 export default function BettingSlip() {
   const {
@@ -22,7 +23,8 @@ export default function BettingSlip() {
     removeAllBets,
     restoreLastSubmittedTicket,
   } = useContext(BetsContext)
-  const [global, setGlobal] = useState(1)
+  const [global, setGlobal] = useState(0)
+  const [isStakeDialogOpen, setStakeDialogOpen] = useState(false)
 
   const betsByMatch = useMemo(() => {
     return betEntries.reduce(
@@ -102,72 +104,72 @@ export default function BettingSlip() {
         ) : (
           <ScrollArea className="h-full">
             <ul className="flex flex-col gap-1">
-            {Object.entries(betsByMatch).map(([matchKey, matchBets]) => (
-              <li key={matchKey}>
-                <div className="flex flex-col gap-1 border border-betSlip-foreground p-1">
-                  <div className="flex flex-row justify-end">
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      onClick={() => removeMatchBets(matchKey)}
-                    >
-                      <Trash2Icon />
-                    </Button>
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-semibold">Football</span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm">
-                        {new Date(
-                          matchBets[0].bet.round.startingAt,
-                        ).toLocaleTimeString([], {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                      </span>
-                      <Badge className="rounded-sm">
-                        {getTimeDistanceFromNow(
-                          new Date(matchBets[0].bet.round.startingAt),
-                        )}
-                      </Badge>
-                    </div>
-                  </div>
-
-                  <span className="text-sm">{matchBets[0].bet.teams}</span>
-                </div>
-
-                <div className="border border-betSlip-foreground bg-primary-foreground p-1">
-                  {matchBets.map((betEntry) => (
-                    <div
-                      key={betEntry.id}
-                      className="flex items-center justify-between text-sm"
-                    >
-                      <span className="text-sm">{betEntry.market}</span>
-                      <span className="text-sm">
-                        {betEntry.bet.option.outcome}
-                      </span>
-                      <span className="text-sm">
-                        {betEntry.bet.option.decPrice}
-                      </span>
+              {Object.entries(betsByMatch).map(([matchKey, matchBets]) => (
+                <li key={matchKey}>
+                  <div className="flex flex-col gap-1 border border-betSlip-foreground p-1">
+                    <div className="flex flex-row justify-end">
                       <Button
                         variant="ghost"
                         size="icon-sm"
-                        onClick={() =>
-                          removeBet(
-                            betEntry.market,
-                            betEntry.bet.option,
-                            betEntry.bet.teams,
-                          )
-                        }
+                        onClick={() => removeMatchBets(matchKey)}
                       >
-                        <CircleXIcon className="h-5 w-5" />
+                        <Trash2Icon />
                       </Button>
                     </div>
-                  ))}
-                </div>
-              </li>
-            ))}
+
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-semibold">Football</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm">
+                          {new Date(
+                            matchBets[0].bet.round.startingAt,
+                          ).toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </span>
+                        <Badge className="rounded-sm">
+                          {getTimeDistanceFromNow(
+                            new Date(matchBets[0].bet.round.startingAt),
+                          )}
+                        </Badge>
+                      </div>
+                    </div>
+
+                    <span className="text-sm">{matchBets[0].bet.teams}</span>
+                  </div>
+
+                  <div className="border border-betSlip-foreground bg-primary-foreground p-1">
+                    {matchBets.map((betEntry) => (
+                      <div
+                        key={betEntry.id}
+                        className="flex items-center justify-between text-sm"
+                      >
+                        <span className="text-sm">{betEntry.market}</span>
+                        <span className="text-sm">
+                          {betEntry.bet.option.outcome}
+                        </span>
+                        <span className="text-sm">
+                          {betEntry.bet.option.decPrice}
+                        </span>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          onClick={() =>
+                            removeBet(
+                              betEntry.market,
+                              betEntry.bet.option,
+                              betEntry.bet.teams,
+                            )
+                          }
+                        >
+                          <CircleXIcon className="h-5 w-5" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </li>
+              ))}
             </ul>
           </ScrollArea>
         )}
@@ -189,7 +191,7 @@ export default function BettingSlip() {
               variant="ghost"
               size="sm"
               className="h-5 w-5 rounded-none bg-betSlip p-3"
-              onClick={() => setGlobal((prev) => Math.max(prev - 1, 1))}
+              onClick={() => setGlobal((prev) => Math.max(prev - 0.5, 0))}
             >
               -
             </Button>
@@ -197,18 +199,29 @@ export default function BettingSlip() {
               type="number"
               value={global}
               className="bg-background-foreground w-16 border-x text-center"
-              onChange={(e) => setGlobal(parseFloat(e.target.value))}
+              readOnly
+              onClick={() => setStakeDialogOpen(true)}
             />
             <Button
               variant="ghost"
               size="sm"
               className="h-5 w-4 rounded-none bg-betSlip p-3"
-              onClick={() => setGlobal((prev) => prev + 1)}
+              onClick={() => setGlobal((prev) => prev + 0.5)}
             >
               +
             </Button>
           </div>
         </div>
+
+        <StakeInputDialog
+          open={isStakeDialogOpen}
+          initialValue={global}
+          onClose={() => setStakeDialogOpen(false)}
+          onConfirm={(val) => {
+            setGlobal(val)
+            setStakeDialogOpen(false)
+          }}
+        />
 
         <div className="flex flex-col gap-1 px-2 text-sm">
           <div className="flex justify-between">
