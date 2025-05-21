@@ -59,12 +59,26 @@ export default function CodeList() {
           singleColumn ? 'max-h-[500px] w-[320px]' : 'max-h-[600px] w-[600px]',
         )}
       >
-        <DialogHeader className="relative flex items-center justify-center bg-accent p-4">
+        <DialogHeader className="relative flex items-center justify-center bg-accent py-4">
           <div className="absolute left-4 flex items-center gap-2">
-            <Menu
-              className="cursor-pointer text-accent-foreground"
+            <Button
+              variant={'ghost'}
+              size="icon"
               onClick={() => setSingleColumn((prev) => !prev)}
-            />
+            >
+              {!singleColumn ? (
+                <Menu className="text-accent-foreground" />
+              ) : (
+                <div className="flex flex-row">
+                  <div className="flex w-2 flex-col overflow-hidden">
+                    <Menu className="text-accent-foreground" />
+                  </div>
+                  <div className="flex flex-col w-2 overflow-hidden">
+                    <Menu className="text-accent-foreground" />
+                  </div>
+                </div>
+              )}
+            </Button>
           </div>
           <DialogTitle className="text-lg font-bold text-accent-foreground">
             Code List
