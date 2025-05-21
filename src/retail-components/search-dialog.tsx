@@ -125,7 +125,7 @@ export default function SearchDialog() {
 
         <div className="m-4 flex justify-center">
           <Button
-            className="w-24 bg-green-500 text-white hover:bg-green-600"
+            className="w-24 bg-green-500 text-white hover:bg-green-600 text-lg"
             disabled={!selectedDate || !selectedTimeSlot}
             onClick={() => {
               console.log(
