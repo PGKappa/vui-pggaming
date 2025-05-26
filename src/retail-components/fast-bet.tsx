@@ -1,32 +1,5 @@
 import { Input } from '@/retail-components/ui/input'
-import { Button } from '@/retail-components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/retail-components/ui/dialog'
-
-function CodeList() {
-  return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button className="w-20 bg-bet text-sm font-bold text-bet-foreground hover:bg-bet/70">
-          Code List
-        </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Code List</DialogTitle>
-          <DialogDescription>
-          </DialogDescription>
-        </DialogHeader>
-      </DialogContent>
-    </Dialog>
-  )
-}
+import CodeList from './code-list'
 
 export default function FastBet() {
   return (
