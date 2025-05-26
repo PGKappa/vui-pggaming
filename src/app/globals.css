@@ -3,7 +3,6 @@
 @tailwind utilities;
 
 @layer base {
-
   :root,
   .default {
     --background: 0 0% 16%;
@@ -46,7 +45,7 @@
     --ring: 0 0% 20%;
 
     --radius: 0.4rem;
-    
+
     --bet: 353 100% 44%;
     --bet-foreground: 0 0% 100%;
 
@@ -160,7 +159,7 @@
     --destructive: 0 0% 100%;
     --destructive-foreground: 0 0% 0%;
 
-    --table-foreground: 0 0% 0%; 
+    --table-foreground: 0 0% 0%;
 
     --badge-background: 169 97% 38%;
     --badge-foreground: 0 0% 100%;
