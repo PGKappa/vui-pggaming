@@ -1,8 +1,8 @@
+import { Info } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { buttonVariants } from './ui/button'
 import BallSvg from './ball'
-import { Info } from 'lucide-react'
+import { buttonVariants } from './ui/button'
 
 export default function Navbar() {
   return (
@@ -67,8 +67,7 @@ export default function Navbar() {
 
         <Link
           href="/retail"
-          className="h-10 w-10 flex items-center justify-center bg-tertiary text-tertiary-foreground"
-
+          className="flex h-10 w-10 items-center justify-center bg-tertiary text-tertiary-foreground"
         >
           <BallSvg className="h-6 w-6 stroke-accent-foreground" />
         </Link>
@@ -82,17 +81,17 @@ export default function Navbar() {
             size: 'lg',
           })}
         >
-          <span className="font-bold text-[13px]">Ticket List</span>
+          <span className="text-[13px] font-bold">Ticket List</span>
         </Link>
 
         <Link
-          href="/ticket-list"
+          href="/retail/ticket-check"
           className={buttonVariants({
             variant: 'ticketButton',
             size: 'lg',
           })}
         >
-          <span className="font-bold text-[13px]">Ticket Check</span>
+          <span className="text-[13px] font-bold">Ticket Check</span>
         </Link>
 
         <Link
