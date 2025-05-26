@@ -75,7 +75,7 @@ export default function Navbar() {
 
       <div className="flex items-center gap-1">
         <Link
-          href="/ticket-list"
+          href="/retail/ticket-list"
           className={buttonVariants({
             variant: 'ticketButton',
             size: 'lg',
