@@ -51,12 +51,16 @@ export default function SearchDialog() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon">
-          <SearchIcon style={{ scale: 1.5 }} />
+        <Button
+          variant="navbarSelected"
+          className="relative w-full h-12 cursor-pointer justify-center"
+        >
+          <span className="text-md font-light">Search Last Results</span>
+          <SearchIcon className='absolute right-4' style={{ scale: 1.5 }} />
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="flex max-w-2xl flex-col justify-between gap-0 p-0 min-h-[480px]">
+      <DialogContent className="flex min-h-[480px] max-w-2xl flex-col justify-between gap-0 p-0">
         <DialogHeader className="bg-accent p-4">
           <DialogTitle className="text-center text-lg font-bold text-accent-foreground">
             Search Results
@@ -125,7 +129,7 @@ export default function SearchDialog() {
 
         <div className="m-4 flex justify-center">
           <Button
-            className="w-24 bg-green-500 text-white hover:bg-green-600 text-lg"
+            className="w-24 bg-green-500 text-lg text-white hover:bg-green-600"
             disabled={!selectedDate || !selectedTimeSlot}
             onClick={() => {
               console.log(

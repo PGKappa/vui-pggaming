@@ -2,12 +2,12 @@ import { Button } from '@/retail-components/ui/button'
 import {
   Card,
   CardContent,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/retail-components/ui/card'
 import { ScrollArea } from '@/retail-components/ui/scroll-area'
 import { ChevronDown, ChevronUp } from 'lucide-react'
-import BallSvg from './ball'
 import SearchDialog from './search-dialog'
 
 export default function LastRoundsResults(props: {
@@ -40,7 +40,6 @@ export default function LastRoundsResults(props: {
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Last Results</CardTitle>
         <div className="flex flex-row items-center justify-center">
-          <SearchDialog />
           <Button variant="ghost" size="icon" onClick={props.toggleOpen}>
             {props.open ? (
               <ChevronUp style={{ scale: 1.5 }} />
@@ -62,10 +61,9 @@ export default function LastRoundsResults(props: {
               filteredRounds.map((result) => (
                 <button
                   key={result.round.number}
-                  className={`flex w-full cursor-pointer flex-row items-center justify-between border-b border-border p-1`}
+                  className={`flex w-full cursor-pointer flex-row items-center justify-between border-b border-border p-1 px-4`}
                 >
                   <div className="flex items-center gap-3">
-                    <BallSvg className="h-8 w-8 stroke-foreground" />
                     <span className="text-md">
                       {result.round.name} Round {result.round.number}
                     </span>
@@ -82,6 +80,9 @@ export default function LastRoundsResults(props: {
           </ScrollArea>
         </CardContent>
       )}
+      <CardFooter>
+        <SearchDialog />
+      </CardFooter>
     </Card>
   )
 }
