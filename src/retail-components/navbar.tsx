@@ -8,6 +8,9 @@ export default function Navbar() {
   return (
     <nav className="flex w-full flex-row items-center justify-between gap-1 bg-accent p-3 px-4">
       <div className="flex items-center gap-1">
+        <span className="whitespace-nowrap text-xs font-semibold text-background">
+          Select the category:
+        </span>
         <Link
           href="/dogs-horses"
           className={buttonVariants({
@@ -67,9 +70,13 @@ export default function Navbar() {
 
         <Link
           href="/retail"
-          className="flex h-10 w-10 items-center justify-center bg-tertiary text-tertiary-foreground"
+          className={buttonVariants({
+            variant: 'navbar',
+            size: 'lg',
+          })}
         >
           <BallSvg className="h-6 w-6 stroke-accent-foreground" />
+          <span className="text-sm font-bold">Ch3</span>
         </Link>
       </div>
 
