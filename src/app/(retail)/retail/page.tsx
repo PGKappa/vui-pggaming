@@ -41,7 +41,7 @@ export default function Home() {
   return (
     <div className="grid h-full grid-cols-12 gap-3 overflow-hidden">
       {/* First column */}
-      <div className="col-span-2 flex h-full max-h-full flex-col items-center justify-between gap-4 overflow-hidden">
+      <div className="col-span-2 flex h-full max-h-full flex-col items-center justify-between overflow-hidden">
         <UpcomingRoundsCard
           rounds={upcomingRounds}
           selectedRound={selectedRound}
