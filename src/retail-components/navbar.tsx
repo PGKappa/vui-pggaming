@@ -1,13 +1,18 @@
 import { Info } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import BallSvg from './ball'
 import { buttonVariants } from './ui/button'
 
 export default function Navbar() {
   return (
-    <nav className="flex w-full flex-row items-center justify-between gap-1 bg-accent p-3 px-4">
-      <div className="flex items-center gap-1">
+    <nav className="grid w-full grid-cols-12 items-center justify-between gap-4 bg-accent p-3">
+      <div className="col-span-2 flex justify-center">
+        <span className="whitespace-nowrap text-[16px] font-semibold text-background">
+          Select the category:
+        </span>
+      </div>
+
+      <div className='col-span-7 flex items-center gap-4'>
         <Link
           href="/dogs-horses"
           className={buttonVariants({
@@ -45,7 +50,7 @@ export default function Navbar() {
             height={20}
             className="object-contain"
           />
-          <span className="text-sm font-bold">Ch1</span>
+          <span className="text-[16px] font-bold">Ch1</span>
         </Link>
 
         <Link
@@ -62,26 +67,36 @@ export default function Navbar() {
             height={20}
             className="object-contain"
           />
-          <span className="text-sm font-bold">Ch3</span>
+          <span className="text-[16px] font-bold">Ch3</span>
         </Link>
 
         <Link
           href="/retail"
-          className="flex h-10 w-10 items-center justify-center bg-tertiary text-tertiary-foreground"
+          className={buttonVariants({
+            variant: 'navbar',
+            size: 'lg',
+          })}
         >
-          <BallSvg className="h-6 w-6 stroke-accent-foreground" />
+          <Image
+            src="/icon-calcio.png"
+            alt="Calcio"
+            width={40}
+            height={20}
+            className="size-5 object-contain"
+          />
+          <span className="text-[16px] font-bold">Ch3</span>
         </Link>
       </div>
 
-      <div className="flex items-center gap-1">
+      <div className="col-span-3 flex  gap-4">
         <Link
-          href="/ticket-list"
+          href="/retail/ticket-list"
           className={buttonVariants({
             variant: 'ticketButton',
             size: 'lg',
           })}
         >
-          <span className="text-[13px] font-bold">Ticket List</span>
+          <span className="text-[16px] font-bold">Ticket List</span>
         </Link>
 
         <Link
@@ -91,7 +106,7 @@ export default function Navbar() {
             size: 'lg',
           })}
         >
-          <span className="text-[13px] font-bold">Ticket Check</span>
+          <span className="text-[16px] font-bold">Ticket Check</span>
         </Link>
 
         <Link

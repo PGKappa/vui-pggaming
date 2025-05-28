@@ -56,12 +56,18 @@ export default function UpcomingRoundCard(props: {
               <TableHead className="text-center font-bold">2</TableHead>
               <TableHead className="w-[1px] bg-card-header-foreground p-0" />
 
-              <TableHead className="text-center font-bold">UNDER 1.5</TableHead>
-              <TableHead className="text-center font-bold">OVER 1.5</TableHead>
+              <TableHead className="text-center font-bold">DC 1X</TableHead>
+              <TableHead className="text-center font-bold">DC X2</TableHead>
+              <TableHead className="text-center font-bold">DC 12</TableHead>
               <TableHead className="w-[1px] bg-card-header-foreground p-0" />
 
               <TableHead className="text-center font-bold">GOAL</TableHead>
               <TableHead className="text-center font-bold">NO GOAL</TableHead>
+              <TableHead className="w-[1px] bg-card-header-foreground p-0" />
+
+              <TableHead className="text-center font-bold">UNDER 2.5</TableHead>
+              <TableHead className="text-center font-bold">OVER 2.5</TableHead>
+
               <TableHead></TableHead>
             </TableRow>
           </TableHeader>
@@ -97,8 +103,11 @@ export default function UpcomingRoundCard(props: {
                 const mainMarket = match.markets.market.find(
                   (m) => m.name === 'Esito finale 1X2',
                 )
+                const dcMarket = match.markets.market.find(
+                  (m) => m.name === 'Doppia Chance',
+                )
                 const underOverMarket = match.markets.market.find(
-                  (m) => m.name === 'Under\/Over 1.5',
+                  (m) => m.name.trim() === 'Under\/Over 2.5',
                 )
                 const goalMarket = match.markets.market.find(
                   (m) => m.name === 'Gol no gol',
@@ -108,6 +117,10 @@ export default function UpcomingRoundCard(props: {
                   mainMarket?.selections.flatMap(
                     ({ selection }) => selection,
                   ) || []
+
+                const dcMarketOptions =
+                  dcMarket?.selections.flatMap(({ selection }) => selection) ||
+                  []
 
                 const underOverOptions =
                   underOverMarket?.selections.flatMap(
@@ -134,7 +147,7 @@ export default function UpcomingRoundCard(props: {
 
                     {mainMarket ? (
                       marketOptions.map((option, i) => (
-                        <TableCell key={i} className="text-center w-20">
+                        <TableCell key={i} className="w-20 text-center">
                           <BetEntryToggle
                             matchStart={matchStart}
                             round={props.round}
@@ -152,14 +165,34 @@ export default function UpcomingRoundCard(props: {
 
                     <TableCell className="w-[1px] bg-border p-0" />
 
-                    {underOverMarket ? (
-                      underOverOptions.map((option, i) => (
-                        <TableCell key={i} className="text-center w-20">
+                    {dcMarket ? (
+                      dcMarketOptions.map((option, i) => (
+                        <TableCell key={i} className="w-20 text-center">
                           <BetEntryToggle
                             matchStart={matchStart}
                             round={props.round}
                             teams={teamNames}
-                            marketName={underOverMarket.name}
+                            marketName={dcMarket.name}
+                            option={option}
+                          />
+                        </TableCell>
+                      ))
+                    ) : (
+                      <TableCell colSpan={3} className="text-center">
+                        {t('no_odds')}
+                      </TableCell>
+                    )}
+
+                    <TableCell className="w-[1px] bg-border p-0" />
+
+                    {goalMarket ? (
+                      goalOptions.map((option, i) => (
+                        <TableCell key={i} className="w-20 text-center">
+                          <BetEntryToggle
+                            matchStart={matchStart}
+                            round={props.round}
+                            teams={teamNames}
+                            marketName={goalMarket.name}
                             option={option}
                           />
                         </TableCell>
@@ -172,14 +205,14 @@ export default function UpcomingRoundCard(props: {
 
                     <TableCell className="w-[1px] bg-border p-0" />
 
-                    {goalMarket ? (
-                      goalOptions.map((option, i) => (
-                        <TableCell key={i} className="text-center w-20">
+                    {underOverMarket ? (
+                      underOverOptions.map((option, i) => (
+                        <TableCell key={i} className="w-20 text-center">
                           <BetEntryToggle
                             matchStart={matchStart}
                             round={props.round}
                             teams={teamNames}
-                            marketName={goalMarket.name}
+                            marketName={underOverMarket.name}
                             option={option}
                           />
                         </TableCell>

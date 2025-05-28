@@ -33,6 +33,7 @@ function AppContent({ children }: { children: React.ReactNode }) {
       className={`${geistSans.variable} ${geistMono.variable} ${skin} flex h-screen flex-col antialiased`}
     >
       <header>
+        <div className='h-[60px]'></div>
         <Navbar />
       </header>
       <main className="p-2 overflow-hidden h-full">
