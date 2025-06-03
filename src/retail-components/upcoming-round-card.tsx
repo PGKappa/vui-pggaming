@@ -14,6 +14,7 @@ import { PlusIcon } from 'lucide-react'
 import { Dispatch, SetStateAction } from 'react'
 import { useTranslation } from 'react-i18next'
 import BetEntryToggle from './bet-entry-toggle'
+import Image from 'next/image'
 
 export default function UpcomingRoundCard(props: {
   round: UpcomingRound
@@ -38,18 +39,38 @@ export default function UpcomingRoundCard(props: {
   const tomorrow = new Date()
   tomorrow.setDate(today.getDate() + 1)
 
+  const firstMatchStart = props.round.mag_event[0]?.startTime
+  const formattedFirstMatchStart = firstMatchStart
+    ? new Date(firstMatchStart).toLocaleTimeString(i18n.language, {
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    : ''
+
   return (
     <Card className="border-b border-t border-card-foreground">
-      <CardHeader className="flex flex-row items-center justify-between px-6">
-        <span className="font-bold">
-          {props.round.scheduleName} {t('round')} {props.round.scheduleId}
-        </span>
-        <span>3:00</span>
+      <CardHeader className="flex h-16 flex-row items-center justify-between px-5">
+        <div className="flex flex-row items-center gap-2">
+          <Image
+            src="/icon-calcio.png"
+            alt="Calcio"
+            width={40}
+            height={20}
+            className="size-9 object-contain"
+          />
+
+          <span className="text-[24px] font-bold">
+            {props.round.scheduleName} {t('round')} {props.round.scheduleId}
+          </span>
+        </div>
+
+        <span className="text-[22px]">{formattedFirstMatchStart}</span>
       </CardHeader>
       <CardContent className="px-0">
         <Table>
-          <TableHeader className="bg-card-header text-card-header-foreground">
+          <TableHeader className="h-11 bg-card-header text-[16px] text-card-header-foreground">
             <TableRow className="border-card-foreground transition-none">
+              <TableHead></TableHead>
               <TableHead></TableHead>
               <TableHead className="text-center font-bold">1</TableHead>
               <TableHead className="text-center font-bold">X</TableHead>
@@ -61,12 +82,12 @@ export default function UpcomingRoundCard(props: {
               <TableHead className="text-center font-bold">DC 12</TableHead>
               <TableHead className="w-[1px] bg-card-header-foreground p-0" />
 
-              <TableHead className="text-center font-bold">GOAL</TableHead>
-              <TableHead className="text-center font-bold">NO GOAL</TableHead>
-              <TableHead className="w-[1px] bg-card-header-foreground p-0" />
+              {/* <TableHead className="text-center font-bold">GOL</TableHead>
+              <TableHead className="text-center font-bold">NO GOL</TableHead>
+              <TableHead className="w-[1px] bg-card-header-foreground p-0" /> */}
 
-              <TableHead className="text-center font-bold">UNDER 2.5</TableHead>
-              <TableHead className="text-center font-bold">OVER 2.5</TableHead>
+              <TableHead className="text-center font-bold">U 2.5</TableHead>
+              <TableHead className="text-center font-bold">O 2.5</TableHead>
 
               <TableHead></TableHead>
             </TableRow>
@@ -109,9 +130,9 @@ export default function UpcomingRoundCard(props: {
                 const underOverMarket = match.markets.market.find(
                   (m) => m.name.trim() === 'Under\/Over 2.5',
                 )
-                const goalMarket = match.markets.market.find(
+                /* const goalMarket = match.markets.market.find(
                   (m) => m.name === 'Gol no gol',
-                )
+                ) */
 
                 const marketOptions =
                   mainMarket?.selections.flatMap(
@@ -127,27 +148,30 @@ export default function UpcomingRoundCard(props: {
                     ({ selection }) => selection,
                   ) || []
 
-                const goalOptions =
+                /* const goalOptions =
                   goalMarket?.selections.flatMap(
                     ({ selection }) => selection,
-                  ) || []
+                  ) || [] */
 
                 return (
                   <TableRow key={index} className="border-card-foreground">
-                    <TableCell className="flex w-full flex-row items-center gap-2">
+                    <TableCell className="flex w-[116px] h-[70px] px-[19px] flex-row items-center">
                       <Badge
                         variant="secondary"
-                        className="flex flex-col rounded-lg bg-badge py-0 text-badge-foreground"
+                        className="flex h-[42px] w-[78px] flex-col rounded-lg bg-badge text-badge-foreground py-[2.5px]"
                       >
-                        <span>{dayLabel}</span>
-                        <span>{formattedDate}</span>
+                        <span className="text-[14px]">{dayLabel}</span>
+                        <span className="text-[12px]">{formattedDate}</span>
                       </Badge>
-                      <span className="font-bold">{teamNames}</span>
+                    </TableCell>
+
+                    <TableCell className="w-[116px] h-[70px] px-[19px] text-center">
+                      <span className="text-[14px] font-bold">{teamNames}</span>
                     </TableCell>
 
                     {mainMarket ? (
                       marketOptions.map((option, i) => (
-                        <TableCell key={i} className="w-20 text-center">
+                        <TableCell key={i} className="w-[116px] h-[70px] px-[19px] text-center">
                           <BetEntryToggle
                             matchStart={matchStart}
                             round={props.round}
@@ -167,7 +191,7 @@ export default function UpcomingRoundCard(props: {
 
                     {dcMarket ? (
                       dcMarketOptions.map((option, i) => (
-                        <TableCell key={i} className="w-20 text-center">
+                        <TableCell key={i} className="w-[116px] h-[70px] px-[19px] text-center">
                           <BetEntryToggle
                             matchStart={matchStart}
                             round={props.round}
@@ -185,9 +209,9 @@ export default function UpcomingRoundCard(props: {
 
                     <TableCell className="w-[1px] bg-border p-0" />
 
-                    {goalMarket ? (
+                    {/* {goalMarket ? (
                       goalOptions.map((option, i) => (
-                        <TableCell key={i} className="w-20 text-center">
+                        <TableCell key={i} className="w-[116px] h-[70px] text-center">
                           <BetEntryToggle
                             matchStart={matchStart}
                             round={props.round}
@@ -203,11 +227,11 @@ export default function UpcomingRoundCard(props: {
                       </TableCell>
                     )}
 
-                    <TableCell className="w-[1px] bg-border p-0" />
+                    <TableCell className="w-[1px] bg-border p-0" /> */}
 
                     {underOverMarket ? (
                       underOverOptions.map((option, i) => (
-                        <TableCell key={i} className="w-20 text-center">
+                        <TableCell key={i} className="w-[116px] h-[70px] px-[19px] text-center">
                           <BetEntryToggle
                             matchStart={matchStart}
                             round={props.round}
