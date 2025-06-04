@@ -35,7 +35,7 @@ export default function LastRoundsResults(props: {
 
   return (
     <Card
-      className={`flex ${props.open ? '' : 'h-26'} w-full flex-col overflow-hidden`}
+      className={`flex w-full flex-col overflow-hidden`}
     >
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Last Results</CardTitle>
