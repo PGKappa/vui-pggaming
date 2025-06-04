@@ -5,7 +5,6 @@ import { Button } from '@/retail-components/ui/button'
 import { Card, CardContent, CardFooter } from '@/retail-components/ui/card'
 import { Input } from '@/retail-components/ui/input'
 import { ScrollArea } from '@/retail-components/ui/scroll-area'
-import { Separator } from '@/retail-components/ui/separator'
 import { BetsContext } from '@/retail-contexts/bets-context'
 import { BetEntry, SubmittedTicket } from '@/retail-lib/types'
 import { getTimeDistanceFromNow } from '@/retail-lib/utils'
@@ -47,11 +46,14 @@ export default function BettingSlip() {
 
   const potentialWinning = global * totalOdds
 
-  const roundsLength = new Set(
-    betEntries.map((betEntry) => betEntry.bet.round.number),
-  ).size
-
   const { t } = useTranslation()
+
+  const maxMarketsPerMatch = useMemo(() => {
+    return Object.values(betsByMatch).reduce((max, bets) => {
+      const uniqueMarkets = new Set(bets.map((bet) => bet.market)).size
+      return Math.max(max, uniqueMarkets)
+    }, 0)
+  }, [betsByMatch])
 
   return (
     <Card
@@ -63,27 +65,32 @@ export default function BettingSlip() {
           {t('bet_slip')} ( {betEntries.length} )
         </span>
 
-        <span
-          className={`flex w-full flex-col items-center justify-center text-[19px] font-semibold h-12 ${
-            betEntries.length <= 1
-              ? 'border-b-2 border-accent bg-betSlip text-betSlip-header-foreground'
-              : 'bg-betSlip text-betSlip-header-foreground'
-          }`}
+        <div
+          className="relative flex h-12 w-full flex-col items-center justify-center bg-betSlip"
         >
-          {roundsLength > 1
-            ? `${t('multiple')} (${roundsLength})`
-            : t('single')}
-        </span>
+          <span
+            className={`text-[19px] text-betSlip-header-foreground ${maxMarketsPerMatch <= 1 ? 'font-semibold' : ''}`}
+          >
+            {betEntries.length <= 1
+              ? t('single')
+              : `${t('multiple')} ( ${Object.entries(betsByMatch).length} )`}
+          </span>
 
-        <span
-          className={`flex w-full flex-col items-center justify-center text-[19px] ${
-            betEntries.length > 1
-              ? 'border-b-2 border-accent bg-betSlip-header'
-              : 'bg-gray-100'
+          {maxMarketsPerMatch <= 1 && <div className='absolute bg-betSlip-header-foreground bottom-0.5 h-[4px] w-[156px]'></div>}
+        </div>
+
+        <div
+          className={`relative flex w-full flex-col items-center justify-center ${
+            maxMarketsPerMatch > 1 ? 'bg-betSlip-header' : 'bg-gray-100'
           }`}
         >
-          {t('system')}
-        </span>
+          <span
+            className={`text-[19px] text-betSlip-header-foreground ${maxMarketsPerMatch > 1 ? 'font-semibold' : ''}`}
+          >
+            {t('system')}
+          </span>
+          {maxMarketsPerMatch > 1 && <div className='absolute bg-betSlip-header-foreground bottom-0.5 h-[4px] w-[156px]'></div>}
+        </div>
       </div>
 
       <CardContent className="h-full overflow-hidden bg-muted-foreground p-2 text-betSlip-foreground">
@@ -110,15 +117,17 @@ export default function BettingSlip() {
                     <div className="flex flex-row justify-end">
                       <Button
                         variant="ghost"
-                        className='size-7'
+                        className="size-7"
                         onClick={() => removeMatchBets(matchKey)}
                       >
-                        <Trash2Icon style={{ scale: 1.2 }}/>
+                        <Trash2Icon style={{ scale: 1.2 }} />
                       </Button>
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <span className="text-[16px] font-semibold">Football</span>
+                      <span className="text-[16px] font-semibold">
+                        Football
+                      </span>
                       <div className="flex items-center gap-2">
                         <span className="text-[16px]">
                           {new Date(
@@ -136,7 +145,9 @@ export default function BettingSlip() {
                       </div>
                     </div>
 
-                    <span className="text-[16px]">{matchBets[0].bet.teams}</span>
+                    <span className="text-[16px]">
+                      {matchBets[0].bet.teams}
+                    </span>
                   </div>
 
                   <div className="border border-betSlip-foreground bg-primary-foreground p-1">
@@ -175,10 +186,8 @@ export default function BettingSlip() {
         )}
       </CardContent>
 
-      <CardFooter className="flex flex-col gap-3 bg-muted-foreground">
-        
-
-        <div className="flex justify-end bg-accent py-2 px-8">
+      <CardFooter className="flex flex-col gap-2 bg-muted-foreground">
+        <div className="flex justify-end bg-accent px-8 py-2">
           <span className="text-[16px] font-bold text-accent-foreground">
             {t('amount')}
           </span>
@@ -228,17 +237,17 @@ export default function BettingSlip() {
             <span>{t('total_odd')}</span>
             <span>{totalOdds.toFixed(2)}</span>
           </div>
-          <div className="flex justify-between">
+          <div className="flex justify-between font-bold">
             <span>{t('potential_win')}</span>
             <span>{potentialWinning.toFixed(2)} €</span>
           </div>
         </div>
 
-        <div className='flex flex-row gap-2'>
+        <div className="flex flex-row gap-2">
           <Button
             variant="ghost"
             size="lg"
-            className="w-1/3 text-[16px] font-bold bg-betSlip text-betSlip-header-foreground "
+            className="w-1/3 bg-betSlip text-[16px] font-bold text-betSlip-header-foreground"
             onClick={removeAllBets}
           >
             {t('remove_all')}
