@@ -26,7 +26,7 @@ function AppContent({ children }: { children: React.ReactNode }) {
   const [skin] = useContext(SkinContext)
   return (
     <body
-      className={`${inter.variable} ${skin} flex h-screen flex-col antialiased font-inter`}
+      className={`${inter.variable} ${skin} flex h-screen flex-col font-inter antialiased`}
     >
       <ResolutionGate>
         <header>
