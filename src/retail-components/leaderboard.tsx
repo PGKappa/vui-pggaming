@@ -1,0 +1,97 @@
+'use client'
+
+import { RootContext } from '@/retail-contexts/root-context'
+import { useContext } from 'react'
+import LoadingSpinner from './loading-spinner'
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
+
+export default function Leaderboard({
+  highlightedTeams = [],
+}: {
+  highlightedTeams?: string[]
+}) {
+  const { teamRankings } = useContext(RootContext)
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="justify-start text-lg font-bold">
+          STANDINGS
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {teamRankings ? (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-card-header">
+                <tr className="grid grid-cols-10 md:grid-cols-10 [&_th]:text-card-header-foreground">
+                  <th className="p-2 text-center"></th>
+                  <th className="p-2 text-center">CLUB</th>
+                  <th className="p-2 text-center">P</th>
+                  <th className="p-2 text-center">W</th>
+                  <th className="p-2 text-center">D</th>
+                  <th className="p-2 text-center">L</th>
+                  <th className="p-2 text-center">PTS</th>
+                  <th className="p-2 text-center">GF</th>
+                  <th className="p-2 text-center">GA</th>
+                  <th className="p-2 text-center">LAST 8</th>
+                </tr>
+              </thead>
+              <tbody>
+                {teamRankings.map((ranking) => (
+                  <tr
+                    key={ranking.team}
+                    className="grid grid-cols-10 border-b border-border hover:bg-muted/50 md:grid-cols-10"
+                  >
+                    <td
+                      className={`p-2 text-center font-bold ${highlightedTeams?.includes(ranking.team) ? 'bg-accent text-accent-foreground' : ''}`}
+                    >
+                      {ranking.position}
+                    </td>
+                    <td
+                      className={`p-2 text-center font-bold ${highlightedTeams?.includes(ranking.team) ? 'bg-accent text-accent-foreground' : ''}`}
+                    >
+                      {ranking.team}
+                    </td>
+                    <td className="p-2 text-center">{ranking.played}</td>
+                    <td className="p-2 text-center">{ranking.wins}</td>
+                    <td className="p-2 text-center">{ranking.draws}</td>
+                    <td className="p-2 text-center">{ranking.losses}</td>
+                    <td className="p-2 text-center font-bold">
+                      {ranking.points}
+                    </td>
+                    <td className="p-2 text-center">{ranking.goalsFor}</td>
+                    <td className="p-2 text-center">{ranking.goalsAgainst}</td>
+
+                    <td className="flex justify-center gap-1 p-2">
+                      {ranking.last8.map((result, i) => {
+                        const textColor =
+                          result === 'W'
+                            ? 'text-green-500'
+                            : result === 'L'
+                              ? 'text-red-500'
+                              : 'text-yellow-500'
+                        return (
+                          <span
+                            key={i}
+                            className={`inline-block font-mono text-sm font-medium ${textColor}`}
+                          >
+                            {result}
+                          </span>
+                        )
+                      })}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center">
+            <LoadingSpinner />
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
