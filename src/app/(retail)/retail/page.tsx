@@ -41,7 +41,7 @@ export default function Home() {
   return (
     <div className="flex h-full overflow-hidden">
       {/* First column */}
-      <div className="w-[263px] h-[942px] flex flex-col items-center justify-between overflow-hidden ml-2 mr-3">
+      <div className="w-[263px] h-[942px] flex flex-col items-center justify-between overflow-hidden ml-2 mr-4">
         <UpcomingRoundsCard
           rounds={upcomingRounds}
           selectedRound={selectedRound}
@@ -68,7 +68,7 @@ export default function Home() {
       </div>
 
       {/* SECOND COLUMN*/}
-      <div className="w-[1241px] h-[942px] overflow-y-auto mr-3">
+      <div className="w-[1241px] h-[942px] overflow-y-auto mr-4">
         {selectedRound ? (
           matchBetOptions ? (
             <MatchBettingOptions
