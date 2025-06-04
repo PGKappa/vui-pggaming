@@ -85,7 +85,7 @@ export default function BettingSlip() {
           }`}
         >
           <span
-            className={`text-[19px] text-betSlip-header-foreground ${maxMarketsPerMatch > 1 ? 'font-semibold' : ''}`}
+            className={`text-[19px]  ${maxMarketsPerMatch > 1 ? 'font-semibold text-betSlip-header-foreground' : ''}`}
           >
             {t('system')}
           </span>
