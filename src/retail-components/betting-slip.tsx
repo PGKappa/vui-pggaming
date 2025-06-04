@@ -239,7 +239,7 @@ export default function BettingSlip() {
           </div>
           <div className="flex justify-between font-bold">
             <span>{t('potential_win')}</span>
-            <span>{potentialWinning.toFixed(2)} €</span>
+            <span>€ {potentialWinning.toFixed(2)}</span>
           </div>
         </div>
 
