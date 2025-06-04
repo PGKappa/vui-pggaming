@@ -13,6 +13,7 @@ export default function BetEntryToggle(props: {
   marketName: string
   option: Selection
   showOutcome?: boolean
+  className?: string
 }) {
   const { addBet, removeBet, betEntries } = useContext(BetsContext)
 
@@ -40,7 +41,8 @@ export default function BetEntryToggle(props: {
           })
         }
       }}
-      className={`w-full ${props.showOutcome ? 'flex flex-row justify-between' : ''}`}
+      className={`w-full ${props.showOutcome ? 'flex flex-row justify-between' : ''}
+      ${props.className}`}
     >
       <span>{props.option.decPrice}</span>
       {props.showOutcome && <span>{props.option.outcome}</span>}
