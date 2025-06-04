@@ -146,10 +146,10 @@ export default function UpcomingRoundCard(props: {
                     <TableCell className="flex h-[70px] w-[116px] flex-row items-center px-[19px]">
                       <Badge
                         variant="secondary"
-                        className="flex h-[42px] w-[78px] flex-col justify-between bg-badge py-[2.5px] text-badge-foreground"
+                        className="flex h-[42px] w-[78px] flex-col justify-between py-[2.5px]"
                       >
                         <span className="text-[14px]">{dayLabel}</span>
-                        <span className="text-[12px]">{formattedDate}</span>
+                        <span className="text-[12px] font-normal">{formattedDate}</span>
                       </Badge>
                     </TableCell>
 
