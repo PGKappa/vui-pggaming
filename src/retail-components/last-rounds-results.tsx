@@ -35,16 +35,16 @@ export default function LastRoundsResults(props: {
 
   return (
     <Card
-      className={`flex ${props.open ? 'h-full' : 'h-16'} w-full flex-col overflow-hidden`}
+      className={`flex w-full flex-col overflow-hidden`}
     >
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Last Results</CardTitle>
         <div className="flex flex-row items-center justify-center">
           <Button variant="ghost" size="icon" onClick={props.toggleOpen}>
             {props.open ? (
-              <ChevronUp style={{ scale: 1.5 }} />
+              <ChevronUp style={{ scale: 2 }} />
             ) : (
-              <ChevronDown style={{ scale: 1.5 }} />
+              <ChevronDown style={{ scale: 2 }} />
             )}
           </Button>
         </div>

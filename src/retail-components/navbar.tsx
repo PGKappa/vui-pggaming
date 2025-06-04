@@ -88,7 +88,7 @@ export default function Navbar() {
         </Link>
       </div>
 
-      <div className="col-span-3 flex  gap-4">
+      <div className="col-span-3 flex justify-end gap-4">
         <Link
           href="/retail/ticket-list"
           className={buttonVariants({
