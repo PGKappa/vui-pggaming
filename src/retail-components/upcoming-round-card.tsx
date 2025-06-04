@@ -68,7 +68,7 @@ export default function UpcomingRoundCard(props: {
       </CardHeader>
       <CardContent className="px-0">
         <Table>
-          <TableHeader className="h-11 bg-card-header text-[16px] text-card-header-foreground">
+          <TableHeader className="h-11 bg-card-header text-[20px] text-card-header-foreground">
             <TableRow className="border-card-foreground transition-none">
               <TableHead></TableHead>
               <TableHead></TableHead>
@@ -155,7 +155,7 @@ export default function UpcomingRoundCard(props: {
                       </Badge>
                     </TableCell>
 
-                    <TableCell className="h-[70px] w-[116px] px-[19px] text-center">
+                    <TableCell className="h-[70px] w-[116px] text-center">
                       <span className="text-[14px] font-bold">{teamNames}</span>
                     </TableCell>
 
@@ -171,7 +171,7 @@ export default function UpcomingRoundCard(props: {
                             teams={teamNames}
                             marketName={mainMarket.name}
                             option={option}
-                            className="h-[45px] w-[90px]"
+                            className="h-[45px] w-[90px] text-[19px] font-semibold"
                           />
                         </TableCell>
                       ))
@@ -195,7 +195,7 @@ export default function UpcomingRoundCard(props: {
                             teams={teamNames}
                             marketName={dcMarket.name}
                             option={option}
-                            className="h-[45px] w-[90px]"
+                            className="h-[45px] w-[90px] text-[19px] font-semibold"
                           />
                         </TableCell>
                       ))
@@ -219,7 +219,7 @@ export default function UpcomingRoundCard(props: {
                             teams={teamNames}
                             marketName={underOverMarket.name}
                             option={option}
-                            className="h-[45px] w-[90px]"
+                            className="h-[45px] w-[90px] text-[19px] font-semibold"
                           />
                         </TableCell>
                       ))
@@ -231,8 +231,8 @@ export default function UpcomingRoundCard(props: {
 
                     <TableCell className="px-[15px] text-right">
                       <Button
-                        variant="history"
-                        size="icon"
+                        className="rounded-[8px] bg-tertiary text-tertiary-foreground hover:bg-tertiary/90"
+                        size="icon-lg"
                         onClick={() =>
                           props.viewMatchBettingOptions({
                             round: {
@@ -245,7 +245,7 @@ export default function UpcomingRoundCard(props: {
                           })
                         }
                       >
-                        <PlusIcon />
+                        <PlusIcon className="h-32 w-32" />
                       </Button>
                     </TableCell>
                   </TableRow>
