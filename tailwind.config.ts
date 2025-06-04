@@ -18,6 +18,7 @@ export default {
     extend: {
       fontFamily: {
         sans: ['Arial', 'sans-serif'],
+        inter: ['var(--font-inter)', 'sans-serif'],
       },
       fontSize: {
         sm: '0.75rem',
@@ -79,7 +80,7 @@ export default {
           foreground: 'hsl(var(--betEntry-foreground))',
           border: 'hsl(var(--betEntry-border))',
         },
-        navbarButton:{
+        navbarButton: {
           DEFAULT: 'hsl(var(--navbarButton))',
           foreground: 'hsl(var(--navbarButton-foreground))',
         },
