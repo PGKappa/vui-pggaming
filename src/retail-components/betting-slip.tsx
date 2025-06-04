@@ -55,7 +55,7 @@ export default function BettingSlip() {
 
   return (
     <Card
-      className="flex h-full w-full flex-col overflow-hidden rounded-sm bg-primary-foreground text-betSlip-foreground"
+      className="flex h-full w-full flex-col overflow-hidden bg-primary-foreground text-betSlip-foreground"
       data-testid="betting-slip"
     >
       <div className="grid grid-cols-2 text-center">
