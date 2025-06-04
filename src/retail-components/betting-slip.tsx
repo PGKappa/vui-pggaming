@@ -110,10 +110,10 @@ export default function BettingSlip() {
                     <div className="flex flex-row justify-end">
                       <Button
                         variant="ghost"
-                        size="icon"
+                        className='size-7'
                         onClick={() => removeMatchBets(matchKey)}
                       >
-                        <Trash2Icon style={{ scale: 1.5 }}/>
+                        <Trash2Icon style={{ scale: 1.2 }}/>
                       </Button>
                     </div>
 
@@ -146,7 +146,7 @@ export default function BettingSlip() {
                         className="flex items-center justify-between text-sm"
                       >
                         <span className="text-[14px]">{betEntry.market}</span>
-                        <span className="text-[14px]">
+                        <span className="text-[14px] font-bold">
                           {betEntry.bet.option.outcome}
                         </span>
                         <span className="text-[14px]">
@@ -175,10 +175,10 @@ export default function BettingSlip() {
         )}
       </CardContent>
 
-      <CardFooter className="flex flex-col gap-2 bg-muted-foreground">
-        <Separator className="my-2" />
+      <CardFooter className="flex flex-col gap-3 bg-muted-foreground">
+        
 
-        <div className="mx-1 flex justify-end bg-accent p-2 px-8">
+        <div className="flex justify-end bg-accent py-2 px-8">
           <span className="text-[16px] font-bold text-accent-foreground">
             {t('amount')}
           </span>
@@ -232,13 +232,6 @@ export default function BettingSlip() {
             <span>{t('potential_win')}</span>
             <span>{potentialWinning.toFixed(2)} €</span>
           </div>
-        </div>
-
-        <div className="flex items-center justify-end py-4">
-          {/* <span className="text-sm">{t('remove_all')}</span>
-          <Button variant="ghost" size="icon-sm" onClick={removeAllBets}>
-            <CircleXIcon className="h-10 w-10" />
-          </Button> */}
         </div>
 
         <div className='flex flex-row gap-2'>
