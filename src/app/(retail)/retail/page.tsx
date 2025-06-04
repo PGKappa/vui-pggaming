@@ -79,17 +79,19 @@ export default function Home() {
               close={() => setMatchBetOptions(undefined)}
             />
           ) : (
-            <UpcomingRoundCard
-              round={selectedRound}
-              viewMatchBettingOptions={setMatchBetOptions}
-            />
+            <>
+              <UpcomingRoundCard
+                round={selectedRound}
+                viewMatchBettingOptions={setMatchBetOptions}
+              />
+              <Leaderboard />
+            </>
           )
         ) : (
           <div className="flex h-full items-center justify-center">
             No round selected
           </div>
         )}
-        <Leaderboard />
       </div>
 
       {/*RIGHT COLUMN - Betting slip*/}
