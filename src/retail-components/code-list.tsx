@@ -48,7 +48,7 @@ export default function CodeList() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="w-32 bg-bet text-sm font-bold text-bet-foreground hover:bg-bet/70">
+        <Button className="w-32 bg-bet text-[16px] font-bold text-bet-foreground hover:bg-bet/70">
           Code List
         </Button>
       </DialogTrigger>
