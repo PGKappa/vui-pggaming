@@ -5,20 +5,15 @@ import { Toaster } from '@/retail-components/ui/sonner'
 import BetsContextProvider from '@/retail-contexts/bets-context'
 import RootContextProvider from '@/retail-contexts/root-context'
 import SkinProvider, { SkinContext } from '@/retail-contexts/skin-context'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Inter } from 'next/font/google'
 import { useContext } from 'react'
 import { useTranslation } from 'react-i18next'
 import '../globals.css'
 import './i18n'
 import ResolutionGate from '@/retail-components/resolution-gate'
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
-})
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
+const inter = Inter({
+  variable: '--font-inter',
   subsets: ['latin'],
 })
 
@@ -31,7 +26,7 @@ function AppContent({ children }: { children: React.ReactNode }) {
   const [skin] = useContext(SkinContext)
   return (
     <body
-      className={`${geistSans.variable} ${geistMono.variable} ${skin} flex h-screen flex-col antialiased`}
+      className={`${inter.variable} ${skin} flex h-screen flex-col antialiased font-inter`}
     >
       <ResolutionGate>
         <header>
