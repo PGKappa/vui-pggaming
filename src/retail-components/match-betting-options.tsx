@@ -11,7 +11,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from './ui/accordion'
-import { Badge } from './ui/badge'
 import { Button } from './ui/button'
 
 export default function MatchBettingOptions(props: {
@@ -26,22 +25,34 @@ export default function MatchBettingOptions(props: {
 }) {
   return (
     <div className="flex w-full flex-col gap-2">
-      <div className="flex flex-row items-center justify-between bg-accent text-accent-foreground">
+      <div className="flex h-14 flex-row items-center justify-between bg-accent text-accent-foreground">
         <div className="flex flex-row items-center gap-2">
-          <Button variant="ghost" onClick={props.close} size="icon">
+          <Button
+            className="ml-3 rounded-[8px] bg-tertiary text-tertiary-foreground hover:bg-tertiary/70"
+            onClick={props.close}
+            size="icon-lg"
+          >
             <ChevronsLeftIcon />
           </Button>
-          <span>
+          <span className="text-[24px]">
             {props.round.name} {t('round')} {props.round.number} /
           </span>
-          <span className="text-sm font-semibold">{props.teams}</span>
+          <span className="text-[20px] font-semibold">{props.teams}</span>
         </div>
-        <Badge className='mr-5'>{format(props.round.startingAt, 'HH:mm')}</Badge>
+        <span className="mr-5 text-[20px]">
+          {format(props.round.startingAt, 'HH:mm')}
+        </span>
       </div>
-      <Accordion type="multiple" className='space-y-2'>
+      <Accordion type="multiple" className="space-y-2">
         {props.markets.map((market) => (
-          <AccordionItem key={market.name} value={market.name} className='text-accent-foreground'>
-            <AccordionTrigger>{market.name.toUpperCase()}</AccordionTrigger>
+          <AccordionItem
+            key={market.name}
+            value={market.name}
+            className="text-accent-foreground"
+          >
+            <AccordionTrigger className="h-12 text-[16px] font-bold">
+              {market.name.toUpperCase()}
+            </AccordionTrigger>
             <AccordionContent>
               <div className="grid grid-cols-3 gap-4 px-8">
                 {market.selections[0].selection.map((option) => (
