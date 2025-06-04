@@ -137,7 +137,7 @@ export default function BettingSlip() {
                             minute: '2-digit',
                           })}
                         </span>
-                        <Badge className="rounded-sm bg-accent text-[16px]">
+                        <Badge className="bg-accent text-[16px]">
                           {getTimeDistanceFromNow(
                             new Date(matchBets[0].bet.round.startingAt),
                           )}
