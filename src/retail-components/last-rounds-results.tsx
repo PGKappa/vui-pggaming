@@ -3,7 +3,7 @@ import {
   Card,
   CardContent,
   CardFooter,
-  CardHeader
+  CardHeader,
 } from '@/retail-components/ui/card'
 import { ScrollArea } from '@/retail-components/ui/scroll-area'
 import { ChevronDown, ChevronUp } from 'lucide-react'
@@ -33,8 +33,8 @@ export default function LastRoundsResults(props: {
     .sort((a, b) => b.round.number - a.round.number)
 
   return (
-    <Card className={`flex w-full flex-col overflow-hidden`}>
-      <CardHeader className="relative flex min-h-16 max-h-16 flex-row items-center justify-between">
+    <Card className={`flex ${props.open ? 'h-1/2' : ''} w-full flex-col`}>
+      <CardHeader className="relative flex max-h-16 min-h-16 flex-row items-center justify-between">
         <div className="w-full text-center">
           <h3 className="text-xl font-bold">Last Results</h3>
         </div>
