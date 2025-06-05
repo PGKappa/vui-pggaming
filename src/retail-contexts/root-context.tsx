@@ -2,12 +2,12 @@
 
 import LoadingSpinner from '@/retail-components/loading-spinner'
 import {
+  LastRoundResults,
+  TeamRanking,
   Ticket,
-  MatchResult,
   UpcomingMatch,
   UpcomingRound,
   User,
-  LastRoundResults,
 } from '@/retail-lib/types'
 import { BASE_API_URL } from '@/retail-lib/utils'
 import { createContext, useCallback, useEffect, useState } from 'react'
@@ -25,7 +25,7 @@ export type RootContextType = {
   upcomingRounds?: UpcomingRound[]
   lastRoundsResults?: LastRoundResults[]
   betsHistory: Ticket[]
-  matchResult?: MatchResult[]
+  teamRankings?: TeamRanking[]
 }
 
 const defaultRootContext: RootContextType = {
@@ -52,12 +52,102 @@ const defaultRootContext: RootContextType = {
     },
   ],
   betsHistory: [],
-  matchResult: [
+  teamRankings: [
     {
-      round: { name: 'Super League', number: 28 },
-      teams: 'NAP - GEN',
-      score1: 2,
-      score2: 0,
+      position: 1,
+      team: 'AST',
+      played: 17,
+      wins: 14,
+      draws: 2,
+      losses: 1,
+      points: 44,
+      goalsFor: 44,
+      goalsAgainst: 44,
+      last8: ['W', 'W', 'W', 'W', 'W', 'W', 'W', 'L'],
+    },
+    {
+      position: 2,
+      team: 'WOL',
+      played: 17,
+      wins: 11,
+      draws: 4,
+      losses: 2,
+      points: 37,
+      goalsFor: 37,
+      goalsAgainst: 37,
+      last8: ['W', 'W', 'W', 'D', 'W', 'W', 'D', 'D'],
+    },
+    {
+      position: 3,
+      team: 'SOU',
+      played: 17,
+      wins: 11,
+      draws: 1,
+      losses: 5,
+      points: 34,
+      goalsFor: 34,
+      goalsAgainst: 34,
+      last8: ['W', 'W', 'W', 'L', 'W', 'L', 'W', 'D'],
+    },
+    {
+      position: 4,
+      team: 'TOT',
+      played: 17,
+      wins: 9,
+      draws: 4,
+      losses: 4,
+      points: 31,
+      goalsFor: 31,
+      goalsAgainst: 31,
+      last8: ['W', 'W', 'L', 'W', 'W', 'L', 'D', 'D'],
+    },
+    {
+      position: 5,
+      team: 'CHE',
+      played: 17,
+      wins: 9,
+      draws: 4,
+      losses: 4,
+      points: 31,
+      goalsFor: 31,
+      goalsAgainst: 31,
+      last8: ['W', 'L', 'L', 'D', 'D', 'D', 'W', 'W'],
+    },
+    {
+      position: 6,
+      team: 'BNF',
+      played: 17,
+      wins: 9,
+      draws: 4,
+      losses: 4,
+      points: 31,
+      goalsFor: 31,
+      goalsAgainst: 31,
+      last8: ['W', 'L', 'L', 'D', 'D', 'D', 'W', 'W'],
+    },
+    {
+      position: 8,
+      team: 'LEE',
+      played: 17,
+      wins: 9,
+      draws: 4,
+      losses: 4,
+      points: 31,
+      goalsFor: 31,
+      goalsAgainst: 31,
+      last8: ['W', 'L', 'L', 'D', 'D', 'D', 'W', 'W'],
+    },
+    {
+      position: 7,
+      team: 'BRE',
+      played: 17,
+      wins: 9,
+      draws: 4,
+      losses: 4,
+      points: 31,
+      goalsFor: 31,
+      goalsAgainst: 31,
+      last8: ['W', 'L', 'L', 'D', 'D', 'D', 'W', 'W'],
     },
   ],
 }
@@ -233,14 +323,31 @@ export default function RootContextProvider(props: {
               response.schedules.schedule[0].scheduleName,
             mag_event: events.map((event) => {
               //TODO: replace this events.map() with events when the API is fixed
-              const startTime = new Date()
-              startTime.setMinutes(new Date(event.startTime).getMinutes())
-              startTime.setSeconds(0)
-              startTime.setMilliseconds(0)
+              // Create a proper date from the event's startTime
+              try {
+                const eventDate = new Date(event.eventIdentity.startTime)
+                const startTime = new Date()
 
-              return {
-                ...event,
-                startTime: startTime.toISOString(),
+                // Set hours and minutes from the event date
+                startTime.setHours(eventDate.getHours())
+                startTime.setMinutes(eventDate.getMinutes())
+                startTime.setSeconds(0)
+                startTime.setMilliseconds(0)
+
+                return {
+                  ...event,
+                  startTime: startTime.toISOString(),
+                }
+              } catch {
+                // If there's an error with the date, use the current time
+                const fallbackTime = new Date()
+                fallbackTime.setSeconds(0)
+                fallbackTime.setMilliseconds(0)
+
+                return {
+                  ...event,
+                  startTime: fallbackTime.toISOString(),
+                }
               }
             }),
           }

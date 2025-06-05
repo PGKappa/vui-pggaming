@@ -4,7 +4,6 @@ import {
   CardContent,
   CardFooter,
   CardHeader,
-  CardTitle,
 } from '@/retail-components/ui/card'
 import { ScrollArea } from '@/retail-components/ui/scroll-area'
 import { ChevronDown, ChevronUp } from 'lucide-react'
@@ -34,20 +33,23 @@ export default function LastRoundsResults(props: {
     .sort((a, b) => b.round.number - a.round.number)
 
   return (
-    <Card
-      className={`flex w-full flex-col overflow-hidden`}
-    >
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Last Results</CardTitle>
-        <div className="flex flex-row items-center justify-center">
-          <Button variant="ghost" size="icon" onClick={props.toggleOpen}>
-            {props.open ? (
-              <ChevronUp style={{ scale: 2 }} />
-            ) : (
-              <ChevronDown style={{ scale: 2 }} />
-            )}
-          </Button>
+    <Card className={`flex ${props.open ? 'h-1/2' : ''} w-full flex-col`}>
+      <CardHeader className="relative flex max-h-16 min-h-16 flex-row items-center justify-between">
+        <div className="w-full text-center">
+          <h3 className="text-xl font-bold">Last Results</h3>
         </div>
+        <Button
+          variant="ghost"
+          size="icon-lg"
+          onClick={props.toggleOpen}
+          className="absolute right-1"
+        >
+          {props.open ? (
+            <ChevronUp style={{ scale: 2 }} />
+          ) : (
+            <ChevronDown style={{ scale: 2 }} />
+          )}
+        </Button>
       </CardHeader>
 
       {props.open && (

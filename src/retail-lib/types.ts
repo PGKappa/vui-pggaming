@@ -147,3 +147,22 @@ export type MatchResult = {
   score1: number
   score2: number
 }
+
+export type MatchStatistics = {
+  teams: string
+  probabilities: [number, number, number]
+  startTime: Date
+}
+
+export type TeamRanking = {
+  position: number
+  team: string
+  played: number
+  wins: number
+  draws: number
+  losses: number
+  points: number
+  goalsFor: number
+  goalsAgainst: number
+  last8: Array<'W' | 'L' | 'D'>
+}

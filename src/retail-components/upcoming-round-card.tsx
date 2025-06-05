@@ -68,7 +68,7 @@ export default function UpcomingRoundCard(props: {
       </CardHeader>
       <CardContent className="px-0">
         <Table>
-          <TableHeader className="h-11 bg-card-header text-[16px] text-card-header-foreground">
+          <TableHeader className="h-11 bg-card-header text-[20px] text-card-header-foreground">
             <TableRow className="border-card-foreground transition-none">
               <TableHead></TableHead>
               <TableHead></TableHead>
@@ -146,15 +146,17 @@ export default function UpcomingRoundCard(props: {
                     <TableCell className="flex h-[70px] w-[116px] flex-row items-center px-[19px]">
                       <Badge
                         variant="secondary"
-                        className="flex h-[42px] w-[78px] flex-col rounded-lg bg-badge py-[2.5px] text-badge-foreground"
+                        className="flex flex-col justify-between w-[78px] py-1.5"
                       >
-                        <span className="text-[14px]">{dayLabel}</span>
-                        <span className="text-[12px]">{formattedDate}</span>
+                        <span className="text-[16px]">{dayLabel}</span>
+                        <span className="text-[12px] font-normal">
+                          {formattedDate}
+                        </span>
                       </Badge>
                     </TableCell>
 
-                    <TableCell className="h-[70px] w-[116px] px-[19px] text-center">
-                      <span className="text-[14px] font-bold">{teamNames}</span>
+                    <TableCell className="h-[70px] w-[116px] text-center">
+                      <span className="text-[16px] font-bold">{teamNames}</span>
                     </TableCell>
 
                     {mainMarket ? (
@@ -169,7 +171,7 @@ export default function UpcomingRoundCard(props: {
                             teams={teamNames}
                             marketName={mainMarket.name}
                             option={option}
-                            className="h-[45px] w-[90px]"
+                            className="h-[45px] w-[90px] text-[19px] font-semibold"
                           />
                         </TableCell>
                       ))
@@ -193,7 +195,7 @@ export default function UpcomingRoundCard(props: {
                             teams={teamNames}
                             marketName={dcMarket.name}
                             option={option}
-                            className="h-[45px] w-[90px]"
+                            className="h-[45px] w-[90px] text-[19px] font-semibold"
                           />
                         </TableCell>
                       ))
@@ -217,7 +219,7 @@ export default function UpcomingRoundCard(props: {
                             teams={teamNames}
                             marketName={underOverMarket.name}
                             option={option}
-                            className="h-[45px] w-[90px]"
+                            className="h-[45px] w-[90px] text-[19px] font-semibold"
                           />
                         </TableCell>
                       ))
@@ -227,10 +229,10 @@ export default function UpcomingRoundCard(props: {
                       </TableCell>
                     )}
 
-                    <TableCell className="text-right px-[15px]">
+                    <TableCell className="px-[15px] text-right">
                       <Button
-                        variant="history"
-                        size="icon"
+                        className="rounded-[8px] bg-tertiary text-tertiary-foreground hover:bg-tertiary/90"
+                        size="icon-lg"
                         onClick={() =>
                           props.viewMatchBettingOptions({
                             round: {
@@ -243,7 +245,7 @@ export default function UpcomingRoundCard(props: {
                           })
                         }
                       >
-                        <PlusIcon />
+                        <PlusIcon style={{ scale: 1.5 }} />
                       </Button>
                     </TableCell>
                   </TableRow>

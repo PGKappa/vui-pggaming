@@ -11,8 +11,10 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from './ui/accordion'
-import { Badge } from './ui/badge'
 import { Button } from './ui/button'
+import MatchResultCard from './match-result-card'
+import MatchStatistics from './match-statistics-card'
+import { Separator } from './ui/separator'
 
 export default function MatchBettingOptions(props: {
   round: {
@@ -25,44 +27,77 @@ export default function MatchBettingOptions(props: {
   close: () => void
 }) {
   return (
-    <div className="flex w-full flex-col gap-2">
-      <div className="flex flex-row items-center justify-between bg-accent text-accent-foreground">
+    <div className="flex h-full w-full flex-col gap-4 overflow-hidden">
+      <div className="sticky top-0 z-10 flex h-16 flex-row items-center justify-between bg-accent text-accent-foreground">
         <div className="flex flex-row items-center gap-2">
-          <Button variant="ghost" onClick={props.close} size="icon">
-            <ChevronsLeftIcon />
+          <Button
+            className="ml-3 rounded-[8px] bg-tertiary text-tertiary-foreground hover:bg-tertiary/70"
+            onClick={props.close}
+            size="icon-lg"
+          >
+            <ChevronsLeftIcon style={{ scale: 2 }} />
           </Button>
-          <span>
+          <span className="text-[24px]">
             {props.round.name} {t('round')} {props.round.number} /
           </span>
-          <span className="text-sm font-semibold">{props.teams}</span>
+          <span className="text-[20px] font-semibold">{props.teams}</span>
         </div>
-        <Badge className='mr-5'>{format(props.round.startingAt, 'HH:mm')}</Badge>
+        <span className="mr-5 text-[20px]">
+          {format(props.round.startingAt, 'HH:mm')}
+        </span>
       </div>
-      <Accordion type="multiple" className='space-y-2'>
-        {props.markets.map((market) => (
-          <AccordionItem key={market.name} value={market.name} className='text-accent-foreground'>
-            <AccordionTrigger>{market.name.toUpperCase()}</AccordionTrigger>
-            <AccordionContent>
-              <div className="grid grid-cols-3 gap-4 px-8">
-                {market.selections[0].selection.map((option) => (
-                  <BetEntryToggle
-                    key={option.outcome}
-                    matchStart={props.round.startingAt}
-                    marketName={market.name}
-                    option={option}
-                    round={{
-                      scheduleName: props.round.name,
-                      scheduleId: props.round.number,
-                    }}
-                    teams={props.teams}
-                    showOutcome
-                  />
-                ))}
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        ))}
-      </Accordion>
+      <div className="flex flex-row items-start justify-between">
+        <MatchResultCard
+          matchResult={{
+            round: props.round,
+            teams: props.teams,
+            score1: 1,
+            score2: 2,
+          }}
+        />
+        <Separator orientation="vertical" />
+        <MatchStatistics
+          match={{
+            teams: props.teams,
+            probabilities: [10, 50, 40],
+            startTime: props.round.startingAt,
+          }}
+        />
+      </div>
+      <div className="flex-1 overflow-y-auto">
+        <Accordion type="multiple" className="space-y-2">
+          {props.markets.map((market) => (
+            <AccordionItem
+              key={market.name}
+              value={market.name}
+              className="text-accent-foreground"
+            >
+              <AccordionTrigger className="h-12 text-[16px] font-bold">
+                {market.name.toUpperCase()}
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="grid grid-cols-3 justify-items-center gap-4">
+                  {market.selections[0].selection.map((option) => (
+                    <BetEntryToggle
+                      key={option.outcome}
+                      matchStart={props.round.startingAt}
+                      marketName={market.name}
+                      option={option}
+                      round={{
+                        scheduleName: props.round.name,
+                        scheduleId: props.round.number,
+                      }}
+                      teams={props.teams}
+                      showOutcome
+                      className="h-[45px] w-[190px]"
+                    />
+                  ))}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
+      </div>
     </div>
   )
 }

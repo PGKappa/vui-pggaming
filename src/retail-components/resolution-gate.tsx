@@ -1,7 +1,11 @@
 'use client'
 import { useEffect, useState } from 'react'
 
-export default function ResolutionGate({ children }: { children: React.ReactNode }) {
+export default function ResolutionGate({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   const [isAllowed, setIsAllowed] = useState(false)
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
 
@@ -21,8 +25,10 @@ export default function ResolutionGate({ children }: { children: React.ReactNode
   if (!isAllowed) {
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-white">
-        <div className="rounded-md border border-gray-200 bg-white px-8 py-6 text-center shadow-md">
-          <h1 className="text-xl font-bold text-red-600">Retail Resolution Not Supported</h1>
+        <div className="border border-gray-200 bg-white px-8 py-6 text-center shadow-md">
+          <h1 className="text-xl font-bold text-red-600">
+            Retail Resolution Not Supported
+          </h1>
           <p className="mt-2 text-sm text-gray-600">
             This application requires a 1920x1080 pixel resolution (Full HD).
           </p>
@@ -38,7 +44,7 @@ export default function ResolutionGate({ children }: { children: React.ReactNode
   }
 
   return (
-    <div className="fixed top-0 left-0 w-[1920px] h-[1080px] overflow-hidden">
+    <div className="fixed left-0 top-0 h-[1080px] w-[1920px] overflow-hidden">
       {children}
     </div>
   )
