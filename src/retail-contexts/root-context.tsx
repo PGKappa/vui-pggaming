@@ -333,14 +333,31 @@ export default function RootContextProvider(props: {
               response.schedules.schedule[0].scheduleName,
             mag_event: events.map((event) => {
               //TODO: replace this events.map() with events when the API is fixed
-              const startTime = new Date()
-              startTime.setMinutes(new Date(event.startTime).getMinutes())
-              startTime.setSeconds(0)
-              startTime.setMilliseconds(0)
+              // Create a proper date from the event's startTime
+              try {
+                const eventDate = new Date(event.eventIdentity.startTime)
+                const startTime = new Date()
 
-              return {
-                ...event,
-                startTime: startTime.toISOString(),
+                // Set hours and minutes from the event date
+                startTime.setHours(eventDate.getHours())
+                startTime.setMinutes(eventDate.getMinutes())
+                startTime.setSeconds(0)
+                startTime.setMilliseconds(0)
+
+                return {
+                  ...event,
+                  startTime: startTime.toISOString(),
+                }
+              } catch {
+                // If there's an error with the date, use the current time
+                const fallbackTime = new Date()
+                fallbackTime.setSeconds(0)
+                fallbackTime.setMilliseconds(0)
+
+                return {
+                  ...event,
+                  startTime: fallbackTime.toISOString(),
+                }
               }
             }),
           }

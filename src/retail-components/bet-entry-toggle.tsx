@@ -44,7 +44,7 @@ export default function BetEntryToggle(props: {
       className={`w-full ${props.showOutcome ? 'flex flex-row justify-between' : ''}
       ${props.className}`}
     >
-      <span>{props.option.decPrice}</span>
+      <span>{props.option.decPrice.toFixed(2)}</span>
       {props.showOutcome && <span>{props.option.outcome}</span>}
     </Toggle>
   )
