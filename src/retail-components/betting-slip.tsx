@@ -120,15 +120,16 @@ export default function BettingSlip() {
                     <div className="flex flex-row justify-end">
                       <Button
                         variant="ghost"
-                        className="size-7"
+                        className="size-7 hover:text-tertiary-foreground group"
+                        size="icon"
                         onClick={() => removeMatchBets(matchKey)}
                       >
                         <Image
-                          src="/bin.png"
+                          src="/bin.svg"
                           alt="Bin"
                           width={40}
                           height={20}
-                          className="size-5 object-contain"
+                          className="size-5 object-contain group-hover:brightness-0 group-hover:invert"
                         />
                       </Button>
                     </div>
