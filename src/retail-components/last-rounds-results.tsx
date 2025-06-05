@@ -63,7 +63,7 @@ export default function LastRoundsResults(props: {
               filteredRounds.map((result) => (
                 <button
                   key={result.round.number}
-                  className={`flex w-full cursor-pointer flex-row items-center justify-between border-b border-border p-1 px-4`}
+                  className="flex w-full cursor-pointer flex-row items-center justify-between border-b border-border bg-muted-foreground p-1 px-4"
                 >
                   <div className="flex items-center gap-3">
                     <span className="text-md">
