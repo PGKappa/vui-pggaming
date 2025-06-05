@@ -32,9 +32,9 @@ export default function UpcomingRoundsCard({
 
   return (
     <Card className="flex w-full flex-col overflow-hidden">
-      <CardHeader className="flex flex-row items-center justify-between h-14">
+      <CardHeader className="flex h-16 flex-row items-center justify-between p-2">
         <div className="w-full text-center">
-          <h3 className="text-xl font-bold">Next Events</h3>
+          <h3 className="text-[19px] font-bold">Next Events</h3>
         </div>
         <Button variant="ghost" size="icon-lg" onClick={toggleCollapse}>
           {collapsed ? (
