@@ -171,7 +171,7 @@ export default function BettingSlip() {
                           {betEntry.bet.option.outcome}
                         </span>
                         <span className="text-[14px]">
-                          {betEntry.bet.option.decPrice}
+                          {betEntry.bet.option.decPrice.toFixed(2)}
                         </span>
                         <Button
                           variant="ghost"
