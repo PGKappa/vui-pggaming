@@ -34,7 +34,7 @@ export default function LastRoundsResults(props: {
 
   return (
     <Card className={`flex w-full flex-col overflow-hidden`}>
-      <CardHeader className="relative flex h-16 flex-row items-center justify-between">
+      <CardHeader className="relative flex min-h-16 max-h-16 flex-row items-center justify-between">
         <div className="w-full text-center">
           <h3 className="text-xl font-bold">Last Results</h3>
         </div>
@@ -42,7 +42,7 @@ export default function LastRoundsResults(props: {
           variant="ghost"
           size="icon-lg"
           onClick={props.toggleOpen}
-          className="absolute right-4"
+          className="absolute right-1"
         >
           {props.open ? (
             <ChevronUp style={{ scale: 2 }} />
