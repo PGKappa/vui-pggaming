@@ -119,126 +119,315 @@ function generateTeam(isHome, index, groupId, eventIndex) {
   }
 }
 
-// Function to generate selection for a market
-function generateSelections(marketCode) {
-  switch (marketCode) {
-    case '67': // Esito finale 1X2
-      return {
-        selection: [
-          {
-            outcome: '1',
-            decPrice: generateRandomPrice(1.5, 3.5),
-            order: 1,
-            externCode: '1',
-          },
-          {
-            outcome: 'X',
-            decPrice: generateRandomPrice(2.5, 4.5),
-            order: 2,
-            externCode: '2',
-          },
-          {
-            outcome: '2',
-            decPrice: generateRandomPrice(2.0, 4.0),
-            order: 3,
-            externCode: '3',
-          },
-        ],
-      }
-    case '68': // Doppia Chance
-      return {
-        selection: [
-          {
-            outcome: '1X',
-            decPrice: generateRandomPrice(1.1, 1.5),
-            order: 1,
-            externCode: '1',
-          },
-          {
-            outcome: 'X2',
-            decPrice: generateRandomPrice(1.3, 1.8),
-            order: 2,
-            externCode: '2',
-          },
-          {
-            outcome: '12',
-            decPrice: generateRandomPrice(1.1, 1.5),
-            order: 3,
-            externCode: '3',
-          },
-        ],
-      }
-    case '73': // Gol no gol
-      return {
-        selection: [
-          {
-            outcome: 'G',
-            decPrice: generateRandomPrice(1.4, 1.8),
-            order: 1,
-            externCode: '1',
-          },
-          {
-            outcome: 'NG',
-            decPrice: generateRandomPrice(1.8, 2.5),
-            order: 2,
-            externCode: '2',
-          },
-        ],
-      }
-    case '79': // Under/Over 2.5
-      return {
-        selection: [
-          {
-            outcome: 'U',
-            decPrice: generateRandomPrice(1.8, 2.2),
-            order: 1,
-            externCode: '1',
-          },
-          {
-            outcome: 'O',
-            decPrice: generateRandomPrice(1.5, 1.8),
-            order: 2,
-            externCode: '2',
-          },
-        ],
-      }
-    default:
-      return {
-        selection: [
-          {
-            outcome: 'Option 1',
-            decPrice: generateRandomPrice(1.5, 3.0),
-            order: 1,
-            externCode: '1',
-          },
-          {
-            outcome: 'Option 2',
-            decPrice: generateRandomPrice(1.5, 3.0),
-            order: 2,
-            externCode: '2',
-          },
-        ],
-      }
-  }
-}
 
 // Function to generate markets
 function generateMarkets() {
-  const marketCodes = ['67', '68', '73', '79']
-  const marketNames = [
-    'Esito finale 1X2',
-    'Doppia Chance',
-    'Gol no gol',
-    'Under/Over 2.5',
+  // Define all markets from the example
+  const marketDefinitions = [
+    {
+      code: '67',
+      name: 'Esito finale 1X2',
+      externCode: '45',
+      selections: [
+        { outcome: '1', order: 1, externCode: '1' },
+        { outcome: 'X', order: 2, externCode: '2' },
+        { outcome: '2', order: 3, externCode: '3' }
+      ]
+    },
+    {
+      code: '68',
+      name: 'Doppia Chance',
+      externCode: '0',
+      selections: [
+        { outcome: '1X', order: 1, externCode: '1' },
+        { outcome: 'X2', order: 2, externCode: '2' },
+        { outcome: '12', order: 3, externCode: '3' }
+      ]
+    },
+    {
+      code: '69',
+      name: 'Risultato esatto',
+      externCode: '46',
+      selections: [
+        { outcome: '0-0', order: 1, externCode: '1' },
+        { outcome: '0-1', order: 2, externCode: '2' },
+        { outcome: '0-2', order: 3, externCode: '3' },
+        { outcome: '0-3', order: 4, externCode: '4' },
+        { outcome: '0-4', order: 5, externCode: '5' },
+        { outcome: '0-5', order: 6, externCode: '6' },
+        { outcome: '0-6', order: 7, externCode: '7' },
+        { outcome: '0-7', order: 8, externCode: '8' },
+        { outcome: '1-0', order: 9, externCode: '9' },
+        { outcome: '1-1', order: 10, externCode: '10' },
+        { outcome: '1-2', order: 11, externCode: '11' },
+        { outcome: '1-3', order: 12, externCode: '12' },
+        { outcome: '1-4', order: 13, externCode: '13' },
+        { outcome: '1-5', order: 14, externCode: '14' },
+        { outcome: '1-6', order: 15, externCode: '15' },
+        { outcome: '2-0', order: 16, externCode: '16' },
+        { outcome: '2-1', order: 17, externCode: '17' },
+        { outcome: '2-2', order: 18, externCode: '18' },
+        { outcome: '2-3', order: 19, externCode: '19' },
+        { outcome: '2-4', order: 20, externCode: '20' },
+        { outcome: '2-5', order: 21, externCode: '21' },
+        { outcome: '3-0', order: 22, externCode: '22' },
+        { outcome: '3-1', order: 23, externCode: '23' },
+        { outcome: '3-2', order: 24, externCode: '24' },
+        { outcome: '3-3', order: 25, externCode: '25' },
+        { outcome: '3-4', order: 26, externCode: '26' },
+        { outcome: '4-0', order: 27, externCode: '27' },
+        { outcome: '4-1', order: 28, externCode: '28' },
+        { outcome: '4-2', order: 29, externCode: '29' },
+        { outcome: '4-3', order: 30, externCode: '30' },
+        { outcome: '5-0', order: 31, externCode: '31' },
+        { outcome: '5-1', order: 32, externCode: '32' },
+        { outcome: '5-2', order: 33, externCode: '33' },
+        { outcome: '6-0', order: 34, externCode: '34' },
+        { outcome: '6-1', order: 35, externCode: '35' },
+        { outcome: '7-0', order: 36, externCode: '36' }
+      ]
+    },
+    {
+      code: '70',
+      name: 'Parziale/Finale',
+      externCode: '47',
+      selections: [
+        { outcome: '11', order: 1, externCode: '1' },
+        { outcome: 'X1', order: 2, externCode: '2' },
+        { outcome: '21', order: 3, externCode: '3' },
+        { outcome: '1X', order: 4, externCode: '4' },
+        { outcome: 'XX', order: 5, externCode: '5' },
+        { outcome: '2X', order: 6, externCode: '6' },
+        { outcome: '12', order: 7, externCode: '7' },
+        { outcome: 'X2', order: 8, externCode: '8' },
+        { outcome: '22', order: 9, externCode: '9' }
+      ]
+    },
+    {
+      code: '71',
+      name: 'Primo marcatore',
+      externCode: '48',
+      selections: [
+        { outcome: 'NG', order: 4, externCode: '7' },
+        { outcome: '11', order: 5, externCode: '1', extraInfo: 'FOD' },
+        { outcome: '12', order: 6, externCode: '2', extraInfo: 'HAA' },
+        { outcome: '13', order: 7, externCode: '3', extraInfo: 'GRE' },
+        { outcome: '21', order: 8, externCode: '4', extraInfo: 'ZAH' },
+        { outcome: '22', order: 9, externCode: '5', extraInfo: 'EDO' },
+        { outcome: '23', order: 10, externCode: '6', extraInfo: 'EZE' }
+      ]
+    },
+    {
+      code: '73',
+      name: 'Gol no gol',
+      externCode: '50',
+      selections: [
+        { outcome: 'G', order: 1, externCode: '1' },
+        { outcome: 'NG', order: 2, externCode: '2' }
+      ]
+    },
+    {
+      code: '74',
+      name: 'Cartellino Rosso ',
+      externCode: '51',
+      selections: [
+        { outcome: 'Yes', order: 1, externCode: '1' },
+        { outcome: 'No', order: 2, externCode: '2' }
+      ]
+    },
+    {
+      code: '75',
+      name: 'Somma gol',
+      externCode: '52',
+      selections: [
+        { outcome: '0-1', order: 1, externCode: '1' },
+        { outcome: '2-3', order: 2, externCode: '2' },
+        { outcome: '4+', order: 3, externCode: '3' }
+      ]
+    },
+    {
+      code: '76',
+      name: 'Somma gol Casa',
+      externCode: '53',
+      selections: [
+        { outcome: '0', order: 1, externCode: '1' },
+        { outcome: '1-2', order: 2, externCode: '2' },
+        { outcome: '3+', order: 3, externCode: '3' }
+      ]
+    },
+    {
+      code: '77',
+      name: 'Somma gol Trasferta',
+      externCode: '54',
+      selections: [
+        { outcome: '0', order: 1, externCode: '1' },
+        { outcome: '1-2', order: 2, externCode: '2' },
+        { outcome: '3+', order: 3, externCode: '3' }
+      ]
+    },
+    {
+      code: '78',
+      name: 'Under/Over 1.5',
+      externCode: '55',
+      selections: [
+        { outcome: 'U', order: 1, externCode: '1' },
+        { outcome: 'O', order: 2, externCode: '2' }
+      ]
+    },
+    {
+      code: '79',
+      name: 'Under/Over 2.5 ',
+      externCode: '56',
+      selections: [
+        { outcome: 'U', order: 1, externCode: '1' },
+        { outcome: 'O', order: 2, externCode: '2' }
+      ]
+    },
+    {
+      code: '80',
+      name: 'Under/Over 3.5',
+      externCode: '57',
+      selections: [
+        { outcome: 'U', order: 1, externCode: '1' },
+        { outcome: 'O', order: 2, externCode: '2' }
+      ]
+    },
+    {
+      code: '81',
+      name: 'Under/Over 4.5',
+      externCode: '0',
+      selections: [
+        { outcome: 'U', order: 1, externCode: '1' },
+        { outcome: 'O', order: 2, externCode: '2' }
+      ]
+    },
+    {
+      code: '82',
+      name: 'Combo Vincente & Segna',
+      externCode: '59',
+      selections: [
+        { outcome: '1+G', order: 1, externCode: '1' },
+        { outcome: 'X+G', order: 2, externCode: '2' },
+        { outcome: '2+G', order: 3, externCode: '3' },
+        { outcome: '1+NG', order: 4, externCode: '4' },
+        { outcome: 'X+NG', order: 5, externCode: '5' },
+        { outcome: '2+NG', order: 6, externCode: '6' }
+      ]
+    },
+    {
+      code: '83',
+      name: 'Combo Vincente & Goals (1.5)',
+      externCode: '60',
+      selections: [
+        { outcome: '1+U', order: 1, externCode: '1' },
+        { outcome: 'X+U', order: 2, externCode: '2' },
+        { outcome: '2+U', order: 3, externCode: '3' },
+        { outcome: '1+O', order: 4, externCode: '4' },
+        { outcome: 'X+O', order: 5, externCode: '5' },
+        { outcome: '2+O', order: 6, externCode: '6' }
+      ]
+    },
+    {
+      code: '84',
+      name: 'Combo Vincente & Goals (2.5)',
+      externCode: '61',
+      selections: [
+        { outcome: '1+U', order: 1, externCode: '1' },
+        { outcome: 'X+U', order: 2, externCode: '2' },
+        { outcome: '2+U', order: 3, externCode: '3' },
+        { outcome: '1+O', order: 4, externCode: '4' },
+        { outcome: 'X+O', order: 5, externCode: '5' },
+        { outcome: '2+O', order: 6, externCode: '6' }
+      ]
+    },
+    {
+      code: '300',
+      name: 'Casa Under/Over 0.5',
+      externCode: '68',
+      selections: [
+        { outcome: 'U', order: 1, externCode: '1' },
+        { outcome: 'O', order: 2, externCode: '2' }
+      ]
+    },
+    {
+      code: '301',
+      name: 'Casa Under/Over 1.5',
+      externCode: '69',
+      selections: [
+        { outcome: 'U', order: 1, externCode: '1' },
+        { outcome: 'O', order: 2, externCode: '2' }
+      ]
+    },
+    {
+      code: '302',
+      name: 'Casa Under/Over 2.5',
+      externCode: '70',
+      selections: [
+        { outcome: 'U', order: 1, externCode: '1' },
+        { outcome: 'O', order: 2, externCode: '2' }
+      ]
+    },
+    {
+      code: '303',
+      name: 'Trasferta Under/Over 0.5',
+      externCode: '71',
+      selections: [
+        { outcome: 'U', order: 1, externCode: '1' },
+        { outcome: 'O', order: 2, externCode: '2' }
+      ]
+    },
+    {
+      code: '304',
+      name: 'Trasferta Under/Over 1.5',
+      externCode: '72',
+      selections: [
+        { outcome: 'U', order: 1, externCode: '1' },
+        { outcome: 'O', order: 2, externCode: '2' }
+      ]
+    },
+    {
+      code: '305',
+      name: 'Trasferta Under/Over 2.5',
+      externCode: '73',
+      selections: [
+        { outcome: 'U', order: 1, externCode: '1' },
+        { outcome: 'O', order: 2, externCode: '2' }
+      ]
+    },
+    {
+      code: '72',
+      name: 'Esatto numero di goal',
+      externCode: '74',
+      selections: [
+        { outcome: '0', order: 1, externCode: '1' },
+        { outcome: '1', order: 2, externCode: '2' },
+        { outcome: '2', order: 3, externCode: '3' },
+        { outcome: '3', order: 4, externCode: '4' },
+        { outcome: '4', order: 5, externCode: '5' },
+        { outcome: '5', order: 6, externCode: '6' },
+        { outcome: '6+', order: 7, externCode: '7' }
+      ]
+    }
   ]
-  const externCodes = ['45', '0', '50', '56']
 
-  return marketCodes.map((code, index) => {
+  return marketDefinitions.map(market => {
     return {
-      selections: [generateSelections(code)],
-      name: marketNames[index],
-      code: code,
-      externCode: externCodes[index],
+      selections: [
+        {
+          selection: market.selections.map(sel => ({
+            outcome: sel.outcome,
+            decPrice: generateRandomPrice(
+              market.code === '67' ? 1.5 : 1.2,
+              market.code === '67' ? 4.5 : 2.5
+            ),
+            order: sel.order,
+            externCode: sel.externCode
+          }))
+        }
+      ],
+      name: market.name,
+      code: market.code,
+      externCode: market.externCode,
       margin: Math.random() * 0.3 + 1.1, // Full precision
       marginSpecified: true,
     }
