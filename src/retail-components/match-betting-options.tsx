@@ -24,8 +24,8 @@ export default function MatchBettingOptions(props: {
   close: () => void
 }) {
   return (
-    <div className="flex w-full flex-col gap-2">
-      <div className="flex h-14 flex-row items-center justify-between bg-accent text-accent-foreground">
+    <div className="flex h-full w-full flex-col gap-2 overflow-hidden">
+      <div className="sticky top-0 z-10 flex h-14 flex-row items-center justify-between bg-accent text-accent-foreground">
         <div className="flex flex-row items-center gap-2">
           <Button
             className="ml-3 rounded-[8px] bg-tertiary text-tertiary-foreground hover:bg-tertiary/70"
@@ -43,37 +43,41 @@ export default function MatchBettingOptions(props: {
           {format(props.round.startingAt, 'HH:mm')}
         </span>
       </div>
-      <Accordion type="multiple" className="space-y-2">
-        {props.markets.map((market) => (
-          <AccordionItem
-            key={market.name}
-            value={market.name}
-            className="text-accent-foreground"
-          >
-            <AccordionTrigger className="h-12 text-[16px] font-bold">
-              {market.name.toUpperCase()}
-            </AccordionTrigger>
-            <AccordionContent>
-              <div className="grid grid-cols-3 gap-4 px-8">
-                {market.selections[0].selection.map((option) => (
-                  <BetEntryToggle
-                    key={option.outcome}
-                    matchStart={props.round.startingAt}
-                    marketName={market.name}
-                    option={option}
-                    round={{
-                      scheduleName: props.round.name,
-                      scheduleId: props.round.number,
-                    }}
-                    teams={props.teams}
-                    showOutcome
-                  />
-                ))}
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        ))}
-      </Accordion>
+
+      <div className='flex-1 overflow-y-auto'>
+        <Accordion type="multiple" className="space-y-2">
+          {props.markets.map((market) => (
+            <AccordionItem
+              key={market.name}
+              value={market.name}
+              className="text-accent-foreground"
+            >
+              <AccordionTrigger className="h-12 text-[16px] font-bold">
+                {market.name.toUpperCase()}
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="grid grid-cols-3 justify-items-center gap-4">
+                  {market.selections[0].selection.map((option) => (
+                    <BetEntryToggle
+                      key={option.outcome}
+                      matchStart={props.round.startingAt}
+                      marketName={market.name}
+                      option={option}
+                      round={{
+                        scheduleName: props.round.name,
+                        scheduleId: props.round.number,
+                      }}
+                      teams={props.teams}
+                      showOutcome
+                      className="h-[45px] w-[190px]"
+                    />
+                  ))}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
+      </div>
     </div>
   )
 }
