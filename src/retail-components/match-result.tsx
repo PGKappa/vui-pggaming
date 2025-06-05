@@ -20,7 +20,7 @@ export default function MatchResult() {
   return (
     <div className="w-full">
       <div className="text-center">
-        <h4 className="text-xl font-extrabold text-secondary">RESULTS</h4>
+        <h4 className="text-xl font-extrabold text-secondary">RESULT</h4>
       </div>
 
       {matchResult.map((match, index) => {
