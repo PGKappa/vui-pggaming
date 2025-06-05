@@ -19,7 +19,7 @@ export default function Navbar() {
               variant: 'navbar',
               size: 'lg',
             }),
-            'flex w-32 flex-row items-center',
+            'flex w-28 flex-row items-center justify-between',
           )}
         >
           <Image
@@ -45,7 +45,7 @@ export default function Navbar() {
               variant: 'navbar',
               size: 'lg',
             }),
-            'flex w-32 flex-row items-center',
+            'flex w-24 flex-row items-center justify-between',
           )}
         >
           <Image
@@ -65,7 +65,7 @@ export default function Navbar() {
               variant: 'navbar',
               size: 'lg',
             }),
-            'flex w-32 flex-row items-center',
+            'flex w-24 flex-row items-center justify-between',
           )}
         >
           <Image
@@ -80,10 +80,13 @@ export default function Navbar() {
 
         <Link
           href="/retail"
-          className={buttonVariants({
-            variant: 'navbar',
-            size: 'lg',
-          })}
+          className={cn(
+            buttonVariants({
+              variant: 'navbar',
+              size: 'lg',
+            }),
+            'flex w-20 flex-row items-center justify-between',
+          )}
         >
           <Image
             src="/icon-calcio.png"
