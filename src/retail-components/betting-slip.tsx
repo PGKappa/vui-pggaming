@@ -8,7 +8,8 @@ import { ScrollArea } from '@/retail-components/ui/scroll-area'
 import { BetsContext } from '@/retail-contexts/bets-context'
 import { BetEntry, SubmittedTicket } from '@/retail-lib/types'
 import { getTimeDistanceFromNow } from '@/retail-lib/utils'
-import { CircleXIcon, RotateCcwIcon, Trash2Icon } from 'lucide-react'
+import { CircleXIcon, RotateCcwIcon } from 'lucide-react'
+import Image from 'next/image'
 import { useContext, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import FastBet from './fast-bet'
@@ -65,9 +66,7 @@ export default function BettingSlip() {
           {t('bet_slip')} ( {betEntries.length} )
         </span>
 
-        <div
-          className="relative flex h-12 w-full flex-col items-center justify-center bg-betSlip"
-        >
+        <div className="relative flex h-12 w-full flex-col items-center justify-center bg-betSlip">
           <span
             className={`text-[19px] text-betSlip-header-foreground ${maxMarketsPerMatch <= 1 ? 'font-semibold' : ''}`}
           >
@@ -76,7 +75,9 @@ export default function BettingSlip() {
               : `${t('multiple')} ( ${Object.entries(betsByMatch).length} )`}
           </span>
 
-          {maxMarketsPerMatch <= 1 && <div className='absolute bg-betSlip-header-foreground bottom-0.5 h-[4px] w-[156px]'></div>}
+          {maxMarketsPerMatch <= 1 && (
+            <div className="absolute bottom-0.5 h-[4px] w-[156px] bg-betSlip-header-foreground"></div>
+          )}
         </div>
 
         <div
@@ -85,11 +86,13 @@ export default function BettingSlip() {
           }`}
         >
           <span
-            className={`text-[19px]  ${maxMarketsPerMatch > 1 ? 'font-semibold text-betSlip-header-foreground' : ''}`}
+            className={`text-[19px] ${maxMarketsPerMatch > 1 ? 'font-semibold text-betSlip-header-foreground' : ''}`}
           >
             {t('system')}
           </span>
-          {maxMarketsPerMatch > 1 && <div className='absolute bg-betSlip-header-foreground bottom-0.5 h-[4px] w-[156px]'></div>}
+          {maxMarketsPerMatch > 1 && (
+            <div className="absolute bottom-0.5 h-[4px] w-[156px] bg-betSlip-header-foreground"></div>
+          )}
         </div>
       </div>
 
@@ -120,7 +123,13 @@ export default function BettingSlip() {
                         className="size-7"
                         onClick={() => removeMatchBets(matchKey)}
                       >
-                        <Trash2Icon style={{ scale: 1.2 }} />
+                        <Image
+                          src="/bin.png"
+                          alt="Bin"
+                          width={40}
+                          height={20}
+                          className="size-5 object-contain"
+                        />
                       </Button>
                     </div>
 
