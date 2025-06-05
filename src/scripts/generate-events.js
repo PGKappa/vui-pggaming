@@ -122,7 +122,6 @@ function generateTeam(isHome, index, groupId, eventIndex) {
   }
 }
 
-
 // Function to generate markets
 function generateMarkets() {
   // Define all markets from the example
@@ -134,8 +133,8 @@ function generateMarkets() {
       selections: [
         { outcome: '1', order: 1, externCode: '1' },
         { outcome: 'X', order: 2, externCode: '2' },
-        { outcome: '2', order: 3, externCode: '3' }
-      ]
+        { outcome: '2', order: 3, externCode: '3' },
+      ],
     },
     {
       code: '68',
@@ -144,8 +143,8 @@ function generateMarkets() {
       selections: [
         { outcome: '1X', order: 1, externCode: '1' },
         { outcome: 'X2', order: 2, externCode: '2' },
-        { outcome: '12', order: 3, externCode: '3' }
-      ]
+        { outcome: '12', order: 3, externCode: '3' },
+      ],
     },
     {
       code: '69',
@@ -187,8 +186,8 @@ function generateMarkets() {
         { outcome: '5-2', order: 33, externCode: '33' },
         { outcome: '6-0', order: 34, externCode: '34' },
         { outcome: '6-1', order: 35, externCode: '35' },
-        { outcome: '7-0', order: 36, externCode: '36' }
-      ]
+        { outcome: '7-0', order: 36, externCode: '36' },
+      ],
     },
     {
       code: '70',
@@ -203,8 +202,8 @@ function generateMarkets() {
         { outcome: '2X', order: 6, externCode: '6' },
         { outcome: '12', order: 7, externCode: '7' },
         { outcome: 'X2', order: 8, externCode: '8' },
-        { outcome: '22', order: 9, externCode: '9' }
-      ]
+        { outcome: '22', order: 9, externCode: '9' },
+      ],
     },
     {
       code: '71',
@@ -217,8 +216,8 @@ function generateMarkets() {
         { outcome: '13', order: 7, externCode: '3', extraInfo: 'GRE' },
         { outcome: '21', order: 8, externCode: '4', extraInfo: 'ZAH' },
         { outcome: '22', order: 9, externCode: '5', extraInfo: 'EDO' },
-        { outcome: '23', order: 10, externCode: '6', extraInfo: 'EZE' }
-      ]
+        { outcome: '23', order: 10, externCode: '6', extraInfo: 'EZE' },
+      ],
     },
     {
       code: '73',
@@ -226,8 +225,8 @@ function generateMarkets() {
       externCode: '50',
       selections: [
         { outcome: 'G', order: 1, externCode: '1' },
-        { outcome: 'NG', order: 2, externCode: '2' }
-      ]
+        { outcome: 'NG', order: 2, externCode: '2' },
+      ],
     },
     {
       code: '74',
@@ -235,8 +234,8 @@ function generateMarkets() {
       externCode: '51',
       selections: [
         { outcome: 'Yes', order: 1, externCode: '1' },
-        { outcome: 'No', order: 2, externCode: '2' }
-      ]
+        { outcome: 'No', order: 2, externCode: '2' },
+      ],
     },
     {
       code: '75',
@@ -245,8 +244,8 @@ function generateMarkets() {
       selections: [
         { outcome: '0-1', order: 1, externCode: '1' },
         { outcome: '2-3', order: 2, externCode: '2' },
-        { outcome: '4+', order: 3, externCode: '3' }
-      ]
+        { outcome: '4+', order: 3, externCode: '3' },
+      ],
     },
     {
       code: '76',
@@ -255,8 +254,8 @@ function generateMarkets() {
       selections: [
         { outcome: '0', order: 1, externCode: '1' },
         { outcome: '1-2', order: 2, externCode: '2' },
-        { outcome: '3+', order: 3, externCode: '3' }
-      ]
+        { outcome: '3+', order: 3, externCode: '3' },
+      ],
     },
     {
       code: '77',
@@ -265,8 +264,8 @@ function generateMarkets() {
       selections: [
         { outcome: '0', order: 1, externCode: '1' },
         { outcome: '1-2', order: 2, externCode: '2' },
-        { outcome: '3+', order: 3, externCode: '3' }
-      ]
+        { outcome: '3+', order: 3, externCode: '3' },
+      ],
     },
     {
       code: '78',
@@ -274,8 +273,8 @@ function generateMarkets() {
       externCode: '55',
       selections: [
         { outcome: 'U', order: 1, externCode: '1' },
-        { outcome: 'O', order: 2, externCode: '2' }
-      ]
+        { outcome: 'O', order: 2, externCode: '2' },
+      ],
     },
     {
       code: '79',
@@ -283,8 +282,8 @@ function generateMarkets() {
       externCode: '56',
       selections: [
         { outcome: 'U', order: 1, externCode: '1' },
-        { outcome: 'O', order: 2, externCode: '2' }
-      ]
+        { outcome: 'O', order: 2, externCode: '2' },
+      ],
     },
     {
       code: '80',
@@ -292,8 +291,8 @@ function generateMarkets() {
       externCode: '57',
       selections: [
         { outcome: 'U', order: 1, externCode: '1' },
-        { outcome: 'O', order: 2, externCode: '2' }
-      ]
+        { outcome: 'O', order: 2, externCode: '2' },
+      ],
     },
     {
       code: '81',
@@ -301,8 +300,8 @@ function generateMarkets() {
       externCode: '0',
       selections: [
         { outcome: 'U', order: 1, externCode: '1' },
-        { outcome: 'O', order: 2, externCode: '2' }
-      ]
+        { outcome: 'O', order: 2, externCode: '2' },
+      ],
     },
     {
       code: '82',
@@ -314,8 +313,8 @@ function generateMarkets() {
         { outcome: '2+G', order: 3, externCode: '3' },
         { outcome: '1+NG', order: 4, externCode: '4' },
         { outcome: 'X+NG', order: 5, externCode: '5' },
-        { outcome: '2+NG', order: 6, externCode: '6' }
-      ]
+        { outcome: '2+NG', order: 6, externCode: '6' },
+      ],
     },
     {
       code: '83',
@@ -327,8 +326,8 @@ function generateMarkets() {
         { outcome: '2+U', order: 3, externCode: '3' },
         { outcome: '1+O', order: 4, externCode: '4' },
         { outcome: 'X+O', order: 5, externCode: '5' },
-        { outcome: '2+O', order: 6, externCode: '6' }
-      ]
+        { outcome: '2+O', order: 6, externCode: '6' },
+      ],
     },
     {
       code: '84',
@@ -340,8 +339,8 @@ function generateMarkets() {
         { outcome: '2+U', order: 3, externCode: '3' },
         { outcome: '1+O', order: 4, externCode: '4' },
         { outcome: 'X+O', order: 5, externCode: '5' },
-        { outcome: '2+O', order: 6, externCode: '6' }
-      ]
+        { outcome: '2+O', order: 6, externCode: '6' },
+      ],
     },
     {
       code: '300',
@@ -349,8 +348,8 @@ function generateMarkets() {
       externCode: '68',
       selections: [
         { outcome: 'U', order: 1, externCode: '1' },
-        { outcome: 'O', order: 2, externCode: '2' }
-      ]
+        { outcome: 'O', order: 2, externCode: '2' },
+      ],
     },
     {
       code: '301',
@@ -358,8 +357,8 @@ function generateMarkets() {
       externCode: '69',
       selections: [
         { outcome: 'U', order: 1, externCode: '1' },
-        { outcome: 'O', order: 2, externCode: '2' }
-      ]
+        { outcome: 'O', order: 2, externCode: '2' },
+      ],
     },
     {
       code: '302',
@@ -367,8 +366,8 @@ function generateMarkets() {
       externCode: '70',
       selections: [
         { outcome: 'U', order: 1, externCode: '1' },
-        { outcome: 'O', order: 2, externCode: '2' }
-      ]
+        { outcome: 'O', order: 2, externCode: '2' },
+      ],
     },
     {
       code: '303',
@@ -376,8 +375,8 @@ function generateMarkets() {
       externCode: '71',
       selections: [
         { outcome: 'U', order: 1, externCode: '1' },
-        { outcome: 'O', order: 2, externCode: '2' }
-      ]
+        { outcome: 'O', order: 2, externCode: '2' },
+      ],
     },
     {
       code: '304',
@@ -385,8 +384,8 @@ function generateMarkets() {
       externCode: '72',
       selections: [
         { outcome: 'U', order: 1, externCode: '1' },
-        { outcome: 'O', order: 2, externCode: '2' }
-      ]
+        { outcome: 'O', order: 2, externCode: '2' },
+      ],
     },
     {
       code: '305',
@@ -394,8 +393,8 @@ function generateMarkets() {
       externCode: '73',
       selections: [
         { outcome: 'U', order: 1, externCode: '1' },
-        { outcome: 'O', order: 2, externCode: '2' }
-      ]
+        { outcome: 'O', order: 2, externCode: '2' },
+      ],
     },
     {
       code: '72',
@@ -408,25 +407,25 @@ function generateMarkets() {
         { outcome: '3', order: 4, externCode: '4' },
         { outcome: '4', order: 5, externCode: '5' },
         { outcome: '5', order: 6, externCode: '6' },
-        { outcome: '6+', order: 7, externCode: '7' }
-      ]
-    }
+        { outcome: '6+', order: 7, externCode: '7' },
+      ],
+    },
   ]
 
-  return marketDefinitions.map(market => {
+  return marketDefinitions.map((market) => {
     return {
       selections: [
         {
-          selection: market.selections.map(sel => ({
+          selection: market.selections.map((sel) => ({
             outcome: sel.outcome,
             decPrice: generateRandomPrice(
               market.code === '67' ? 1.5 : 1.2,
-              market.code === '67' ? 4.5 : 2.5
+              market.code === '67' ? 4.5 : 2.5,
             ),
             order: sel.order,
-            externCode: sel.externCode
-          }))
-        }
+            externCode: sel.externCode,
+          })),
+        },
       ],
       name: market.name,
       code: market.code,
@@ -445,12 +444,12 @@ function generateEvent(eventIndex, groupId) {
   // Generate start time based on groupId (each group is 3 minutes apart)
   // Use a fixed date format: YYYY-MM-DDThh:mm:ssZ
   const baseDate = new Date('2025-06-05T10:00:00Z') // Use a fixed start date
-  
+
   // Calculate the group's start time: base time + (groupId - 9) * 3 minutes
-  const groupDate = new Date(baseDate.getTime() + ((groupId - 9) * 3 * 60 * 1000))
+  const groupDate = new Date(baseDate.getTime() + (groupId - 9) * 3 * 60 * 1000)
   groupDate.setSeconds(0)
   groupDate.setMilliseconds(0)
-  
+
   const startTime = formatDate(groupDate)
 
   // Generate event name from team names that will be created later
