@@ -62,19 +62,25 @@ export default function UpcomingRoundCard(props: {
             {props.round.mag_event.length ? (
               props.round.mag_event.map((match, index) => {
                 const matchStart = new Date(match.startTime)
-                
-                let dayLabel = matchStart.toLocaleDateString(i18n.language, { weekday: 'short' }).toUpperCase()
+
+                let dayLabel = matchStart
+                  .toLocaleDateString(i18n.language, { weekday: 'short' })
+                  .toUpperCase()
                 if (matchStart.toDateString() === today.toDateString()) {
                   dayLabel = t('today').toUpperCase()
-                } else if (matchStart.toDateString() === tomorrow.toDateString()) {
+                } else if (
+                  matchStart.toDateString() === tomorrow.toDateString()
+                ) {
                   dayLabel = t('tomorrow').toUpperCase()
                 }
 
-                const formattedDate = matchStart.toLocaleTimeString(i18n.language, {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })
-
+                const formattedDate = matchStart.toLocaleTimeString(
+                  i18n.language,
+                  {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  },
+                )
 
                 const teamNames = match.teams.team
                   .map((t) => t.name || '')
@@ -91,7 +97,10 @@ export default function UpcomingRoundCard(props: {
                 return (
                   <TableRow key={index} className="border-card-foreground">
                     <TableCell className="flex w-full flex-row items-center gap-2 md:pl-14">
-                      <Badge variant="secondary" className="flex flex-col py-0">
+                      <Badge
+                        variant="secondary"
+                        className="flex flex-col py-0"
+                      >
                         <span>{dayLabel}</span>
                         <span>{formattedDate}</span>
                       </Badge>

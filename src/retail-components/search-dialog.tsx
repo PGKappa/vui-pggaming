@@ -53,16 +53,16 @@ export default function SearchDialog() {
       <DialogTrigger asChild>
         <Button
           variant="navbarSelected"
-          className="relative w-full h-12 cursor-pointer justify-center"
+          className="relative h-12 w-full cursor-pointer justify-center"
         >
           <span className="text-md font-light">Search Last Results</span>
-          <SearchIcon className='absolute right-4' style={{ scale: 1.5 }} />
+          <SearchIcon className="absolute right-4" style={{ scale: 1.5 }} />
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="flex min-h-[480px] max-w-2xl flex-col justify-between gap-0 p-0">
-        <DialogHeader className="bg-accent p-4">
-          <DialogTitle className="text-center text-lg font-bold text-accent-foreground">
+      <DialogContent className="flex min-h-[480px] max-w-xl flex-col justify-between">
+        <DialogHeader className="h-16 bg-accent">
+          <DialogTitle className="text-center text-[19px] font-bold text-accent-foreground">
             Search Results
           </DialogTitle>
         </DialogHeader>
@@ -70,7 +70,7 @@ export default function SearchDialog() {
         <div className="flex flex-1 flex-row gap-4 overflow-auto p-4">
           <Accordion type="multiple" className="w-1/2 space-y-2">
             <AccordionItem value="date">
-              <AccordionTrigger className="bg-background text-md font-semibold">
+              <AccordionTrigger className="bg-background text-[16px] font-semibold">
                 Date
               </AccordionTrigger>
               <AccordionContent className="max-h-60 overflow-y-auto">
@@ -99,7 +99,7 @@ export default function SearchDialog() {
 
           <Accordion type="multiple" className="w-1/2 space-y-2">
             <AccordionItem value="time">
-              <AccordionTrigger className="bg-background text-md font-semibold">
+              <AccordionTrigger className="bg-background text-[16px] font-semibold">
                 Time Slot
               </AccordionTrigger>
               <AccordionContent className="max-h-60 overflow-y-auto">
@@ -129,7 +129,7 @@ export default function SearchDialog() {
 
         <div className="m-4 flex justify-center">
           <Button
-            className="w-24 bg-green-500 text-lg text-white hover:bg-green-600"
+            className="w-24 bg-green-500 text-[19px] text-white hover:bg-green-600"
             disabled={!selectedDate || !selectedTimeSlot}
             onClick={() => {
               console.log(
@@ -137,7 +137,7 @@ export default function SearchDialog() {
               )
             }}
           >
-            Search
+            Cerca
           </Button>
         </div>
       </DialogContent>

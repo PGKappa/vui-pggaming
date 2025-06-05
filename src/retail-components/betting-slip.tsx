@@ -5,11 +5,11 @@ import { Button } from '@/retail-components/ui/button'
 import { Card, CardContent, CardFooter } from '@/retail-components/ui/card'
 import { Input } from '@/retail-components/ui/input'
 import { ScrollArea } from '@/retail-components/ui/scroll-area'
-import { Separator } from '@/retail-components/ui/separator'
 import { BetsContext } from '@/retail-contexts/bets-context'
 import { BetEntry, SubmittedTicket } from '@/retail-lib/types'
 import { getTimeDistanceFromNow } from '@/retail-lib/utils'
-import { CircleXIcon, RotateCcwIcon, Trash2Icon } from 'lucide-react'
+import { CircleXIcon, RotateCcwIcon } from 'lucide-react'
+import Image from 'next/image'
 import { useContext, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import FastBet from './fast-bet'
@@ -47,11 +47,14 @@ export default function BettingSlip() {
 
   const potentialWinning = global * totalOdds
 
-  const roundsLength = new Set(
-    betEntries.map((betEntry) => betEntry.bet.round.number),
-  ).size
-
   const { t } = useTranslation()
+
+  const maxMarketsPerMatch = useMemo(() => {
+    return Object.values(betsByMatch).reduce((max, bets) => {
+      const uniqueMarkets = new Set(bets.map((bet) => bet.market)).size
+      return Math.max(max, uniqueMarkets)
+    }, 0)
+  }, [betsByMatch])
 
   return (
     <Card
@@ -59,31 +62,38 @@ export default function BettingSlip() {
       data-testid="betting-slip"
     >
       <div className="grid grid-cols-2 text-center">
-        <span className="col-span-2 flex h-14 w-full flex-col items-center justify-center bg-accent text-[19px] font-semibold text-accent-foreground">
+        <span className="col-span-2 flex h-16 w-full flex-col items-center justify-center bg-accent text-[19px] font-semibold text-accent-foreground">
           {t('bet_slip')} ( {betEntries.length} )
         </span>
 
-        <span
-          className={`flex w-full flex-col items-center justify-center text-[19px] font-semibold h-12 ${
-            betEntries.length <= 1
-              ? 'border-b-2 border-accent bg-betSlip text-betSlip-header-foreground'
-              : 'bg-betSlip text-betSlip-header-foreground'
-          }`}
-        >
-          {roundsLength > 1
-            ? `${t('multiple')} (${roundsLength})`
-            : t('single')}
-        </span>
+        <div className="relative flex h-12 w-full flex-col items-center justify-center bg-betSlip">
+          <span
+            className={`text-[19px] text-betSlip-header-foreground ${maxMarketsPerMatch <= 1 ? 'font-semibold' : ''}`}
+          >
+            {betEntries.length <= 1
+              ? t('single')
+              : `${t('multiple')} ( ${Object.entries(betsByMatch).length} )`}
+          </span>
 
-        <span
-          className={`flex w-full flex-col items-center justify-center text-[19px] ${
-            betEntries.length > 1
-              ? 'border-b-2 border-accent bg-betSlip-header'
-              : 'bg-gray-100'
+          {maxMarketsPerMatch <= 1 && (
+            <div className="absolute bottom-0.5 h-[4px] w-[156px] bg-betSlip-header-foreground"></div>
+          )}
+        </div>
+
+        <div
+          className={`relative flex w-full flex-col items-center justify-center ${
+            maxMarketsPerMatch > 1 ? 'bg-betSlip-header' : 'bg-gray-100'
           }`}
         >
-          {t('system')}
-        </span>
+          <span
+            className={`text-[19px] ${maxMarketsPerMatch > 1 ? 'font-semibold text-betSlip-header-foreground' : ''}`}
+          >
+            {t('system')}
+          </span>
+          {maxMarketsPerMatch > 1 && (
+            <div className="absolute bottom-0.5 h-[4px] w-[156px] bg-betSlip-header-foreground"></div>
+          )}
+        </div>
       </div>
 
       <CardContent className="h-full overflow-hidden bg-muted-foreground p-2 text-betSlip-foreground">
@@ -110,15 +120,24 @@ export default function BettingSlip() {
                     <div className="flex flex-row justify-end">
                       <Button
                         variant="ghost"
+                        className="group size-7 hover:text-tertiary-foreground"
                         size="icon"
                         onClick={() => removeMatchBets(matchKey)}
                       >
-                        <Trash2Icon style={{ scale: 1.5 }}/>
+                        <Image
+                          src="/bin.svg"
+                          alt="Bin"
+                          width={40}
+                          height={20}
+                          className="size-5 object-contain group-hover:brightness-0 group-hover:invert"
+                        />
                       </Button>
                     </div>
 
                     <div className="flex items-center justify-between">
-                      <span className="text-[16px] font-semibold">Football</span>
+                      <span className="text-[16px] font-semibold">
+                        Football
+                      </span>
                       <div className="flex items-center gap-2">
                         <span className="text-[16px]">
                           {new Date(
@@ -128,7 +147,7 @@ export default function BettingSlip() {
                             minute: '2-digit',
                           })}
                         </span>
-                        <Badge className="rounded-sm bg-accent text-[16px]">
+                        <Badge className="bg-accent text-[16px]">
                           {getTimeDistanceFromNow(
                             new Date(matchBets[0].bet.round.startingAt),
                           )}
@@ -136,7 +155,9 @@ export default function BettingSlip() {
                       </div>
                     </div>
 
-                    <span className="text-[16px]">{matchBets[0].bet.teams}</span>
+                    <span className="text-[16px]">
+                      {matchBets[0].bet.teams}
+                    </span>
                   </div>
 
                   <div className="border border-betSlip-foreground bg-primary-foreground p-1">
@@ -146,11 +167,11 @@ export default function BettingSlip() {
                         className="flex items-center justify-between text-sm"
                       >
                         <span className="text-[14px]">{betEntry.market}</span>
-                        <span className="text-[14px]">
+                        <span className="text-[14px] font-bold">
                           {betEntry.bet.option.outcome}
                         </span>
                         <span className="text-[14px]">
-                          {betEntry.bet.option.decPrice}
+                          {betEntry.bet.option.decPrice.toFixed(2)}
                         </span>
                         <Button
                           variant="ghost"
@@ -176,9 +197,7 @@ export default function BettingSlip() {
       </CardContent>
 
       <CardFooter className="flex flex-col gap-2 bg-muted-foreground">
-        <Separator className="my-2" />
-
-        <div className="mx-1 flex justify-end bg-accent p-2 px-8">
+        <div className="flex justify-end bg-accent px-8 py-2">
           <span className="text-[16px] font-bold text-accent-foreground">
             {t('amount')}
           </span>
@@ -228,24 +247,17 @@ export default function BettingSlip() {
             <span>{t('total_odd')}</span>
             <span>{totalOdds.toFixed(2)}</span>
           </div>
-          <div className="flex justify-between">
+          <div className="flex justify-between font-bold">
             <span>{t('potential_win')}</span>
-            <span>{potentialWinning.toFixed(2)} €</span>
+            <span>€ {potentialWinning.toFixed(2)}</span>
           </div>
         </div>
 
-        <div className="flex items-center justify-end py-4">
-          {/* <span className="text-sm">{t('remove_all')}</span>
-          <Button variant="ghost" size="icon-sm" onClick={removeAllBets}>
-            <CircleXIcon className="h-10 w-10" />
-          </Button> */}
-        </div>
-
-        <div className='flex flex-row gap-2'>
+        <div className="flex flex-row gap-2">
           <Button
             variant="ghost"
             size="lg"
-            className="w-1/3 text-[16px] font-bold bg-betSlip text-betSlip-header-foreground "
+            className="w-1/3 bg-betSlip text-[16px] font-bold text-betSlip-header-foreground"
             onClick={removeAllBets}
           >
             {t('remove_all')}

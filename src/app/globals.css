@@ -301,7 +301,7 @@
     --input: 0 0% 20%;
     --ring: 0 0% 20%;
 
-    --radius: 0rem;
+    --radius: 0.4rem;
 
     --bet: 353 100% 44%;
     --bet-foreground: 0 0% 100%;
@@ -319,8 +319,8 @@
     --navbarButton-foreground: 0 0% 100%;
 
     --chart-1: 0 0% 63%;
-    --chart-2: 353 100% 44%;
-    --chart-3: 0 0% 100%;
+    --chart-2: 0 68% 52%;
+    --chart-3: 109 100% 35%;
 
     --footer-ranking: 0 0% 100%;
     --footer-ranking-foreground: 0 0% 0%;

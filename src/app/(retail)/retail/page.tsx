@@ -7,6 +7,7 @@ import UpcomingRoundsCard from '@/retail-components/upcoming-rounds-card'
 import { RootContext } from '@/retail-contexts/root-context'
 import { useContext, useEffect, useMemo, useState } from 'react'
 import LastRoundsResults from '@/retail-components/last-rounds-results'
+import Leaderboard from '@/retail-components/leaderboard'
 
 export default function Home() {
   const { upcomingRounds } = useContext(RootContext)
@@ -30,18 +31,18 @@ export default function Home() {
   }>()
 
   const [selectedRound, setSelectedRound] = useState<UpcomingRound>()
+  const [lastResultsOpen, setLastResultsOpen] = useState(true)
+
   useEffect(() => {
     if (!selectedRound && upcomingRounds && upcomingRounds.length > 0) {
       setSelectedRound(upcomingRounds[0])
     }
   }, [upcomingRounds, selectedRound])
 
-  const [lastResultsOpen, setLastResultsOpen] = useState(false)
-
   return (
     <div className="flex h-full overflow-hidden">
       {/* First column */}
-      <div className="w-[263px] h-[942px] flex flex-col items-center justify-between overflow-hidden ml-2 mr-4">
+      <div className="ml-2 mr-4 flex h-[942px] w-[263px] flex-col items-center justify-between gap-4 overflow-hidden">
         <UpcomingRoundsCard
           rounds={upcomingRounds}
           selectedRound={selectedRound}
@@ -50,14 +51,14 @@ export default function Home() {
           toggleCollapse={() => setLastResultsOpen((prev) => !prev)}
         />
         <LastRoundsResults
-          roundsResults={Array.from({ length: 3 }, (_, index) => {
+          roundsResults={Array.from({ length: 12 }, (_, index) => {
             const date = new Date(referenceDate)
             date.setMinutes(date.getMinutes() - (index + 1) * 3)
 
             return {
               round: {
                 name: 'Triden',
-                number: 3 - index,
+                number: 12 - index,
               },
               startTime: date,
             }
@@ -68,7 +69,7 @@ export default function Home() {
       </div>
 
       {/* SECOND COLUMN*/}
-      <div className="w-[1241px] h-[942px] overflow-y-auto mr-4">
+      <div className="mr-4 flex h-[942px] w-[1241px] flex-col gap-2 overflow-y-auto">
         {selectedRound ? (
           matchBetOptions ? (
             <MatchBettingOptions
@@ -78,10 +79,13 @@ export default function Home() {
               close={() => setMatchBetOptions(undefined)}
             />
           ) : (
-            <UpcomingRoundCard
-              round={selectedRound}
-              viewMatchBettingOptions={setMatchBetOptions}
-            />
+            <>
+              <UpcomingRoundCard
+                round={selectedRound}
+                viewMatchBettingOptions={setMatchBetOptions}
+              />
+              <Leaderboard />
+            </>
           )
         ) : (
           <div className="flex h-full items-center justify-center">
@@ -91,7 +95,7 @@ export default function Home() {
       </div>
 
       {/*RIGHT COLUMN - Betting slip*/}
-      <div className="w-[375] h-[942px] overflow-y-auto bg-background text-foreground">
+      <div className="h-[942px] w-[375] overflow-y-auto bg-background text-foreground">
         <BettingSlip />
       </div>
     </div>
