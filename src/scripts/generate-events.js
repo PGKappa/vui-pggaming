@@ -10,12 +10,15 @@ import { fileURLToPath } from 'url'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-// Function to generate random date between two dates
+// Function to generate random date between two dates (not used in current implementation)
+// Kept for potential future use
+/* 
 function randomDate(start, end) {
   return new Date(
     start.getTime() + Math.random() * (end.getTime() - start.getTime()),
   )
 }
+*/
 
 // Function to format date to ISO string with proper format (YYYY-MM-DDThh:mm:ssZ)
 function formatDate(date) {
@@ -439,17 +442,16 @@ function generateEvent(eventIndex, groupId) {
   // Generate event ID based on groupId and eventIndex
   const eventId = 60000 + groupId * 100 + eventIndex
 
-  // Generate start time (between now and 1 year from now)
+  // Generate start time based on groupId (each group is 3 minutes apart)
   // Use a fixed date format: YYYY-MM-DDThh:mm:ssZ
-  const now = new Date('2025-06-05T10:00:00Z') // Use a fixed start date to ensure consistency
-  const oneYearLater = new Date('2026-06-05T10:00:00Z')
-
-  // Generate a random date but ensure it has whole minutes (no milliseconds)
-  const randomEventDate = randomDate(now, oneYearLater)
-  randomEventDate.setSeconds(0)
-  randomEventDate.setMilliseconds(0)
-
-  const startTime = formatDate(randomEventDate)
+  const baseDate = new Date('2025-06-05T10:00:00Z') // Use a fixed start date
+  
+  // Calculate the group's start time: base time + (groupId - 9) * 3 minutes
+  const groupDate = new Date(baseDate.getTime() + ((groupId - 9) * 3 * 60 * 1000))
+  groupDate.setSeconds(0)
+  groupDate.setMilliseconds(0)
+  
+  const startTime = formatDate(groupDate)
 
   // Generate event name from team names that will be created later
   const teamCodeIndex1 = (groupId + eventIndex) % teamCodes.length
