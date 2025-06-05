@@ -32,7 +32,7 @@ export default function MatchBettingOptions(props: {
             onClick={props.close}
             size="icon-lg"
           >
-            <ChevronsLeftIcon />
+            <ChevronsLeftIcon style={{ scale: 2 }} />
           </Button>
           <span className="text-[24px]">
             {props.round.name} {t('round')} {props.round.number} /
