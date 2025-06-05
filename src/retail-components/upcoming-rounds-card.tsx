@@ -32,7 +32,7 @@ export default function UpcomingRoundsCard({
 
   return (
     <Card className="flex w-full flex-col overflow-hidden">
-      <CardHeader className="flex flex-row items-center justify-between">
+      <CardHeader className="flex flex-row items-center justify-between h-14">
         <div className="w-full text-center">
           <h3 className="text-xl font-bold">Next Events</h3>
         </div>

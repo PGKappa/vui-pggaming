@@ -62,7 +62,7 @@ export default function BettingSlip() {
       data-testid="betting-slip"
     >
       <div className="grid grid-cols-2 text-center">
-        <span className="col-span-2 flex h-14 w-full flex-col items-center justify-center bg-accent text-[19px] font-semibold text-accent-foreground">
+        <span className="col-span-2 flex h-16 w-full flex-col items-center justify-center bg-accent text-[19px] font-semibold text-accent-foreground">
           {t('bet_slip')} ( {betEntries.length} )
         </span>
 
