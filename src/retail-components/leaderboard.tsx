@@ -10,7 +10,7 @@ import { ChevronDown, ChevronUp } from 'lucide-react'
 
 export default function Leaderboard() {
   const { teamRankings } = useContext(RootContext)
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(true)
 
   return (
     <Card>
