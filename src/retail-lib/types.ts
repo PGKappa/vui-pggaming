@@ -148,6 +148,12 @@ export type MatchResult = {
   score2: number
 }
 
+export type MatchStatistics = {
+  teams: string
+  probabilities: [number, number, number]
+  startTime: Date
+}
+
 export type TeamRanking = {
   position: number
   team: string

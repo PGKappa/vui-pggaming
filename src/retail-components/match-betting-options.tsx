@@ -12,6 +12,9 @@ import {
   AccordionTrigger,
 } from './ui/accordion'
 import { Button } from './ui/button'
+import MatchResult from './match-result'
+import MatchStatistics from './match-statistics-card'
+import { Separator } from './ui/separator'
 
 export default function MatchBettingOptions(props: {
   round: {
@@ -24,7 +27,7 @@ export default function MatchBettingOptions(props: {
   close: () => void
 }) {
   return (
-    <div className="flex h-full w-full flex-col gap-2 overflow-hidden">
+    <div className="flex h-full w-full flex-col gap-4 overflow-hidden">
       <div className="sticky top-0 z-10 flex h-16 flex-row items-center justify-between bg-accent text-accent-foreground">
         <div className="flex flex-row items-center gap-2">
           <Button
@@ -43,8 +46,18 @@ export default function MatchBettingOptions(props: {
           {format(props.round.startingAt, 'HH:mm')}
         </span>
       </div>
-
-      <div className='flex-1 overflow-y-auto'>
+      <div className="flex flex-row items-center justify-between">
+        <MatchResult />
+        <Separator orientation="vertical" />
+        <MatchStatistics
+          match={{
+            teams: props.teams,
+            probabilities: [10, 50, 40],
+            startTime: props.round.startingAt,
+          }}
+        />
+      </div>
+      <div className="flex-1 overflow-y-auto">
         <Accordion type="multiple" className="space-y-2">
           {props.markets.map((market) => (
             <AccordionItem
