@@ -51,14 +51,14 @@ export default function Home() {
           toggleCollapse={() => setLastResultsOpen((prev) => !prev)}
         />
         <LastRoundsResults
-          roundsResults={Array.from({ length: 3 }, (_, index) => {
+          roundsResults={Array.from({ length: 8 }, (_, index) => {
             const date = new Date(referenceDate)
             date.setMinutes(date.getMinutes() - (index + 1) * 3)
 
             return {
               round: {
                 name: 'Triden',
-                number: 3 - index,
+                number: 8 - index,
               },
               startTime: date,
             }
