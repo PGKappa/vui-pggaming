@@ -32,11 +32,16 @@ export default function UpcomingRoundsCard({
 
   return (
     <Card className="flex w-full flex-col overflow-hidden">
-      <CardHeader className="flex flex-row items-center justify-between">
+      <CardHeader className="relative flex h-16 flex-row items-center justify-between">
         <div className="w-full text-center">
           <h3 className="text-xl font-bold">Next Events</h3>
         </div>
-        <Button variant="ghost" size="icon-lg" onClick={toggleCollapse}>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleCollapse}
+          className="absolute right-4"
+        >
           {collapsed ? (
             <ChevronDown style={{ scale: 2 }} />
           ) : (
