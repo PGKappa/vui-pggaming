@@ -156,7 +156,7 @@ export default function UpcomingRoundCard(props: {
                     </TableCell>
 
                     <TableCell className="h-[70px] w-[116px] text-center">
-                      <span className="text-[14px] font-bold">{teamNames}</span>
+                      <span className="text-[16px] font-bold">{teamNames}</span>
                     </TableCell>
 
                     {mainMarket ? (
@@ -245,7 +245,7 @@ export default function UpcomingRoundCard(props: {
                           })
                         }
                       >
-                        <PlusIcon className="h-32 w-32" />
+                        <PlusIcon style={{ scale: 1.5 }} />
                       </Button>
                     </TableCell>
                   </TableRow>
