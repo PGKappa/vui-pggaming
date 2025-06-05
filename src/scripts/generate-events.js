@@ -498,7 +498,7 @@ function generateAllEvents() {
   const events = []
 
   // Generate 10 events for each of the 40 groupIds (starting from 9)
-  for (let groupId = 9; groupId < 49; groupId++) {
+  for (let groupId = 13; groupId < 53; groupId++) {
     for (let eventIndex = 0; eventIndex < 10; eventIndex++) {
       events.push(generateEvent(eventIndex, groupId))
     }
