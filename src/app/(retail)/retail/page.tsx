@@ -31,7 +31,7 @@ export default function Home() {
   }>()
 
   const [selectedRound, setSelectedRound] = useState<UpcomingRound>()
-  const [lastResultsOpen, setLastResultsOpen] = useState(false)
+  const [lastResultsOpen, setLastResultsOpen] = useState(true)
 
   useEffect(() => {
     if (!selectedRound && upcomingRounds && upcomingRounds.length > 0) {

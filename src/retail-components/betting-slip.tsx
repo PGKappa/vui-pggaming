@@ -120,7 +120,7 @@ export default function BettingSlip() {
                     <div className="flex flex-row justify-end">
                       <Button
                         variant="ghost"
-                        className="size-7 hover:text-tertiary-foreground group"
+                        className="group size-7 hover:text-tertiary-foreground"
                         size="icon"
                         onClick={() => removeMatchBets(matchKey)}
                       >
