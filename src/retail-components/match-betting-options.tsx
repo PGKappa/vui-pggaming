@@ -12,7 +12,7 @@ import {
   AccordionTrigger,
 } from './ui/accordion'
 import { Button } from './ui/button'
-import MatchResult from './match-result'
+import MatchResultCard from './match-result-card'
 import MatchStatistics from './match-statistics-card'
 import { Separator } from './ui/separator'
 
@@ -46,8 +46,15 @@ export default function MatchBettingOptions(props: {
           {format(props.round.startingAt, 'HH:mm')}
         </span>
       </div>
-      <div className="flex flex-row items-center justify-between">
-        <MatchResult />
+      <div className="flex flex-row items-start justify-between">
+        <MatchResultCard
+          matchResult={{
+            round: props.round,
+            teams: props.teams,
+            score1: 1,
+            score2: 2,
+          }}
+        />
         <Separator orientation="vertical" />
         <MatchStatistics
           match={{

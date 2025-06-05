@@ -2,13 +2,12 @@
 
 import LoadingSpinner from '@/retail-components/loading-spinner'
 import {
+  LastRoundResults,
+  TeamRanking,
   Ticket,
-  MatchResult,
   UpcomingMatch,
   UpcomingRound,
   User,
-  LastRoundResults,
-  TeamRanking,
 } from '@/retail-lib/types'
 import { BASE_API_URL } from '@/retail-lib/utils'
 import { createContext, useCallback, useEffect, useState } from 'react'
@@ -26,7 +25,6 @@ export type RootContextType = {
   upcomingRounds?: UpcomingRound[]
   lastRoundsResults?: LastRoundResults[]
   betsHistory: Ticket[]
-  matchResult?: MatchResult[]
   teamRankings?: TeamRanking[]
 }
 
@@ -54,14 +52,6 @@ const defaultRootContext: RootContextType = {
     },
   ],
   betsHistory: [],
-  matchResult: [
-    {
-      round: { name: 'Super League', number: 28 },
-      teams: 'NAP - GEN',
-      score1: 2,
-      score2: 0,
-    },
-  ],
   teamRankings: [
     {
       position: 1,
