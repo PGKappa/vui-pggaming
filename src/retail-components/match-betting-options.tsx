@@ -25,7 +25,7 @@ export default function MatchBettingOptions(props: {
 }) {
   return (
     <div className="flex h-full w-full flex-col gap-2 overflow-hidden">
-      <div className="sticky top-0 z-10 flex h-14 flex-row items-center justify-between bg-accent text-accent-foreground">
+      <div className="sticky top-0 z-10 flex h-16 flex-row items-center justify-between bg-accent text-accent-foreground">
         <div className="flex flex-row items-center gap-2">
           <Button
             className="ml-3 rounded-[8px] bg-tertiary text-tertiary-foreground hover:bg-tertiary/70"

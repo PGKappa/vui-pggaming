@@ -15,7 +15,7 @@ export default function Leaderboard() {
   return (
     <Card>
       <CardHeader className="flex h-16 flex-row items-center px-5">
-        <CardTitle className="justify-start text-lg font-bold">
+        <CardTitle className="justify-start text-[19px] font-bold">
           STANDINGS
         </CardTitle>
         <Button variant="ghost" size="icon-lg" onClick={() => setOpen(!open)}>

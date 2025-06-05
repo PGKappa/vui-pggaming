@@ -34,7 +34,7 @@ export default function UpcomingRoundsCard({
     <Card className="flex w-full flex-col overflow-hidden">
       <CardHeader className="relative flex h-16 flex-row items-center justify-between">
         <div className="w-full text-center">
-          <h3 className="text-xl font-bold">Next Events</h3>
+          <h3 className="text-[19px] font-bold">Next Events</h3>
         </div>
         <Button
           variant="ghost"
