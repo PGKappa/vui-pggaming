@@ -43,18 +43,23 @@ export default function SearchRoundResults(props: {
                       className="gap-0"
                     >
                       <AccordionTrigger className="text-searchResult-foreground bg-searchResult p-2 text-base [&[data-state=open]>svg]:-rotate-90">
-                        <div className="space-x-2">
+                        <div className="flex w-[600px] flex-row justify-between gap-2">
+                          <div className="flex flex-row gap-2">
+                            <span className="font-bold">
+                              {format(
+                                roundResult.startTime,
+                                'dd-MM-yyyy HH:mm',
+                              )}{' '}
+                              {roundResult.round.name.toUpperCase()} ROUND{' '}
+                              {roundResult.round.number}
+                              {' / '}
+                            </span>
+                            <span>{match.teams}</span>
+                          </div>
                           <span className="font-bold">
-                            {format(roundResult.startTime, 'dd-MM-yyyy HH:mm')}{' '}
-                            {roundResult.round.name.toUpperCase()} ROUND{' '}
-                            {roundResult.round.number}
-                            {' / '}
+                            {match.score1} - {match.score2}
                           </span>
-                          <span>{match.teams}</span>
                         </div>
-                        <span className="font-bold">
-                          {match.score1} - {match.score2}
-                        </span>
                         <ChevronRight className="h-6 w-6 shrink-0 transition-transform duration-200" />
                       </AccordionTrigger>
                       <AccordionContent>
