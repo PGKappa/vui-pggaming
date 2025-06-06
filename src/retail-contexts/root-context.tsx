@@ -126,7 +126,7 @@ const defaultRootContext: RootContextType = {
       last8: ['W', 'L', 'L', 'D', 'D', 'D', 'W', 'W'],
     },
     {
-      position: 8,
+      position: 7,
       team: 'LEE',
       played: 17,
       wins: 9,
@@ -138,7 +138,7 @@ const defaultRootContext: RootContextType = {
       last8: ['W', 'L', 'L', 'D', 'D', 'D', 'W', 'W'],
     },
     {
-      position: 7,
+      position: 8,
       team: 'BRE',
       played: 17,
       wins: 9,
