@@ -1,24 +1,17 @@
 'use client'
-import { Market, UpcomingRound } from '@/retail-lib/types'
 import BettingSlip from '@/retail-components/betting-slip'
+import LastRoundsResults from '@/retail-components/last-rounds-results'
+import Leaderboard from '@/retail-components/leaderboard'
 import MatchBettingOptions from '@/retail-components/match-betting-options'
+import SearchRoundResults from '@/retail-components/search-round-results'
 import UpcomingRoundCard from '@/retail-components/upcoming-round-card'
 import UpcomingRoundsCard from '@/retail-components/upcoming-rounds-card'
 import { RootContext } from '@/retail-contexts/root-context'
-import { useContext, useEffect, useMemo, useState } from 'react'
-import LastRoundsResults from '@/retail-components/last-rounds-results'
-import Leaderboard from '@/retail-components/leaderboard'
+import { Market, RoundResults, UpcomingRound } from '@/retail-lib/types'
+import { useContext, useEffect, useState } from 'react'
 
 export default function Home() {
-  const { upcomingRounds } = useContext(RootContext)
-
-  const referenceDate = useMemo(() => {
-    if (upcomingRounds && upcomingRounds.length > 0) {
-      const firstMatch = upcomingRounds[0].mag_event?.[0]
-      return firstMatch ? new Date(firstMatch.startTime) : new Date()
-    }
-    return new Date()
-  }, [upcomingRounds])
+  const { upcomingRounds, roundResults } = useContext(RootContext)
 
   const [matchBetOptions, setMatchBetOptions] = useState<{
     round: {
@@ -32,6 +25,7 @@ export default function Home() {
 
   const [selectedRound, setSelectedRound] = useState<UpcomingRound>()
   const [lastResultsOpen, setLastResultsOpen] = useState(true)
+  const [searchRoundResults, setSearchRoundResults] = useState<RoundResults[]>()
 
   useEffect(() => {
     if (!selectedRound && upcomingRounds && upcomingRounds.length > 0) {
@@ -46,31 +40,30 @@ export default function Home() {
         <UpcomingRoundsCard
           rounds={upcomingRounds}
           selectedRound={selectedRound}
-          setSelectedRound={setSelectedRound}
+          setSelectedRound={(round) => {
+            setSelectedRound(round)
+            setSearchRoundResults(undefined)
+          }}
           collapsed={lastResultsOpen}
           toggleCollapse={() => setLastResultsOpen((prev) => !prev)}
         />
         <LastRoundsResults
-          roundsResults={Array.from({ length: 12 }, (_, index) => {
-            const date = new Date(referenceDate)
-            date.setMinutes(date.getMinutes() - (index + 1) * 3)
-
-            return {
-              round: {
-                name: 'Triden',
-                number: 12 - index,
-              },
-              startTime: date,
-            }
-          })}
+          roundResults={roundResults}
           open={lastResultsOpen}
           toggleOpen={() => setLastResultsOpen((prev) => !prev)}
+          setSearchRoundResults={setSearchRoundResults}
+          searchRoundResults={searchRoundResults}
         />
       </div>
 
       {/* SECOND COLUMN*/}
       <div className="mr-4 flex h-[942px] w-[1241px] flex-col gap-2 overflow-y-auto">
-        {selectedRound ? (
+        {!!searchRoundResults ? (
+          <SearchRoundResults
+            roundResults={searchRoundResults}
+            onClose={() => setSearchRoundResults(undefined)}
+          />
+        ) : selectedRound ? (
           matchBetOptions ? (
             <MatchBettingOptions
               round={matchBetOptions.round}

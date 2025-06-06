@@ -8,17 +8,18 @@ import {
 import { ScrollArea } from '@/retail-components/ui/scroll-area'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import SearchDialog from './search-dialog'
+import { RoundResults } from '@/retail-lib/types'
+import { useCallback } from 'react'
 
 export default function LastRoundsResults(props: {
-  roundsResults: {
-    round: { name: string; number: number }
-    startTime: Date
-  }[]
+  roundResults: RoundResults[]
   upcomingRound?: {
     scheduleId: number
   }[]
   open: boolean
   toggleOpen: () => void
+  setSearchRoundResults: (results: RoundResults[]) => void
+  searchRoundResults?: RoundResults[]
 }) {
   const formatStartTime = (date: Date) =>
     new Date(date).toLocaleTimeString('it-IT', {
@@ -26,11 +27,11 @@ export default function LastRoundsResults(props: {
       minute: '2-digit',
     })
 
-  const firstUpcomingRound = props.upcomingRound?.[0]?.scheduleId ?? 0
-
-  const filteredRounds = props.roundsResults
-    .filter((r) => r.round.number > firstUpcomingRound)
-    .sort((a, b) => b.round.number - a.round.number)
+  const isResultSelected = useCallback(
+    (roundNumber: number) =>
+      props.searchRoundResults?.find((r) => r.round.number === roundNumber),
+    [props.searchRoundResults],
+  )
 
   return (
     <Card className={`flex ${props.open ? 'h-1/2' : ''} w-full flex-col`}>
@@ -55,15 +56,20 @@ export default function LastRoundsResults(props: {
       {props.open && (
         <CardContent className="flex-grow overflow-hidden p-0">
           <ScrollArea className="h-full">
-            {filteredRounds.length < 0 ? (
+            {props.roundResults.length < 0 ? (
               <div className="text-center text-sm text-muted-foreground">
                 No past results available
               </div>
             ) : (
-              filteredRounds.map((result) => (
+              props.roundResults.map((result) => (
                 <button
                   key={result.round.number}
-                  className="flex w-full cursor-pointer flex-row items-center justify-between border-b border-border bg-muted-foreground p-1 px-4"
+                  className={`flex w-full cursor-pointer flex-row items-center justify-between border-b border-border p-1 px-4 ${
+                    isResultSelected(result.round.number)
+                      ? 'bg-muted'
+                      : 'bg-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                  }`}
+                  onClick={() => props.setSearchRoundResults([result])}
                 >
                   <div className="flex items-center gap-3">
                     <span className="text-md">
@@ -83,7 +89,7 @@ export default function LastRoundsResults(props: {
         </CardContent>
       )}
       <CardFooter>
-        <SearchDialog />
+        <SearchDialog setSearchRoundResults={props.setSearchRoundResults} />
       </CardFooter>
     </Card>
   )

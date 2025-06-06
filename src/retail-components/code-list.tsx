@@ -73,14 +73,14 @@ export default function CodeList() {
                   <div className="flex w-2 flex-col overflow-hidden">
                     <Menu className="text-accent-foreground" />
                   </div>
-                  <div className="flex flex-col w-2 overflow-hidden">
+                  <div className="flex w-2 flex-col overflow-hidden">
                     <Menu className="text-accent-foreground" />
                   </div>
                 </div>
               )}
             </Button>
           </div>
-          <DialogTitle className="text-lg font-bold text-accent-foreground">
+          <DialogTitle className="text-[20px] font-bold text-accent-foreground">
             Code List
           </DialogTitle>
         </DialogHeader>
@@ -91,7 +91,7 @@ export default function CodeList() {
               <TableBody>
                 {[...codeListLeft, ...codeListRight].map((item, index) => (
                   <TableRow key={index} className="border-b border-border">
-                    <TableCell className="whitespace-pre-wrap text-sm font-medium">
+                    <TableCell className="whitespace-pre-wrap text-[16px] font-medium">
                       {item.label}
                     </TableCell>
                     <TableCell className="text-center">
@@ -110,7 +110,7 @@ export default function CodeList() {
               <TableBody>
                 {codeListLeft.map((item, index) => (
                   <TableRow key={index} className="border-b border-border">
-                    <TableCell className="whitespace-pre-wrap text-sm font-medium">
+                    <TableCell className="whitespace-pre-wrap text-[16px] font-medium">
                       {item.label}
                     </TableCell>
 
@@ -124,11 +124,11 @@ export default function CodeList() {
               </TableBody>
             </Table>
 
-            <Table>
+            <Table className="border-b border-border">
               <TableBody>
                 {codeListRight.map((item, index) => (
                   <TableRow key={index} className="border-b border-border">
-                    <TableCell className="whitespace-pre-wrap text-sm font-medium">
+                    <TableCell className="whitespace-pre-wrap text-[16px] font-medium">
                       {item.label}
                     </TableCell>
                     <TableCell className="text-center">
