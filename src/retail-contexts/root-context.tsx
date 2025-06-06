@@ -337,19 +337,55 @@ export default function RootContextProvider(props: {
       const roundResults: RoundResults[] = Array.from(
         { length: 12 },
         (_, index) => {
-          const date = new Date(
-            rounds[0].mag_event[0].startTime,
-          )
+          const date = new Date(rounds[0].mag_event[0].startTime)
           date.setMinutes(date.getMinutes() - (index + 1) * 3)
 
           return {
             round: {
-              name: 'Triden',
+              name: 'Trident',
               number: 12 - index,
             },
             startTime: date,
             duration: 3,
-            matchResults: [],
+            matchResults: [
+              {
+                teams: 'AST - WOL',
+                score1: 2,
+                score2: 1,
+                odds: {
+                  oneXTwo: {
+                    odds: 1.95,
+                  },
+                  doubleChance: {
+                    odds: 1.63,
+                  },
+                  firstScorer: {
+                    teamLabel: 'WOL',
+                    odds: 2.05,
+                  },
+                  sumGoals: {
+                    value: 2,
+                    odds: 1.63,
+                  },
+                  goalNoGoal: {
+                    value: 1,
+                    odds: 1.95,
+                  },
+                  redCard: {
+                    value: 'WOL',
+                    odds: 2.05,
+                  },
+                  winningCombo: {
+                    value: 'WOL',
+                    odds: 2.05,
+                  },
+                  exactGoals: {
+                    value: 2,
+                    odds: 1.63,
+                  },
+                },
+              },
+            ],
           }
         },
       )
