@@ -23,34 +23,14 @@ export type RootContextType = {
     params?: Record<string, string>,
   ) => Promise<T>
   upcomingRounds?: UpcomingRound[]
-  roundResults?: RoundResults[]
+  roundResults: RoundResults[]
   betsHistory: Ticket[]
   teamRankings?: TeamRanking[]
 }
 
 const defaultRootContext: RootContextType = {
   //TODO: remove mock data
-  roundResults: [
-    {
-      round: { name: 'Triden', number: 17 },
-      startTime: new Date(),
-      duration: 30,
-      matchResults: [
-        {
-          round: { name: 'Super League', number: 28 },
-          teams: 'NAP - GEN',
-          score1: 2,
-          score2: 0,
-        },
-        {
-          round: { name: 'Super League', number: 28 },
-          teams: 'MIL - ROM',
-          score1: 1,
-          score2: 1,
-        },
-      ],
-    },
-  ],
+  roundResults: [],
   betsHistory: [],
   teamRankings: [
     {
@@ -354,9 +334,30 @@ export default function RootContextProvider(props: {
         },
       )
 
+      const roundResults: RoundResults[] = Array.from(
+        { length: 12 },
+        (_, index) => {
+          const date = new Date(
+            rounds[0].mag_event[0].startTime,
+          )
+          date.setMinutes(date.getMinutes() - (index + 1) * 3)
+
+          return {
+            round: {
+              name: 'Triden',
+              number: 12 - index,
+            },
+            startTime: date,
+            duration: 3,
+            matchResults: [],
+          }
+        },
+      )
+
       setRootContext((prev) => ({
         ...prev,
         upcomingRounds: rounds,
+        roundResults,
       }))
     }
 

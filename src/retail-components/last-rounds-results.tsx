@@ -8,9 +8,10 @@ import {
 import { ScrollArea } from '@/retail-components/ui/scroll-area'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import SearchDialog from './search-dialog'
+import { RoundResults } from '@/retail-lib/types'
 
 export default function LastRoundsResults(props: {
-  roundsResults: {
+  roundResults: {
     round: { name: string; number: number }
     startTime: Date
   }[]
@@ -19,6 +20,7 @@ export default function LastRoundsResults(props: {
   }[]
   open: boolean
   toggleOpen: () => void
+  setSearchRoundResults: (results: RoundResults[]) => void
 }) {
   const formatStartTime = (date: Date) =>
     new Date(date).toLocaleTimeString('it-IT', {
@@ -28,7 +30,7 @@ export default function LastRoundsResults(props: {
 
   const firstUpcomingRound = props.upcomingRound?.[0]?.scheduleId ?? 0
 
-  const filteredRounds = props.roundsResults
+  const filteredRounds = props.roundResults
     .filter((r) => r.round.number > firstUpcomingRound)
     .sort((a, b) => b.round.number - a.round.number)
 
@@ -83,7 +85,7 @@ export default function LastRoundsResults(props: {
         </CardContent>
       )}
       <CardFooter>
-        <SearchDialog />
+        <SearchDialog setSearchRoundResults={props.setSearchRoundResults} />
       </CardFooter>
     </Card>
   )
