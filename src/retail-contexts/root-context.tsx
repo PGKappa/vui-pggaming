@@ -2,7 +2,7 @@
 
 import LoadingSpinner from '@/retail-components/loading-spinner'
 import {
-  LastRoundResults,
+  RoundResults,
   TeamRanking,
   Ticket,
   UpcomingMatch,
@@ -23,14 +23,14 @@ export type RootContextType = {
     params?: Record<string, string>,
   ) => Promise<T>
   upcomingRounds?: UpcomingRound[]
-  lastRoundsResults?: LastRoundResults[]
+  roundResults?: RoundResults[]
   betsHistory: Ticket[]
   teamRankings?: TeamRanking[]
 }
 
 const defaultRootContext: RootContextType = {
   //TODO: remove mock data
-  lastRoundsResults: [
+  roundResults: [
     {
       round: { name: 'Triden', number: 17 },
       startTime: new Date(),

@@ -96,7 +96,7 @@ export type UpcomingRound = {
   mag_event: UpcomingMatch[]
 }
 
-export type LastRoundResults = {
+export type RoundResults = {
   round: {
     name: string
     number: number

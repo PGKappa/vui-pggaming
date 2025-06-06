@@ -1,5 +1,5 @@
 'use client'
-import { Market, UpcomingRound } from '@/retail-lib/types'
+import { Market, RoundResults, UpcomingRound } from '@/retail-lib/types'
 import BettingSlip from '@/retail-components/betting-slip'
 import MatchBettingOptions from '@/retail-components/match-betting-options'
 import UpcomingRoundCard from '@/retail-components/upcoming-round-card'
@@ -32,6 +32,7 @@ export default function Home() {
 
   const [selectedRound, setSelectedRound] = useState<UpcomingRound>()
   const [lastResultsOpen, setLastResultsOpen] = useState(true)
+  const [searchRoundResults, setSearchRoundResults] = useState<RoundResults>()
 
   useEffect(() => {
     if (!selectedRound && upcomingRounds && upcomingRounds.length > 0) {
