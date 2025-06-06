@@ -1,22 +1,24 @@
 'use client'
 
 import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from '@/retail-components/ui/accordion'
-import {
   Dialog,
+  DialogClose,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from '@/retail-components/ui/dialog'
-import { cn } from '@/retail-lib/utils'
 import { SearchIcon } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from './ui/button'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from './ui/select'
 
 const dates = [
   '20/01/2023',
@@ -60,7 +62,7 @@ export default function SearchDialog() {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="flex min-h-[480px] max-w-xl flex-col justify-between">
+      <DialogContent className="min-h-[500px] max-w-xl">
         <DialogHeader className="h-16 bg-accent">
           <DialogTitle className="text-center text-[19px] font-bold text-accent-foreground">
             Search Results
@@ -68,66 +70,41 @@ export default function SearchDialog() {
         </DialogHeader>
 
         <div className="flex flex-1 flex-row gap-4 overflow-auto p-4">
-          <Accordion type="multiple" className="w-1/2 space-y-2">
-            <AccordionItem value="date">
-              <AccordionTrigger className="bg-background text-[16px] font-semibold">
-                Date
-              </AccordionTrigger>
-              <AccordionContent className="max-h-60 overflow-y-auto">
-                <ul className="flex flex-col gap-2">
-                  {dates.map((date) => (
-                    <li
-                      key={date}
-                      className={cn(
-                        'cursor-pointer p-2 hover:bg-muted',
-                        selectedDate === date &&
-                          'bg-muted text-muted-foreground',
-                      )}
-                      onClick={() =>
-                        setSelectedDate((prev) =>
-                          prev === date ? undefined : date,
-                        )
-                      }
-                    >
-                      {date}
-                    </li>
-                  ))}
-                </ul>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-
-          <Accordion type="multiple" className="w-1/2 space-y-2">
-            <AccordionItem value="time">
-              <AccordionTrigger className="bg-background text-[16px] font-semibold">
-                Time Slot
-              </AccordionTrigger>
-              <AccordionContent className="max-h-60 overflow-y-auto">
-                <ul className="flex flex-col gap-2">
-                  {timeSlot.map((slot) => (
-                    <li
-                      key={slot}
-                      className={cn(
-                        'cursor-pointer p-2 hover:bg-muted',
-                        selectedTimeSlot === slot &&
-                          'bg-muted text-muted-foreground',
-                      )}
-                      onClick={() =>
-                        setSelectedTimeSlot((prev) =>
-                          prev === slot ? undefined : slot,
-                        )
-                      }
-                    >
-                      {slot}
-                    </li>
-                  ))}
-                </ul>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
+          <Select onValueChange={setSelectedDate} defaultValue={selectedDate}>
+            <SelectTrigger>
+              <SelectValue placeholder="Date" />
+            </SelectTrigger>
+            <SelectContent>
+              {dates.map((date) => (
+                <SelectItem key={date} value={date}>
+                  {date}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select
+            onValueChange={setSelectedTimeSlot}
+            defaultValue={selectedTimeSlot}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Time Slot" />
+            </SelectTrigger>
+            <SelectContent>
+              {timeSlot.map((slot) => (
+                <SelectItem key={slot} value={slot}>
+                  {slot}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
-        <div className="m-4 flex justify-center">
+        <DialogFooter className="flex w-full flex-row items-center justify-between p-4">
+          <DialogClose asChild>
+            <Button className="w-24 bg-gray-500 text-[19px] text-background hover:bg-gray-600">
+              Cancel
+            </Button>
+          </DialogClose>
           <Button
             className="w-24 bg-green-500 text-[19px] text-white hover:bg-green-600"
             disabled={!selectedDate || !selectedTimeSlot}
@@ -139,7 +116,7 @@ export default function SearchDialog() {
           >
             Cerca
           </Button>
-        </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   )
