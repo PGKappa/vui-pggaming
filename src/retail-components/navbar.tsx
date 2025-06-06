@@ -2,9 +2,12 @@ import { cn } from '@/retail-lib/utils'
 import { Info } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { buttonVariants } from './ui/button'
 
 export default function Navbar() {
+  const searchParams = useSearchParams()
+  const initCode = searchParams.get('init_code')
   return (
     <nav className="flex w-full flex-row items-center justify-start bg-accent p-3">
       <span className="whitespace-nowrap pl-14 text-center text-[16px] font-semibold text-background">
@@ -13,7 +16,7 @@ export default function Navbar() {
 
       <div className="flex flex-row items-center gap-4 pl-[68px]">
         <Link
-          href="/dogs-horses"
+          href={`/dogs-horses${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
             buttonVariants({
               variant: 'navbar',
@@ -39,7 +42,7 @@ export default function Navbar() {
         </Link>
 
         <Link
-          href="/dogs"
+          href={`/dogs${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
             buttonVariants({
               variant: 'navbar',
@@ -59,7 +62,7 @@ export default function Navbar() {
         </Link>
 
         <Link
-          href="/horses"
+          href={`/horses${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
             buttonVariants({
               variant: 'navbar',
@@ -79,7 +82,7 @@ export default function Navbar() {
         </Link>
 
         <Link
-          href="/retail"
+          href={`/retail${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
             buttonVariants({
               variant: 'navbar',
@@ -101,7 +104,7 @@ export default function Navbar() {
 
       <div className="flex w-full justify-end gap-4">
         <Link
-          href="/retail/ticket-list"
+          href={`/retail/ticket-list${initCode ? `?init_code=${initCode}` : ''}`}
           className={buttonVariants({
             variant: 'ticketButton',
             size: 'lg',
@@ -111,7 +114,7 @@ export default function Navbar() {
         </Link>
 
         <Link
-          href="/retail/ticket-check"
+          href={`/retail/ticket-check${initCode ? `?init_code=${initCode}` : ''}`}
           className={buttonVariants({
             variant: 'ticketButton',
             size: 'lg',
@@ -121,7 +124,7 @@ export default function Navbar() {
         </Link>
 
         <Link
-          href="/info"
+          href={`/info${initCode ? `?init_code=${initCode}` : ''}`}
           className={buttonVariants({
             variant: 'ticketButton',
             size: 'default',
