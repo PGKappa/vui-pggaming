@@ -64,7 +64,7 @@ export default function MatchStatisticsCard({
                 strokeWidth={strokeWidth}
                 strokeDasharray={`${homeStroke} ${circumference}`}
                 strokeDashoffset={circumference - homeStroke}
-                transform="rotate(310 50 50)"
+                transform="rotate(150 50 50)"
                 strokeLinecap="round"
               />
             </svg>
