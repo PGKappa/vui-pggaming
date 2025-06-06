@@ -64,7 +64,7 @@ export default function StakeInputDialog({
       <DialogContent className="w-[600px] p-0">
         <DialogHeader className="bg-accent p-4">
           <DialogTitle className="text-center text-lg font-bold text-accent-foreground">
-            Insert Stake Amount
+            Inserisci Importo Puntata
           </DialogTitle>
         </DialogHeader>
 
@@ -140,13 +140,13 @@ export default function StakeInputDialog({
                 className="flex-1 bg-gray-600 text-[16px] text-white hover:bg-gray-700"
                 onClick={resetValue}
               >
-                Delete
+                Cancella
               </Button>
               <Button
                 className="flex-1 bg-green-600 text-[16px] text-white hover:bg-green-700"
                 onClick={() => onConfirm(parseFloat(tempValue))}
               >
-                Done
+                Fine
               </Button>
             </div>
           </div>

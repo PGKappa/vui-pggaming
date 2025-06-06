@@ -40,7 +40,7 @@ export default function TicketCheckPage() {
 
       <div className="flex flex-1 flex-col items-center justify-center">
         <p className="text-[22px] font-semibold">
-          Scan receipts or enter the code.
+          Scansiona lo scontrino o inserisci il codice.
         </p>
 
         <Input
@@ -71,7 +71,7 @@ export default function TicketCheckPage() {
           className="h-16 w-[1200px] bg-green-600 text-[20px] font-bold text-white hover:bg-green-700"
           onClick={handleSubmit}
         >
-          Submit
+          Conferma
         </Button>
       </div>
     </main>

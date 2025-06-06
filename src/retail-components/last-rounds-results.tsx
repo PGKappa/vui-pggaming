@@ -37,7 +37,7 @@ export default function LastRoundsResults(props: {
     <Card className={`flex ${props.open ? 'h-1/2' : ''} w-full flex-col`}>
       <CardHeader className="relative flex max-h-16 min-h-16 flex-row items-center justify-between">
         <div className="w-full text-center">
-          <h3 className="text-xl font-bold">Last Results</h3>
+          <h3 className="text-xl font-bold">Ultimi Risultati</h3>
         </div>
         <Button
           variant="ghost"
