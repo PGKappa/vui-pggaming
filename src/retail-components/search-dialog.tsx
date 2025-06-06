@@ -56,7 +56,7 @@ export default function SearchDialog(props: {
           variant="navbarSelected"
           className="relative h-12 w-full cursor-pointer justify-center"
         >
-          <span className="text-md font-light">Search Last Results</span>
+          <span className="text-md font-light">Cerca Ultimi Risultati</span>
           <SearchIcon className="absolute right-4" style={{ scale: 1.5 }} />
         </Button>
       </DialogTrigger>
@@ -64,7 +64,7 @@ export default function SearchDialog(props: {
       <DialogContent className="min-h-[500px] max-w-xl">
         <DialogHeader className="h-16 bg-accent">
           <DialogTitle className="text-center text-[19px] font-bold text-accent-foreground">
-            Search Results
+            Cerca Risultati
           </DialogTitle>
         </DialogHeader>
 
@@ -101,7 +101,7 @@ export default function SearchDialog(props: {
         <DialogFooter className="flex w-full flex-row items-center justify-between p-4">
           <DialogClose asChild>
             <Button className="w-24 bg-gray-500 text-[19px] text-background hover:bg-gray-600">
-              Cancel
+              Cancella
             </Button>
           </DialogClose>
           <DialogClose asChild>
