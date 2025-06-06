@@ -18,7 +18,7 @@ export default function SearchRoundResults(props: {
   return (
     <Card>
       <CardHeader className="relative flex max-h-16 min-h-16 flex-row items-center justify-between">
-        <CardTitle>Search Round Results</CardTitle>
+        <CardTitle>Cerca Turno Risultati</CardTitle>
         <Button
           variant="ghost"
           size="icon"
@@ -42,7 +42,7 @@ export default function SearchRoundResults(props: {
                       value={matchId}
                       className="gap-0"
                     >
-                      <AccordionTrigger className="text-searchResult-foreground bg-searchResult p-2 text-base [&[data-state=open]>svg]:-rotate-90">
+                      <AccordionTrigger className="text-accent-foreground bg-accent p-2 text-base [&[data-state=open]>svg]:-rotate-90">
                         <div className="flex w-[600px] flex-row justify-between gap-2">
                           <div className="flex flex-row gap-2">
                             <span className="font-bold">
@@ -63,7 +63,7 @@ export default function SearchRoundResults(props: {
                         <ChevronRight className="h-6 w-6 shrink-0 transition-transform duration-200" />
                       </AccordionTrigger>
                       <AccordionContent>
-                        <table className="bg-searchResult-secondary w-full border-collapse text-center">
+                        <table className="bg-background w-full border-collapse text-center">
                           <tbody>
                             {/* 1X2 and DOUBLE CHANCE */}
                             <tr className="border-b-2 border-betSlip">
