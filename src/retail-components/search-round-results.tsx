@@ -31,7 +31,7 @@ export default function SearchRoundResults(props: {
       <CardContent className="h-full pt-4">
         {props.roundResults.length > 0 ? (
           <ScrollArea className="h-full">
-            <Accordion type="single" className="space-y-4">
+            <Accordion type="multiple" className="space-y-4">
               {props.roundResults.flatMap((roundResult) =>
                 roundResult.matchResults.map((match, matchIndex) => {
                   // Create a unique ID for each match
