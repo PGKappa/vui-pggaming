@@ -1,6 +1,20 @@
 'use client'
 
-import { useState } from 'react'
+import { Button } from '@/retail-components/ui/button'
+import { Calendar } from '@/retail-components/ui/calendar'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/retail-components/ui/pagination'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/retail-components/ui/popover'
 import {
   Select,
   SelectContent,
@@ -8,17 +22,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/retail-components/ui/select'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/retail-components/ui/popover'
-import { Calendar } from '@/retail-components/ui/calendar'
-import { Button } from '@/retail-components/ui/button'
 import { cn } from '@/retail-lib/utils'
 import { format } from 'date-fns'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 
 export default function TicketListPage() {
   const [terminal, setTerminal] = useState('all')
@@ -241,35 +248,76 @@ export default function TicketListPage() {
       </div>
 
       {/* Footer */}
-      <div className="flex flex-col bg-accent px-4 py-2 text-xs text-white">
-        <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            onClick={() => setPage((p) => Math.max(p - 1, 1))}
-            disabled={page === 1}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <span>{page}</span>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            onClick={() => setPage((p) => p + 1)}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
+      <div className="grid grid-cols-9">
+        {/* Pagination */}
+        <div className="col-span-2 flex flex-row items-center bg-accent p-4">
+          <Pagination className="justify-start">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious href="#" />
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationLink href="#" isActive={true}>
+                  1
+                </PaginationLink>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationNext href="#" />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
         </div>
-
-        <div className="mt-2 grid grid-cols-7 gap-2 border-t border-white pt-2">
-          <span>Page Total</span>
-          <span>€ 86.50</span>
-          <span>€ 0.00</span>
-          <span>€ 47.28</span>
-          <span>€ 0.00</span>
-          <span>0 / 7</span>
-          <span>22</span>
-        </div>
+        {/* Totals Table */}
+        <table className="col-span-7 border-collapse">
+          <tbody>
+            <tr className="bg-accent text-xs font-medium text-white">
+              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle font-bold">
+                Page Total
+              </td>
+              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle">
+                € 86.50
+              </td>
+              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle">
+                € 0.00
+              </td>
+              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle">
+                € 47.28
+              </td>
+              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle font-bold">
+                Cashier Total
+              </td>
+              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle font-bold">
+                Paid / Won
+              </td>
+              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle font-bold">
+                Total Ticket
+              </td>
+            </tr>
+            <tr className="bg-accent text-xs font-medium text-white">
+              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle font-bold">
+                Totals
+              </td>
+              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle">
+                € 86.50
+              </td>
+              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle">
+                € 0.00
+              </td>
+              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle">
+                € 47.28
+              </td>
+              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle">
+                € 0.00
+              </td>
+              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle">
+                0 / 7
+              </td>
+              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle">
+                22
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   )
