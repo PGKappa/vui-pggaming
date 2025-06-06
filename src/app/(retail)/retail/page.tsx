@@ -40,7 +40,10 @@ export default function Home() {
         <UpcomingRoundsCard
           rounds={upcomingRounds}
           selectedRound={selectedRound}
-          setSelectedRound={setSelectedRound}
+          setSelectedRound={(round) => {
+            setSelectedRound(round)
+            setSearchRoundResults(undefined)
+          }}
           collapsed={lastResultsOpen}
           toggleCollapse={() => setLastResultsOpen((prev) => !prev)}
         />
@@ -49,6 +52,7 @@ export default function Home() {
           open={lastResultsOpen}
           toggleOpen={() => setLastResultsOpen((prev) => !prev)}
           setSearchRoundResults={setSearchRoundResults}
+          searchRoundResults={searchRoundResults}
         />
       </div>
 
