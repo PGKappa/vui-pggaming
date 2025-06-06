@@ -17,7 +17,12 @@ interface StakeDialogProps {
   onConfirm: (value: number) => void
 }
 
-export default function StakeInputDialog({ open, initialValue, onClose, onConfirm }: StakeDialogProps) {
+export default function StakeInputDialog({
+  open,
+  initialValue,
+  onClose,
+  onConfirm,
+}: StakeDialogProps) {
   const [tempValue, setTempValue] = useState(initialValue.toFixed(2))
 
   useEffect(() => {
@@ -56,7 +61,7 @@ export default function StakeInputDialog({ open, initialValue, onClose, onConfir
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="w-[800px] p-0">
+      <DialogContent className="w-[600px] p-0">
         <DialogHeader className="bg-accent p-4">
           <DialogTitle className="text-center text-lg font-bold text-accent-foreground">
             Insert Stake Amount
@@ -66,57 +71,84 @@ export default function StakeInputDialog({ open, initialValue, onClose, onConfir
         <div className="flex flex-col gap-2 p-4">
           <div className="flex items-center gap-3">
             <input
-              className="flex-1 border border-input bg-background px-4 py-2 text-right font-bold text-xl"
+              className="flex-1 border border-input bg-background px-4 py-2 text-right text-xl font-bold"
               value={tempValue}
               readOnly
             />
-            <Button className='bg-betSlip h-12 w-36' onClick={removeLastDigit}>
-              <Delete style={{ width: '40px', height: '40px' }} className='text-betSlip-header-foreground'/>
+            <Button className="h-12 w-28 bg-betSlip" onClick={removeLastDigit}>
+              <Delete
+                style={{ width: '40px', height: '40px' }}
+                className="text-betSlip-header-foreground"
+              />
             </Button>
           </div>
 
-          <div className="grid grid-cols-5 gap-2">
-            <div className="flex flex-col gap-2">
-              <Button onClick={decrease} className="bg-accent text-accent-foreground h-full w-full text-4xl">-</Button>
+          <div className="flex flex-col gap-4">
+            {/* Blocchi - preset + */}
+            <div className="flex justify-between gap-4">
+              {/* Bottone - */}
+              <div className="flex items-center">
+                <Button
+                  onClick={decrease}
+                  className="h-full w-28 bg-tertiary text-3xl text-accent-foreground"
+                >
+                  -
+                </Button>
+              </div>
+
+              {/* Valori preimpostati */}
+              <div className="grid flex-grow grid-cols-2 gap-3">
+                {[0.5, 1, 2, 5, 10, 50, 75, 100].map((amount) => (
+                  <Button
+                    key={amount}
+                    onClick={() => addAmount(amount)}
+                    className="h-12 w-full bg-tertiary text-[20px] font-bold text-white hover:bg-tertiary/80"
+                  >
+                    +{amount.toFixed(2)}€
+                  </Button>
+                ))}
+              </div>
+
+              {/* Bottone + */}
+              <div className="flex items-center">
+                <Button
+                  onClick={increase}
+                  className="h-full w-28 bg-tertiary text-5xl text-accent-foreground"
+                >
+                  +
+                </Button>
+              </div>
             </div>
-            <div className="col-span-3 grid grid-cols-3 gap-2">
-              {[...Array(9)].map((_, i) => (
-                <Button key={i + 1} onClick={() => appendValue((i + 1).toString())} className="bg-accent text-accent-foreground h-14 w-full text-xl">{i + 1}</Button>
+
+            {/* Tastierino numerico */}
+            <div className="grid grid-cols-4 gap-2">
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 0, '.', ''].map((val, i) => (
+                <Button
+                  key={i}
+                  disabled={val === ''}
+                  onClick={() => appendValue(val.toString())}
+                  className="h-14 w-full bg-accent text-xl text-accent-foreground"
+                >
+                  {val}
+                </Button>
               ))}
-              <Button className="bg-accent text-accent-foreground h-14 w-full text-xl"></Button>
-              <Button onClick={() => appendValue('0')} className="bg-accent text-accent-foreground h-14 w-full text-xl">0</Button>
-              <Button onClick={() => appendValue('.')} className="bg-accent text-accent-foreground h-14 w-full text-xl">.</Button>
             </div>
-            <div className="flex flex-col gap-2">
-              <Button onClick={increase} className="bg-accent text-accent-foreground h-full w-full text-4xl">+</Button>
-            </div>
-          </div>
 
-          <div className="grid grid-cols-4 gap-2">
-            {[0.5, 1, 2, 5, 10, 50, 75, 100].map((amount) => (
+            {/* Bottoni Delete e Done */}
+            <div className="mt-2 flex gap-2">
               <Button
-                key={amount}
-                onClick={() => addAmount(amount)}
-                className="h-12 w-full text-lg font-bold text-white bg-tertiary hover:bg-tertiary/80"
+                className="flex-1 bg-gray-600 text-[16px] text-white hover:bg-gray-700"
+                onClick={resetValue}
               >
-                + € {amount.toFixed(2)}
+                Delete
               </Button>
-            ))}
-          </div>
-
-          <div className="mt-4 flex gap-2">
-            <Button
-              className="flex-1 bg-gray-600 text-white text-md hover:bg-gray-700"
-              onClick={resetValue}
-            >
-              Delete
-            </Button>
-            <Button
-              className="flex-1 bg-green-600 text-white text-md hover:bg-green-700"
-              onClick={() => onConfirm(parseFloat(tempValue))}
-            >
-              Done
-            </Button>
+              <Button
+                className="flex-1 bg-green-600 text-[16px] text-white hover:bg-green-700"
+                onClick={() => onConfirm(parseFloat(tempValue))}
+              >
+                Done
+              </Button>
+            </div>
           </div>
         </div>
       </DialogContent>
