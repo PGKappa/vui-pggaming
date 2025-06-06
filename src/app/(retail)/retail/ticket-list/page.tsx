@@ -34,7 +34,6 @@ export default function TicketListPage() {
   const [from, setFrom] = useState<Date | undefined>(new Date())
   const [to, setTo] = useState<Date | undefined>(new Date())
   const [pageSize, setPageSize] = useState('15')
-  const [page, setPage] = useState(1)
   const router = useRouter()
 
   const handleDetailsClick = (ticketId: number) => {
@@ -44,7 +43,7 @@ export default function TicketListPage() {
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-accent text-accent-foreground">
       <div className="relative flex h-16 items-center justify-center bg-accent text-accent-foreground">
-        <h2 className="text-[20px] font-bold">Ticket List</h2>
+        <h2 className="text-[20px] font-bold">Lista Biglietti</h2>
         <Button
           variant="ghost"
           className="absolute right-4 bg-secondary text-xl text-secondary-foreground hover:bg-secondary/70"
@@ -59,14 +58,14 @@ export default function TicketListPage() {
         <div className="flex flex-wrap items-center gap-10">
           <div className="flex flex-row items-center gap-2 bg-badge text-background">
             <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
-              Terminal
+              Terminale
             </span>
             <Select value={terminal} onValueChange={setTerminal}>
               <SelectTrigger className="w-[100px] bg-background text-[12px] text-foreground">
-                <SelectValue placeholder="Terminal" />
+                <SelectValue placeholder="Terminale" />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
-                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="all">Tutti</SelectItem>
                 <SelectItem value="203">203</SelectItem>
                 <SelectItem value="205">205</SelectItem>
               </SelectContent>
@@ -75,32 +74,32 @@ export default function TicketListPage() {
 
           <div className="flex flex-row items-center gap-2 bg-badge text-background">
             <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
-              Status
+              Stato
             </span>
             <Select value={status} onValueChange={setStatus}>
               <SelectTrigger className="w-[100px] bg-background text-[12px] text-foreground">
-                <SelectValue placeholder="Status" />
+                <SelectValue placeholder="Stato" />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="won">Won</SelectItem>
-                <SelectItem value="lost">Lost</SelectItem>
-                <SelectItem value="cancelled">Cancelled</SelectItem>
+                <SelectItem value="all">Tutti</SelectItem>
+                <SelectItem value="won">Vinto</SelectItem>
+                <SelectItem value="lost">Perso</SelectItem>
+                <SelectItem value="cancelled">Annullato</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className="flex flex-row items-center gap-2 bg-badge text-background">
             <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
-              Payment
+              Pagamento
             </span>
             <Select value={payment} onValueChange={setPayment}>
               <SelectTrigger className="w-[100px] bg-background text-[12px] text-foreground">
-                <SelectValue placeholder="Payment" />
+                <SelectValue placeholder="Pagamento" />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="paid">Paid</SelectItem>
+                <SelectItem value="all">Tutti</SelectItem>
+                <SelectItem value="paid">Pagato</SelectItem>
                 <SelectItem value="unpaid">Unpaid</SelectItem>
               </SelectContent>
             </Select>
@@ -108,7 +107,7 @@ export default function TicketListPage() {
 
           <div className="flex flex-row items-center gap-2 bg-badge text-background">
             <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
-              From
+              Da
             </span>
             <Popover>
               <PopoverTrigger asChild>
@@ -116,7 +115,7 @@ export default function TicketListPage() {
                   variant="ticketFilter"
                   className="w-[100px] justify-center text-[12px]"
                 >
-                  {from ? format(from, 'dd/MM/yyyy') : 'From'}
+                  {from ? format(from, 'dd/MM/yyyy') : 'Da'}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="bg-white">
@@ -132,7 +131,7 @@ export default function TicketListPage() {
 
           <div className="flex flex-row items-center gap-2 bg-badge text-background">
             <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
-              To
+              A
             </span>
             <Popover>
               <PopoverTrigger asChild>
@@ -140,7 +139,7 @@ export default function TicketListPage() {
                   variant="ticketFilter"
                   className="w-[100px] justify-center text-[12px]"
                 >
-                  {to ? format(to, 'dd/MM/yyyy') : 'To'}
+                  {to ? format(to, 'dd/MM/yyyy') : 'A'}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="bg-white">
@@ -156,11 +155,11 @@ export default function TicketListPage() {
 
           <div className="flex flex-row items-center gap-2 bg-badge text-background">
             <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
-              Page Size
+              Dimensione Pagina
             </span>
             <Select value={pageSize} onValueChange={setPageSize}>
               <SelectTrigger className="w-[80px] bg-background text-[12px] text-foreground">
-                <SelectValue placeholder="Page Size" />
+                <SelectValue placeholder="Dimensione Pagina" />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
                 <SelectItem value="15">15</SelectItem>
@@ -171,7 +170,7 @@ export default function TicketListPage() {
           </div>
 
           <Button className="text-bold w-[80px] bg-tertiary text-[14px] text-tertiary-foreground hover:bg-tertiary/70">
-            Reload
+            Ricarica
           </Button>
         </div>
       </div>
@@ -181,21 +180,21 @@ export default function TicketListPage() {
         <table className="w-full text-[12px]">
           <thead className="bg-secondary text-white">
             <tr>
-              <th className="bg-badge p-2 text-[16px]">Ticket ID</th>
+              <th className="bg-badge p-2 text-[16px]">ID Biglietto</th>
               <th className="w-[1px] bg-card-header-foreground p-0"></th>
-              <th className="bg-badge p-2 text-[16px]">Terminal</th>
+              <th className="bg-badge p-2 text-[16px]">Terminale</th>
               <th className="w-[1px] bg-card-header-foreground p-0"></th>
-              <th className="bg-badge p-2 text-[16px]">Date and Time</th>
+              <th className="bg-badge p-2 text-[16px]">Data e Ora</th>
               <th className="w-[1px] bg-card-header-foreground p-0"></th>
-              <th className="bg-badge p-2 text-[16px]">Staked</th>
+              <th className="bg-badge p-2 text-[16px]">Puntata</th>
               <th className="w-[1px] bg-card-header-foreground p-0"></th>
-              <th className="bg-badge p-2 text-[16px]">Cancelled</th>
+              <th className="bg-badge p-2 text-[16px]">Annullato</th>
               <th className="w-[1px] bg-card-header-foreground p-0"></th>
-              <th className="bg-badge p-2 text-[16px]">Won</th>
+              <th className="bg-badge p-2 text-[16px]">Vinto</th>
               <th className="w-[1px] bg-card-header-foreground p-0"></th>
-              <th className="bg-badge p-2 text-[16px]">Status</th>
+              <th className="bg-badge p-2 text-[16px]">Stato</th>
               <th className="w-[1px] bg-card-header-foreground p-0"></th>
-              <th className="bg-badge p-2 text-[16px]">Payment</th>
+              <th className="bg-badge p-2 text-[16px]">Pagamento</th>
               <th className="w-[1px] bg-card-header-foreground p-0"></th>
               <th className="bg-badge p-2 text-[16px]"></th>
             </tr>
@@ -226,19 +225,19 @@ export default function TicketListPage() {
                       )}
                     />
                     <span className="text-[16px] font-medium">
-                      {i % 2 === 0 ? 'Won' : 'Lost'}
+                      {i % 2 === 0 ? 'Vinto' : 'Perso'}
                     </span>
                   </div>
                 </td>
                 <td className="w-[1px] bg-muted p-0"></td>
-                <td className="p-2">Paid</td>
+                <td className="p-2">Pagato</td>
                 <td className="w-[1px] bg-muted p-0"></td>
                 <td className="p-2">
                   <Button
                     onClick={() => handleDetailsClick(1400 - i)}
                     className="h-8 w-20 bg-tertiary text-[16px] text-tertiary-foreground hover:bg-tertiary/80"
                   >
-                    Details
+                    Dettagli
                   </Button>
                 </td>
               </tr>
@@ -272,7 +271,7 @@ export default function TicketListPage() {
           <tbody>
             <tr className="bg-accent text-xs font-medium text-white">
               <td className="border border-muted bg-accent px-3 py-2 text-center align-middle font-bold">
-                Page Total
+                Totale Pagina
               </td>
               <td className="border border-muted bg-accent px-3 py-2 text-center align-middle">
                 € 86.50
@@ -284,18 +283,18 @@ export default function TicketListPage() {
                 € 47.28
               </td>
               <td className="border border-muted bg-accent px-3 py-2 text-center align-middle font-bold">
-                Cashier Total
+                Totale Cassa
               </td>
               <td className="border border-muted bg-accent px-3 py-2 text-center align-middle font-bold">
-                Paid / Won
+                Pagato / Vinto
               </td>
               <td className="border border-muted bg-accent px-3 py-2 text-center align-middle font-bold">
-                Total Ticket
+                Totale Biglietti
               </td>
             </tr>
             <tr className="bg-accent text-xs font-medium text-white">
               <td className="border border-muted bg-accent px-3 py-2 text-center align-middle font-bold">
-                Totals
+                Totali
               </td>
               <td className="border border-muted bg-accent px-3 py-2 text-center align-middle">
                 € 86.50
