@@ -317,6 +317,10 @@
     --navbarButton: 207 18% 76%;
     --navbarButton-foreground: 0 0% 100%;
 
+    --searchResult: 215 83% 68%;
+    --searchResult-foreground: 0 0% 0%;
+    --searchResult-secondary: 210 64% 94%;
+
     --chart-1: 0 0% 63%;
     --chart-2: 0 68% 52%;
     --chart-3: 109 100% 35%;

@@ -2,7 +2,7 @@
 
 import LoadingSpinner from '@/retail-components/loading-spinner'
 import {
-  LastRoundResults,
+  RoundResults,
   TeamRanking,
   Ticket,
   UpcomingMatch,
@@ -23,34 +23,14 @@ export type RootContextType = {
     params?: Record<string, string>,
   ) => Promise<T>
   upcomingRounds?: UpcomingRound[]
-  lastRoundsResults?: LastRoundResults[]
+  roundResults: RoundResults[]
   betsHistory: Ticket[]
   teamRankings?: TeamRanking[]
 }
 
 const defaultRootContext: RootContextType = {
   //TODO: remove mock data
-  lastRoundsResults: [
-    {
-      round: { name: 'Triden', number: 17 },
-      startTime: new Date(),
-      duration: 30,
-      matchResults: [
-        {
-          round: { name: 'Super League', number: 28 },
-          teams: 'NAP - GEN',
-          score1: 2,
-          score2: 0,
-        },
-        {
-          round: { name: 'Super League', number: 28 },
-          teams: 'MIL - ROM',
-          score1: 1,
-          score2: 1,
-        },
-      ],
-    },
-  ],
+  roundResults: [],
   betsHistory: [],
   teamRankings: [
     {
@@ -354,9 +334,66 @@ export default function RootContextProvider(props: {
         },
       )
 
+      const roundResults: RoundResults[] = Array.from(
+        { length: 12 },
+        (_, index) => {
+          const date = new Date(rounds[0].mag_event[0].startTime)
+          date.setMinutes(date.getMinutes() - (index + 1) * 3)
+
+          return {
+            round: {
+              name: 'Trident',
+              number: 12 - index,
+            },
+            startTime: date,
+            duration: 3,
+            matchResults: [
+              {
+                teams: 'AST - WOL',
+                score1: 2,
+                score2: 1,
+                odds: {
+                  oneXTwo: {
+                    odds: 1.95,
+                  },
+                  doubleChance: {
+                    odds: 1.63,
+                  },
+                  firstScorer: {
+                    teamLabel: 'WOL',
+                    odds: 2.05,
+                  },
+                  sumGoals: {
+                    value: 2,
+                    odds: 1.63,
+                  },
+                  goalNoGoal: {
+                    value: 1,
+                    odds: 1.95,
+                  },
+                  redCard: {
+                    value: 'WOL',
+                    odds: 2.05,
+                  },
+                  winningCombo: {
+                    value: 'WOL',
+                    odds: 2.05,
+                  },
+                  exactGoals: {
+                    value: 2,
+                    odds: 1.63,
+                  },
+                },
+              },
+            ],
+          }
+        },
+      )
+
       setRootContext((prev) => ({
         ...prev,
         upcomingRounds: rounds,
+        roundResults,
       }))
     }
 

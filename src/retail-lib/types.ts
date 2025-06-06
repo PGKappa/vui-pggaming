@@ -96,7 +96,7 @@ export type UpcomingRound = {
   mag_event: UpcomingMatch[]
 }
 
-export type LastRoundResults = {
+export type RoundResults = {
   round: {
     name: string
     number: number
@@ -139,13 +139,41 @@ export type SubmittedTicket = {
 }
 
 export type MatchResult = {
-  round: {
-    name: string
-    number: number
-  }
   teams: string
   score1: number
   score2: number
+  odds?: {
+    oneXTwo: {
+      odds: number
+    }
+    doubleChance: {
+      odds: number
+    }
+    firstScorer: {
+      teamLabel?: string
+      odds: number
+    }
+    sumGoals: {
+      value: number
+      odds: number
+    }
+    goalNoGoal: {
+      value: number
+      odds: number
+    }
+    redCard: {
+      value: string
+      odds: number
+    }
+    winningCombo: {
+      value: string
+      odds: number
+    }
+    exactGoals: {
+      value: number
+      odds: number
+    }
+  }
 }
 
 export type MatchStatistics = {

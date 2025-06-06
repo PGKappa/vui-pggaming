@@ -84,6 +84,11 @@ export default {
           DEFAULT: 'hsl(var(--navbarButton))',
           foreground: 'hsl(var(--navbarButton-foreground))',
         },
+        searchResult: {
+          DEFAULT: 'hsl(var(--searchResult))',
+          foreground: 'hsl(var(--searchResult-foreground))',
+          secondary: 'hsl(var(--searchResult-secondary))',
+        },
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
