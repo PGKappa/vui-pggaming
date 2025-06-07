@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 @layer base {
+
   :root,
   .default {
     --background: 0 0% 16%;
@@ -341,4 +342,13 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
