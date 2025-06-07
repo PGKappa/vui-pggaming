@@ -143,7 +143,7 @@ export default function UpcomingRoundCard(props: {
 
                 return (
                   <TableRow key={index} className="border-card-foreground">
-                    <TableCell className="flex h-[70px] w-[116px] flex-row items-center px-[19px]">
+                    <TableCell className="flex h-[70px] w-[110px] flex-row items-center px-[14px]">
                       <Badge
                         variant="secondary"
                         className="flex flex-col justify-between w-[78px] py-1.5"
@@ -155,7 +155,7 @@ export default function UpcomingRoundCard(props: {
                       </Badge>
                     </TableCell>
 
-                    <TableCell className="h-[70px] w-[116px] text-center">
+                    <TableCell className="h-[70px] w-[122px] text-center p-0">
                       <span className="text-[16px] font-bold">{teamNames}</span>
                     </TableCell>
 
