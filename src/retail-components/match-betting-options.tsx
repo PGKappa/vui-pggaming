@@ -63,7 +63,7 @@ export default function MatchBettingOptions(props: {
           }}
         />
       </div>
-      <div className="flex-1 overflow-y-auto">
+      <div className="no-scrollbar flex-1 overflow-y-auto">
         <Accordion type="multiple" className="space-y-2">
           {props.markets.map((market) => (
             <AccordionItem
