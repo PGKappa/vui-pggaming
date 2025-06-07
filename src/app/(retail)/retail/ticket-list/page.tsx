@@ -100,7 +100,7 @@ export default function TicketListPage() {
               <SelectContent className="bg-white p-0">
                 <SelectItem value="all">Tutti</SelectItem>
                 <SelectItem value="paid">Pagato</SelectItem>
-                <SelectItem value="unpaid">Unpaid</SelectItem>
+                <SelectItem value="unpaid">Non Pagato</SelectItem>
               </SelectContent>
             </Select>
           </div>
