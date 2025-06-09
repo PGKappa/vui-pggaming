@@ -89,7 +89,7 @@ export default function MatchBettingOptions(props: {
                       }}
                       teams={props.teams}
                       showOutcome
-                      className="h-[45px] w-[190px]"
+                      className="h-[45px] w-[190px] font-semibold"
                     />
                   ))}
                 </div>

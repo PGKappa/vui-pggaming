@@ -139,7 +139,7 @@ export default function BettingSlip() {
                         Football
                       </span>
                       <div className="flex items-center gap-2">
-                        <span className="text-[16px]">
+                        <span className="text-[16px] font-bold">
                           {new Date(
                             matchBets[0].bet.round.startingAt,
                           ).toLocaleTimeString([], {
@@ -253,7 +253,7 @@ export default function BettingSlip() {
           </div>
         </div>
 
-        <div className="flex flex-row gap-2">
+        <div className="flex flex-row gap-2 mx-2">
           <Button
             variant="ghost"
             size="lg"

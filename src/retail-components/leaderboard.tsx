@@ -20,9 +20,9 @@ export default function Leaderboard() {
         </CardTitle>
         <Button variant="ghost" size="icon-lg" onClick={() => setOpen(!open)}>
           {open ? (
-            <ChevronDown style={{ scale: 2 }} />
-          ) : (
             <ChevronUp style={{ scale: 2 }} />
+          ) : (
+            <ChevronDown style={{ scale: 2 }} />
           )}
         </Button>
       </CardHeader>

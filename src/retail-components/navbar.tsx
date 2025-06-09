@@ -14,7 +14,7 @@ export default function Navbar() {
         Seleziona categoria:
       </span>
 
-      <div className="flex flex-row items-center gap-4 pl-[68px]">
+      <div className="flex flex-row items-center gap-4 pl-[56px]">
         <Link
           href={`/dogs-horses${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
@@ -102,7 +102,7 @@ export default function Navbar() {
         </Link>
       </div>
 
-      <div className="flex w-full justify-end gap-4">
+      <div className="flex w-full justify-end gap-4 mr-2">
         <Link
           href={`/retail/ticket-list${initCode ? `?init_code=${initCode}` : ''}`}
           className={buttonVariants({
@@ -130,7 +130,7 @@ export default function Navbar() {
             size: 'default',
           })}
         >
-          <Info />
+          <Info style={{ scale: 1.5 }}/>
         </Link>
       </div>
     </nav>
