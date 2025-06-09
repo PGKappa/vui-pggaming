@@ -80,7 +80,7 @@ export default function LastRoundsResults(props: {
                     <span className="text-md font-bold">
                       {formatStartTime(new Date(result.startTime))}
                     </span>
-                    <span className="text-md">0:30</span>
+                    <span className="text-md italic">0:30</span>
                   </div>
                 </button>
               ))
