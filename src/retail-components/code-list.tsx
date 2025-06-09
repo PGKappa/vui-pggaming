@@ -80,7 +80,7 @@ export default function CodeList() {
               )}
             </Button>
           </div>
-          <DialogTitle className="text-[20px] font-bold text-accent-foreground">
+          <DialogTitle className="text-[19px] font-bold text-accent-foreground">
             Lista Codici
           </DialogTitle>
         </DialogHeader>

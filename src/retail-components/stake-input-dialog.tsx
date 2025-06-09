@@ -63,7 +63,7 @@ export default function StakeInputDialog({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="w-[600px] p-0">
         <DialogHeader className="bg-accent p-4">
-          <DialogTitle className="text-center text-lg font-bold text-accent-foreground">
+          <DialogTitle className="text-center text-[19px] font-bold text-accent-foreground">
             Inserisci Importo Puntata
           </DialogTitle>
         </DialogHeader>

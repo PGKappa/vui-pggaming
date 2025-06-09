@@ -11,7 +11,7 @@ export default function Navbar() {
   return (
     <nav className="flex w-full flex-row items-center justify-start bg-accent p-3">
       <span className="whitespace-nowrap pl-14 text-center text-[16px] font-semibold text-background">
-        Seleziona categoria:
+        Seleziona Categoria
       </span>
 
       <div className="flex flex-row items-center gap-4 pl-[56px]">
