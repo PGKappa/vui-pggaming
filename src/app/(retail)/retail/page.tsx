@@ -4,6 +4,7 @@ import LastRoundsResults from '@/retail-components/last-rounds-results'
 import Leaderboard from '@/retail-components/leaderboard'
 import MatchBettingOptions from '@/retail-components/match-betting-options'
 import SearchRoundResults from '@/retail-components/search-round-results'
+import { ScrollArea } from '@/retail-components/ui/scroll-area'
 import UpcomingRoundCard from '@/retail-components/upcoming-round-card'
 import UpcomingRoundsCard from '@/retail-components/upcoming-rounds-card'
 import { RootContext } from '@/retail-contexts/root-context'
@@ -58,33 +59,35 @@ export default function Home() {
 
       {/* SECOND COLUMN*/}
       <div className="ml-2 flex h-[942px] w-[1241px] flex-col gap-2 overflow-y-auto">
-        {!!searchRoundResults ? (
-          <SearchRoundResults
-            roundResults={searchRoundResults}
-            onClose={() => setSearchRoundResults(undefined)}
-          />
-        ) : selectedRound ? (
-          matchBetOptions ? (
-            <MatchBettingOptions
-              round={matchBetOptions.round}
-              teams={matchBetOptions.teams}
-              markets={matchBetOptions.markets}
-              close={() => setMatchBetOptions(undefined)}
+        <ScrollArea className="h-full w-full">
+          {!!searchRoundResults ? (
+            <SearchRoundResults
+              roundResults={searchRoundResults}
+              onClose={() => setSearchRoundResults(undefined)}
             />
-          ) : (
-            <>
-              <UpcomingRoundCard
-                round={selectedRound}
-                viewMatchBettingOptions={setMatchBetOptions}
+          ) : selectedRound ? (
+            matchBetOptions ? (
+              <MatchBettingOptions
+                round={matchBetOptions.round}
+                teams={matchBetOptions.teams}
+                markets={matchBetOptions.markets}
+                close={() => setMatchBetOptions(undefined)}
               />
-              <Leaderboard />
-            </>
-          )
-        ) : (
-          <div className="flex h-full items-center justify-center">
-            No round selected
-          </div>
-        )}
+            ) : (
+              <>
+                <UpcomingRoundCard
+                  round={selectedRound}
+                  viewMatchBettingOptions={setMatchBetOptions}
+                />
+                <Leaderboard />
+              </>
+            )
+          ) : (
+            <div className="flex h-full items-center justify-center">
+              No round selected
+            </div>
+          )}
+        </ScrollArea>
       </div>
 
       {/*RIGHT COLUMN - Betting slip*/}
