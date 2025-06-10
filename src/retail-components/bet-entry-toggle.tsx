@@ -20,6 +20,7 @@ export default function BetEntryToggle(props: {
   const isSelected = betEntries.some(
     (entry) =>
       entry.market === props.marketName &&
+      entry.bet.round.number === props.round.scheduleId &&
       entry.bet.teams === props.teams &&
       entry.bet.option.outcome === props.option.outcome,
   )
@@ -41,11 +42,12 @@ export default function BetEntryToggle(props: {
           })
         }
       }}
-      className={`w-full ${props.showOutcome ? 'flex flex-row justify-between' : ''}
-      ${props.className}`}
+      className={`w-full ${props.showOutcome ? 'flex flex-row justify-between' : ''} ${props.className}`}
     >
-      <span className='text-[19px]'>{props.option.decPrice.toFixed(2)}</span>
-      {props.showOutcome && <span className='font-bold text-[19px]'>{props.option.outcome}</span>}
+      <span className="text-[19px]">{props.option.decPrice.toFixed(2)}</span>
+      {props.showOutcome && (
+        <span className="text-[19px] font-bold">{props.option.outcome}</span>
+      )}
     </Toggle>
   )
 }
