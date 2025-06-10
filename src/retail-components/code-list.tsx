@@ -18,6 +18,7 @@ import {
 import { cn } from '@/retail-lib/utils'
 import { Menu } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 const codeListLeft = [
   { label: 'Esito Finale 1\n1 [Team Casa]', code: '1' },
@@ -43,13 +44,14 @@ const codeListRight = [
 ]
 
 export default function CodeList() {
+  const { t } = useTranslation()
   const [singleColumn, setSingleColumn] = useState(false)
 
   return (
     <Dialog>
       <DialogTrigger asChild>
         <Button className="w-32 bg-bet text-[16px] font-bold text-bet-foreground hover:bg-bet/70">
-          Lista Codici
+          {t('code_list')}
         </Button>
       </DialogTrigger>
 
@@ -81,7 +83,7 @@ export default function CodeList() {
             </Button>
           </div>
           <DialogTitle className="text-[19px] font-bold text-accent-foreground">
-            Lista Codici
+            {t('code_list')}
           </DialogTitle>
         </DialogHeader>
 

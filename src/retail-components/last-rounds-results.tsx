@@ -10,6 +10,7 @@ import { ChevronDown, ChevronUp } from 'lucide-react'
 import SearchDialog from './search-dialog'
 import { RoundResults } from '@/retail-lib/types'
 import { useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 
 export default function LastRoundsResults(props: {
   roundResults: RoundResults[]
@@ -21,6 +22,7 @@ export default function LastRoundsResults(props: {
   setSearchRoundResults: (results: RoundResults[]) => void
   searchRoundResults?: RoundResults[]
 }) {
+  const { t } = useTranslation()
   const formatStartTime = (date: Date) =>
     new Date(date).toLocaleTimeString('it-IT', {
       hour: '2-digit',
@@ -37,7 +39,7 @@ export default function LastRoundsResults(props: {
     <Card className={`flex ${props.open ? 'h-1/2' : ''} w-full flex-col`}>
       <CardHeader className="relative flex max-h-16 min-h-16 flex-row items-center justify-between">
         <div className="w-full text-center">
-          <h3 className="text-xl font-bold">Ultimi Risultati</h3>
+          <h3 className="text-xl font-bold">{t('latest_results')}</h3>
         </div>
         <Button
           variant="ghost"
@@ -58,7 +60,7 @@ export default function LastRoundsResults(props: {
           <ScrollArea className="h-full">
             {props.roundResults.length < 0 ? (
               <div className="text-center text-sm text-muted-foreground">
-                No past results available
+                {t('no_past_results')}
               </div>
             ) : (
               props.roundResults.map((result) => (
@@ -73,7 +75,7 @@ export default function LastRoundsResults(props: {
                 >
                   <div className="flex items-center gap-3">
                     <span className="text-md">
-                      {result.round.name} Round {result.round.number}
+                      {result.round.name} {t('round')} {result.round.number}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">

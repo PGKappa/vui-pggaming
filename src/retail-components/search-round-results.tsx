@@ -10,15 +10,17 @@ import {
   AccordionTrigger,
 } from './ui/accordion'
 import { format } from 'date-fns'
+import { useTranslation } from 'react-i18next'
 
 export default function SearchRoundResults(props: {
   roundResults: RoundResults[]
   onClose: () => void
 }) {
+  const { t } = useTranslation()
   return (
     <Card>
       <CardHeader className="relative flex max-h-16 min-h-16 flex-row items-center justify-between">
-        <CardTitle>Cerca Turno Risultati</CardTitle>
+        <CardTitle>{t('search_round_results')}</CardTitle>
         <Button
           variant="ghost"
           size="icon"
@@ -50,7 +52,7 @@ export default function SearchRoundResults(props: {
                                 roundResult.startTime,
                                 'dd-MM-yyyy HH:mm',
                               )}{' '}
-                              {roundResult.round.name.toUpperCase()} ROUND{' '}
+                              {roundResult.round.name.toUpperCase()} {t('round')}{' '}
                               {roundResult.round.number}
                               {' / '}
                             </span>
@@ -159,7 +161,7 @@ export default function SearchRoundResults(props: {
           </ScrollArea>
         ) : (
           <div className="flex h-full flex-col items-center justify-center">
-            No results found
+            {t('no_results_found')}
           </div>
         )}
       </CardContent>

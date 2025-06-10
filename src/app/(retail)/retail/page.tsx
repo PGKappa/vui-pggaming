@@ -10,8 +10,10 @@ import UpcomingRoundsCard from '@/retail-components/upcoming-rounds-card'
 import { RootContext } from '@/retail-contexts/root-context'
 import { Market, RoundResults, UpcomingRound } from '@/retail-lib/types'
 import { useContext, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 export default function Home() {
+  const { t } = useTranslation()
   const { upcomingRounds, roundResults } = useContext(RootContext)
 
   const [matchBetOptions, setMatchBetOptions] = useState<{
@@ -84,7 +86,7 @@ export default function Home() {
             )
           ) : (
             <div className="flex h-full items-center justify-center">
-              No round selected
+              {t('no_round_selected')}
             </div>
           )}
         </ScrollArea>
