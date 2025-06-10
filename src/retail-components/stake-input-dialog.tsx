@@ -9,6 +9,7 @@ import {
 } from '@/retail-components/ui/dialog'
 import { Delete } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 interface StakeDialogProps {
   open: boolean
@@ -23,6 +24,7 @@ export default function StakeInputDialog({
   onClose,
   onConfirm,
 }: StakeDialogProps) {
+  const { t } = useTranslation()
   const [tempValue, setTempValue] = useState(initialValue.toFixed(2))
 
   useEffect(() => {
@@ -63,8 +65,8 @@ export default function StakeInputDialog({
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="w-[600px] p-0">
         <DialogHeader className="bg-accent p-4">
-          <DialogTitle className="text-center text-lg font-bold text-accent-foreground">
-            Inserisci Importo Puntata
+          <DialogTitle className="text-center text-[19px] font-bold text-accent-foreground">
+            {t('enter_stake_amount')}
           </DialogTitle>
         </DialogHeader>
 
@@ -140,13 +142,13 @@ export default function StakeInputDialog({
                 className="flex-1 bg-gray-600 text-[16px] text-white hover:bg-gray-700"
                 onClick={resetValue}
               >
-                Cancella
+                {t('clear')}
               </Button>
               <Button
                 className="flex-1 bg-green-600 text-[16px] text-white hover:bg-green-700"
                 onClick={() => onConfirm(parseFloat(tempValue))}
               >
-                Fine
+                {t('done')}
               </Button>
             </div>
           </div>

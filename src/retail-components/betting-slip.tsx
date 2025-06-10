@@ -199,7 +199,7 @@ export default function BettingSlip() {
       <CardFooter className="flex flex-col gap-2 bg-muted-foreground">
         <div className="flex justify-end bg-accent px-8 py-2">
           <span className="text-[16px] font-bold text-accent-foreground">
-            {t('amount')}
+            {t('stake')}
           </span>
         </div>
 

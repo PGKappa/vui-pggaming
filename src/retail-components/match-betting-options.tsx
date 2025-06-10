@@ -2,8 +2,8 @@
 
 import { Market } from '@/retail-lib/types'
 import { format } from 'date-fns'
-import { t } from 'i18next'
 import { ChevronDown, ChevronsLeftIcon } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import BetEntryToggle from './bet-entry-toggle'
 import {
   Accordion,
@@ -26,6 +26,7 @@ export default function MatchBettingOptions(props: {
   markets: Market[]
   close: () => void
 }) {
+  const { t } = useTranslation()
   return (
     <div className="flex h-full w-full flex-col gap-4 overflow-hidden">
       <div className="sticky top-0 z-10 flex h-16 flex-row items-center justify-between bg-accent text-accent-foreground">
