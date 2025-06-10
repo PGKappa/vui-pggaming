@@ -14,6 +14,7 @@ import { RoundResults } from '@/retail-lib/types'
 import { isSameDay } from 'date-fns'
 import { SearchIcon } from 'lucide-react'
 import { useContext, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Button } from './ui/button'
 import {
   Select,
@@ -45,6 +46,7 @@ const timeSlot = [
 export default function SearchDialog(props: {
   setSearchRoundResults: (results: RoundResults[]) => void
 }) {
+  const { t } = useTranslation()
   const [selectedDate, setSelectedDate] = useState<string | undefined>()
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | undefined>()
   const { roundResults } = useContext(RootContext)
@@ -56,7 +58,7 @@ export default function SearchDialog(props: {
           variant="navbarSelected"
           className="relative h-12 w-full cursor-pointer justify-center"
         >
-          <span className="text-md font-light">Cerca Ultimi Risultati</span>
+          <span className="text-md font-light">{t('search_latest_results')}</span>
           <SearchIcon className="absolute right-4" style={{ scale: 1.5 }} />
         </Button>
       </DialogTrigger>
@@ -64,14 +66,14 @@ export default function SearchDialog(props: {
       <DialogContent className="min-h-[500px] max-w-xl">
         <DialogHeader className="h-16 bg-accent">
           <DialogTitle className="text-center text-[19px] font-bold text-accent-foreground">
-            Cerca Risultati
+            {t('search_results')}
           </DialogTitle>
         </DialogHeader>
 
         <div className="flex flex-1 flex-row gap-4 overflow-auto p-4">
           <Select onValueChange={setSelectedDate} defaultValue={selectedDate}>
             <SelectTrigger>
-              <SelectValue placeholder="Date" />
+              <SelectValue placeholder={t('date')} />
             </SelectTrigger>
             <SelectContent>
               {dates.map((date) => (
@@ -86,7 +88,7 @@ export default function SearchDialog(props: {
             defaultValue={selectedTimeSlot}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Time Slot" />
+              <SelectValue placeholder={t('time_slot')} />
             </SelectTrigger>
             <SelectContent>
               {timeSlot.map((slot) => (
@@ -101,7 +103,7 @@ export default function SearchDialog(props: {
         <DialogFooter className="flex w-full flex-row items-center justify-between p-4">
           <DialogClose asChild>
             <Button className="w-24 bg-gray-500 text-[19px] text-background hover:bg-gray-600">
-              Cancella
+              {t('cancel')}
             </Button>
           </DialogClose>
           <DialogClose asChild>
@@ -145,7 +147,7 @@ export default function SearchDialog(props: {
                 )
               }}
             >
-              Cerca
+              {t('search')}
             </Button>
           </DialogClose>
         </DialogFooter>

@@ -4,17 +4,19 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { buttonVariants } from './ui/button'
+import { useTranslation } from 'react-i18next'
 
 export default function Navbar() {
+  const { t } = useTranslation()
   const searchParams = useSearchParams()
   const initCode = searchParams.get('init_code')
   return (
     <nav className="flex w-full flex-row items-center justify-start bg-accent p-3">
       <span className="whitespace-nowrap pl-14 text-center text-[16px] font-semibold text-background">
-        Seleziona categoria:
+        {t('select_category')}
       </span>
 
-      <div className="flex flex-row items-center gap-4 pl-[56px]">
+      <div className="flex flex-row items-center gap-4 pl-[90px]">
         <Link
           href={`/dogs-horses${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
@@ -58,7 +60,7 @@ export default function Navbar() {
             height={20}
             className="object-contain"
           />
-          <span className="text-[16px] font-bold">Ch1</span>
+          <span className="text-[16px] font-bold">{t('ch1')}</span>
         </Link>
 
         <Link
@@ -78,7 +80,7 @@ export default function Navbar() {
             height={20}
             className="object-contain"
           />
-          <span className="text-[16px] font-bold">Ch2</span>
+          <span className="text-[16px] font-bold">{t('ch2')}</span>
         </Link>
 
         <Link
@@ -98,7 +100,7 @@ export default function Navbar() {
             height={20}
             className="size-5 object-contain"
           />
-          <span className="text-[16px] font-bold">Ch3</span>
+          <span className="text-[16px] font-bold">{t('ch3')}</span>
         </Link>
       </div>
 
@@ -110,7 +112,7 @@ export default function Navbar() {
             size: 'lg',
           })}
         >
-          <span className="text-[16px] font-bold">Ticket List</span>
+          <span className="text-[16px] font-bold">{t('ticket_list')}</span>
         </Link>
 
         <Link
@@ -120,7 +122,7 @@ export default function Navbar() {
             size: 'lg',
           })}
         >
-          <span className="text-[16px] font-bold">Ticket Check</span>
+          <span className="text-[16px] font-bold">{t('ticket_check')}</span>
         </Link>
 
         <Link

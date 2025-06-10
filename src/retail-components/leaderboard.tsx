@@ -2,6 +2,7 @@
 
 import { RootContext } from '@/retail-contexts/root-context'
 import { useContext } from 'react'
+import { useTranslation } from 'react-i18next'
 import LoadingSpinner from './loading-spinner'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { useState } from 'react'
@@ -9,6 +10,7 @@ import { Button } from './ui/button'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 
 export default function Leaderboard() {
+  const { t } = useTranslation()
   const { teamRankings } = useContext(RootContext)
   const [open, setOpen] = useState(true)
 
@@ -16,7 +18,7 @@ export default function Leaderboard() {
     <Card>
       <CardHeader className="flex h-16 flex-row items-center px-5">
         <CardTitle className="justify-start text-[19px] font-bold">
-          STANDINGS
+          {t('standings')}
         </CardTitle>
         <Button variant="ghost" size="icon-lg" onClick={() => setOpen(!open)}>
           {open ? (
@@ -34,15 +36,15 @@ export default function Leaderboard() {
                 <thead className="bg-card-header">
                   <tr className="grid grid-cols-10 md:grid-cols-10 [&_th]:text-card-header-foreground">
                     <th className="p-3 text-center"></th>
-                    <th className="p-3 text-center">CLUB</th>
-                    <th className="p-3 text-center">P</th>
-                    <th className="p-3 text-center">W</th>
-                    <th className="p-3 text-center">D</th>
-                    <th className="p-3 text-center">L</th>
-                    <th className="p-3 text-center">PTS</th>
-                    <th className="p-3 text-center">GF</th>
-                    <th className="p-3 text-center">GA</th>
-                    <th className="p-3 text-center">LAST 8</th>
+                    <th className="p-2 text-center">{t('club')}</th>
+                    <th className="p-2 text-center">{t('p')}</th>
+                    <th className="p-2 text-center">{t('w')}</th>
+                    <th className="p-2 text-center">{t('d')}</th>
+                    <th className="p-2 text-center">{t('l')}</th>
+                    <th className="p-2 text-center">{t('pts')}</th>
+                    <th className="p-2 text-center">{t('gf')}</th>
+                    <th className="p-2 text-center">{t('ga')}</th>
+                    <th className="p-2 text-center">{t('last_8')}</th>
                   </tr>
                 </thead>
                 <tbody>

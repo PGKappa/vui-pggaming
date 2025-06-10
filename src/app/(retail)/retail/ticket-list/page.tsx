@@ -26,8 +26,10 @@ import { cn } from '@/retail-lib/utils'
 import { format } from 'date-fns'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 export default function TicketListPage() {
+  const { t } = useTranslation()
   const [terminal, setTerminal] = useState('all')
   const [status, setStatus] = useState('all')
   const [payment, setPayment] = useState('all')
@@ -43,7 +45,7 @@ export default function TicketListPage() {
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-accent text-accent-foreground">
       <div className="relative flex h-16 items-center justify-center bg-accent text-accent-foreground">
-        <h2 className="text-[20px] font-bold">Lista Biglietti</h2>
+        <h2 className="text-[20px] font-bold">{t('ticket_list')}</h2>
         <Button
           variant="ghost"
           className="absolute right-4 bg-secondary text-xl text-secondary-foreground hover:bg-secondary/70"
@@ -58,14 +60,14 @@ export default function TicketListPage() {
         <div className="flex flex-wrap items-center gap-10">
           <div className="flex flex-row items-center gap-2 bg-badge text-background">
             <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
-              Terminale
+              {t('terminal')}
             </span>
             <Select value={terminal} onValueChange={setTerminal}>
               <SelectTrigger className="w-[100px] bg-background text-[12px] text-foreground">
-                <SelectValue placeholder="Terminale" />
+                <SelectValue placeholder={t('terminal')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
-                <SelectItem value="all">Tutti</SelectItem>
+                <SelectItem value="all">{t('all')}</SelectItem>
                 <SelectItem value="203">203</SelectItem>
                 <SelectItem value="205">205</SelectItem>
               </SelectContent>
@@ -74,40 +76,40 @@ export default function TicketListPage() {
 
           <div className="flex flex-row items-center gap-2 bg-badge text-background">
             <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
-              Stato
+              {t('status')}
             </span>
             <Select value={status} onValueChange={setStatus}>
               <SelectTrigger className="w-[100px] bg-background text-[12px] text-foreground">
-                <SelectValue placeholder="Stato" />
+                <SelectValue placeholder={t('status')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
-                <SelectItem value="all">Tutti</SelectItem>
-                <SelectItem value="won">Vinto</SelectItem>
-                <SelectItem value="lost">Perso</SelectItem>
-                <SelectItem value="cancelled">Annullato</SelectItem>
+                <SelectItem value="all">{t('all')}</SelectItem>
+                <SelectItem value="won">{t('won')}</SelectItem>
+                <SelectItem value="lost">{t('lost')}</SelectItem>
+                <SelectItem value="cancelled">{t('cancelled')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className="flex flex-row items-center gap-2 bg-badge text-background">
             <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
-              Pagamento
+              {t('payment')}
             </span>
             <Select value={payment} onValueChange={setPayment}>
               <SelectTrigger className="w-[100px] bg-background text-[12px] text-foreground">
-                <SelectValue placeholder="Pagamento" />
+                <SelectValue placeholder={t('payment')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
-                <SelectItem value="all">Tutti</SelectItem>
-                <SelectItem value="paid">Pagato</SelectItem>
-                <SelectItem value="unpaid">Non Pagato</SelectItem>
+                <SelectItem value="all">{t('all')}</SelectItem>
+                <SelectItem value="paid">{t('paid')}</SelectItem>
+                <SelectItem value="unpaid">{t('unpaid')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className="flex flex-row items-center gap-2 bg-badge text-background">
             <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
-              Da
+              {t('from')}
             </span>
             <Popover>
               <PopoverTrigger asChild>
@@ -131,7 +133,7 @@ export default function TicketListPage() {
 
           <div className="flex flex-row items-center gap-2 bg-badge text-background">
             <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
-              A
+              {t('to')}
             </span>
             <Popover>
               <PopoverTrigger asChild>
@@ -155,7 +157,7 @@ export default function TicketListPage() {
 
           <div className="flex flex-row items-center gap-2 bg-badge text-background">
             <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
-              Dimensione Pagina
+              {t('page_size')}
             </span>
             <Select value={pageSize} onValueChange={setPageSize}>
               <SelectTrigger className="w-[80px] bg-background text-[12px] text-foreground">
@@ -170,7 +172,7 @@ export default function TicketListPage() {
           </div>
 
           <Button className="text-bold w-[80px] bg-tertiary text-[14px] text-tertiary-foreground hover:bg-tertiary/70">
-            Ricarica
+            {t('reload')}
           </Button>
         </div>
       </div>
@@ -180,21 +182,21 @@ export default function TicketListPage() {
         <table className="w-full text-[12px]">
           <thead className="bg-secondary text-white">
             <tr>
-              <th className="bg-badge p-2 text-[16px]">ID Biglietto</th>
+              <th className="bg-badge p-2 text-[16px]">{t('ticket_id')}</th>
               <th className="w-[1px] bg-card-header-foreground p-0"></th>
-              <th className="bg-badge p-2 text-[16px]">Terminale</th>
+              <th className="bg-badge p-2 text-[16px]">{t('terminal')}</th>
               <th className="w-[1px] bg-card-header-foreground p-0"></th>
-              <th className="bg-badge p-2 text-[16px]">Data e Ora</th>
+              <th className="bg-badge p-2 text-[16px]">{t('date_n_time')}</th>
               <th className="w-[1px] bg-card-header-foreground p-0"></th>
-              <th className="bg-badge p-2 text-[16px]">Puntata</th>
+              <th className="bg-badge p-2 text-[16px]">{t('staked_amount')}</th>
               <th className="w-[1px] bg-card-header-foreground p-0"></th>
-              <th className="bg-badge p-2 text-[16px]">Annullato</th>
+              <th className="bg-badge p-2 text-[16px]">{t('cancelled')}</th>
               <th className="w-[1px] bg-card-header-foreground p-0"></th>
-              <th className="bg-badge p-2 text-[16px]">Vinto</th>
+              <th className="bg-badge p-2 text-[16px]">{t('won')}</th>
               <th className="w-[1px] bg-card-header-foreground p-0"></th>
-              <th className="bg-badge p-2 text-[16px]">Stato</th>
+              <th className="bg-badge p-2 text-[16px]">{t('ticket_status')}</th>
               <th className="w-[1px] bg-card-header-foreground p-0"></th>
-              <th className="bg-badge p-2 text-[16px]">Pagamento</th>
+              <th className="bg-badge p-2 text-[16px]">{t('payment')}</th>
               <th className="w-[1px] bg-card-header-foreground p-0"></th>
               <th className="bg-badge p-2 text-[16px]"></th>
             </tr>
@@ -225,19 +227,19 @@ export default function TicketListPage() {
                       )}
                     />
                     <span className="text-[16px] font-medium">
-                      {i % 2 === 0 ? 'Vinto' : 'Perso'}
+                      {i % 2 === 0 ? t('won') : t('lost')}
                     </span>
                   </div>
                 </td>
                 <td className="w-[1px] bg-muted p-0"></td>
-                <td className="p-2">Pagato</td>
+                <td className="p-2">{t('paid')}</td>
                 <td className="w-[1px] bg-muted p-0"></td>
                 <td className="p-2">
                   <Button
                     onClick={() => handleDetailsClick(1400 - i)}
                     className="h-8 w-20 bg-tertiary text-[16px] text-tertiary-foreground hover:bg-tertiary/80"
                   >
-                    Dettagli
+                    {t('details')}
                   </Button>
                 </td>
               </tr>
@@ -271,7 +273,7 @@ export default function TicketListPage() {
           <tbody>
             <tr className="bg-accent text-xs font-medium text-white">
               <td className="border border-muted bg-accent px-3 py-2 text-center align-middle font-bold">
-                Totale Pagina
+                {t('page_total')}
               </td>
               <td className="border border-muted bg-accent px-3 py-2 text-center align-middle">
                 € 86.50
@@ -283,18 +285,18 @@ export default function TicketListPage() {
                 € 47.28
               </td>
               <td className="border border-muted bg-accent px-3 py-2 text-center align-middle font-bold">
-                Totale Cassa
+                {t('cash_total')}
               </td>
               <td className="border border-muted bg-accent px-3 py-2 text-center align-middle font-bold">
-                Pagato / Vinto
+                {t('paid_won')}
               </td>
               <td className="border border-muted bg-accent px-3 py-2 text-center align-middle font-bold">
-                Totale Biglietti
+                {t('total_tickets')}
               </td>
             </tr>
             <tr className="bg-accent text-xs font-medium text-white">
               <td className="border border-muted bg-accent px-3 py-2 text-center align-middle font-bold">
-                Totali
+                {t('totals')}
               </td>
               <td className="border border-muted bg-accent px-3 py-2 text-center align-middle">
                 € 86.50

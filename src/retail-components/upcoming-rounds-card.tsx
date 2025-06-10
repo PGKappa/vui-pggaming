@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader } from '@/retail-components/ui/card'
 import { ScrollArea } from '@/retail-components/ui/scroll-area'
 import { UpcomingRound } from '@/retail-lib/types'
 import { ChevronDown, ChevronUp } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 type UpcomingRoundsCardProps = {
   rounds?: UpcomingRound[]
@@ -21,6 +22,8 @@ export default function UpcomingRoundsCard({
   collapsed,
   toggleCollapse,
 }: UpcomingRoundsCardProps) {
+  const { t } = useTranslation()
+
   // Function to format the date from the startTime
   const formatStartTime = (dateString: string) => {
     const date = new Date(dateString)
@@ -36,7 +39,7 @@ export default function UpcomingRoundsCard({
     >
       <CardHeader className="relative flex max-h-16 min-h-16 flex-row items-center justify-between">
         <div className="w-full text-center">
-          <h3 className="text-[19px] font-bold">Prossimi Eventi</h3>
+          <h3 className="text-[19px] font-bold">{t('upcoming_events')}</h3>
         </div>
         <Button
           variant="ghost"
@@ -80,7 +83,7 @@ export default function UpcomingRoundsCard({
               )
             })
           ) : (
-            <div className="p-4 text-center">No upcoming rounds</div>
+            <div className="p-4 text-center">{t('no_upcoming_rounds')}</div>
           )}
         </ScrollArea>
       </CardContent>
