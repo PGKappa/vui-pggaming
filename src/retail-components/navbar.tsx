@@ -16,7 +16,7 @@ export default function Navbar() {
         {t('select_category')}
       </span>
 
-      <div className="flex flex-row items-center gap-4 pl-[56px]">
+      <div className="flex flex-row items-center gap-4 pl-[90px]">
         <Link
           href={`/dogs-horses${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
