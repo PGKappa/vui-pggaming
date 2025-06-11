@@ -15,6 +15,8 @@ import { useTranslation } from 'react-i18next'
 import FastBet from './fast-bet'
 import StakeInputDialog from './stake-input-dialog'
 
+type BetMode = 'SINGLE' | 'MULTIPLE' | 'SYSTEM'
+
 export default function BettingSlip() {
   const {
     betEntries,
@@ -49,12 +51,11 @@ export default function BettingSlip() {
 
   const { t } = useTranslation()
 
-  const maxMarketsPerMatch = useMemo(() => {
-    return Object.values(betsByMatch).reduce((max, bets) => {
-      const uniqueMarkets = new Set(bets.map((bet) => bet.market)).size
-      return Math.max(max, uniqueMarkets)
-    }, 0)
-  }, [betsByMatch])
+  const betMode: BetMode = useMemo(() => {
+    if (betEntries.length <= 1) return 'SINGLE'
+    if (Object.values(betsByMatch).find((m) => m.length > 1)) return 'SYSTEM'
+    else return 'MULTIPLE'
+  }, [betEntries, betsByMatch])
 
   return (
     <Card
@@ -68,29 +69,30 @@ export default function BettingSlip() {
 
         <div className="relative flex h-12 w-full flex-col items-center justify-center bg-betSlip">
           <span
-            className={`text-[19px] text-betSlip-header-foreground ${maxMarketsPerMatch <= 1 ? 'font-semibold' : ''}`}
+            className={`text-[16px] text-betSlip-header-foreground ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'font-semibold' : ''}`}
           >
-            {betEntries.length <= 1
+            {betMode === 'SINGLE'
               ? t('single')
               : `${t('multiple')} ( ${Object.entries(betsByMatch).length} )`}
           </span>
 
-          {maxMarketsPerMatch <= 1 && (
-            <div className="absolute bottom-0.5 h-[4px] w-[156px] bg-betSlip-header-foreground"></div>
-          )}
+          {betMode === 'SINGLE' ||
+            (betMode === 'MULTIPLE' && (
+              <div className="absolute bottom-0.5 h-[4px] w-[156px] bg-betSlip-header-foreground"></div>
+            ))}
         </div>
 
         <div
           className={`relative flex w-full flex-col items-center justify-center ${
-            maxMarketsPerMatch > 1 ? 'bg-betSlip-header' : 'bg-gray-100'
+            betMode === 'SYSTEM' ? 'bg-betSlip-header' : 'bg-gray-100'
           }`}
         >
           <span
-            className={`text-[19px] ${maxMarketsPerMatch > 1 ? 'font-semibold text-betSlip-header-foreground' : ''}`}
+            className={`text-[16px] ${betMode === 'SYSTEM' ? 'font-semibold text-betSlip-header-foreground' : ''}`}
           >
             {t('system')}
           </span>
-          {maxMarketsPerMatch > 1 && (
+          {betMode === 'SYSTEM' && (
             <div className="absolute bottom-0.5 h-[4px] w-[156px] bg-betSlip-header-foreground"></div>
           )}
         </div>
@@ -253,7 +255,7 @@ export default function BettingSlip() {
           </div>
         </div>
 
-        <div className="flex flex-row gap-2 mx-2">
+        <div className="mx-2 flex flex-row gap-2">
           <Button
             variant="ghost"
             size="lg"
