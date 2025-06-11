@@ -120,6 +120,16 @@ export type BetEntry = {
   id: number
   market: string
   bet: Bet
+  fixed?: boolean
+}
+
+export type SystemGroup = {
+  name: string;
+  size: number;
+  combinations: BetEntry[][];
+  stake: number;
+  minWin: number;
+  maxWin: number;
 }
 
 export type Ticket = {

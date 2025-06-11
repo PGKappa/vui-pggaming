@@ -3,17 +3,27 @@
 import { Badge } from '@/retail-components/ui/badge'
 import { Button } from '@/retail-components/ui/button'
 import { Card, CardContent, CardFooter } from '@/retail-components/ui/card'
-import { Input } from '@/retail-components/ui/input'
 import { ScrollArea } from '@/retail-components/ui/scroll-area'
 import { BetsContext } from '@/retail-contexts/bets-context'
-import { BetEntry, SubmittedTicket } from '@/retail-lib/types'
+import { generateSystemGroups } from '@/retail-lib/system-bets'
+import { BetEntry, SubmittedTicket, SystemGroup } from '@/retail-lib/types'
 import { getTimeDistanceFromNow } from '@/retail-lib/utils'
 import { CircleXIcon, RotateCcwIcon } from 'lucide-react'
 import Image from 'next/image'
-import { useContext, useMemo, useState } from 'react'
+import { useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import FastBet from './fast-bet'
+import NumberInput from './number-input'
 import StakeInputDialog from './stake-input-dialog'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from './ui/table'
 
 type BetMode = 'SINGLE' | 'MULTIPLE' | 'SYSTEM'
 
@@ -25,7 +35,7 @@ export default function BettingSlip() {
     removeAllBets,
     restoreLastSubmittedTicket,
   } = useContext(BetsContext)
-  const [global, setGlobal] = useState(0)
+
   const [isStakeDialogOpen, setStakeDialogOpen] = useState(false)
 
   const betsByMatch = useMemo(() => {
@@ -47,6 +57,8 @@ export default function BettingSlip() {
     1,
   )
 
+  const [global, setGlobal] = useState(0)
+
   const potentialWinning = global * totalOdds
 
   const { t } = useTranslation()
@@ -56,6 +68,13 @@ export default function BettingSlip() {
     if (Object.values(betsByMatch).find((m) => m.length > 1)) return 'SYSTEM'
     else return 'MULTIPLE'
   }, [betEntries, betsByMatch])
+
+  const [systemGroups, setSystemGroups] = useState<SystemGroup[]>([])
+
+  useEffect(() => {
+    if (betMode !== 'SYSTEM') setSystemGroups([])
+    setSystemGroups(generateSystemGroups(betEntries))
+  }, [betMode, betEntries])
 
   return (
     <Card
@@ -205,34 +224,96 @@ export default function BettingSlip() {
           </span>
         </div>
 
-        <div className="flex flex-row items-center justify-between p-2">
-          <span className="text-[16px] font-semibold">{t('total')}</span>
-          <div className="flex w-fit items-center border border-border">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-7 w-5 bg-bet p-3 text-[19px] text-bet-foreground"
-              onClick={() => setGlobal((prev) => Math.max(prev - 0.5, 0))}
-            >
-              -
-            </Button>
-            <Input
-              type="number"
+        {betMode !== 'SYSTEM' ? (
+          <div className="flex flex-row items-center justify-between p-2">
+            <span className="text-[16px] font-semibold">{t('total')}</span>
+            <NumberInput
               value={global}
-              className="bg-background-foreground h-7 w-16 border-x text-center"
-              readOnly
-              onClick={() => setStakeDialogOpen(true)}
+              onChange={(value) => setGlobal(value)}
+              openStakeDialog={() => setStakeDialogOpen(true)}
             />
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-7 w-4 bg-bet p-3 text-[19px] text-bet-foreground"
-              onClick={() => setGlobal((prev) => prev + 0.5)}
-            >
-              +
-            </Button>
           </div>
-        </div>
+        ) : (
+          <div className="mt-2 rounded-md text-sm">
+            <Table>
+              <TableHeader className="bg-accent text-accent-foreground">
+                <TableRow className="border-border hover:bg-accent">
+                  <TableHead className="text-left text-[13px] font-bold tracking-wide">
+                    Group
+                  </TableHead>
+                  <TableHead className="text-center text-[13px] font-bold tracking-wide">
+                    Comb.
+                  </TableHead>
+                  <TableHead className="text-center text-[13px] font-bold tracking-wide">
+                    Min.
+                  </TableHead>
+                  <TableHead className="text-center text-[13px] font-bold tracking-wide">
+                    Max.
+                  </TableHead>
+                  <TableHead className="text-center text-[13px] font-bold tracking-wide">
+                    Stake
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {systemGroups.map((group) => (
+                  <TableRow
+                    key={group.name}
+                    className="border-border bg-primary-foreground text-[14px]"
+                  >
+                    <TableCell className="py-1 font-semibold">
+                      {group.name}
+                    </TableCell>
+                    <TableCell className="py-1 text-center">
+                      {group.combinations.length}
+                    </TableCell>
+                    <TableCell className="py-1 text-center">
+                      € {group.minWin.toFixed(2)}
+                    </TableCell>
+                    <TableCell className="py-1 text-center font-bold">
+                      € {group.maxWin.toFixed(2)}
+                    </TableCell>
+                    <TableCell className="py-1">
+                      <NumberInput
+                        value={
+                          systemGroups.find((g) => g.name === group.name)
+                            ?.stake ?? 0
+                        }
+                        onChange={(value) =>
+                          setSystemGroups((prev) =>
+                            prev.map((g) =>
+                              g.name === group.name
+                                ? { ...g, stake: value }
+                                : g,
+                            ),
+                          )
+                        }
+                        openStakeDialog={() => setStakeDialogOpen(true)}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+              <TableFooter className="bg-muted text-[14px] font-semibold">
+                <TableRow className="hover:bg-muted">
+                  <TableCell colSpan={4} className="text-left">
+                    Total
+                  </TableCell>
+                  <TableCell className="text-center">
+                    €{' '}
+                    {systemGroups
+                      .reduce(
+                        (sum, group) =>
+                          sum + group.stake * group.combinations.length,
+                        0,
+                      )
+                      .toFixed(2)}
+                  </TableCell>
+                </TableRow>
+              </TableFooter>
+            </Table>
+          </div>
+        )}
 
         <StakeInputDialog
           open={isStakeDialogOpen}
