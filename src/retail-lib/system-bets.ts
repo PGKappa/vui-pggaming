@@ -107,7 +107,6 @@ export function generateSystemGroups(entries: BetEntry[]): SystemGroup[] {
   for (let size = 1; size <= matchesNumber; size++) {
     const combos = getCombinations(nonFixedEntries, size, fixedEntries)
     if (combos.length === 0) continue
-
     const minWin = Math.min(
       ...combos.map((combo) =>
         combo.reduce((acc, entry) => acc * entry.bet.option.decPrice, 1),
@@ -132,7 +131,7 @@ export function generateSystemGroups(entries: BetEntry[]): SystemGroup[] {
         name = 'Triple'
         break
       default:
-        name = `Group ${size}`
+        name = `${size}-ple`
         break
     }
 
@@ -148,3 +147,4 @@ export function generateSystemGroups(entries: BetEntry[]): SystemGroup[] {
 
   return groups
 }
+ 

@@ -23,6 +23,8 @@ import {
   TableHeader,
   TableRow,
 } from './ui/table'
+import { Separator } from './ui/separator'
+import { Checkbox } from './ui/checkbox'
 
 type BetMode = 'SINGLE' | 'MULTIPLE' | 'SYSTEM'
 
@@ -31,6 +33,7 @@ export default function BettingSlip() {
     betEntries,
     removeBet,
     removeMatchBets,
+    toggleMatchBetsFixed,
     removeAllBets,
     restoreLastSubmittedTicket,
   } = useContext(BetsContext)
@@ -132,10 +135,17 @@ export default function BettingSlip() {
         ) : (
           <ScrollArea className="h-full">
             <ul className="flex flex-col gap-1 bg-background">
-              {Object.entries(betsByMatch).map(([matchKey, matchBets]) => (
+            {Object.entries(betsByMatch).map(([matchKey, matchBets]) => (
                 <li key={matchKey}>
                   <div className="flex flex-col gap-1 border border-betSlip-foreground p-1">
-                    <div className="flex flex-row justify-end">
+                    <div className="flex flex-row justify-between">
+                      <div className="flex flex-row items-center gap-2 pl-1">
+                        <Checkbox
+                          checked={matchBets[0].fixed}
+                          onCheckedChange={() => toggleMatchBetsFixed(matchKey)}
+                        />
+                        <span className='text-[12px]'>{t('fixed')}</span>
+                      </div>
                       <Button
                         variant="ghost"
                         className="group size-7 hover:text-tertiary-foreground"
@@ -214,6 +224,8 @@ export default function BettingSlip() {
         )}
       </CardContent>
 
+      <Separator />
+
       <CardFooter className="flex flex-col gap-2 bg-muted-foreground">
         {betMode !== 'SYSTEM' ? (
           <>
@@ -251,10 +263,10 @@ export default function BettingSlip() {
                         Comb.
                       </TableHead>
                       <TableHead className="text-center text-[13px] font-bold tracking-wide">
-                        Min.
+                        Min.€ 
                       </TableHead>
                       <TableHead className="text-center text-[13px] font-bold tracking-wide">
-                        Max.
+                        Max.€
                       </TableHead>
                       <TableHead className="text-center text-[13px] font-bold tracking-wide">
                         Stake
@@ -274,10 +286,10 @@ export default function BettingSlip() {
                           {group.combinations.length}
                         </TableCell>
                         <TableCell className="py-1 text-center">
-                          € {(group.minWin * group.stake).toFixed(2)}
+                          {(group.minWin * group.stake).toFixed(2)}
                         </TableCell>
                         <TableCell className="py-1 text-center font-bold">
-                          € {(group.maxWin * group.stake).toFixed(2)}
+                          {(group.maxWin * group.stake).toFixed(2)}
                         </TableCell>
                         <TableCell className="py-1">
                           <StakeInputDialog
@@ -299,7 +311,7 @@ export default function BettingSlip() {
                       </TableRow>
                     ))}
                   </TableBody>
-                  <TableFooter className="bg-muted text-[14px] font-semibold">
+                  <TableFooter className="text-[14px] font-semibold">
                     <TableRow className="hover:bg-muted">
                       <TableCell colSpan={4} className="text-left">
                         Total
