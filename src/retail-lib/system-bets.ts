@@ -29,7 +29,6 @@ export function getCombinations(
 
 export function generateSystemGroups(entries: BetEntry[]): SystemGroup[] {
   const groups: SystemGroup[] = []
-  //const fixedEntries: BetEntry[] = entries.filter((e) => e.fixed)
 
   const matchesSet = new Set<string>()
   entries.forEach((entry) => {
@@ -38,9 +37,19 @@ export function generateSystemGroups(entries: BetEntry[]): SystemGroup[] {
   })
   const matchesNumber = matchesSet.size
 
+  const nonFixedEntries: BetEntry[] = []
+  const fixedEntries: BetEntry[] = []
+
+  entries.forEach((entry) => {
+    if (entry.fixed) {
+      fixedEntries.push(entry)
+    } else {
+      nonFixedEntries.push(entry)
+    }
+  })
+
   for (let size = 1; size <= matchesNumber; size++) {
-    const combos = getCombinations(entries, size)
-    console.log(size, combos)
+    const combos = getCombinations(nonFixedEntries, size, fixedEntries)
 
     const minWin = Math.min(
       ...combos.map((combo) =>
