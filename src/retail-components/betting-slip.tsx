@@ -13,7 +13,6 @@ import Image from 'next/image'
 import { useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import FastBet from './fast-bet'
-import NumberInput from './number-input'
 import StakeInputDialog from './stake-input-dialog'
 import {
   Table,
@@ -35,8 +34,6 @@ export default function BettingSlip() {
     removeAllBets,
     restoreLastSubmittedTicket,
   } = useContext(BetsContext)
-
-  const [isStakeDialogOpen, setStakeDialogOpen] = useState(false)
 
   const betsByMatch = useMemo(() => {
     return betEntries.reduce(
@@ -225,14 +222,22 @@ export default function BettingSlip() {
         </div>
 
         {betMode !== 'SYSTEM' ? (
-          <div className="flex flex-row items-center justify-between p-2">
-            <span className="text-[16px] font-semibold">{t('total')}</span>
-            <NumberInput
-              value={global}
-              onChange={(value) => setGlobal(value)}
-              openStakeDialog={() => setStakeDialogOpen(true)}
-            />
-          </div>
+          <>
+            <div className="flex flex-row items-center justify-between p-2">
+              <span className="text-[16px] font-semibold">{t('total')}</span>
+              <StakeInputDialog value={global} setValue={setGlobal} />
+            </div>
+            <div className="flex flex-col gap-1 px-2 text-[16px]">
+              <div className="flex justify-between">
+                <span>{t('total_odd')}</span>
+                <span>{totalOdds.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between font-bold">
+                <span>{t('potential_win')}</span>
+                <span>€ {potentialWinning.toFixed(2)}</span>
+              </div>
+            </div>
+          </>
         ) : (
           <div className="mt-2 rounded-md text-sm">
             <Table>
@@ -274,12 +279,12 @@ export default function BettingSlip() {
                       € {group.maxWin.toFixed(2)}
                     </TableCell>
                     <TableCell className="py-1">
-                      <NumberInput
+                      <StakeInputDialog
                         value={
                           systemGroups.find((g) => g.name === group.name)
                             ?.stake ?? 0
                         }
-                        onChange={(value) =>
+                        setValue={(value) =>
                           setSystemGroups((prev) =>
                             prev.map((g) =>
                               g.name === group.name
@@ -288,7 +293,6 @@ export default function BettingSlip() {
                             ),
                           )
                         }
-                        openStakeDialog={() => setStakeDialogOpen(true)}
                       />
                     </TableCell>
                   </TableRow>
@@ -310,31 +314,44 @@ export default function BettingSlip() {
                       .toFixed(2)}
                   </TableCell>
                 </TableRow>
+                <TableRow className="hover:bg-muted">
+                  <TableCell colSpan={4} className="text-left">
+                    Max Win
+                  </TableCell>
+                  <TableCell className="text-center">
+                    €{' '}
+                    {systemGroups
+                      .reduce(
+                        (sum, group) =>
+                          sum + (group.stake > 0 ? group.maxWin : 0),
+                        0,
+                      )
+                      .toFixed(2)}
+                  </TableCell>
+                </TableRow>
+                <TableRow className="hover:bg-muted">
+                  <TableCell colSpan={4} className="text-left">
+                    Min Win
+                  </TableCell>
+                  <TableCell className="text-center">
+                    €{' '}
+                    {systemGroups
+                      .reduce(
+                        (min, group) => {
+                          // Only consider groups with non-zero stakes
+                          if (group.stake === 0) return min;
+                          // Initialize min with first non-zero stake group's minWin
+                          return min === 0 ? group.minWin : Math.min(min, group.minWin);
+                        },
+                        0,
+                      )
+                      .toFixed(2)}
+                  </TableCell>
+                </TableRow>
               </TableFooter>
             </Table>
           </div>
         )}
-
-        <StakeInputDialog
-          open={isStakeDialogOpen}
-          initialValue={global}
-          onClose={() => setStakeDialogOpen(false)}
-          onConfirm={(val) => {
-            setGlobal(val)
-            setStakeDialogOpen(false)
-          }}
-        />
-
-        <div className="flex flex-col gap-1 px-2 text-[16px]">
-          <div className="flex justify-between">
-            <span>{t('total_odd')}</span>
-            <span>{totalOdds.toFixed(2)}</span>
-          </div>
-          <div className="flex justify-between font-bold">
-            <span>{t('potential_win')}</span>
-            <span>€ {potentialWinning.toFixed(2)}</span>
-          </div>
-        </div>
 
         <div className="mx-2 flex flex-row gap-2">
           <Button
