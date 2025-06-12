@@ -10,6 +10,7 @@ export type BetsContextType = {
   addBet: (market: string, bet: Bet) => void
   removeBet: (marketName: string, option: Selection, teams: string) => void
   removeMatchBets: (matchId: string) => void
+  toggleMatchBetsFixed: (matchId: string) => void
   removeAllBets: () => void
   restoreLastSubmittedTicket: () => void
 }
@@ -20,6 +21,7 @@ const defaultBetsContext: BetsContextType = {
   addBet: () => {},
   removeBet: () => {},
   removeMatchBets: () => {},
+  toggleMatchBetsFixed: () => {},
   removeAllBets: () => {},
   restoreLastSubmittedTicket: () => {},
 }
@@ -78,6 +80,22 @@ export default function BetsContextProvider(props: {
     }))
   }
 
+  const toggleMatchBetsFixed = (matchId: string) => {
+    const [roundNumber, teams] = matchId.split('.')
+    setBetsContext((prev) => ({
+      ...prev,
+      betEntries: prev.betEntries.map((betEntry) => {
+        if (
+          betEntry.bet.round.number === parseInt(roundNumber) &&
+          betEntry.bet.teams === teams
+        ) {
+          return { ...betEntry, fixed: !betEntry.fixed }
+        }
+        return betEntry
+      }),
+    }))
+  }
+
   const removeAllBets = () => {
     setBetsContext((prev) => ({ ...prev, betEntries: [], lastId: 0 }))
   }
@@ -108,6 +126,7 @@ export default function BetsContextProvider(props: {
       addBet,
       removeBet,
       removeMatchBets,
+      toggleMatchBetsFixed,
       removeAllBets,
       restoreLastSubmittedTicket,
     }))
