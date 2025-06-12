@@ -6,63 +6,83 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from '@/retail-components/ui/dialog'
+import { Input } from '@/retail-components/ui/input'
 import { Delete } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-interface StakeDialogProps {
-  open: boolean
-  initialValue: number
-  onClose: () => void
-  onConfirm: (value: number) => void
-}
-
-export default function StakeInputDialog({
-  open,
-  initialValue,
-  onClose,
-  onConfirm,
-}: StakeDialogProps) {
+export default function StakeInputDialog(props: {
+  value: number
+  setValue: (value: number) => void
+}) {
   const { t } = useTranslation()
-  const [tempValue, setTempValue] = useState(initialValue.toFixed(2))
+  const [value, setValue] = useState(props.value)
+  const [dialogValue, setDialogValue] = useState(props.value)
+  const [open, setOpen] = useState(false)
 
+  // Sync with props.value when it changes from outside
+  useEffect(() => {
+    setValue(props.value)
+  }, [props.value])
+
+  // Reset dialog value when opening the dialog
   useEffect(() => {
     if (open) {
-      setTempValue(initialValue.toFixed(2))
+      setDialogValue(value)
     }
-  }, [open, initialValue])
+  }, [open, value])
 
-  const appendValue = (val: string) => {
-    setTempValue((prev) => (prev === '0.00' ? val : prev + val))
-  }
-
-  const addAmount = (amount: number) => {
-    const parsed = parseFloat(tempValue) || 0
-    setTempValue((parsed + amount).toFixed(2))
-  }
-
-  const removeLastDigit = () => {
-    setTempValue((prev) => {
-      const withoutLast = prev.slice(0, -1)
-      return withoutLast === '' || withoutLast === '.' ? '0.00' : withoutLast
+  // Functions used multiple times are defined as named functions
+  const handleAppendDigit = (digit: string) => {
+    setDialogValue((currentValue) => {
+      const strValue = currentValue === 0 ? '' : currentValue.toString()
+      const newValue = parseFloat(`${strValue}${digit}`) || 0
+      return newValue
     })
   }
 
-  const resetValue = () => {
-    setTempValue('0.00')
-  }
-
-  const increase = () => {
-    setTempValue((prev) => (parseFloat(prev) + 0.5).toFixed(2))
-  }
-
-  const decrease = () => {
-    setTempValue((prev) => Math.max(parseFloat(prev) - 0.5, 0).toFixed(2))
-  }
+  const displayValue = dialogValue.toFixed(2)
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <div className="flex w-fit items-center border border-border">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 w-5 bg-bet p-3 text-[19px] text-bet-foreground"
+            onClick={(e) => {
+              e.stopPropagation()
+              const newValue = value < 0.5 ? 0 : value - 0.5
+              setValue(newValue)
+              props.setValue(newValue)
+            }}
+          >
+            -
+          </Button>
+          <Input
+            type="number"
+            value={value.toFixed(2)}
+            className="bg-background-foreground h-7 w-16 border-x text-center"
+            readOnly
+          />
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 w-4 bg-bet p-3 text-[19px] text-bet-foreground"
+            onClick={(e) => {
+              e.stopPropagation()
+              const newValue = value + 0.5
+              setValue(newValue)
+              props.setValue(newValue)
+            }}
+          >
+            +
+          </Button>
+        </div>
+      </DialogTrigger>
       <DialogContent className="w-[600px] p-0">
         <DialogHeader className="bg-accent p-4">
           <DialogTitle className="text-center text-[19px] font-bold text-accent-foreground">
@@ -74,10 +94,19 @@ export default function StakeInputDialog({
           <div className="flex items-center gap-3">
             <input
               className="flex-1 border border-input bg-background px-4 py-2 text-right text-xl font-bold"
-              value={tempValue}
+              value={displayValue}
               readOnly
             />
-            <Button className="h-12 w-28 bg-betSlip" onClick={removeLastDigit}>
+            <Button
+              className="h-12 w-28 bg-betSlip"
+              onClick={() =>
+                setDialogValue((currentValue) => {
+                  const strValue = currentValue.toString()
+                  if (strValue.length <= 1) return 0
+                  return parseFloat(strValue.slice(0, -1)) || 0
+                })
+              }
+            >
               <Delete
                 style={{ width: '40px', height: '40px' }}
                 className="text-betSlip-header-foreground"
@@ -91,7 +120,9 @@ export default function StakeInputDialog({
               {/* Bottone - */}
               <div className="flex items-center">
                 <Button
-                  onClick={decrease}
+                  onClick={() =>
+                    setDialogValue((prev) => Math.max(prev - 0.5, 0))
+                  }
                   className="h-full w-28 bg-tertiary text-3xl text-accent-foreground"
                 >
                   -
@@ -103,7 +134,7 @@ export default function StakeInputDialog({
                 {[0.5, 1, 2, 5, 10, 50, 75, 100].map((amount) => (
                   <Button
                     key={amount}
-                    onClick={() => addAmount(amount)}
+                    onClick={() => setDialogValue((prev) => prev + amount)}
                     className="h-12 w-full bg-tertiary text-[20px] font-bold text-white hover:bg-tertiary/80"
                   >
                     +{amount.toFixed(2)}€
@@ -114,7 +145,7 @@ export default function StakeInputDialog({
               {/* Bottone + */}
               <div className="flex items-center">
                 <Button
-                  onClick={increase}
+                  onClick={() => setDialogValue((prev) => prev + 0.5)}
                   className="h-full w-28 bg-tertiary text-5xl text-accent-foreground"
                 >
                   +
@@ -128,7 +159,7 @@ export default function StakeInputDialog({
                 <Button
                   key={i}
                   disabled={val === ''}
-                  onClick={() => appendValue(val.toString())}
+                  onClick={() => handleAppendDigit(val.toString())}
                   className="h-14 w-full bg-accent text-xl text-accent-foreground"
                 >
                   {val}
@@ -140,13 +171,19 @@ export default function StakeInputDialog({
             <div className="mt-2 flex gap-2">
               <Button
                 className="flex-1 bg-gray-600 text-[16px] text-white hover:bg-gray-700"
-                onClick={resetValue}
+                onClick={() => {
+                  setDialogValue(0)
+                }}
               >
                 {t('clear')}
               </Button>
               <Button
                 className="flex-1 bg-green-600 text-[16px] text-white hover:bg-green-700"
-                onClick={() => onConfirm(parseFloat(tempValue))}
+                onClick={() => {
+                  setValue(dialogValue)
+                  props.setValue(dialogValue)
+                  setOpen(false)
+                }}
               >
                 {t('done')}
               </Button>
