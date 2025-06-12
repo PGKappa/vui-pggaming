@@ -215,14 +215,13 @@ export default function BettingSlip() {
       </CardContent>
 
       <CardFooter className="flex flex-col gap-2 bg-muted-foreground">
-        <div className="flex justify-end bg-accent px-8 py-2">
-          <span className="text-[16px] font-bold text-accent-foreground">
-            {t('stake')}
-          </span>
-        </div>
-
         {betMode !== 'SYSTEM' ? (
           <>
+            <div className="flex justify-end bg-accent px-8 py-2">
+              <span className="text-[16px] font-bold text-accent-foreground">
+                {t('stake')}
+              </span>
+            </div>
             <div className="flex flex-row items-center justify-between p-2">
               <span className="text-[16px] font-semibold">{t('total')}</span>
               <StakeInputDialog value={global} setValue={setGlobal} />
@@ -240,114 +239,116 @@ export default function BettingSlip() {
           </>
         ) : (
           <div className="mt-2 rounded-md text-sm">
-            <Table>
-              <TableHeader className="bg-accent text-accent-foreground">
-                <TableRow className="border-border hover:bg-accent">
-                  <TableHead className="text-left text-[13px] font-bold tracking-wide">
-                    Group
-                  </TableHead>
-                  <TableHead className="text-center text-[13px] font-bold tracking-wide">
-                    Comb.
-                  </TableHead>
-                  <TableHead className="text-center text-[13px] font-bold tracking-wide">
-                    Min.
-                  </TableHead>
-                  <TableHead className="text-center text-[13px] font-bold tracking-wide">
-                    Max.
-                  </TableHead>
-                  <TableHead className="text-center text-[13px] font-bold tracking-wide">
-                    Stake
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {systemGroups.map((group) => (
-                  <TableRow
-                    key={group.name}
-                    className="border-border bg-primary-foreground text-[14px]"
-                  >
-                    <TableCell className="py-1 font-semibold">
-                      {group.name}
-                    </TableCell>
-                    <TableCell className="py-1 text-center">
-                      {group.combinations.length}
-                    </TableCell>
-                    <TableCell className="py-1 text-center">
-                      € {(group.minWin * group.stake).toFixed(2)}
-                    </TableCell>
-                    <TableCell className="py-1 text-center font-bold">
-                      € {(group.maxWin * group.stake).toFixed(2)}
-                    </TableCell>
-                    <TableCell className="py-1">
-                      <StakeInputDialog
-                        value={
-                          systemGroups.find((g) => g.name === group.name)
-                            ?.stake ?? 0
-                        }
-                        setValue={(value) =>
-                          setSystemGroups((prev) =>
-                            prev.map((g) =>
-                              g.name === group.name
-                                ? { ...g, stake: value }
-                                : g,
-                            ),
+            <ScrollArea>
+              <div className="max-h-[150px] min-w-full">
+                <Table>
+                  <TableHeader className="bg-accent text-accent-foreground">
+                    <TableRow className="border-border hover:bg-accent">
+                      <TableHead className="text-left text-[13px] font-bold tracking-wide">
+                        Group
+                      </TableHead>
+                      <TableHead className="text-center text-[13px] font-bold tracking-wide">
+                        Comb.
+                      </TableHead>
+                      <TableHead className="text-center text-[13px] font-bold tracking-wide">
+                        Min.
+                      </TableHead>
+                      <TableHead className="text-center text-[13px] font-bold tracking-wide">
+                        Max.
+                      </TableHead>
+                      <TableHead className="text-center text-[13px] font-bold tracking-wide">
+                        Stake
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {systemGroups.map((group) => (
+                      <TableRow
+                        key={group.name}
+                        className="border-border bg-primary-foreground text-[14px]"
+                      >
+                        <TableCell className="py-1 font-semibold">
+                          {group.name}
+                        </TableCell>
+                        <TableCell className="py-1 text-center">
+                          {group.combinations.length}
+                        </TableCell>
+                        <TableCell className="py-1 text-center">
+                          € {(group.minWin * group.stake).toFixed(2)}
+                        </TableCell>
+                        <TableCell className="py-1 text-center font-bold">
+                          € {(group.maxWin * group.stake).toFixed(2)}
+                        </TableCell>
+                        <TableCell className="py-1">
+                          <StakeInputDialog
+                            value={
+                              systemGroups.find((g) => g.name === group.name)
+                                ?.stake ?? 0
+                            }
+                            setValue={(value) =>
+                              setSystemGroups((prev) =>
+                                prev.map((g) =>
+                                  g.name === group.name
+                                    ? { ...g, stake: value }
+                                    : g,
+                                ),
+                              )
+                            }
+                          />
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                  <TableFooter className="bg-muted text-[14px] font-semibold">
+                    <TableRow className="hover:bg-muted">
+                      <TableCell colSpan={4} className="text-left">
+                        Total
+                      </TableCell>
+                      <TableCell className="text-center">
+                        €{' '}
+                        {systemGroups
+                          .reduce((sum, group) => sum + group.stake, 0)
+                          .toFixed(2)}
+                      </TableCell>
+                    </TableRow>
+                    <TableRow className="hover:bg-muted">
+                      <TableCell colSpan={4} className="text-left">
+                        Max Win
+                      </TableCell>
+                      <TableCell className="text-center">
+                        €{' '}
+                        {systemGroups
+                          .reduce(
+                            (sum, group) =>
+                              sum +
+                              (group.stake > 0
+                                ? group.maxWin * group.stake
+                                : 0),
+                            0,
                           )
-                        }
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-              <TableFooter className="bg-muted text-[14px] font-semibold">
-                <TableRow className="hover:bg-muted">
-                  <TableCell colSpan={4} className="text-left">
-                    Total
-                  </TableCell>
-                  <TableCell className="text-center">
-                    €{' '}
-                    {systemGroups
-                      .reduce(
-                        (sum, group) =>
-                          sum + group.stake,
-                        0,
-                      )
-                      .toFixed(2)}
-                  </TableCell>
-                </TableRow>
-                <TableRow className="hover:bg-muted">
-                  <TableCell colSpan={4} className="text-left">
-                    Max Win
-                  </TableCell>
-                  <TableCell className="text-center">
-                    €{' '}
-                    {systemGroups
-                      .reduce(
-                        (sum, group) =>
-                          sum +
-                          (group.stake > 0 ? group.maxWin * group.stake : 0),
-                        0,
-                      )
-                      .toFixed(2)}
-                  </TableCell>
-                </TableRow>
-                <TableRow className="hover:bg-muted">
-                  <TableCell colSpan={4} className="text-left">
-                    Min Win
-                  </TableCell>
-                  <TableCell className="text-center">
-                    €{' '}
-                    {systemGroups
-                      .reduce((min, group) => {
-                        if (group.stake === 0) return min
-                        return min === 0
-                          ? group.minWin * group.stake
-                          : Math.min(min, group.minWin * group.stake)
-                      }, 0)
-                      .toFixed(2)}
-                  </TableCell>
-                </TableRow>
-              </TableFooter>
-            </Table>
+                          .toFixed(2)}
+                      </TableCell>
+                    </TableRow>
+                    <TableRow className="hover:bg-muted">
+                      <TableCell colSpan={4} className="text-left">
+                        Min Win
+                      </TableCell>
+                      <TableCell className="text-center">
+                        €{' '}
+                        {systemGroups
+                          .reduce((min, group) => {
+                            if (group.stake === 0) return min
+                            return min === 0
+                              ? group.minWin * group.stake
+                              : Math.min(min, group.minWin * group.stake)
+                          }, 0)
+                          .toFixed(2)}
+                      </TableCell>
+                    </TableRow>
+                  </TableFooter>
+                </Table>
+              </div>
+            </ScrollArea>
           </div>
         )}
 
