@@ -1,14 +1,24 @@
 import { BetEntry, SystemGroup } from '@/retail-lib/types'
 
-export function getCombinations<T>(array: T[], comboSize: number): T[][] {
-  const result: T[][] = []
-  const helper = (start: number, path: T[]) => {
+export function getCombinations(
+  entries: BetEntry[],
+  comboSize: number,
+  fixed: BetEntry[] = [],
+): BetEntry[][] {
+  const result: BetEntry[][] = []
+  const helper = (start: number, path: BetEntry[]) => {
     if (path.length === comboSize) {
-      result.push([...path])
+      const fullCombo = [...fixed, ...path]
+      const matchIds = new Set(
+        fullCombo.map((e) => `${e.bet.round.number}-${e.bet.teams}`),
+      )
+      if (matchIds.size === fullCombo.length) {
+        result.push(fullCombo)
+      }
       return
     }
-    for (let i = start; i < array.length; i++) {
-      path.push(array[i])
+    for (let i = start; i < entries.length; i++) {
+      path.push(entries[i])
       helper(i + 1, path)
       path.pop()
     }
@@ -17,30 +27,56 @@ export function getCombinations<T>(array: T[], comboSize: number): T[][] {
   return result
 }
 
-export function generateSystemGroups(
-  entries: BetEntry[],
-): SystemGroup[] {
+export function generateSystemGroups(entries: BetEntry[]): SystemGroup[] {
   const groups: SystemGroup[] = []
-  const fixed: BetEntry[] = entries.filter((e) => e.fixed)
+  //const fixedEntries: BetEntry[] = entries.filter((e) => e.fixed)
 
-  for (let size = 1; size <= entries.length; size++) {
+  const matchesSet = new Set<string>()
+  entries.forEach((entry) => {
+    const matchKey = `${entry.bet.round.number}.${entry.bet.teams}`
+    matchesSet.add(matchKey)
+  })
+  const matchesNumber = matchesSet.size
+
+  for (let size = 1; size <= matchesNumber; size++) {
     const combos = getCombinations(entries, size)
-      .map((combo) => [...fixed, ...combo])
-      .filter((combo) => combo.length === size + fixed.length)
+    console.log(size, combos)
 
-    if (combos.length === 0) continue
-
-    const winValues = combos.map((c) =>
-      c.reduce((acc, e) => acc * e.bet.option.decPrice, 1),
+    const minWin = Math.min(
+      ...combos.map((combo) =>
+        combo.reduce((acc, entry) => acc * entry.bet.option.decPrice, 1),
+      ),
+    )
+    const maxWin = combos.reduce(
+      (acc, combo) =>
+        acc + combo.reduce((acc, entry) => acc * entry.bet.option.decPrice, 1),
+      0,
     )
 
+    let name = ''
+
+    switch (size) {
+      case 1:
+        name = 'Single'
+        break
+      case 2:
+        name = 'Double'
+        break
+      case 3:
+        name = 'Triple'
+        break
+      default:
+        name = `Group ${size}`
+        break
+    }
+
     groups.push({
-      name: size + fixed.length === 1 ? 'Single' : `${size + fixed.length}-ple`,
-      size: size + fixed.length,
+      name,
+      size,
       combinations: combos,
-      stake: 1,
-      minWin: Math.min(...winValues),
-      maxWin: Math.max(...winValues),
+      stake: 0,
+      minWin,
+      maxWin,
     })
   }
 
