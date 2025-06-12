@@ -273,10 +273,10 @@ export default function BettingSlip() {
                       {group.combinations.length}
                     </TableCell>
                     <TableCell className="py-1 text-center">
-                      € {group.minWin.toFixed(2)}
+                      € {(group.minWin * group.stake).toFixed(2)}
                     </TableCell>
                     <TableCell className="py-1 text-center font-bold">
-                      € {group.maxWin.toFixed(2)}
+                      € {(group.maxWin * group.stake).toFixed(2)}
                     </TableCell>
                     <TableCell className="py-1">
                       <StakeInputDialog
@@ -308,7 +308,7 @@ export default function BettingSlip() {
                     {systemGroups
                       .reduce(
                         (sum, group) =>
-                          sum + group.stake * group.combinations.length,
+                          sum + group.stake,
                         0,
                       )
                       .toFixed(2)}
@@ -323,7 +323,8 @@ export default function BettingSlip() {
                     {systemGroups
                       .reduce(
                         (sum, group) =>
-                          sum + (group.stake > 0 ? group.maxWin : 0),
+                          sum +
+                          (group.stake > 0 ? group.maxWin * group.stake : 0),
                         0,
                       )
                       .toFixed(2)}
@@ -336,15 +337,12 @@ export default function BettingSlip() {
                   <TableCell className="text-center">
                     €{' '}
                     {systemGroups
-                      .reduce(
-                        (min, group) => {
-                          // Only consider groups with non-zero stakes
-                          if (group.stake === 0) return min;
-                          // Initialize min with first non-zero stake group's minWin
-                          return min === 0 ? group.minWin : Math.min(min, group.minWin);
-                        },
-                        0,
-                      )
+                      .reduce((min, group) => {
+                        if (group.stake === 0) return min
+                        return min === 0
+                          ? group.minWin * group.stake
+                          : Math.min(min, group.minWin * group.stake)
+                      }, 0)
                       .toFixed(2)}
                   </TableCell>
                 </TableRow>
