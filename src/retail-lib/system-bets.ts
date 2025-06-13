@@ -1,4 +1,5 @@
 import { BetEntry, SystemGroup } from '@/retail-lib/types'
+import { t } from 'i18next'
 
 export function getCombinations(
   entries: BetEntry[],
@@ -122,16 +123,16 @@ export function generateSystemGroups(entries: BetEntry[]): SystemGroup[] {
 
     switch (size) {
       case 1:
-        name = 'Single'
+        name = t('single')
         break
       case 2:
-        name = 'Double'
+        name = t('double')
         break
       case 3:
-        name = 'Triple'
+        name = t('triple')
         break
       default:
-        name = `${size}-ple`
+        name = `${size}${t('-ple')}`
         break
     }
 

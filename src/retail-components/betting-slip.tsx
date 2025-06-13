@@ -135,16 +135,24 @@ export default function BettingSlip() {
         ) : (
           <ScrollArea className="h-full">
             <ul className="flex flex-col gap-1 bg-background">
-            {Object.entries(betsByMatch).map(([matchKey, matchBets]) => (
+              {Object.entries(betsByMatch).map(([matchKey, matchBets]) => (
                 <li key={matchKey}>
                   <div className="flex flex-col gap-1 border border-betSlip-foreground p-1">
                     <div className="flex flex-row justify-between">
-                      <div className="flex flex-row items-center gap-2 pl-1">
-                        <Checkbox
-                          checked={matchBets[0].fixed}
-                          onCheckedChange={() => toggleMatchBetsFixed(matchKey)}
-                        />
-                        <span className='text-[12px]'>{t('fixed')}</span>
+                      <div
+                        className={
+                          betMode === 'SYSTEM' ? 'visible' : 'invisible'
+                        }
+                      >
+                        <div className="flex flex-row items-center gap-2 pl-1">
+                          <Checkbox
+                            checked={matchBets[0].fixed}
+                            onCheckedChange={() =>
+                              toggleMatchBetsFixed(matchKey)
+                            }
+                          />
+                          <span className="text-[12px]">{t('fixed')}</span>
+                        </div>
                       </div>
                       <Button
                         variant="ghost"
@@ -257,19 +265,19 @@ export default function BettingSlip() {
                   <TableHeader className="bg-accent text-accent-foreground">
                     <TableRow className="border-border hover:bg-accent">
                       <TableHead className="text-left text-[13px] font-bold tracking-wide">
-                        Group
+                        {t('group')}
                       </TableHead>
                       <TableHead className="text-center text-[13px] font-bold tracking-wide">
-                        Comb.
+                        {t('comb')}
                       </TableHead>
                       <TableHead className="text-center text-[13px] font-bold tracking-wide">
-                        Min.€ 
+                      {t('min')}.€
                       </TableHead>
                       <TableHead className="text-center text-[13px] font-bold tracking-wide">
-                        Max.€
+                      {t('max')}.€
                       </TableHead>
                       <TableHead className="text-center text-[13px] font-bold tracking-wide">
-                        Stake
+                      {t('stake')}
                       </TableHead>
                     </TableRow>
                   </TableHeader>
@@ -314,7 +322,7 @@ export default function BettingSlip() {
                   <TableFooter className="text-[14px] font-semibold">
                     <TableRow className="hover:bg-muted">
                       <TableCell colSpan={4} className="text-left">
-                        Total
+                      {t('total')}
                       </TableCell>
                       <TableCell className="text-center">
                         €{' '}
@@ -325,7 +333,7 @@ export default function BettingSlip() {
                     </TableRow>
                     <TableRow className="hover:bg-muted">
                       <TableCell colSpan={4} className="text-left">
-                        Max Win
+                      {t('max')} {t('win')}
                       </TableCell>
                       <TableCell className="text-center">
                         €{' '}
@@ -343,7 +351,7 @@ export default function BettingSlip() {
                     </TableRow>
                     <TableRow className="hover:bg-muted">
                       <TableCell colSpan={4} className="text-left">
-                        Min Win
+                      {t('min')} {t('win')}
                       </TableCell>
                       <TableCell className="text-center">
                         €{' '}
