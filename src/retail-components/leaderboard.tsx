@@ -33,8 +33,8 @@ export default function Leaderboard() {
           {teamRankings ? (
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-card-header">
-                  <tr className="grid grid-cols-10 md:grid-cols-10 [&_th]:text-card-header-foreground">
+                <thead className="bg-card-header ">
+                  <tr className="grid grid-cols-10 md:grid-cols-10 [&_th]:text-card-header-foreground h-[44px]">
                     <th className="p-3 text-center"></th>
                     <th className="p-2 text-center">{t('club')}</th>
                     <th className="p-2 text-center">{t('p')}</th>
