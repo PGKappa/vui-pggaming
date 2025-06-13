@@ -265,19 +265,19 @@ export default function BettingSlip() {
                   <TableHeader className="bg-accent text-accent-foreground">
                     <TableRow className="border-border hover:bg-accent">
                       <TableHead className="text-left text-[13px] font-bold tracking-wide">
-                        Group
+                        {t('group')}
                       </TableHead>
                       <TableHead className="text-center text-[13px] font-bold tracking-wide">
-                        Comb.
+                        {t('comb')}
                       </TableHead>
                       <TableHead className="text-center text-[13px] font-bold tracking-wide">
-                        Min.€
+                      {t('min')}.€
                       </TableHead>
                       <TableHead className="text-center text-[13px] font-bold tracking-wide">
-                        Max.€
+                      {t('max')}.€
                       </TableHead>
                       <TableHead className="text-center text-[13px] font-bold tracking-wide">
-                        Stake
+                      {t('stake')}
                       </TableHead>
                     </TableRow>
                   </TableHeader>
@@ -322,7 +322,7 @@ export default function BettingSlip() {
                   <TableFooter className="text-[14px] font-semibold">
                     <TableRow className="hover:bg-muted">
                       <TableCell colSpan={4} className="text-left">
-                        Total
+                      {t('total')}
                       </TableCell>
                       <TableCell className="text-center">
                         €{' '}
@@ -333,7 +333,7 @@ export default function BettingSlip() {
                     </TableRow>
                     <TableRow className="hover:bg-muted">
                       <TableCell colSpan={4} className="text-left">
-                        Max Win
+                      {t('max')} {t('win')}
                       </TableCell>
                       <TableCell className="text-center">
                         €{' '}
@@ -351,7 +351,7 @@ export default function BettingSlip() {
                     </TableRow>
                     <TableRow className="hover:bg-muted">
                       <TableCell colSpan={4} className="text-left">
-                        Min Win
+                      {t('min')} {t('win')}
                       </TableCell>
                       <TableCell className="text-center">
                         €{' '}
