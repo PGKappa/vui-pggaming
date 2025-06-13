@@ -135,16 +135,24 @@ export default function BettingSlip() {
         ) : (
           <ScrollArea className="h-full">
             <ul className="flex flex-col gap-1 bg-background">
-            {Object.entries(betsByMatch).map(([matchKey, matchBets]) => (
+              {Object.entries(betsByMatch).map(([matchKey, matchBets]) => (
                 <li key={matchKey}>
                   <div className="flex flex-col gap-1 border border-betSlip-foreground p-1">
                     <div className="flex flex-row justify-between">
-                      <div className="flex flex-row items-center gap-2 pl-1">
-                        <Checkbox
-                          checked={matchBets[0].fixed}
-                          onCheckedChange={() => toggleMatchBetsFixed(matchKey)}
-                        />
-                        <span className='text-[12px]'>{t('fixed')}</span>
+                      <div
+                        className={
+                          betMode === 'SYSTEM' ? 'visible' : 'invisible'
+                        }
+                      >
+                        <div className="flex flex-row items-center gap-2 pl-1">
+                          <Checkbox
+                            checked={matchBets[0].fixed}
+                            onCheckedChange={() =>
+                              toggleMatchBetsFixed(matchKey)
+                            }
+                          />
+                          <span className="text-[12px]">{t('fixed')}</span>
+                        </div>
                       </div>
                       <Button
                         variant="ghost"
@@ -263,7 +271,7 @@ export default function BettingSlip() {
                         Comb.
                       </TableHead>
                       <TableHead className="text-center text-[13px] font-bold tracking-wide">
-                        Min.€ 
+                        Min.€
                       </TableHead>
                       <TableHead className="text-center text-[13px] font-bold tracking-wide">
                         Max.€
