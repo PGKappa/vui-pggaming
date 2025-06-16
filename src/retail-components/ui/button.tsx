@@ -20,7 +20,7 @@ const buttonVariants = cva(
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
         betNow: "font-bold text-lg bg-bet text-bet-foreground shadow hover:bg-bet/90",
-        navbar: " bg-secondary text-accent-foreground hover:bg-secondary/90",
+        navbar: "bg-secondary text-accent-foreground hover:bg-secondary/90",
         navbarSelected: "bg-tertiary text-tertiary-foreground",
         history: "bg-accent text-accent-foreground",
         ticketButton: "bg-navbarButton text-black font-bold",
