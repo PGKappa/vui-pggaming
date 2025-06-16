@@ -202,5 +202,6 @@ export type TeamRanking = {
   points: number
   goalsFor: number
   goalsAgainst: number
+  goalDifference: number
   last8: Array<'W' | 'L' | 'D'>
 }
