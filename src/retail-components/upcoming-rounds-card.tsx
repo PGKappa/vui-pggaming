@@ -37,7 +37,7 @@ export default function UpcomingRoundsCard({
     <Card
       className={`flex ${collapsed ? 'h-1/2' : 'h-full'} w-full flex-col overflow-hidden`}
     >
-      <CardHeader className="relative flex max-h-16 min-h-16 flex-row items-center justify-between">
+      <CardHeader className="relative flex max-h-14 min-h-14 flex-row items-center justify-between">
         <div className="w-full text-center">
           <h3 className="text-[19px] font-bold">{t('upcoming_events')}</h3>
         </div>

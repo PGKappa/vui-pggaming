@@ -37,7 +37,7 @@ export default function LastRoundsResults(props: {
 
   return (
     <Card className={`flex ${props.open ? 'h-1/2' : ''} w-full flex-col`}>
-      <CardHeader className="relative flex max-h-16 min-h-16 flex-row items-center justify-between">
+      <CardHeader className="relative flex max-h-14 min-h-16 flex-row items-center justify-between">
         <div className="w-full text-center">
           <h3 className="text-xl font-bold">{t('latest_results')}</h3>
         </div>
