@@ -60,7 +60,7 @@ export default function Home() {
       </div>
 
       {/* SECOND COLUMN*/}
-      <div className="flex h-[942px] w-[1110x] flex-col gap-2 overflow-y-auto">
+      <div className="flex h-[942px] w-[1110px] flex-col gap-2 overflow-y-auto">
         <ScrollArea className="h-full w-full">
           {!!searchRoundResults ? (
             <SearchRoundResults
