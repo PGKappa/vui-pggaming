@@ -33,7 +33,7 @@ function AppContent({ children }: { children: React.ReactNode }) {
           <div className="h-[60px]"></div>
           <Navbar />
         </header>
-        <main className="h-full overflow-hidden p-2">
+        <main className="h-full overflow-hidden">
           <RootContextProvider>
             <BetsContextProvider>{children}</BetsContextProvider>
           </RootContextProvider>
