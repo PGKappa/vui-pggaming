@@ -54,7 +54,7 @@ export default function BettingSlip() {
 
   const totalOdds = betEntries.reduce(
     (total, betEntry) => total * betEntry.bet.option.decPrice,
-    1,
+    0,
   )
 
   const [global, setGlobal] = useState(0)
