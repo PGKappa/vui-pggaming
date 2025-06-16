@@ -3,12 +3,20 @@ import BettingSlip from '@/retail-components/betting-slip'
 import LastRoundsResults from '@/retail-components/last-rounds-results'
 import Leaderboard from '@/retail-components/leaderboard'
 import MatchBettingOptions from '@/retail-components/match-betting-options'
+import SearchDialog from '@/retail-components/search-dialog'
 import SearchRoundResults from '@/retail-components/search-round-results'
+import { Button } from '@/retail-components/ui/button'
+import {
+  Drawer,
+  DrawerContent,
+  DrawerTrigger,
+} from '@/retail-components/ui/drawer'
 import { ScrollArea } from '@/retail-components/ui/scroll-area'
 import UpcomingRoundCard from '@/retail-components/upcoming-round-card'
 import UpcomingRoundsCard from '@/retail-components/upcoming-rounds-card'
 import { RootContext } from '@/retail-contexts/root-context'
 import { Market, RoundResults, UpcomingRound } from '@/retail-lib/types'
+import { CalendarIcon, HistoryIcon } from 'lucide-react'
 import { useContext, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -37,30 +45,54 @@ export default function Home() {
   }, [upcomingRounds, selectedRound])
 
   return (
-    <div className="flex h-full overflow-hidden">
-      {/* First column */}
-      <div className="flex h-[942px] w-[263px] flex-col items-center justify-between gap-2 overflow-hidden">
-        <UpcomingRoundsCard
-          rounds={upcomingRounds}
-          selectedRound={selectedRound}
-          setSelectedRound={(round) => {
-            setSelectedRound(round)
-            setSearchRoundResults(undefined)
-          }}
-          collapsed={lastResultsOpen}
-          toggleCollapse={() => setLastResultsOpen((prev) => !prev)}
-        />
-        <LastRoundsResults
-          roundResults={roundResults}
-          open={lastResultsOpen}
-          toggleOpen={() => setLastResultsOpen((prev) => !prev)}
-          setSearchRoundResults={setSearchRoundResults}
-          searchRoundResults={searchRoundResults}
-        />
+    <div className="mt-2 flex h-full overflow-hidden">
+      <div className="top-navbar-height fixed left-0 flex h-full w-14 flex-col items-center justify-start gap-8 border-r border-border bg-accent py-6">
+        <Drawer>
+          <DrawerTrigger asChild>
+            <Button
+              variant="ghost"
+              className="text-background hover:bg-transparent"
+              style={{ scale: 2 }}
+            >
+              <CalendarIcon />
+            </Button>
+          </DrawerTrigger>
+          <DrawerContent className="h-full w-[300px] p-0">
+            <UpcomingRoundsCard
+              rounds={upcomingRounds}
+              selectedRound={selectedRound}
+              setSelectedRound={(round) => {
+                setSelectedRound(round)
+                setSearchRoundResults(undefined)
+              }}
+            />
+          </DrawerContent>
+        </Drawer>
+
+        <Drawer>
+          <DrawerTrigger asChild>
+            <Button
+              variant="ghost"
+              className="text-background hover:bg-transparent"
+              style={{ scale: 2 }}
+            >
+              <HistoryIcon />
+            </Button>
+          </DrawerTrigger>
+          <DrawerContent className="h-full w-[300px] p-0">
+            <LastRoundsResults
+              roundResults={roundResults}
+              open={lastResultsOpen}
+              toggleOpen={() => setLastResultsOpen((prev) => !prev)}
+            />
+          </DrawerContent>
+        </Drawer>
+
+        <SearchDialog setSearchRoundResults={setSearchRoundResults} />
       </div>
 
-      {/* SECOND COLUMN*/}
-      <div className="ml-2 flex h-[942px] w-[1241px] flex-col gap-2 overflow-y-auto">
+      {/* Main content area */}
+      <div className="ml-[56px] mr-2 flex h-[942px] w-[1466px] flex-col gap-2 overflow-y-auto pl-2">
         <ScrollArea className="h-full w-full">
           {!!searchRoundResults ? (
             <SearchRoundResults
@@ -92,8 +124,8 @@ export default function Home() {
         </ScrollArea>
       </div>
 
-      {/*RIGHT COLUMN - Betting slip*/}
-      <div className="ml-2 h-[942px] w-[382px] overflow-y-auto bg-background text-foreground">
+      {/* RIGHT COLUMN - Betting slip */}
+      <div className="h-[942px] w-[384px] overflow-y-auto bg-background text-foreground">
         <BettingSlip />
       </div>
     </div>
