@@ -82,6 +82,10 @@ export default function UpcomingRoundCard(props: {
               <TableHead className="text-center font-bold">DC 12</TableHead>
               <TableHead className="w-[1px] bg-card-header-foreground p-0" />
 
+              <TableHead className="text-center font-bold">Goal</TableHead>
+              <TableHead className="text-center font-bold">No Goal</TableHead>
+              <TableHead className="w-[1px] bg-card-header-foreground p-0" />
+
               <TableHead className="text-center font-bold">U 2.5</TableHead>
               <TableHead className="text-center font-bold">O 2.5</TableHead>
 
@@ -126,6 +130,9 @@ export default function UpcomingRoundCard(props: {
                 const underOverMarket = match.markets.market.find(
                   (m) => m.name.trim() === 'Under\/Over 2.5',
                 )
+                const goalNoGoalMarket = match.markets.market.find(
+                  (m) => m.name === 'Gol no gol',
+                )
 
                 const marketOptions =
                   mainMarket?.selections.flatMap(
@@ -141,12 +148,17 @@ export default function UpcomingRoundCard(props: {
                     ({ selection }) => selection,
                   ) || []
 
+                const goalNoGoalOptions =
+                  goalNoGoalMarket?.selections.flatMap(
+                    ({ selection }) => selection,
+                  ) || []
+
                 return (
                   <TableRow key={index} className="border-card-foreground">
                     <TableCell className="flex h-[70px] w-[110px] flex-row items-center px-[14px]">
                       <Badge
                         variant="secondary"
-                        className="flex flex-col justify-between w-[78px] py-1.5"
+                        className="flex w-[78px] flex-col justify-between py-1.5"
                       >
                         <span className="text-[16px]">{dayLabel}</span>
                         <span className="text-[12px] font-normal">
@@ -155,7 +167,7 @@ export default function UpcomingRoundCard(props: {
                       </Badge>
                     </TableCell>
 
-                    <TableCell className="h-[70px] w-[122px] text-center p-0">
+                    <TableCell className="h-[70px] w-[122px] p-0 text-center">
                       <span className="text-[16px] font-bold">{teamNames}</span>
                     </TableCell>
 
@@ -163,7 +175,7 @@ export default function UpcomingRoundCard(props: {
                       marketOptions.map((option, i) => (
                         <TableCell
                           key={i}
-                          className="h-[70px] w-[116px] px-[13px] text-center"
+                          className="h-[70px] w-[116px] px-[10px] text-center"
                         >
                           <BetEntryToggle
                             matchStart={matchStart}
@@ -187,7 +199,7 @@ export default function UpcomingRoundCard(props: {
                       dcMarketOptions.map((option, i) => (
                         <TableCell
                           key={i}
-                          className="h-[70px] w-[116px] px-[13px] text-center"
+                          className="h-[70px] w-[116px] px-[10px] text-center"
                         >
                           <BetEntryToggle
                             matchStart={matchStart}
@@ -207,11 +219,35 @@ export default function UpcomingRoundCard(props: {
 
                     <TableCell className="w-[1px] bg-border p-0" />
 
+                    {goalNoGoalMarket ? (
+                      goalNoGoalOptions.map((option, i) => (
+                        <TableCell
+                          key={i}
+                          className="h-[70px] w-[116px] px-[10px] text-center"
+                        >
+                          <BetEntryToggle
+                            matchStart={matchStart}
+                            round={props.round}
+                            teams={teamNames}
+                            marketName={goalNoGoalMarket.name}
+                            option={option}
+                            className="h-[45px] w-[90px] text-[19px] font-semibold"
+                          />
+                        </TableCell>
+                      ))
+                    ) : (
+                      <TableCell colSpan={2} className="text-center">
+                        {t('no_odds')}
+                      </TableCell>
+                    )}
+
+                    <TableCell className="w-[1px] bg-border p-0" />
+
                     {underOverMarket ? (
                       underOverOptions.map((option, i) => (
                         <TableCell
                           key={i}
-                          className="h-[70px] w-[116px] px-[13px] text-center"
+                          className="h-[70px] w-[116px] px-[10px] text-center"
                         >
                           <BetEntryToggle
                             matchStart={matchStart}
@@ -229,7 +265,7 @@ export default function UpcomingRoundCard(props: {
                       </TableCell>
                     )}
 
-                    <TableCell className="px-[15px] text-right">
+                    <TableCell className="px-[10px] text-right">
                       <Button
                         className="rounded-[8px] bg-tertiary text-tertiary-foreground hover:bg-tertiary/90"
                         size="icon-lg"
