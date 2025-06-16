@@ -54,12 +54,8 @@ export default function SearchDialog(props: {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button
-          variant="navbarSelected"
-          className="relative h-12 w-full cursor-pointer justify-center"
-        >
-          <span className="text-md font-light">{t('search_latest_results')}</span>
-          <SearchIcon className="absolute right-4" style={{ scale: 1.5 }} />
+      <Button variant="ghost" className="text-background hover:bg-transparent" style={{ scale: 2 }}>
+          <SearchIcon />
         </Button>
       </DialogTrigger>
 

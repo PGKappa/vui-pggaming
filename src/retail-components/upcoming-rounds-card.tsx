@@ -1,30 +1,23 @@
 'use client'
 
-import { Button } from '@/retail-components/ui/button'
 import { Card, CardContent, CardHeader } from '@/retail-components/ui/card'
 import { ScrollArea } from '@/retail-components/ui/scroll-area'
 import { UpcomingRound } from '@/retail-lib/types'
-import { ChevronDown, ChevronUp } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 type UpcomingRoundsCardProps = {
   rounds?: UpcomingRound[]
   selectedRound?: UpcomingRound
   setSelectedRound: (round: UpcomingRound) => void
-  collapsed: boolean
-  toggleCollapse: () => void
 }
 
 export default function UpcomingRoundsCard({
   rounds,
   selectedRound,
   setSelectedRound,
-  collapsed,
-  toggleCollapse,
 }: UpcomingRoundsCardProps) {
   const { t } = useTranslation()
 
-  // Function to format the date from the startTime
   const formatStartTime = (dateString: string) => {
     const date = new Date(dateString)
     return date.toLocaleTimeString('it-IT', {
@@ -34,25 +27,11 @@ export default function UpcomingRoundsCard({
   }
 
   return (
-    <Card
-      className={`flex ${collapsed ? 'h-1/2' : 'h-full'} w-full flex-col overflow-hidden`}
-    >
-      <CardHeader className="relative flex max-h-16 min-h-16 flex-row items-center justify-between">
-        <div className="w-full text-center">
-          <h3 className="text-[19px] font-bold">{t('upcoming_events')}</h3>
-        </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleCollapse}
-          className="absolute right-1"
-        >
-          {collapsed ? (
-            <ChevronDown style={{ scale: 2 }} />
-          ) : (
-            <ChevronUp style={{ scale: 2 }} />
-          )}
-        </Button>
+    <Card className={`h-full' flex w-full flex-col overflow-hidden`}>
+      <CardHeader className="sticky top-0 z-10 flex max-h-16 min-h-16 flex-row items-center justify-between">
+        <h3 className="w-full text-center text-[19px] font-bold">
+          {t('upcoming_events')}
+        </h3>
       </CardHeader>
       <CardContent className="flex-grow overflow-hidden p-0">
         <ScrollArea className="h-full">
