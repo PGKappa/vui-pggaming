@@ -28,7 +28,7 @@ export default function MatchBettingOptions(props: {
 }) {
   const { t } = useTranslation()
   return (
-    <div className="flex h-full w-full flex-col gap-4 overflow-hidden">
+    <div className="flex h-full w-[1110px] flex-col gap-4 overflow-hidden">
       <div className="sticky top-0 z-10 flex h-16 flex-row items-center justify-between bg-accent text-accent-foreground">
         <div className="flex flex-row items-center gap-2">
           <Button
