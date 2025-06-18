@@ -14,7 +14,7 @@ export default function Navbar() {
     <nav className="flex h-[56.69px] w-full flex-row items-center justify-start bg-accent">
       <div className="flex flex-row items-center gap-[10px] pl-[20px]">
         <Link
-          href={`/dogs-horses${initCode ? `?init_code=${initCode}` : ''}`}
+          href='https://test.pgvirtual.eu/?operator=pg&init_code=ffffffff-ffff-ffff-ffff-ffffffffffee'
           className={cn(
             buttonVariants({
               variant: 'navbar',
@@ -39,7 +39,7 @@ export default function Navbar() {
         </Link>
 
         <Link
-          href={`/dogs${initCode ? `?init_code=${initCode}` : ''}`}
+          href='https://test.pgvirtual.eu/?operator=pg&init_code=ffffffff-ffff-ffff-ffff-ffffffffffee'
           className={cn(
             buttonVariants({
               variant: 'navbar',
@@ -58,7 +58,7 @@ export default function Navbar() {
         </Link>
 
         <Link
-          href={`/horses${initCode ? `?init_code=${initCode}` : ''}`}
+          href='https://test.pgvirtual.eu/?operator=pg&init_code=ffffffff-ffff-ffff-ffff-ffffffffffee'
           className={cn(
             buttonVariants({
               variant: 'navbar',
