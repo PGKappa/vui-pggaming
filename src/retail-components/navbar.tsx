@@ -13,6 +13,7 @@ export default function Navbar() {
   const withTopShell = searchParams.get('with_top_shell')
 
   const navigateParent = () => {
+    console.log('navigate parent: ', `https://test.pgvirtual.eu/?${searchParams.toString()}`)
     window.parent.postMessage(
       {
         tipo: 'CAMBIA_IFRAME_1',
