@@ -11,13 +11,24 @@ export default function Navbar() {
   const searchParams = useSearchParams()
   const initCode = searchParams.get('init_code')
   const withTopShell = searchParams.get('with_top_shell')
+
+  const navigateParent = () => {
+    window.parent.postMessage(
+      {
+        tipo: 'CAMBIA_IFRAME_1',
+        nuovoUrl: `https://test.pgvirtual.eu/?${searchParams.toString()}`
+      },
+      'https://demo.pgvirtual.eu/Retail-Blockotech.html'
+    );
+  }
   return (
     <>
       {!!withTopShell && <div className="h-[60px]"></div>}
       <nav className="flex h-[56.69px] w-full flex-row items-center justify-start bg-accent">
         <div className="flex flex-row items-center gap-[10px] pl-[20px]">
           <Link
-            href="https://test.pgvirtual.eu/?operator=pg&init_code=ffffffff-ffff-ffff-ffff-ffffffffffee"
+            href="#"
+            onClick={navigateParent} 
             className={cn(
               buttonVariants({
                 variant: 'navbar',
@@ -42,7 +53,8 @@ export default function Navbar() {
           </Link>
 
           <Link
-            href="https://test.pgvirtual.eu/?operator=pg&init_code=ffffffff-ffff-ffff-ffff-ffffffffffee"
+            href="#"
+            onClick={navigateParent} 
             className={cn(
               buttonVariants({
                 variant: 'navbar',
@@ -61,7 +73,8 @@ export default function Navbar() {
           </Link>
 
           <Link
-            href="https://test.pgvirtual.eu/?operator=pg&init_code=ffffffff-ffff-ffff-ffff-ffffffffffee"
+            href="#"
+            onClick={navigateParent} 
             className={cn(
               buttonVariants({
                 variant: 'navbar',
