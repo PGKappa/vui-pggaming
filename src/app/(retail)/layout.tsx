@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next'
 import '../globals.css'
 import './i18n'
 import ResolutionGate from '@/retail-components/resolution-gate'
+import { useSearchParams } from 'next/navigation'
 
 const inter = Inter({
   variable: '--font-inter',
@@ -24,13 +25,16 @@ const metadata = {
 
 function AppContent({ children }: { children: React.ReactNode }) {
   const [skin] = useContext(SkinContext)
+  const searchParams = useSearchParams()
+  const withTopShell = searchParams.get('with_top_shell')
   return (
     <body
       className={`${inter.variable} ${skin} flex h-screen flex-col font-inter antialiased`}
     >
       <ResolutionGate>
         <header>
-          <div className="h-[60px]"></div>
+          {!!withTopShell && 
+          <div className="h-[60px]"></div>} 
           <Navbar />
         </header>
         <main className="h-full overflow-hidden">
