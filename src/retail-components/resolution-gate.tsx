@@ -21,7 +21,7 @@ export default function ResolutionGate({
     return () => window.removeEventListener('resize', update)
   }, [])
 
-  if (dimensions.width !== 1920 || dimensions.height !== 1080) {
+  if (dimensions.width !== 1920 || dimensions.height !== 1020) {
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-white">
         <div className="border border-gray-200 bg-white px-8 py-6 text-center shadow-md">
