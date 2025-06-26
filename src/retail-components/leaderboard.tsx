@@ -8,8 +8,12 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { useState } from 'react'
 import { Button } from './ui/button'
 import { ChevronDown, ChevronUp } from 'lucide-react'
+import { TeamRanking } from '@/retail-lib/types'
 
-export default function Leaderboard() {
+export default function Leaderboard(props: {
+  teamRankings: TeamRanking[]
+}
+) {
   const { t } = useTranslation()
   const { teamRankings } = useContext(RootContext)
   const [open, setOpen] = useState(true)

@@ -8,7 +8,7 @@ import SkinProvider, { SkinContext } from '@/retail-contexts/skin-context'
 import { Inter } from 'next/font/google'
 import { useContext } from 'react'
 import { useTranslation } from 'react-i18next'
-import '../globals.css'
+import '../../globals.css'
 import './i18n'
 import ResolutionGate from '@/retail-components/resolution-gate'
 
