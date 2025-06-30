@@ -258,7 +258,7 @@ export default function BettingSlip() {
             </div>
           </>
         ) : (
-          <div className="mt-2 rounded-md text-sm">
+          <div className="pt-2 rounded-md text-sm">
             <ScrollArea>
               <div className="max-h-[150px] min-w-full">
                 <Table>
@@ -372,7 +372,7 @@ export default function BettingSlip() {
           </div>
         )}
 
-        <div className="mx-2 flex flex-row gap-2">
+        <div className="px-2 flex flex-row gap-2">
           <Button
             variant="ghost"
             size="lg"
