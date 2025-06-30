@@ -2,17 +2,21 @@ import { Button } from '@/retail-components/ui/button'
 import { Card, CardContent, CardHeader } from '@/retail-components/ui/card'
 import { ScrollArea } from '@/retail-components/ui/scroll-area'
 import { RoundResults } from '@/retail-lib/types'
+import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 import { HistoryIcon } from 'lucide-react'
+import { useCallback, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from './ui/sheet'
-import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 
 export default function LastRoundsResults(props: {
   roundResults: RoundResults[]
   upcomingRound?: {
     scheduleId: number
   }[]
+  setSearchRoundResults: (results: RoundResults[]) => void
+  searchRoundResults?: RoundResults[]
 }) {
+  console.log('LastRoundsResults', props.roundResults)
   const { t } = useTranslation()
   const formatStartTime = (date: Date) =>
     new Date(date).toLocaleTimeString('it-IT', {
@@ -20,18 +24,25 @@ export default function LastRoundsResults(props: {
       minute: '2-digit',
     })
 
+  const [open, setOpen] = useState(false)
+
+  const isResultSelected = useCallback(
+    (roundNumber: number) =>
+      props.searchRoundResults?.find((r) => r.round.number === roundNumber),
+    [props.searchRoundResults],
+  )
+
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={setOpen}>
       <VisuallyHidden>
         <SheetTitle></SheetTitle>
       </VisuallyHidden>
       <SheetTrigger asChild>
         <Button
-          variant="ghost"
+          variant="navbar"
           className="text-background hover:bg-transparent"
-          style={{ scale: 2 }}
         >
-          <HistoryIcon />
+          <HistoryIcon style={{ scale: 1.5 }} />
         </Button>
       </SheetTrigger>
       <SheetContent side="left" className="h-full w-[300px] p-0">
@@ -52,7 +63,15 @@ export default function LastRoundsResults(props: {
                 props.roundResults.map((result) => (
                   <button
                     key={result.round.number}
-                    className="flex w-full cursor-pointer flex-row items-center justify-between border-b border-border p-1 px-4"
+                    className={`flex w-full cursor-pointer flex-row items-center justify-between border-b border-border p-1 px-4 ${
+                      isResultSelected(result.round.number)
+                        ? 'bg-muted'
+                        : 'bg-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                    }`}
+                    onClick={() => {
+                      props.setSearchRoundResults([result])
+                      setOpen(false)
+                    }}
                   >
                     <div className="flex items-center gap-3">
                       <span className="text-md">
