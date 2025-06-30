@@ -5,7 +5,7 @@ import MatchBettingOptions from '@/retail-components/match-betting-options'
 import SearchRoundResults from '@/retail-components/search-round-results'
 import { ScrollArea } from '@/retail-components/ui/scroll-area'
 import UpcomingRoundCard from '@/retail-components/upcoming-round-card'
-import UpcomingRoundsCard from '@/retail-components/upcoming-rounds-card'
+import { UpcomingRoundsCarousel } from '@/retail-components/upcoming-rounds-carousel'
 import { RootContext } from '@/retail-contexts/root-context'
 import { Market, UpcomingRound } from '@/retail-lib/types'
 import { useContext, useEffect, useState } from 'react'
@@ -37,9 +37,8 @@ export default function Home() {
   return (
     <div className="flex h-full flex-row overflow-hidden py-2">
       <div className="flex flex-col">
-        <div className="mx-2 flex h-14 w-[1530px] flex-row items-center justify-start gap-4 bg-accent px-4">
-          <UpcomingRoundsCard
-            rounds={upcomingRounds}
+        <div className="mx-2 flex h-16 w-[1530px] flex-row items-center justify-center bg-accent px-4">
+          <UpcomingRoundsCarousel
             selectedRound={selectedRound}
             setSelectedRound={(round) => {
               setSelectedRound(round)
