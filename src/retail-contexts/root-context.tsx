@@ -24,6 +24,10 @@ export type RootContextType = {
   ) => Promise<T>
   upcomingRounds?: UpcomingRound[]
   roundResults: RoundResults[]
+  searchRoundResults?: RoundResults[]
+  setSearchRoundResults: (
+    searchRoundResults?: RoundResults[],
+  ) => void
   betsHistory: Ticket[]
   teamRankings?: TeamRanking[]
 }
@@ -31,6 +35,8 @@ export type RootContextType = {
 const defaultRootContext: RootContextType = {
   //TODO: remove mock data
   roundResults: [],
+  setSearchRoundResults: () => {},
+  upcomingRounds: [],
   betsHistory: [],
   teamRankings: [
     {
@@ -203,6 +209,17 @@ export default function RootContextProvider(props: {
     },
     [initCode],
   )
+
+  const setSearchRoundResults = (
+    searchRoundResults?: RoundResults[],
+  ) => {
+    console.log('Setting searchRoundResults:', searchRoundResults)
+    setRootContext((prev) => ({
+      ...prev,
+      searchRoundResults,
+    }))
+  }
+  
 
   useEffect(() => {
     const initCode = getInitCodeFromUrl()
@@ -398,10 +415,13 @@ export default function RootContextProvider(props: {
         },
       )
 
+      console.log('Round results:', roundResults)
+
       setRootContext((prev) => ({
         ...prev,
         upcomingRounds: rounds,
         roundResults,
+        setSearchRoundResults,
       }))
     }
 
