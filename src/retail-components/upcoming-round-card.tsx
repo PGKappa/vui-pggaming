@@ -267,7 +267,7 @@ export default function UpcomingRoundCard(props: {
 
                     <TableCell className="text-center">
                       <Button
-                        className="rounded-[8px] bg-tertiary text-tertiary-foreground hover:bg-tertiary/90"
+                        variant="action"
                         size="icon-lg"
                         onClick={() =>
                           props.viewMatchBettingOptions({
