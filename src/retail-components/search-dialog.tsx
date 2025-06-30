@@ -54,8 +54,8 @@ export default function SearchDialog(props: {
   return (
     <Dialog>
       <DialogTrigger asChild>
-      <Button variant="ghost" className="text-background hover:bg-transparent" style={{ scale: 2 }}>
-          <SearchIcon />
+      <Button variant="navbar" className="text-background hover:bg-transparent">
+          <SearchIcon style={{ scale: 1.5 }}/>
         </Button>
       </DialogTrigger>
 
