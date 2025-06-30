@@ -70,7 +70,7 @@ export default function UpcomingRoundCard(props: {
         <Table>
           <TableHeader className="h-11 bg-card-header text-[20px] text-card-header-foreground">
             <TableRow className="border-card-foreground transition-none">
-              <TableHead></TableHead>
+              <TableHead className='w-[130px]'></TableHead>
               <TableHead></TableHead>
               <TableHead className="text-center font-bold">1</TableHead>
               <TableHead className="text-center font-bold">X</TableHead>
@@ -155,10 +155,10 @@ export default function UpcomingRoundCard(props: {
 
                 return (
                   <TableRow key={index} className="border-card-foreground">
-                    <TableCell className="flex h-[70px] w-[110px] flex-row items-center px-[14px]">
+                    <TableCell className="flex h-[70px] w-[130px] flex-row items-center justify-center">
                       <Badge
                         variant="secondary"
-                        className="flex w-[78px] flex-col justify-between py-1.5"
+                        className="flex flex-col justify-center py-1.5"
                       >
                         <span className="text-[16px]">{dayLabel}</span>
                         <span className="text-[12px] font-normal">
@@ -167,7 +167,7 @@ export default function UpcomingRoundCard(props: {
                       </Badge>
                     </TableCell>
 
-                    <TableCell className="h-[70px] w-[122px] p-0 text-center">
+                    <TableCell className="h-[70px] w-[142px] p-0 text-center">
                       <span className="text-[16px] font-bold">{teamNames}</span>
                     </TableCell>
 
@@ -265,7 +265,7 @@ export default function UpcomingRoundCard(props: {
                       </TableCell>
                     )}
 
-                    <TableCell className="px-[10px] text-right">
+                    <TableCell className="text-center">
                       <Button
                         className="rounded-[8px] bg-tertiary text-tertiary-foreground hover:bg-tertiary/90"
                         size="icon-lg"
