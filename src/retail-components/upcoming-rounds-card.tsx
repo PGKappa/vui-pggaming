@@ -8,6 +8,7 @@ import { CalendarIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from './ui/sheet'
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
+import { useState } from 'react'
 
 type UpcomingRoundsCardProps = {
   rounds?: UpcomingRound[]
@@ -30,8 +31,10 @@ export default function UpcomingRoundsCard({
     })
   }
 
+  const [open, setOpen] = useState(false)
+
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={setOpen}>
       <VisuallyHidden>
         <SheetTitle></SheetTitle>
       </VisuallyHidden>
@@ -68,7 +71,10 @@ export default function UpcomingRoundsCard({
                     <button
                       key={round.scheduleId}
                       className={`flex w-full cursor-pointer flex-row items-center justify-between border-b border-border p-1 px-4 ${round.scheduleId === selectedRound?.scheduleId ? 'bg-muted' : 'bg-muted-foreground hover:bg-accent hover:text-accent-foreground'}`}
-                      onClick={() => setSelectedRound(round)}
+                      onClick={() => {
+                        setSelectedRound(round)
+                        setOpen(false)
+                      }}
                     >
                       <div className="flex flex-row items-center gap-3">
                         <span className="text-md">
