@@ -21,11 +21,12 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
         betNow: "font-bold text-lg bg-bet text-bet-foreground shadow hover:bg-bet/90",
         navbar: " bg-secondary text-accent-foreground hover:bg-secondary/90",
-        navbarSelected: "bg-tertiary text-tertiary-foreground",
+        navbarSelected: "bg-navbarButton-selected text-navbarButton-selected-foreground",
         history: "bg-accent text-accent-foreground",
         ticketButton: "bg-navbarButton text-black font-bold",
         ticketFilter: "bg-background text-foreground",
         info: "bg-chart-1 text-muted",
+        action: "rounded-[8px] bg-tertiary text-tertiary-foreground hover:bg-tertiary/90",
       },
       size: {
         default: "h-10 w-10",
