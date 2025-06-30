@@ -83,6 +83,10 @@ export default {
         navbarButton: {
           DEFAULT: 'hsl(var(--navbarButton))',
           foreground: 'hsl(var(--navbarButton-foreground))',
+          selected: {
+            DEFAULT: 'hsl(var(--navbarButton-selected))',
+            foreground: 'hsl(var(--navbarButton-selected-foreground))',
+          }
         },
         searchResult: {
           DEFAULT: 'hsl(var(--searchResult))',
