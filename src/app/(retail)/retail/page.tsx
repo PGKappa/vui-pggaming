@@ -1,21 +1,20 @@
 'use client'
 import BettingSlip from '@/retail-components/betting-slip'
-import LastRoundsResults from '@/retail-components/last-rounds-results'
 import Leaderboard from '@/retail-components/leaderboard'
 import MatchBettingOptions from '@/retail-components/match-betting-options'
-import SearchDialog from '@/retail-components/search-dialog'
 import SearchRoundResults from '@/retail-components/search-round-results'
 import { ScrollArea } from '@/retail-components/ui/scroll-area'
 import UpcomingRoundCard from '@/retail-components/upcoming-round-card'
 import UpcomingRoundsCard from '@/retail-components/upcoming-rounds-card'
 import { RootContext } from '@/retail-contexts/root-context'
-import { Market, RoundResults, UpcomingRound } from '@/retail-lib/types'
+import { Market, UpcomingRound } from '@/retail-lib/types'
 import { useContext, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 export default function Home() {
   const { t } = useTranslation()
-  const { upcomingRounds, roundResults } = useContext(RootContext)
+  const { upcomingRounds, searchRoundResults, setSearchRoundResults } =
+    useContext(RootContext)
 
   const [matchBetOptions, setMatchBetOptions] = useState<{
     round: {
@@ -28,7 +27,6 @@ export default function Home() {
   }>()
 
   const [selectedRound, setSelectedRound] = useState<UpcomingRound>()
-  const [searchRoundResults, setSearchRoundResults] = useState<RoundResults[]>()
 
   useEffect(() => {
     if (!selectedRound && upcomingRounds && upcomingRounds.length > 0) {
@@ -39,7 +37,7 @@ export default function Home() {
   return (
     <div className="flex h-full flex-row overflow-hidden py-2">
       <div className="flex flex-col">
-        <div className="flex h-14 w-[1530px] flex-row items-center justify-start gap-4 bg-accent px-4 mx-2">
+        <div className="mx-2 flex h-14 w-[1530px] flex-row items-center justify-start gap-4 bg-accent px-4">
           <UpcomingRoundsCard
             rounds={upcomingRounds}
             selectedRound={selectedRound}
@@ -48,13 +46,6 @@ export default function Home() {
               setSearchRoundResults(undefined)
             }}
           />
-
-          <LastRoundsResults
-            roundResults={roundResults}
-            upcomingRound={upcomingRounds}
-          />
-
-          <SearchDialog setSearchRoundResults={setSearchRoundResults} />
         </div>
 
         {/* Main content area */}
@@ -94,10 +85,9 @@ export default function Home() {
       </div>
 
       {/* RIGHT COLUMN - Betting slip */}
-      <div className="h-[942px] w-[384px] bg-background text-foreground pr-2">
+      <div className="h-[942px] w-[384px] bg-background pr-2 text-foreground">
         <BettingSlip />
       </div>
     </div>
   )
 }
- 
