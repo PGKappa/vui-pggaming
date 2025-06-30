@@ -96,7 +96,7 @@ export default function Navbar() {
           href={`/retail${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
             buttonVariants({
-              variant: 'navbar',
+              variant: 'navbarSelected',
               size: 'lg',
             }),
             'flex w-20 flex-row items-center justify-between',
