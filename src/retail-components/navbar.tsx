@@ -1,15 +1,24 @@
+'use client'
+
+import LastRoundsResults from '@/retail-components/last-rounds-results'
+import SearchDialog from '@/retail-components/search-dialog'
+import { RootContext } from '@/retail-contexts/root-context'
 import { cn } from '@/retail-lib/utils'
 import { Info } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { buttonVariants } from './ui/button'
+import { useContext } from 'react'
 import { useTranslation } from 'react-i18next'
+import { buttonVariants } from './ui/button'
 
 export default function Navbar() {
   const { t } = useTranslation()
   const searchParams = useSearchParams()
   const initCode = searchParams.get('init_code')
+
+  const { upcomingRounds, roundResults, searchRoundResults, setSearchRoundResults } = useContext(RootContext)
+
   return (
     <nav className="flex w-full flex-row items-center justify-start bg-accent p-3">
       <span className="whitespace-nowrap pl-14 text-center text-[16px] font-semibold text-background">
@@ -104,8 +113,8 @@ export default function Navbar() {
         </Link>
       </div>
 
-      <div className="flex w-full justify-end gap-4 mr-2">
-        <Link
+      <div className="mr-2 flex w-full justify-end gap-4">
+        {/* <Link
           href={`/retail/ticket-list${initCode ? `?init_code=${initCode}` : ''}`}
           className={buttonVariants({
             variant: 'ticketButton',
@@ -123,7 +132,16 @@ export default function Navbar() {
           })}
         >
           <span className="text-[16px] font-bold">{t('ticket_check')}</span>
-        </Link>
+        </Link> */}
+
+        <LastRoundsResults
+          roundResults={roundResults}
+          upcomingRound={upcomingRounds}
+          setSearchRoundResults={setSearchRoundResults}
+          searchRoundResults={searchRoundResults}
+        />
+
+        <SearchDialog setSearchRoundResults={setSearchRoundResults} />
 
         <Link
           href={`/info${initCode ? `?init_code=${initCode}` : ''}`}
@@ -132,7 +150,7 @@ export default function Navbar() {
             size: 'default',
           })}
         >
-          <Info style={{ scale: 1.5 }}/>
+          <Info style={{ scale: 1.5 }} />
         </Link>
       </div>
     </nav>
