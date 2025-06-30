@@ -37,64 +37,67 @@ export default function Home() {
   }, [upcomingRounds, selectedRound])
 
   return (
-    <div className="mt-2 flex h-full flex-col overflow-hidden">
-      <div className="mx-2 flex h-14 flex-row items-center justify-start gap-4 bg-accent px-4">
-        <UpcomingRoundsCard
-          rounds={upcomingRounds}
-          selectedRound={selectedRound}
-          setSelectedRound={(round) => {
-            setSelectedRound(round)
-            setSearchRoundResults(undefined)
-          }}
-        />
+    <div className="flex h-full flex-row overflow-hidden py-2">
+      <div className="flex flex-col">
+        <div className="flex h-14 w-[1530px] flex-row items-center justify-start gap-4 bg-accent px-4 mx-2">
+          <UpcomingRoundsCard
+            rounds={upcomingRounds}
+            selectedRound={selectedRound}
+            setSelectedRound={(round) => {
+              setSelectedRound(round)
+              setSearchRoundResults(undefined)
+            }}
+          />
 
-        <LastRoundsResults
-          roundResults={roundResults}
-          upcomingRound={upcomingRounds}
-        />
+          <LastRoundsResults
+            roundResults={roundResults}
+            upcomingRound={upcomingRounds}
+          />
 
-        <SearchDialog setSearchRoundResults={setSearchRoundResults} />
+          <SearchDialog setSearchRoundResults={setSearchRoundResults} />
+        </div>
+
+        {/* Main content area */}
+        <div className="flex h-full flex-row gap-2 overflow-hidden px-2 pt-2">
+          <div className="flex h-[942px] w-[1530px] flex-col gap-2 overflow-y-auto">
+            <ScrollArea className="h-full w-full">
+              {!!searchRoundResults ? (
+                <SearchRoundResults
+                  roundResults={searchRoundResults}
+                  onClose={() => setSearchRoundResults(undefined)}
+                />
+              ) : selectedRound ? (
+                matchBetOptions ? (
+                  <MatchBettingOptions
+                    round={matchBetOptions.round}
+                    teams={matchBetOptions.teams}
+                    markets={matchBetOptions.markets}
+                    close={() => setMatchBetOptions(undefined)}
+                  />
+                ) : (
+                  <>
+                    <UpcomingRoundCard
+                      round={selectedRound}
+                      viewMatchBettingOptions={setMatchBetOptions}
+                    />
+                    <Leaderboard />
+                  </>
+                )
+              ) : (
+                <div className="flex h-full items-center justify-center">
+                  {t('no_round_selected')}
+                </div>
+              )}
+            </ScrollArea>
+          </div>
+        </div>
       </div>
 
-      {/* Main content area */}
-      <div className="flex h-full flex-row gap-2 px-2 overflow-hidden pt-2">
-        <div className="flex h-[942px] w-[1530px] flex-col gap-2 overflow-y-auto">
-          <ScrollArea className="h-full w-full">
-            {!!searchRoundResults ? (
-              <SearchRoundResults
-                roundResults={searchRoundResults}
-                onClose={() => setSearchRoundResults(undefined)}
-              />
-            ) : selectedRound ? (
-              matchBetOptions ? (
-                <MatchBettingOptions
-                  round={matchBetOptions.round}
-                  teams={matchBetOptions.teams}
-                  markets={matchBetOptions.markets}
-                  close={() => setMatchBetOptions(undefined)}
-                />
-              ) : (
-                <>
-                  <UpcomingRoundCard
-                    round={selectedRound}
-                    viewMatchBettingOptions={setMatchBetOptions}
-                  />
-                  <Leaderboard />
-                </>
-              )
-            ) : (
-              <div className="flex h-full items-center justify-center">
-                {t('no_round_selected')}
-              </div>
-            )}
-          </ScrollArea>
-        </div>
-
-        {/* RIGHT COLUMN - Betting slip */}
-        <div className="h-[882px] w-[384px] overflow-y-auto bg-background text-foreground">
-          <BettingSlip />
-        </div>
+      {/* RIGHT COLUMN - Betting slip */}
+      <div className="h-[942px] w-[384px] bg-background text-foreground pr-2">
+        <BettingSlip />
       </div>
     </div>
   )
 }
+ 
