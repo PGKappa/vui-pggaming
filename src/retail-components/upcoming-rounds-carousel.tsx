@@ -47,11 +47,11 @@ export function UpcomingRoundsCarousel(props: {
               >
                 <div className="flex flex-col justify-between items-center h-12 w-12 bg-white py-0.5">
                   <Image
-                    src="/globe.svg"
+                    src="/soccer.svg"
                     alt="Horses"
                     width={40}
                     height={20}
-                    className="size-6 filter invert-1 brightness-0"
+                    className="size-6"
                   />
                   <span className="text-md font-bold text-black">{startTime}</span>
                 </div>

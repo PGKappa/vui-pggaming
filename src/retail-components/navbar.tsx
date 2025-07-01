@@ -103,11 +103,11 @@ export default function Navbar() {
           )}
         >
           <Image
-            src="/icon-calcio.png"
+            src="/soccer.svg"
             alt="Calcio"
             width={40}
             height={20}
-            className="size-5 object-contain"
+            className="size-5 object-contain filter invert brightness-0"
           />
           <span className="text-[16px] font-bold">{t('ch3')}</span>
         </Link>
