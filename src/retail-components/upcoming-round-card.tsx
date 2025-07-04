@@ -1,4 +1,3 @@
-import { Badge } from '@/retail-components/ui/badge'
 import { Button } from '@/retail-components/ui/button'
 import { Card, CardContent, CardHeader } from '@/retail-components/ui/card'
 import {
@@ -10,11 +9,11 @@ import {
   TableRow,
 } from '@/retail-components/ui/table'
 import { Market, UpcomingRound } from '@/retail-lib/types'
-import { PlusIcon } from 'lucide-react'
+import { ChevronRight } from 'lucide-react'
+import Image from 'next/image'
 import { Dispatch, SetStateAction } from 'react'
 import { useTranslation } from 'react-i18next'
 import BetEntryToggle from './bet-entry-toggle'
-import Image from 'next/image'
 
 export default function UpcomingRoundCard(props: {
   round: UpcomingRound
@@ -70,8 +69,7 @@ export default function UpcomingRoundCard(props: {
         <Table>
           <TableHeader className="h-11 bg-card-header text-[20px] text-card-header-foreground">
             <TableRow className="border-card-foreground transition-none">
-              <TableHead className='w-[130px]'></TableHead>
-              <TableHead></TableHead>
+              <TableHead className='w-[225px]'></TableHead>
               <TableHead className="text-center font-bold">1</TableHead>
               <TableHead className="text-center font-bold">X</TableHead>
               <TableHead className="text-center font-bold">2</TableHead>
@@ -97,25 +95,6 @@ export default function UpcomingRoundCard(props: {
             {props.round.mag_event.length ? (
               props.round.mag_event.map((match, index) => {
                 const matchStart = new Date(match.startTime)
-
-                let dayLabel = matchStart
-                  .toLocaleDateString(i18n.language, { weekday: 'short' })
-                  .toUpperCase()
-                if (matchStart.toDateString() === today.toDateString()) {
-                  dayLabel = t('today').toUpperCase()
-                } else if (
-                  matchStart.toDateString() === tomorrow.toDateString()
-                ) {
-                  dayLabel = t('tomorrow').toUpperCase()
-                }
-
-                const formattedDate = matchStart.toLocaleTimeString(
-                  i18n.language,
-                  {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  },
-                )
 
                 const teamNames = match.teams.team
                   .map((t) => t.name || '')
@@ -155,17 +134,6 @@ export default function UpcomingRoundCard(props: {
 
                 return (
                   <TableRow key={index} className="border-card-foreground">
-                    <TableCell className="flex h-[70px] w-[130px] flex-row items-center justify-center">
-                      <Badge
-                        variant="secondary"
-                        className="flex flex-col justify-center py-1.5"
-                      >
-                        <span className="text-[16px]">{dayLabel}</span>
-                        <span className="text-[12px] font-normal">
-                          {formattedDate}
-                        </span>
-                      </Badge>
-                    </TableCell>
 
                     <TableCell className="h-[70px] w-[142px] p-0 text-center">
                       <span className="text-[16px] font-bold">{teamNames}</span>
@@ -281,7 +249,7 @@ export default function UpcomingRoundCard(props: {
                           })
                         }
                       >
-                        <PlusIcon style={{ scale: 1.5 }} />
+                        <ChevronRight style={{ scale: 1.5 }} />
                       </Button>
                     </TableCell>
                   </TableRow>
