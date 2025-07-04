@@ -114,7 +114,10 @@ export default function Navbar() {
       </div>
 
       <div className="mr-2 flex w-full justify-end gap-4">
-        {/* <Link
+
+      <SearchDialog setSearchRoundResults={setSearchRoundResults} />
+
+         <Link
           href={`/retail/ticket-list${initCode ? `?init_code=${initCode}` : ''}`}
           className={buttonVariants({
             variant: 'ticketButton',
@@ -132,16 +135,14 @@ export default function Navbar() {
           })}
         >
           <span className="text-[16px] font-bold">{t('ticket_check')}</span>
-        </Link> */}
+        </Link>
 
-        <LastRoundsResults
+        {/* <LastRoundsResults
           roundResults={roundResults}
           upcomingRound={upcomingRounds}
           setSearchRoundResults={setSearchRoundResults}
           searchRoundResults={searchRoundResults}
-        />
-
-        <SearchDialog setSearchRoundResults={setSearchRoundResults} />
+        /> */}
 
         <Link
           href={`/info${initCode ? `?init_code=${initCode}` : ''}`}
