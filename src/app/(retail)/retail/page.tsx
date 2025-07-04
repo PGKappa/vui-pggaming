@@ -37,7 +37,7 @@ export default function Home() {
   return (
     <div className="flex h-full flex-row overflow-hidden py-2">
       <div className="flex flex-col">
-        <div className="mx-2 flex h-16 w-[1530px] flex-row items-center justify-center bg-accent px-4">
+        <div className="mx-2 flex h-16 w-[1500px] flex-row items-center justify-center bg-accent px-4">
           <UpcomingRoundsCarousel
             selectedRound={selectedRound}
             setSelectedRound={(round) => {
@@ -49,7 +49,7 @@ export default function Home() {
 
         {/* Main content area */}
         <div className="flex h-full flex-row gap-2 overflow-hidden px-2 pt-2">
-          <div className="flex h-[942px] w-[1530px] flex-col gap-2 overflow-y-auto">
+          <div className="flex h-[942px] w-[1500px] flex-col gap-2 overflow-y-auto">
             <ScrollArea className="h-full w-full">
               {!!searchRoundResults ? (
                 <SearchRoundResults
@@ -84,7 +84,7 @@ export default function Home() {
       </div>
 
       {/* RIGHT COLUMN - Betting slip */}
-      <div className="h-[942px] w-[384px] bg-background pr-2 text-foreground">
+      <div className="h-[942px] w-[410px] bg-background pr-2 text-foreground">
         <BettingSlip />
       </div>
     </div>
