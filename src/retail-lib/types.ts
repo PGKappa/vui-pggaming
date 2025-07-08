@@ -164,7 +164,7 @@ export type SubmittedTicket = {
 }
 
 export type MatchResult = {
-  round: {
+  round?: {
     name: string
     number: number
   }
