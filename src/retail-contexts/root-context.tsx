@@ -2,7 +2,8 @@
 
 import LoadingSpinner from '@/retail-components/loading-spinner'
 import {
-  RoundResults,
+  Discipline,
+  EventResult,
   TeamRanking,
   Ticket,
   UpcomingMatch,
@@ -23,7 +24,11 @@ export type RootContextType = {
     params?: Record<string, string>,
   ) => Promise<T>
   upcomingRounds?: UpcomingRound[]
-  roundResults: RoundResults[]
+  roundResults: EventResult[]
+  searchRoundResults?: EventResult[]
+  setSearchRoundResults: (
+    searchRoundResults?: EventResult[],
+  ) => void
   betsHistory: Ticket[]
   teamRankings?: TeamRanking[]
 }
@@ -31,6 +36,8 @@ export type RootContextType = {
 const defaultRootContext: RootContextType = {
   //TODO: remove mock data
   roundResults: [],
+  setSearchRoundResults: () => {},
+  upcomingRounds: [],
   betsHistory: [],
   teamRankings: [
     {
@@ -42,7 +49,8 @@ const defaultRootContext: RootContextType = {
       losses: 1,
       points: 44,
       goalsFor: 44,
-      goalsAgainst: 44,
+      goalsAgainst: 43,
+      goalDifference: 1,
       last8: ['W', 'W', 'W', 'W', 'W', 'W', 'W', 'L'],
     },
     {
@@ -54,7 +62,8 @@ const defaultRootContext: RootContextType = {
       losses: 2,
       points: 37,
       goalsFor: 37,
-      goalsAgainst: 37,
+      goalsAgainst: 34,
+      goalDifference: 3,
       last8: ['W', 'W', 'W', 'D', 'W', 'W', 'D', 'D'],
     },
     {
@@ -65,8 +74,9 @@ const defaultRootContext: RootContextType = {
       draws: 1,
       losses: 5,
       points: 34,
-      goalsFor: 34,
+      goalsFor: 30,
       goalsAgainst: 34,
+      goalDifference: 4,
       last8: ['W', 'W', 'W', 'L', 'W', 'L', 'W', 'D'],
     },
     {
@@ -77,8 +87,9 @@ const defaultRootContext: RootContextType = {
       draws: 4,
       losses: 4,
       points: 31,
-      goalsFor: 31,
+      goalsFor: 25,
       goalsAgainst: 31,
+      goalDifference: 6,
       last8: ['W', 'W', 'L', 'W', 'W', 'L', 'D', 'D'],
     },
     {
@@ -89,8 +100,9 @@ const defaultRootContext: RootContextType = {
       draws: 4,
       losses: 4,
       points: 31,
-      goalsFor: 31,
+      goalsFor: 24,
       goalsAgainst: 31,
+      goalDifference: 7,
       last8: ['W', 'L', 'L', 'D', 'D', 'D', 'W', 'W'],
     },
     {
@@ -101,8 +113,9 @@ const defaultRootContext: RootContextType = {
       draws: 4,
       losses: 4,
       points: 31,
-      goalsFor: 31,
+      goalsFor: 23,
       goalsAgainst: 31,
+      goalDifference: 8,
       last8: ['W', 'L', 'L', 'D', 'D', 'D', 'W', 'W'],
     },
     {
@@ -114,7 +127,8 @@ const defaultRootContext: RootContextType = {
       losses: 4,
       points: 31,
       goalsFor: 31,
-      goalsAgainst: 31,
+      goalsAgainst: 21,
+      goalDifference: 10,
       last8: ['W', 'L', 'L', 'D', 'D', 'D', 'W', 'W'],
     },
     {
@@ -125,8 +139,9 @@ const defaultRootContext: RootContextType = {
       draws: 4,
       losses: 4,
       points: 31,
-      goalsFor: 31,
+      goalsFor: 20,
       goalsAgainst: 31,
+      goalDifference: 11,
       last8: ['W', 'L', 'L', 'D', 'D', 'D', 'W', 'W'],
     },
   ],
@@ -195,6 +210,17 @@ export default function RootContextProvider(props: {
     },
     [initCode],
   )
+
+  const setSearchRoundResults = (
+    searchRoundResults?: EventResult[],
+  ) => {
+    console.log('Setting searchRoundResults:', searchRoundResults)
+    setRootContext((prev) => ({
+      ...prev,
+      searchRoundResults,
+    }))
+  }
+  
 
   useEffect(() => {
     const initCode = getInitCodeFromUrl()
@@ -327,66 +353,70 @@ export default function RootContextProvider(props: {
         },
       )
 
-      const roundResults: RoundResults[] = Array.from(
+      const roundResults: EventResult[] = Array.from(
         { length: 12 },
         (_, index) => {
           const date = new Date(rounds[0].mag_event[0].startTime)
           date.setMinutes(date.getMinutes() - (index + 1) * 3)
 
           return {
-            round: {
-              name: 'Trident',
-              number: 12 - index,
-            },
+            id: 12 - index,
+            title: `Trident round ${12 - index}`,
             startTime: date,
             duration: 3,
-            matchResults: [
-              {
-                teams: 'AST - WOL',
-                score1: 2,
-                score2: 1,
-                odds: {
-                  oneXTwo: {
-                    odds: 1.95,
-                  },
-                  doubleChance: {
-                    odds: 1.63,
-                  },
-                  firstScorer: {
-                    teamLabel: 'WOL',
-                    odds: 2.05,
-                  },
-                  sumGoals: {
-                    value: 2,
-                    odds: 1.63,
-                  },
-                  goalNoGoal: {
-                    value: 1,
-                    odds: 1.95,
-                  },
-                  redCard: {
-                    value: 'WOL',
-                    odds: 2.05,
-                  },
-                  winningCombo: {
-                    value: 'WOL',
-                    odds: 2.05,
-                  },
-                  exactGoals: {
-                    value: 2,
-                    odds: 1.63,
-                  },
+            discipline: Discipline.SOCCER,
+            result: {
+              round: {
+                name: 'Trident',
+                number: 12 - index,
+              },
+              teams: 'AST - WOL',
+              score1: 2,
+              score2: 1,
+              odds: {
+                oneXTwo: {
+                  odds: 1.95,
+                },
+                doubleChance: {
+                  odds: 1.63,
+                },
+                firstScorer: {
+                  teamLabel: 'WOL',
+                  odds: 2.05,
+                },
+                sumGoals: {
+                  value: 2,
+                  odds: 1.63,
+                },
+                goalNoGoal: {
+                  value: 1,
+                  odds: 1.95,
+                },
+                redCard: {
+                  value: 'WOL',
+                  odds: 2.05,
+                },
+                winningCombo: {
+                  value: 'WOL',
+                  odds: 2.05,
+                },
+                exactGoals: {
+                  value: 2,
+                  odds: 1.63,
                 },
               },
-            ],
+            },
           }
         },
       )
+
+      console.log('Round results:', roundResults)
 
       setRootContext((prev) => ({
         ...prev,
         upcomingRounds: rounds,
         roundResults,
+        setSearchRoundResults,
       }))
     }
 

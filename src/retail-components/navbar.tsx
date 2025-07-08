@@ -1,16 +1,27 @@
+'use client'
+
+import { RootContext } from '@/retail-contexts/root-context'
 import { cn } from '@/retail-lib/utils'
-import { Info } from 'lucide-react'
+import { Info, SearchIcon } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { buttonVariants } from './ui/button'
+import { useContext } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Button, buttonVariants } from './ui/button'
 
 export default function Navbar() {
   const { t } = useTranslation()
   const searchParams = useSearchParams()
   const initCode = searchParams.get('init_code')
-  const withTopShell = searchParams.get('with_top_shell')
+
+  const { roundResults, setSearchRoundResults } = useContext(RootContext)
+
+  return (
+    <nav className="flex w-full flex-row items-center justify-start bg-accent p-3">
+      <span className="whitespace-nowrap pl-14 text-center text-[16px] font-semibold text-background">
+        {t('select_category')}
+      </span>
 
   const navigateParent = () => {
     window.parent.postMessage(
@@ -92,38 +103,48 @@ export default function Navbar() {
             <span className="text-[20px] font-bold">{t('ch3')}</span>
           </Link>
 
-          <Link
-            href={`/retail${initCode ? `?init_code=${initCode}` : ''}`}
-            className={cn(
-              buttonVariants({
-                variant: 'navbar',
-              }),
-              'flex h-[45px] w-[100px] flex-row items-center',
-            )}
-          >
-            <Image
-              src="/icon-calcio.png"
-              alt="Calcio"
-              width={36}
-              height={21}
-              className="size-5 object-contain"
-            />
-            <span className="text-[20px] font-bold">Ch4</span>
-          </Link>
-        </div>
+        <Link
+          href={`/retail${initCode ? `?init_code=${initCode}` : ''}`}
+          className={cn(
+            buttonVariants({
+              variant: 'navbarSelected',
+              size: 'lg',
+            }),
+            'flex w-20 flex-row items-center justify-between',
+          )}
+        >
+          <Image
+            src="/soccer.svg"
+            alt="Calcio"
+            width={40}
+            height={20}
+            className="size-5 object-contain brightness-0 invert filter"
+          />
+          <span className="text-[16px] font-bold">{t('ch3')}</span>
+        </Link>
+      </div>
 
-        <div className="mr-7 flex w-full justify-end gap-1">
-          <Link
-            href={`/retail/ticket-list${initCode ? `?init_code=${initCode}` : ''}`}
-            className={buttonVariants({
-              variant: 'ticketButton',
-              className: 'h-[45px] w-[129px]',
-            })}
-          >
-            <span className="px-[7px] text-[16px] font-bold">
-              {t('ticket_list')}
-            </span>
-          </Link>
+      <div className="mr-2 flex w-full justify-end gap-4">
+
+        <Button
+          variant="navbar"
+          className="text-background hover:bg-transparent"
+          onClick={() => {
+            setSearchRoundResults(roundResults)
+          }}
+        >
+          <SearchIcon style={{ scale: 1.5 }} />
+        </Button>
+
+        <Link
+          href={`/retail/ticket-list${initCode ? `?init_code=${initCode}` : ''}`}
+          className={buttonVariants({
+            variant: 'ticketButton',
+            size: 'lg',
+          })}
+        >
+          <span className="text-[16px] font-bold">{t('ticket_list')}</span>
+        </Link>
 
           <Link
             href={`/retail/ticket-check${initCode ? `?init_code=${initCode}` : ''}`}
@@ -137,17 +158,16 @@ export default function Navbar() {
             </span>
           </Link>
 
-          <Link
-            href={`/info${initCode ? `?init_code=${initCode}` : ''}`}
-            className={buttonVariants({
-              variant: 'ticketButton',
-              className: 'h-[45px] w-[45px]',
-            })}
-          >
-            <Info style={{ scale: 1.5 }} />
-          </Link>
-        </div>
-      </nav>
-    </>
+        <Link
+          href={`/info${initCode ? `?init_code=${initCode}` : ''}`}
+          className={buttonVariants({
+            variant: 'ticketButton',
+            size: 'default',
+          })}
+        >
+          <Info style={{ scale: 1.5 }} />
+        </Link>
+      </div>
+    </nav>
   )
 }

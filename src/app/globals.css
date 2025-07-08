@@ -318,6 +318,9 @@
     --navbarButton: 207 18% 76%;
     --navbarButton-foreground: 0 0% 100%;
 
+    --navbarButton-selected: 212 92% 13%;
+    --navbarButton-selected-foreground: 0 0% 100%;
+
     --searchResult: 215 83% 68%;
     --searchResult-foreground: 0 0% 0%;
     --searchResult-secondary: 210 64% 94%;
