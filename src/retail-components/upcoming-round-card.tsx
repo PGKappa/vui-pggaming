@@ -75,7 +75,7 @@ export default function UpcomingRoundCard(props: {
         {marketTabs.map((tab, index) => (
           <Button
             key={index}
-            variant="navbarSelected"
+            variant={selectedTab === tab.name ? 'navbarSelected' : 'navbar'}
             className="h-full w-[150px] text-[20px] font-semibold"
             onClick={() => {
               setSelectedTab(tab.name)
