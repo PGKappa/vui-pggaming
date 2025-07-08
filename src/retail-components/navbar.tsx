@@ -18,7 +18,7 @@ export default function Navbar() {
   const { roundResults, setSearchRoundResults } = useContext(RootContext)
 
   return (
-    <nav className="flex w-full flex-row items-center justify-start bg-accent p-3">
+    <div className="flex w-full flex-row items-center justify-start bg-accent p-3">
       <span className="whitespace-nowrap pl-14 text-center text-[16px] font-semibold text-background">
         {t('select_category')}
       </span>
@@ -168,6 +168,6 @@ export default function Navbar() {
           <Info style={{ scale: 1.5 }} />
         </Link>
       </div>
-    </nav>
+    </div>
   )
 }
