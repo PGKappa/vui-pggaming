@@ -1,23 +1,21 @@
 'use client'
 
-import LastRoundsResults from '@/retail-components/last-rounds-results'
-import SearchDialog from '@/retail-components/search-dialog'
 import { RootContext } from '@/retail-contexts/root-context'
 import { cn } from '@/retail-lib/utils'
-import { Info } from 'lucide-react'
+import { Info, SearchIcon } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useContext } from 'react'
 import { useTranslation } from 'react-i18next'
-import { buttonVariants } from './ui/button'
+import { Button, buttonVariants } from './ui/button'
 
 export default function Navbar() {
   const { t } = useTranslation()
   const searchParams = useSearchParams()
   const initCode = searchParams.get('init_code')
 
-  const { upcomingRounds, roundResults, searchRoundResults, setSearchRoundResults } = useContext(RootContext)
+  const { roundResults, setSearchRoundResults } = useContext(RootContext)
 
   return (
     <nav className="flex w-full flex-row items-center justify-start bg-accent p-3">
@@ -107,7 +105,7 @@ export default function Navbar() {
             alt="Calcio"
             width={40}
             height={20}
-            className="size-5 object-contain filter invert brightness-0"
+            className="size-5 object-contain brightness-0 invert filter"
           />
           <span className="text-[16px] font-bold">{t('ch3')}</span>
         </Link>
@@ -115,9 +113,17 @@ export default function Navbar() {
 
       <div className="mr-2 flex w-full justify-end gap-4">
 
-      <SearchDialog setSearchRoundResults={setSearchRoundResults} />
+        <Button
+          variant="navbar"
+          className="text-background hover:bg-transparent"
+          onClick={() => {
+            setSearchRoundResults(roundResults)
+          }}
+        >
+          <SearchIcon style={{ scale: 1.5 }} />
+        </Button>
 
-         <Link
+        <Link
           href={`/retail/ticket-list${initCode ? `?init_code=${initCode}` : ''}`}
           className={buttonVariants({
             variant: 'ticketButton',
@@ -136,13 +142,6 @@ export default function Navbar() {
         >
           <span className="text-[16px] font-bold">{t('ticket_check')}</span>
         </Link>
-
-        {/* <LastRoundsResults
-          roundResults={roundResults}
-          upcomingRound={upcomingRounds}
-          setSearchRoundResults={setSearchRoundResults}
-          searchRoundResults={searchRoundResults}
-        /> */}
 
         <Link
           href={`/info${initCode ? `?init_code=${initCode}` : ''}`}
