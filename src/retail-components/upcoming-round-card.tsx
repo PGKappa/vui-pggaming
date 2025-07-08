@@ -52,31 +52,41 @@ export default function UpcomingRoundCard(props: {
     {
       name: 'Under/Over',
       markets: props.round.mag_event[0].markets.market.filter((market) =>
-      [
-        'Under/Over 1.5',
-        'Under/Over 2.5',
-        'Under/Over 3.5',
-        'Under/Over 4.5',
-      ].includes(market.name.trim()),
+        [
+          'Under/Over 1.5',
+          'Under/Over 2.5',
+          'Under/Over 3.5',
+          'Under/Over 4.5',
+        ].includes(market.name.trim()),
       ),
-    }
+    },
+    {
+      name: 'Casa',
+      markets: props.round.mag_event[0].markets.market.filter((market) =>
+      [
+        'Casa Under/Over 0.5',
+        'Casa Under/Over 1.5',
+        'Casa Under/Over 2.5',
+      ].includes(market.name.trim()),
+    ),
+    },
   ]
 
   const [selectedTab, setSelectedTab] = useState(marketTabs[0].name)
 
   function getFloatFromString(text: string): number | undefined {
-    const match = text.match(/[-+]?\d*\.\d+([eE][-+]?\d+)?/);
-    return match ? parseFloat(match[0]) : undefined;
+    const match = text.match(/[-+]?\d*\.\d+([eE][-+]?\d+)?/)
+    return match ? parseFloat(match[0]) : undefined
   }
 
   return (
     <Card className="border-b border-t border-card-foreground">
-      <CardHeader className="flex h-16 flex-row items-center justify-start bg-accent">
+      <CardHeader className="flex h-16 flex-row items-center justify-start bg-accent gap-2">
         {marketTabs.map((tab, index) => (
           <Button
             key={index}
-            variant={selectedTab === tab.name ? 'navbarSelected' : 'navbar'}
-            className="h-full w-[150px] text-[20px] font-semibold"
+            variant={selectedTab === tab.name ? 'marketSelected' : 'market'}
+            className="h-full w-[150px] text-[20px] font-semibold border border-b"
             onClick={() => {
               setSelectedTab(tab.name)
             }}
@@ -125,7 +135,10 @@ export default function UpcomingRoundCard(props: {
                   .join(' - ')
 
                 return (
-                  <TableRow key={index} className="h-[70px] border-card-foreground">
+                  <TableRow
+                    key={index}
+                    className="h-[70px] border-card-foreground"
+                  >
                     <TableCell className="p-0 text-center">
                       <span className="text-[16px] font-bold">{teamNames}</span>
                     </TableCell>
@@ -160,7 +173,7 @@ export default function UpcomingRoundCard(props: {
                         </>
                       ))}
 
-                    <TableCell className="text-right pr-4">
+                    <TableCell className="pr-4 text-right">
                       <Button
                         variant="action"
                         size="icon-lg"
