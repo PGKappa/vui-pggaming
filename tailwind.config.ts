@@ -86,7 +86,15 @@ export default {
           selected: {
             DEFAULT: 'hsl(var(--navbarButton-selected))',
             foreground: 'hsl(var(--navbarButton-selected-foreground))',
-          }
+          },
+        },
+        market: {
+          DEFAULT: 'hsl(var(--market))',
+          foreground: 'hsl(var(--market-foreground))',
+          selected: {
+            DEFAULT: 'hsl(var(--market-selected))',
+            foreground: 'hsl(var(--market-selected-foreground))',
+          },
         },
         searchResult: {
           DEFAULT: 'hsl(var(--searchResult))',
