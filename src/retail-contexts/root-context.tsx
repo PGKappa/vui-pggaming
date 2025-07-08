@@ -2,7 +2,8 @@
 
 import LoadingSpinner from '@/retail-components/loading-spinner'
 import {
-  RoundResults,
+  Discipline,
+  EventResult,
   TeamRanking,
   Ticket,
   UpcomingMatch,
@@ -23,10 +24,10 @@ export type RootContextType = {
     params?: Record<string, string>,
   ) => Promise<T>
   upcomingRounds?: UpcomingRound[]
-  roundResults: RoundResults[]
-  searchRoundResults?: RoundResults[]
+  roundResults: EventResult[]
+  searchRoundResults?: EventResult[]
   setSearchRoundResults: (
-    searchRoundResults?: RoundResults[],
+    searchRoundResults?: EventResult[],
   ) => void
   betsHistory: Ticket[]
   teamRankings?: TeamRanking[]
@@ -211,7 +212,7 @@ export default function RootContextProvider(props: {
   )
 
   const setSearchRoundResults = (
-    searchRoundResults?: RoundResults[],
+    searchRoundResults?: EventResult[],
   ) => {
     console.log('Setting searchRoundResults:', searchRoundResults)
     setRootContext((prev) => ({
@@ -359,58 +360,59 @@ export default function RootContextProvider(props: {
         },
       )
 
-      const roundResults: RoundResults[] = Array.from(
+      const roundResults: EventResult[] = Array.from(
         { length: 12 },
         (_, index) => {
           const date = new Date(rounds[0].mag_event[0].startTime)
           date.setMinutes(date.getMinutes() - (index + 1) * 3)
 
           return {
-            round: {
-              name: 'Trident',
-              number: 12 - index,
-            },
+            id: 12 - index,
+            title: `Trident round ${12 - index}`,
             startTime: date,
             duration: 3,
-            matchResults: [
-              {
-                teams: 'AST - WOL',
-                score1: 2,
-                score2: 1,
-                odds: {
-                  oneXTwo: {
-                    odds: 1.95,
-                  },
-                  doubleChance: {
-                    odds: 1.63,
-                  },
-                  firstScorer: {
-                    teamLabel: 'WOL',
-                    odds: 2.05,
-                  },
-                  sumGoals: {
-                    value: 2,
-                    odds: 1.63,
-                  },
-                  goalNoGoal: {
-                    value: 1,
-                    odds: 1.95,
-                  },
-                  redCard: {
-                    value: 'WOL',
-                    odds: 2.05,
-                  },
-                  winningCombo: {
-                    value: 'WOL',
-                    odds: 2.05,
-                  },
-                  exactGoals: {
-                    value: 2,
-                    odds: 1.63,
-                  },
+            discipline: Discipline.SOCCER,
+            result: {
+              round: {
+                name: 'Trident',
+                number: 12 - index,
+              },
+              teams: 'AST - WOL',
+              score1: 2,
+              score2: 1,
+              odds: {
+                oneXTwo: {
+                  odds: 1.95,
+                },
+                doubleChance: {
+                  odds: 1.63,
+                },
+                firstScorer: {
+                  teamLabel: 'WOL',
+                  odds: 2.05,
+                },
+                sumGoals: {
+                  value: 2,
+                  odds: 1.63,
+                },
+                goalNoGoal: {
+                  value: 1,
+                  odds: 1.95,
+                },
+                redCard: {
+                  value: 'WOL',
+                  odds: 2.05,
+                },
+                winningCombo: {
+                  value: 'WOL',
+                  odds: 2.05,
+                },
+                exactGoals: {
+                  value: 2,
+                  odds: 1.63,
                 },
               },
-            ],
+            },
           }
         },
       )
