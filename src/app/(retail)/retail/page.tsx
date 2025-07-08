@@ -47,8 +47,6 @@ export default function Home() {
           />
         </div>
 
-        <div className="mx-2 mt-2 flex h-16 w-[1500px] flex-row items-center justify-center bg-accent px-4"></div>
-
         {/* Main content area */}
         <div className="flex h-full flex-row gap-2 overflow-hidden px-2 pt-2">
           <div className="flex h-[942px] w-[1500px] flex-col gap-2 overflow-y-auto">
