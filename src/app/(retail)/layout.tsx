@@ -30,14 +30,15 @@ function AppContent({ children }: { children: React.ReactNode }) {
       className={`${inter.variable} ${skin} flex h-screen flex-col font-inter antialiased`}
     >
       <ResolutionGate>
-        <header>
-          <Navbar />
-        </header>
-        <main className="h-full overflow-hidden">
-          <RootContextProvider>
+        <RootContextProvider>
+          <header>
+            <div className="h-[60px]"></div>
+            <Navbar />
+          </header>
+          <main className="h-full overflow-hidden">
             <BetsContextProvider>{children}</BetsContextProvider>
-          </RootContextProvider>
-        </main>
+          </main>
+        </RootContextProvider>
 
         <Toaster
           position={
