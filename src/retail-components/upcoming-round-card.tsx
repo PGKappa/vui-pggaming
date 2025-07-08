@@ -39,7 +39,7 @@ export default function UpcomingRoundCard(props: {
 
   const marketTabs: { name: string; markets: Market[] }[] = [
     {
-      name: 'Principali',
+      name: t('main'),
       markets: props.round.mag_event[0].markets.market.filter((market) =>
         [
           'Esito finale 1X2',
@@ -50,7 +50,7 @@ export default function UpcomingRoundCard(props: {
       ),
     },
     {
-      name: 'Under/Over',
+      name: t('under/over'),
       markets: props.round.mag_event[0].markets.market.filter((market) =>
         [
           'Under/Over 1.5',
@@ -61,7 +61,7 @@ export default function UpcomingRoundCard(props: {
       ),
     },
     {
-      name: 'Casa',
+      name: t('home'),
       markets: props.round.mag_event[0].markets.market.filter((market) =>
       [
         'Casa Under/Over 0.5',
