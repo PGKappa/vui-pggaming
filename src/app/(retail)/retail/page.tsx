@@ -2,7 +2,7 @@
 import BettingSlip from '@/retail-components/betting-slip'
 import Leaderboard from '@/retail-components/leaderboard'
 import MatchBettingOptions from '@/retail-components/match-betting-options'
-import SearchRoundResults from '@/retail-components/search-round-results'
+import SearchEventResults from '@/retail-components/search-event-results'
 import { ScrollArea } from '@/retail-components/ui/scroll-area'
 import UpcomingRoundCard from '@/retail-components/upcoming-round-card'
 import { UpcomingRoundsCarousel } from '@/retail-components/upcoming-rounds-carousel'
@@ -47,13 +47,15 @@ export default function Home() {
           />
         </div>
 
+        <div className="mx-2 mt-2 flex h-16 w-[1500px] flex-row items-center justify-center bg-accent px-4"></div>
+
         {/* Main content area */}
         <div className="flex h-full flex-row gap-2 overflow-hidden px-2 pt-2">
           <div className="flex h-[942px] w-[1500px] flex-col gap-2 overflow-y-auto">
             <ScrollArea className="h-full w-full">
               {!!searchRoundResults ? (
-                <SearchRoundResults
-                  roundResults={searchRoundResults}
+                <SearchEventResults
+                  eventResults={searchRoundResults}
                   onClose={() => setSearchRoundResults(undefined)}
                 />
               ) : selectedRound ? (
