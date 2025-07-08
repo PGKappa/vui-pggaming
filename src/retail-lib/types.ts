@@ -96,7 +96,7 @@ export type UpcomingRound = {
   mag_event: UpcomingMatch[]
 }
 
-export type RoundResults = {
+/* export type RoundResults = {
   round: {
     name: string
     number: number
@@ -104,6 +104,21 @@ export type RoundResults = {
   startTime: Date
   duration: number
   matchResults: MatchResult[]
+} */
+
+export enum Discipline {
+  DOGS = 'DOGS',
+  HORSES = 'HORSES',
+  SOCCER = 'SOCCER',
+}
+
+export type EventResult = {
+  id: number
+  title: string
+  startTime: Date
+  duration: number
+  discipline: Discipline
+  result: MatchResult
 }
 
 export type Bet = {
@@ -149,6 +164,10 @@ export type SubmittedTicket = {
 }
 
 export type MatchResult = {
+  round: {
+    name: string
+    number: number
+  }
   teams: string
   score1: number
   score2: number
