@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select'
+import { Checkbox } from './ui/checkbox'
 
 const dates = Array.from({ length: 10 }, (_, index) => {
   const date = new Date()
@@ -49,8 +50,20 @@ export default function SearchEventResults(props: {
   >('ALL')
   const [selectedDate, setSelectedDate] = useState<string>('ALL')
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>('ALL')
+  const [lastTenGames, setLastTenGames] = useState<boolean>(false)
+
   const eventResults = useMemo(() => {
-    const filtereResults = props.eventResults.filter((result) => {
+    if (lastTenGames) {
+      return props.eventResults
+        .filter((result) =>
+          selectedDiscipline === 'ALL'
+            ? true
+            : result.discipline?.toLowerCase() === selectedDiscipline.toLowerCase(),
+        )
+        .sort((a, b) => b.startTime.getTime() - a.startTime.getTime())
+        .slice(0, 10)
+    }
+    const filteredResults = props.eventResults.filter((result) => {
       if (
         selectedDiscipline !== 'ALL' &&
         result.discipline?.toLowerCase() !== selectedDiscipline.toLowerCase()
@@ -76,71 +89,107 @@ export default function SearchEventResults(props: {
       }
       return true
     })
-    return filtereResults
-  }, [props.eventResults, selectedDiscipline, selectedDate, selectedTimeSlot])
+    return filteredResults
+  }, [lastTenGames, props.eventResults, selectedDiscipline, selectedDate, selectedTimeSlot])
 
   const handleReset = () => {
     setSelectedDiscipline('ALL')
     setSelectedDate('ALL')
     setSelectedTimeSlot('ALL')
+    setLastTenGames(false)
   }
 
   return (
     <Card>
       <CardHeader className="flex flex-col items-center">
         <div className="flex flex-wrap items-center gap-8">
-          <Select
-            value={selectedDiscipline?.toString()}
-            onValueChange={(value) =>
-              setSelectedDiscipline(
-                Discipline[value as keyof typeof Discipline],
-              )
-            }
-          >
-            <SelectTrigger className="w-[130px] bg-background text-[12px] text-foreground">
-              <SelectValue placeholder={t('sport')} />
-            </SelectTrigger>
-            <SelectContent className="bg-white p-0">
-              <SelectItem value="ALL">{t('all_sports')}</SelectItem>
-              {Object.values(Discipline).map((d) => (
-                <SelectItem key={d} value={d}>
-                  {d}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex flex-row items-center gap-2 bg-badge text-background">
+            <span className="whitespace-nowrap pl-2 text-[16px] font-semibold">
+              {t('discipline')}
+            </span>
+            <Select
+              value={selectedDiscipline?.toString()}
+              onValueChange={(value) =>
+                setSelectedDiscipline(
+                  Discipline[value as keyof typeof Discipline],
+                )
+              }
+            >
+              <SelectTrigger className="w-[130px] bg-background text-[16px] text-foreground">
+                <SelectValue placeholder={t('sport')} />
+              </SelectTrigger>
+              <SelectContent className="bg-white p-0">
+                <SelectItem value="ALL">{t('all')}</SelectItem>
+                {Object.values(Discipline).map((d) => (
+                  <SelectItem key={d} value={d}>
+                    {d}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-          <Select value={selectedDate} onValueChange={setSelectedDate}>
-            <SelectTrigger className="w-[130px] bg-background text-[12px] text-foreground">
-              <SelectValue placeholder={t('date')} />
-            </SelectTrigger>
-            <SelectContent className="bg-white p-0">
-              <SelectItem value="ALL">{t('all_date')}</SelectItem>
-              {dates.map((date) => (
-                <SelectItem key={date} value={date}>
-                  {date}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex flex-row items-center gap-2">
+            <Checkbox
+              id="last10"
+              className="h-6 w-6 bg-background text-foreground"
+              checked={lastTenGames}
+              onCheckedChange={(value) => setLastTenGames(!!value)}
+            />
+            <label htmlFor="last10" className="text-[16px] font-semibold px-2 py-1 text-background">
+              {t('last_10_games')}
+            </label>
+          </div>
 
-          <Select value={selectedTimeSlot} onValueChange={setSelectedTimeSlot}>
-            <SelectTrigger className="w-[130px] bg-background text-[12px] text-foreground">
-              <SelectValue placeholder={t('time_slot')} />
-            </SelectTrigger>
-            <SelectContent className="bg-white p-0">
-              <SelectItem value="ALL">{t('all_time_slot')}</SelectItem>
-              {timeSlots.map((slot) => (
-                <SelectItem key={slot} value={slot}>
-                  {slot}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex flex-row items-center gap-2 bg-badge text-background">
+            <span className="whitespace-nowrap pl-2 text-[16px] font-semibold">
+              {t('date')}
+            </span>
+            <Select
+              value={selectedDate}
+              onValueChange={setSelectedDate}
+              disabled={lastTenGames}
+            >
+              <SelectTrigger className="w-[130px] bg-background text-[16px] text-foreground">
+                <SelectValue placeholder={t('date')} />
+              </SelectTrigger>
+              <SelectContent className="bg-white p-0">
+                <SelectItem value="ALL">{t('all')}</SelectItem>
+                {dates.map((date) => (
+                  <SelectItem key={date} value={date}>
+                    {date}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex flex-row items-center gap-2 bg-badge text-background">
+            <span className="whitespace-nowrap pl-2 text-[16px] font-semibold">
+              {t('time_slot')}
+            </span>
+            <Select
+              value={selectedTimeSlot}
+              onValueChange={setSelectedTimeSlot}
+              disabled={lastTenGames}
+            >
+              <SelectTrigger className="w-[130px] bg-background text-[16px] text-foreground">
+                <SelectValue placeholder={t('time_slot')} />
+              </SelectTrigger>
+              <SelectContent className="bg-white p-0">
+                <SelectItem value="ALL">{t('all')}</SelectItem>
+                {timeSlots.map((slot) => (
+                  <SelectItem key={slot} value={slot}>
+                    {slot}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
           <div className="flex flex-row items-center gap-2">
             <Button
-              className="text-bold w-[80px] bg-tertiary text-[14px] text-tertiary-foreground hover:bg-tertiary/70"
+              className="text-bold w-[80px] bg-tertiary text-[16px] text-tertiary-foreground hover:bg-tertiary/70"
               disabled={
                 !selectedDate && !selectedDiscipline && !selectedTimeSlot
               }
@@ -151,7 +200,7 @@ export default function SearchEventResults(props: {
 
             <Button
               variant="outline"
-              className="text-bold w-[80px] bg-muted text-[14px] text-muted-foreground hover:bg-muted/70"
+              className="text-bold w-[80px] bg-muted text-[16px] text-muted-foreground hover:bg-muted/70"
               onClick={() => {
                 handleReset()
                 props.onClose()
