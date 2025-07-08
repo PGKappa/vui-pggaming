@@ -82,7 +82,7 @@ export default function BettingSlip() {
       data-testid="betting-slip"
     >
       <div className="grid grid-cols-2 text-center">
-        <span className="col-span-2 flex h-16 w-full flex-col items-center justify-center bg-accent text-[19px] font-semibold text-accent-foreground">
+        <span className="col-span-2 flex h-[61.17px] w-full flex-col items-center justify-center bg-accent text-[19px] font-semibold text-accent-foreground">
           {t('bet_slip')} ( {betEntries.length} )
         </span>
 
@@ -119,8 +119,8 @@ export default function BettingSlip() {
 
       <CardContent className="h-full overflow-hidden bg-muted-foreground p-2 text-betSlip-foreground">
         {betEntries.length === 0 ? (
-          <div className="flex h-full flex-row items-center justify-center gap-3">
-            <small className="text-[16px] font-medium leading-none">
+          <div className="flex h-full flex-row items-start justify-center gap-3">
+            <small className="text-[16px] font-medium leading-none pt-2">
               {t('no_selection')}
             </small>
             <Button
@@ -172,7 +172,7 @@ export default function BettingSlip() {
 
                     <div className="flex items-center justify-between">
                       <span className="text-[16px] font-semibold">
-                        Football
+                        {t('football')}
                       </span>
                       <div className="flex items-center gap-2">
                         <span className="text-[16px] font-bold">
@@ -237,7 +237,7 @@ export default function BettingSlip() {
       <CardFooter className="flex flex-col gap-2 bg-muted-foreground">
         {betMode !== 'SYSTEM' ? (
           <>
-            <div className="flex justify-end bg-accent px-8 py-2">
+            <div className="flex justify-end bg-accent pr-[40px] py-2">
               <span className="text-[16px] font-bold text-accent-foreground">
                 {t('stake')}
               </span>

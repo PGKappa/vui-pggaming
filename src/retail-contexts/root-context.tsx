@@ -329,31 +329,24 @@ export default function RootContextProvider(props: {
               response.schedules.schedule[0].scheduleName,
             mag_event: events.map((event) => {
               //TODO: replace this events.map() with events when the API is fixed
-              // Create a proper date from the event's startTime
-              try {
-                const eventDate = new Date(event.eventIdentity.startTime)
-                const startTime = new Date()
+              const startTime = new Date()
 
-                // Set hours and minutes from the event date
-                startTime.setHours(eventDate.getHours())
-                startTime.setMinutes(eventDate.getMinutes())
-                startTime.setSeconds(0)
-                startTime.setMilliseconds(0)
+              // Hardcode Peru timezone hours and minutes instead of using eventDate
+              // Get the current time and adjust it for Peru timezone (UTC-5)
+              const peruHour = startTime.getUTCHours() - 5
+              const peruMinutes = startTime.getUTCMinutes()
 
-                return {
-                  ...event,
-                  startTime: startTime.toISOString(),
-                }
-              } catch {
-                // If there's an error with the date, use the current time
-                const fallbackTime = new Date()
-                fallbackTime.setSeconds(0)
-                fallbackTime.setMilliseconds(0)
+              // Adjust for negative hours (previous day)
+              const adjustedHour = peruHour < 0 ? peruHour + 24 : peruHour
 
-                return {
-                  ...event,
-                  startTime: fallbackTime.toISOString(),
-                }
+              startTime.setHours(adjustedHour)
+              startTime.setMinutes(peruMinutes)
+              startTime.setSeconds(0)
+              startTime.setMilliseconds(0)
+
+              return {
+                ...event,
+                startTime: startTime.toISOString(),
               }
             }),
           }
