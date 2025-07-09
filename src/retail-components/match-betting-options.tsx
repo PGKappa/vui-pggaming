@@ -29,6 +29,7 @@ export default function MatchBettingOptions(props: {
   const { t } = useTranslation()
   return (
     <div className="flex h-full w-full flex-col gap-4 overflow-hidden">
+
       <div className="sticky top-0 z-10 flex h-16 flex-row items-center justify-between bg-accent text-accent-foreground">
         <div className="flex flex-row items-center gap-2">
           <Button
@@ -47,6 +48,7 @@ export default function MatchBettingOptions(props: {
           {format(props.round.startingAt, 'HH:mm')}
         </span>
       </div>
+
       <div className="flex flex-row items-start justify-between">
         <MatchResultCard
           matchResult={{
@@ -64,6 +66,7 @@ export default function MatchBettingOptions(props: {
           }}
         />
       </div>
+
       <div className="no-scrollbar flex-1 overflow-y-auto">
         <Accordion type="multiple" className="space-y-2">
           {props.markets.map((market) => (

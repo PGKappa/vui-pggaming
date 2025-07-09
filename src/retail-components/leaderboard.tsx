@@ -38,7 +38,7 @@ export default function Leaderboard(props: {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-card-header ">
-                  <tr className="grid grid-cols-10 md:grid-cols-10 [&_th]:text-card-header-foreground h-[44px]">
+                  <tr className="grid grid-cols-11 md:grid-cols-11 [&_th]:text-card-header-foreground h-[44px]">
                     <th className="p-3 text-center"></th>
                     <th className="p-2 text-center">{t('club')}</th>
                     <th className="p-2 text-center">{t('p')}</th>
@@ -48,6 +48,7 @@ export default function Leaderboard(props: {
                     <th className="p-2 text-center">{t('pts')}</th>
                     <th className="p-2 text-center">{t('gf')}</th>
                     <th className="p-2 text-center">{t('ga')}</th>
+                    <th className="p-2 text-center">GD</th>
                     <th className="p-2 text-center">{t('last_8')}</th>
                   </tr>
                 </thead>
@@ -55,7 +56,7 @@ export default function Leaderboard(props: {
                   {teamRankings.map((ranking) => (
                     <tr
                       key={ranking.team}
-                      className="grid grid-cols-10 border-b border-border hover:bg-muted/50 md:grid-cols-10"
+                      className="grid grid-cols-11 border-b border-border hover:bg-muted/50 md:grid-cols-11"
                     >
                       <td className="p-3 text-center font-bold">
                         {ranking.position}
@@ -74,6 +75,10 @@ export default function Leaderboard(props: {
                       <td className="p-3 text-center">
                         {ranking.goalsAgainst}
                       </td>
+                      <td className="p-3 text-center font-bold">
+                        {ranking.goalDifference}
+                      </td>
+                      
 
                       <td className="flex justify-center gap-1 p-3">
                         {ranking.last8.map((result, i) => {

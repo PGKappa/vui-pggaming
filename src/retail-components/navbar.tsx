@@ -1,21 +1,27 @@
+'use client'
+
+import { RootContext } from '@/retail-contexts/root-context'
 import { cn } from '@/retail-lib/utils'
-import { Info } from 'lucide-react'
+import { Info, SearchIcon } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { buttonVariants } from './ui/button'
+import { useContext } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Button, buttonVariants } from './ui/button'
 
 export default function Navbar() {
   const { t } = useTranslation()
   const searchParams = useSearchParams()
   const initCode = searchParams.get('init_code')
+
+  const { roundResults, setSearchRoundResults } = useContext(RootContext)
+
   return (
-    <nav className="flex w-full flex-row items-center justify-start bg-accent p-3">
+    <div className="flex w-full flex-row items-center justify-start bg-accent p-3">
       <span className="whitespace-nowrap pl-14 text-center text-[16px] font-semibold text-background">
         {t('select_category')}
       </span>
-
       <div className="flex flex-row items-center gap-4 pl-[90px]">
         <Link
           href={`/dogs-horses${initCode ? `?init_code=${initCode}` : ''}`}
@@ -87,24 +93,35 @@ export default function Navbar() {
           href={`/retail${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
             buttonVariants({
-              variant: 'navbar',
+              variant: 'navbarSelected',
               size: 'lg',
             }),
             'flex w-20 flex-row items-center justify-between',
           )}
         >
           <Image
-            src="/icon-calcio.png"
+            src="/soccer.svg"
             alt="Calcio"
             width={40}
             height={20}
-            className="size-5 object-contain"
+            className="size-5 object-contain brightness-0 invert filter"
           />
           <span className="text-[16px] font-bold">{t('ch3')}</span>
         </Link>
       </div>
 
-      <div className="flex w-full justify-end gap-4 mr-2">
+      <div className="mr-2 flex w-full justify-end gap-4">
+
+        <Button
+          variant="navbar"
+          className="text-background hover:bg-transparent"
+          onClick={() => {
+            setSearchRoundResults(roundResults)
+          }}
+        >
+          <SearchIcon style={{ scale: 1.5 }} />
+        </Button>
+
         <Link
           href={`/retail/ticket-list${initCode ? `?init_code=${initCode}` : ''}`}
           className={buttonVariants({
@@ -132,9 +149,9 @@ export default function Navbar() {
             size: 'default',
           })}
         >
-          <Info style={{ scale: 1.5 }}/>
+          <Info style={{ scale: 1.5 }} />
         </Link>
       </div>
-    </nav>
+    </div>
   )
 }

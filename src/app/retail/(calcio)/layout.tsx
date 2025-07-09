@@ -1,6 +1,7 @@
 'use client'
 
 import Navbar from '@/retail-components/navbar'
+import ResolutionGate from '@/retail-components/resolution-gate'
 import { Toaster } from '@/retail-components/ui/sonner'
 import BetsContextProvider from '@/retail-contexts/bets-context'
 import RootContextProvider from '@/retail-contexts/root-context'
@@ -10,7 +11,6 @@ import { useContext } from 'react'
 import { useTranslation } from 'react-i18next'
 import '../../globals.css'
 import './i18n'
-import ResolutionGate from '@/retail-components/resolution-gate'
 
 const inter = Inter({
   variable: '--font-inter',
@@ -24,20 +24,21 @@ const metadata = {
 
 function AppContent({ children }: { children: React.ReactNode }) {
   const [skin] = useContext(SkinContext)
+
   return (
     <body
       className={`${inter.variable} ${skin} flex h-screen flex-col font-inter antialiased`}
     >
       <ResolutionGate>
-        <header>
-          <div className="h-[60px]"></div>
-          <Navbar />
-        </header>
-        <main className="h-full overflow-hidden p-2">
-          <RootContextProvider>
+        <RootContextProvider>
+          <header>
+            <div className="h-[60px]"></div>
+            <Navbar />
+          </header>
+          <main className="h-full overflow-hidden">
             <BetsContextProvider>{children}</BetsContextProvider>
-          </RootContextProvider>
-        </main>
+          </main>
+        </RootContextProvider>
 
         <Toaster
           position={
