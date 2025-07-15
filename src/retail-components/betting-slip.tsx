@@ -119,14 +119,14 @@ export default function BettingSlip() {
 
       <CardContent className="h-full overflow-hidden bg-muted-foreground p-2 text-betSlip-foreground">
         {betEntries.length === 0 ? (
-          <div className="flex h-full flex-row items-start justify-center gap-3">
-            <small className="text-[16px] font-medium leading-none pt-2">
+          <div className="relative flex h-full items-start justify-center pt-2">
+            <span className="text-[16px] font-medium leading-none">
               {t('no_selection')}
-            </small>
+            </span>
             <Button
               variant="betNow"
               size="icon-sm"
-              className="font-bold"
+              className="absolute right-0 top-0 font-bold"
               onClick={restoreLastSubmittedTicket}
             >
               <RotateCcwIcon />
@@ -237,7 +237,7 @@ export default function BettingSlip() {
       <CardFooter className="flex flex-col gap-2 bg-muted-foreground">
         {betMode !== 'SYSTEM' ? (
           <>
-            <div className="flex justify-end bg-accent pr-[40px] py-2">
+            <div className="flex justify-end bg-accent py-2 pr-[56px]">
               <span className="text-[16px] font-bold text-accent-foreground">
                 {t('stake')}
               </span>
@@ -258,7 +258,7 @@ export default function BettingSlip() {
             </div>
           </>
         ) : (
-          <div className="pt-2 rounded-md text-sm">
+          <div className="rounded-md pt-2 text-sm">
             <ScrollArea>
               <div className="max-h-[150px] min-w-full">
                 <Table>
@@ -271,13 +271,13 @@ export default function BettingSlip() {
                         {t('comb')}
                       </TableHead>
                       <TableHead className="text-center text-[13px] font-bold tracking-wide">
-                      {t('min')}.€
+                        {t('min')}.€
                       </TableHead>
                       <TableHead className="text-center text-[13px] font-bold tracking-wide">
-                      {t('max')}.€
+                        {t('max')}.€
                       </TableHead>
                       <TableHead className="text-center text-[13px] font-bold tracking-wide">
-                      {t('stake')}
+                        {t('stake')}
                       </TableHead>
                     </TableRow>
                   </TableHeader>
@@ -322,7 +322,7 @@ export default function BettingSlip() {
                   <TableFooter className="text-[14px] font-semibold">
                     <TableRow className="hover:bg-muted">
                       <TableCell colSpan={4} className="text-left">
-                      {t('total')}
+                        {t('total')}
                       </TableCell>
                       <TableCell className="text-center">
                         €{' '}
@@ -333,7 +333,7 @@ export default function BettingSlip() {
                     </TableRow>
                     <TableRow className="hover:bg-muted">
                       <TableCell colSpan={4} className="text-left">
-                      {t('max')} {t('win')}
+                        {t('max')} {t('win')}
                       </TableCell>
                       <TableCell className="text-center">
                         €{' '}
@@ -351,7 +351,7 @@ export default function BettingSlip() {
                     </TableRow>
                     <TableRow className="hover:bg-muted">
                       <TableCell colSpan={4} className="text-left">
-                      {t('min')} {t('win')}
+                        {t('min')} {t('win')}
                       </TableCell>
                       <TableCell className="text-center">
                         €{' '}
@@ -372,7 +372,7 @@ export default function BettingSlip() {
           </div>
         )}
 
-        <div className="px-2 flex flex-row gap-2">
+        <div className="flex flex-row gap-2 px-2">
           <Button
             variant="ghost"
             size="lg"
