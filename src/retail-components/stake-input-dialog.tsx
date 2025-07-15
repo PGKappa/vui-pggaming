@@ -52,7 +52,7 @@ export default function StakeInputDialog(props: {
           <Button
             variant="ghost"
             size="sm"
-            className="h-7 w-5 bg-bet p-3 text-[19px] text-bet-foreground"
+            className="h-8 w-7 bg-bet p-3 text-[19px] text-bet-foreground"
             onClick={(e) => {
               e.stopPropagation()
               const newValue = value < 0.5 ? 0 : value - 0.5
@@ -65,13 +65,13 @@ export default function StakeInputDialog(props: {
           <Input
             type="number"
             value={value.toFixed(2)}
-            className="bg-background-foreground h-7 w-16 border-x text-center"
+            className="bg-background-foreground h-8 w-20 border-x text-center"
             readOnly
           />
           <Button
             variant="ghost"
             size="sm"
-            className="h-7 w-4 bg-bet p-3 text-[19px] text-bet-foreground"
+            className="h-8 w-7 bg-bet p-3 text-[19px] text-bet-foreground"
             onClick={(e) => {
               e.stopPropagation()
               const newValue = value + 0.5
