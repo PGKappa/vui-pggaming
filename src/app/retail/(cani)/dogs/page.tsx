@@ -14,7 +14,7 @@ import { useTranslation } from 'react-i18next'
 
 export default function Home() {
   const { t } = useTranslation()
-  const { upcomingRounds, roundResults } = useContext(RootContext)
+  const { upcomingRounds, eventResults: roundResults } = useContext(RootContext)
 
   const [matchBetOptions, setMatchBetOptions] = useState<{
     round: {
