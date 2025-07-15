@@ -31,7 +31,7 @@ export default function TicketCheckPage() {
   }
 
   return (
-    <main className="fixed inset-0 z-50 flex flex-col justify-between bg-accent px-4 py-6 text-accent-foreground">
+    <main className="fixed bottom-0 left-0 right-0 top-[60px] z-50 flex flex-col justify-between bg-accent px-4 py-6 text-accent-foreground">
       <Button
         variant="navbar"
         onClick={() => router.back()}
