@@ -405,7 +405,6 @@ export default function RootContextProvider(props: {
 
       setRootContext((prev) => ({
         ...prev,
-        upcomingRounds: rounds,
         upcomingEvents: [
           ...(prev.upcomingEvents?.filter(
             (event) => event.discipline !== Discipline.SOCCER,
@@ -481,14 +480,12 @@ export default function RootContextProvider(props: {
             index: number,
           ): UpcomingEvent => ({
             id: event.int_event_id,
+            extId: event.ext_pal_id,
             duration: horseEvents.channels[1].duration[index],
             name: `Horse `,
             startTime: event.start_time,
             time: new Date(event.time),
             discipline: Discipline.HORSES,
-            data: {
-              id: event.int_event_id,
-            },
           }),
         )
       const horseEventResults: EventResult[] =
