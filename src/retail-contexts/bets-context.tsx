@@ -61,7 +61,7 @@ export default function BetsContextProvider(props: {
       betEntries: prev.betEntries.filter(
         (betEntry) =>
           betEntry.market !== marketName ||
-          betEntry.bet.teams !== teams ||
+          betEntry.bet.competitor !== teams ||
           betEntry.bet.option.outcome !== option.outcome,
       ),
     }))
@@ -74,8 +74,8 @@ export default function BetsContextProvider(props: {
       ...prev,
       betEntries: prev.betEntries.filter(
         (betEntry) =>
-          betEntry.bet.round.number !== parseInt(roundNumber) ||
-          betEntry.bet.teams !== teams,
+          betEntry.bet.event.number !== parseInt(roundNumber) ||
+          betEntry.bet.competitor !== teams,
       ),
     }))
   }
@@ -86,8 +86,8 @@ export default function BetsContextProvider(props: {
       ...prev,
       betEntries: prev.betEntries.map((betEntry) => {
         if (
-          betEntry.bet.round.number === parseInt(roundNumber) &&
-          betEntry.bet.teams === teams
+          betEntry.bet.event.number === parseInt(roundNumber) &&
+          betEntry.bet.competitor === teams
         ) {
           return { ...betEntry, fixed: !betEntry.fixed }
         }
