@@ -69,7 +69,7 @@ export default function Home() {
                   />
                 ) : (
                   <>
-                    <UpcomingRaceCard id={selectedEvent.id} />
+                    <UpcomingRaceCard race={selectedEvent} />
                     <Leaderboard />
                   </>
                 )
