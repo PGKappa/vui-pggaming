@@ -212,11 +212,16 @@ export default function UpcomingRoundCard(props: {
                                 className="px-[10px] text-center"
                               >
                                 <BetEntryToggle
-                                  matchStart={matchStart}
-                                  round={props.round}
-                                  teams={teamNames}
+                                  bet={{
+                                    event: {
+                                      name: match.eventIdentity.eventName,
+                                      number: match.eventIdentity.eventId,
+                                      startingAt: matchStart,
+                                    },
+                                    competitor: teamNames,
+                                    option: option,
+                                  }}
                                   marketName={market.name}
-                                  option={option}
                                   className="h-[45px] w-[90px] text-[19px] font-semibold"
                                 />
                               </TableCell>
