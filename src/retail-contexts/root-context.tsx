@@ -6,6 +6,7 @@ import {
   EventResult,
   TeamRanking,
   Ticket,
+  UpcomingEvent,
   UpcomingMatch,
   UpcomingRound,
   User,
@@ -24,20 +25,18 @@ export type RootContextType = {
     params?: Record<string, string>,
   ) => Promise<T>
   upcomingRounds?: UpcomingRound[]
-  roundResults: EventResult[]
-  searchRoundResults?: EventResult[]
-  setSearchRoundResults: (
-    searchRoundResults?: EventResult[],
-  ) => void
+  upcomingEvents?: UpcomingEvent[]
+  eventResults: EventResult[]
+  searchEventResults?: EventResult[]
+  setSearchEventResults: (searchEventResults?: EventResult[]) => void
   betsHistory: Ticket[]
   teamRankings?: TeamRanking[]
 }
 
 const defaultRootContext: RootContextType = {
   //TODO: remove mock data
-  roundResults: [],
-  setSearchRoundResults: () => {},
-  upcomingRounds: [],
+  eventResults: [],
+  setSearchEventResults: () => {},
   betsHistory: [],
   teamRankings: [
     {
@@ -154,8 +153,6 @@ function getInitCodeFromUrl(): string | undefined {
 
   const params = new URLSearchParams(window.location.search)
 
-  console.log('init_code: ', params.get('init_code'))
-
   return params.get('init_code') || undefined
 }
 
@@ -211,16 +208,12 @@ export default function RootContextProvider(props: {
     [initCode],
   )
 
-  const setSearchRoundResults = (
-    searchRoundResults?: EventResult[],
-  ) => {
-    console.log('Setting searchRoundResults:', searchRoundResults)
+  const setSearchEventResults = (searchEventResults?: EventResult[]) => {
     setRootContext((prev) => ({
       ...prev,
-      searchRoundResults,
+      searchEventResults: searchEventResults,
     }))
   }
-  
 
   useEffect(() => {
     const initCode = getInitCodeFromUrl()
@@ -361,7 +354,7 @@ export default function RootContextProvider(props: {
 
           return {
             id: 12 - index,
-            title: `Trident round ${12 - index}`,
+            name: `Trident round ${12 - index}`,
             startTime: date,
             duration: 3,
             discipline: Discipline.SOCCER,
@@ -410,18 +403,139 @@ export default function RootContextProvider(props: {
         },
       )
 
-      console.log('Round results:', roundResults)
-
       setRootContext((prev) => ({
         ...prev,
         upcomingRounds: rounds,
-        roundResults,
-        setSearchRoundResults,
+        upcomingEvents: [
+          ...(prev.upcomingEvents?.filter(
+            (event) => event.discipline !== Discipline.SOCCER,
+          ) || []),
+          ...rounds.map((round) => ({
+            id: round.scheduleId,
+            name: round.scheduleName,
+            startTime: new Date(
+              round.mag_event[0].startTime,
+            ).toLocaleTimeString('it-IT', {
+              hour: '2-digit',
+              minute: '2-digit',
+            }),
+            time: new Date(round.mag_event[0].startTime),
+            duration: 3,
+            discipline: Discipline.SOCCER,
+            ext_pal_id:
+              round.mag_event[0].eventIdentity?.parentGroupIdSpecified || '',
+            data: round,
+          })),
+        ],
+        eventResults: [
+          ...prev.eventResults.filter(
+            (result) => result.discipline !== Discipline.SOCCER,
+          ),
+          ...roundResults,
+        ],
+        setSearchEventResults: setSearchEventResults,
+      }))
+    }
+
+    const fetchUpcomingHorseEvents = async () => {
+      const response = await fetch(
+        'https://apidev.pgvirtual.eu/api/event/list',
+        {
+          headers: {
+            accept: 'application/json',
+            'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
+            authorization: 'Bearer ffffffff-ffff-ffff-ffff-ffffffffffee',
+            operator: 'pg',
+            priority: 'u=1, i',
+            'sec-ch-ua':
+              '"Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"',
+            'sec-ch-ua-mobile': '?1',
+            'sec-ch-ua-platform': '"Android"',
+            'sec-fetch-dest': 'empty',
+            'sec-fetch-mode': 'cors',
+            'sec-fetch-site': 'same-site',
+          },
+          referrer: 'https://test.pgvirtual.eu/',
+          referrerPolicy: 'strict-origin-when-cross-origin',
+          body: null,
+          method: 'GET',
+          mode: 'cors',
+          credentials: 'include',
+        },
+      )
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch horse events')
+      }
+
+      const horseEvents = await response.json()
+      const upcomingHorseEvents: UpcomingEvent[] =
+        horseEvents.channels[1].next_events.map(
+          (
+            event: {
+              int_event_id: number
+              ext_pal_id: string
+              start_time: string
+              time: number
+            },
+            index: number,
+          ): UpcomingEvent => ({
+            id: event.int_event_id,
+            duration: horseEvents.channels[1].duration[index],
+            name: `Horse `,
+            startTime: event.start_time,
+            time: new Date(event.time),
+            discipline: Discipline.HORSES,
+            data: {
+              id: event.int_event_id,
+            },
+          }),
+        )
+      const horseEventResults: EventResult[] =
+        horseEvents.channels[1].prev_events.map(
+          (event: {
+            arrival: {
+              name: string
+              number: number
+            }[]
+            int_event_id: number
+            start_time: string
+            time: number
+          }) =>
+            ({
+              id: event.int_event_id,
+              name: `Horse Race ${event.int_event_id}`,
+              result: {
+                podium: event.arrival.map((horse) => ({
+                  name: horse.name,
+                  number: horse.number,
+                })),
+              },
+              startTime: new Date(event.start_time),
+              time: event.time,
+              discipline: Discipline.HORSES,
+            }) as EventResult,
+        )
+
+      setRootContext((prev) => ({
+        ...prev,
+        upcomingEvents: [
+          ...(prev.upcomingEvents?.filter(
+            (event) => event.discipline !== Discipline.HORSES,
+          ) || []),
+          ...upcomingHorseEvents,
+        ],
+        eventResults: [...prev.eventResults, ...horseEventResults],
       }))
     }
 
     fetchUpcomingRounds()
+    fetchUpcomingHorseEvents()
   }, [initCode, apiRequest])
+
+  useEffect(() => {
+    console.log(rootContext.upcomingEvents)
+  }, [rootContext.upcomingEvents])
 
   if (isLoading) {
     return (

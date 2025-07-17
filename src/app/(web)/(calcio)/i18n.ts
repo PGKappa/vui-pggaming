@@ -1,12 +1,12 @@
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
 
-import enTranslations from '../../../messages/en.json'
-import itTranslations from '../../../messages/it.json'
-import esTranslations from '../../../messages/es.json'
-import frTranslations from '../../../messages/fr.json'
-import cnTranslations from '../../../messages/cn.json'
-import ruTransaltions from '../../../messages/ru.json'
+import enTranslations from '../../../../messages/en.json'
+import itTranslations from '../../../../messages/it.json'
+import esTranslations from '../../../../messages/es.json'
+import frTranslations from '../../../../messages/fr.json'
+import cnTranslations from '../../../../messages/cn.json'
+import ruTransaltions from '../../../../messages/ru.json'
 
 const resources = {
   en: {

@@ -1,13 +1,12 @@
 'use client'
 
 import { RootContext } from '@/retail-contexts/root-context'
-import { useContext } from 'react'
+import { ChevronDown, ChevronUp } from 'lucide-react'
+import { useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import LoadingSpinner from './loading-spinner'
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
-import { useState } from 'react'
 import { Button } from './ui/button'
-import { ChevronDown, ChevronUp } from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 
 export default function Leaderboard() {
   const { t } = useTranslation()
@@ -33,8 +32,8 @@ export default function Leaderboard() {
           {teamRankings ? (
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-card-header ">
-                  <tr className="grid grid-cols-11 md:grid-cols-11 [&_th]:text-card-header-foreground h-[44px]">
+                <thead className="bg-card-header">
+                  <tr className="grid h-[44px] grid-cols-11 md:grid-cols-11 [&_th]:text-card-header-foreground">
                     <th className="p-3 text-center"></th>
                     <th className="p-2 text-center">{t('club')}</th>
                     <th className="p-2 text-center">{t('p')}</th>
@@ -74,7 +73,6 @@ export default function Leaderboard() {
                       <td className="p-3 text-center font-bold">
                         {ranking.goalDifference}
                       </td>
-                      
 
                       <td className="flex justify-center gap-1 p-3">
                         {ranking.last8.map((result, i) => {

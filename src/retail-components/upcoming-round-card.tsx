@@ -61,14 +61,66 @@ export default function UpcomingRoundCard(props: {
       ),
     },
     {
-      name: t('home'),
+      name: t('exact_result'),
+      markets: props.round.mag_event[0].markets.market.filter(
+        (market) => ['Risultato esatto'].includes(market.name.trim()), // need more columns
+      ),
+    },
+    {
+      name: t('combo'),
       markets: props.round.mag_event[0].markets.market.filter((market) =>
-      [
-        'Casa Under/Over 0.5',
-        'Casa Under/Over 1.5',
-        'Casa Under/Over 2.5',
-      ].includes(market.name.trim()),
-    ),
+        [
+          'Combo Vincente & Segna',
+          'Combo Vincente & Goals (1.5)',
+          'Combo Vincente & Goals (2.5)',
+        ].includes(market.name.trim()),
+      ),
+    },
+    {
+      name: t('multi_goal'),
+      markets: props.round.mag_event[0].markets.market.filter((market) =>
+        ['Somma gol', 'Somma gol Casa', 'Somma gol Trasferta'].includes(
+          // need more columns
+          market.name.trim(),
+        ),
+      ),
+    },
+    {
+      name: t('home/away_team'),
+      markets: props.round.mag_event[0].markets.market
+        .filter(
+          (market) =>
+            [
+              'Casa Under/Over 0.5',
+              'Casa Under/Over 1.5',
+              'Casa Under/Over 2.5',
+              'Trasferta Under/Over 0.5',
+              'Trasferta Under/Over 1.5',
+              'Trasferta Under/Over 2.5',
+            ].includes(market.name.trim()), // need more columns
+        )
+        .map((market) => ({
+          ...market,
+          selections: market.selections.map((selection) => ({
+            ...selection,
+            selection: selection.selection.map((option) => ({
+              ...option,
+              outcome: `${market.name.includes('Casa') ? t('home') : t('away')} - ${option.outcome}`,
+            })),
+          })),
+        })),
+    },
+    {
+      name: t('partial/final'),
+      markets: props.round.mag_event[0].markets.market.filter((market) =>
+        ['Parziale/Finale'].includes(market.name.trim()),
+      ),
+    },
+    {
+      name: t('special'),
+      markets: props.round.mag_event[0].markets.market.filter((market) =>
+        ['Primo marcatore', 'Cartellino Rosso'].includes(market.name.trim()),
+      ),
     },
   ]
 
@@ -81,12 +133,12 @@ export default function UpcomingRoundCard(props: {
 
   return (
     <Card className="border-b border-t border-card-foreground">
-      <CardHeader className="flex h-16 flex-row items-center justify-start bg-accent gap-2">
+      <CardHeader className="flex h-16 w-full flex-row items-center justify-start gap-2 bg-accent">
         {marketTabs.map((tab, index) => (
           <Button
             key={index}
             variant={selectedTab === tab.name ? 'marketSelected' : 'market'}
-            className="h-full w-[150px] text-[20px] font-semibold border border-b"
+            className="h-full w-fit border border-b px-2 text-[20px] font-semibold"
             onClick={() => {
               setSelectedTab(tab.name)
             }}
@@ -99,7 +151,8 @@ export default function UpcomingRoundCard(props: {
         <Table>
           <TableHeader className="h-11 bg-card-header text-[20px] text-card-header-foreground">
             <TableRow className="border-card-foreground transition-none">
-              <TableHead className="w-[225px]"></TableHead>
+              <TableHead></TableHead>
+              <TableHead className="w-[1px] bg-border p-0"></TableHead>
               {marketTabs
                 .find((tab) => tab.name === selectedTab)
                 ?.markets.map((market, index) => (
@@ -114,13 +167,15 @@ export default function UpcomingRoundCard(props: {
                           {option.outcome} {getFloatFromString(market.name)}
                         </TableHead>
                       ))}
-                    {index <=
+                    {index <
                       market.selections.flatMap(({ selection }) => selection)
-                        .length && (
+                        .length -
+                        1 && (
                       <TableHead className="w-[1px] bg-border p-0"></TableHead>
                     )}
                   </>
                 ))}
+              <TableHead className="w-[1px] bg-border p-0"></TableHead>
               <TableHead></TableHead>
             </TableRow>
           </TableHeader>
@@ -139,9 +194,11 @@ export default function UpcomingRoundCard(props: {
                     key={index}
                     className="h-[70px] border-card-foreground"
                   >
-                    <TableCell className="p-0 text-center">
-                      <span className="text-[16px] font-bold">{teamNames}</span>
+                    <TableCell className="w-[150px] min-w-[150px] max-w-[150px] whitespace-nowrap text-center text-[16px] font-bold">
+                      {teamNames}
                     </TableCell>
+
+                    <TableCell className="w-[1px] bg-border p-0"></TableCell>
 
                     {marketTabs
                       .find((tab) => tab.name === selectedTab)
@@ -164,15 +221,17 @@ export default function UpcomingRoundCard(props: {
                                 />
                               </TableCell>
                             ))}
-                          {index <=
+                          {index <
                             market.selections.flatMap(
                               ({ selection }) => selection,
-                            ).length && (
+                            ).length -
+                            1 && (
                             <TableCell className="w-[1px] bg-border p-0"></TableCell>
                           )}
                         </>
                       ))}
 
+                    <TableCell className="w-[1px] bg-border p-0"></TableCell>
                     <TableCell className="pr-4 text-right">
                       <Button
                         variant="action"
