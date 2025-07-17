@@ -1,4 +1,4 @@
-'use client'
+/* 'use client'
 import BettingSlip from '@/retail-components/betting-slip'
 import LastRoundsResults from '@/retail-components/last-rounds-results'
 import Leaderboard from '@/retail-components/leaderboard'
@@ -38,7 +38,7 @@ export default function Home() {
 
   return (
     <div className="flex h-full overflow-hidden">
-      {/* First column */}
+      {/* First column 
       <div className="flex h-[942px] w-[263px] flex-col items-center justify-between gap-2 overflow-hidden">
         <UpcomingRoundsCard
           rounds={upcomingRounds}
@@ -58,10 +58,8 @@ export default function Home() {
           searchRoundResults={searchRoundResults}
         />
       </div>
-
-      {/* SECOND COLUMN*/}
       <div className="ml-2 flex h-[942px] w-[1241px] flex-col gap-2 overflow-y-auto">
-        {/* <ScrollArea className="h-full w-full">
+<ScrollArea className="h-full w-full">
           {!!searchRoundResults ? (
             <SearchRoundResults
               roundResults={searchRoundResults}
@@ -89,13 +87,13 @@ export default function Home() {
               {t('no_round_selected')}
             </div>
           )}
-        </ScrollArea> */}
+        </ScrollArea>
       </div>
 
-      {/*RIGHT COLUMN - Betting slip*/}
       <div className="ml-2 h-[942px] w-[382px] overflow-y-auto bg-background text-foreground">
         <BettingSlip />
       </div>
     </div>
   )
 }
+ */
