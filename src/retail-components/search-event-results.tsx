@@ -2,6 +2,7 @@ import { Discipline, EventResult } from '@/retail-lib/types'
 import { format, isSameDay } from 'date-fns'
 import { ChevronRight } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { useDetectClickOutside } from 'react-detect-click-outside'
 import { useTranslation } from 'react-i18next'
 import {
   Accordion,
@@ -11,6 +12,7 @@ import {
 } from './ui/accordion'
 import { Button } from './ui/button'
 import { Card, CardContent, CardHeader } from './ui/card'
+import { Checkbox } from './ui/checkbox'
 import { ScrollArea } from './ui/scroll-area'
 import {
   Select,
@@ -19,7 +21,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select'
-import { Checkbox } from './ui/checkbox'
 
 const dates = Array.from({ length: 10 }, (_, index) => {
   const date = new Date()
@@ -45,9 +46,19 @@ export default function SearchEventResults(props: {
   onClose: () => void
 }) {
   const { t } = useTranslation()
+
+  const [isSelectOpen, setIsSelectOpen] = useState(false)
+  const ref = useDetectClickOutside({
+    onTriggered: () => {
+      if (!isSelectOpen) {
+        props.onClose()
+      }
+    },
+  })
+
   const [selectedDiscipline, setSelectedDiscipline] = useState<
-    Discipline | 'ALL'
-  >('ALL')
+    Discipline | 'NONE'
+  >('NONE')
   const [selectedDate, setSelectedDate] = useState<string>('ALL')
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>('ALL')
   const [lastTenGames, setLastTenGames] = useState<boolean>(false)
@@ -55,26 +66,25 @@ export default function SearchEventResults(props: {
   const eventResults = useMemo(() => {
     if (lastTenGames) {
       return props.eventResults
-        .filter((result) =>
-          selectedDiscipline === 'ALL'
-            ? true
-            : result.discipline?.toLowerCase() === selectedDiscipline.toLowerCase(),
+        .filter(
+          (result) =>
+            selectedDiscipline === 'NONE' ||
+            result.discipline === selectedDiscipline,
         )
         .sort((a, b) => b.startTime.getTime() - a.startTime.getTime())
         .slice(0, 10)
     }
+
     const filteredResults = props.eventResults.filter((result) => {
-      if (
-        selectedDiscipline !== 'ALL' &&
-        result.discipline?.toLowerCase() !== selectedDiscipline.toLowerCase()
-      ) {
+      if (selectedDiscipline && result.discipline !== selectedDiscipline) {
         return false
       }
       if (
         selectedDate !== 'ALL' &&
         !isSameDay(result.startTime, new Date(selectedDate))
-      )
+      ) {
         return false
+      }
       if (selectedTimeSlot !== 'ALL') {
         const [startTimeStr, endTimeStr] = selectedTimeSlot.split(' | ')
         const [startHours, startMinutes] = startTimeStr.split(':').map(Number)
@@ -90,17 +100,36 @@ export default function SearchEventResults(props: {
       return true
     })
     return filteredResults
-  }, [lastTenGames, props.eventResults, selectedDiscipline, selectedDate, selectedTimeSlot])
+  }, [
+    lastTenGames,
+    props.eventResults,
+    selectedDiscipline,
+    selectedDate,
+    selectedTimeSlot,
+  ])
 
   const handleReset = () => {
-    setSelectedDiscipline('ALL')
+    setSelectedDiscipline('NONE')
     setSelectedDate('ALL')
     setSelectedTimeSlot('ALL')
     setLastTenGames(false)
   }
 
+  const formatSafeDate = (date: Date, formatStr: string) => {
+    try {
+      const dateObj = typeof date === 'string' ? new Date(date) : date
+      if (!(dateObj instanceof Date) || isNaN(dateObj.getTime())) {
+        return 'Data non valida'
+      }
+      return format(dateObj, formatStr)
+    } catch (error) {
+      console.error('Error formatting date:', error)
+      return 'Data non valida'
+    }
+  }
+
   return (
-    <Card>
+    <Card ref={ref}>
       <CardHeader className="flex flex-col items-center">
         <div className="flex flex-wrap items-center gap-8">
           <div className="flex flex-row items-center gap-2 bg-badge text-background">
@@ -109,17 +138,20 @@ export default function SearchEventResults(props: {
             </span>
             <Select
               value={selectedDiscipline?.toString()}
-              onValueChange={(value) =>
+              onOpenChange={(open) => setIsSelectOpen(open)}
+              onValueChange={(value) => {
                 setSelectedDiscipline(
-                  Discipline[value as keyof typeof Discipline],
+                  value === 'NONE'
+                    ? 'NONE'
+                    : Discipline[value as keyof typeof Discipline],
                 )
-              }
+              }}
             >
               <SelectTrigger className="w-[130px] bg-background text-[16px] text-foreground">
                 <SelectValue placeholder={t('sport')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
-                <SelectItem value="ALL">{t('all')}</SelectItem>
+                <SelectItem value="NONE">{t('none')}</SelectItem>
                 {Object.values(Discipline).map((d) => (
                   <SelectItem key={d} value={d}>
                     {d}
@@ -136,7 +168,10 @@ export default function SearchEventResults(props: {
               checked={lastTenGames}
               onCheckedChange={(value) => setLastTenGames(!!value)}
             />
-            <label htmlFor="last10" className="text-[16px] font-semibold px-2 py-1 text-background">
+            <label
+              htmlFor="last10"
+              className="px-2 py-1 text-[16px] font-semibold text-background"
+            >
               {t('last_10_games')}
             </label>
           </div>
@@ -147,7 +182,10 @@ export default function SearchEventResults(props: {
             </span>
             <Select
               value={selectedDate}
-              onValueChange={setSelectedDate}
+              onOpenChange={(open) => setIsSelectOpen(open)}
+              onValueChange={(value) => {
+                setSelectedDate(value)
+              }}
               disabled={lastTenGames}
             >
               <SelectTrigger className="w-[130px] bg-background text-[16px] text-foreground">
@@ -170,6 +208,7 @@ export default function SearchEventResults(props: {
             </span>
             <Select
               value={selectedTimeSlot}
+              onOpenChange={(open) => setIsSelectOpen(open)}
               onValueChange={setSelectedTimeSlot}
               disabled={lastTenGames}
             >
@@ -213,130 +252,157 @@ export default function SearchEventResults(props: {
       </CardHeader>
 
       <CardContent className="h-full pt-4">
-        {eventResults.length > 0 ? (
-          <ScrollArea className="h-full">
-            <Accordion type="multiple" className="space-y-4">
-              {eventResults.map((eventResult) => {
-                return (
-                  <AccordionItem
-                    key={eventResult.id}
-                    value={eventResult.id.toString()}
-                    className="gap-0"
-                  >
-                    <AccordionTrigger className="bg-accent p-2 text-base text-accent-foreground [&[data-state=open]>svg]:-rotate-90">
-                      <div className="flex w-[600px] flex-row justify-between gap-2">
-                        <div className="flex flex-row gap-2">
+        {!!selectedDiscipline ? (
+          eventResults.length > 0 ? (
+            <ScrollArea className="pb-20">
+              <Accordion type="multiple" className="space-y-4">
+                {eventResults.map((eventResult) => {
+                  return (
+                    <AccordionItem
+                      key={eventResult.id}
+                      value={eventResult.id.toString()}
+                      className="gap-0"
+                    >
+                      <AccordionTrigger className="bg-accent p-2 text-base text-accent-foreground [&[data-state=open]>svg]:-rotate-90">
+                        <div className="flex w-[600px] flex-row justify-between gap-2">
+                          <div className="flex flex-row gap-2">
+                            <span className="font-bold">
+                              {formatSafeDate(
+                                eventResult.startTime,
+                                'dd-MM-yyyy HH:mm',
+                              )}{' '}
+                              {eventResult.name}
+                              {' / '}
+                            </span>
+                            {'teams' in eventResult.result && (
+                              <span>{eventResult.result.teams}</span>
+                            )}
+                          </div>
                           <span className="font-bold">
-                            {format(eventResult.startTime, 'dd-MM-yyyy HH:mm')}{' '}
-                            {eventResult.title}
-                            {' / '}
+                            {'score1' in eventResult.result ? (
+                              <>
+                                {eventResult.result.score1} - {''}
+                                {eventResult.result.score2}
+                              </>
+                            ) : (
+                              t('not_applicable')
+                            )}
                           </span>
-                          <span>{eventResult.result.teams}</span>
                         </div>
-                        <span className="font-bold">
-                          {eventResult.result.score1} -{' '}
-                          {eventResult.result.score2}
-                        </span>
-                      </div>
-                      <ChevronRight className="h-6 w-6 shrink-0 transition-transform duration-200" />
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <table className="w-full border-collapse bg-background text-center">
-                        <tbody>
-                          {/* 1X2 and DOUBLE CHANCE */}
-                          <tr className="border-b-2 border-betSlip">
-                            <td className="border-r-2 border-betSlip p-2 text-center">
-                              <div className="font-bold">1X2</div>
-                              <div>
-                                {eventResult.result.odds?.oneXTwo
-                                  ? `2 ${eventResult.result.odds.oneXTwo.odds.toFixed(2)}`
-                                  : '2 1.95'}
-                              </div>
-                            </td>
-                            <td className="p-2 text-center">
-                              <div className="font-bold">DOUBLE CHANCE</div>
-                              <div>
-                                {eventResult.result.odds?.doubleChance
-                                  ? `2 ${eventResult.result.odds.doubleChance.odds.toFixed(2)}`
-                                  : '2 1.63'}
-                              </div>
-                            </td>
-                          </tr>
+                        <ChevronRight className="h-6 w-6 shrink-0 transition-transform duration-200" />
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <table className="w-full border-collapse bg-background text-center">
+                          <tbody>
+                            {/* 1X2 and DOUBLE CHANCE */}
+                            <tr className="border-b-2 border-betSlip">
+                              <td className="border-r-2 border-betSlip p-2 text-center">
+                                <div className="font-bold">1X2</div>
+                                <div>
+                                  {'odds' in eventResult.result &&
+                                  eventResult.result.odds?.oneXTwo
+                                    ? `2 ${eventResult.result.odds.oneXTwo.odds.toFixed(2)}`
+                                    : '2 1.95'}
+                                </div>
+                              </td>
+                              <td className="p-2 text-center">
+                                <div className="font-bold">DOUBLE CHANCE</div>
+                                <div>
+                                  {'odds' in eventResult.result &&
+                                  eventResult.result.odds?.doubleChance
+                                    ? `2 ${eventResult.result.odds.doubleChance.odds.toFixed(2)}`
+                                    : '2 1.63'}
+                                </div>
+                              </td>
+                            </tr>
 
-                          {/* FIRST SCORER and SUM GOALS */}
-                          <tr className="border-b-2 border-betSlip">
-                            <td className="border-r-2 border-betSlip p-2 text-center">
-                              <div className="font-bold">FIRST SCORER</div>
-                              <div>
-                                {eventResult.result.odds?.firstScorer
-                                  ? `${eventResult.result.odds.firstScorer.teamLabel || 'TEAM 2'} ${eventResult.result.odds.firstScorer.odds.toFixed(2)}`
-                                  : 'TEAM 2 2.05'}
-                              </div>
-                            </td>
-                            <td className="p-2 text-center">
-                              <div className="font-bold">SUM GOALS</div>
-                              <div>
-                                {eventResult.result.odds?.sumGoals
-                                  ? `${eventResult.result.odds.sumGoals.value} ${eventResult.result.odds.sumGoals.odds.toFixed(2)}`
-                                  : '2 1.63'}
-                              </div>
-                            </td>
-                          </tr>
+                            {/* FIRST SCORER and SUM GOALS */}
+                            <tr className="border-b-2 border-betSlip">
+                              <td className="border-r-2 border-betSlip p-2 text-center">
+                                <div className="font-bold">FIRST SCORER</div>
+                                <div>
+                                  {'odds' in eventResult.result &&
+                                  eventResult.result.odds?.firstScorer
+                                    ? `${eventResult.result.odds.firstScorer.teamLabel || 'TEAM 2'} ${eventResult.result.odds.firstScorer.odds.toFixed(2)}`
+                                    : 'TEAM 2 2.05'}
+                                </div>
+                              </td>
+                              <td className="p-2 text-center">
+                                <div className="font-bold">SUM GOALS</div>
+                                <div>
+                                  {'odds' in eventResult.result &&
+                                  eventResult.result.odds?.sumGoals
+                                    ? `${eventResult.result.odds.sumGoals.value} ${eventResult.result.odds.sumGoals.odds.toFixed(2)}`
+                                    : '2 1.63'}
+                                </div>
+                              </td>
+                            </tr>
 
-                          {/* GOAL / NO GOAL and RED CARD */}
-                          <tr className="border-b-2 border-betSlip">
-                            <td className="border-r-2 border-betSlip p-2 text-center">
-                              <div className="font-bold">GOAL / NO GOAL</div>
-                              <div>
-                                {eventResult.result.odds?.goalNoGoal
-                                  ? `${eventResult.result.odds.goalNoGoal.value} ${eventResult.result.odds.goalNoGoal.odds.toFixed(2)}`
-                                  : '1 1.95'}
-                              </div>
-                            </td>
-                            <td className="p-2 text-center">
-                              <div className="font-bold">RED CARD</div>
-                              <div>
-                                {eventResult.result.odds?.redCard
-                                  ? `${eventResult.result.odds.redCard.value} ${eventResult.result.odds.redCard.odds.toFixed(2)}`
-                                  : 'Yes 2.95'}
-                              </div>
-                            </td>
-                          </tr>
+                            {/* GOAL / NO GOAL and RED CARD */}
+                            <tr className="border-b-2 border-betSlip">
+                              <td className="border-r-2 border-betSlip p-2 text-center">
+                                <div className="font-bold">GOAL / NO GOAL</div>
+                                <div>
+                                  {'odds' in eventResult.result &&
+                                  eventResult.result.odds?.goalNoGoal
+                                    ? `${eventResult.result.odds.goalNoGoal.value} ${eventResult.result.odds.goalNoGoal.odds.toFixed(2)}`
+                                    : '1 1.95'}
+                                </div>
+                              </td>
+                              <td className="p-2 text-center">
+                                <div className="font-bold">RED CARD</div>
+                                <div>
+                                  {'odds' in eventResult.result &&
+                                  eventResult.result.odds?.redCard
+                                    ? `${eventResult.result.odds.redCard.value} ${eventResult.result.odds.redCard.odds.toFixed(2)}`
+                                    : 'Yes 2.95'}
+                                </div>
+                              </td>
+                            </tr>
 
-                          {/* WINNING COMBO & SCORES and EXACT NUMBER OF GOALS */}
-                          <tr>
-                            <td className="border-r-2 border-betSlip p-2 text-center">
-                              <div className="font-bold">
-                                WINNING COMBO & SCORES
-                              </div>
-                              <div>
-                                {eventResult.result.odds?.winningCombo
-                                  ? `${eventResult.result.odds.winningCombo.value} ${eventResult.result.odds.winningCombo.odds.toFixed(2)}`
-                                  : '2+G 1.90'}
-                              </div>
-                            </td>
-                            <td className="p-2 text-center">
-                              <div className="font-bold">
-                                EXACT NUMBER OF GOALS
-                              </div>
-                              <div>
-                                {eventResult.result.odds?.exactGoals
-                                  ? `${eventResult.result.odds.exactGoals.value} ${eventResult.result.odds.exactGoals.odds.toFixed(2)}`
-                                  : '2 1.90'}
-                              </div>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </AccordionContent>
-                  </AccordionItem>
-                )
-              })}
-            </Accordion>
-          </ScrollArea>
+                            {/* WINNING COMBO & SCORES and EXACT NUMBER OF GOALS */}
+                            <tr>
+                              <td className="border-r-2 border-betSlip p-2 text-center">
+                                <div className="font-bold">
+                                  WINNING COMBO & SCORES
+                                </div>
+                                <div>
+                                  {'odds' in eventResult.result &&
+                                  eventResult.result.odds?.winningCombo
+                                    ? `${eventResult.result.odds.winningCombo.value} ${eventResult.result.odds.winningCombo.odds.toFixed(2)}`
+                                    : '2+G 1.90'}
+                                </div>
+                              </td>
+                              <td className="p-2 text-center">
+                                <div className="font-bold">
+                                  EXACT NUMBER OF GOALS
+                                </div>
+                                <div>
+                                  {'odds' in eventResult.result &&
+                                  eventResult.result.odds?.exactGoals
+                                    ? `${eventResult.result.odds.exactGoals.value} ${eventResult.result.odds.exactGoals.odds.toFixed(2)}`
+                                    : '2 1.90'}
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </AccordionContent>
+                    </AccordionItem>
+                  )
+                })}
+              </Accordion>
+            </ScrollArea>
+          ) : (
+            <div className="flex h-full flex-col items-center justify-center">
+              {t('no_results_found')}
+            </div>
+          )
         ) : (
           <div className="flex h-full flex-col items-center justify-center">
-            {t('no_results_found')}
+            <p className="text-lg text-muted-foreground">
+              {t('search_for_results')}
+            </p>
           </div>
         )}
       </CardContent>

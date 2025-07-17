@@ -85,6 +85,20 @@ export type UpcomingMatch = {
   timeOfDay: string
 }
 
+export type UpcomingEvent = {
+  id: number
+  discipline: Discipline
+  name: string
+  startTime: string
+  time: Date
+  duration: number
+  data: UpcomingRound | UpcomingRace
+}
+
+export type UpcomingRace = {
+  id: number
+}
+
 export type UpcomingRound = {
   channel: number
   oddsFormat: string
@@ -114,11 +128,17 @@ export enum Discipline {
 
 export type EventResult = {
   id: number
-  title: string
+  name: string
   startTime: Date
-  duration: number
   discipline: Discipline
-  result: MatchResult
+  result: MatchResult | RaceResult
+}
+
+export type RaceResult = {
+  podium: {
+    name: string
+    number: number
+  }[]
 }
 
 export type Bet = {
@@ -139,12 +159,12 @@ export type BetEntry = {
 }
 
 export type SystemGroup = {
-  name: string;
-  size: number;
-  combinations: BetEntry[][];
-  stake: number;
-  minWin: number;
-  maxWin: number;
+  name: string
+  size: number
+  combinations: BetEntry[][]
+  stake: number
+  minWin: number
+  maxWin: number
 }
 
 export type Ticket = {
