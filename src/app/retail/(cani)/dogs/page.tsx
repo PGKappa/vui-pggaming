@@ -1,34 +1,24 @@
-/* 'use client'
-import BettingSlip from '@/retail-components/betting-slip'
-import LastRoundsResults from '@/retail-components/last-rounds-results'
-import Leaderboard from '@/retail-components/leaderboard'
-import MatchBettingOptions from '@/retail-components/match-betting-options'
-import SearchRoundResults from '@/retail-components/search-round-results'
-import { ScrollArea } from '@/retail-components/ui/scroll-area'
-import UpcomingRoundCard from '@/retail-components/upcoming-round-card'
-import UpcomingRoundsCard from '@/retail-components/upcoming-rounds-card'
+'use client'
 import { RootContext } from '@/retail-contexts/root-context'
-import { Market, RoundResults, UpcomingRound } from '@/retail-lib/types'
+import { UpcomingRound } from '@/retail-lib/types'
 import { useContext, useEffect, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 
 export default function Home() {
-  const { t } = useTranslation()
-  const { upcomingRounds, eventResults: roundResults } = useContext(RootContext)
+  const { upcomingRounds } = useContext(RootContext)
 
-  const [matchBetOptions, setMatchBetOptions] = useState<{
-    round: {
-      name: string
-      number: number
-      startingAt: Date
-    }
-    teams: string
-    markets: Market[]
-  }>()
+  // const [matchBetOptions, setMatchBetOptions] = useState<{
+  //   round: {
+  //     name: string
+  //     number: number
+  //     startingAt: Date
+  //   }
+  //   teams: string
+  //   markets: Market[]
+  // }>()
 
   const [selectedRound, setSelectedRound] = useState<UpcomingRound>()
-  const [lastResultsOpen, setLastResultsOpen] = useState(true)
-  const [searchRoundResults, setSearchRoundResults] = useState<RoundResults[]>()
+  // const [lastResultsOpen, setLastResultsOpen] = useState(true)
+  // const [searchEventResults, setSearchEventResults] = useState<EventResult[]>()
 
   useEffect(() => {
     if (!selectedRound && upcomingRounds && upcomingRounds.length > 0) {
@@ -92,8 +82,7 @@ export default function Home() {
 
       <div className="ml-2 h-[942px] w-[382px] overflow-y-auto bg-background text-foreground">
         <BettingSlip />
-      </div>
+      </div> */}
     </div>
   )
 }
- */
