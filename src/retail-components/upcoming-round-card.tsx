@@ -151,7 +151,7 @@ export default function UpcomingRoundCard(props: {
         <Table>
           <TableHeader className="h-11 bg-card-header text-[20px] text-card-header-foreground">
             <TableRow className="border-card-foreground transition-none">
-              <TableHead className="w-[225px]"></TableHead>
+              <TableHead></TableHead>
               <TableHead className="w-[1px] bg-border p-0"></TableHead>
               {marketTabs
                 .find((tab) => tab.name === selectedTab)
@@ -167,9 +167,10 @@ export default function UpcomingRoundCard(props: {
                           {option.outcome} {getFloatFromString(market.name)}
                         </TableHead>
                       ))}
-                    {index <=
+                    {index <
                       market.selections.flatMap(({ selection }) => selection)
-                        .length && (
+                        .length -
+                        1 && (
                       <TableHead className="w-[1px] bg-border p-0"></TableHead>
                     )}
                   </>
@@ -193,7 +194,7 @@ export default function UpcomingRoundCard(props: {
                     key={index}
                     className="h-[70px] border-card-foreground"
                   >
-                    <TableCell className="whitespace-nowrap p-0 text-center text-[16px] font-bold">
+                    <TableCell className="w-[150px] min-w-[150px] max-w-[150px] whitespace-nowrap text-center text-[16px] font-bold">
                       {teamNames}
                     </TableCell>
 
@@ -220,17 +221,17 @@ export default function UpcomingRoundCard(props: {
                                 />
                               </TableCell>
                             ))}
-                          {index <=
+                          {index <
                             market.selections.flatMap(
                               ({ selection }) => selection,
-                            ).length && (
+                            ).length -
+                            1 && (
                             <TableCell className="w-[1px] bg-border p-0"></TableCell>
                           )}
                         </>
                       ))}
 
                     <TableCell className="w-[1px] bg-border p-0"></TableCell>
-
                     <TableCell className="pr-4 text-right">
                       <Button
                         variant="action"
