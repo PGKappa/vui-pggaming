@@ -2,6 +2,7 @@ import { Discipline, EventResult } from '@/retail-lib/types'
 import { format, isSameDay } from 'date-fns'
 import { ChevronRight } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { useDetectClickOutside } from 'react-detect-click-outside'
 import { useTranslation } from 'react-i18next'
 import {
   Accordion,
@@ -20,7 +21,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select'
-import { useDetectClickOutside } from 'react-detect-click-outside'
 
 const dates = Array.from({ length: 10 }, (_, index) => {
   const date = new Date()
@@ -46,11 +46,19 @@ export default function SearchEventResults(props: {
   onClose: () => void
 }) {
   const { t } = useTranslation()
-  const ref = useDetectClickOutside({ onTriggered: props.onClose })
+
+  const [isSelectOpen, setIsSelectOpen] = useState(false)
+  const ref = useDetectClickOutside({
+    onTriggered: () => {
+      if (!isSelectOpen) {
+        props.onClose()
+      }
+    },
+  })
 
   const [selectedDiscipline, setSelectedDiscipline] = useState<
-    Discipline | 'ALL'
-  >('ALL')
+    Discipline | 'NONE'
+  >('NONE')
   const [selectedDate, setSelectedDate] = useState<string>('ALL')
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>('ALL')
   const [lastTenGames, setLastTenGames] = useState<boolean>(false)
@@ -60,7 +68,7 @@ export default function SearchEventResults(props: {
       return props.eventResults
         .filter(
           (result) =>
-            selectedDiscipline === 'ALL' ||
+            selectedDiscipline === 'NONE' ||
             result.discipline === selectedDiscipline,
         )
         .sort((a, b) => b.startTime.getTime() - a.startTime.getTime())
@@ -68,17 +76,15 @@ export default function SearchEventResults(props: {
     }
 
     const filteredResults = props.eventResults.filter((result) => {
-      if (
-        selectedDiscipline !== 'ALL' &&
-        result.discipline !== selectedDiscipline
-      ) {
+      if (selectedDiscipline && result.discipline !== selectedDiscipline) {
         return false
       }
       if (
         selectedDate !== 'ALL' &&
         !isSameDay(result.startTime, new Date(selectedDate))
-      )
+      ) {
         return false
+      }
       if (selectedTimeSlot !== 'ALL') {
         const [startTimeStr, endTimeStr] = selectedTimeSlot.split(' | ')
         const [startHours, startMinutes] = startTimeStr.split(':').map(Number)
@@ -103,7 +109,7 @@ export default function SearchEventResults(props: {
   ])
 
   const handleReset = () => {
-    setSelectedDiscipline('ALL')
+    setSelectedDiscipline('NONE')
     setSelectedDate('ALL')
     setSelectedTimeSlot('ALL')
     setLastTenGames(false)
@@ -132,10 +138,11 @@ export default function SearchEventResults(props: {
             </span>
             <Select
               value={selectedDiscipline?.toString()}
+              onOpenChange={(open) => setIsSelectOpen(open)}
               onValueChange={(value) => {
                 setSelectedDiscipline(
-                  value === 'ALL'
-                    ? 'ALL'
+                  value === 'NONE'
+                    ? 'NONE'
                     : Discipline[value as keyof typeof Discipline],
                 )
               }}
@@ -144,7 +151,7 @@ export default function SearchEventResults(props: {
                 <SelectValue placeholder={t('sport')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
-                <SelectItem value="ALL">{t('all')}</SelectItem>
+                <SelectItem value="NONE">{t('none')}</SelectItem>
                 {Object.values(Discipline).map((d) => (
                   <SelectItem key={d} value={d}>
                     {d}
@@ -175,7 +182,10 @@ export default function SearchEventResults(props: {
             </span>
             <Select
               value={selectedDate}
-              onValueChange={setSelectedDate}
+              onOpenChange={(open) => setIsSelectOpen(open)}
+              onValueChange={(value) => {
+                setSelectedDate(value)
+              }}
               disabled={lastTenGames}
             >
               <SelectTrigger className="w-[130px] bg-background text-[16px] text-foreground">
@@ -198,6 +208,7 @@ export default function SearchEventResults(props: {
             </span>
             <Select
               value={selectedTimeSlot}
+              onOpenChange={(open) => setIsSelectOpen(open)}
               onValueChange={setSelectedTimeSlot}
               disabled={lastTenGames}
             >
@@ -241,7 +252,7 @@ export default function SearchEventResults(props: {
       </CardHeader>
 
       <CardContent className="h-full pt-4">
-        {selectedDiscipline !== 'ALL' ? (
+        {!!selectedDiscipline ? (
           eventResults.length > 0 ? (
             <ScrollArea className="pb-20">
               <Accordion type="multiple" className="space-y-4">
