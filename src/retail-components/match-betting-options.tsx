@@ -94,14 +94,16 @@ export default function MatchBettingOptions(props: {
                     {market.selections[0].selection.map((option) => (
                       <BetEntryToggle
                         key={option.outcome}
-                        matchStart={props.round.startingAt}
-                        marketName={market.name}
-                        option={option}
-                        round={{
-                          scheduleName: props.round.name,
-                          scheduleId: props.round.number,
+                        bet={{
+                          event: {
+                            name: props.round.name,
+                            number: props.round.number,
+                            startingAt: props.round.startingAt,
+                          },
+                          competitor: props.teams,
+                          option: option,
                         }}
-                        teams={props.teams}
+                        marketName={market.name}
                         showOutcome
                         className="h-[45px] w-full font-semibold"
                       />
