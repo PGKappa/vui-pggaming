@@ -1,12 +1,54 @@
 import { UpcomingEvent, UpcomingRace } from '@/retail-lib/types'
+import Image from 'next/image'
 import { useEffect, useState } from 'react'
+import BetEntryToggle from './bet-entry-toggle'
+import { Button } from './ui/button'
+import { Card, CardContent, CardHeader } from './ui/card'
+import { Checkbox } from './ui/checkbox'
+import { Switch } from './ui/switch'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from './ui/table'
+import BetCombinationsTable from './bet-combination-table'
 
-export default function UpcomingRaceCard(props: { race: UpcomingEvent }) {
-  const { race } = props
+type UpcomingRaceCardProps = {
+  race: UpcomingEvent
+  onSelectionChange?: (
+    raceInfo: UpcomingRace | undefined,
+    isTris: boolean,
+    position1Selection: number | null,
+    position2Selection: number | null,
+    position3Selection: number | null,
+    disorderSelection: number[],
+  ) => void
+}
+
+export default function UpcomingRaceCard({
+  race,
+  onSelectionChange,
+}: UpcomingRaceCardProps) {
   const [raceInfo, setRaceInfo] = useState<UpcomingRace>()
+  const [isTris, setIsTris] = useState(false)
+  const [position1Selection, setPosition1Selection] = useState<number | null>(
+    null,
+  )
+  const [position2Selection, setPosition2Selection] = useState<number | null>(
+    null,
+  )
+  const [position3Selection, setPosition3Selection] = useState<number | null>(
+    null,
+  )
+  const [disorderSelection, setDisorderSelection] = useState<number[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const fetchEventInfo = async () => {
+      setIsLoading(true)
       try {
         const response = await fetch(
           `https://apidev.pgvirtual.eu/api/event/info/${race.extId}/${race.id}`,
@@ -33,21 +75,523 @@ export default function UpcomingRaceCard(props: { race: UpcomingEvent }) {
             credentials: 'include',
           },
         )
+
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`)
         }
+
         const data: UpcomingRace = await response.json()
         setRaceInfo(data)
       } catch (error) {
         console.error('Error fetching event info:', error)
+      } finally {
+        setIsLoading(false)
       }
     }
+
     fetchEventInfo()
   }, [race.id, race.extId])
 
+  // Notifica le modifiche alle selezioni
+  useEffect(() => {
+    if (onSelectionChange) {
+      onSelectionChange(
+        raceInfo,
+        isTris,
+        position1Selection,
+        position2Selection,
+        position3Selection,
+        disorderSelection,
+      )
+    }
+  }, [
+    raceInfo,
+    isTris,
+    position1Selection,
+    position2Selection,
+    position3Selection,
+    disorderSelection,
+    onSelectionChange,
+  ])
+
+  const togglePosition1Selection = (competitorId: number) => {
+    setPosition1Selection((current) =>
+      current === competitorId ? null : competitorId,
+    )
+  }
+
+  const togglePosition2Selection = (competitorId: number) => {
+    setPosition2Selection((current) =>
+      current === competitorId ? null : competitorId,
+    )
+  }
+
+  const togglePosition3Selection = (competitorId: number) => {
+    setPosition3Selection((current) =>
+      current === competitorId ? null : competitorId,
+    )
+  }
+
+  const toggleDisorderSelection = (competitorId: number) => {
+    setDisorderSelection((current) => {
+      if (current.includes(competitorId)) {
+        return current.filter((id) => id !== competitorId)
+      }
+      return [...current, competitorId]
+    })
+  }
+
+  const clearSelections = () => {
+    setPosition1Selection(null)
+    setPosition2Selection(null)
+    setPosition3Selection(null)
+    setDisorderSelection([])
+  }
+
+  useEffect(() => {
+    const generateMockData = (): UpcomingRace => {
+      const racerCount = 6
+
+      const racers = Array.from({ length: racerCount }, (_, index) => {
+        const number = index + 1
+
+        const history: (number | null)[] = []
+        for (let i = 0; i < 5; i++) {
+          if (i < 3) {
+            history.push(Math.floor(Math.random() * 3) + 1)
+          } else {
+            history.push(
+              Math.random() > 0.5 ? Math.floor(Math.random() * 6) + 1 : null,
+            )
+          }
+        }
+
+        return {
+          number,
+          name: `Cavallo ${number}`,
+          history: history.filter(
+            (position): position is number => position !== null,
+          ),
+          performance: Math.floor(Math.random() * 100),
+        }
+      })
+
+      // Genera quote casuali
+      const odds = {
+        winner: {} as Record<string, string>,
+        placed: {} as Record<string, string>,
+        show: {} as Record<string, string>,
+        exacta: {} as Record<string, Record<string, string>>,
+        quinella: {} as Record<string, Record<string, string>>,
+        trifecta: {} as Record<string, Record<string, Record<string, string>>>,
+        boxedtrifecta: {} as Record<
+          string,
+          Record<string, Record<string, string>>
+        >,
+        evenodd: {
+          even: (Math.random() * 3 + 1).toFixed(2),
+          odd: (Math.random() * 3 + 1).toFixed(2),
+        },
+        underover: {
+          under: (Math.random() * 3 + 1).toFixed(2),
+          over: (Math.random() * 3 + 1).toFixed(2),
+        },
+      }
+
+      // Popola le quote per ogni corridore
+      racers.forEach((racer) => {
+        const num = racer.number.toString()
+        odds.winner[num] = (Math.random() * 20 + 1.1).toFixed(2)
+        odds.placed[num] = (Math.random() * 10 + 1.05).toFixed(2)
+        odds.show[num] = (Math.random() * 5 + 1.01).toFixed(2)
+
+        // Inizializza oggetti per quote composte
+        odds.exacta[num] = {}
+        odds.trifecta[num] = {}
+
+        // Popola alcune quote exacta e trifecta di esempio
+        racers.forEach((other) => {
+          if (other.number !== racer.number) {
+            const otherNum = other.number.toString()
+            odds.exacta[num][otherNum] = (Math.random() * 30 + 5).toFixed(2)
+
+            // Inizializza l'oggetto trifecta per questa coppia
+            odds.trifecta[num][otherNum] = {}
+
+            // Aggiungi alcune quote trifecta
+            racers.forEach((third) => {
+              if (
+                third.number !== racer.number &&
+                third.number !== other.number
+              ) {
+                const thirdNum = third.number.toString()
+                odds.trifecta[num][otherNum][thirdNum] = (
+                  Math.random() * 50 +
+                  10
+                ).toFixed(2)
+              }
+            })
+          }
+        })
+      })
+
+      return {
+        id: race.id,
+        odds,
+        latecomers: {
+          winner: { racers: [], delay: 30 },
+          exacta: { racers: [], delay: 30 },
+          trifecta: { racers: [], delay: 30 },
+        },
+        racers,
+      }
+    }
+
+    const fetchEventInfo = async () => {
+      setIsLoading(true)
+
+      setTimeout(() => {
+        setRaceInfo(generateMockData())
+        setIsLoading(false)
+      }, 1000)
+
+      // Codice fetch originale commentato per il testing
+      /*
+      try {
+        const response = await fetch(...)
+        // ... resto del codice
+      } catch (error) {
+        console.error('Error fetching event info:', error)
+      } finally {
+        setIsLoading(false)
+      }
+      */
+    }
+
+    fetchEventInfo()
+  }, [race.id, race.extId])
+
+  // Funzione per generare il set completo di 5 medaglie
+  const renderMedallions = (history: number[]) => {
+    // Costruisci un array fisso di 5 medaglie
+    const medallions = Array(5).fill(null)
+
+    // Riempi con i dati storici disponibili
+    history.forEach((position, index) => {
+      if (index < 5) {
+        medallions[index] =
+          position === 1 || position === 2 || position === 3 ? position : null
+      }
+    })
+
+    return medallions.map((position, idx) =>
+      position ? (
+        <div
+          key={idx}
+          className={`flex h-5 w-5 items-center justify-center rounded-full text-xs ${
+            position === 1
+              ? 'bg-yellow-400'
+              : position === 2
+                ? 'bg-gray-300'
+                : position === 3
+                  ? 'bg-orange-500'
+                  : ''
+          }`}
+        >
+          {position}
+        </div>
+      ) : (
+        <div
+          key={idx}
+          className="flex h-5 w-5 items-center justify-center text-xs text-black"
+        >
+          X
+        </div>
+      ),
+    )
+  }
+
   return (
-    <div className="flex h-full w-full flex-col items-center justify-center">
-      <h1 className="text-2xl font-bold">Upcoming {raceInfo?.id}</h1>
-    </div>
+    <>
+      <Card className="h-full w-full">
+        <CardHeader className="flex h-16 flex-row items-center justify-between px-5">
+          <div className="flex w-full items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Image
+                src="/horse-image.png"
+                alt="Horse"
+                width={40}
+                height={20}
+                className="size-10 object-contain"
+              />
+              <span className="text-[24px] font-bold">{race.name}</span>
+            </div>
+
+            <div className="flex items-center justify-between gap-40">
+              <div className="flex items-center gap-2">
+                <span
+                  className={isTris ? 'text-muted-foreground' : 'font-bold'}
+                >
+                  ACCOPPIATA
+                </span>
+                <Switch
+                  checked={isTris}
+                  onCheckedChange={(checked) => {
+                    setIsTris(checked)
+                    // Resetta la terza posizione quando si passa da TRIS a ACCOPPIATA
+                    if (!checked) setPosition3Selection(null)
+                  }}
+                  className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-green-500"
+                />
+                <span
+                  className={isTris ? 'font-bold' : 'text-muted-foreground'}
+                >
+                  TRIS
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="market"
+                  className="h-9 w-full px-4 font-bold"
+                  onClick={clearSelections}
+                >
+                  PULISCI
+                </Button>
+              </div>
+            </div>
+          </div>
+        </CardHeader>
+
+        <CardContent>
+          <Table>
+            <TableHeader className="h-10 bg-card-header text-card-header-foreground">
+              <TableRow>
+                <TableHead className="w-[225px]">LISTA PARTENTI</TableHead>
+                <TableHead className="w-[1px] bg-border p-0" />
+                <TableHead className="text-center font-bold">
+                  Vincente
+                </TableHead>
+                <TableHead className="w-[1px] bg-border p-0" />
+                <TableHead className="text-center font-bold">
+                  Piazzato su 2
+                </TableHead>
+                <TableHead className="w-[1px] bg-border p-0" />
+                <TableHead className="text-center font-bold">
+                  Piazzato su 3
+                </TableHead>
+                <TableHead className="w-[1px] bg-border p-0" />
+                <TableHead className="text-center font-bold">1°</TableHead>
+                <TableHead className="text-center font-bold">2°</TableHead>
+                {isTris && (
+                  <TableHead className="text-center font-bold">3°</TableHead>
+                )}
+                <TableHead className="w-[1px] bg-border p-0" />
+                <TableHead className="text-center font-bold">
+                  In Disordine
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+
+            <TableBody>
+              {!isLoading && raceInfo?.racers && raceInfo.racers.length > 0 ? (
+                raceInfo.racers.map((racer) => (
+                  <TableRow
+                    key={racer.number}
+                    className="border-b border-border"
+                  >
+                    {/* Informazioni sul corridore */}
+                    <TableCell className="p-2">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={
+                            'flex h-7 w-7 items-center justify-center rounded-md font-bold text-white ' +
+                            (racer.number === 1
+                              ? 'bg-red-500'
+                              : racer.number === 2
+                                ? 'bg-blue-600'
+                                : racer.number === 3
+                                  ? 'bg-orange-500'
+                                  : racer.number === 4
+                                    ? 'bg-green-500'
+                                    : racer.number === 5
+                                      ? 'bg-yellow-400'
+                                      : racer.number === 6
+                                        ? 'bg-purple-500'
+                                        : 'border border-gray-300 bg-white text-black')
+                          }
+                        >
+                          {racer.number}
+                        </div>
+                        <div>
+                          <div className="font-semibold">{racer.name}</div>
+                          <div className="flex space-x-1">
+                            {renderMedallions(racer.history)}
+                          </div>
+                        </div>
+                      </div>
+                    </TableCell>
+
+                    {/* Quote Vincente */}
+                    <TableCell className="w-[1px] bg-border p-0" />
+                    <TableCell className="p-2 text-center">
+                      <BetEntryToggle
+                        marketName="Vincente"
+                        bet={{
+                          event: {
+                            name: race.name,
+                            number: race.id,
+                            startingAt: new Date(race.startTime || Date.now()),
+                          },
+                          competitor: racer.name,
+
+                          option: {
+                            outcome: 'Vincente',
+                            decPrice: parseFloat(
+                              raceInfo.odds?.winner?.[
+                                racer.number.toString()
+                              ] || '0',
+                            ),
+                            order: racer.number,
+                            externCode: `W_${racer.number}`,
+                          },
+                        }}
+                        className="h-10 w-20 bg-gray-100"
+                      />
+                    </TableCell>
+                    <TableCell className="w-[1px] bg-border p-0" />
+
+                    {/* Quote Piazzato su 2 */}
+                    <TableCell className="p-2 text-center">
+                      <BetEntryToggle
+                        marketName="Piazzato su 2"
+                        bet={{
+                          event: {
+                            name: race.name,
+                            number: race.id,
+                            startingAt: new Date(race.startTime || Date.now()),
+                          },
+                          competitor: racer.name,
+                          option: {
+                            outcome: 'Piazzato su 2',
+                            decPrice: parseFloat(
+                              raceInfo.odds?.placed?.[
+                                racer.number.toString()
+                              ] || '0',
+                            ),
+                            order: racer.number,
+                            externCode: `W_${racer.number}`,
+                          },
+                        }}
+                        className="h-10 w-20 bg-gray-100"
+                      />
+                    </TableCell>
+                    <TableCell className="w-[1px] bg-border p-0" />
+
+                    {/* Quote Piazzato su 3 */}
+                    <TableCell className="p-2 text-center">
+                      <BetEntryToggle
+                        marketName="Piazzato su 3"
+                        bet={{
+                          event: {
+                            name: race.name,
+                            number: race.id,
+                            startingAt: new Date(race.startTime || Date.now()),
+                          },
+                          competitor: racer.name,
+                          option: {
+                            outcome: 'Piazzato su 3',
+                            decPrice: parseFloat(
+                              raceInfo.odds?.show?.[racer.number.toString()] ||
+                                '0',
+                            ),
+                            order: racer.number,
+                            externCode: `W_${racer.number}`,
+                          },
+                        }}
+                        className="h-10 w-20 bg-gray-100"
+                      />
+                    </TableCell>
+                    <TableCell className="w-[1px] bg-border p-0" />
+
+                    {/* Checkbox per posizione 1 */}
+                    <TableCell className="p-2 text-center">
+                      <Checkbox
+                        checked={position1Selection === racer.number}
+                        onCheckedChange={() =>
+                          togglePosition1Selection(racer.number)
+                        }
+                        className="h-6 w-6 border-gray-400"
+                      />
+                    </TableCell>
+
+                    {/* Checkbox per posizione 2 */}
+                    <TableCell className="p-2 text-center">
+                      <Checkbox
+                        checked={position2Selection === racer.number}
+                        onCheckedChange={() =>
+                          togglePosition2Selection(racer.number)
+                        }
+                        className="h-6 w-6 border-gray-400"
+                      />
+                    </TableCell>
+
+                    {/* Checkbox per posizione 3 (solo se TRIS) */}
+                    {isTris && (
+                      <TableCell className="p-2 text-center">
+                        <Checkbox
+                          checked={position3Selection === racer.number}
+                          onCheckedChange={() =>
+                            togglePosition3Selection(racer.number)
+                          }
+                          className="h-6 w-6 border-gray-400"
+                        />
+                      </TableCell>
+                    )}
+                    <TableCell className="w-[1px] bg-border p-0" />
+
+                    {/* Checkbox per In Disordine */}
+                    <TableCell className="p-2 text-center">
+                      <Checkbox
+                        checked={disorderSelection.includes(racer.number)}
+                        onCheckedChange={() =>
+                          toggleDisorderSelection(racer.number)
+                        }
+                        className="h-6 w-6 border-gray-400"
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={isTris ? 13 : 12}
+                    className="py-6 text-center"
+                  >
+                    {isLoading
+                      ? 'Caricamento dati in corso...'
+                      : raceInfo
+                        ? 'Nessun corridore disponibile per questa gara.'
+                        : 'Impossibile caricare i dati della gara.'}
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      {/* Tabella delle combinazioni - sempre mostrata quando abbiamo i dati */}
+      {!isLoading && raceInfo && (
+        <BetCombinationsTable
+          race={race}
+          raceInfo={raceInfo}
+          isTris={isTris}
+          position1Selection={position1Selection}
+          position2Selection={position2Selection}
+          position3Selection={position3Selection}
+          disorderSelection={disorderSelection}
+        />
+      )}
+    </>
   )
 }
