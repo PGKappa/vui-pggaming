@@ -1,6 +1,5 @@
 'use client'
 import BettingSlip from '@/retail-components/betting-slip'
-import Leaderboard from '@/retail-components/leaderboard'
 import MatchBettingOptions from '@/retail-components/match-betting-options'
 import SearchEventResults from '@/retail-components/search-event-results'
 import { ScrollArea } from '@/retail-components/ui/scroll-area'
@@ -75,7 +74,6 @@ export default function Home() {
                 ) : (
                   <>
                     <UpcomingRaceCard race={selectedEvent} />
-                    <Leaderboard />
                   </>
                 )
               ) : (
