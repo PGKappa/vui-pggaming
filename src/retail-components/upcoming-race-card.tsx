@@ -80,8 +80,14 @@ export default function UpcomingRaceCard({
           throw new Error(`HTTP error! status: ${response.status}`)
         }
 
-        const data: UpcomingRace = await response.json()
-        setRaceInfo(data)
+        const data = await response.json()
+        const upcomingRace: UpcomingRace = {
+          ...data.current,
+          id: parseInt(data.int_event_id),
+        }
+        console.log('Upcoming race data:', upcomingRace)
+        console.log('Data', data.current)
+        setRaceInfo(upcomingRace)
       } catch (error) {
         console.error('Error fetching event info:', error)
       } finally {
@@ -147,129 +153,6 @@ export default function UpcomingRaceCard({
     setPosition3Selection(null)
     setDisorderSelection([])
   }
-
-  useEffect(() => {
-    const generateMockData = (): UpcomingRace => {
-      const racerCount = 6
-
-      const racers = Array.from({ length: racerCount }, (_, index) => {
-        const number = index + 1
-
-        const history: (number | null)[] = []
-        for (let i = 0; i < 5; i++) {
-          if (i < 3) {
-            history.push(Math.floor(Math.random() * 3) + 1)
-          } else {
-            history.push(
-              Math.random() > 0.5 ? Math.floor(Math.random() * 6) + 1 : null,
-            )
-          }
-        }
-
-        return {
-          number,
-          name: `Cavallo ${number}`,
-          history: history.filter(
-            (position): position is number => position !== null,
-          ),
-          performance: Math.floor(Math.random() * 100),
-        }
-      })
-
-      // Genera quote casuali
-      const odds = {
-        winner: {} as Record<string, string>,
-        placed: {} as Record<string, string>,
-        show: {} as Record<string, string>,
-        exacta: {} as Record<string, Record<string, string>>,
-        quinella: {} as Record<string, Record<string, string>>,
-        trifecta: {} as Record<string, Record<string, Record<string, string>>>,
-        boxedtrifecta: {} as Record<
-          string,
-          Record<string, Record<string, string>>
-        >,
-        evenodd: {
-          even: (Math.random() * 3 + 1).toFixed(2),
-          odd: (Math.random() * 3 + 1).toFixed(2),
-        },
-        underover: {
-          under: (Math.random() * 3 + 1).toFixed(2),
-          over: (Math.random() * 3 + 1).toFixed(2),
-        },
-      }
-
-      // Popola le quote per ogni corridore
-      racers.forEach((racer) => {
-        const num = racer.number.toString()
-        odds.winner[num] = (Math.random() * 20 + 1.1).toFixed(2)
-        odds.placed[num] = (Math.random() * 10 + 1.05).toFixed(2)
-        odds.show[num] = (Math.random() * 5 + 1.01).toFixed(2)
-
-        // Inizializza oggetti per quote composte
-        odds.exacta[num] = {}
-        odds.trifecta[num] = {}
-
-        // Popola alcune quote exacta e trifecta di esempio
-        racers.forEach((other) => {
-          if (other.number !== racer.number) {
-            const otherNum = other.number.toString()
-            odds.exacta[num][otherNum] = (Math.random() * 30 + 5).toFixed(2)
-
-            // Inizializza l'oggetto trifecta per questa coppia
-            odds.trifecta[num][otherNum] = {}
-
-            // Aggiungi alcune quote trifecta
-            racers.forEach((third) => {
-              if (
-                third.number !== racer.number &&
-                third.number !== other.number
-              ) {
-                const thirdNum = third.number.toString()
-                odds.trifecta[num][otherNum][thirdNum] = (
-                  Math.random() * 50 +
-                  10
-                ).toFixed(2)
-              }
-            })
-          }
-        })
-      })
-
-      return {
-        id: race.id,
-        odds,
-        latecomers: {
-          winner: { racers: [], delay: 30 },
-          exacta: { racers: [], delay: 30 },
-          trifecta: { racers: [], delay: 30 },
-        },
-        racers,
-      }
-    }
-
-    const fetchEventInfo = async () => {
-      setIsLoading(true)
-
-      setTimeout(() => {
-        setRaceInfo(generateMockData())
-        setIsLoading(false)
-      }, 1000)
-
-      // Codice fetch originale commentato per il testing
-      /*
-      try {
-        const response = await fetch(...)
-        // ... resto del codice
-      } catch (error) {
-        console.error('Error fetching event info:', error)
-      } finally {
-        setIsLoading(false)
-      }
-      */
-    }
-
-    fetchEventInfo()
-  }, [race.id, race.extId])
 
   // Funzione per generare il set completo di 5 medaglie
   const renderMedallions = (history: number[]) => {
@@ -455,7 +338,7 @@ export default function UpcomingRaceCard({
                             externCode: `W_${racer.number}`,
                           },
                         }}
-                        className="h-10 w-20 bg-gray-100"
+                        className="h-10 w-20 bg-red-100"
                       />
                     </TableCell>
                     <TableCell className="w-[1px] bg-border p-0" />
@@ -482,7 +365,7 @@ export default function UpcomingRaceCard({
                             externCode: `W_${racer.number}`,
                           },
                         }}
-                        className="h-10 w-20 bg-gray-100"
+                        className="h-10 w-20 bg-red-100"
                       />
                     </TableCell>
                     <TableCell className="w-[1px] bg-border p-0" />
@@ -508,7 +391,7 @@ export default function UpcomingRaceCard({
                             externCode: `W_${racer.number}`,
                           },
                         }}
-                        className="h-10 w-20 bg-gray-100"
+                        className="h-10 w-20 bg-red-100"
                       />
                     </TableCell>
                     <TableCell className="w-[1px] bg-border p-0" />
