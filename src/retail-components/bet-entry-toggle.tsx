@@ -4,10 +4,16 @@ import { useContext, useMemo } from 'react'
 import { Toggle } from './ui/toggle'
 import { cn } from '@/retail-lib/utils'
 
+type BetEntryToggleVariants =
+  | 'roundcard'
+  | 'matchcard'
+  | 'racecard'
+  | 'racecombination'
+
 export default function BetEntryToggle(props: {
   marketName: string
   bet: Bet
-  showOutcome?: boolean
+  variant: BetEntryToggleVariants
   className?: string
 }) {
   const { addBet, removeBet, betEntries } = useContext(BetsContext)
@@ -43,27 +49,34 @@ export default function BetEntryToggle(props: {
         }
       }}
       className={cn(
-        `justify-between ${props.showOutcome ? 'flex flex-row px-4' : 'flex flex-col'}`,
+        props.variant === 'matchcard'
+          ? 'flex flex-row justify-between px-4 text-[19px]'
+          : props.variant === 'roundcard'
+            ? 'flex flex-col justify-between text-[19px]'
+            : props.variant === 'racecard'
+              ? 'text-center text-[19px]'
+              : props.variant === 'racecombination'
+                ? 'flex flex-col justify-between text-[19px]'
+                : '',
         props.className,
       )}
     >
-      {props.showOutcome ? (
+      {props.variant === 'matchcard' ? (
         <>
-          <span className="text-[19px]">
-            {props.bet.option.decPrice.toFixed(2)}
-          </span>
-          <span className="text-[19px] font-bold">
-            {props.bet.option.outcome}
-          </span>
+          <span>{props.bet.option.decPrice.toFixed(2)}</span>
+          <span className="font-bold">{props.bet.option.outcome}</span>
         </>
+      ) : props.variant === 'roundcard' ? (
+        <>
+          <span className="font-bold">{props.bet.option.outcome}</span>
+          <span>{props.bet.option.decPrice.toFixed(2)}</span>
+        </>
+      ) : props.variant === 'racecard' ? (
+        props.bet.option.decPrice.toFixed(2)
       ) : (
         <>
-          <span className="text-[19px] font-bold">
-            {props.bet.option.outcome}
-          </span>
-          <span className="text-[19px]">
-            {props.bet.option.decPrice.toFixed(2)}
-          </span>
+          <span className="font-bold">{props.bet.option.outcome}</span>
+          <span>{props.bet.option.decPrice.toFixed(2)}</span>
         </>
       )}
     </Toggle>
