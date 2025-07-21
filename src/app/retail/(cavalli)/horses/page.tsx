@@ -29,11 +29,16 @@ export default function Home() {
     markets: Market[]
   }>()
 
-  const [selectedEvent, setSelectedEvent] = useState<UpcomingEvent>()
+  const [selectedEvent, setSelectedEvent] = useState<UpcomingEvent | undefined>(
+    upcomingEvents?.filter((e) => e.discipline === 'HORSES')[0],
+  )
 
   useEffect(() => {
     if (!selectedEvent && upcomingEvents && upcomingEvents.length > 0) {
-      setSelectedEvent(upcomingEvents[0])
+      const firstHorseEvent = upcomingEvents?.filter(
+        (e) => e.discipline === 'HORSES',
+      )[0]
+      setSelectedEvent(firstHorseEvent)
     }
   }, [upcomingEvents, selectedEvent])
 
