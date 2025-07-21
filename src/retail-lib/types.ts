@@ -34,9 +34,6 @@ export type Team = {
 export type Selection = {
   outcome: string
   decPrice: number
-  order: number
-  externCode: string
-  extraInfo?: string
 }
 
 export type Market = {
