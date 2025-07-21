@@ -41,7 +41,7 @@ export default function BettingSlip() {
   const betsByMatch = useMemo(() => {
     return betEntries.reduce(
       (groupedBets: { [key: string]: BetEntry[] }, betEntry) => {
-        const key = `${betEntry.bet.round.number}.${betEntry.bet.teams}`
+        const key = `${betEntry.bet.event.number}.${betEntry.bet.competitor}`
         if (!groupedBets[key]) {
           groupedBets[key] = []
         }
@@ -177,7 +177,7 @@ export default function BettingSlip() {
                       <div className="flex items-center gap-2">
                         <span className="text-[16px] font-bold">
                           {new Date(
-                            matchBets[0].bet.round.startingAt,
+                            matchBets[0].bet.event.startingAt,
                           ).toLocaleTimeString([], {
                             hour: '2-digit',
                             minute: '2-digit',
@@ -185,14 +185,14 @@ export default function BettingSlip() {
                         </span>
                         <Badge className="bg-accent text-[16px]">
                           {getTimeDistanceFromNow(
-                            new Date(matchBets[0].bet.round.startingAt),
+                            new Date(matchBets[0].bet.event.startingAt),
                           )}
                         </Badge>
                       </div>
                     </div>
 
                     <span className="text-[16px]">
-                      {matchBets[0].bet.teams}
+                      {matchBets[0].bet.competitor}
                     </span>
                   </div>
 
@@ -216,7 +216,7 @@ export default function BettingSlip() {
                             removeBet(
                               betEntry.market,
                               betEntry.bet.option,
-                              betEntry.bet.teams,
+                              betEntry.bet.competitor,
                             )
                           }
                         >
