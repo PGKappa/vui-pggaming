@@ -472,14 +472,14 @@ export default function RootContextProvider(props: {
         horseEvents.channels[1].next_events.map(
           (
             event: {
-              int_event_id: number
+              int_event_id: string
               ext_pal_id: string
               start_time: string
               time: number
             },
             index: number,
           ): UpcomingEvent => ({
-            id: event.int_event_id,
+            id: parseInt(event.int_event_id),
             extId: event.ext_pal_id,
             duration: horseEvents.channels[1].duration[index],
             name: `Horse `,
