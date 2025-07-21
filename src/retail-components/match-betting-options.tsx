@@ -104,7 +104,7 @@ export default function MatchBettingOptions(props: {
                           option: option,
                         }}
                         marketName={market.name}
-                        showOutcome
+                        variant="matchcard"
                         className="h-[45px] w-full font-semibold"
                       />
                     ))}
