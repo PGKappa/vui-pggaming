@@ -2,6 +2,7 @@ import { BetsContext } from '@/retail-contexts/bets-context'
 import { Bet } from '@/retail-lib/types'
 import { useContext, useMemo } from 'react'
 import { Toggle } from './ui/toggle'
+import { cn } from '@/retail-lib/utils'
 
 export default function BetEntryToggle(props: {
   marketName: string
@@ -41,15 +42,29 @@ export default function BetEntryToggle(props: {
           })
         }
       }}
-      className={`w-full px-4 ${props.showOutcome ? 'flex flex-row justify-between' : ''} ${props.className}`}
+      className={cn(
+        `justify-between ${props.showOutcome ? 'flex flex-row px-4' : 'flex flex-col'}`,
+        props.className,
+      )}
     >
-      <span className="text-[19px]">
-        {props.bet.option.decPrice.toFixed(2)}
-      </span>
-      {props.showOutcome && (
-        <span className="text-[19px] font-bold">
-          {props.bet.option.outcome}
-        </span>
+      {props.showOutcome ? (
+        <>
+          <span className="text-[19px]">
+            {props.bet.option.decPrice.toFixed(2)}
+          </span>
+          <span className="text-[19px] font-bold">
+            {props.bet.option.outcome}
+          </span>
+        </>
+      ) : (
+        <>
+          <span className="text-[19px] font-bold">
+            {props.bet.option.outcome}
+          </span>
+          <span className="text-[19px]">
+            {props.bet.option.decPrice.toFixed(2)}
+          </span>
+        </>
       )}
     </Toggle>
   )

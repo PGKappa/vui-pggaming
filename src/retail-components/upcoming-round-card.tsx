@@ -126,11 +126,6 @@ export default function UpcomingRoundCard(props: {
 
   const [selectedTab, setSelectedTab] = useState(marketTabs[0].name)
 
-  function getFloatFromString(text: string): number | undefined {
-    const match = text.match(/[-+]?\d*\.\d+([eE][-+]?\d+)?/)
-    return match ? parseFloat(match[0]) : undefined
-  }
-
   return (
     <Card className="border-b border-t border-card-foreground">
       <CardHeader className="flex h-16 w-full flex-row items-center justify-start gap-2 bg-accent">
@@ -152,30 +147,35 @@ export default function UpcomingRoundCard(props: {
           <TableHeader className="h-11 bg-card-header text-[20px] text-card-header-foreground">
             <TableRow className="border-card-foreground transition-none">
               <TableHead></TableHead>
-              <TableHead className="w-[1px] bg-border p-0"></TableHead>
+              <TableHead className="w-[1px] bg-white p-0"></TableHead>
               {marketTabs
                 .find((tab) => tab.name === selectedTab)
-                ?.markets.map((market, index) => (
-                  <>
-                    {market.selections
-                      .flatMap(({ selection }) => selection)
-                      .map((option, i) => (
-                        <TableHead
-                          key={`${index}-${i}`}
-                          className="text-center font-bold"
-                        >
-                          {option.outcome} {getFloatFromString(market.name)}
-                        </TableHead>
-                      ))}
-                    {index <
-                      market.selections.flatMap(({ selection }) => selection)
-                        .length -
-                        1 && (
-                      <TableHead className="w-[1px] bg-border p-0"></TableHead>
-                    )}
-                  </>
-                ))}
-              <TableHead className="w-[1px] bg-border p-0"></TableHead>
+                ?.markets.map((market, index) => {
+                  const optionsCount = market.selections.flatMap(
+                    ({ selection }) => selection,
+                  ).length
+                  const isLastMarket =
+                    index ===
+                    (marketTabs.find((tab) => tab.name === selectedTab)?.markets
+                      .length || 0) -
+                      1
+
+                  return (
+                    <>
+                      <TableHead
+                        key={index}
+                        className="text-center font-bold"
+                        colSpan={optionsCount}
+                      >
+                        {market.name}
+                      </TableHead>
+                      {!isLastMarket && (
+                        <TableHead className="w-[1px] bg-white p-0"></TableHead>
+                      )}
+                    </>
+                  )
+                })}
+              <TableHead className="w-[1px] bg-white p-0"></TableHead>
               <TableHead></TableHead>
             </TableRow>
           </TableHeader>
@@ -192,7 +192,7 @@ export default function UpcomingRoundCard(props: {
                 return (
                   <TableRow
                     key={index}
-                    className="h-[70px] border-card-foreground"
+                    className="h-[70px] items-center justify-between border-card-foreground"
                   >
                     <TableCell className="w-[150px] min-w-[150px] max-w-[150px] whitespace-nowrap text-center text-[16px] font-bold">
                       {teamNames}
@@ -202,42 +202,46 @@ export default function UpcomingRoundCard(props: {
 
                     {marketTabs
                       .find((tab) => tab.name === selectedTab)
-                      ?.markets.map((market, index) => (
-                        <>
-                          {market.selections
-                            .flatMap(({ selection }) => selection)
-                            .map((option, i) => (
-                              <TableCell
-                                key={i}
-                                className="px-[10px] text-center"
-                              >
-                                <BetEntryToggle
-                                  bet={{
-                                    event: {
-                                      name: match.eventIdentity.eventName,
-                                      number: match.eventIdentity.eventId,
-                                      startingAt: matchStart,
-                                    },
-                                    competitor: teamNames,
-                                    option: option,
-                                  }}
-                                  marketName={market.name}
-                                  className="h-[45px] w-[90px] text-[19px] font-semibold"
-                                />
-                              </TableCell>
-                            ))}
-                          {index <
-                            market.selections.flatMap(
-                              ({ selection }) => selection,
-                            ).length -
-                            1 && (
-                            <TableCell className="w-[1px] bg-border p-0"></TableCell>
-                          )}
-                        </>
-                      ))}
+                      ?.markets.map((market, marketIndex) => {
+                        const isLastMarket =
+                          marketIndex ===
+                          (marketTabs.find((tab) => tab.name === selectedTab)
+                            ?.markets.length || 0) -
+                            1
+
+                        return (
+                          <>
+                            {market.selections
+                              .flatMap(({ selection }) => selection)
+                              .map((option, i) => (
+                                <TableCell
+                                  key={i}
+                                  className="justify-items-center px-[10px]"
+                                >
+                                  <BetEntryToggle
+                                    bet={{
+                                      event: {
+                                        name: match.eventIdentity.eventName,
+                                        number: match.eventIdentity.eventId,
+                                        startingAt: matchStart,
+                                      },
+                                      competitor: teamNames,
+                                      option: option,
+                                    }}
+                                    marketName={market.name}
+                                    className="w-[100px] text-[19px] font-semibold"
+                                  />
+                                </TableCell>
+                              ))}
+                            {!isLastMarket && (
+                              <TableCell className="w-[1px] bg-border p-0"></TableCell>
+                            )}
+                          </>
+                        )
+                      })}
 
                     <TableCell className="w-[1px] bg-border p-0"></TableCell>
-                    <TableCell className="pr-4 text-right">
+                    <TableCell className="pr-2 text-right">
                       <Button
                         variant="action"
                         size="icon-lg"
