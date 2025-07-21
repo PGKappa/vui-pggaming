@@ -1,7 +1,9 @@
 import { UpcomingEvent, UpcomingRace } from '@/retail-lib/types'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
+import BetCombinationsTable from './bet-combination-table'
 import BetEntryToggle from './bet-entry-toggle'
+import MedalsHistory from './medals-history'
 import { Button } from './ui/button'
 import { Card, CardContent, CardHeader } from './ui/card'
 import { Checkbox } from './ui/checkbox'
@@ -14,7 +16,6 @@ import {
   TableHeader,
   TableRow,
 } from './ui/table'
-import BetCombinationsTable from './bet-combination-table'
 
 type UpcomingRaceCardProps = {
   race: UpcomingEvent
@@ -154,46 +155,6 @@ export default function UpcomingRaceCard({
     setDisorderSelection([])
   }
 
-  // Funzione per generare il set completo di 5 medaglie
-  const renderMedallions = (history: number[]) => {
-    // Costruisci un array fisso di 5 medaglie
-    const medallions = Array(5).fill(null)
-
-    // Riempi con i dati storici disponibili
-    history.forEach((position, index) => {
-      if (index < 5) {
-        medallions[index] =
-          position === 1 || position === 2 || position === 3 ? position : null
-      }
-    })
-
-    return medallions.map((position, idx) =>
-      position ? (
-        <div
-          key={idx}
-          className={`flex h-5 w-5 items-center justify-center rounded-full text-xs ${
-            position === 1
-              ? 'bg-yellow-400'
-              : position === 2
-                ? 'bg-gray-300'
-                : position === 3
-                  ? 'bg-orange-500'
-                  : ''
-          }`}
-        >
-          {position}
-        </div>
-      ) : (
-        <div
-          key={idx}
-          className="flex h-5 w-5 items-center justify-center text-xs text-black"
-        >
-          X
-        </div>
-      ),
-    )
-  }
-
   return (
     <>
       <Card className="h-full w-full">
@@ -308,7 +269,7 @@ export default function UpcomingRaceCard({
                         <div>
                           <div className="font-semibold">{racer.name}</div>
                           <div className="flex space-x-1">
-                            {renderMedallions(racer.history)}
+                            <MedalsHistory history={racer.history} />
                           </div>
                         </div>
                       </div>
@@ -328,16 +289,15 @@ export default function UpcomingRaceCard({
                           competitor: racer.name,
 
                           option: {
-                            outcome: 'Vincente',
+                            outcome: racer.number.toString(),
                             decPrice: parseFloat(
                               raceInfo.odds?.winner?.[
                                 racer.number.toString()
                               ] || '0',
                             ),
-                            order: racer.number,
-                            externCode: `W_${racer.number}`,
                           },
                         }}
+                        variant="racecard"
                         className="h-10 w-20 bg-red-100"
                       />
                     </TableCell>
@@ -355,16 +315,15 @@ export default function UpcomingRaceCard({
                           },
                           competitor: racer.name,
                           option: {
-                            outcome: 'Piazzato su 2',
+                            outcome: racer.number.toString(),
                             decPrice: parseFloat(
                               raceInfo.odds?.placed?.[
                                 racer.number.toString()
                               ] || '0',
                             ),
-                            order: racer.number,
-                            externCode: `W_${racer.number}`,
                           },
                         }}
+                        variant="racecard"
                         className="h-10 w-20 bg-red-100"
                       />
                     </TableCell>
@@ -382,15 +341,14 @@ export default function UpcomingRaceCard({
                           },
                           competitor: racer.name,
                           option: {
-                            outcome: 'Piazzato su 3',
+                            outcome: racer.number.toString(),
                             decPrice: parseFloat(
                               raceInfo.odds?.show?.[racer.number.toString()] ||
                                 '0',
                             ),
-                            order: racer.number,
-                            externCode: `W_${racer.number}`,
                           },
                         }}
+                        variant="racecard"
                         className="h-10 w-20 bg-red-100"
                       />
                     </TableCell>
@@ -466,8 +424,7 @@ export default function UpcomingRaceCard({
       {/* Tabella delle combinazioni - sempre mostrata quando abbiamo i dati */}
       {!isLoading && raceInfo && (
         <BetCombinationsTable
-          race={race}
-          raceInfo={raceInfo}
+          race={{...race, data: raceInfo}}
           isTris={isTris}
           position1Selection={position1Selection}
           position2Selection={position2Selection}
