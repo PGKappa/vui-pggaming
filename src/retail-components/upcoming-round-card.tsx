@@ -229,6 +229,7 @@ export default function UpcomingRoundCard(props: {
                                       option: option,
                                     }}
                                     marketName={market.name}
+                                    variant="roundcard"
                                     className="w-[100px] text-[19px] font-semibold"
                                   />
                                 </TableCell>
