@@ -284,7 +284,7 @@ export default function UpcomingRaceCard({
                           event: {
                             name: race.name,
                             number: race.id,
-                            startingAt: new Date(race.startTime || Date.now()),
+                            startingAt: race.time,
                           },
                           competitor: racer.name,
 
@@ -311,7 +311,7 @@ export default function UpcomingRaceCard({
                           event: {
                             name: race.name,
                             number: race.id,
-                            startingAt: new Date(race.startTime || Date.now()),
+                            startingAt: race.time,
                           },
                           competitor: racer.name,
                           option: {
@@ -337,7 +337,7 @@ export default function UpcomingRaceCard({
                           event: {
                             name: race.name,
                             number: race.id,
-                            startingAt: new Date(race.startTime || Date.now()),
+                            startingAt: race.time,
                           },
                           competitor: racer.name,
                           option: {
@@ -424,7 +424,7 @@ export default function UpcomingRaceCard({
       {/* Tabella delle combinazioni - sempre mostrata quando abbiamo i dati */}
       {!isLoading && raceInfo && (
         <BetCombinationsTable
-          race={{...race, data: raceInfo}}
+          race={{ ...race, data: raceInfo }}
           isTris={isTris}
           position1Selection={position1Selection}
           position2Selection={position2Selection}
