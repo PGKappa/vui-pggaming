@@ -20,11 +20,11 @@ export default function BetEntryToggle(props: {
 
   const isSelected = useMemo(
     () =>
-      betEntries.some(
+      !!betEntries.find(
         (entry) =>
           entry.market === props.marketName &&
           entry.bet.event.number === props.bet.event.number &&
-          entry.bet.competitor === props.bet.competitor &&
+          entry.bet.competitors === props.bet.competitors &&
           entry.bet.option.outcome === props.bet.option.outcome,
       ),
     [betEntries, props.marketName, props.bet],
@@ -35,7 +35,7 @@ export default function BetEntryToggle(props: {
       pressed={isSelected}
       onPressedChange={() => {
         if (isSelected) {
-          removeBet(props.marketName, props.bet.option, props.bet.competitor)
+          removeBet(props.marketName, props.bet.option, props.bet.competitors)
         } else {
           addBet(props.marketName, {
             event: {
@@ -44,7 +44,7 @@ export default function BetEntryToggle(props: {
               startingAt: props.bet.event.startingAt,
             },
             discipline: props.bet.discipline,
-            competitor: props.bet.competitor,
+            competitors: props.bet.competitors,
             option: props.bet.option,
           })
         }
