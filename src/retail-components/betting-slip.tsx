@@ -25,6 +25,7 @@ import {
 } from './ui/table'
 import { Separator } from './ui/separator'
 import { Checkbox } from './ui/checkbox'
+import { format } from 'date-fns'
 
 type BetMode = 'SINGLE' | 'MULTIPLE' | 'SYSTEM'
 
@@ -176,12 +177,7 @@ export default function BettingSlip() {
                       </span>
                       <div className="flex items-center gap-2">
                         <span className="text-[16px] font-bold">
-                          {new Date(
-                            matchBets[0].bet.event.startingAt,
-                          ).toLocaleTimeString([], {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })}
+                          {format(matchBets[0].bet.event.startingAt, 'HH:mm')}
                         </span>
                         <Badge className="bg-accent text-[16px]">
                           {getTimeDistanceFromNow(
