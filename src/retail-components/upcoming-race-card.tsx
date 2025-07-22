@@ -287,7 +287,7 @@ export default function UpcomingRaceCard({
                             number: race.id,
                             startingAt: race.time,
                           },
-                          competitor: racer.name,
+                          competitors: racer.name,
 
                           option: {
                             outcome: racer.number.toString(),
@@ -315,7 +315,7 @@ export default function UpcomingRaceCard({
                             number: race.id,
                             startingAt: race.time,
                           },
-                          competitor: racer.name,
+                          competitors: racer.name,
                           option: {
                             outcome: racer.number.toString(),
                             decPrice: parseFloat(
@@ -342,7 +342,7 @@ export default function UpcomingRaceCard({
                             number: race.id,
                             startingAt: race.time,
                           },
-                          competitor: racer.name,
+                          competitors: racer.name,
                           option: {
                             outcome: racer.number.toString(),
                             decPrice: parseFloat(

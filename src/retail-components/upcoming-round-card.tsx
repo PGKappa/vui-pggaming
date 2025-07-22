@@ -226,7 +226,7 @@ export default function UpcomingRoundCard(props: {
                                         number: match.eventIdentity.eventId,
                                         startingAt: matchStart,
                                       },
-                                      competitor: teamNames,
+                                      competitors: teamNames,
                                       option: option,
                                     }}
                                     marketName={market.name}

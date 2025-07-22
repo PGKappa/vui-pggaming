@@ -101,7 +101,7 @@ export default function MatchBettingOptions(props: {
                             number: props.round.number,
                             startingAt: props.round.startingAt,
                           },
-                          competitor: props.teams,
+                          competitors: props.teams,
                           option: option,
                         }}
                         marketName={market.name}

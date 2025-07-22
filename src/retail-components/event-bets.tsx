@@ -73,7 +73,7 @@ export default function EventBets(props: {
           </div>
         </div>
 
-        <span className="text-[16px]">{eventBets[0].bet.competitor}</span>
+        <span className="text-[16px]">{eventBets[0].bet.competitors}</span>
       </div>
 
       <div className="border border-betSlip-foreground bg-primary-foreground p-1">
@@ -96,7 +96,7 @@ export default function EventBets(props: {
                 removeBet(
                   betEntry.market,
                   betEntry.bet.option,
-                  betEntry.bet.competitor,
+                  betEntry.bet.competitors,
                 )
               }
             >
