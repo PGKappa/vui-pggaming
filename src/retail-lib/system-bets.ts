@@ -9,7 +9,7 @@ export function getCombinations(
   const result: BetEntry[][] = []
 
   // Helper to compute match key once
-  const matchKey = (e: BetEntry) => `${e.bet.event.number}-${e.bet.competitor}`
+  const matchKey = (e: BetEntry) => `${e.bet.event.number}-${e.bet.competitors}`
 
   // 1. Group fixed selections by match
   const fixedGroups: Record<string, BetEntry[]> = {}
@@ -89,7 +89,7 @@ export function generateSystemGroups(entries: BetEntry[]): SystemGroup[] {
 
   const matchesSet = new Set<string>()
   entries.forEach((entry) => {
-    const matchKey = `${entry.bet.event.number}.${entry.bet.competitor}`
+    const matchKey = `${entry.bet.event.number}.${entry.bet.competitors}`
     matchesSet.add(matchKey)
   })
   const matchesNumber = matchesSet.size
