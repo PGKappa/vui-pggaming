@@ -32,7 +32,7 @@ export default function BettingSlip() {
   const betsByMatch = useMemo(() => {
     return betEntries.reduce(
       (groupedBets: { [key: string]: BetEntry[] }, betEntry) => {
-        const key = `${betEntry.bet.event.number}.${betEntry.bet.competitor}`
+        const key = `${betEntry.bet.event.number}.${betEntry.bet.competitors}`
         if (!groupedBets[key]) {
           groupedBets[key] = []
         }
