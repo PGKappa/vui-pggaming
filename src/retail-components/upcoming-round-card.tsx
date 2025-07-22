@@ -8,7 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/retail-components/ui/table'
-import { Market, UpcomingRound } from '@/retail-lib/types'
+import { Discipline, Market, UpcomingRound } from '@/retail-lib/types'
 import { ChevronRight } from 'lucide-react'
 import { Dispatch, SetStateAction, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -220,6 +220,7 @@ export default function UpcomingRoundCard(props: {
                                 >
                                   <BetEntryToggle
                                     bet={{
+                                      discipline: Discipline.SOCCER,
                                       event: {
                                         name: match.eventIdentity.eventName,
                                         number: match.eventIdentity.eventId,

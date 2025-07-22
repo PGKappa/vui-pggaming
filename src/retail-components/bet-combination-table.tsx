@@ -51,6 +51,7 @@ export default function BetCombinationsTable({
                 )
                 .forEach(([racer3, odds]) => {
                   allCombinations.push({
+                    discipline: race.discipline,
                     event: {
                       name: race.name,
                       number: race.id,
@@ -87,6 +88,7 @@ export default function BetCombinationsTable({
           )
           .forEach(([racer2, odds]) => {
             allCombinations.push({
+              discipline: race.discipline,
               event: {
                 name: race.name,
                 number: race.id,
@@ -112,6 +114,7 @@ export default function BetCombinationsTable({
     position2Selection,
     position3Selection,
     race.data,
+    race.discipline,
     race.id,
     race.name,
     race.time,

@@ -281,6 +281,7 @@ export default function UpcomingRaceCard({
                       <BetEntryToggle
                         marketName="Vincente"
                         bet={{
+                          discipline: race.discipline,
                           event: {
                             name: race.name,
                             number: race.id,
@@ -308,6 +309,7 @@ export default function UpcomingRaceCard({
                       <BetEntryToggle
                         marketName="Piazzato su 2"
                         bet={{
+                          discipline: race.discipline,
                           event: {
                             name: race.name,
                             number: race.id,
@@ -334,6 +336,7 @@ export default function UpcomingRaceCard({
                       <BetEntryToggle
                         marketName="Piazzato su 3"
                         bet={{
+                          discipline: race.discipline,
                           event: {
                             name: race.name,
                             number: race.id,

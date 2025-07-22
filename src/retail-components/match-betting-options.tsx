@@ -1,6 +1,6 @@
 'use client'
 
-import { Market } from '@/retail-lib/types'
+import { Discipline, Market } from '@/retail-lib/types'
 import { format } from 'date-fns'
 import { ChevronDown, ChevronsLeftIcon } from 'lucide-react'
 import { useDetectClickOutside } from 'react-detect-click-outside'
@@ -95,6 +95,7 @@ export default function MatchBettingOptions(props: {
                       <BetEntryToggle
                         key={option.outcome}
                         bet={{
+                          discipline: Discipline.SOCCER,
                           event: {
                             name: props.round.name,
                             number: props.round.number,
