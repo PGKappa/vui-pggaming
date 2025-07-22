@@ -22,6 +22,7 @@ export default function BetCombinationsTable({
   disorderSelection, */,
 }: BetCombinationsTableProps) {
   const [sortByOdds, setSortByOdds] = useState(false)
+  const [selectedBets, setSelectedBets] = useState<string[]>([])
 
   const combinations: Bet[] = useMemo(() => {
     const allCombinations: Bet[] = []
@@ -53,7 +54,7 @@ export default function BetCombinationsTable({
                     event: {
                       name: race.name,
                       number: race.id,
-                      startingAt: new Date(race.startTime || Date.now()),
+                      startingAt: race.time,
                     },
                     competitor: `${racer}-${racer2}-${racer3}`,
                     option: {
@@ -64,6 +65,11 @@ export default function BetCombinationsTable({
                 })
             })
         })
+      if (sortByOdds) {
+        return allCombinations.sort(
+          (a, b) => a.option.decPrice - b.option.decPrice,
+        )
+      }
       return allCombinations
     }
 
@@ -84,7 +90,7 @@ export default function BetCombinationsTable({
               event: {
                 name: race.name,
                 number: race.id,
-                startingAt: new Date(race.startTime || Date.now()),
+                startingAt: race.time,
               },
               competitor: `${racer}-${racer2}`,
               option: {
@@ -94,6 +100,11 @@ export default function BetCombinationsTable({
             })
           })
       })
+    if (sortByOdds) {
+      return allCombinations.sort(
+        (a, b) => a.option.decPrice - b.option.decPrice,
+      )
+    }
     return allCombinations
   }, [
     isTris,
@@ -103,7 +114,8 @@ export default function BetCombinationsTable({
     race.data,
     race.id,
     race.name,
-    race.startTime,
+    race.time,
+    sortByOdds,
   ])
 
   if (combinations.length === 0) {
@@ -125,6 +137,22 @@ export default function BetCombinationsTable({
     )
   }
 
+  /* const handleBetToggle = (betId: string, isSelected: boolean) => {
+    if (isSelected) {
+      setSelectedBets([...selectedBets, betId])
+    } else {
+      setSelectedBets(selectedBets.filter((id) => id !== betId))
+    }
+  }
+
+  const handleSelectAll = () => {
+    if (selectedBets.length === sortedCombinations.length) {
+      setSelectedBets([])
+    } else {
+      setSelectedBets(sortedCombinations.map((bet) => bet.option.outcome))
+    }
+  } */
+
   return (
     <Card className="mt-4">
       <CardHeader className="flex items-center justify-center bg-accent px-4 py-2 text-white">
@@ -142,12 +170,15 @@ export default function BetCombinationsTable({
           <Button
             variant="navbar"
             className="h-8 w-full border-green-500 px-3 text-xs text-white hover:bg-green-800"
+            /* onClick={handleSelectAll} */
           >
-            SELEZIONA TUTTO
+            {selectedBets.length === combinations.length
+              ? 'DESELEZIONA TUTTO'
+              : 'SELEZIONA TUTTO'}
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="bg-gray-100 p-4">
+      <CardContent className="p-4">
         {/* Layout a griglia come nell'immagine */}
         <div className="grid grid-cols-12 gap-2">
           {combinations.map((bet) => (
