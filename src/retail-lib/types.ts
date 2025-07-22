@@ -183,7 +183,7 @@ export type Bet = {
     startingAt: Date
   }
   discipline: Discipline
-  competitor: string
+  competitors: string
   option: Selection
 }
 
