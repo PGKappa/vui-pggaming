@@ -478,15 +478,22 @@ export default function RootContextProvider(props: {
               time: number
             },
             index: number,
-          ): UpcomingEvent => ({
-            id: parseInt(event.int_event_id),
-            extId: event.ext_pal_id,
-            duration: horseEvents.channels[1].duration[index],
-            name: `Horse `,
-            startTime: event.start_time,
-            time: new Date(event.time),
-            discipline: Discipline.HORSES,
-          }),
+          ): UpcomingEvent => {
+            const startTime = new Date(event.time)
+            const hours = event.start_time.split(':')[0]
+            const minutes = event.start_time.split(':')[1]
+            startTime.setHours(parseInt(hours, 10))
+            startTime.setMinutes(parseInt(minutes, 10))
+            return {
+              id: parseInt(event.int_event_id),
+              extId: event.ext_pal_id,
+              duration: horseEvents.channels[1].duration[index],
+              name: `Horse `,
+              startTime: event.start_time,
+              time: startTime,
+              discipline: Discipline.HORSES,
+            }
+          },
         )
       const horseEventResults: EventResult[] =
         horseEvents.channels[1].prev_events.map(
