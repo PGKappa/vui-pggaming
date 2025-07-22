@@ -1,8 +1,9 @@
 import { Bet, UpcomingEvent, UpcomingRace } from '@/retail-lib/types'
-import { useMemo, useState } from 'react'
+import { useContext, useMemo, useState } from 'react'
 import BetEntryToggle from './bet-entry-toggle'
 import { Button } from './ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
+import { BetsContext } from '@/retail-contexts/bets-context'
 
 type BetCombinationsTableProps = {
   race: UpcomingEvent
@@ -22,7 +23,7 @@ export default function BetCombinationsTable({
   disorderSelection, */,
 }: BetCombinationsTableProps) {
   const [sortByOdds, setSortByOdds] = useState(false)
-  const [selectedBets, setSelectedBets] = useState<string[]>([])
+  const { addBets, betEntries, removeBets } = useContext(BetsContext)
 
   const combinations: Bet[] = useMemo(() => {
     const allCombinations: Bet[] = []
@@ -57,7 +58,7 @@ export default function BetCombinationsTable({
                       number: race.id,
                       startingAt: race.time,
                     },
-                    competitor: `${racer}-${racer2}-${racer3}`,
+                    competitors: `${racer}-${racer2}-${racer3}`,
                     option: {
                       outcome: `${racer}-${racer2}-${racer3}`,
                       decPrice: parseFloat(odds),
@@ -94,7 +95,7 @@ export default function BetCombinationsTable({
                 number: race.id,
                 startingAt: race.time,
               },
-              competitor: `${racer}-${racer2}`,
+              competitors: `${racer}-${racer2}`,
               option: {
                 outcome: `${racer}-${racer2}`,
                 decPrice: parseFloat(odds),
@@ -121,6 +122,21 @@ export default function BetCombinationsTable({
     sortByOdds,
   ])
 
+  const allBetsSelected = useMemo(
+    () =>
+      combinations.every(
+        (bet) =>
+          !!betEntries.find(
+            (entry) =>
+              entry.market === (isTris ? 'tris' : 'accoppiata') &&
+              entry.bet.event.number === bet.event.number &&
+              entry.bet.competitors === bet.competitors &&
+              entry.bet.option.outcome === bet.option.outcome,
+          ),
+      ),
+    [combinations, betEntries, isTris],
+  )
+
   if (combinations.length === 0) {
     return (
       <Card className="mt-4">
@@ -140,22 +156,6 @@ export default function BetCombinationsTable({
     )
   }
 
-  /* const handleBetToggle = (betId: string, isSelected: boolean) => {
-    if (isSelected) {
-      setSelectedBets([...selectedBets, betId])
-    } else {
-      setSelectedBets(selectedBets.filter((id) => id !== betId))
-    }
-  }
-
-  const handleSelectAll = () => {
-    if (selectedBets.length === sortedCombinations.length) {
-      setSelectedBets([])
-    } else {
-      setSelectedBets(sortedCombinations.map((bet) => bet.option.outcome))
-    }
-  } */
-
   return (
     <Card className="mt-4">
       <CardHeader className="flex items-center justify-center bg-accent px-4 py-2 text-white">
@@ -173,11 +173,21 @@ export default function BetCombinationsTable({
           <Button
             variant="navbar"
             className="h-8 w-full border-green-500 px-3 text-xs text-white hover:bg-green-800"
-            /* onClick={handleSelectAll} */
+            onClick={() => {
+              if (allBetsSelected) {
+                removeBets(
+                  isTris ? 'tris' : 'accoppiata',
+                  combinations.map((bet) => ({
+                    option: bet.option,
+                    competitors: bet.competitors,
+                  })),
+                )
+                return
+              }
+              addBets(isTris ? 'tris' : 'accoppiata', combinations)
+            }}
           >
-            {selectedBets.length === combinations.length
-              ? 'DESELEZIONA TUTTO'
-              : 'SELEZIONA TUTTO'}
+            {allBetsSelected ? 'DESELEZIONA TUTTO' : 'SELEZIONA TUTTO'}
           </Button>
         </div>
       </CardHeader>
