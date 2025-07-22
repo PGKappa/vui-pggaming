@@ -8,11 +8,20 @@ export type BetsContextType = {
   betEntries: BetEntry[]
   lastId: number
   addBet: (market: string, bet: Bet) => void
-  removeBet: (marketName: string, option: Selection, competitors: string) => void
+  removeBet: (
+    marketName: string,
+    option: Selection,
+    competitors: string,
+  ) => void
   removeEventBets: (eventId: string) => void
   toggleEventBetsFixed: (eventId: string) => void
   removeAllBets: () => void
   restoreLastSubmittedTicket: () => void
+  addBets: (market: string, bet: Bet[]) => void
+  removeBets: (
+    market: string,
+    betIds: { option: Selection; competitors: string }[],
+  ) => void
 }
 
 const defaultBetsContext: BetsContextType = {
@@ -24,6 +33,8 @@ const defaultBetsContext: BetsContextType = {
   toggleEventBetsFixed: () => {},
   removeAllBets: () => {},
   restoreLastSubmittedTicket: () => {},
+  addBets: () => {},
+  removeBets: () => {},
 }
 
 export const BetsContext = createContext<BetsContextType>(defaultBetsContext)
@@ -61,7 +72,7 @@ export default function BetsContextProvider(props: {
       betEntries: prev.betEntries.filter(
         (betEntry) =>
           betEntry.market !== marketName ||
-          betEntry.bet.competitor !== teams ||
+          betEntry.bet.competitors !== teams ||
           betEntry.bet.option.outcome !== option.outcome,
       ),
     }))
@@ -75,7 +86,7 @@ export default function BetsContextProvider(props: {
       betEntries: prev.betEntries.filter(
         (betEntry) =>
           betEntry.bet.event.number !== parseInt(roundNumber) ||
-          betEntry.bet.competitor !== teams,
+          betEntry.bet.competitors !== teams,
       ),
     }))
   }
@@ -87,7 +98,7 @@ export default function BetsContextProvider(props: {
       betEntries: prev.betEntries.map((betEntry) => {
         if (
           betEntry.bet.event.number === parseInt(roundNumber) &&
-          betEntry.bet.competitor === teams
+          betEntry.bet.competitors === teams
         ) {
           return { ...betEntry, fixed: !betEntry.fixed }
         }
@@ -120,6 +131,40 @@ export default function BetsContextProvider(props: {
     }))
   }
 
+  const addBets = (market: string, bets: Bet[]) => {
+    setBetsContext((prev) => {
+      const newEntries = bets.map((bet) => ({
+        id: prev.lastId + 1,
+        bet,
+        market,
+      }))
+
+      return {
+        ...prev,
+        betEntries: [...prev.betEntries, ...newEntries],
+        lastId: prev.lastId + newEntries.length,
+      }
+    })
+  }
+
+  const removeBets = (
+    market: string,
+    betIds: { option: Selection; competitors: string }[],
+  ) => {
+    setBetsContext((prev) => ({
+      ...prev,
+      betEntries: prev.betEntries.filter(
+        (betEntry) =>
+          betEntry.market !== market ||
+          !betIds.some(
+            (id) =>
+              betEntry.bet.option.outcome === id.option.outcome &&
+              betEntry.bet.competitors === id.competitors,
+          ),
+      ),
+    }))
+  }
+
   useEffect(() => {
     setBetsContext((prev) => ({
       ...prev,
@@ -129,6 +174,8 @@ export default function BetsContextProvider(props: {
       toggleEventBetsFixed: toggleMatchBetsFixed,
       removeAllBets,
       restoreLastSubmittedTicket,
+      addBets,
+      removeBets,
     }))
   }, [])
 
