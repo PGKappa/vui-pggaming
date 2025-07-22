@@ -182,6 +182,7 @@ export type Bet = {
     number: number
     startingAt: Date
   }
+  discipline: Discipline
   competitor: string
   option: Selection
 }
