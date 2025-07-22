@@ -42,7 +42,7 @@ export default function Home() {
   }, [upcomingEvents, selectedEvent])
 
   return (
-    <div className="flex h-full flex-row overflow-hidden py-2">
+    <div className="flex h-full flex-row overflow-hidden">
       <div className="flex flex-col">
         <div className="mx-2 flex h-[80px] w-[1500px] flex-row items-center justify-center bg-accent px-4">
           <UpcomingEventsCarousel
@@ -87,7 +87,7 @@ export default function Home() {
       </div>
 
       {/* RIGHT COLUMN - Betting slip */}
-      <div className="h-[942px] w-[410px] bg-background pr-2 text-foreground">
+      <div className="h-[942px] w-[410px] bg-background text-foreground">
         <BettingSlip />
       </div>
     </div>
