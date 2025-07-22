@@ -8,9 +8,9 @@ export type BetsContextType = {
   betEntries: BetEntry[]
   lastId: number
   addBet: (market: string, bet: Bet) => void
-  removeBet: (marketName: string, option: Selection, teams: string) => void
-  removeMatchBets: (matchId: string) => void
-  toggleMatchBetsFixed: (matchId: string) => void
+  removeBet: (marketName: string, option: Selection, competitors: string) => void
+  removeEventBets: (eventId: string) => void
+  toggleEventBetsFixed: (eventId: string) => void
   removeAllBets: () => void
   restoreLastSubmittedTicket: () => void
 }
@@ -20,8 +20,8 @@ const defaultBetsContext: BetsContextType = {
   lastId: 0,
   addBet: () => {},
   removeBet: () => {},
-  removeMatchBets: () => {},
-  toggleMatchBetsFixed: () => {},
+  removeEventBets: () => {},
+  toggleEventBetsFixed: () => {},
   removeAllBets: () => {},
   restoreLastSubmittedTicket: () => {},
 }
@@ -125,8 +125,8 @@ export default function BetsContextProvider(props: {
       ...prev,
       addBet,
       removeBet,
-      removeMatchBets,
-      toggleMatchBetsFixed,
+      removeEventBets: removeMatchBets,
+      toggleEventBetsFixed: toggleMatchBetsFixed,
       removeAllBets,
       restoreLastSubmittedTicket,
     }))
