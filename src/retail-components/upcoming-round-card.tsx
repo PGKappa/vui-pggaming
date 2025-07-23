@@ -242,7 +242,7 @@ export default function UpcomingRoundCard(props: {
                                 {optionsChunks.map((chunk, chunkIndex) => (
                                   <div
                                     key={chunkIndex}
-                                    className="flex w-full flex-row items-center justify-center gap-2 py-1"
+                                    className="flex flex-row items-center gap-2 py-1"
                                   >
                                     {chunk.map((option, i) => (
                                       <BetEntryToggle
