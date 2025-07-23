@@ -14,6 +14,14 @@ import { Dispatch, SetStateAction, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import BetEntryToggle from './bet-entry-toggle'
 
+function chunkArray<T>(arr: T[], chunkSize: number): T[][] {
+  const res: T[][] = []
+  for (let i = 0; i < arr.length; i += chunkSize) {
+    res.push(arr.slice(i, i + chunkSize))
+  }
+  return res
+}
+
 export default function UpcomingRoundCard(props: {
   round: UpcomingRound
   viewMatchBettingOptions: Dispatch<
@@ -68,38 +76,37 @@ export default function UpcomingRoundCard(props: {
     },
     {
       name: t('combo'),
-      markets: props.round.mag_event[0].markets.market.filter((market) =>
-        [
-          'Combo Vincente & Segna',
-          'Combo Vincente & Goals (1.5)',
-          'Combo Vincente & Goals (2.5)',
-        ].includes(market.name.trim()),
+      markets: props.round.mag_event[0].markets.market.filter(
+        (market) =>
+          [
+            'Combo Vincente & Segna',
+            'Combo Vincente & Goals (1.5)',
+            'Combo Vincente & Goals (2.5)',
+          ].includes(market.name.trim()), //need more columns
       ),
     },
     {
       name: t('multi_goal'),
       markets: props.round.mag_event[0].markets.market.filter((market) =>
         ['Somma gol', 'Somma gol Casa', 'Somma gol Trasferta'].includes(
-          // need more columns
           market.name.trim(),
         ),
       ),
     },
     {
       name: t('home/away_team'),
-      markets: props.round.mag_event[0].markets.market
-        .filter(
-          (market) =>
-            [
-              'Casa Under/Over 0.5',
-              'Casa Under/Over 1.5',
-              'Casa Under/Over 2.5',
-              'Trasferta Under/Over 0.5',
-              'Trasferta Under/Over 1.5',
-              'Trasferta Under/Over 2.5',
-            ].includes(market.name.trim()), // need more columns
-        )
-        .map((market) => ({
+      markets: props.round.mag_event[0].markets.market.filter(
+        (market) =>
+          [
+            'Casa Under/Over 0.5',
+            'Casa Under/Over 1.5',
+            'Casa Under/Over 2.5',
+            'Trasferta Under/Over 0.5',
+            'Trasferta Under/Over 1.5',
+            'Trasferta Under/Over 2.5',
+          ].includes(market.name.trim()), // need more columns
+      ),
+      /* .map((market) => ({
           ...market,
           selections: market.selections.map((selection) => ({
             ...selection,
@@ -108,7 +115,7 @@ export default function UpcomingRoundCard(props: {
               outcome: `${market.name.includes('Casa') ? t('home') : t('away')} - ${option.outcome}`,
             })),
           })),
-        })),
+        })) */
     },
     {
       name: t('partial/final'),
@@ -123,6 +130,8 @@ export default function UpcomingRoundCard(props: {
       ),
     },
   ]
+
+  const specialTabs = [t('exact_result'), t('combo'), t('home/away_team')]
 
   const [selectedTab, setSelectedTab] = useState(marketTabs[0].name)
 
@@ -154,11 +163,22 @@ export default function UpcomingRoundCard(props: {
                   const optionsCount = market.selections.flatMap(
                     ({ selection }) => selection,
                   ).length
-                  const isLastMarket =
-                    index ===
-                    (marketTabs.find((tab) => tab.name === selectedTab)?.markets
-                      .length || 0) -
-                      1
+
+                  const isSpecialTab = specialTabs.includes(selectedTab)
+                  if (isSpecialTab) {
+                    return (
+                      <>
+                        <TableHead
+                          key={index}
+                          className="text-center font-bold"
+                          colSpan={1}
+                        >
+                          {market.name}
+                        </TableHead>
+                        <TableHead className="w-[1px] bg-white p-0"></TableHead>
+                      </>
+                    )
+                  }
 
                   return (
                     <>
@@ -169,13 +189,12 @@ export default function UpcomingRoundCard(props: {
                       >
                         {market.name}
                       </TableHead>
-                      {!isLastMarket && (
+                      {!isSpecialTab && (
                         <TableHead className="w-[1px] bg-white p-0"></TableHead>
                       )}
                     </>
                   )
                 })}
-              <TableHead className="w-[1px] bg-white p-0"></TableHead>
               <TableHead></TableHead>
             </TableRow>
           </TableHeader>
@@ -203,11 +222,53 @@ export default function UpcomingRoundCard(props: {
                     {marketTabs
                       .find((tab) => tab.name === selectedTab)
                       ?.markets.map((market, marketIndex) => {
-                        const isLastMarket =
-                          marketIndex ===
-                          (marketTabs.find((tab) => tab.name === selectedTab)
-                            ?.markets.length || 0) -
-                            1
+                        const isSpecialTab = specialTabs.includes(selectedTab)
+                        if (isSpecialTab) {
+                          let chunckSize = 10
+                          if (selectedTab === t('combo')) chunckSize = 3
+                          if (selectedTab === t('home/away_team'))
+                            chunckSize = 1
+
+                          const options = market.selections.flatMap(
+                            ({ selection }) => selection,
+                          )
+                          const optionsChunks = chunkArray(options, chunckSize)
+                          return (
+                            <>
+                              <TableCell
+                                key={marketIndex}
+                                className="justify-items-center px-[10px]"
+                              >
+                                {optionsChunks.map((chunk, chunkIndex) => (
+                                  <div
+                                    key={chunkIndex}
+                                    className="flex w-full flex-row items-center justify-center gap-2 py-1"
+                                  >
+                                    {chunk.map((option, i) => (
+                                      <BetEntryToggle
+                                        key={i}
+                                        bet={{
+                                          discipline: Discipline.SOCCER,
+                                          event: {
+                                            name: match.eventIdentity.eventName,
+                                            number: match.eventIdentity.eventId,
+                                            startingAt: matchStart,
+                                          },
+                                          competitors: teamNames,
+                                          option: option,
+                                        }}
+                                        marketName={market.name}
+                                        variant="roundcard"
+                                        className="w-[100px] text-[19px] font-semibold"
+                                      />
+                                    ))}
+                                  </div>
+                                ))}
+                              </TableCell>
+                              <TableCell className="w-[1px] bg-border p-0"></TableCell>
+                            </>
+                          )
+                        }
 
                         return (
                           <>
@@ -235,14 +296,13 @@ export default function UpcomingRoundCard(props: {
                                   />
                                 </TableCell>
                               ))}
-                            {!isLastMarket && (
+                            {!isSpecialTab && (
                               <TableCell className="w-[1px] bg-border p-0"></TableCell>
                             )}
                           </>
                         )
                       })}
 
-                    <TableCell className="w-[1px] bg-border p-0"></TableCell>
                     <TableCell className="pr-2 text-right">
                       <Button
                         variant="action"
