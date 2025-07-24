@@ -86,8 +86,6 @@ export default function UpcomingRaceCard({
           ...data.current,
           id: parseInt(data.int_event_id),
         }
-        console.log('Upcoming race data:', upcomingRace)
-        console.log('Data', data.current)
         setRaceInfo(upcomingRace)
       } catch (error) {
         console.error('Error fetching event info:', error)

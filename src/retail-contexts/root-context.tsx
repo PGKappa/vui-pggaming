@@ -537,10 +537,6 @@ export default function RootContextProvider(props: {
     fetchUpcomingHorseEvents()
   }, [initCode, apiRequest])
 
-  useEffect(() => {
-    console.log(rootContext.upcomingEvents)
-  }, [rootContext.upcomingEvents])
-
   if (isLoading) {
     return (
       <div className="flex h-full flex-col items-center justify-center">
