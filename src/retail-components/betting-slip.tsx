@@ -5,12 +5,12 @@ import { Card, CardContent, CardFooter } from '@/retail-components/ui/card'
 import { ScrollArea } from '@/retail-components/ui/scroll-area'
 import { BetsContext } from '@/retail-contexts/bets-context'
 import { generateSystemGroups } from '@/retail-lib/system-bets'
-import { BetEntry, SubmittedTicket, SystemGroup } from '@/retail-lib/types'
+import { SubmittedTicket } from '@/retail-lib/types'
 import { RotateCcwIcon } from 'lucide-react'
-import { useContext, useEffect, useMemo, useState } from 'react'
+import { useContext, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import FastBet from './fast-bet'
 import EventBets from './event-bets'
+import FastBet from './fast-bet'
 import StakeInputDialog from './stake-input-dialog'
 import { Separator } from './ui/separator'
 import {
@@ -26,22 +26,13 @@ import {
 export type BetMode = 'SINGLE' | 'MULTIPLE' | 'SYSTEM'
 
 export default function BettingSlip() {
-  const { betEntries, removeAllBets, restoreLastSubmittedTicket } =
-    useContext(BetsContext)
-
-  const betsByMatch = useMemo(() => {
-    return betEntries.reduce(
-      (groupedBets: { [key: string]: BetEntry[] }, betEntry) => {
-        const key = `${betEntry.bet.event.number}.${betEntry.bet.competitors}`
-        if (!groupedBets[key]) {
-          groupedBets[key] = []
-        }
-        groupedBets[key].push(betEntry)
-        return groupedBets
-      },
-      {},
-    )
-  }, [betEntries])
+  const {
+    betEntries,
+    betsByEvent,
+    betMode,
+    removeAllBets,
+    restoreLastSubmittedTicket,
+  } = useContext(BetsContext)
 
   const totalOdds = betEntries.reduce(
     (total, betEntry) => total * betEntry.bet.option.decPrice,
@@ -54,18 +45,23 @@ export default function BettingSlip() {
 
   const { t } = useTranslation()
 
-  const betMode: BetMode = useMemo(() => {
-    if (betEntries.length <= 1) return 'SINGLE'
-    if (Object.values(betsByMatch).find((m) => m.length > 1)) return 'SYSTEM'
-    else return 'MULTIPLE'
-  }, [betEntries, betsByMatch])
+  const [systemGroupStakes, setSystemGroupStakes] = useState<
+    Record<string, number>
+  >({})
 
-  const [systemGroups, setSystemGroups] = useState<SystemGroup[]>([])
-
-  useEffect(() => {
-    if (betMode !== 'SYSTEM') setSystemGroups([])
-    setSystemGroups(generateSystemGroups(betEntries))
+  const baseSystemGroups = useMemo(() => {
+    if (betMode !== 'SYSTEM') {
+      return []
+    }
+    return generateSystemGroups(betEntries)
   }, [betMode, betEntries])
+
+  const systemGroups = useMemo(() => {
+    return baseSystemGroups.map((group) => ({
+      ...group,
+      stake: systemGroupStakes[group.name] ?? 0,
+    }))
+  }, [baseSystemGroups, systemGroupStakes])
 
   return (
     <Card
@@ -83,7 +79,7 @@ export default function BettingSlip() {
           >
             {betMode === 'SINGLE'
               ? t('single')
-              : `${t('multiple')} ( ${Object.entries(betsByMatch).length} )`}
+              : `${t('multiple')} ( ${Object.entries(betsByEvent).length} )`}
           </span>
 
           {betMode === 'SINGLE' ||
@@ -126,7 +122,7 @@ export default function BettingSlip() {
         ) : (
           <ScrollArea className="h-full">
             <ul className="flex flex-col gap-1 bg-background">
-              {Object.entries(betsByMatch).map(([matchKey, matchBets]) => (
+              {Object.entries(betsByEvent).map(([matchKey, matchBets]) => (
                 <EventBets
                   key={matchKey}
                   betMode={betMode}
@@ -213,13 +209,10 @@ export default function BettingSlip() {
                                 ?.stake ?? 0
                             }
                             setValue={(value) =>
-                              setSystemGroups((prev) =>
-                                prev.map((g) =>
-                                  g.name === group.name
-                                    ? { ...g, stake: value }
-                                    : g,
-                                ),
-                              )
+                              setSystemGroupStakes((prev) => ({
+                                ...prev,
+                                [group.name]: value,
+                              }))
                             }
                           />
                         </TableCell>
