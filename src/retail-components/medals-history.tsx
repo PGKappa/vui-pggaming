@@ -1,27 +1,50 @@
+import Image from 'next/image'
+
 export default function MedalsHistory(props: { history: number[] }) {
-  return props.history.map((position, idx) =>
-    position === 1 || position === 2 || position === 3 ? (
+  return props.history.map((position, idx) => {
+    let imageSrc = ''
+    let alt = ''
+
+    switch (position) {
+      case 1:
+        imageSrc = '/cockade_gold.png'
+        alt = '1'
+        break
+      case 2:
+        imageSrc = '/cockade_silver.png'
+        alt = '2'
+        break
+      case 3:
+        imageSrc = '/cockade_bronze.png'
+        alt = '3'
+        break
+      default:
+        return (
+          <div
+            key={idx}
+            className="flex h-5 w-5 items-center justify-center text-[20px] text-black"
+          >
+            X
+          </div>
+        )
+    }
+
+    return (
       <div
         key={idx}
-        className={`flex h-5 w-5 items-center justify-center rounded-full text-xs ${
-          position === 1
-            ? 'bg-yellow-400'
-            : position === 2
-              ? 'bg-gray-300'
-              : position === 3
-                ? 'bg-orange-500'
-                : ''
-        }`}
+        className="relative flex h-6 w-6 items-center justify-center"
       >
-        {position}
+        <Image
+          src={imageSrc}
+          alt={alt}
+          width={24}
+          height={24}
+          className="absolute"
+        />
+        <span className="relative inset-0 pb-[6px] text-[12px] font-bold text-black">
+          {position}
+        </span>
       </div>
-    ) : (
-      <div
-        key={idx}
-        className="flex h-5 w-5 items-center justify-center text-xs text-black"
-      >
-        X
-      </div>
-    ),
-  )
+    )
+  })
 }
