@@ -224,7 +224,7 @@ export default function UpcomingRoundCard(props: {
                       ?.markets.map((market, marketIndex) => {
                         const isSpecialTab = specialTabs.includes(selectedTab)
                         if (isSpecialTab) {
-                          let chunckSize = 10
+                          let chunckSize = 12
                           if (selectedTab === t('combo')) chunckSize = 3
                           if (selectedTab === t('home/away_team'))
                             chunckSize = 1
