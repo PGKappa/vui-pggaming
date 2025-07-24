@@ -19,8 +19,8 @@ export default function EventBets(props: {
   const { betMode, eventKey, eventBets } = props
   const {
     removeBet,
-    removeEventBets: removeMatchBets,
-    toggleEventBetsFixed: toggleMatchBetsFixed,
+    removeEventBets,
+    toggleEventBetsFixed,
   } = useContext(BetsContext)
 
   const timeToMatchStart = useTimeLeft(eventBets[0].bet.event.startingAt)
@@ -33,7 +33,7 @@ export default function EventBets(props: {
             <div className="flex flex-row items-center gap-2 pl-1">
               <Checkbox
                 checked={eventBets[0].fixed}
-                onCheckedChange={() => toggleMatchBetsFixed(eventKey)}
+                onCheckedChange={() => toggleEventBetsFixed(eventKey)}
               />
               <span className="text-[12px]">{t('fixed')}</span>
             </div>
@@ -42,7 +42,7 @@ export default function EventBets(props: {
             variant="ghost"
             className="group size-7 hover:text-tertiary-foreground"
             size="icon"
-            onClick={() => removeMatchBets(eventKey)}
+            onClick={() => removeEventBets(eventKey)}
           >
             <Image
               src="/bin.svg"
