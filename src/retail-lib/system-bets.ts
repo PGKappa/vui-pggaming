@@ -8,26 +8,23 @@ export function getCombinations(
 ): BetEntry[][] {
   const result: BetEntry[][] = []
 
-  // Helper to compute match key once
-  const matchKey = (e: BetEntry) => `${e.bet.event.number}-${e.bet.competitors}`
+  const eventKey = (e: BetEntry) => e.bet.event.number.toString()
 
-  // 1. Group fixed selections by match
   const fixedGroups: Record<string, BetEntry[]> = {}
   fixed.forEach((f) => {
-    const key = matchKey(f)
+    const key = eventKey(f)
     if (!fixedGroups[key]) fixedGroups[key] = []
     fixedGroups[key].push(f)
   })
-  const fixedMatchKeys = Object.keys(fixedGroups)
+  const fixedEventKeys = Object.keys(fixedGroups)
 
-  // 2. Generate cartesian product of one selection per fixed match
   const fixedCombos: BetEntry[][] = []
   const buildFixedCombo = (idx: number, path: BetEntry[]) => {
-    if (idx === fixedMatchKeys.length) {
+    if (idx === fixedEventKeys.length) {
       fixedCombos.push([...path])
       return
     }
-    const groupKey = fixedMatchKeys[idx]
+    const groupKey = fixedEventKeys[idx]
     for (const option of fixedGroups[groupKey]) {
       path.push(option)
       buildFixedCombo(idx + 1, path)
@@ -36,46 +33,69 @@ export function getCombinations(
   }
   buildFixedCombo(0, [])
 
-  // 3. Prepare non-fixed list excluding any selections from fixed matches to prevent duplicates
-  const nonFixed = entries.filter((e) => !fixedGroups[matchKey(e)])
+  const nonFixed = entries.filter((e) => !fixedGroups[eventKey(e)])
 
-  // 4. For each concrete fixed combination, pick remaining selections
   const chooseRest = (
-    startIdx: number,
     needed: number,
     pool: BetEntry[],
-    path: BetEntry[],
-    usedMatches: Set<string>,
+    usedEvents: Set<string>,
     sink: BetEntry[][],
   ) => {
     if (needed === 0) {
-      sink.push([...path])
+      sink.push([])
       return
     }
-    if (startIdx >= pool.length) return
+    if (needed > pool.length) return
 
-    for (let i = startIdx; i < pool.length; i++) {
-      const item = pool[i]
-      const key = matchKey(item)
-      if (usedMatches.has(key)) continue // skip same match
-      usedMatches.add(key)
-      path.push(item)
-      chooseRest(i + 1, needed - 1, pool, path, usedMatches, sink)
-      path.pop()
-      usedMatches.delete(key)
+    const stack: {
+      startIdx: number
+      path: BetEntry[]
+      used: Set<string>
+      remaining: number
+    }[] = [
+      { startIdx: 0, path: [], used: new Set(usedEvents), remaining: needed },
+    ]
+
+    while (stack.length > 0) {
+      const { startIdx, path, used, remaining } = stack.pop()!
+
+      if (remaining === 0) {
+        sink.push([...path])
+        continue
+      }
+
+      if (startIdx >= pool.length || remaining > pool.length - startIdx)
+        continue
+
+      for (let i = startIdx; i < pool.length; i++) {
+        const item = pool[i]
+        const key = eventKey(item)
+        if (used.has(key)) continue
+
+        const newUsed = new Set(used)
+        newUsed.add(key)
+        const newPath = [...path, item]
+
+        stack.push({
+          startIdx: i + 1,
+          path: newPath,
+          used: newUsed,
+          remaining: remaining - 1,
+        })
+      }
     }
   }
 
   for (const fc of fixedCombos) {
-    const used = new Set<string>(fc.map(matchKey))
+    const used = new Set<string>(fc.map(eventKey))
     const remainingNeeded = comboSize - fc.length
-    if (remainingNeeded < 0) continue // impossible size
+    if (remainingNeeded < 0) continue
     if (remainingNeeded === 0) {
       result.push(fc)
       continue
     }
     const restCombos: BetEntry[][] = []
-    chooseRest(0, remainingNeeded, nonFixed, [], used, restCombos)
+    chooseRest(remainingNeeded, nonFixed, used, restCombos)
     for (const rc of restCombos) {
       result.push([...fc, ...rc])
     }
@@ -87,12 +107,25 @@ export function getCombinations(
 export function generateSystemGroups(entries: BetEntry[]): SystemGroup[] {
   const groups: SystemGroup[] = []
 
-  const matchesSet = new Set<string>()
+  if (entries.length > 50) {
+    console.warn(
+      'Too many bet entries for system groups generation:',
+      entries.length,
+    )
+    return groups
+  }
+
+  const eventsSet = new Set<string>()
   entries.forEach((entry) => {
-    const matchKey = `${entry.bet.event.number}.${entry.bet.competitors}`
-    matchesSet.add(matchKey)
+    const eventKey = entry.bet.event.number.toString()
+    eventsSet.add(eventKey)
   })
-  const matchesNumber = matchesSet.size
+  const eventsNumber = eventsSet.size
+
+  if (eventsNumber > 15) {
+    console.warn('Too many events for system groups generation:', eventsNumber)
+    return groups
+  }
 
   const nonFixedEntries: BetEntry[] = []
   const fixedEntries: BetEntry[] = []
@@ -105,7 +138,7 @@ export function generateSystemGroups(entries: BetEntry[]): SystemGroup[] {
     }
   })
 
-  for (let size = 1; size <= matchesNumber; size++) {
+  for (let size = 1; size <= eventsNumber; size++) {
     const combos = getCombinations(nonFixedEntries, size, fixedEntries)
     if (combos.length === 0) continue
     const minWin = Math.min(
