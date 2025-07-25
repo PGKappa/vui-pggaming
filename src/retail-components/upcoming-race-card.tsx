@@ -161,8 +161,12 @@ export default function UpcomingRaceCard({
           <div className="flex w-full items-center justify-between">
             <div className="flex items-center gap-2">
               <Image
-                src="/horse-image.png"
-                alt="Horse"
+                src={
+                  race.discipline === 'HORSES'
+                    ? '/horse-image.png'
+                    : '/dog-image.png'
+                }
+                alt={race.discipline === 'HORSES' ? 'Horse' : 'Dog'}
                 width={40}
                 height={20}
                 className="size-10 object-contain"
