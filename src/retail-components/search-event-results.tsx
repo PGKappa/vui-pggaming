@@ -2,7 +2,6 @@ import { Discipline, EventResult } from '@/retail-lib/types'
 import { format, isSameDay } from 'date-fns'
 import { ChevronRight } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import { useDetectClickOutside } from 'react-detect-click-outside'
 import { useTranslation } from 'react-i18next'
 import {
   Accordion,
@@ -11,7 +10,6 @@ import {
   AccordionTrigger,
 } from './ui/accordion'
 import { Button } from './ui/button'
-import { Card, CardContent, CardHeader } from './ui/card'
 import { Checkbox } from './ui/checkbox'
 import { ScrollArea } from './ui/scroll-area'
 import {
@@ -46,15 +44,6 @@ export default function SearchEventResults(props: {
   onClose: () => void
 }) {
   const { t } = useTranslation()
-
-  const [isSelectOpen, setIsSelectOpen] = useState(false)
-  const ref = useDetectClickOutside({
-    onTriggered: () => {
-      if (!isSelectOpen) {
-        props.onClose()
-      }
-    },
-  })
 
   const [selectedDiscipline, setSelectedDiscipline] = useState<
     Discipline | 'NONE'
@@ -129,8 +118,8 @@ export default function SearchEventResults(props: {
   }
 
   return (
-    <Card ref={ref}>
-      <CardHeader className="flex flex-col items-center">
+    <div className="flex h-full flex-col gap-4">
+      <div className="flex flex-col items-center bg-accent p-2">
         <div className="flex flex-wrap items-center gap-8">
           <div className="flex flex-row items-center gap-2 bg-badge text-background">
             <span className="whitespace-nowrap pl-2 text-[16px] font-semibold">
@@ -138,7 +127,6 @@ export default function SearchEventResults(props: {
             </span>
             <Select
               value={selectedDiscipline?.toString()}
-              onOpenChange={(open) => setIsSelectOpen(open)}
               onValueChange={(value) => {
                 setSelectedDiscipline(
                   value === 'NONE'
@@ -182,7 +170,6 @@ export default function SearchEventResults(props: {
             </span>
             <Select
               value={selectedDate}
-              onOpenChange={(open) => setIsSelectOpen(open)}
               onValueChange={(value) => {
                 setSelectedDate(value)
               }}
@@ -208,7 +195,6 @@ export default function SearchEventResults(props: {
             </span>
             <Select
               value={selectedTimeSlot}
-              onOpenChange={(open) => setIsSelectOpen(open)}
               onValueChange={setSelectedTimeSlot}
               disabled={lastTenGames}
             >
@@ -249,9 +235,9 @@ export default function SearchEventResults(props: {
             </Button>
           </div>
         </div>
-      </CardHeader>
+      </div>
 
-      <CardContent className="h-full pt-4">
+      <div className="h-full">
         {!!selectedDiscipline ? (
           eventResults.length > 0 ? (
             <ScrollArea className="pb-20">
@@ -394,7 +380,7 @@ export default function SearchEventResults(props: {
               </Accordion>
             </ScrollArea>
           ) : (
-            <div className="flex h-full flex-col items-center justify-center">
+            <div className="flex h-full flex-col items-center justify-start">
               {t('no_results_found')}
             </div>
           )
@@ -405,7 +391,7 @@ export default function SearchEventResults(props: {
             </p>
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }

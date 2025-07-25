@@ -14,8 +14,12 @@ export function getTimeDistanceFromNow(targetTime: Date) {
     return '00:00'
   }
 
-  const minutes = Math.floor(diff / 1000 / 60).toString().padStart(2, '0')
-  const seconds = Math.floor((diff / 1000) % 60).toString().padStart(2, '0')
+  const minutes = Math.floor(diff / 1000 / 60)
+    .toString()
+    .padStart(2, '0')
+  const seconds = Math.floor((diff / 1000) % 60)
+    .toString()
+    .padStart(2, '0')
 
   return `${minutes}:${seconds}`
 }

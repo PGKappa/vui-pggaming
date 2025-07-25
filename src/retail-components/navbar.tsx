@@ -14,10 +14,7 @@ export default function Navbar() {
   const searchParams = useSearchParams()
   const initCode = searchParams.get('init_code')
 
-  const {
-    eventResults: roundResults,
-    setSearchEventResults: setSearchRoundResults,
-  } = useContext(RootContext)
+  const { eventResults, setSearchEventResults } = useContext(RootContext)
 
   return (
     <div className="flex w-full flex-row items-center justify-start bg-accent p-3">
@@ -125,7 +122,7 @@ export default function Navbar() {
           variant="ticketButton"
           size="lg"
           onClick={() => {
-            setSearchRoundResults(roundResults)
+            setSearchEventResults(eventResults)
           }}
         >
           <span className="text-[16px] font-bold">{t('search_results')}</span>

@@ -1,6 +1,5 @@
 'use client'
 import BettingSlip from '@/retail-components/betting-slip'
-import Leaderboard from '@/retail-components/leaderboard'
 import MatchBettingOptions from '@/retail-components/match-betting-options'
 import SearchEventResults from '@/retail-components/search-event-results'
 import { ScrollArea } from '@/retail-components/ui/scroll-area'
@@ -29,18 +28,23 @@ export default function Home() {
     markets: Market[]
   }>()
 
-  const [selectedEvent, setSelectedEvent] = useState<UpcomingEvent>()
+  const [selectedEvent, setSelectedEvent] = useState<UpcomingEvent | undefined>(
+    upcomingEvents?.filter((e) => e.discipline === 'HORSES')[0],
+  )
 
   useEffect(() => {
     if (!selectedEvent && upcomingEvents && upcomingEvents.length > 0) {
-      setSelectedEvent(upcomingEvents[0])
+      const firstHorseEvent = upcomingEvents?.filter(
+        (e) => e.discipline === 'HORSES',
+      )[0]
+      setSelectedEvent(firstHorseEvent)
     }
   }, [upcomingEvents, selectedEvent])
 
   return (
-    <div className="flex h-full flex-row overflow-hidden py-2">
+    <div className="flex h-full flex-row overflow-hidden">
       <div className="flex flex-col">
-        <div className="mx-2 flex h-[80px] w-[1500px] flex-row items-center justify-center bg-accent px-4">
+        <div className="flex h-[80px] w-[1500px] flex-row items-center justify-center bg-accent pr-2">
           <UpcomingEventsCarousel
             selectedEvent={selectedEvent}
             setSelectedEvent={(event) => {
@@ -51,7 +55,7 @@ export default function Home() {
         </div>
 
         {/* Main content area */}
-        <div className="flex h-full flex-row gap-2 overflow-hidden px-2 pt-2">
+        <div className="flex h-full flex-row gap-2 overflow-hidden pr-2 pt-2">
           <div className="flex h-[942px] w-[1500px] flex-col gap-2 overflow-y-auto">
             <ScrollArea className="h-full w-full">
               {!!searchRoundResults ? (
@@ -69,8 +73,7 @@ export default function Home() {
                   />
                 ) : (
                   <>
-                    <UpcomingRaceCard id={selectedEvent.id} />
-                    <Leaderboard />
+                    <UpcomingRaceCard race={selectedEvent} />
                   </>
                 )
               ) : (
@@ -84,7 +87,7 @@ export default function Home() {
       </div>
 
       {/* RIGHT COLUMN - Betting slip */}
-      <div className="h-[942px] w-[410px] bg-background pr-2 text-foreground">
+      <div className="h-[942px] w-[410px] bg-background text-foreground">
         <BettingSlip />
       </div>
     </div>

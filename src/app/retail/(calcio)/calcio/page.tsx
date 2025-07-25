@@ -81,7 +81,7 @@ export default function Home() {
       </div>
 
       {/* RIGHT COLUMN - Betting slip */}
-      <div className="h-[942px] w-[410px] bg-background text-foreground">
+      <div className="h-[942px] w-[410px] bg-background pr-2 text-foreground">
         <BettingSlip />
       </div>
     </div>

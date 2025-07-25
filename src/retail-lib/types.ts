@@ -34,9 +34,6 @@ export type Team = {
 export type Selection = {
   outcome: string
   decPrice: number
-  order: number
-  externCode: string
-  extraInfo?: string
 }
 
 export type Market = {
@@ -87,16 +84,54 @@ export type UpcomingMatch = {
 
 export type UpcomingEvent = {
   id: number
+  extId?: string
   discipline: Discipline
   name: string
   startTime: string
   time: Date
   duration: number
-  data: UpcomingRound | UpcomingRace
+  data?: UpcomingRound | UpcomingRace
 }
 
 export type UpcomingRace = {
   id: number
+  odds: {
+    winner: Record<string, string>
+    placed: Record<string, string>
+    show: Record<string, string>
+    exacta: Record<string, Record<string, string>>
+    quinella: Record<string, Record<string, string>>
+    trifecta: Record<string, Record<string, Record<string, string>>>
+    boxedtrifecta: Record<string, Record<string, Record<string, string>>>
+    evenodd: {
+      even: string
+      odd: string
+    }
+    underover: {
+      under: string
+      over: string
+    }
+  }
+  latecomers: {
+    winner: {
+      racers: number[]
+      delay: number
+    }
+    exacta: {
+      racers: number[]
+      delay: number
+    }
+    trifecta: {
+      racers: number[]
+      delay: number
+    }
+  }
+  racers: Array<{
+    number: number
+    name: string
+    history: number[]
+    performance: number
+  }>
 }
 
 export type UpcomingRound = {
@@ -142,12 +177,13 @@ export type RaceResult = {
 }
 
 export type Bet = {
-  round: {
+  event: {
     name: string
     number: number
     startingAt: Date
   }
-  teams: string
+  discipline: Discipline
+  competitors: string
   option: Selection
 }
 
