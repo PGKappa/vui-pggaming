@@ -89,6 +89,8 @@
   "loading": "Loading",
   "no_racers_available": "No racers available",
   "load_failed": "Load failed",
+  "no_combinations": "No combinations",
+  "select_positions": "Select positions",
   "fastbet": "Fastbet",
   "code_list": "Code List",
   "code": "Code",

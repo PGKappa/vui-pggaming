@@ -4,6 +4,7 @@ import BetEntryToggle from './bet-entry-toggle'
 import { Button } from './ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { BetsContext } from '@/retail-contexts/bets-context'
+import { t } from 'i18next'
 
 type BetCombinationsTableProps = {
   race: UpcomingEvent
@@ -148,8 +149,8 @@ export default function BetCombinationsTable({
         <CardContent>
           <p className="text-center text-[19px] text-muted-foreground">
             {position1Selection || position2Selection || position3Selection
-              ? 'Nessuna combinazione disponibile con queste selezioni.'
-              : 'Seleziona una o più posizioni per visualizzare le combinazioni.'}
+              ? `${t('no_combinations')}`
+              : `${t('select_positions')}`}
           </p>
         </CardContent>
       </Card>
@@ -158,21 +159,23 @@ export default function BetCombinationsTable({
 
   return (
     <Card className="mt-4">
-      <CardHeader className="flex items-center justify-center bg-accent px-4 py-2 text-white">
+      <CardHeader className="flex h-14 items-center justify-center bg-accent px-4 text-accent-foreground">
         <CardTitle className="justify-center text-lg text-white">
-          {isTris ? 'TRIS IN ORDINE' : 'ACCOPPIATA IN ORDINE'}
+          {isTris
+            ? `${t('trifecta').toUpperCase()} ${t('in_order').toUpperCase()}`
+            : `${t('perfecta').toUpperCase()} ${t('in_order').toUpperCase()}`}
         </CardTitle>
         <div className="flex gap-2">
           <Button
             variant="navbar"
-            className="h-8 w-full border-green-500 px-3 text-xs text-white hover:bg-green-800"
+            className="h-8 w-full border-green-500 px-3 text-[14px] font-bold text-white hover:bg-green-800"
             onClick={() => setSortByOdds(!sortByOdds)}
           >
-            ↓ ORDINA PER QUOTE
+            {t('sort_by_odds').toUpperCase()}
           </Button>
           <Button
             variant="navbar"
-            className="h-8 w-full border-green-500 px-3 text-xs text-white hover:bg-green-800"
+            className="h-8 w-full border-green-500 px-3 text-[14px] font-bold text-white hover:bg-green-800"
             onClick={() => {
               if (allBetsSelected) {
                 removeBets(
@@ -187,7 +190,9 @@ export default function BetCombinationsTable({
               addBets(isTris ? 'tris' : 'accoppiata', combinations)
             }}
           >
-            {allBetsSelected ? 'DESELEZIONA TUTTO' : 'SELEZIONA TUTTO'}
+            {allBetsSelected
+              ? `${t('deselect_all').toUpperCase()}`
+              : `${t('select_all').toUpperCase()}`}
           </Button>
         </div>
       </CardHeader>
