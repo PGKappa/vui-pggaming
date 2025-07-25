@@ -1,19 +1,18 @@
 'use client'
 
-import { Badge } from '@/retail-components/ui/badge'
 import { Button } from '@/retail-components/ui/button'
 import { Card, CardContent, CardFooter } from '@/retail-components/ui/card'
 import { ScrollArea } from '@/retail-components/ui/scroll-area'
 import { BetsContext } from '@/retail-contexts/bets-context'
 import { generateSystemGroups } from '@/retail-lib/system-bets'
-import { BetEntry, SubmittedTicket, SystemGroup } from '@/retail-lib/types'
-import { getTimeDistanceFromNow } from '@/retail-lib/utils'
-import { CircleXIcon, RotateCcwIcon } from 'lucide-react'
-import Image from 'next/image'
-import { useContext, useEffect, useMemo, useState } from 'react'
+import { SubmittedTicket } from '@/retail-lib/types'
+import { RotateCcwIcon } from 'lucide-react'
+import { useContext, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import EventBets from './event-bets'
 import FastBet from './fast-bet'
 import StakeInputDialog from './stake-input-dialog'
+import { Separator } from './ui/separator'
 import {
   Table,
   TableBody,
@@ -23,34 +22,17 @@ import {
   TableHeader,
   TableRow,
 } from './ui/table'
-import { Separator } from './ui/separator'
-import { Checkbox } from './ui/checkbox'
 
-type BetMode = 'SINGLE' | 'MULTIPLE' | 'SYSTEM'
+export type BetMode = 'SINGLE' | 'MULTIPLE' | 'SYSTEM'
 
 export default function BettingSlip() {
   const {
     betEntries,
-    removeBet,
-    removeMatchBets,
-    toggleMatchBetsFixed,
+    betsByEvent,
+    betMode,
     removeAllBets,
     restoreLastSubmittedTicket,
   } = useContext(BetsContext)
-
-  const betsByMatch = useMemo(() => {
-    return betEntries.reduce(
-      (groupedBets: { [key: string]: BetEntry[] }, betEntry) => {
-        const key = `${betEntry.bet.round.number}.${betEntry.bet.teams}`
-        if (!groupedBets[key]) {
-          groupedBets[key] = []
-        }
-        groupedBets[key].push(betEntry)
-        return groupedBets
-      },
-      {},
-    )
-  }, [betEntries])
 
   const totalOdds = betEntries.reduce(
     (total, betEntry) => total * betEntry.bet.option.decPrice,
@@ -63,18 +45,23 @@ export default function BettingSlip() {
 
   const { t } = useTranslation()
 
-  const betMode: BetMode = useMemo(() => {
-    if (betEntries.length <= 1) return 'SINGLE'
-    if (Object.values(betsByMatch).find((m) => m.length > 1)) return 'SYSTEM'
-    else return 'MULTIPLE'
-  }, [betEntries, betsByMatch])
+  const [systemGroupStakes, setSystemGroupStakes] = useState<
+    Record<string, number>
+  >({})
 
-  const [systemGroups, setSystemGroups] = useState<SystemGroup[]>([])
-
-  useEffect(() => {
-    if (betMode !== 'SYSTEM') setSystemGroups([])
-    setSystemGroups(generateSystemGroups(betEntries))
+  const baseSystemGroups = useMemo(() => {
+    if (betMode !== 'SYSTEM') {
+      return []
+    }
+    return generateSystemGroups(betEntries)
   }, [betMode, betEntries])
+
+  const systemGroups = useMemo(() => {
+    return baseSystemGroups.map((group) => ({
+      ...group,
+      stake: systemGroupStakes[group.name] ?? 0,
+    }))
+  }, [baseSystemGroups, systemGroupStakes])
 
   return (
     <Card
@@ -92,7 +79,7 @@ export default function BettingSlip() {
           >
             {betMode === 'SINGLE'
               ? t('single')
-              : `${t('multiple')} ( ${Object.entries(betsByMatch).length} )`}
+              : `${t('multiple')} ( ${Object.entries(betsByEvent).length} )`}
           </span>
 
           {betMode === 'SINGLE' ||
@@ -135,97 +122,13 @@ export default function BettingSlip() {
         ) : (
           <ScrollArea className="h-full">
             <ul className="flex flex-col gap-1 bg-background">
-              {Object.entries(betsByMatch).map(([matchKey, matchBets]) => (
-                <li key={matchKey}>
-                  <div className="flex flex-col gap-1 border border-betSlip-foreground p-1">
-                    <div className="flex flex-row justify-between">
-                      <div
-                        className={
-                          betMode === 'SYSTEM' ? 'visible' : 'invisible'
-                        }
-                      >
-                        <div className="flex flex-row items-center gap-2 pl-1">
-                          <Checkbox
-                            checked={matchBets[0].fixed}
-                            onCheckedChange={() =>
-                              toggleMatchBetsFixed(matchKey)
-                            }
-                          />
-                          <span className="text-[12px]">{t('fixed')}</span>
-                        </div>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        className="group size-7 hover:text-tertiary-foreground"
-                        size="icon"
-                        onClick={() => removeMatchBets(matchKey)}
-                      >
-                        <Image
-                          src="/bin.svg"
-                          alt="Bin"
-                          width={40}
-                          height={20}
-                          className="size-5 object-contain group-hover:brightness-0 group-hover:invert"
-                        />
-                      </Button>
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <span className="text-[16px] font-semibold">
-                        {t('football')}
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-[16px] font-bold">
-                          {new Date(
-                            matchBets[0].bet.round.startingAt,
-                          ).toLocaleTimeString([], {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })}
-                        </span>
-                        <Badge className="bg-accent text-[16px]">
-                          {getTimeDistanceFromNow(
-                            new Date(matchBets[0].bet.round.startingAt),
-                          )}
-                        </Badge>
-                      </div>
-                    </div>
-
-                    <span className="text-[16px]">
-                      {matchBets[0].bet.teams}
-                    </span>
-                  </div>
-
-                  <div className="border border-betSlip-foreground bg-primary-foreground p-1">
-                    {matchBets.map((betEntry) => (
-                      <div
-                        key={betEntry.id}
-                        className="flex items-center justify-between text-sm"
-                      >
-                        <span className="text-[14px]">{betEntry.market}</span>
-                        <span className="text-[14px] font-bold">
-                          {betEntry.bet.option.outcome}
-                        </span>
-                        <span className="text-[14px]">
-                          {betEntry.bet.option.decPrice.toFixed(2)}
-                        </span>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() =>
-                            removeBet(
-                              betEntry.market,
-                              betEntry.bet.option,
-                              betEntry.bet.teams,
-                            )
-                          }
-                        >
-                          <CircleXIcon style={{ scale: 1.5 }} />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                </li>
+              {Object.entries(betsByEvent).map(([matchKey, matchBets]) => (
+                <EventBets
+                  key={matchKey}
+                  betMode={betMode}
+                  eventKey={matchKey}
+                  eventBets={matchBets}
+                />
               ))}
             </ul>
           </ScrollArea>
@@ -306,13 +209,10 @@ export default function BettingSlip() {
                                 ?.stake ?? 0
                             }
                             setValue={(value) =>
-                              setSystemGroups((prev) =>
-                                prev.map((g) =>
-                                  g.name === group.name
-                                    ? { ...g, stake: value }
-                                    : g,
-                                ),
-                              )
+                              setSystemGroupStakes((prev) => ({
+                                ...prev,
+                                [group.name]: value,
+                              }))
                             }
                           />
                         </TableCell>

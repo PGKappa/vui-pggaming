@@ -1,4 +1,4 @@
-'use client'
+/* 'use client'
 import BettingSlip from '@/retail-components/betting-slip'
 import Leaderboard from '@/retail-components/leaderboard'
 import MatchBettingOptions from '@/retail-components/match-betting-options'
@@ -49,7 +49,7 @@ export default function Home() {
           /> */}
         </div>
 
-        {/* Main content area */}
+        {/* Main content area
         <div className="flex h-full flex-row gap-2 overflow-hidden px-2 pt-2">
           <div className="flex h-[942px] w-[1500px] flex-col gap-2 overflow-y-auto">
             <ScrollArea className="h-full w-full">
@@ -85,10 +85,11 @@ export default function Home() {
         </div>
       </div>
 
-      {/* RIGHT COLUMN - Betting slip */}
+      {/* RIGHT COLUMN - Betting slip 
       <div className="h-[942px] w-[410px] bg-background pr-2 text-foreground">
         <BettingSlip />
       </div>
     </div>
   )
 }
+ */
