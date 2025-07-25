@@ -1,20 +1,22 @@
-/* 'use client'
+'use client'
 import BettingSlip from '@/retail-components/betting-slip'
-import LastRoundsResults from '@/retail-components/last-rounds-results'
-import Leaderboard from '@/retail-components/leaderboard'
 import MatchBettingOptions from '@/retail-components/match-betting-options'
-import SearchRoundResults from '@/retail-components/search-round-results'
+import SearchEventResults from '@/retail-components/search-event-results'
 import { ScrollArea } from '@/retail-components/ui/scroll-area'
-import UpcomingRoundCard from '@/retail-components/upcoming-round-card'
-import UpcomingRoundsCard from '@/retail-components/upcoming-rounds-card'
+import { UpcomingEventsCarousel } from '@/retail-components/upcoming-events-carousel'
+import UpcomingRaceCard from '@/retail-components/upcoming-race-card'
 import { RootContext } from '@/retail-contexts/root-context'
-import { Market, RoundResults, UpcomingRound } from '@/retail-lib/types'
+import { Market, UpcomingEvent } from '@/retail-lib/types'
 import { useContext, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 export default function Home() {
   const { t } = useTranslation()
-  const { upcomingRounds, eventResults: roundResults } = useContext(RootContext)
+  const {
+    upcomingEvents,
+    searchEventResults: searchRoundResults,
+    setSearchEventResults: setSearchRoundResults,
+  } = useContext(RootContext)
 
   const [matchBetOptions, setMatchBetOptions] = useState<{
     round: {
@@ -26,74 +28,68 @@ export default function Home() {
     markets: Market[]
   }>()
 
-  const [selectedRound, setSelectedRound] = useState<UpcomingRound>()
-  const [lastResultsOpen, setLastResultsOpen] = useState(true)
-  const [searchRoundResults, setSearchRoundResults] = useState<RoundResults[]>()
+  const [selectedEvent, setSelectedEvent] = useState<UpcomingEvent | undefined>(
+    upcomingEvents?.filter((e) => e.discipline === 'DOGS')[0],
+  )
 
   useEffect(() => {
-    if (!selectedRound && upcomingRounds && upcomingRounds.length > 0) {
-      setSelectedRound(upcomingRounds[0])
+    if (!selectedEvent && upcomingEvents && upcomingEvents.length > 0) {
+      const firstDogsEvent = upcomingEvents?.filter(
+        (e) => e.discipline === 'DOGS',
+      )[0]
+      setSelectedEvent(firstDogsEvent)
     }
-  }, [upcomingRounds, selectedRound])
+  }, [upcomingEvents, selectedEvent])
 
   return (
-    <div className="flex h-full overflow-hidden">
-      {/* First column 
-      <div className="flex h-[942px] w-[263px] flex-col items-center justify-between gap-2 overflow-hidden">
-        <UpcomingRoundsCard
-          rounds={upcomingRounds}
-          selectedRound={selectedRound}
-          setSelectedRound={(round) => {
-            setSelectedRound(round)
-            setSearchRoundResults(undefined)
-          }}
-          collapsed={lastResultsOpen}
-          toggleCollapse={() => setLastResultsOpen((prev) => !prev)}
-        />
-        <LastRoundsResults
-          roundResults={roundResults}
-          open={lastResultsOpen}
-          toggleOpen={() => setLastResultsOpen((prev) => !prev)}
-          setSearchRoundResults={setSearchRoundResults}
-          searchRoundResults={searchRoundResults}
-        />
-      </div>
-      <div className="ml-2 flex h-[942px] w-[1241px] flex-col gap-2 overflow-y-auto">
-<ScrollArea className="h-full w-full">
-          {!!searchRoundResults ? (
-            <SearchRoundResults
-              roundResults={searchRoundResults}
-              onClose={() => setSearchRoundResults(undefined)}
-            />
-          ) : selectedRound ? (
-            matchBetOptions ? (
-              <MatchBettingOptions
-                round={matchBetOptions.round}
-                teams={matchBetOptions.teams}
-                markets={matchBetOptions.markets}
-                close={() => setMatchBetOptions(undefined)}
-              />
-            ) : (
-              <>
-                <UpcomingRoundCard
-                  round={selectedRound}
-                  viewMatchBettingOptions={setMatchBetOptions}
+    <div className="flex h-full flex-row overflow-hidden">
+      <div className="flex flex-col">
+        <div className="flex h-[80px] w-[1500px] flex-row items-center justify-center bg-accent pr-2">
+          <UpcomingEventsCarousel
+            selectedEvent={selectedEvent}
+            setSelectedEvent={(event) => {
+              setSelectedEvent(event)
+              setSearchRoundResults(undefined)
+            }}
+          />
+        </div>
+
+        {/* Main content area */}
+        <div className="flex h-full flex-row gap-2 overflow-hidden pr-2 pt-2">
+          <div className="flex h-[942px] w-[1500px] flex-col gap-2 overflow-y-auto">
+            <ScrollArea className="h-full w-full">
+              {!!searchRoundResults ? (
+                <SearchEventResults
+                  eventResults={searchRoundResults}
+                  onClose={() => setSearchRoundResults(undefined)}
                 />
-                <Leaderboard />
-              </>
-            )
-          ) : (
-            <div className="flex h-full items-center justify-center">
-              {t('no_round_selected')}
-            </div>
-          )}
-        </ScrollArea>
+              ) : selectedEvent ? (
+                matchBetOptions ? (
+                  <MatchBettingOptions
+                    round={matchBetOptions.round}
+                    teams={matchBetOptions.teams}
+                    markets={matchBetOptions.markets}
+                    close={() => setMatchBetOptions(undefined)}
+                  />
+                ) : (
+                  <>
+                    <UpcomingRaceCard race={selectedEvent} />
+                  </>
+                )
+              ) : (
+                <div className="flex h-full items-center justify-center">
+                  {t('no_round_selected')}
+                </div>
+              )}
+            </ScrollArea>
+          </div>
+        </div>
       </div>
 
-      <div className="ml-2 h-[942px] w-[382px] overflow-y-auto bg-background text-foreground">
+      {/* RIGHT COLUMN - Betting slip */}
+      <div className="h-[942px] w-[410px] bg-background text-foreground">
         <BettingSlip />
       </div>
     </div>
   )
 }
- */
