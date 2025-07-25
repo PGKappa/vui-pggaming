@@ -1,4 +1,5 @@
 import { UpcomingEvent, UpcomingRace } from '@/retail-lib/types'
+import { t } from 'i18next'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import BetCombinationsTable from './bet-combination-table'
@@ -166,21 +167,22 @@ export default function UpcomingRaceCard({
                 height={20}
                 className="size-10 object-contain"
               />
-              <span className="text-[24px] font-bold">{race.name}</span>
+              <span className="text-[24px] font-bold">
+                {race.name} {t('round')} {race.id}
+              </span>
             </div>
 
-            <div className="flex items-center justify-between gap-40">
+            <div className="flex items-center justify-between gap-8 text-[16px]">
               <div className="flex items-center gap-2">
                 <span
                   className={isTris ? 'text-muted-foreground' : 'font-bold'}
                 >
-                  ACCOPPIATA
+                  {t('perfecta').toUpperCase()}
                 </span>
                 <Switch
                   checked={isTris}
                   onCheckedChange={(checked) => {
                     setIsTris(checked)
-                    // Resetta la terza posizione quando si passa da TRIS a ACCOPPIATA
                     if (!checked) setPosition3Selection(null)
                   }}
                   className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-green-500"
@@ -188,16 +190,16 @@ export default function UpcomingRaceCard({
                 <span
                   className={isTris ? 'font-bold' : 'text-muted-foreground'}
                 >
-                  TRIS
+                  {t('trifecta').toUpperCase()}
                 </span>
               </div>
               <div className="flex items-center gap-2">
                 <Button
                   variant="market"
-                  className="h-9 w-full px-4 font-bold"
+                  className="h-9 w-full px-4 text-[14px] font-bold"
                   onClick={clearSelections}
                 >
-                  PULISCI
+                  {t('clear').toUpperCase()}
                 </Button>
               </div>
             </div>
@@ -206,30 +208,42 @@ export default function UpcomingRaceCard({
 
         <CardContent>
           <Table>
-            <TableHeader className="h-10 bg-card-header text-card-header-foreground">
+            <TableHeader className="h-14 bg-card-header text-[16px] text-card-header-foreground">
               <TableRow>
-                <TableHead className="w-[225px]">LISTA PARTENTI</TableHead>
+                <TableHead className="w-[245px] text-center font-bold">
+                  {t('starters_list')}
+                </TableHead>
                 <TableHead className="w-[1px] bg-border p-0" />
-                <TableHead className="text-center font-bold">
-                  Vincente
+                <TableHead className="w-[225px] text-center font-bold">
+                  {t('history')}
                 </TableHead>
                 <TableHead className="w-[1px] bg-border p-0" />
                 <TableHead className="text-center font-bold">
-                  Piazzato su 2
+                  {t('winner')}
                 </TableHead>
                 <TableHead className="w-[1px] bg-border p-0" />
                 <TableHead className="text-center font-bold">
-                  Piazzato su 3
+                  {t('place_2')}
                 </TableHead>
                 <TableHead className="w-[1px] bg-border p-0" />
-                <TableHead className="text-center font-bold">1°</TableHead>
-                <TableHead className="text-center font-bold">2°</TableHead>
+                <TableHead className="text-center font-bold">
+                  {t('show_3')}
+                </TableHead>
+                <TableHead className="w-[1px] bg-border p-0" />
+                <TableHead className="text-center font-bold">
+                  {t('1st')}
+                </TableHead>
+                <TableHead className="text-center font-bold">
+                  {t('2nd')}
+                </TableHead>
                 {isTris && (
-                  <TableHead className="text-center font-bold">3°</TableHead>
+                  <TableHead className="text-center font-bold">
+                    {t('3rd')}
+                  </TableHead>
                 )}
                 <TableHead className="w-[1px] bg-border p-0" />
                 <TableHead className="text-center font-bold">
-                  In Disordine
+                  {t('any_order')}
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -239,7 +253,7 @@ export default function UpcomingRaceCard({
                 raceInfo.racers.map((racer) => (
                   <TableRow
                     key={racer.number}
-                    className="border-b border-border"
+                    className="border-b border-border text-[19px]"
                   >
                     {/* Informazioni sul corridore */}
                     <TableCell className="p-2">
@@ -266,9 +280,16 @@ export default function UpcomingRaceCard({
                         </div>
                         <div>
                           <div className="font-semibold">{racer.name}</div>
-                          <div className="flex space-x-1">
-                            <MedalsHistory history={racer.history} />
-                          </div>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="w-[1px] bg-border p-0" />
+
+                    {/* Storico */}
+                    <TableCell className="p-2">
+                      <div className="flex items-center justify-center gap-3">
+                        <div className="flex space-x-1">
+                          <MedalsHistory history={racer.history} />
                         </div>
                       </div>
                     </TableCell>
@@ -297,7 +318,7 @@ export default function UpcomingRaceCard({
                           },
                         }}
                         variant="racecard"
-                        className="h-10 w-20 bg-red-100"
+                        className="h-12 w-[100px] bg-betEntry text-betEntry-foreground"
                       />
                     </TableCell>
                     <TableCell className="w-[1px] bg-border p-0" />
@@ -324,7 +345,7 @@ export default function UpcomingRaceCard({
                           },
                         }}
                         variant="racecard"
-                        className="h-10 w-20 bg-red-100"
+                        className="h-12 w-[100px] bg-betEntry text-betEntry-foreground"
                       />
                     </TableCell>
                     <TableCell className="w-[1px] bg-border p-0" />
@@ -350,7 +371,7 @@ export default function UpcomingRaceCard({
                           },
                         }}
                         variant="racecard"
-                        className="h-10 w-20 bg-red-100"
+                        className="h-12 w-[100px] bg-betEntry text-betEntry-foreground"
                       />
                     </TableCell>
                     <TableCell className="w-[1px] bg-border p-0" />
@@ -362,7 +383,7 @@ export default function UpcomingRaceCard({
                         onCheckedChange={() =>
                           togglePosition1Selection(racer.number)
                         }
-                        className="h-6 w-6 border-gray-400"
+                        className="h-6 w-6 border-betEntry-border"
                       />
                     </TableCell>
 
@@ -373,7 +394,7 @@ export default function UpcomingRaceCard({
                         onCheckedChange={() =>
                           togglePosition2Selection(racer.number)
                         }
-                        className="h-6 w-6 border-gray-400"
+                        className="h-6 w-6 border-betEntry-border"
                       />
                     </TableCell>
 
@@ -385,7 +406,7 @@ export default function UpcomingRaceCard({
                           onCheckedChange={() =>
                             togglePosition3Selection(racer.number)
                           }
-                          className="h-6 w-6 border-gray-400"
+                          className="h-6 w-6 border-betEntry-border"
                         />
                       </TableCell>
                     )}
@@ -398,7 +419,7 @@ export default function UpcomingRaceCard({
                         onCheckedChange={() =>
                           toggleDisorderSelection(racer.number)
                         }
-                        className="h-6 w-6 border-gray-400"
+                        className="h-6 w-6 border-betEntry-border"
                       />
                     </TableCell>
                   </TableRow>
@@ -407,13 +428,13 @@ export default function UpcomingRaceCard({
                 <TableRow>
                   <TableCell
                     colSpan={isTris ? 13 : 12}
-                    className="py-6 text-center"
+                    className="py-6 text-center text-[19px]"
                   >
                     {isLoading
-                      ? 'Caricamento dati in corso...'
+                      ? `${t('loading')}...`
                       : raceInfo
-                        ? 'Nessun corridore disponibile per questa gara.'
-                        : 'Impossibile caricare i dati della gara.'}
+                        ? `${t('no_racers_available')}`
+                        : `${t('load_failed')}`}
                   </TableCell>
                 </TableRow>
               )}
