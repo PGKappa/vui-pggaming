@@ -529,7 +529,12 @@ export default function RootContextProvider(props: {
           ) || []),
           ...upcomingHorseEvents,
         ],
-        eventResults: [...prev.eventResults, ...horseEventResults],
+        eventResults: [
+          ...prev.eventResults.filter(
+            (e) => e.discipline !== Discipline.HORSES,
+          ),
+          ...horseEventResults,
+        ],
       }))
     }
 

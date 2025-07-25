@@ -53,19 +53,19 @@ export default function SearchEventResults(props: {
   const [lastTenGames, setLastTenGames] = useState<boolean>(false)
 
   const eventResults = useMemo(() => {
+    if (selectedDiscipline === 'NONE') {
+      return []
+    }
+
     if (lastTenGames) {
       return props.eventResults
-        .filter(
-          (result) =>
-            selectedDiscipline === 'NONE' ||
-            result.discipline === selectedDiscipline,
-        )
+        .filter((result) => result.discipline === selectedDiscipline)
         .sort((a, b) => b.startTime.getTime() - a.startTime.getTime())
         .slice(0, 10)
     }
 
     const filteredResults = props.eventResults.filter((result) => {
-      if (selectedDiscipline && result.discipline !== selectedDiscipline) {
+      if (result.discipline !== selectedDiscipline) {
         return false
       }
       if (
