@@ -454,7 +454,7 @@ export default function UpcomingRaceCard({
 
     return (
       <div className="mt-4 w-full">
-        <div className="grid grid-cols-2 gap-1 border border-card-foreground">
+        <div className="grid grid-cols-2 gap-0.5 border border-card-foreground">
           {/* Even/Odd Market */}
           <div>
             <div className="bg-accent text-accent-foreground">
@@ -481,7 +481,7 @@ export default function UpcomingRaceCard({
                     },
                   }}
                   variant="matchcard"
-                  className="h-[45px] w-full text-[16px] font-bold text-black"
+                  className="h-[45px] w-full text-[16px] text-black"
                 />
               </div>
 
@@ -502,7 +502,7 @@ export default function UpcomingRaceCard({
                     },
                   }}
                   variant="matchcard"
-                  className="h-[45px] w-full text-[16px] font-bold text-black"
+                  className="h-[45px] w-full text-[16px] text-black"
                 />
               </div>
             </div>
@@ -536,7 +536,7 @@ export default function UpcomingRaceCard({
                     },
                   }}
                   variant="matchcard"
-                  className="h-[45px] w-full text-[16px] font-bold text-black"
+                  className="h-[45px] w-full text-[16px] text-black"
                 />
               </div>
 
@@ -559,7 +559,7 @@ export default function UpcomingRaceCard({
                     },
                   }}
                   variant="matchcard"
-                  className="h-[45px] w-full text-[16px] font-bold text-black"
+                  className="h-[45px] w-full text-[16px] text-black"
                 />
               </div>
             </div>
