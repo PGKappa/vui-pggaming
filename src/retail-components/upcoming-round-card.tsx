@@ -131,7 +131,7 @@ export default function UpcomingRoundCard(props: {
           <Button
             key={index}
             variant={selectedTab === tab.name ? 'marketSelected' : 'market'}
-            className="h-full w-fit border border-b px-2 text-[20px] font-semibold"
+            className="h-full w-[202px] border border-b px-2 text-[20px] font-semibold"
             onClick={() => {
               setSelectedTab(tab.name)
             }}
@@ -157,6 +157,7 @@ export default function UpcomingRoundCard(props: {
                   if (isSpecialTab) {
                     return (
                       <React.Fragment key={`special-${index}`}>
+                        <TableHead className="w-[1px] bg-white p-0"></TableHead>
                         <TableHead
                           className="text-center font-bold"
                           colSpan={1}
@@ -200,7 +201,7 @@ export default function UpcomingRoundCard(props: {
                     key={index}
                     className="h-[70px] items-center justify-between border-card-foreground"
                   >
-                    <TableCell className="w-[136px] min-w-[136px] max-w-[136px] whitespace-nowrap text-center text-[16px] font-bold">
+                    <TableCell className="w-[130px] min-w-[130px] max-w-[130px] whitespace-nowrap text-center text-[16px] font-bold">
                       {teamNames}
                     </TableCell>
 
@@ -221,9 +222,13 @@ export default function UpcomingRoundCard(props: {
                           )
                           const optionsChunks = chunkArray(options, chunckSize)
                           return (
-                            <React.Fragment key={`special-market-${marketIndex}`}>
+                            <React.Fragment
+                              key={`special-market-${marketIndex}`}
+                            >
+                              <TableCell className="w-[1px] bg-border p-0"></TableCell>
                               <TableCell
-                                className="justify-items-center px-[10px]"
+                                key={marketIndex}
+                                className="justify-items-center px-[2px]"
                               >
                                 {optionsChunks.map((chunk, chunkIndex) => (
                                   <div

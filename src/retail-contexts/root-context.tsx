@@ -31,6 +31,7 @@ export type RootContextType = {
   setSearchEventResults: (searchEventResults?: EventResult[]) => void
   betsHistory: Ticket[]
   teamRankings?: TeamRanking[]
+  eventResults?: EventResult[]
 }
 
 const defaultRootContext: RootContextType = {
@@ -627,7 +628,7 @@ export default function RootContextProvider(props: {
           ) || []),
           ...upcomingDogEvents,
         ],
-        eventResults: [...prev.eventResults, ...dogEventResults],
+        eventResults: [...(prev.eventResults || []), ...dogEventResults],
       }))
     }
 
