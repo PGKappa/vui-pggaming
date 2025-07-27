@@ -481,7 +481,7 @@ export default function UpcomingRaceCard({
                     },
                   }}
                   variant="matchcard"
-                  className="h-[45px] w-full text-[16px] text-black"
+                  className="h-[45px] w-full text-[19px] text-black"
                 />
               </div>
 
@@ -502,7 +502,7 @@ export default function UpcomingRaceCard({
                     },
                   }}
                   variant="matchcard"
-                  className="h-[45px] w-full text-[16px] text-black"
+                  className="h-[45px] w-full text-[19px] text-black"
                 />
               </div>
             </div>
@@ -536,7 +536,7 @@ export default function UpcomingRaceCard({
                     },
                   }}
                   variant="matchcard"
-                  className="h-[45px] w-full text-[16px] text-black"
+                  className="h-[45px] w-full text-[19px] text-black"
                 />
               </div>
 
@@ -559,7 +559,7 @@ export default function UpcomingRaceCard({
                     },
                   }}
                   variant="matchcard"
-                  className="h-[45px] w-full text-[16px] text-black"
+                  className="h-[45px] w-full text-[19px] text-black"
                 />
               </div>
             </div>
