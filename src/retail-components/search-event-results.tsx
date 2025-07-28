@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select'
+import Image from 'next/image'
 
 const dates = Array.from({ length: 10 }, (_, index) => {
   const date = new Date()
@@ -249,8 +250,26 @@ export default function SearchEventResults(props: { onClose: () => void }) {
     setLastTenGames(false)
   }
 
+  const formatSafeDate = (date: any): string => {
+    try {
+      if (date instanceof Date && !isNaN(date.getTime())) {
+        return format(date, 'dd-MM-yyyy HH:mm')
+      }
+
+      const parsedDate = new Date(date)
+      if (!isNaN(parsedDate.getTime())) {
+        return format(parsedDate, 'dd-MM-yyyy HH:mm')
+      }
+
+      return 'Invalid Date'
+    } catch (error) {
+      console.error('Error formatting date:', error)
+      return 'Invalid Date'
+    }
+  }
+
   return (
-    <div className="flex h-full flex-col gap-4">
+    <div className="flex h-full flex-col gap-1">
       <div className="flex flex-col items-center bg-accent p-2">
         <div className="flex flex-wrap items-center gap-8">
           <div className="flex flex-row items-center gap-2 bg-badge text-background">
@@ -375,20 +394,18 @@ export default function SearchEventResults(props: { onClose: () => void }) {
             <ScrollArea className="pb-20">
               <Accordion type="multiple" className="space-y-4">
                 {filteredEventResults.map((eventResult) => {
+                  const uniqueKey = `${eventResult.discipline}-${eventResult.id}`
                   return (
                     <AccordionItem
-                      key={eventResult.id}
-                      value={eventResult.id.toString()}
+                      key={uniqueKey}
+                      value={uniqueKey}
                       className="gap-0"
                     >
                       <AccordionTrigger className="bg-accent p-2 text-base text-accent-foreground [&[data-state=open]>svg]:-rotate-90">
                         <div className="flex w-[600px] flex-row justify-between gap-2">
                           <div className="flex flex-row gap-2">
                             <span className="font-bold">
-                              {format(
-                                eventResult.startTime,
-                                'dd-MM-yyyy HH:mm',
-                              )}{' '}
+                              {formatSafeDate(eventResult.startTime)}
                               {eventResult.name}
                               {' / '}
                             </span>
@@ -462,6 +479,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
 
         if (response.ok) {
           const data = await response.json()
+          console.log('🔍 API Response Data:', data) // ✅ Debug per vedere la struttura
           setDetailedResult(data)
         }
       } catch (error) {
@@ -490,72 +508,461 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
     )
   }
 
-  if (eventResult.discipline === Discipline.HORSES && detailedResult.odds) {
+  if (
+    (eventResult.discipline === Discipline.HORSES ||
+      eventResult.discipline === Discipline.DOGS) &&
+    detailedResult.odds
+  ) {
     const raceResult = detailedResult as RaceResult
+    const disciplineName =
+      eventResult.discipline === Discipline.HORSES ? 'Horse' : 'Dog'
+
+    const formatSafeDate = (date: any): string => {
+      try {
+        if (date instanceof Date && !isNaN(date.getTime())) {
+          return format(date, 'dd-MM-yyyy HH:mm')
+        }
+
+        const parsedDate = new Date(date)
+        if (!isNaN(parsedDate.getTime())) {
+          return format(parsedDate, 'dd-MM-yyyy HH:mm')
+        }
+
+        return 'Invalid Date'
+      } catch (error) {
+        console.error('Error formatting date:', error)
+        return 'Invalid Date'
+      }
+    }
+
     return (
       <div className="space-y-4">
-        {/* Horse Racing Odds */}
-        <div className="grid grid-cols-2 gap-4">
+        {raceResult.podium && raceResult.podium.length > 0 && (
+          <div className="border">
+            <div className="bg-accent py-2 text-center">
+              <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                ARRIVAL ORDER
+              </div>
+            </div>
+            <div className="flex items-center justify-center gap-6 p-4">
+              {raceResult.podium.slice(0, 3).map((competitor, index) => {
+                let imageSrc = ''
+                let alt = ''
+
+                switch (index + 1) {
+                  case 1:
+                    imageSrc = '/cockade_gold.png'
+                    alt = '1'
+                    break
+                  case 2:
+                    imageSrc = '/cockade_silver.png'
+                    alt = '2'
+                    break
+                  case 3:
+                    imageSrc = '/cockade_bronze.png'
+                    alt = '3'
+                    break
+                }
+
+                return (
+                  <div
+                    key={competitor.number}
+                    className="flex flex-col items-center gap-2"
+                  >
+                    {/* Medaglia con numero */}
+                    <div className="relative flex h-12 w-12 items-center justify-center">
+                      <Image
+                        src={imageSrc}
+                        alt={alt}
+                        width={48}
+                        height={48}
+                        className="absolute"
+                      />
+                      <div className="relative text-[18px] font-bold text-black">
+                        <div
+                          className={
+                            'flex h-7 w-7 items-center justify-center rounded-md font-bold text-white ' +
+                            (competitor.number === 1
+                              ? 'bg-red-500'
+                              : competitor.number === 2
+                                ? 'bg-blue-500'
+                                : competitor.number === 3
+                                  ? 'bg-orange-500'
+                                  : competitor.number === 4
+                                    ? 'bg-green-500'
+                                    : competitor.number === 5
+                                      ? 'bg-yellow-500'
+                                      : competitor.number === 6
+                                        ? 'bg-purple-500'
+                                        : 'border border-gray-300 bg-white text-black')
+                          }
+                        >
+                          {competitor.number}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-center text-sm font-semibold">
+                      {competitor.name}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        <div className="grid grid-cols-3 gap-2">
+          {/* WINNER */}
           {raceResult.odds.winner && (
-            <div className="rounded bg-accent p-3">
-              <div className="mb-2 text-sm font-bold">WINNER</div>
-              {Object.entries(raceResult.odds.winner).map(([horse, odds]) => (
-                <div key={horse} className="text-sm">
-                  Horse {horse}: {odds}
+            <div className="border">
+              <div className="bg-accent py-2 text-center">
+                <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                  WINNER
                 </div>
-              ))}
+              </div>
+              <div className="space-y-2 p-3">
+                {Object.entries(raceResult.odds.winner).map(
+                  ([number, odds]) => (
+                    <div
+                      key={number}
+                      className="flex items-center justify-between"
+                    >
+                      <span className="flex items-center gap-2">
+                        <div className="flex h-8 w-8 items-center justify-center rounded bg-accent text-[16px] font-bold text-accent-foreground">
+                          {number}
+                        </div>
+                        <span className="text-[16px] font-semibold">
+                          {odds}
+                        </span>
+                      </span>
+                    </div>
+                  ),
+                )}
+              </div>
             </div>
           )}
+
+          {/* PLACED */}
           {raceResult.odds.placed && (
-            <div className="rounded bg-accent p-3">
-              <div className="mb-2 text-sm font-bold">PLACED</div>
-              {Object.entries(raceResult.odds.placed).map(([horse, odds]) => (
-                <div key={horse} className="text-sm">
-                  Horse {horse}: {odds}
+            <div className="border">
+              <div className="bg-accent py-2 text-center">
+                <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                  PLACED
                 </div>
-              ))}
+              </div>
+              <div className="space-y-2 p-3">
+                {Object.entries(raceResult.odds.placed).map(
+                  ([number, odds]) => (
+                    <div
+                      key={number}
+                      className="flex items-center justify-between"
+                    >
+                      <span className="flex items-center gap-2">
+                        <div className="flex h-8 w-8 items-center justify-center rounded bg-accent text-[16px] font-bold text-accent-foreground">
+                          {number}
+                        </div>
+                        <span className="text-[16px] font-semibold">
+                          {odds}
+                        </span>
+                      </span>
+                    </div>
+                  ),
+                )}
+              </div>
             </div>
           )}
+
+          {/* SHOW */}
           {raceResult.odds.show && (
-            <div className="rounded bg-accent p-3">
-              <div className="mb-2 text-sm font-bold">SHOW</div>
-              {Object.entries(raceResult.odds.show).map(([horse, odds]) => (
-                <div key={horse} className="text-sm">
-                  Horse {horse}: {odds}
+            <div className="border">
+              <div className="bg-accent py-2 text-center">
+                <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                  SHOW
                 </div>
-              ))}
+              </div>
+              <div className="space-y-2 p-3">
+                {Object.entries(raceResult.odds.show).map(([number, odds]) => (
+                  <div
+                    key={number}
+                    className="flex items-center justify-between"
+                  >
+                    <span className="flex items-center gap-2">
+                      <div className="flex h-8 w-8 items-center justify-center rounded bg-accent text-[16px] font-bold text-accent-foreground">
+                        {number}
+                      </div>
+                      <span className="text-[16px] font-semibold">{odds}</span>
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>
 
-        {/* Race Duration */}
-        {raceResult.raceDuration && (
-          <div className="rounded bg-muted p-3">
-            <div className="mb-2 text-sm font-bold">Race Duration:</div>
-            <div className="text-sm">{raceResult.raceDuration} seconds</div>
-          </div>
-        )}
-
-        {/* Final Results */}
-        {raceResult.podium && raceResult.podium.length > 0 && (
-          <div className="rounded bg-muted p-3">
-            <div className="mb-2 text-sm font-bold">Final Results:</div>
-            <div className="space-y-1">
-              {raceResult.podium.map((horse, index) => (
-                <div key={horse.number} className="text-sm">
-                  {index + 1}. {horse.name} (#{horse.number})
+        <div className="grid grid-cols-4 gap-1">
+          {/* EXACTA */}
+          {raceResult.odds.exacta && (
+            <div className="border">
+              <div className="bg-accent py-2 text-center">
+                <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                  EXACTA
                 </div>
-              ))}
+              </div>
+              <div className="space-y-2 p-3">
+                {Object.entries(raceResult.odds.exacta).map(
+                  ([combination, odds]) => (
+                    <div
+                      key={combination}
+                      className="flex items-center justify-between"
+                    >
+                      <span className="flex items-center gap-1">
+                        {combination.split('').map((num, idx) => (
+                          <div
+                            key={idx}
+                            className="flex h-8 w-8 items-center justify-center rounded bg-accent text-[16px] font-bold text-accent-foreground"
+                          >
+                            {num}
+                          </div>
+                        ))}
+                      </span>
+                      <span className="text-[16px] font-semibold">
+                        {typeof odds === 'object' && 'value' in odds
+                          ? odds.value
+                          : JSON.stringify(odds || '')}
+                      </span>
+                    </div>
+                  ),
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* QUINELLA */}
+          {raceResult.odds.quinella && (
+            <div className="border">
+              <div className="bg-accent py-2 text-center">
+                <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                  QUINELLA
+                </div>
+              </div>
+              <div className="space-y-2 p-3">
+                {Object.entries(raceResult.odds.quinella).map(
+                  ([combination, odds]) => (
+                    <div
+                      key={combination}
+                      className="flex items-center justify-between"
+                    >
+                      <span className="flex items-center gap-1">
+                        {combination.split('').map((num, idx) => (
+                          <div
+                            key={idx}
+                            className="flex h-8 w-8 items-center justify-center rounded bg-accent text-[16px] font-bold text-accent-foreground"
+                          >
+                            {num}
+                          </div>
+                        ))}
+                      </span>
+                      <span className="text-[16px] font-semibold">
+                        {typeof odds === 'object' && 'value' in odds
+                          ? odds.value
+                          : typeof odds === 'string'
+                            ? odds
+                            : JSON.stringify(odds || '')}
+                      </span>
+                    </div>
+                  ),
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* TRIFECTA */}
+          {raceResult.odds.trifecta && (
+            <div className="border">
+              <div className="bg-accent py-2 text-center">
+                <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                  TRIFECTA
+                </div>
+              </div>
+              <div className="space-y-2 p-3">
+                {Object.entries(raceResult.odds.trifecta).map(
+                  ([combination, odds]) => (
+                    <div
+                      key={combination}
+                      className="flex items-center justify-between"
+                    >
+                      <span className="flex items-center gap-1">
+                        {combination.split('').map((num, idx) => (
+                          <div
+                            key={idx}
+                            className="flex h-8 w-8 items-center justify-center rounded bg-accent text-[16px] font-bold text-accent-foreground"
+                          >
+                            {num}
+                          </div>
+                        ))}
+                      </span>
+                      <span className="text-[16px] font-semibold">
+                        {typeof odds === 'object' && odds !== null
+                          ? 'value' in odds
+                            ? String(odds.value)
+                            : typeof odds === 'object'
+                              ? JSON.stringify(odds)
+                              : String(odds)
+                          : String(odds || '')}
+                      </span>
+                    </div>
+                  ),
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* BOX TRIFECTA */}
+          {raceResult.odds.boxedtrifecta && (
+            <div className="border">
+              <div className="bg-accent py-2 text-center">
+                <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                  BOX TRIFECTA
+                </div>
+              </div>
+              <div className="space-y-2 p-3">
+                {Object.entries(raceResult.odds.boxedtrifecta).map(
+                  ([combination, odds]) => (
+                    <div
+                      key={combination}
+                      className="flex items-center justify-between"
+                    >
+                      <span className="flex items-center gap-1">
+                        {combination.split('').map((num, idx) => (
+                          <div
+                            key={idx}
+                            className="flex h-8 w-8 items-center justify-center rounded bg-accent text-[16px] font-bold text-accent-foreground"
+                          >
+                            {num}
+                          </div>
+                        ))}
+                      </span>
+                      <span className="text-[16px] font-semibold">
+                        {typeof odds === 'object' && odds !== null
+                          ? 'value' in odds
+                            ? String(odds.value)
+                            : typeof odds === 'object'
+                              ? JSON.stringify(odds)
+                              : String(odds)
+                          : String(odds || '')}
+                      </span>
+                    </div>
+                  ),
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="grid grid-cols-2 gap-1">
+          {/* EVEN/ODD */}
+          {raceResult.odds.evenodd && (
+            <div className="border">
+              <div className="bg-accent py-2 text-center">
+                <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                  EVEN / ODD
+                </div>
+              </div>
+              <div className="flex items-center justify-center">
+                {raceResult.odds.evenodd.even && (
+                  <div className="text-center">
+                    <div className="text-[14px] font-semibold">Even</div>
+                    <div className="py-2 text-[14px] font-semibold">
+                      {raceResult.odds.evenodd.even}
+                    </div>
+                  </div>
+                )}
+                {raceResult.odds.evenodd.odd && (
+                  <div className="text-center">
+                    <div className="py-2 text-[16px] font-semibold">
+                      Odd: {raceResult.odds.evenodd.odd}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* UNDER/OVER */}
+          {raceResult.odds.underover && (
+            <div className="border">
+              <div className="bg-accent py-2 text-center">
+                <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                  UNDER / OVER 3.5
+                </div>
+              </div>
+              <div className="flex items-center justify-center">
+                {raceResult.odds.underover.under && (
+                  <div className="text-center">
+                    <div className="py-2 text-[16px] font-semibold">
+                      Under: {raceResult.odds.underover.under}
+                    </div>
+                  </div>
+                )}
+                {raceResult.odds.underover.over && (
+                  <div className="text-center">
+                    <div className="py-2 text-[16px] font-semibold">
+                      Over: {raceResult.odds.underover.over}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 gap-1">
+          {/* RACE DURATION */}
+          {raceResult.raceDuration && (
+            <div className="border">
+              <div className="bg-accent py-2 text-center">
+                <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                  RACE DURATION
+                </div>
+              </div>
+              <div className="p-3 text-center">
+                <div className="text-[16px] font-semibold">
+                  {raceResult.raceDuration} seconds
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TRACK INFO */}
+          <div className="border">
+            <div className="bg-accent py-2 text-center">
+              <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                {disciplineName} RACING
+              </div>
+            </div>
+            <div className="space-y-1 p-3">
+              <div className="text-[16px]">
+                <span className="font-semibold">Track:</span> Track{' '}
+                {eventResult.extId}
+              </div>
+              <div className="text-[16px]">
+                <span className="font-semibold">Event:</span> {eventResult.id}
+              </div>
+              <div className="text-[16px]">
+                <span className="font-semibold">Start Time:</span>{' '}
+                {formatSafeDate(eventResult.startTime)}
+              </div>
             </div>
           </div>
-        )}
+        </div>
       </div>
     )
   }
 
+  // Fallback per altre discipline
   return (
     <div className="p-4 text-center text-muted-foreground">
-      Event completed - detailed results available for horse racing only
+      Event completed - detailed results available for horse and dog racing only
     </div>
   )
 }

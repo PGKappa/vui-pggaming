@@ -507,15 +507,44 @@ export default function RootContextProvider(props: {
             ext_pal_id: string
             start_time: string
             time: string
-          }) =>
-            ({
+          }) => {
+            let startTime: Date
+            try {
+              startTime = new Date(event.time)
+
+              if (isNaN(startTime.getTime()) && event.start_time) {
+                startTime = new Date()
+                const [hours, minutes] = event.start_time.split(':')
+                if (hours && minutes) {
+                  startTime.setHours(parseInt(hours, 10))
+                  startTime.setMinutes(parseInt(minutes, 10))
+                  startTime.setSeconds(0)
+                  startTime.setMilliseconds(0)
+                }
+              }
+
+              if (isNaN(startTime.getTime())) {
+                startTime = new Date()
+              }
+            } catch {
+              startTime = new Date()
+            }
+            return {
               id: event.int_event_id,
               extId: event.ext_pal_id,
-              name: `Horse Race ${event.int_event_id}`,
-              startTime: new Date(event.start_time),
+              name: ` Horse Race ${event.int_event_id}`,
+              startTime,
               time: event.time,
               discipline: Discipline.HORSES,
-            }) as EventResult,
+              result: {
+                podium: event.arrival.map((horse, index) => ({
+                  name: horse.name,
+                  number: horse.number,
+                  position: index + 1,
+                })),
+              },
+            } as EventResult
+          },
         )
 
       setRootContext((prev) => ({
@@ -604,20 +633,48 @@ export default function RootContextProvider(props: {
             int_event_id: number
             start_time: string
             time: number
-          }) =>
-            ({
+          }) => {
+            let startTime: Date
+            try {
+              if (typeof event.time === 'number') {
+                startTime =
+                  event.time > 1000000000000
+                    ? new Date(event.time)
+                    : new Date(event.time * 1000)
+              } else {
+                startTime = new Date(event.time)
+              }
+
+              if (event.start_time && !isNaN(startTime.getTime())) {
+                const [hours, minutes] = event.start_time.split(':')
+                if (hours && minutes) {
+                  startTime.setHours(parseInt(hours, 10))
+                  startTime.setMinutes(parseInt(minutes, 10))
+                }
+              }
+
+              if (isNaN(startTime.getTime())) {
+                startTime = new Date()
+              }
+            } catch {
+              startTime = new Date()
+            }
+
+            return {
               id: event.int_event_id,
-              name: `Dog Race ${event.int_event_id}`,
-              result: {
-                podium: event.arrival.map((dog) => ({
-                  name: dog.name,
-                  number: dog.number,
-                })),
-              },
-              startTime: new Date(event.start_time),
+              name: ` Dog Race ${event.int_event_id}`,
+              startTime,
               time: event.time,
               discipline: Discipline.DOGS,
-            }) as EventResult,
+              result: {
+                podium: event.arrival.map((dog, index) => ({
+                  name: dog.name,
+                  number: dog.number,
+                  position: index + 1, 
+                })),
+              },
+            } as EventResult
+          },
         )
 
       setRootContext((prev) => ({
