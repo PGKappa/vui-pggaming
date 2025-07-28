@@ -534,8 +534,106 @@ export default function RootContextProvider(props: {
       }))
     }
 
+    const fetchUpcomingDogEvents = async () => {
+      const response = await fetch(
+        'https://apidev.pgvirtual.eu/api/event/list',
+        {
+          headers: {
+            accept: 'application/json',
+            'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
+            authorization: 'Bearer ffffffff-ffff-ffff-ffff-ffffffffffee',
+            operator: 'pg',
+            priority: 'u=1, i',
+            'sec-ch-ua':
+              '"Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"',
+            'sec-ch-ua-mobile': '?1',
+            'sec-ch-ua-platform': '"Android"',
+            'sec-fetch-dest': 'empty',
+            'sec-fetch-mode': 'cors',
+            'sec-fetch-site': 'same-site',
+          },
+          referrer: 'https://test.pgvirtual.eu/',
+          referrerPolicy: 'strict-origin-when-cross-origin',
+          body: null,
+          method: 'GET',
+          mode: 'cors',
+          credentials: 'include',
+        },
+      )
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch horse events')
+      }
+
+      const dogEvents = await response.json()
+      const upcomingDogEvents: UpcomingEvent[] =
+        dogEvents.channels[1].next_events.map(
+          (
+            event: {
+              int_event_id: string
+              ext_pal_id: string
+              start_time: string
+              time: number
+            },
+            index: number,
+          ): UpcomingEvent => {
+            const startTime = new Date(event.time)
+            const hours = event.start_time.split(':')[0]
+            const minutes = event.start_time.split(':')[1]
+            startTime.setHours(parseInt(hours, 10))
+            startTime.setMinutes(parseInt(minutes, 10))
+            return {
+              id: parseInt(event.int_event_id),
+              extId: event.ext_pal_id,
+              duration: dogEvents.channels[1].duration[index],
+              name: `Dog `,
+              startTime: event.start_time,
+              time: startTime,
+              discipline: Discipline.DOGS,
+            }
+          },
+        )
+      const dogEventResults: EventResult[] =
+        dogEvents.channels[1].prev_events.map(
+          (event: {
+            arrival: {
+              name: string
+              number: number
+            }[]
+            int_event_id: number
+            start_time: string
+            time: number
+          }) =>
+            ({
+              id: event.int_event_id,
+              name: `Dog Race ${event.int_event_id}`,
+              result: {
+                podium: event.arrival.map((dog) => ({
+                  name: dog.name,
+                  number: dog.number,
+                })),
+              },
+              startTime: new Date(event.start_time),
+              time: event.time,
+              discipline: Discipline.DOGS,
+            }) as EventResult,
+        )
+
+      setRootContext((prev) => ({
+        ...prev,
+        upcomingEvents: [
+          ...(prev.upcomingEvents?.filter(
+            (event) => event.discipline !== Discipline.DOGS,
+          ) || []),
+          ...upcomingDogEvents,
+        ],
+        eventResults: [...prev.eventResults, ...dogEventResults],
+      }))
+    }
+
     fetchUpcomingRounds()
     fetchUpcomingHorseEvents()
+    fetchUpcomingDogEvents()
   }, [initCode, apiRequest])
 
   if (isLoading) {

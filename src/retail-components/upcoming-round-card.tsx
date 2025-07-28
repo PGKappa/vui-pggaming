@@ -71,19 +71,18 @@ export default function UpcomingRoundCard(props: {
     },
     {
       name: t('exact_result'),
-      markets: props.round.mag_event[0].markets.market.filter(
-        (market) => ['Risultato esatto'].includes(market.name.trim()), // need more columns
+      markets: props.round.mag_event[0].markets.market.filter((market) =>
+        ['Risultato esatto'].includes(market.name.trim()),
       ),
     },
     {
       name: t('combo'),
-      markets: props.round.mag_event[0].markets.market.filter(
-        (market) =>
-          [
-            'Combo Vincente & Segna',
-            'Combo Vincente & Goals (1.5)',
-            'Combo Vincente & Goals (2.5)',
-          ].includes(market.name.trim()), //need more columns
+      markets: props.round.mag_event[0].markets.market.filter((market) =>
+        [
+          'Combo Vincente & Segna',
+          'Combo Vincente & Goals (1.5)',
+          'Combo Vincente & Goals (2.5)',
+        ].includes(market.name.trim()),
       ),
     },
     {
@@ -96,27 +95,16 @@ export default function UpcomingRoundCard(props: {
     },
     {
       name: t('home/away_team'),
-      markets: props.round.mag_event[0].markets.market.filter(
-        (market) =>
-          [
-            'Casa Under/Over 0.5',
-            'Casa Under/Over 1.5',
-            'Casa Under/Over 2.5',
-            'Trasferta Under/Over 0.5',
-            'Trasferta Under/Over 1.5',
-            'Trasferta Under/Over 2.5',
-          ].includes(market.name.trim()), // need more columns
+      markets: props.round.mag_event[0].markets.market.filter((market) =>
+        [
+          'Casa Under/Over 0.5',
+          'Casa Under/Over 1.5',
+          'Casa Under/Over 2.5',
+          'Trasferta Under/Over 0.5',
+          'Trasferta Under/Over 1.5',
+          'Trasferta Under/Over 2.5',
+        ].includes(market.name.trim()),
       ),
-      /* .map((market) => ({
-          ...market,
-          selections: market.selections.map((selection) => ({
-            ...selection,
-            selection: selection.selection.map((option) => ({
-              ...option,
-              outcome: `${market.name.includes('Casa') ? t('home') : t('away')} - ${option.outcome}`,
-            })),
-          })),
-        })) */
     },
     {
       name: t('partial/final'),
@@ -212,7 +200,7 @@ export default function UpcomingRoundCard(props: {
                     key={index}
                     className="h-[70px] items-center justify-between border-card-foreground"
                   >
-                    <TableCell className="w-[150px] min-w-[150px] max-w-[150px] whitespace-nowrap text-center text-[16px] font-bold">
+                    <TableCell className="w-[136px] min-w-[136px] max-w-[136px] whitespace-nowrap text-center text-[16px] font-bold">
                       {teamNames}
                     </TableCell>
 
