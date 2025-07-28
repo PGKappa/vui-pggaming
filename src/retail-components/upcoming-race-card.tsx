@@ -64,9 +64,7 @@ export default function UpcomingRaceCard({
         'history',
         'winner',
         'place2',
-        'place3' /* 
-        'evenodd',
-        'underover', */,
+        'place3',
       ],
     },
     couples: {
