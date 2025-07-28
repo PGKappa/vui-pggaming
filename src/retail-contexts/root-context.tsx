@@ -26,7 +26,7 @@ export type RootContextType = {
   ) => Promise<T>
   upcomingRounds?: UpcomingRound[]
   upcomingEvents?: UpcomingEvent[]
-  eventResults: EventResult[]
+  last10GamesPerDiscipline: EventResult[]
   searchEventResults?: EventResult[]
   setSearchEventResults: (searchEventResults?: EventResult[]) => void
   betsHistory: Ticket[]
@@ -35,7 +35,7 @@ export type RootContextType = {
 
 const defaultRootContext: RootContextType = {
   //TODO: remove mock data
-  eventResults: [],
+  last10GamesPerDiscipline: [],
   setSearchEventResults: () => {},
   betsHistory: [],
   teamRankings: [
@@ -426,8 +426,8 @@ export default function RootContextProvider(props: {
             data: round,
           })),
         ],
-        eventResults: [
-          ...prev.eventResults.filter(
+        last10GamesPerDiscipline: [
+          ...prev.last10GamesPerDiscipline.filter(
             (result) => result.discipline !== Discipline.SOCCER,
           ),
           ...roundResults,
@@ -475,7 +475,7 @@ export default function RootContextProvider(props: {
               int_event_id: string
               ext_pal_id: string
               start_time: string
-              time: number
+              time: string
             },
             index: number,
           ): UpcomingEvent => {
@@ -503,18 +503,14 @@ export default function RootContextProvider(props: {
               number: number
             }[]
             int_event_id: number
+            ext_pal_id: string
             start_time: string
-            time: number
+            time: string
           }) =>
             ({
               id: event.int_event_id,
+              extId: event.ext_pal_id,
               name: `Horse Race ${event.int_event_id}`,
-              result: {
-                podium: event.arrival.map((horse) => ({
-                  name: horse.name,
-                  number: horse.number,
-                })),
-              },
               startTime: new Date(event.start_time),
               time: event.time,
               discipline: Discipline.HORSES,
@@ -529,8 +525,8 @@ export default function RootContextProvider(props: {
           ) || []),
           ...upcomingHorseEvents,
         ],
-        eventResults: [
-          ...prev.eventResults.filter(
+        last10GamesPerDiscipline: [
+          ...prev.last10GamesPerDiscipline.filter(
             (e) => e.discipline !== Discipline.HORSES,
           ),
           ...horseEventResults,

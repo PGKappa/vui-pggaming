@@ -1,3 +1,4 @@
+import React from 'react'
 import { Button } from '@/retail-components/ui/button'
 import { Card, CardContent, CardHeader } from '@/retail-components/ui/card'
 import {
@@ -167,23 +168,21 @@ export default function UpcomingRoundCard(props: {
                   const isSpecialTab = specialTabs.includes(selectedTab)
                   if (isSpecialTab) {
                     return (
-                      <>
+                      <React.Fragment key={`special-${index}`}>
                         <TableHead
-                          key={index}
                           className="text-center font-bold"
                           colSpan={1}
                         >
                           {market.name}
                         </TableHead>
                         <TableHead className="w-[1px] bg-white p-0"></TableHead>
-                      </>
+                      </React.Fragment>
                     )
                   }
 
                   return (
-                    <>
+                    <React.Fragment key={`market-${index}`}>
                       <TableHead
-                        key={index}
                         className="text-center font-bold"
                         colSpan={optionsCount}
                       >
@@ -192,7 +191,7 @@ export default function UpcomingRoundCard(props: {
                       {!isSpecialTab && (
                         <TableHead className="w-[1px] bg-white p-0"></TableHead>
                       )}
-                    </>
+                    </React.Fragment>
                   )
                 })}
               <TableHead></TableHead>
@@ -234,9 +233,8 @@ export default function UpcomingRoundCard(props: {
                           )
                           const optionsChunks = chunkArray(options, chunckSize)
                           return (
-                            <>
+                            <React.Fragment key={`special-market-${marketIndex}`}>
                               <TableCell
-                                key={marketIndex}
                                 className="justify-items-center px-[10px]"
                               >
                                 {optionsChunks.map((chunk, chunkIndex) => (
@@ -266,12 +264,12 @@ export default function UpcomingRoundCard(props: {
                                 ))}
                               </TableCell>
                               <TableCell className="w-[1px] bg-border p-0"></TableCell>
-                            </>
+                            </React.Fragment>
                           )
                         }
 
                         return (
-                          <>
+                          <React.Fragment key={`regular-market-${marketIndex}`}>
                             {market.selections
                               .flatMap(({ selection }) => selection)
                               .map((option, i) => (
@@ -299,7 +297,7 @@ export default function UpcomingRoundCard(props: {
                             {!isSpecialTab && (
                               <TableCell className="w-[1px] bg-border p-0"></TableCell>
                             )}
-                          </>
+                          </React.Fragment>
                         )
                       })}
 

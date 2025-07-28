@@ -14,7 +14,7 @@ export default function Navbar() {
   const searchParams = useSearchParams()
   const initCode = searchParams.get('init_code')
 
-  const { eventResults, setSearchEventResults } = useContext(RootContext)
+  const { last10GamesPerDiscipline: eventResults, setSearchEventResults } = useContext(RootContext)
 
   return (
     <div className="flex w-full flex-row items-center justify-start bg-accent p-3">

@@ -1,8 +1,10 @@
-import { Discipline, EventResult } from '@/retail-lib/types'
-import { format, isSameDay } from 'date-fns'
+import { Discipline, EventResult, RaceResult } from '@/retail-lib/types'
+import { format } from 'date-fns'
 import { ChevronRight } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
+import { RootContext } from '@/retail-contexts/root-context'
 import {
   Accordion,
   AccordionContent,
@@ -39,41 +41,183 @@ const timeSlots = [
   '21:00 | 23:59',
 ]
 
-export default function SearchEventResults(props: {
-  eventResults: EventResult[]
-  onClose: () => void
-}) {
+export default function SearchEventResults(props: { onClose: () => void }) {
   const { t } = useTranslation()
-
+  const rootContext = useContext(RootContext)
   const [selectedDiscipline, setSelectedDiscipline] = useState<
     Discipline | 'NONE'
   >('NONE')
-  const [selectedDate, setSelectedDate] = useState<string>('ALL')
+  const [selectedDate, setSelectedDate] = useState<string>()
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>('ALL')
   const [lastTenGames, setLastTenGames] = useState<boolean>(false)
+  const [eventResults, setEventResults] = useState<EventResult[]>([])
 
-  const eventResults = useMemo(() => {
-    if (selectedDiscipline === 'NONE') {
-      return []
+  const fetchDetailedEventResult = async (extId: string, eventId: string) => {
+    try {
+      const response = await fetch(
+        `https://apidev.pgvirtual.eu/api/event/results/${extId}/${eventId}`,
+        {
+          headers: {
+            accept: 'application/json',
+            'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
+            authorization: 'Bearer ffffffff-ffff-ffff-ffff-ffffffffffee',
+            'content-type': 'application/json',
+            operator: 'pg',
+            priority: 'u=1, i',
+            'sec-ch-ua':
+              '"Not)A;Brand";v="8", "Chromium";v="138", "Google Chrome";v="138"',
+            'sec-ch-ua-mobile': '?1',
+            'sec-ch-ua-platform': '"Android"',
+            'sec-fetch-dest': 'empty',
+            'sec-fetch-mode': 'cors',
+            'sec-fetch-site': 'same-site',
+          },
+          referrer: 'https://test.pgvirtual.eu/',
+          method: 'GET',
+          mode: 'cors',
+          credentials: 'include',
+        },
+      )
+
+      if (!response.ok) {
+        console.warn(`Failed to fetch detailed results for event ${eventId}`)
+        return null
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.warn(
+        `Error fetching detailed results for event ${eventId}:`,
+        error,
+      )
+      return null
+    }
+  }
+
+  useEffect(() => {
+    if (selectedDiscipline === 'NONE' || !selectedDate) {
+      setEventResults([])
+      return
     }
 
     if (lastTenGames) {
-      return props.eventResults
+      return
+    }
+
+    const fetchEventResults = async (discipline: Discipline, date: string) => {
+      try {
+        const response = await fetch(
+          'https://apidev.pgvirtual.eu/api/event/results/list',
+          {
+            headers: {
+              accept: 'application/json',
+              'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
+              authorization: 'Bearer ffffffff-ffff-ffff-ffff-ffffffffffee',
+              'content-type': 'application/json',
+              operator: 'pg',
+              priority: 'u=1, i',
+              'sec-ch-ua':
+                '"Not)A;Brand";v="8", "Chromium";v="138", "Google Chrome";v="138"',
+              'sec-ch-ua-mobile': '?1',
+              'sec-ch-ua-platform': '"Android"',
+              'sec-fetch-dest': 'empty',
+              'sec-fetch-mode': 'cors',
+              'sec-fetch-site': 'same-site',
+            },
+            referrer: 'https://test.pgvirtual.eu/',
+            body: JSON.stringify({
+              gameIds: [`${discipline.toLowerCase()}6`],
+              dateStart: date,
+              dateEnd: date,
+            }),
+            method: 'POST',
+            mode: 'cors',
+            credentials: 'include',
+          },
+        )
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch event results')
+        }
+        const data = await response.json()
+
+        let results: EventResult[]
+
+        if (discipline === Discipline.HORSES) {
+          results = await Promise.all(
+            data.items.map(async (result: any) => {
+              const detailedResult = await fetchDetailedEventResult(
+                result.ext_pal_id,
+                result.int_event_id.toString(),
+              )
+
+              const startTime = new Date(result.time)
+              const hours = result.start_time.split(':')[0]
+              const minutes = result.start_time.split(':')[1]
+              startTime.setHours(parseInt(hours, 10))
+              startTime.setMinutes(parseInt(minutes, 10))
+
+              return {
+                id: result.int_event_id,
+                extId: result.ext_pal_id,
+                name:
+                  detailedResult?.track_name ||
+                  result.track_name ||
+                  `Horse Race ${result.int_event_id}`,
+                startTime,
+                discipline: Discipline.HORSES,
+              } as EventResult
+            }),
+          )
+        } else {
+          results = data.items.map((result: any) => {
+            const startTime = new Date(result.time)
+            const hours = result.start_time.split(':')[0]
+            const minutes = result.start_time.split(':')[1]
+            startTime.setHours(parseInt(hours, 10))
+            startTime.setMinutes(parseInt(minutes, 10))
+            return {
+              id: result.int_event_id,
+              extId: result.ext_pal_id,
+              name:
+                result.track_name ||
+                `${discipline} Event ${result.int_event_id}`,
+              startTime,
+              discipline: discipline,
+            } as EventResult
+          })
+        }
+
+        setEventResults(results)
+      } catch (error: unknown) {
+        const message =
+          (error as { message: string }).message || 'Unknown error'
+        toast.error(message)
+      }
+    }
+    fetchEventResults(selectedDiscipline, selectedDate)
+  }, [selectedDate, selectedDiscipline, lastTenGames])
+
+  const filteredEventResults = useMemo(() => {
+    if (selectedDiscipline === 'NONE') return []
+
+    if (lastTenGames) {
+      console.log(
+        'Last 10 games mode - rootContext.last10GamesPerDiscipline:',
+        rootContext.last10GamesPerDiscipline,
+      )
+      console.log('Selected discipline:', selectedDiscipline)
+      const filtered = rootContext.last10GamesPerDiscipline
         .filter((result) => result.discipline === selectedDiscipline)
         .sort((a, b) => b.startTime.getTime() - a.startTime.getTime())
         .slice(0, 10)
+      console.log('Filtered results:', filtered)
+      return filtered
     }
 
-    const filteredResults = props.eventResults.filter((result) => {
-      if (result.discipline !== selectedDiscipline) {
-        return false
-      }
-      if (
-        selectedDate !== 'ALL' &&
-        !isSameDay(result.startTime, new Date(selectedDate))
-      ) {
-        return false
-      }
+    if (!selectedDate) return []
+
+    const filteredResults = eventResults.filter((result) => {
       if (selectedTimeSlot !== 'ALL') {
         const [startTimeStr, endTimeStr] = selectedTimeSlot.split(' | ')
         const [startHours, startMinutes] = startTimeStr.split(':').map(Number)
@@ -90,11 +234,12 @@ export default function SearchEventResults(props: {
     })
     return filteredResults
   }, [
-    lastTenGames,
-    props.eventResults,
     selectedDiscipline,
     selectedDate,
+    lastTenGames,
+    eventResults,
     selectedTimeSlot,
+    rootContext.last10GamesPerDiscipline,
   ])
 
   const handleReset = () => {
@@ -102,19 +247,6 @@ export default function SearchEventResults(props: {
     setSelectedDate('ALL')
     setSelectedTimeSlot('ALL')
     setLastTenGames(false)
-  }
-
-  const formatSafeDate = (date: Date, formatStr: string) => {
-    try {
-      const dateObj = typeof date === 'string' ? new Date(date) : date
-      if (!(dateObj instanceof Date) || isNaN(dateObj.getTime())) {
-        return 'Data non valida'
-      }
-      return format(dateObj, formatStr)
-    } catch (error) {
-      console.error('Error formatting date:', error)
-      return 'Data non valida'
-    }
   }
 
   return (
@@ -126,7 +258,7 @@ export default function SearchEventResults(props: {
               {t('discipline')}
             </span>
             <Select
-              value={selectedDiscipline?.toString()}
+              value={selectedDiscipline.toString()}
               onValueChange={(value) => {
                 setSelectedDiscipline(
                   value === 'NONE'
@@ -239,10 +371,10 @@ export default function SearchEventResults(props: {
 
       <div className="h-full">
         {!!selectedDiscipline ? (
-          eventResults.length > 0 ? (
+          filteredEventResults.length > 0 ? (
             <ScrollArea className="pb-20">
               <Accordion type="multiple" className="space-y-4">
-                {eventResults.map((eventResult) => {
+                {filteredEventResults.map((eventResult) => {
                   return (
                     <AccordionItem
                       key={eventResult.id}
@@ -253,126 +385,23 @@ export default function SearchEventResults(props: {
                         <div className="flex w-[600px] flex-row justify-between gap-2">
                           <div className="flex flex-row gap-2">
                             <span className="font-bold">
-                              {formatSafeDate(
+                              {format(
                                 eventResult.startTime,
                                 'dd-MM-yyyy HH:mm',
                               )}{' '}
                               {eventResult.name}
                               {' / '}
                             </span>
-                            {'teams' in eventResult.result && (
-                              <span>{eventResult.result.teams}</span>
+                            {eventResult.discipline === Discipline.SOCCER && (
+                              <span>Soccer Match</span>
                             )}
                           </div>
-                          <span className="font-bold">
-                            {'score1' in eventResult.result ? (
-                              <>
-                                {eventResult.result.score1} - {''}
-                                {eventResult.result.score2}
-                              </>
-                            ) : (
-                              t('not_applicable')
-                            )}
-                          </span>
+                          <span className="font-bold">{t('completed')}</span>
                         </div>
                         <ChevronRight className="h-6 w-6 shrink-0 transition-transform duration-200" />
                       </AccordionTrigger>
                       <AccordionContent>
-                        <table className="w-full border-collapse bg-background text-center">
-                          <tbody>
-                            {/* 1X2 and DOUBLE CHANCE */}
-                            <tr className="border-b-2 border-betSlip">
-                              <td className="border-r-2 border-betSlip p-2 text-center">
-                                <div className="font-bold">1X2</div>
-                                <div>
-                                  {'odds' in eventResult.result &&
-                                  eventResult.result.odds?.oneXTwo
-                                    ? `2 ${eventResult.result.odds.oneXTwo.odds.toFixed(2)}`
-                                    : '2 1.95'}
-                                </div>
-                              </td>
-                              <td className="p-2 text-center">
-                                <div className="font-bold">DOUBLE CHANCE</div>
-                                <div>
-                                  {'odds' in eventResult.result &&
-                                  eventResult.result.odds?.doubleChance
-                                    ? `2 ${eventResult.result.odds.doubleChance.odds.toFixed(2)}`
-                                    : '2 1.63'}
-                                </div>
-                              </td>
-                            </tr>
-
-                            {/* FIRST SCORER and SUM GOALS */}
-                            <tr className="border-b-2 border-betSlip">
-                              <td className="border-r-2 border-betSlip p-2 text-center">
-                                <div className="font-bold">FIRST SCORER</div>
-                                <div>
-                                  {'odds' in eventResult.result &&
-                                  eventResult.result.odds?.firstScorer
-                                    ? `${eventResult.result.odds.firstScorer.teamLabel || 'TEAM 2'} ${eventResult.result.odds.firstScorer.odds.toFixed(2)}`
-                                    : 'TEAM 2 2.05'}
-                                </div>
-                              </td>
-                              <td className="p-2 text-center">
-                                <div className="font-bold">SUM GOALS</div>
-                                <div>
-                                  {'odds' in eventResult.result &&
-                                  eventResult.result.odds?.sumGoals
-                                    ? `${eventResult.result.odds.sumGoals.value} ${eventResult.result.odds.sumGoals.odds.toFixed(2)}`
-                                    : '2 1.63'}
-                                </div>
-                              </td>
-                            </tr>
-
-                            {/* GOAL / NO GOAL and RED CARD */}
-                            <tr className="border-b-2 border-betSlip">
-                              <td className="border-r-2 border-betSlip p-2 text-center">
-                                <div className="font-bold">GOAL / NO GOAL</div>
-                                <div>
-                                  {'odds' in eventResult.result &&
-                                  eventResult.result.odds?.goalNoGoal
-                                    ? `${eventResult.result.odds.goalNoGoal.value} ${eventResult.result.odds.goalNoGoal.odds.toFixed(2)}`
-                                    : '1 1.95'}
-                                </div>
-                              </td>
-                              <td className="p-2 text-center">
-                                <div className="font-bold">RED CARD</div>
-                                <div>
-                                  {'odds' in eventResult.result &&
-                                  eventResult.result.odds?.redCard
-                                    ? `${eventResult.result.odds.redCard.value} ${eventResult.result.odds.redCard.odds.toFixed(2)}`
-                                    : 'Yes 2.95'}
-                                </div>
-                              </td>
-                            </tr>
-
-                            {/* WINNING COMBO & SCORES and EXACT NUMBER OF GOALS */}
-                            <tr>
-                              <td className="border-r-2 border-betSlip p-2 text-center">
-                                <div className="font-bold">
-                                  WINNING COMBO & SCORES
-                                </div>
-                                <div>
-                                  {'odds' in eventResult.result &&
-                                  eventResult.result.odds?.winningCombo
-                                    ? `${eventResult.result.odds.winningCombo.value} ${eventResult.result.odds.winningCombo.odds.toFixed(2)}`
-                                    : '2+G 1.90'}
-                                </div>
-                              </td>
-                              <td className="p-2 text-center">
-                                <div className="font-bold">
-                                  EXACT NUMBER OF GOALS
-                                </div>
-                                <div>
-                                  {'odds' in eventResult.result &&
-                                  eventResult.result.odds?.exactGoals
-                                    ? `${eventResult.result.odds.exactGoals.value} ${eventResult.result.odds.exactGoals.odds.toFixed(2)}`
-                                    : '2 1.90'}
-                                </div>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
+                        <EventResultDetails eventResult={eventResult} />
                       </AccordionContent>
                     </AccordionItem>
                   )
@@ -392,6 +421,141 @@ export default function SearchEventResults(props: {
           </div>
         )}
       </div>
+    </div>
+  )
+}
+
+function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
+  const [detailedResult, setDetailedResult] = useState<any>(null)
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    if (!eventResult.extId) return
+
+    const fetchDetails = async () => {
+      setLoading(true)
+      try {
+        const response = await fetch(
+          `https://apidev.pgvirtual.eu/api/event/results/${eventResult.extId}/${eventResult.id}`,
+          {
+            headers: {
+              accept: 'application/json',
+              'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
+              authorization: 'Bearer ffffffff-ffff-ffff-ffff-ffffffffffee',
+              operator: 'pg',
+              priority: 'u=1, i',
+              'sec-ch-ua':
+                '"Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"',
+              'sec-ch-ua-mobile': '?1',
+              'sec-ch-ua-platform': '"Android"',
+              'sec-fetch-dest': 'empty',
+              'sec-fetch-mode': 'cors',
+              'sec-fetch-site': 'same-site',
+            },
+            referrer: 'https://test.pgvirtual.eu/',
+            referrerPolicy: 'strict-origin-when-cross-origin',
+            method: 'GET',
+            mode: 'cors',
+            credentials: 'include',
+          },
+        )
+
+        if (response.ok) {
+          const data = await response.json()
+          setDetailedResult(data)
+        }
+      } catch (error) {
+        console.warn('Failed to fetch detailed results:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchDetails()
+  }, [eventResult.extId, eventResult.id])
+
+  if (loading) {
+    return (
+      <div className="p-4 text-center text-muted-foreground">
+        Loading detailed results...
+      </div>
+    )
+  }
+
+  if (!detailedResult) {
+    return (
+      <div className="p-4 text-center text-muted-foreground">
+        No detailed results available
+      </div>
+    )
+  }
+
+  if (eventResult.discipline === Discipline.HORSES && detailedResult.odds) {
+    const raceResult = detailedResult as RaceResult
+    return (
+      <div className="space-y-4">
+        {/* Horse Racing Odds */}
+        <div className="grid grid-cols-2 gap-4">
+          {raceResult.odds.winner && (
+            <div className="rounded bg-accent p-3">
+              <div className="mb-2 text-sm font-bold">WINNER</div>
+              {Object.entries(raceResult.odds.winner).map(([horse, odds]) => (
+                <div key={horse} className="text-sm">
+                  Horse {horse}: {odds}
+                </div>
+              ))}
+            </div>
+          )}
+          {raceResult.odds.placed && (
+            <div className="rounded bg-accent p-3">
+              <div className="mb-2 text-sm font-bold">PLACED</div>
+              {Object.entries(raceResult.odds.placed).map(([horse, odds]) => (
+                <div key={horse} className="text-sm">
+                  Horse {horse}: {odds}
+                </div>
+              ))}
+            </div>
+          )}
+          {raceResult.odds.show && (
+            <div className="rounded bg-accent p-3">
+              <div className="mb-2 text-sm font-bold">SHOW</div>
+              {Object.entries(raceResult.odds.show).map(([horse, odds]) => (
+                <div key={horse} className="text-sm">
+                  Horse {horse}: {odds}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Race Duration */}
+        {raceResult.raceDuration && (
+          <div className="rounded bg-muted p-3">
+            <div className="mb-2 text-sm font-bold">Race Duration:</div>
+            <div className="text-sm">{raceResult.raceDuration} seconds</div>
+          </div>
+        )}
+
+        {/* Final Results */}
+        {raceResult.podium && raceResult.podium.length > 0 && (
+          <div className="rounded bg-muted p-3">
+            <div className="mb-2 text-sm font-bold">Final Results:</div>
+            <div className="space-y-1">
+              {raceResult.podium.map((horse, index) => (
+                <div key={horse.number} className="text-sm">
+                  {index + 1}. {horse.name} (#{horse.number})
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  return (
+    <div className="p-4 text-center text-muted-foreground">
+      Event completed - detailed results available for horse racing only
     </div>
   )
 }
