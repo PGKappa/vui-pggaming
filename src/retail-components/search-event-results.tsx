@@ -1,10 +1,11 @@
+import { RootContext } from '@/retail-contexts/root-context'
 import { Discipline, EventResult, RaceResult } from '@/retail-lib/types'
 import { format } from 'date-fns'
 import { ChevronRight } from 'lucide-react'
+import Image from 'next/image'
 import { useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import { RootContext } from '@/retail-contexts/root-context'
 import {
   Accordion,
   AccordionContent,
@@ -21,7 +22,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select'
-import Image from 'next/image'
 
 const dates = Array.from({ length: 10 }, (_, index) => {
   const date = new Date()
@@ -42,7 +42,10 @@ const timeSlots = [
   '21:00 | 23:59',
 ]
 
-export default function SearchEventResults(props: { onClose: () => void }) {
+export default function SearchEventResults(props: {
+  onClose: () => void
+  eventResults: EventResult[]
+}) {
   const { t } = useTranslation()
   const rootContext = useContext(RootContext)
   const [selectedDiscipline, setSelectedDiscipline] = useState<
@@ -50,7 +53,7 @@ export default function SearchEventResults(props: { onClose: () => void }) {
   >('NONE')
   const [selectedDate, setSelectedDate] = useState<string>()
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>('ALL')
-  const [lastTenGames, setLastTenGames] = useState<boolean>(false)
+  const [lastTenGames, setLastTenGames] = useState<boolean>(true)
   const [eventResults, setEventResults] = useState<EventResult[]>([])
 
   const fetchDetailedEventResult = async (extId: string, eventId: string) => {
@@ -96,19 +99,44 @@ export default function SearchEventResults(props: { onClose: () => void }) {
   }
 
   useEffect(() => {
-    if (selectedDiscipline === 'NONE' || (!selectedDate && !lastTenGames)) {
+    if (selectedDiscipline === 'NONE') {
       setEventResults([])
       return
     }
 
     if (lastTenGames) {
+      const allDisciplines = rootContext.last10GamesPerDiscipline.map(
+        (e) => e.discipline,
+      )
+      console.log('🔍 All disciplines available:', [...new Set(allDisciplines)])
+      const lastTenResults = rootContext.last10GamesPerDiscipline.filter(
+        (event) => {
+          console.log(
+            `🔍 Comparing: "${event.discipline}" === "${selectedDiscipline}"`,
+            event.discipline === selectedDiscipline,
+          )
+          return event.discipline === selectedDiscipline
+        },
+      )
+      setEventResults(lastTenResults)
       return
     }
 
     if (selectedDiscipline === Discipline.SOCCER) {
+      const soccerResults = rootContext.last10GamesPerDiscipline.filter(
+        (event) => event.discipline === Discipline.SOCCER,
+      )
+      setEventResults(soccerResults)
+      return
+    }
+
+    if (!selectedDate) {
+      console.log('❌ No date selected')
       setEventResults([])
       return
     }
+
+    console.log('Doing API call for:', { selectedDiscipline, selectedDate })
 
     const fetchEventResults = async (discipline: Discipline, date: string) => {
       try {
@@ -118,6 +146,12 @@ export default function SearchEventResults(props: { onClose: () => void }) {
             : discipline === Discipline.DOGS
               ? 'dogs6'
               : `${discipline.toLowerCase()}6`
+
+        console.log('Fetching event results for:', {
+          discipline,
+          gameIds,
+          date,
+        })
 
         const response = await fetch(
           'https://apidev.pgvirtual.eu/api/event/results/list',
@@ -156,10 +190,8 @@ export default function SearchEventResults(props: { onClose: () => void }) {
 
         let results: EventResult[]
 
-        if (
-          discipline === Discipline.HORSES ||
-          discipline === Discipline.DOGS
-        ) {
+        if (discipline === Discipline.HORSES) {
+          console.log('Processing HORSES')
           results = await Promise.all(
             data.items.map(async (result: any) => {
               const detailedResult = await fetchDetailedEventResult(
@@ -181,23 +213,39 @@ export default function SearchEventResults(props: { onClose: () => void }) {
                   result.track_name ||
                   `${result.discipline} Race ${result.int_event_id}`,
                 startTime,
-                discipline: Discipline.HORSES || Discipline.DOGS,
+                discipline: Discipline.HORSES,
               } as EventResult
             }),
           )
-        } else if (discipline === Discipline.SOCCER) {
-          const soccerResults = rootContext.last10GamesPerDiscipline
-            .filter((result) => result.discipline === Discipline.SOCCER)
-            .filter((result) => {
-              if (selectedDate && selectedDate !== 'ALL') {
-                const resultDate = format(result.startTime, 'dd-MM-yyyy')
-                return resultDate === date
-              }
-              return true
-            })
-            .sort((a, b) => b.startTime.getTime() - a.startTime.getTime())
-          results = soccerResults
+        } else if (discipline === Discipline.DOGS) {
+          console.log('Processing DOGS')
+          results = await Promise.all(
+            data.items.map(async (result: any) => {
+              const detailedResult = await fetchDetailedEventResult(
+                result.ext_pal_id,
+                result.int_event_id.toString(),
+              )
+
+              const startTime = new Date(result.time)
+              const hours = result.start_time.split(':')[0]
+              const minutes = result.start_time.split(':')[1]
+              startTime.setHours(parseInt(hours, 10))
+              startTime.setMinutes(parseInt(minutes, 10))
+
+              return {
+                id: result.int_event_id,
+                extId: result.ext_pal_id,
+                name:
+                  detailedResult?.track_name ||
+                  result.track_name ||
+                  `${result.discipline} Race ${result.int_event_id}`,
+                startTime,
+                discipline: Discipline.DOGS,
+              } as EventResult
+            }),
+          )
         } else {
+          console.log('Processing the OTHER')
           results = data.items.map((result: any) => {
             const startTime = new Date(result.time)
             const hours = result.start_time.split(':')[0]
@@ -217,6 +265,7 @@ export default function SearchEventResults(props: { onClose: () => void }) {
           })
         }
 
+        console.log('🔍 Fetched Event Results:', results)
         setEventResults(results)
       } catch (error: unknown) {
         const message =
@@ -224,7 +273,7 @@ export default function SearchEventResults(props: { onClose: () => void }) {
         toast.error(message)
       }
     }
-    fetchEventResults(selectedDiscipline, selectedDate || '')
+    fetchEventResults(selectedDiscipline, selectedDate)
   }, [
     selectedDate,
     selectedDiscipline,
@@ -233,19 +282,22 @@ export default function SearchEventResults(props: { onClose: () => void }) {
   ])
 
   const filteredEventResults = useMemo(() => {
+    if (selectedDiscipline !== 'NONE') {
+      console.log('🔍 Filtering Results:', {
+        discipline: selectedDiscipline,
+        date: selectedDate,
+        lastTenGames,
+        resultsCount: eventResults.length,
+      })
+    }
+
     if (selectedDiscipline === 'NONE') return []
 
     if (lastTenGames) {
-      console.log(
-        'Last 10 games mode - rootContext.last10GamesPerDiscipline:',
-        rootContext.last10GamesPerDiscipline,
-      )
-      console.log('Selected discipline:', selectedDiscipline)
       const filtered = rootContext.last10GamesPerDiscipline
         .filter((result) => result.discipline === selectedDiscipline)
         .sort((a, b) => b.startTime.getTime() - a.startTime.getTime())
         .slice(0, 10)
-      console.log('Filtered results:', filtered)
       return filtered
     }
 
@@ -422,42 +474,53 @@ export default function SearchEventResults(props: { onClose: () => void }) {
       </div>
 
       <div className="h-full">
-        {!!selectedDiscipline ? (
+        {selectedDiscipline !== 'NONE' ? (
           filteredEventResults.length > 0 ? (
-            <ScrollArea className="pb-20">
-              <Accordion type="multiple" className="space-y-4">
-                {filteredEventResults.map((eventResult) => {
-                  const uniqueKey = `${eventResult.discipline}-${eventResult.id}`
-                  return (
-                    <AccordionItem
-                      key={uniqueKey}
-                      value={uniqueKey}
-                      className="gap-0"
-                    >
-                      <AccordionTrigger className="bg-accent p-2 text-base text-accent-foreground [&[data-state=open]>svg]:-rotate-90">
-                        <div className="flex w-[600px] flex-row justify-between gap-2">
-                          <div className="flex flex-row gap-2">
-                            <span className="font-bold">
-                              {formatSafeDate(eventResult.startTime)}
-                              {eventResult.name}
-                              {' / '}
-                            </span>
-                            {eventResult.discipline === Discipline.SOCCER && (
-                              <span>Soccer Match</span>
-                            )}
-                          </div>
-                          <span className="font-bold">{t('completed')}</span>
-                        </div>
-                        <ChevronRight className="h-6 w-6 shrink-0 transition-transform duration-200" />
-                      </AccordionTrigger>
-                      <AccordionContent>
-                        <EventResultDetails eventResult={eventResult} />
-                      </AccordionContent>
-                    </AccordionItem>
-                  )
-                })}
-              </Accordion>
-            </ScrollArea>
+            (() => {
+              console.log(
+                '🎯 Rendered filteredEventResults:',
+                filteredEventResults,
+              )
+              return (
+                <ScrollArea className="pb-20">
+                  <Accordion type="multiple" className="space-y-4">
+                    {filteredEventResults.map((eventResult, index) => {
+                      const uniqueKey = `${eventResult.discipline}-${eventResult.id}-${eventResult.extId || index}`
+                      return (
+                        <AccordionItem
+                          key={uniqueKey}
+                          value={uniqueKey}
+                          className="gap-0"
+                        >
+                          <AccordionTrigger className="bg-accent p-2 text-base text-accent-foreground [&[data-state=open]>svg]:-rotate-90">
+                            <div className="flex w-[600px] flex-row justify-between gap-2">
+                              <div className="flex flex-row gap-2">
+                                <span className="font-bold">
+                                  {formatSafeDate(eventResult.startTime)}
+                                  {eventResult.name}
+                                  {' / '}
+                                </span>
+                                {eventResult.discipline ===
+                                  Discipline.SOCCER && (
+                                  <span>Soccer Match</span>
+                                )}
+                              </div>
+                              <span className="font-bold">
+                                {t('completed')}
+                              </span>
+                            </div>
+                            <ChevronRight className="h-6 w-6 shrink-0 transition-transform duration-200" />
+                          </AccordionTrigger>
+                          <AccordionContent>
+                            <EventResultDetails eventResult={eventResult} />
+                          </AccordionContent>
+                        </AccordionItem>
+                      )
+                    })}
+                  </Accordion>
+                </ScrollArea>
+              )
+            })()
           ) : (
             <div className="flex h-full flex-col items-center justify-start">
               {t('no_results_found')}
@@ -480,7 +543,14 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    if (!eventResult.extId) return
+    if (eventResult.discipline !== Discipline.SOCCER && eventResult.result) {
+      setDetailedResult(eventResult.result)
+      return
+    }
+    if (!eventResult.extId) {
+      setDetailedResult(null)
+      return
+    }
 
     const fetchDetails = async () => {
       setLoading(true)
@@ -523,7 +593,12 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
     }
 
     fetchDetails()
-  }, [eventResult.extId, eventResult.id])
+  }, [
+    eventResult.extId,
+    eventResult.id,
+    eventResult.discipline,
+    eventResult.result,
+  ])
 
   if (loading) {
     return (
