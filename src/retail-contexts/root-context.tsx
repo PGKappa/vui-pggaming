@@ -348,14 +348,14 @@ export default function RootContextProvider(props: {
       )
 
       const roundResults: EventResult[] = Array.from(
-        { length: 12 },
+        { length: 10 },
         (_, index) => {
           const date = new Date(rounds[0].mag_event[0].startTime)
           date.setMinutes(date.getMinutes() - (index + 1) * 3)
 
           return {
-            id: 12 - index,
-            name: `Trident round ${12 - index}`,
+            id: 10 - index,
+            name: `Trident round ${10 - index}`,
             startTime: date,
             duration: 3,
             discipline: Discipline.SOCCER,
@@ -631,6 +631,7 @@ export default function RootContextProvider(props: {
               number: number
             }[]
             int_event_id: number
+            ext_pal_id: string
             start_time: string
             time: number
           }) => {
@@ -662,6 +663,7 @@ export default function RootContextProvider(props: {
 
             return {
               id: event.int_event_id,
+              extId: event.ext_pal_id,
               name: ` Dog Race ${event.int_event_id}`,
               startTime,
               time: event.time,
@@ -670,7 +672,7 @@ export default function RootContextProvider(props: {
                 podium: event.arrival.map((dog, index) => ({
                   name: dog.name,
                   number: dog.number,
-                  position: index + 1, 
+                  position: index + 1,
                 })),
               },
             } as EventResult
@@ -684,6 +686,12 @@ export default function RootContextProvider(props: {
             (event) => event.discipline !== Discipline.DOGS,
           ) || []),
           ...upcomingDogEvents,
+        ],
+        last10GamesPerDiscipline: [
+          ...prev.last10GamesPerDiscipline.filter(
+            (e) => e.discipline !== Discipline.DOGS,
+          ),
+          ...dogEventResults,
         ],
         eventResults: [...(prev.eventResults || []), ...dogEventResults],
       }))
