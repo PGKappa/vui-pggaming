@@ -96,7 +96,7 @@ export default function SearchEventResults(props: { onClose: () => void }) {
   }
 
   useEffect(() => {
-    if (selectedDiscipline === 'NONE' || !selectedDate) {
+    if (selectedDiscipline === 'NONE' || (!selectedDate && !lastTenGames)) {
       setEventResults([])
       return
     }
@@ -105,8 +105,20 @@ export default function SearchEventResults(props: { onClose: () => void }) {
       return
     }
 
+    if (selectedDiscipline === Discipline.SOCCER) {
+      setEventResults([])
+      return
+    }
+
     const fetchEventResults = async (discipline: Discipline, date: string) => {
       try {
+        const gameIds =
+          discipline === Discipline.HORSES
+            ? 'horses6'
+            : discipline === Discipline.DOGS
+              ? 'dogs6'
+              : `${discipline.toLowerCase()}6`
+
         const response = await fetch(
           'https://apidev.pgvirtual.eu/api/event/results/list',
           {
@@ -127,7 +139,7 @@ export default function SearchEventResults(props: { onClose: () => void }) {
             },
             referrer: 'https://test.pgvirtual.eu/',
             body: JSON.stringify({
-              gameIds: [`${discipline.toLowerCase()}6`],
+              gameIds: [gameIds],
               dateStart: date,
               dateEnd: date,
             }),
@@ -144,7 +156,10 @@ export default function SearchEventResults(props: { onClose: () => void }) {
 
         let results: EventResult[]
 
-        if (discipline === Discipline.HORSES) {
+        if (
+          discipline === Discipline.HORSES ||
+          discipline === Discipline.DOGS
+        ) {
           results = await Promise.all(
             data.items.map(async (result: any) => {
               const detailedResult = await fetchDetailedEventResult(
@@ -164,12 +179,24 @@ export default function SearchEventResults(props: { onClose: () => void }) {
                 name:
                   detailedResult?.track_name ||
                   result.track_name ||
-                  `Horse Race ${result.int_event_id}`,
+                  `${result.discipline} Race ${result.int_event_id}`,
                 startTime,
-                discipline: Discipline.HORSES,
+                discipline: Discipline.HORSES || Discipline.DOGS,
               } as EventResult
             }),
           )
+        } else if (discipline === Discipline.SOCCER) {
+          const soccerResults = rootContext.last10GamesPerDiscipline
+            .filter((result) => result.discipline === Discipline.SOCCER)
+            .filter((result) => {
+              if (selectedDate && selectedDate !== 'ALL') {
+                const resultDate = format(result.startTime, 'dd-MM-yyyy')
+                return resultDate === date
+              }
+              return true
+            })
+            .sort((a, b) => b.startTime.getTime() - a.startTime.getTime())
+          results = soccerResults
         } else {
           results = data.items.map((result: any) => {
             const startTime = new Date(result.time)
@@ -177,6 +204,7 @@ export default function SearchEventResults(props: { onClose: () => void }) {
             const minutes = result.start_time.split(':')[1]
             startTime.setHours(parseInt(hours, 10))
             startTime.setMinutes(parseInt(minutes, 10))
+
             return {
               id: result.int_event_id,
               extId: result.ext_pal_id,
@@ -196,8 +224,13 @@ export default function SearchEventResults(props: { onClose: () => void }) {
         toast.error(message)
       }
     }
-    fetchEventResults(selectedDiscipline, selectedDate)
-  }, [selectedDate, selectedDiscipline, lastTenGames])
+    fetchEventResults(selectedDiscipline, selectedDate || '')
+  }, [
+    selectedDate,
+    selectedDiscipline,
+    lastTenGames,
+    rootContext.last10GamesPerDiscipline,
+  ])
 
   const filteredEventResults = useMemo(() => {
     if (selectedDiscipline === 'NONE') return []
@@ -479,7 +512,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
 
         if (response.ok) {
           const data = await response.json()
-          console.log('🔍 API Response Data:', data) // ✅ Debug per vedere la struttura
+          console.log('🔍 API Response Data:', data)
           setDetailedResult(data)
         }
       } catch (error) {
@@ -871,9 +904,8 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
               <div className="flex items-center justify-center">
                 {raceResult.odds.evenodd.even && (
                   <div className="text-center">
-                    <div className="text-[14px] font-semibold">Even</div>
-                    <div className="py-2 text-[14px] font-semibold">
-                      {raceResult.odds.evenodd.even}
+                    <div className="py-2 text-[16px] font-semibold">
+                      Even: {raceResult.odds.evenodd.even}
                     </div>
                   </div>
                 )}
@@ -952,6 +984,143 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                 <span className="font-semibold">Start Time:</span>{' '}
                 {formatSafeDate(eventResult.startTime)}
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (eventResult.discipline === Discipline.SOCCER) {
+    const formatSafeDate = (date: any): string => {
+      try {
+        if (date instanceof Date && !isNaN(date.getTime())) {
+          return format(date, 'dd-MM-yyyy HH:mm')
+        }
+
+        const parsedDate = new Date(date)
+        if (!isNaN(parsedDate.getTime())) {
+          return format(parsedDate, 'dd-MM-yyyy HH:mm')
+        }
+
+        return 'Invalid Date'
+      } catch (error) {
+        console.error('Error formatting date:', error)
+        return 'Invalid Date'
+      }
+    }
+
+    return (
+      <div className="space-y-4">
+        {/* Teams e Score */}
+        <div className="border">
+          <div className="bg-accent py-2 text-center">
+            <div className="text-[16px] font-bold uppercase text-accent-foreground">
+              MATCH RESULT
+            </div>
+          </div>
+          <div className="p-4 text-center">
+            <div className="mb-2 text-[18px] font-bold">
+              {detailedResult.teams}
+            </div>
+            <div className="text-[24px] font-bold">
+              {detailedResult.score1} - {detailedResult.score2}
+            </div>
+          </div>
+        </div>
+
+        {/* Betting Markets */}
+        <div className="grid grid-cols-2 gap-4">
+          {/* 1X2 */}
+          {detailedResult.odds?.oneXTwo && (
+            <div className="border">
+              <div className="bg-accent py-2 text-center">
+                <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                  1X2
+                </div>
+              </div>
+              <div className="p-3 text-center">
+                <div className="text-[16px] font-semibold">
+                  Odds: {detailedResult.odds.oneXTwo.odds}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Double Chance */}
+          {detailedResult.odds?.doubleChance && (
+            <div className="border">
+              <div className="bg-accent py-2 text-center">
+                <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                  DOUBLE CHANCE
+                </div>
+              </div>
+              <div className="p-3 text-center">
+                <div className="text-[16px] font-semibold">
+                  Odds: {detailedResult.odds.doubleChance.odds}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* First Scorer */}
+          {detailedResult.odds?.firstScorer && (
+            <div className="border">
+              <div className="bg-accent py-2 text-center">
+                <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                  FIRST SCORER
+                </div>
+              </div>
+              <div className="p-3 text-center">
+                <div className="mb-1 text-[14px]">
+                  Team: {detailedResult.odds.firstScorer.teamLabel}
+                </div>
+                <div className="text-[16px] font-semibold">
+                  Odds: {detailedResult.odds.firstScorer.odds}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Sum Goals */}
+          {detailedResult.odds?.sumGoals && (
+            <div className="border">
+              <div className="bg-accent py-2 text-center">
+                <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                  TOTAL GOALS
+                </div>
+              </div>
+              <div className="p-3 text-center">
+                <div className="mb-1 text-[14px]">
+                  Goals: {detailedResult.odds.sumGoals.value}
+                </div>
+                <div className="text-[16px] font-semibold">
+                  Odds: {detailedResult.odds.sumGoals.odds}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Round Info */}
+        <div className="border">
+          <div className="bg-accent py-2 text-center">
+            <div className="text-[16px] font-bold uppercase text-accent-foreground">
+              MATCH INFO
+            </div>
+          </div>
+          <div className="space-y-1 p-3">
+            <div className="text-[14px]">
+              <span className="font-semibold">Round:</span>{' '}
+              {detailedResult.round?.name}
+            </div>
+            <div className="text-[14px]">
+              <span className="font-semibold">Match:</span> #
+              {detailedResult.round?.number}
+            </div>
+            <div className="text-[14px]">
+              <span className="font-semibold">Start Time:</span>{' '}
+              {formatSafeDate(eventResult.startTime)}
             </div>
           </div>
         </div>
