@@ -33,10 +33,10 @@ export function UpcomingEventsCarousel(props: {
         {upcomingEvents && upcomingEvents.length > 0 ? (
           upcomingEvents
             .filter((event) => disciplines.includes(event.discipline))
-            .map((event) => {
+            .map((event, index) => {
               return (
                 <UpcomingEventItem
-                  key={event.id}
+                  key={`${event.discipline}-${event.id}-${index}`}
                   event={event}
                   selectedEvent={props.selectedEvent}
                   setSelectedEvent={props.setSelectedEvent}
@@ -66,7 +66,6 @@ function UpcomingEventItem(props: {
   const timeToEventStart = useTimeLeft(event.time)
   return (
     <CarouselItem
-      key={event.id}
       className={`flex h-[72px] basis-1/6 cursor-pointer flex-row items-center justify-center gap-3 py-2 ${event.id === props.selectedEvent?.id ? 'bg-tertiary text-tertiary-foreground' : 'hover:bg-trasparent bg-secondary text-secondary-foreground hover:text-accent-foreground'}`}
       onClick={() => {
         props.setSelectedEvent(event)
