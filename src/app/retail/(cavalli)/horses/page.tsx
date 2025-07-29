@@ -14,8 +14,8 @@ export default function Home() {
   const { t } = useTranslation()
   const {
     upcomingEvents,
-    searchEventResults: searchRoundResults,
-    setSearchEventResults: setSearchRoundResults,
+    searchEventResults: searchEventResults,
+    setSearchEventResults: setSearchEventResults,
   } = useContext(RootContext)
 
   const [matchBetOptions, setMatchBetOptions] = useState<{
@@ -49,7 +49,7 @@ export default function Home() {
             selectedEvent={selectedEvent}
             setSelectedEvent={(event) => {
               setSelectedEvent(event)
-              setSearchRoundResults(undefined)
+              setSearchEventResults(undefined)
             }}
           />
         </div>
@@ -58,10 +58,10 @@ export default function Home() {
         <div className="flex h-full flex-row gap-2 overflow-hidden pr-2 pt-2">
           <div className="flex h-[942px] w-[1500px] flex-col gap-2 overflow-y-auto">
             <ScrollArea className="h-full w-full">
-              {!!searchRoundResults ? (
+              {!!searchEventResults ? (
                 <SearchEventResults
-                  eventResults={searchRoundResults}
-                  onClose={() => setSearchRoundResults(undefined)}
+                  eventResults={searchEventResults}
+                  onClose={() => setSearchEventResults(undefined)}
                 />
               ) : selectedEvent ? (
                 matchBetOptions ? (
