@@ -473,7 +473,7 @@ export default function SearchEventResults(props: {
         </div>
       </div>
 
-      <div className="h-full">
+      <div className="h-full overflow-auto pb-2">
         {selectedDiscipline !== 'NONE' ? (
           filteredEventResults.length > 0 ? (
             (() => {
@@ -543,10 +543,6 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    if (eventResult.discipline !== Discipline.SOCCER && eventResult.result) {
-      setDetailedResult(eventResult.result)
-      return
-    }
     if (!eventResult.extId) {
       setDetailedResult(null)
       return
@@ -593,12 +589,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
     }
 
     fetchDetails()
-  }, [
-    eventResult.extId,
-    eventResult.id,
-    eventResult.discipline,
-    eventResult.result,
-  ])
+  }, [eventResult.extId, eventResult.id, eventResult.discipline])
 
   if (loading) {
     return (
@@ -641,6 +632,92 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
         console.error('Error formatting date:', error)
         return 'Invalid Date'
       }
+    }
+
+    const extractExacta = (exacta: any) => {
+      const results: Array<{ combination: string; odds: string }> = []
+
+      Object.entries(exacta).forEach(([first, secondObj]: [string, any]) => {
+        if (typeof secondObj === 'object') {
+          Object.entries(secondObj).forEach(([second, odds]: [string, any]) => {
+            results.push({
+              combination: `${first}-${second}`,
+              odds: String(odds),
+            })
+          })
+        }
+      })
+
+      return results
+    }
+
+    const extractQuinella = (quinella: any) => {
+      const results: Array<{ combination: string; odds: string }> = []
+
+      Object.entries(quinella).forEach(([first, secondObj]: [string, any]) => {
+        if (typeof secondObj === 'object') {
+          Object.entries(secondObj).forEach(([second, odds]: [string, any]) => {
+            results.push({
+              combination: `${first}-${second}`,
+              odds: String(odds),
+            })
+          })
+        }
+      })
+
+      return results
+    }
+
+    const extractTrifecta = (trifecta: any) => {
+      const results: Array<{ combination: string; odds: string }> = []
+
+      Object.entries(trifecta).forEach(([first, secondObj]: [string, any]) => {
+        if (typeof secondObj === 'object') {
+          Object.entries(secondObj).forEach(
+            ([second, thirdObj]: [string, any]) => {
+              if (typeof thirdObj === 'object') {
+                Object.entries(thirdObj).forEach(
+                  ([third, odds]: [string, any]) => {
+                    results.push({
+                      combination: `${first}-${second}-${third}`,
+                      odds: String(odds),
+                    })
+                  },
+                )
+              }
+            },
+          )
+        }
+      })
+
+      return results
+    }
+
+    const extractBoxedTrifecta = (boxedtrifecta: any) => {
+      const results: Array<{ combination: string; odds: string }> = []
+
+      Object.entries(boxedtrifecta).forEach(
+        ([first, secondObj]: [string, any]) => {
+          if (typeof secondObj === 'object') {
+            Object.entries(secondObj).forEach(
+              ([second, thirdObj]: [string, any]) => {
+                if (typeof thirdObj === 'object') {
+                  Object.entries(thirdObj).forEach(
+                    ([third, odds]: [string, any]) => {
+                      results.push({
+                        combination: `${first}-${second}-${third}`,
+                        odds: String(odds),
+                      })
+                    },
+                  )
+                }
+              },
+            )
+          }
+        },
+      )
+
+      return results
     }
 
     return (
@@ -736,7 +813,24 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                       className="flex items-center justify-between"
                     >
                       <span className="flex items-center gap-2">
-                        <div className="flex h-8 w-8 items-center justify-center rounded bg-accent text-[16px] font-bold text-accent-foreground">
+                        <div
+                          className={
+                            'flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold text-white ' +
+                            (parseInt(number) === 1
+                              ? 'bg-red-500'
+                              : parseInt(number) === 2
+                                ? 'bg-blue-500'
+                                : parseInt(number) === 3
+                                  ? 'bg-orange-500'
+                                  : parseInt(number) === 4
+                                    ? 'bg-green-500'
+                                    : parseInt(number) === 5
+                                      ? 'bg-yellow-500'
+                                      : parseInt(number) === 6
+                                        ? 'bg-purple-500'
+                                        : 'border border-gray-300 bg-white text-black')
+                          }
+                        >
                           {number}
                         </div>
                         <span className="text-[16px] font-semibold">
@@ -766,7 +860,24 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                       className="flex items-center justify-between"
                     >
                       <span className="flex items-center gap-2">
-                        <div className="flex h-8 w-8 items-center justify-center rounded bg-accent text-[16px] font-bold text-accent-foreground">
+                        <div
+                          className={
+                            'flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold text-white ' +
+                            (parseInt(number) === 1
+                              ? 'bg-red-500'
+                              : parseInt(number) === 2
+                                ? 'bg-blue-500'
+                                : parseInt(number) === 3
+                                  ? 'bg-orange-500'
+                                  : parseInt(number) === 4
+                                    ? 'bg-green-500'
+                                    : parseInt(number) === 5
+                                      ? 'bg-yellow-500'
+                                      : parseInt(number) === 6
+                                        ? 'bg-purple-500'
+                                        : 'border border-gray-300 bg-white text-black')
+                          }
+                        >
                           {number}
                         </div>
                         <span className="text-[16px] font-semibold">
@@ -795,7 +906,24 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                     className="flex items-center justify-between"
                   >
                     <span className="flex items-center gap-2">
-                      <div className="flex h-8 w-8 items-center justify-center rounded bg-accent text-[16px] font-bold text-accent-foreground">
+                      <div
+                        className={
+                          'flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold text-white ' +
+                          (parseInt(number) === 1
+                            ? 'bg-red-500'
+                            : parseInt(number) === 2
+                              ? 'bg-blue-500'
+                              : parseInt(number) === 3
+                                ? 'bg-orange-500'
+                                : parseInt(number) === 4
+                                  ? 'bg-green-500'
+                                  : parseInt(number) === 5
+                                    ? 'bg-yellow-500'
+                                    : parseInt(number) === 6
+                                      ? 'bg-purple-500'
+                                      : 'border border-gray-300 bg-white text-black')
+                        }
+                      >
                         {number}
                       </div>
                       <span className="text-[16px] font-semibold">{odds}</span>
@@ -817,27 +945,38 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                 </div>
               </div>
               <div className="space-y-2 p-3">
-                {Object.entries(raceResult.odds.exacta).map(
-                  ([combination, odds]) => (
+                {extractExacta(raceResult.odds.exacta).map(
+                  ({ combination, odds }) => (
                     <div
                       key={combination}
                       className="flex items-center justify-between"
                     >
                       <span className="flex items-center gap-1">
-                        {combination.split('').map((num, idx) => (
+                        {combination.split('-').map((num, idx) => (
                           <div
                             key={idx}
-                            className="flex h-8 w-8 items-center justify-center rounded bg-accent text-[16px] font-bold text-accent-foreground"
+                            className={
+                              'flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold text-accent-foreground ' +
+                              (parseInt(num) === 1
+                                ? 'bg-red-500'
+                                : parseInt(num) === 2
+                                  ? 'bg-blue-500'
+                                  : parseInt(num) === 3
+                                    ? 'bg-orange-500'
+                                    : parseInt(num) === 4
+                                      ? 'bg-green-500'
+                                      : parseInt(num) === 5
+                                        ? 'bg-yellow-500'
+                                        : parseInt(num) === 6
+                                          ? 'bg-purple-500'
+                                          : 'border border-gray-300 bg-white text-black')
+                            }
                           >
                             {num}
                           </div>
                         ))}
                       </span>
-                      <span className="text-[16px] font-semibold">
-                        {typeof odds === 'object' && 'value' in odds
-                          ? odds.value
-                          : JSON.stringify(odds || '')}
-                      </span>
+                      <span className="text-[16px] font-semibold">{odds}</span>
                     </div>
                   ),
                 )}
@@ -854,29 +993,38 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                 </div>
               </div>
               <div className="space-y-2 p-3">
-                {Object.entries(raceResult.odds.quinella).map(
-                  ([combination, odds]) => (
+                {extractQuinella(raceResult.odds.quinella).map(
+                  ({ combination, odds }) => (
                     <div
                       key={combination}
                       className="flex items-center justify-between"
                     >
                       <span className="flex items-center gap-1">
-                        {combination.split('').map((num, idx) => (
+                        {combination.split('-').map((num, idx) => (
                           <div
                             key={idx}
-                            className="flex h-8 w-8 items-center justify-center rounded bg-accent text-[16px] font-bold text-accent-foreground"
+                            className={
+                              'flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold text-accent-foreground ' +
+                              (parseInt(num) === 1
+                                ? 'bg-red-500'
+                                : parseInt(num) === 2
+                                  ? 'bg-blue-500'
+                                  : parseInt(num) === 3
+                                    ? 'bg-orange-500'
+                                    : parseInt(num) === 4
+                                      ? 'bg-green-500'
+                                      : parseInt(num) === 5
+                                        ? 'bg-yellow-500'
+                                        : parseInt(num) === 6
+                                          ? 'bg-purple-500'
+                                          : 'border border-gray-300 bg-white text-black')
+                            }
                           >
                             {num}
                           </div>
                         ))}
                       </span>
-                      <span className="text-[16px] font-semibold">
-                        {typeof odds === 'object' && 'value' in odds
-                          ? odds.value
-                          : typeof odds === 'string'
-                            ? odds
-                            : JSON.stringify(odds || '')}
-                      </span>
+                      <span className="text-[16px] font-semibold">{odds}</span>
                     </div>
                   ),
                 )}
@@ -893,31 +1041,38 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                 </div>
               </div>
               <div className="space-y-2 p-3">
-                {Object.entries(raceResult.odds.trifecta).map(
-                  ([combination, odds]) => (
+                {extractTrifecta(raceResult.odds.trifecta).map(
+                  ({ combination, odds }) => (
                     <div
                       key={combination}
                       className="flex items-center justify-between"
                     >
                       <span className="flex items-center gap-1">
-                        {combination.split('').map((num, idx) => (
+                        {combination.split('-').map((num, idx) => (
                           <div
                             key={idx}
-                            className="flex h-8 w-8 items-center justify-center rounded bg-accent text-[16px] font-bold text-accent-foreground"
+                            className={
+                              'flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold text-accent-foreground ' +
+                              (parseInt(num) === 1
+                                ? 'bg-red-500'
+                                : parseInt(num) === 2
+                                  ? 'bg-blue-500'
+                                  : parseInt(num) === 3
+                                    ? 'bg-orange-500'
+                                    : parseInt(num) === 4
+                                      ? 'bg-green-500'
+                                      : parseInt(num) === 5
+                                        ? 'bg-yellow-500'
+                                        : parseInt(num) === 6
+                                          ? 'bg-purple-500'
+                                          : 'border border-gray-300 bg-white text-black')
+                            }
                           >
                             {num}
                           </div>
                         ))}
                       </span>
-                      <span className="text-[16px] font-semibold">
-                        {typeof odds === 'object' && odds !== null
-                          ? 'value' in odds
-                            ? String(odds.value)
-                            : typeof odds === 'object'
-                              ? JSON.stringify(odds)
-                              : String(odds)
-                          : String(odds || '')}
-                      </span>
+                      <span className="text-[16px] font-semibold">{odds}</span>
                     </div>
                   ),
                 )}
@@ -934,31 +1089,38 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                 </div>
               </div>
               <div className="space-y-2 p-3">
-                {Object.entries(raceResult.odds.boxedtrifecta).map(
-                  ([combination, odds]) => (
+                {extractBoxedTrifecta(raceResult.odds.boxedtrifecta).map(
+                  ({ combination, odds }) => (
                     <div
                       key={combination}
                       className="flex items-center justify-between"
                     >
-                      <span className="flex items-center gap-1">
-                        {combination.split('').map((num, idx) => (
+                      <span className="flex items-center justify-center gap-1">
+                        {combination.split('-').map((num, idx) => (
                           <div
                             key={idx}
-                            className="flex h-8 w-8 items-center justify-center rounded bg-accent text-[16px] font-bold text-accent-foreground"
+                            className={
+                              'flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold text-accent-foreground ' +
+                              (parseInt(num) === 1
+                                ? 'bg-red-500'
+                                : parseInt(num) === 2
+                                  ? 'bg-blue-500'
+                                  : parseInt(num) === 3
+                                    ? 'bg-orange-500'
+                                    : parseInt(num) === 4
+                                      ? 'bg-green-500'
+                                      : parseInt(num) === 5
+                                        ? 'bg-yellow-500'
+                                        : parseInt(num) === 6
+                                          ? 'bg-purple-500'
+                                          : 'border border-gray-300 bg-white text-black')
+                            }
                           >
                             {num}
                           </div>
                         ))}
                       </span>
-                      <span className="text-[16px] font-semibold">
-                        {typeof odds === 'object' && odds !== null
-                          ? 'value' in odds
-                            ? String(odds.value)
-                            : typeof odds === 'object'
-                              ? JSON.stringify(odds)
-                              : String(odds)
-                          : String(odds || '')}
-                      </span>
+                      <span className="text-[16px] font-semibold">{odds}</span>
                     </div>
                   ),
                 )}
