@@ -112,10 +112,6 @@ export default function SearchEventResults(props: {
       console.log('🔍 All disciplines available:', [...new Set(allDisciplines)])
       const lastTenResults = (rootContext.eventResults || []).filter(
         (event) => {
-          console.log(
-            `🔍 Comparing: "${event.discipline}" === "${selectedDiscipline}"`,
-            event.discipline === selectedDiscipline,
-          )
           return event.discipline === selectedDiscipline
         },
       )
@@ -132,12 +128,9 @@ export default function SearchEventResults(props: {
     }
 
     if (!selectedDate) {
-      console.log('❌ No date selected')
       setEventResults([])
       return
     }
-
-    console.log('Doing API call for:', { selectedDiscipline, selectedDate })
 
     const fetchEventResults = async (discipline: Discipline, date: string) => {
       try {
@@ -147,12 +140,6 @@ export default function SearchEventResults(props: {
             : discipline === Discipline.DOGS
               ? 'dogs6'
               : `${discipline.toLowerCase()}6`
-
-        console.log('Fetching event results for:', {
-          discipline,
-          gameIds,
-          date,
-        })
 
         const response = await fetch(
           'https://apidev.pgvirtual.eu/api/event/results/list',
@@ -266,7 +253,6 @@ export default function SearchEventResults(props: {
           })
         }
 
-        console.log('🔍 Fetched Event Results:', results)
         setEventResults(results)
       } catch (error: unknown) {
         const message =
@@ -473,10 +459,6 @@ export default function SearchEventResults(props: {
         {selectedDiscipline !== 'NONE' ? (
           filteredEventResults.length > 0 ? (
             (() => {
-              console.log(
-                '🎯 Rendered filteredEventResults:',
-                filteredEventResults,
-              )
               return (
                 <ScrollArea className="pb-20">
                   <Accordion type="multiple" className="space-y-4">
@@ -539,27 +521,16 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    console.log('🎯 EventResultDetails - eventResult:', eventResult)
-    console.log(
-      '🎯 EventResultDetails - eventResult.result:',
-      eventResult.result,
-    )
-
-    // ✅ Se abbiamo già i risultati mockati (Last 10 Games), usali direttamente
     if (eventResult.result) {
-      console.log('🎯 Using mockdata result:', eventResult.result)
       setDetailedResult(eventResult.result)
       return
     }
 
-    // ✅ Altrimenti, fai la chiamata API solo se abbiamo extId (ricerca per data)
     if (!eventResult.extId) {
-      console.log('🎯 No extId and no result, setting null')
       setDetailedResult(null)
       return
     }
 
-    console.log('🎯 Making API call for detailed results')
     const fetchDetails = async () => {
       setLoading(true)
       try {
@@ -590,7 +561,6 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
 
         if (response.ok) {
           const data = await response.json()
-          console.log('🔍 API Response Data:', data)
           setDetailedResult(data)
         }
       } catch (error) {
@@ -619,16 +589,12 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
     )
   }
 
-  // ✅ CAVALLI e CANI - gestisci sia dati mockati (Last 10 Games) che dati API (ricerca per data)
   if (
     (eventResult.discipline === Discipline.HORSES ||
       eventResult.discipline === Discipline.DOGS) &&
     detailedResult
   ) {
-    // ✅ Per i dati mockati (Last 10 Games) - solo podium
     if (eventResult.result && detailedResult.podium && !detailedResult.odds) {
-      console.log('🎯 Rendering mockdata podium:', detailedResult.podium)
-
       return (
         <div className="space-y-4">
           {/* PODIUM per dati mockati */}
@@ -705,24 +671,10 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                 })}
             </div>
           </div>
-
-          {/* Messaggio per Last 10 Games */}
-          <div className="border">
-            <div className="bg-accent py-2 text-center">
-              <div className="text-[16px] font-bold uppercase text-accent-foreground">
-                LAST 10 GAMES RESULT
-              </div>
-            </div>
-            <div className="p-4 text-center text-muted-foreground">
-              This result is from the Last 10 Games. For detailed odds and
-              betting information, please select a specific date.
-            </div>
-          </div>
         </div>
       )
     }
 
-    // ✅ Per i dati API (ricerca per data) - tutto il codice esistente
     if (detailedResult.odds) {
       const raceResult = detailedResult as RaceResult
       const disciplineName =
@@ -1361,7 +1313,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
     }
   }
 
-  // ✅ CALCIO - mantieni il codice esistente
+  // CALCIO
   if (eventResult.discipline === Discipline.SOCCER) {
     const formatSafeDate = (date: any): string => {
       try {
