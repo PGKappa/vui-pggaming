@@ -21,28 +21,44 @@ export function UpcomingEventsCarousel(props: {
 
   const { t } = useTranslation()
 
-  const disciplines: Discipline[] = window.location.pathname.includes('dogs')
-    ? [Discipline.DOGS]
-    : window.location.pathname.includes('horses')
-      ? [Discipline.HORSES]
-      : [Discipline.SOCCER, Discipline.DOGS, Discipline.HORSES]
+  const getDisciplinesToShow = (): Discipline[] => {
+    const path = window.location.pathname
+    if (path.includes('dogs-horses')) {
+      return [Discipline.DOGS, Discipline.HORSES]
+    } else if (path.includes('dogs')) {
+      return [Discipline.DOGS]
+    } else if (path.includes('horses')) {
+      return [Discipline.HORSES]
+    } else {
+      return [Discipline.SOCCER]
+    }
+  }
+  const disciplines = getDisciplinesToShow()
+
+  const filteredAndSortedEvents = upcomingEvents
+    ? upcomingEvents
+        .filter((event) => disciplines.includes(event.discipline))
+        .sort((a, b) => {
+          const timeA = new Date(a.time).getTime()
+          const timeB = new Date(b.time).getTime()
+          return timeA - timeB
+        })
+    : []
 
   return (
     <Carousel className="w-[1370px]">
       <CarouselContent className="-ml-1">
-        {upcomingEvents && upcomingEvents.length > 0 ? (
-          upcomingEvents
-            .filter((event) => disciplines.includes(event.discipline))
-            .map((event, index) => {
-              return (
-                <UpcomingEventItem
-                  key={`${event.discipline}-${event.id}-${index}`}
-                  event={event}
-                  selectedEvent={props.selectedEvent}
-                  setSelectedEvent={props.setSelectedEvent}
-                />
-              )
-            })
+        {filteredAndSortedEvents.length > 0 ? (
+          filteredAndSortedEvents.map((event, index) => {
+            return (
+              <UpcomingEventItem
+                key={`${event.discipline}-${event.id}-${index}`}
+                event={event}
+                selectedEvent={props.selectedEvent}
+                setSelectedEvent={props.setSelectedEvent}
+              />
+            )
+          })
         ) : (
           <div className="p-4 text-center text-background">
             {t('no_upcoming_rounds')}
@@ -64,6 +80,7 @@ function UpcomingEventItem(props: {
 
   const { t } = useTranslation()
   const timeToEventStart = useTimeLeft(event.time)
+
   return (
     <CarouselItem
       className={`flex h-[72px] basis-1/6 cursor-pointer flex-row items-center justify-center gap-3 py-2 ${event.id === props.selectedEvent?.id ? 'bg-tertiary text-tertiary-foreground' : 'hover:bg-trasparent bg-secondary text-secondary-foreground hover:text-accent-foreground'}`}
