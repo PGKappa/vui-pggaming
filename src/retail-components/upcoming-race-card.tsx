@@ -213,32 +213,32 @@ export default function UpcomingRaceCard({
       <TableHeader className="h-14 bg-card-header text-[16px] text-card-header-foreground">
         <TableRow>
           <TableHead className="w-[245px] text-center font-bold">
-            {t('starters_list')}
+            {t('starters_list').toUpperCase()}
           </TableHead>
           <TableHead className="w-[1px] bg-border p-0" />
 
           <TableHead className="w-[225px] text-center font-bold">
-            {t('performance')}
+            {t('performance').toUpperCase()}
           </TableHead>
           <TableHead className="w-[1px] bg-border p-0" />
 
           <TableHead className="w-[225px] text-center font-bold">
-            {t('history')}
+            {t('history').toUpperCase()}
           </TableHead>
           <TableHead className="w-[1px] bg-border p-0" />
 
           {activeTab === 'main' && (
             <>
               <TableHead className="text-center font-bold">
-                {t('winner')}
+                {t('winner').toUpperCase()}
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
               <TableHead className="text-center font-bold">
-                {t('place_2')}
+                {t('place_2').toUpperCase()}
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
               <TableHead className="text-center font-bold">
-                {t('show_3')}
+                {t('show_3').toUpperCase()}
               </TableHead>
             </>
           )}
@@ -246,14 +246,14 @@ export default function UpcomingRaceCard({
           {activeTab === 'couples' && (
             <>
               <TableHead className="text-center font-bold">
-                {t('first')}
+                {t('first').toUpperCase()}
               </TableHead>
               <TableHead className="text-center font-bold">
-                {t('second')}
+                {t('second').toUpperCase()}
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
               <TableHead className="text-center font-bold">
-                {t('any_order')}
+                {t('any_order').toUpperCase()}
               </TableHead>
             </>
           )}
