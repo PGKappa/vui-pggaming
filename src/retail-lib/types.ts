@@ -167,6 +167,7 @@ export type EventResult = {
   name: string
   startTime: Date
   discipline: Discipline
+  result?: MatchResult | RaceResult
 }
 
 export type RaceResult = {
@@ -181,7 +182,7 @@ export type RaceResult = {
     evenodd: Record<string, string>
     underover: Record<string, string>
   }
-  raceDuration: number
+  raceDuration?: number
   podium: {
     name: string
     number: number
