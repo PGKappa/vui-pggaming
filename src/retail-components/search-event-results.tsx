@@ -46,6 +46,7 @@ export default function SearchEventResults(props: {
   onClose: () => void
   eventResults: EventResult[]
 }) {
+  console.log('PIPPO', props.eventResults)
   const { t } = useTranslation()
   const rootContext = useContext(RootContext)
   const [selectedDiscipline, setSelectedDiscipline] = useState<
@@ -105,11 +106,11 @@ export default function SearchEventResults(props: {
     }
 
     if (lastTenGames) {
-      const allDisciplines = rootContext.last10GamesPerDiscipline.map(
+      const allDisciplines = (rootContext.eventResults || []).map(
         (e) => e.discipline,
       )
       console.log('🔍 All disciplines available:', [...new Set(allDisciplines)])
-      const lastTenResults = rootContext.last10GamesPerDiscipline.filter(
+      const lastTenResults = (rootContext.eventResults || []).filter(
         (event) => {
           console.log(
             `🔍 Comparing: "${event.discipline}" === "${selectedDiscipline}"`,
@@ -123,7 +124,7 @@ export default function SearchEventResults(props: {
     }
 
     if (selectedDiscipline === Discipline.SOCCER) {
-      const soccerResults = rootContext.last10GamesPerDiscipline.filter(
+      const soccerResults = (rootContext.eventResults || []).filter(
         (event) => event.discipline === Discipline.SOCCER,
       )
       setEventResults(soccerResults)
@@ -274,12 +275,7 @@ export default function SearchEventResults(props: {
       }
     }
     fetchEventResults(selectedDiscipline, selectedDate)
-  }, [
-    selectedDate,
-    selectedDiscipline,
-    lastTenGames,
-    rootContext.last10GamesPerDiscipline,
-  ])
+  }, [selectedDate, selectedDiscipline, lastTenGames, rootContext.eventResults])
 
   const filteredEventResults = useMemo(() => {
     if (selectedDiscipline !== 'NONE') {
@@ -294,7 +290,7 @@ export default function SearchEventResults(props: {
     if (selectedDiscipline === 'NONE') return []
 
     if (lastTenGames) {
-      const filtered = rootContext.last10GamesPerDiscipline
+      const filtered = (rootContext.eventResults || [])
         .filter((result) => result.discipline === selectedDiscipline)
         .sort((a, b) => b.startTime.getTime() - a.startTime.getTime())
         .slice(0, 10)
@@ -325,7 +321,7 @@ export default function SearchEventResults(props: {
     lastTenGames,
     eventResults,
     selectedTimeSlot,
-    rootContext.last10GamesPerDiscipline,
+    rootContext.eventResults,
   ])
 
   const handleReset = () => {
@@ -543,11 +539,27 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
+    console.log('🎯 EventResultDetails - eventResult:', eventResult)
+    console.log(
+      '🎯 EventResultDetails - eventResult.result:',
+      eventResult.result,
+    )
+
+    // ✅ Se abbiamo già i risultati mockati (Last 10 Games), usali direttamente
+    if (eventResult.result) {
+      console.log('🎯 Using mockdata result:', eventResult.result)
+      setDetailedResult(eventResult.result)
+      return
+    }
+
+    // ✅ Altrimenti, fai la chiamata API solo se abbiamo extId (ricerca per data)
     if (!eventResult.extId) {
+      console.log('🎯 No extId and no result, setting null')
       setDetailedResult(null)
       return
     }
 
+    console.log('🎯 Making API call for detailed results')
     const fetchDetails = async () => {
       setLoading(true)
       try {
@@ -589,7 +601,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
     }
 
     fetchDetails()
-  }, [eventResult.extId, eventResult.id, eventResult.discipline])
+  }, [eventResult])
 
   if (loading) {
     return (
@@ -607,122 +619,19 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
     )
   }
 
+  // ✅ CAVALLI e CANI - gestisci sia dati mockati (Last 10 Games) che dati API (ricerca per data)
   if (
     (eventResult.discipline === Discipline.HORSES ||
       eventResult.discipline === Discipline.DOGS) &&
-    detailedResult.odds
+    detailedResult
   ) {
-    const raceResult = detailedResult as RaceResult
-    const disciplineName =
-      eventResult.discipline === Discipline.HORSES ? 'Horse' : 'Dog'
+    // ✅ Per i dati mockati (Last 10 Games) - solo podium
+    if (eventResult.result && detailedResult.podium && !detailedResult.odds) {
+      console.log('🎯 Rendering mockdata podium:', detailedResult.podium)
 
-    const formatSafeDate = (date: any): string => {
-      try {
-        if (date instanceof Date && !isNaN(date.getTime())) {
-          return format(date, 'dd-MM-yyyy HH:mm')
-        }
-
-        const parsedDate = new Date(date)
-        if (!isNaN(parsedDate.getTime())) {
-          return format(parsedDate, 'dd-MM-yyyy HH:mm')
-        }
-
-        return 'Invalid Date'
-      } catch (error) {
-        console.error('Error formatting date:', error)
-        return 'Invalid Date'
-      }
-    }
-
-    const extractExacta = (exacta: any) => {
-      const results: Array<{ combination: string; odds: string }> = []
-
-      Object.entries(exacta).forEach(([first, secondObj]: [string, any]) => {
-        if (typeof secondObj === 'object') {
-          Object.entries(secondObj).forEach(([second, odds]: [string, any]) => {
-            results.push({
-              combination: `${first}-${second}`,
-              odds: String(odds),
-            })
-          })
-        }
-      })
-
-      return results
-    }
-
-    const extractQuinella = (quinella: any) => {
-      const results: Array<{ combination: string; odds: string }> = []
-
-      Object.entries(quinella).forEach(([first, secondObj]: [string, any]) => {
-        if (typeof secondObj === 'object') {
-          Object.entries(secondObj).forEach(([second, odds]: [string, any]) => {
-            results.push({
-              combination: `${first}-${second}`,
-              odds: String(odds),
-            })
-          })
-        }
-      })
-
-      return results
-    }
-
-    const extractTrifecta = (trifecta: any) => {
-      const results: Array<{ combination: string; odds: string }> = []
-
-      Object.entries(trifecta).forEach(([first, secondObj]: [string, any]) => {
-        if (typeof secondObj === 'object') {
-          Object.entries(secondObj).forEach(
-            ([second, thirdObj]: [string, any]) => {
-              if (typeof thirdObj === 'object') {
-                Object.entries(thirdObj).forEach(
-                  ([third, odds]: [string, any]) => {
-                    results.push({
-                      combination: `${first}-${second}-${third}`,
-                      odds: String(odds),
-                    })
-                  },
-                )
-              }
-            },
-          )
-        }
-      })
-
-      return results
-    }
-
-    const extractBoxedTrifecta = (boxedtrifecta: any) => {
-      const results: Array<{ combination: string; odds: string }> = []
-
-      Object.entries(boxedtrifecta).forEach(
-        ([first, secondObj]: [string, any]) => {
-          if (typeof secondObj === 'object') {
-            Object.entries(secondObj).forEach(
-              ([second, thirdObj]: [string, any]) => {
-                if (typeof thirdObj === 'object') {
-                  Object.entries(thirdObj).forEach(
-                    ([third, odds]: [string, any]) => {
-                      results.push({
-                        combination: `${first}-${second}-${third}`,
-                        odds: String(odds),
-                      })
-                    },
-                  )
-                }
-              },
-            )
-          }
-        },
-      )
-
-      return results
-    }
-
-    return (
-      <div className="space-y-4">
-        {raceResult.podium && raceResult.podium.length > 0 && (
+      return (
+        <div className="space-y-4">
+          {/* PODIUM per dati mockati */}
           <div className="border">
             <div className="bg-accent py-2 text-center">
               <div className="text-[16px] font-bold uppercase text-accent-foreground">
@@ -730,504 +639,729 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
               </div>
             </div>
             <div className="flex items-center justify-center gap-6 p-4">
-              {raceResult.podium.slice(0, 3).map((competitor, index) => {
-                let imageSrc = ''
-                let alt = ''
+              {detailedResult.podium
+                .slice(0, 3)
+                .map((competitor: any, index: number) => {
+                  let imageSrc = ''
+                  let alt = ''
 
-                switch (index + 1) {
-                  case 1:
-                    imageSrc = '/cockade_gold.png'
-                    alt = '1'
-                    break
-                  case 2:
-                    imageSrc = '/cockade_silver.png'
-                    alt = '2'
-                    break
-                  case 3:
-                    imageSrc = '/cockade_bronze.png'
-                    alt = '3'
-                    break
-                }
+                  switch (index + 1) {
+                    case 1:
+                      imageSrc = '/cockade_gold.png'
+                      alt = '1'
+                      break
+                    case 2:
+                      imageSrc = '/cockade_silver.png'
+                      alt = '2'
+                      break
+                    case 3:
+                      imageSrc = '/cockade_bronze.png'
+                      alt = '3'
+                      break
+                  }
 
-                return (
-                  <div
-                    key={competitor.number}
-                    className="flex flex-col items-center gap-2"
-                  >
-                    {/* Medaglia con numero */}
-                    <div className="relative flex h-12 w-12 items-center justify-center">
-                      <Image
-                        src={imageSrc}
-                        alt={alt}
-                        width={48}
-                        height={48}
-                        className="absolute"
-                      />
-                      <div className="relative text-[18px] font-bold text-black">
-                        <div
-                          className={
-                            'flex h-7 w-7 items-center justify-center rounded-md font-bold text-white ' +
-                            (competitor.number === 1
-                              ? 'bg-red-500'
-                              : competitor.number === 2
-                                ? 'bg-blue-500'
-                                : competitor.number === 3
-                                  ? 'bg-orange-500'
-                                  : competitor.number === 4
-                                    ? 'bg-green-500'
-                                    : competitor.number === 5
-                                      ? 'bg-yellow-500'
-                                      : competitor.number === 6
-                                        ? 'bg-purple-500'
-                                        : 'border border-gray-300 bg-white text-black')
-                          }
-                        >
-                          {competitor.number}
+                  return (
+                    <div
+                      key={competitor.number}
+                      className="flex flex-col items-center gap-2"
+                    >
+                      {/* Medaglia */}
+                      <div className="relative flex h-12 w-12 items-center justify-center">
+                        <Image
+                          src={imageSrc}
+                          alt={alt}
+                          width={48}
+                          height={48}
+                          className="absolute"
+                        />
+                        <div className="relative">
+                          <div
+                            className={
+                              'flex h-7 w-7 items-center justify-center rounded-md font-bold text-white ' +
+                              (competitor.number === 1
+                                ? 'bg-red-500'
+                                : competitor.number === 2
+                                  ? 'bg-blue-500'
+                                  : competitor.number === 3
+                                    ? 'bg-orange-500'
+                                    : competitor.number === 4
+                                      ? 'bg-green-500'
+                                      : competitor.number === 5
+                                        ? 'bg-yellow-500'
+                                        : competitor.number === 6
+                                          ? 'bg-purple-500'
+                                          : 'border border-gray-300 bg-white text-black')
+                            }
+                          >
+                            {competitor.number}
+                          </div>
                         </div>
                       </div>
+                      <div className="text-center text-sm font-semibold">
+                        {competitor.name}
+                      </div>
                     </div>
-                    <div className="text-center text-sm font-semibold">
-                      {competitor.name}
-                    </div>
-                  </div>
-                )
-              })}
+                  )
+                })}
             </div>
           </div>
-        )}
 
-        <div className="grid grid-cols-3 gap-2">
-          {/* WINNER */}
-          {raceResult.odds.winner && (
-            <div className="border">
-              <div className="bg-accent py-2 text-center">
-                <div className="text-[16px] font-bold uppercase text-accent-foreground">
-                  WINNER
-                </div>
-              </div>
-              <div className="space-y-2 p-3">
-                {Object.entries(raceResult.odds.winner).map(
-                  ([number, odds]) => (
-                    <div
-                      key={number}
-                      className="flex items-center justify-between"
-                    >
-                      <span className="flex items-center gap-2">
-                        <div
-                          className={
-                            'flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold text-white ' +
-                            (parseInt(number) === 1
-                              ? 'bg-red-500'
-                              : parseInt(number) === 2
-                                ? 'bg-blue-500'
-                                : parseInt(number) === 3
-                                  ? 'bg-orange-500'
-                                  : parseInt(number) === 4
-                                    ? 'bg-green-500'
-                                    : parseInt(number) === 5
-                                      ? 'bg-yellow-500'
-                                      : parseInt(number) === 6
-                                        ? 'bg-purple-500'
-                                        : 'border border-gray-300 bg-white text-black')
-                          }
-                        >
-                          {number}
-                        </div>
-                        <span className="text-[16px] font-semibold">
-                          {odds}
-                        </span>
-                      </span>
-                    </div>
-                  ),
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* PLACED */}
-          {raceResult.odds.placed && (
-            <div className="border">
-              <div className="bg-accent py-2 text-center">
-                <div className="text-[16px] font-bold uppercase text-accent-foreground">
-                  PLACED
-                </div>
-              </div>
-              <div className="space-y-2 p-3">
-                {Object.entries(raceResult.odds.placed).map(
-                  ([number, odds]) => (
-                    <div
-                      key={number}
-                      className="flex items-center justify-between"
-                    >
-                      <span className="flex items-center gap-2">
-                        <div
-                          className={
-                            'flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold text-white ' +
-                            (parseInt(number) === 1
-                              ? 'bg-red-500'
-                              : parseInt(number) === 2
-                                ? 'bg-blue-500'
-                                : parseInt(number) === 3
-                                  ? 'bg-orange-500'
-                                  : parseInt(number) === 4
-                                    ? 'bg-green-500'
-                                    : parseInt(number) === 5
-                                      ? 'bg-yellow-500'
-                                      : parseInt(number) === 6
-                                        ? 'bg-purple-500'
-                                        : 'border border-gray-300 bg-white text-black')
-                          }
-                        >
-                          {number}
-                        </div>
-                        <span className="text-[16px] font-semibold">
-                          {odds}
-                        </span>
-                      </span>
-                    </div>
-                  ),
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* SHOW */}
-          {raceResult.odds.show && (
-            <div className="border">
-              <div className="bg-accent py-2 text-center">
-                <div className="text-[16px] font-bold uppercase text-accent-foreground">
-                  SHOW
-                </div>
-              </div>
-              <div className="space-y-2 p-3">
-                {Object.entries(raceResult.odds.show).map(([number, odds]) => (
-                  <div
-                    key={number}
-                    className="flex items-center justify-between"
-                  >
-                    <span className="flex items-center gap-2">
-                      <div
-                        className={
-                          'flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold text-white ' +
-                          (parseInt(number) === 1
-                            ? 'bg-red-500'
-                            : parseInt(number) === 2
-                              ? 'bg-blue-500'
-                              : parseInt(number) === 3
-                                ? 'bg-orange-500'
-                                : parseInt(number) === 4
-                                  ? 'bg-green-500'
-                                  : parseInt(number) === 5
-                                    ? 'bg-yellow-500'
-                                    : parseInt(number) === 6
-                                      ? 'bg-purple-500'
-                                      : 'border border-gray-300 bg-white text-black')
-                        }
-                      >
-                        {number}
-                      </div>
-                      <span className="text-[16px] font-semibold">{odds}</span>
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="grid grid-cols-4 gap-1">
-          {/* EXACTA */}
-          {raceResult.odds.exacta && (
-            <div className="border">
-              <div className="bg-accent py-2 text-center">
-                <div className="text-[16px] font-bold uppercase text-accent-foreground">
-                  EXACTA
-                </div>
-              </div>
-              <div className="space-y-2 p-3">
-                {extractExacta(raceResult.odds.exacta).map(
-                  ({ combination, odds }) => (
-                    <div
-                      key={combination}
-                      className="flex items-center justify-between"
-                    >
-                      <span className="flex items-center gap-1">
-                        {combination.split('-').map((num, idx) => (
-                          <div
-                            key={idx}
-                            className={
-                              'flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold text-accent-foreground ' +
-                              (parseInt(num) === 1
-                                ? 'bg-red-500'
-                                : parseInt(num) === 2
-                                  ? 'bg-blue-500'
-                                  : parseInt(num) === 3
-                                    ? 'bg-orange-500'
-                                    : parseInt(num) === 4
-                                      ? 'bg-green-500'
-                                      : parseInt(num) === 5
-                                        ? 'bg-yellow-500'
-                                        : parseInt(num) === 6
-                                          ? 'bg-purple-500'
-                                          : 'border border-gray-300 bg-white text-black')
-                            }
-                          >
-                            {num}
-                          </div>
-                        ))}
-                      </span>
-                      <span className="text-[16px] font-semibold">{odds}</span>
-                    </div>
-                  ),
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* QUINELLA */}
-          {raceResult.odds.quinella && (
-            <div className="border">
-              <div className="bg-accent py-2 text-center">
-                <div className="text-[16px] font-bold uppercase text-accent-foreground">
-                  QUINELLA
-                </div>
-              </div>
-              <div className="space-y-2 p-3">
-                {extractQuinella(raceResult.odds.quinella).map(
-                  ({ combination, odds }) => (
-                    <div
-                      key={combination}
-                      className="flex items-center justify-between"
-                    >
-                      <span className="flex items-center gap-1">
-                        {combination.split('-').map((num, idx) => (
-                          <div
-                            key={idx}
-                            className={
-                              'flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold text-accent-foreground ' +
-                              (parseInt(num) === 1
-                                ? 'bg-red-500'
-                                : parseInt(num) === 2
-                                  ? 'bg-blue-500'
-                                  : parseInt(num) === 3
-                                    ? 'bg-orange-500'
-                                    : parseInt(num) === 4
-                                      ? 'bg-green-500'
-                                      : parseInt(num) === 5
-                                        ? 'bg-yellow-500'
-                                        : parseInt(num) === 6
-                                          ? 'bg-purple-500'
-                                          : 'border border-gray-300 bg-white text-black')
-                            }
-                          >
-                            {num}
-                          </div>
-                        ))}
-                      </span>
-                      <span className="text-[16px] font-semibold">{odds}</span>
-                    </div>
-                  ),
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* TRIFECTA */}
-          {raceResult.odds.trifecta && (
-            <div className="border">
-              <div className="bg-accent py-2 text-center">
-                <div className="text-[16px] font-bold uppercase text-accent-foreground">
-                  TRIFECTA
-                </div>
-              </div>
-              <div className="space-y-2 p-3">
-                {extractTrifecta(raceResult.odds.trifecta).map(
-                  ({ combination, odds }) => (
-                    <div
-                      key={combination}
-                      className="flex items-center justify-between"
-                    >
-                      <span className="flex items-center gap-1">
-                        {combination.split('-').map((num, idx) => (
-                          <div
-                            key={idx}
-                            className={
-                              'flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold text-accent-foreground ' +
-                              (parseInt(num) === 1
-                                ? 'bg-red-500'
-                                : parseInt(num) === 2
-                                  ? 'bg-blue-500'
-                                  : parseInt(num) === 3
-                                    ? 'bg-orange-500'
-                                    : parseInt(num) === 4
-                                      ? 'bg-green-500'
-                                      : parseInt(num) === 5
-                                        ? 'bg-yellow-500'
-                                        : parseInt(num) === 6
-                                          ? 'bg-purple-500'
-                                          : 'border border-gray-300 bg-white text-black')
-                            }
-                          >
-                            {num}
-                          </div>
-                        ))}
-                      </span>
-                      <span className="text-[16px] font-semibold">{odds}</span>
-                    </div>
-                  ),
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* BOX TRIFECTA */}
-          {raceResult.odds.boxedtrifecta && (
-            <div className="border">
-              <div className="bg-accent py-2 text-center">
-                <div className="text-[16px] font-bold uppercase text-accent-foreground">
-                  BOX TRIFECTA
-                </div>
-              </div>
-              <div className="space-y-2 p-3">
-                {extractBoxedTrifecta(raceResult.odds.boxedtrifecta).map(
-                  ({ combination, odds }) => (
-                    <div
-                      key={combination}
-                      className="flex items-center justify-between"
-                    >
-                      <span className="flex items-center justify-center gap-1">
-                        {combination.split('-').map((num, idx) => (
-                          <div
-                            key={idx}
-                            className={
-                              'flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold text-accent-foreground ' +
-                              (parseInt(num) === 1
-                                ? 'bg-red-500'
-                                : parseInt(num) === 2
-                                  ? 'bg-blue-500'
-                                  : parseInt(num) === 3
-                                    ? 'bg-orange-500'
-                                    : parseInt(num) === 4
-                                      ? 'bg-green-500'
-                                      : parseInt(num) === 5
-                                        ? 'bg-yellow-500'
-                                        : parseInt(num) === 6
-                                          ? 'bg-purple-500'
-                                          : 'border border-gray-300 bg-white text-black')
-                            }
-                          >
-                            {num}
-                          </div>
-                        ))}
-                      </span>
-                      <span className="text-[16px] font-semibold">{odds}</span>
-                    </div>
-                  ),
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="grid grid-cols-2 gap-1">
-          {/* EVEN/ODD */}
-          {raceResult.odds.evenodd && (
-            <div className="border">
-              <div className="bg-accent py-2 text-center">
-                <div className="text-[16px] font-bold uppercase text-accent-foreground">
-                  EVEN / ODD
-                </div>
-              </div>
-              <div className="flex items-center justify-center">
-                {raceResult.odds.evenodd.even && (
-                  <div className="text-center">
-                    <div className="py-2 text-[16px] font-semibold">
-                      Even: {raceResult.odds.evenodd.even}
-                    </div>
-                  </div>
-                )}
-                {raceResult.odds.evenodd.odd && (
-                  <div className="text-center">
-                    <div className="py-2 text-[16px] font-semibold">
-                      Odd: {raceResult.odds.evenodd.odd}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* UNDER/OVER */}
-          {raceResult.odds.underover && (
-            <div className="border">
-              <div className="bg-accent py-2 text-center">
-                <div className="text-[16px] font-bold uppercase text-accent-foreground">
-                  UNDER / OVER 3.5
-                </div>
-              </div>
-              <div className="flex items-center justify-center">
-                {raceResult.odds.underover.under && (
-                  <div className="text-center">
-                    <div className="py-2 text-[16px] font-semibold">
-                      Under: {raceResult.odds.underover.under}
-                    </div>
-                  </div>
-                )}
-                {raceResult.odds.underover.over && (
-                  <div className="text-center">
-                    <div className="py-2 text-[16px] font-semibold">
-                      Over: {raceResult.odds.underover.over}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-
-        <div className="grid grid-cols-1 gap-1">
-          {/* RACE DURATION */}
-          {raceResult.raceDuration && (
-            <div className="border">
-              <div className="bg-accent py-2 text-center">
-                <div className="text-[16px] font-bold uppercase text-accent-foreground">
-                  RACE DURATION
-                </div>
-              </div>
-              <div className="p-3 text-center">
-                <div className="text-[16px] font-semibold">
-                  {raceResult.raceDuration} seconds
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* TRACK INFO */}
+          {/* Messaggio per Last 10 Games */}
           <div className="border">
             <div className="bg-accent py-2 text-center">
               <div className="text-[16px] font-bold uppercase text-accent-foreground">
-                {disciplineName} RACING
+                LAST 10 GAMES RESULT
               </div>
             </div>
-            <div className="space-y-1 p-3">
-              <div className="text-[16px]">
-                <span className="font-semibold">Track:</span> Track{' '}
-                {eventResult.extId}
+            <div className="p-4 text-center text-muted-foreground">
+              This result is from the Last 10 Games. For detailed odds and
+              betting information, please select a specific date.
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    // ✅ Per i dati API (ricerca per data) - tutto il codice esistente
+    if (detailedResult.odds) {
+      const raceResult = detailedResult as RaceResult
+      const disciplineName =
+        eventResult.discipline === Discipline.HORSES ? 'Horse' : 'Dog'
+
+      const formatSafeDate = (date: any): string => {
+        try {
+          if (date instanceof Date && !isNaN(date.getTime())) {
+            return format(date, 'dd-MM-yyyy HH:mm')
+          }
+
+          const parsedDate = new Date(date)
+          if (!isNaN(parsedDate.getTime())) {
+            return format(parsedDate, 'dd-MM-yyyy HH:mm')
+          }
+
+          return 'Invalid Date'
+        } catch (error) {
+          console.error('Error formatting date:', error)
+          return 'Invalid Date'
+        }
+      }
+
+      const extractExacta = (exacta: any) => {
+        const results: Array<{ combination: string; odds: string }> = []
+
+        Object.entries(exacta).forEach(([first, secondObj]: [string, any]) => {
+          if (typeof secondObj === 'object') {
+            Object.entries(secondObj).forEach(
+              ([second, odds]: [string, any]) => {
+                results.push({
+                  combination: `${first}-${second}`,
+                  odds: String(odds),
+                })
+              },
+            )
+          }
+        })
+
+        return results
+      }
+
+      const extractQuinella = (quinella: any) => {
+        const results: Array<{ combination: string; odds: string }> = []
+
+        Object.entries(quinella).forEach(
+          ([first, secondObj]: [string, any]) => {
+            if (typeof secondObj === 'object') {
+              Object.entries(secondObj).forEach(
+                ([second, odds]: [string, any]) => {
+                  results.push({
+                    combination: `${first}-${second}`,
+                    odds: String(odds),
+                  })
+                },
+              )
+            }
+          },
+        )
+
+        return results
+      }
+
+      const extractTrifecta = (trifecta: any) => {
+        const results: Array<{ combination: string; odds: string }> = []
+
+        Object.entries(trifecta).forEach(
+          ([first, secondObj]: [string, any]) => {
+            if (typeof secondObj === 'object') {
+              Object.entries(secondObj).forEach(
+                ([second, thirdObj]: [string, any]) => {
+                  if (typeof thirdObj === 'object') {
+                    Object.entries(thirdObj).forEach(
+                      ([third, odds]: [string, any]) => {
+                        results.push({
+                          combination: `${first}-${second}-${third}`,
+                          odds: String(odds),
+                        })
+                      },
+                    )
+                  }
+                },
+              )
+            }
+          },
+        )
+
+        return results
+      }
+
+      const extractBoxedTrifecta = (boxedtrifecta: any) => {
+        const results: Array<{ combination: string; odds: string }> = []
+
+        Object.entries(boxedtrifecta).forEach(
+          ([first, secondObj]: [string, any]) => {
+            if (typeof secondObj === 'object') {
+              Object.entries(secondObj).forEach(
+                ([second, thirdObj]: [string, any]) => {
+                  if (typeof thirdObj === 'object') {
+                    Object.entries(thirdObj).forEach(
+                      ([third, odds]: [string, any]) => {
+                        results.push({
+                          combination: `${first}-${second}-${third}`,
+                          odds: String(odds),
+                        })
+                      },
+                    )
+                  }
+                },
+              )
+            }
+          },
+        )
+
+        return results
+      }
+
+      return (
+        <div className="space-y-4">
+          {raceResult.podium && raceResult.podium.length > 0 && (
+            <div className="border">
+              <div className="bg-accent py-2 text-center">
+                <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                  ARRIVAL ORDER
+                </div>
               </div>
-              <div className="text-[16px]">
-                <span className="font-semibold">Event:</span> {eventResult.id}
+              <div className="flex items-center justify-center gap-6 p-4">
+                {raceResult.podium.slice(0, 3).map((competitor, index) => {
+                  let imageSrc = ''
+                  let alt = ''
+
+                  switch (index + 1) {
+                    case 1:
+                      imageSrc = '/cockade_gold.png'
+                      alt = '1'
+                      break
+                    case 2:
+                      imageSrc = '/cockade_silver.png'
+                      alt = '2'
+                      break
+                    case 3:
+                      imageSrc = '/cockade_bronze.png'
+                      alt = '3'
+                      break
+                  }
+
+                  return (
+                    <div
+                      key={competitor.number}
+                      className="flex flex-col items-center gap-2"
+                    >
+                      {/* Medaglia con numero */}
+                      <div className="relative flex h-12 w-12 items-center justify-center">
+                        <Image
+                          src={imageSrc}
+                          alt={alt}
+                          width={48}
+                          height={48}
+                          className="absolute"
+                        />
+                        <div className="relative text-[18px] font-bold text-black">
+                          <div
+                            className={
+                              'flex h-7 w-7 items-center justify-center rounded-md font-bold text-white ' +
+                              (competitor.number === 1
+                                ? 'bg-red-500'
+                                : competitor.number === 2
+                                  ? 'bg-blue-500'
+                                  : competitor.number === 3
+                                    ? 'bg-orange-500'
+                                    : competitor.number === 4
+                                      ? 'bg-green-500'
+                                      : competitor.number === 5
+                                        ? 'bg-yellow-500'
+                                        : competitor.number === 6
+                                          ? 'bg-purple-500'
+                                          : 'border border-gray-300 bg-white text-black')
+                            }
+                          >
+                            {competitor.number}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-center text-sm font-semibold">
+                        {competitor.name}
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
-              <div className="text-[16px]">
-                <span className="font-semibold">Start Time:</span>{' '}
-                {formatSafeDate(eventResult.startTime)}
+            </div>
+          )}
+
+          <div className="grid grid-cols-3 gap-2">
+            {/* WINNER */}
+            {raceResult.odds.winner && (
+              <div className="border">
+                <div className="bg-accent py-2 text-center">
+                  <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                    WINNER
+                  </div>
+                </div>
+                <div className="space-y-2 p-3">
+                  {Object.entries(raceResult.odds.winner).map(
+                    ([number, odds]) => (
+                      <div
+                        key={number}
+                        className="flex items-center justify-between"
+                      >
+                        <span className="flex items-center gap-2">
+                          <div
+                            className={
+                              'flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold text-white ' +
+                              (parseInt(number) === 1
+                                ? 'bg-red-500'
+                                : parseInt(number) === 2
+                                  ? 'bg-blue-500'
+                                  : parseInt(number) === 3
+                                    ? 'bg-orange-500'
+                                    : parseInt(number) === 4
+                                      ? 'bg-green-500'
+                                      : parseInt(number) === 5
+                                        ? 'bg-yellow-500'
+                                        : parseInt(number) === 6
+                                          ? 'bg-purple-500'
+                                          : 'border border-gray-300 bg-white text-black')
+                            }
+                          >
+                            {number}
+                          </div>
+                          <span className="text-[16px] font-semibold">
+                            {odds}
+                          </span>
+                        </span>
+                      </div>
+                    ),
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* PLACED */}
+            {raceResult.odds.placed && (
+              <div className="border">
+                <div className="bg-accent py-2 text-center">
+                  <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                    PLACED
+                  </div>
+                </div>
+                <div className="space-y-2 p-3">
+                  {Object.entries(raceResult.odds.placed).map(
+                    ([number, odds]) => (
+                      <div
+                        key={number}
+                        className="flex items-center justify-between"
+                      >
+                        <span className="flex items-center gap-2">
+                          <div
+                            className={
+                              'flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold text-white ' +
+                              (parseInt(number) === 1
+                                ? 'bg-red-500'
+                                : parseInt(number) === 2
+                                  ? 'bg-blue-500'
+                                  : parseInt(number) === 3
+                                    ? 'bg-orange-500'
+                                    : parseInt(number) === 4
+                                      ? 'bg-green-500'
+                                      : parseInt(number) === 5
+                                        ? 'bg-yellow-500'
+                                        : parseInt(number) === 6
+                                          ? 'bg-purple-500'
+                                          : 'border border-gray-300 bg-white text-black')
+                            }
+                          >
+                            {number}
+                          </div>
+                          <span className="text-[16px] font-semibold">
+                            {odds}
+                          </span>
+                        </span>
+                      </div>
+                    ),
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* SHOW */}
+            {raceResult.odds.show && (
+              <div className="border">
+                <div className="bg-accent py-2 text-center">
+                  <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                    SHOW
+                  </div>
+                </div>
+                <div className="space-y-2 p-3">
+                  {Object.entries(raceResult.odds.show).map(
+                    ([number, odds]) => (
+                      <div
+                        key={number}
+                        className="flex items-center justify-between"
+                      >
+                        <span className="flex items-center gap-2">
+                          <div
+                            className={
+                              'flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold text-white ' +
+                              (parseInt(number) === 1
+                                ? 'bg-red-500'
+                                : parseInt(number) === 2
+                                  ? 'bg-blue-500'
+                                  : parseInt(number) === 3
+                                    ? 'bg-orange-500'
+                                    : parseInt(number) === 4
+                                      ? 'bg-green-500'
+                                      : parseInt(number) === 5
+                                        ? 'bg-yellow-500'
+                                        : parseInt(number) === 6
+                                          ? 'bg-purple-500'
+                                          : 'border border-gray-300 bg-white text-black')
+                            }
+                          >
+                            {number}
+                          </div>
+                          <span className="text-[16px] font-semibold">
+                            {odds}
+                          </span>
+                        </span>
+                      </div>
+                    ),
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="grid grid-cols-4 gap-1">
+            {/* EXACTA */}
+            {raceResult.odds.exacta && (
+              <div className="border">
+                <div className="bg-accent py-2 text-center">
+                  <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                    EXACTA
+                  </div>
+                </div>
+                <div className="space-y-2 p-3">
+                  {extractExacta(raceResult.odds.exacta).map(
+                    ({ combination, odds }) => (
+                      <div
+                        key={combination}
+                        className="flex items-center justify-between"
+                      >
+                        <span className="flex items-center gap-1">
+                          {combination.split('-').map((num, idx) => (
+                            <div
+                              key={idx}
+                              className={
+                                'flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold text-accent-foreground ' +
+                                (parseInt(num) === 1
+                                  ? 'bg-red-500'
+                                  : parseInt(num) === 2
+                                    ? 'bg-blue-500'
+                                    : parseInt(num) === 3
+                                      ? 'bg-orange-500'
+                                      : parseInt(num) === 4
+                                        ? 'bg-green-500'
+                                        : parseInt(num) === 5
+                                          ? 'bg-yellow-500'
+                                          : parseInt(num) === 6
+                                            ? 'bg-purple-500'
+                                            : 'border border-gray-300 bg-white text-black')
+                              }
+                            >
+                              {num}
+                            </div>
+                          ))}
+                        </span>
+                        <span className="text-[16px] font-semibold">
+                          {odds}
+                        </span>
+                      </div>
+                    ),
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* QUINELLA */}
+            {raceResult.odds.quinella && (
+              <div className="border">
+                <div className="bg-accent py-2 text-center">
+                  <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                    QUINELLA
+                  </div>
+                </div>
+                <div className="space-y-2 p-3">
+                  {extractQuinella(raceResult.odds.quinella).map(
+                    ({ combination, odds }) => (
+                      <div
+                        key={combination}
+                        className="flex items-center justify-between"
+                      >
+                        <span className="flex items-center gap-1">
+                          {combination.split('-').map((num, idx) => (
+                            <div
+                              key={idx}
+                              className={
+                                'flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold text-accent-foreground ' +
+                                (parseInt(num) === 1
+                                  ? 'bg-red-500'
+                                  : parseInt(num) === 2
+                                    ? 'bg-blue-500'
+                                    : parseInt(num) === 3
+                                      ? 'bg-orange-500'
+                                      : parseInt(num) === 4
+                                        ? 'bg-green-500'
+                                        : parseInt(num) === 5
+                                          ? 'bg-yellow-500'
+                                          : parseInt(num) === 6
+                                            ? 'bg-purple-500'
+                                            : 'border border-gray-300 bg-white text-black')
+                              }
+                            >
+                              {num}
+                            </div>
+                          ))}
+                        </span>
+                        <span className="text-[16px] font-semibold">
+                          {odds}
+                        </span>
+                      </div>
+                    ),
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* TRIFECTA */}
+            {raceResult.odds.trifecta && (
+              <div className="border">
+                <div className="bg-accent py-2 text-center">
+                  <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                    TRIFECTA
+                  </div>
+                </div>
+                <div className="space-y-2 p-3">
+                  {extractTrifecta(raceResult.odds.trifecta).map(
+                    ({ combination, odds }) => (
+                      <div
+                        key={combination}
+                        className="flex items-center justify-between"
+                      >
+                        <span className="flex items-center gap-1">
+                          {combination.split('-').map((num, idx) => (
+                            <div
+                              key={idx}
+                              className={
+                                'flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold text-accent-foreground ' +
+                                (parseInt(num) === 1
+                                  ? 'bg-red-500'
+                                  : parseInt(num) === 2
+                                    ? 'bg-blue-500'
+                                    : parseInt(num) === 3
+                                      ? 'bg-orange-500'
+                                      : parseInt(num) === 4
+                                        ? 'bg-green-500'
+                                        : parseInt(num) === 5
+                                          ? 'bg-yellow-500'
+                                          : parseInt(num) === 6
+                                            ? 'bg-purple-500'
+                                            : 'border border-gray-300 bg-white text-black')
+                              }
+                            >
+                              {num}
+                            </div>
+                          ))}
+                        </span>
+                        <span className="text-[16px] font-semibold">
+                          {odds}
+                        </span>
+                      </div>
+                    ),
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* BOX TRIFECTA */}
+            {raceResult.odds.boxedtrifecta && (
+              <div className="border">
+                <div className="bg-accent py-2 text-center">
+                  <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                    BOX TRIFECTA
+                  </div>
+                </div>
+                <div className="space-y-2 p-3">
+                  {extractBoxedTrifecta(raceResult.odds.boxedtrifecta).map(
+                    ({ combination, odds }) => (
+                      <div
+                        key={combination}
+                        className="flex items-center justify-between"
+                      >
+                        <span className="flex items-center justify-center gap-1">
+                          {combination.split('-').map((num, idx) => (
+                            <div
+                              key={idx}
+                              className={
+                                'flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold text-accent-foreground ' +
+                                (parseInt(num) === 1
+                                  ? 'bg-red-500'
+                                  : parseInt(num) === 2
+                                    ? 'bg-blue-500'
+                                    : parseInt(num) === 3
+                                      ? 'bg-orange-500'
+                                      : parseInt(num) === 4
+                                        ? 'bg-green-500'
+                                        : parseInt(num) === 5
+                                          ? 'bg-yellow-500'
+                                          : parseInt(num) === 6
+                                            ? 'bg-purple-500'
+                                            : 'border border-gray-300 bg-white text-black')
+                              }
+                            >
+                              {num}
+                            </div>
+                          ))}
+                        </span>
+                        <span className="text-[16px] font-semibold">
+                          {odds}
+                        </span>
+                      </div>
+                    ),
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="grid grid-cols-2 gap-1">
+            {/* EVEN/ODD */}
+            {raceResult.odds.evenodd && (
+              <div className="border">
+                <div className="bg-accent py-2 text-center">
+                  <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                    EVEN / ODD
+                  </div>
+                </div>
+                <div className="flex items-center justify-center">
+                  {raceResult.odds.evenodd.even && (
+                    <div className="text-center">
+                      <div className="py-2 text-[16px] font-semibold">
+                        Even: {raceResult.odds.evenodd.even}
+                      </div>
+                    </div>
+                  )}
+                  {raceResult.odds.evenodd.odd && (
+                    <div className="text-center">
+                      <div className="py-2 text-[16px] font-semibold">
+                        Odd: {raceResult.odds.evenodd.odd}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* UNDER/OVER */}
+            {raceResult.odds.underover && (
+              <div className="border">
+                <div className="bg-accent py-2 text-center">
+                  <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                    UNDER / OVER 3.5
+                  </div>
+                </div>
+                <div className="flex items-center justify-center">
+                  {raceResult.odds.underover.under && (
+                    <div className="text-center">
+                      <div className="py-2 text-[16px] font-semibold">
+                        Under: {raceResult.odds.underover.under}
+                      </div>
+                    </div>
+                  )}
+                  {raceResult.odds.underover.over && (
+                    <div className="text-center">
+                      <div className="py-2 text-[16px] font-semibold">
+                        Over: {raceResult.odds.underover.over}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 gap-1">
+            {/* RACE DURATION */}
+            {raceResult.raceDuration && (
+              <div className="border">
+                <div className="bg-accent py-2 text-center">
+                  <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                    RACE DURATION
+                  </div>
+                </div>
+                <div className="p-3 text-center">
+                  <div className="text-[16px] font-semibold">
+                    {raceResult.raceDuration} seconds
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* TRACK INFO */}
+            <div className="border">
+              <div className="bg-accent py-2 text-center">
+                <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                  {disciplineName} RACING
+                </div>
+              </div>
+              <div className="space-y-1 p-3">
+                <div className="text-[16px]">
+                  <span className="font-semibold">Track:</span> Track{' '}
+                  {eventResult.extId}
+                </div>
+                <div className="text-[16px]">
+                  <span className="font-semibold">Event:</span> {eventResult.id}
+                </div>
+                <div className="text-[16px]">
+                  <span className="font-semibold">Start Time:</span>{' '}
+                  {formatSafeDate(eventResult.startTime)}
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    )
+      )
+    }
   }
 
+  // ✅ CALCIO - mantieni il codice esistente
   if (eventResult.discipline === Discipline.SOCCER) {
     const formatSafeDate = (date: any): string => {
       try {
