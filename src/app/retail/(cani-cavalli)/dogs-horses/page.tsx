@@ -5,7 +5,7 @@ import { ScrollArea } from '@/retail-components/ui/scroll-area'
 import { UpcomingEventsCarousel } from '@/retail-components/upcoming-events-carousel'
 import UpcomingRaceCard from '@/retail-components/upcoming-race-card'
 import { RootContext } from '@/retail-contexts/root-context'
-import { UpcomingEvent } from '@/retail-lib/types'
+import { Discipline, UpcomingEvent } from '@/retail-lib/types'
 import { useContext, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -18,15 +18,20 @@ export default function Home() {
   } = useContext(RootContext)
 
   const [selectedEvent, setSelectedEvent] = useState<UpcomingEvent | undefined>(
-    upcomingEvents?.filter((e) => e.discipline === 'DOGS')[0],
+    upcomingEvents?.filter(
+      (e) =>
+        e.discipline === Discipline.DOGS || e.discipline === Discipline.HORSES,
+    )[0],
   )
 
   useEffect(() => {
     if (!selectedEvent && upcomingEvents && upcomingEvents.length > 0) {
-      const firstDogsEvent = upcomingEvents?.filter(
-        (e) => e.discipline === 'DOGS',
+      const firstRaceEvent = upcomingEvents?.filter(
+        (e) =>
+          e.discipline === Discipline.DOGS ||
+          e.discipline === Discipline.HORSES,
       )[0]
-      setSelectedEvent(firstDogsEvent)
+      setSelectedEvent(firstRaceEvent)
     }
   }, [upcomingEvents, selectedEvent])
 
