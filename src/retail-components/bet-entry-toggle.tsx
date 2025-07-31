@@ -30,6 +30,69 @@ export default function BetEntryToggle(props: {
     [betEntries, props.marketName, props.bet],
   )
 
+  const formatOutcome = (outcome: string, marketName: string): string => {
+    const isUnderOverMarket =
+      marketName.toLowerCase().includes('under') ||
+      marketName.toLowerCase().includes('over') ||
+      marketName.toLowerCase().includes('goals') ||
+      (outcome.includes('+') &&
+        (outcome.includes('U') || outcome.includes('O')))
+
+    if (!isUnderOverMarket) {
+      return outcome
+    }
+
+    const valueMatch = marketName.match(/(\d+\.?\d*)/)
+    const value = valueMatch ? valueMatch[1] : ''
+
+    if (outcome.includes('+')) {
+      const [prefix, suffix] = outcome.split('+')
+
+      if (suffix === 'U' || suffix.toLowerCase().includes('under')) {
+        return `${prefix}+UN ${value}`
+      } else if (suffix === 'O' || suffix.toLowerCase().includes('over')) {
+        return `${prefix}+OV ${value}`
+      }
+
+      return outcome
+    }
+
+    if (
+      outcome.includes('1+') &&
+      (outcome.includes('Under') || outcome.includes('U'))
+    ) {
+      return `1+UN ${value}`
+    } else if (
+      outcome.includes('1+') &&
+      (outcome.includes('Over') || outcome.includes('O'))
+    ) {
+      return `1+OV ${value}`
+    } else if (
+      outcome.includes('2+') &&
+      (outcome.includes('Under') || outcome.includes('U'))
+    ) {
+      return `2+UN ${value}`
+    } else if (
+      outcome.includes('2+') &&
+      (outcome.includes('Over') || outcome.includes('O'))
+    ) {
+      return `2+OV ${value}`
+    }
+
+    if (outcome.toLowerCase().includes('under') || outcome === 'U') {
+      return `UN ${value}`
+    } else if (outcome.toLowerCase().includes('over') || outcome === 'O') {
+      return `OV ${value}`
+    }
+
+    return outcome
+  }
+
+  const formattedOutcome = formatOutcome(
+    props.bet.option.outcome,
+    props.marketName,
+  )
+
   return (
     <Toggle
       pressed={isSelected}
@@ -65,18 +128,18 @@ export default function BetEntryToggle(props: {
       {props.variant === 'matchcard' ? (
         <>
           <span>{props.bet.option.decPrice.toFixed(2)}</span>
-          <span className="font-bold">{props.bet.option.outcome}</span>
+          <span className="font-bold">{formattedOutcome}</span>
         </>
       ) : props.variant === 'roundcard' ? (
         <>
-          <span className="font-bold">{props.bet.option.outcome}</span>
+          <span className="font-bold">{formattedOutcome}</span>
           <span>{props.bet.option.decPrice.toFixed(2)}</span>
         </>
       ) : props.variant === 'racecard' ? (
         props.bet.option.decPrice.toFixed(2)
       ) : (
         <>
-          <span className="font-bold">{props.bet.option.outcome}</span>
+          <span className="font-bold">{formattedOutcome}</span>
           <span>{props.bet.option.decPrice.toFixed(2)}</span>
         </>
       )}
