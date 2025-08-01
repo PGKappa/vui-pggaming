@@ -30,6 +30,8 @@ export default function Home() {
 
   const [selectedEvent, setSelectedEvent] = useState<UpcomingEvent>()
 
+  const [isLeaderboardExpanded, setIsLeaderboardExpanded] = useState(false)
+
   useEffect(() => {
     if (!selectedEvent && upcomingEvents && upcomingEvents.length > 0) {
       setSelectedEvent(upcomingEvents[0])
@@ -49,6 +51,7 @@ export default function Home() {
             }}
           />
         </div>
+
         <div className="mx-2 flex h-[942px] w-[1500px] flex-col gap-2">
           {!!searchRoundResults ? (
             <SearchEventResults
@@ -64,12 +67,24 @@ export default function Home() {
                 close={() => setMatchBetOptions(undefined)}
               />
             ) : (
-              <div className="overflow-y-auto">
-                <UpcomingRoundCard
-                  round={selectedEvent.data as UpcomingRound}
-                  viewMatchBettingOptions={setMatchBetOptions}
-                />
-                <Leaderboard />
+              <div className="flex h-[942px] flex-col">
+                <div
+                  className={`overflow-y-auto transition-all duration-300 ${isLeaderboardExpanded ? 'h-[470px]' : 'h-[805px]'} `}
+                >
+                  <UpcomingRoundCard
+                    round={selectedEvent.data as UpcomingRound}
+                    viewMatchBettingOptions={setMatchBetOptions}
+                  />
+                </div>
+
+                <div
+                  className={`flex-shrink-0 bg-background transition-all duration-300 ${isLeaderboardExpanded ? 'h-[472px]' : 'h-[120px]'} `}
+                >
+                  <Leaderboard
+                    isExpanded={isLeaderboardExpanded}
+                    onToggle={setIsLeaderboardExpanded}
+                  />
+                </div>
               </div>
             )
           ) : (
