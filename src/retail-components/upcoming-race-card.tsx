@@ -367,7 +367,7 @@ export default function UpcomingRaceCard({
               onPressedChange={() => togglePosition1Selection(racer.number)}
               className="h-10 w-20 border-betEntry-border"
             >
-              <Check className="text-black" />
+              <Check className="text-black" style={{ scale: 1.5 }} />
             </Toggle>
           </TableCell>
 
@@ -377,7 +377,7 @@ export default function UpcomingRaceCard({
               onPressedChange={() => togglePosition2Selection(racer.number)}
               className="h-10 w-20 border-betEntry-border"
             >
-              <Check className="text-black" />
+              <Check className="text-black" style={{ scale: 1.5 }} />
             </Toggle>
           </TableCell>
 
@@ -389,7 +389,7 @@ export default function UpcomingRaceCard({
               onPressedChange={() => toggleDisorderSelection(racer.number)}
               className="h-10 w-20 border-betEntry-border"
             >
-              <Check className="text-black" />
+              <Check className="text-black" style={{ scale: 1.5 }} />
             </Toggle>
           </TableCell>
         </>
@@ -404,7 +404,7 @@ export default function UpcomingRaceCard({
               onPressedChange={() => togglePosition1Selection(racer.number)}
               className="h-10 w-20 border-betEntry-border"
             >
-              <Check className="text-black" />
+              <Check className="text-black" style={{ scale: 1.5 }} />
             </Toggle>
           </TableCell>
 
@@ -414,7 +414,7 @@ export default function UpcomingRaceCard({
               onPressedChange={() => togglePosition2Selection(racer.number)}
               className="h-10 w-20 border-betEntry-border"
             >
-              <Check className="text-black" />
+              <Check className="text-black" style={{ scale: 1.5 }} />
             </Toggle>
           </TableCell>
 
@@ -424,7 +424,7 @@ export default function UpcomingRaceCard({
               onPressedChange={() => togglePosition3Selection(racer.number)}
               className="h-10 w-20 border-betEntry-border"
             >
-              <Check className="text-black" />
+              <Check className="text-black" style={{ scale: 1.5 }} />
             </Toggle>
           </TableCell>
 
@@ -436,7 +436,7 @@ export default function UpcomingRaceCard({
               onPressedChange={() => toggleDisorderSelection(racer.number)}
               className="h-10 w-20 border-betEntry-border"
             >
-              <Check className="text-black" />
+              <Check className="text-black" style={{ scale: 1.5 }} />
             </Toggle>
           </TableCell>
         </>
