@@ -83,7 +83,12 @@ function UpcomingEventItem(props: {
 
   return (
     <CarouselItem
-      className={`flex h-[72px] basis-1/6 cursor-pointer flex-row items-center justify-center gap-3 py-2 ${event.id === props.selectedEvent?.id ? 'bg-tertiary text-tertiary-foreground' : 'hover:bg-trasparent bg-secondary text-secondary-foreground hover:text-accent-foreground'}`}
+      className={`flex h-[72px] basis-1/6 cursor-pointer flex-row items-center justify-center gap-3 py-2 ${
+        event.id === props.selectedEvent?.id &&
+        event.discipline === props.selectedEvent?.discipline
+          ? 'bg-tertiary text-tertiary-foreground'
+          : 'hover:bg-trasparent bg-secondary text-secondary-foreground hover:text-accent-foreground'
+      }`}
       onClick={() => {
         props.setSelectedEvent(event)
       }}
