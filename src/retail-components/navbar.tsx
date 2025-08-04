@@ -13,7 +13,6 @@ export default function Navbar() {
   const { t } = useTranslation()
   const searchParams = useSearchParams()
   const pathname = usePathname()
-  console.log('PATHNAME', pathname)
   const initCode = searchParams.get('init_code')
 
   const { eventResults, setSearchEventResults } = useContext(RootContext)
@@ -125,7 +124,6 @@ export default function Navbar() {
           variant="ticketButton"
           size="lg"
           onClick={() => {
-            console.log('ALERT', eventResults)
             setSearchEventResults(eventResults)
           }}
         >

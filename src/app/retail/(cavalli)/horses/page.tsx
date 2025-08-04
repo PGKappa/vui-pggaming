@@ -47,7 +47,6 @@ export default function Home() {
         <div className="flex h-full flex-row gap-2 overflow-hidden pr-2 pt-2">
           <div className="flex h-[942px] w-[1500px] flex-col gap-2 overflow-y-auto">
             <ScrollArea className="h-full w-full">
-              PIPPO {JSON.stringify(searchEventResults)}
               {!!searchEventResults ? (
                 <SearchEventResults
                   eventResults={searchEventResults}

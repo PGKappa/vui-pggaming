@@ -46,7 +46,6 @@ export default function SearchEventResults(props: {
   onClose: () => void
   eventResults: EventResult[]
 }) {
-  console.log('PIPPO', props.eventResults)
   const { t } = useTranslation()
   const rootContext = useContext(RootContext)
   const [selectedDiscipline, setSelectedDiscipline] = useState<
@@ -55,7 +54,8 @@ export default function SearchEventResults(props: {
   const [selectedDate, setSelectedDate] = useState<string>()
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>('ALL')
   const [lastTenGames, setLastTenGames] = useState<boolean>(true)
-  const [eventResults, setEventResults] = useState<EventResult[]>([])
+
+  const eventResults = props.eventResults
 
   const fetchDetailedEventResult = async (extId: string, eventId: string) => {
     try {
@@ -101,34 +101,18 @@ export default function SearchEventResults(props: {
 
   useEffect(() => {
     if (selectedDiscipline === 'NONE') {
-      setEventResults([])
       return
     }
 
     if (lastTenGames) {
-      const allDisciplines = (rootContext.eventResults || []).map(
-        (e) => e.discipline,
-      )
-      console.log('🔍 All disciplines available:', [...new Set(allDisciplines)])
-      const lastTenResults = (rootContext.eventResults || []).filter(
-        (event) => {
-          return event.discipline === selectedDiscipline
-        },
-      )
-      setEventResults(lastTenResults)
       return
     }
 
     if (selectedDiscipline === Discipline.SOCCER) {
-      const soccerResults = (rootContext.eventResults || []).filter(
-        (event) => event.discipline === Discipline.SOCCER,
-      )
-      setEventResults(soccerResults)
       return
     }
 
     if (!selectedDate) {
-      setEventResults([])
       return
     }
 
@@ -253,7 +237,7 @@ export default function SearchEventResults(props: {
           })
         }
 
-        setEventResults(results)
+        return results
       } catch (error: unknown) {
         const message =
           (error as { message: string }).message || 'Unknown error'
