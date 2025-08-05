@@ -175,21 +175,51 @@ export default function UpcomingRaceCard({
   }
 
   const togglePosition1Selection = (competitorId: number) => {
-    setPosition1Selection((current) =>
-      current === competitorId ? null : competitorId,
-    )
+    if (position1Selection === competitorId) {
+      setPosition1Selection(null)
+    } else {
+      setPosition1Selection(competitorId)
+
+      if (position2Selection === competitorId) {
+        setPosition2Selection(null)
+      }
+
+      if (position3Selection === competitorId) {
+        setPosition3Selection(null)
+      }
+    }
   }
 
   const togglePosition2Selection = (competitorId: number) => {
-    setPosition2Selection((current) =>
-      current === competitorId ? null : competitorId,
-    )
+    if (position2Selection === competitorId) {
+      setPosition2Selection(null)
+    } else {
+      setPosition2Selection(competitorId)
+
+      if (position1Selection === competitorId) {
+        setPosition1Selection(null)
+      }
+
+      if (position3Selection === competitorId) {
+        setPosition3Selection(null)
+      }
+    }
   }
 
   const togglePosition3Selection = (competitorId: number) => {
-    setPosition3Selection((current) =>
-      current === competitorId ? null : competitorId,
-    )
+    if (position3Selection === competitorId) {
+      setPosition3Selection(null)
+    } else {
+      setPosition3Selection(competitorId)
+
+      if (position1Selection === competitorId) {
+        setPosition1Selection(null)
+      }
+
+      if (position2Selection === competitorId) {
+        setPosition2Selection(null)
+      }
+    }
   }
 
   const toggleDisorderSelection = (competitorId: number) => {
@@ -261,17 +291,17 @@ export default function UpcomingRaceCard({
           {activeTab === 'triplets' && (
             <>
               <TableHead className="text-center font-bold">
-                {t('first')}
+              {t('first').toUpperCase()}
               </TableHead>
               <TableHead className="text-center font-bold">
-                {t('second')}
+                {t('second').toUpperCase()}
               </TableHead>
               <TableHead className="text-center font-bold">
-                {t('third')}
+                {t('third').toUpperCase()}
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
               <TableHead className="text-center font-bold">
-                {t('any_order')}
+                {t('any_order').toUpperCase()}
               </TableHead>
             </>
           )}
@@ -281,6 +311,8 @@ export default function UpcomingRaceCard({
   }
 
   const renderTabSpecificCells = (racer: UpcomingRace['racers'][number]) => {
+    const isAnyRacerInDisorder = disorderSelection.length > 0
+
     if (activeTab === 'main') {
       return (
         <>
@@ -365,9 +397,10 @@ export default function UpcomingRaceCard({
             <Toggle
               pressed={position1Selection === racer.number}
               onPressedChange={() => togglePosition1Selection(racer.number)}
+              disabled={isAnyRacerInDisorder}
               className="h-10 w-20 border-betEntry-border"
             >
-              <Check className="text-black" style={{ scale: 1.5 }} />
+              <span className="text-[19px]">1°</span>
             </Toggle>
           </TableCell>
 
@@ -375,9 +408,10 @@ export default function UpcomingRaceCard({
             <Toggle
               pressed={position2Selection === racer.number}
               onPressedChange={() => togglePosition2Selection(racer.number)}
+              disabled={isAnyRacerInDisorder}
               className="h-10 w-20 border-betEntry-border"
             >
-              <Check className="text-black" style={{ scale: 1.5 }} />
+              <span className="text-[19px]">2°</span>
             </Toggle>
           </TableCell>
 
@@ -402,9 +436,10 @@ export default function UpcomingRaceCard({
             <Toggle
               pressed={position1Selection === racer.number}
               onPressedChange={() => togglePosition1Selection(racer.number)}
+              disabled={isAnyRacerInDisorder}
               className="h-10 w-20 border-betEntry-border"
             >
-              <Check className="text-black" style={{ scale: 1.5 }} />
+              <span className="text-[19px]">1°</span>
             </Toggle>
           </TableCell>
 
@@ -412,9 +447,10 @@ export default function UpcomingRaceCard({
             <Toggle
               pressed={position2Selection === racer.number}
               onPressedChange={() => togglePosition2Selection(racer.number)}
+              disabled={isAnyRacerInDisorder}
               className="h-10 w-20 border-betEntry-border"
             >
-              <Check className="text-black" style={{ scale: 1.5 }} />
+              <span className="text-[19px]">2°</span>
             </Toggle>
           </TableCell>
 
@@ -422,9 +458,10 @@ export default function UpcomingRaceCard({
             <Toggle
               pressed={position3Selection === racer.number}
               onPressedChange={() => togglePosition3Selection(racer.number)}
+              disabled={isAnyRacerInDisorder}
               className="h-10 w-20 border-betEntry-border"
             >
-              <Check className="text-black" style={{ scale: 1.5 }} />
+              <span className="text-[19px]">3°</span>
             </Toggle>
           </TableCell>
 
