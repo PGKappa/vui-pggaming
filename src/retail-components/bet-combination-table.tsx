@@ -20,8 +20,8 @@ export default function BetCombinationsTable({
   isTris,
   position1Selection,
   position2Selection,
-  position3Selection /* 
-  disorderSelection, */,
+  position3Selection,
+  disorderSelection,
 }: BetCombinationsTableProps) {
   const [sortByOdds, setSortByOdds] = useState(false)
   const { addBets, betEntries, removeBets } = useContext(BetsContext)
@@ -30,65 +30,39 @@ export default function BetCombinationsTable({
     const allCombinations: Bet[] = []
     const raceData = race.data as UpcomingRace
 
-    if (isTris) {
-      Object.entries(raceData.odds.trifecta)
-        .filter(
-          ([racer]) =>
-            position1Selection === null ||
-            parseInt(racer) === position1Selection,
-        )
-        .forEach(([racer, racerCombs]) => {
-          Object.entries(racerCombs)
-            .filter(
-              ([racer2]) =>
-                position2Selection === null ||
-                parseInt(racer2) === position2Selection,
-            )
-            .forEach(([racer2, racer3Combs]) => {
-              Object.entries(racer3Combs)
-                .filter(
-                  ([racer3]) =>
-                    position3Selection === null ||
-                    parseInt(racer3) === position3Selection,
-                )
-                .forEach(([racer3, odds]) => {
-                  allCombinations.push({
-                    discipline: race.discipline,
-                    event: {
-                      name: race.name,
-                      number: race.id,
-                      startingAt: race.time,
-                    },
-                    competitors: `${racer}-${racer2}-${racer3}`,
-                    option: {
-                      outcome: `${racer}-${racer2}-${racer3}`,
-                      decPrice: parseFloat(odds),
-                    },
-                  })
-                })
-            })
-        })
-      if (sortByOdds) {
-        return allCombinations.sort(
-          (a, b) => a.option.decPrice - b.option.decPrice,
-        )
-      }
-      return allCombinations
-    }
+    // Determina modalità operativa
+    const hasAnyOrder = disorderSelection.length > 0
+    const hasPositions =
+      position1Selection || position2Selection || position3Selection
 
-    Object.entries(raceData.odds.exacta)
-      .filter(
-        ([racer]) =>
-          position1Selection === null || parseInt(racer) === position1Selection,
-      )
-      .forEach(([racer, racerCombs]) => {
-        Object.entries(racerCombs)
-          .filter(
-            ([racer2]) =>
-              position2Selection === null ||
-              parseInt(racer2) === position2Selection,
-          )
-          .forEach(([racer2, odds]) => {
+    if (isTris) {
+      if (hasAnyOrder && disorderSelection.length >= 3) {
+        // ANY ORDER: Solo una singola scommessa BoxedTrifecta
+        if (raceData.odds.boxedtrifecta) {
+          const selectedRacers = disorderSelection.sort((a, b) => a - b)
+
+          // Trova la prima combinazione disponibile per calcolare l'odds
+          let boxOdds = 0
+          let foundOdds = false
+
+          for (let i = 0; i < selectedRacers.length && !foundOdds; i++) {
+            for (let j = 0; j < selectedRacers.length && !foundOdds; j++) {
+              for (let k = 0; k < selectedRacers.length && !foundOdds; k++) {
+                if (i !== j && j !== k && i !== k) {
+                  const odds =
+                    raceData.odds.boxedtrifecta?.[selectedRacers[i]]?.[
+                      selectedRacers[j]
+                    ]?.[selectedRacers[k]]
+                  if (odds) {
+                    boxOdds = parseFloat(odds)
+                    foundOdds = true
+                  }
+                }
+              }
+            }
+          }
+
+          if (foundOdds) {
             allCombinations.push({
               discipline: race.discipline,
               event: {
@@ -96,14 +70,133 @@ export default function BetCombinationsTable({
                 number: race.id,
                 startingAt: race.time,
               },
-              competitors: `${racer}-${racer2}`,
+              competitors: `${selectedRacers.join('-')} any Order`,
               option: {
-                outcome: `${racer}-${racer2}`,
-                decPrice: parseFloat(odds),
+                outcome: `${selectedRacers.join('-')} any`,
+                decPrice: boxOdds,
               },
             })
+          }
+        }
+      } else {
+        // Tutte le trifecta
+        Object.entries(raceData.odds.trifecta)
+          .filter(
+            ([racer]) =>
+              !hasPositions ||
+              position1Selection === null ||
+              parseInt(racer) === position1Selection,
+          )
+          .forEach(([racer, racerCombs]) => {
+            Object.entries(racerCombs)
+              .filter(
+                ([racer2]) =>
+                  !hasPositions ||
+                  position2Selection === null ||
+                  parseInt(racer2) === position2Selection,
+              )
+              .forEach(([racer2, racer3Combs]) => {
+                Object.entries(racer3Combs)
+                  .filter(
+                    ([racer3]) =>
+                      !hasPositions ||
+                      position3Selection === null ||
+                      parseInt(racer3) === position3Selection,
+                  )
+                  .forEach(([racer3, odds]) => {
+                    allCombinations.push({
+                      discipline: race.discipline,
+                      event: {
+                        name: race.name,
+                        number: race.id,
+                        startingAt: race.time,
+                      },
+                      competitors: `${racer}-${racer2}-${racer3}`,
+                      option: {
+                        outcome: `${racer}-${racer2}-${racer3}`,
+                        decPrice: parseFloat(odds),
+                      },
+                    })
+                  })
+              })
           })
-      })
+      }
+    } else {
+      if (hasAnyOrder && disorderSelection.length >= 2) {
+        // Quinella
+        if (raceData.odds.quinella) {
+          const selectedRacers = disorderSelection.sort((a, b) => a - b)
+
+          // Trova la prima combinazione quinella disponibile
+          let quinellaOdds = 0
+          let foundOdds = false
+
+          for (let i = 0; i < selectedRacers.length && !foundOdds; i++) {
+            for (let j = i + 1; j < selectedRacers.length && !foundOdds; j++) {
+              const odds =
+                raceData.odds.quinella?.[selectedRacers[i]]?.[
+                  selectedRacers[j]
+                ] ||
+                raceData.odds.quinella?.[selectedRacers[j]]?.[selectedRacers[i]]
+              if (odds) {
+                quinellaOdds = parseFloat(odds)
+                foundOdds = true
+              }
+            }
+          }
+
+          if (foundOdds) {
+            allCombinations.push({
+              discipline: race.discipline,
+              event: {
+                name: race.name,
+                number: race.id,
+                startingAt: race.time,
+              },
+              competitors: `${selectedRacers.join('-')} any Order`,
+              option: {
+                outcome: `${selectedRacers.join('-')} any`,
+                decPrice: quinellaOdds,
+              },
+            })
+          }
+        }
+      } else {
+        // Tutte le exacta
+        Object.entries(raceData.odds.exacta)
+          .filter(
+            ([racer]) =>
+              !hasPositions ||
+              position1Selection === null ||
+              parseInt(racer) === position1Selection,
+          )
+          .forEach(([racer, racerCombs]) => {
+            Object.entries(racerCombs)
+              .filter(
+                ([racer2]) =>
+                  !hasPositions ||
+                  position2Selection === null ||
+                  parseInt(racer2) === position2Selection,
+              )
+              .forEach(([racer2, odds]) => {
+                allCombinations.push({
+                  discipline: race.discipline,
+                  event: {
+                    name: race.name,
+                    number: race.id,
+                    startingAt: race.time,
+                  },
+                  competitors: `${racer}-${racer2}`,
+                  option: {
+                    outcome: `${racer}-${racer2}`,
+                    decPrice: parseFloat(odds),
+                  },
+                })
+              })
+          })
+      }
+    }
+
     if (sortByOdds) {
       return allCombinations.sort(
         (a, b) => a.option.decPrice - b.option.decPrice,
@@ -115,6 +208,7 @@ export default function BetCombinationsTable({
     position1Selection,
     position2Selection,
     position3Selection,
+    disorderSelection,
     race.data,
     race.discipline,
     race.id,
@@ -123,34 +217,67 @@ export default function BetCombinationsTable({
     sortByOdds,
   ])
 
-  const allBetsSelected = useMemo(
-    () =>
-      combinations.every(
-        (bet) =>
-          !!betEntries.find(
-            (entry) =>
-              entry.market === (isTris ? 'tris' : 'accoppiata') &&
-              entry.bet.event.number === bet.event.number &&
-              entry.bet.competitors === bet.competitors &&
-              entry.bet.option.outcome === bet.option.outcome,
-          ),
-      ),
-    [combinations, betEntries, isTris],
-  )
+  const getTitle = () => {
+    const hasAnyOrder = disorderSelection.length > 0
 
-  if (combinations.length === 0) {
+    if (isTris) {
+      if (hasAnyOrder) {
+        return `${t('trifecta').toUpperCase()} ${t('any_order').toUpperCase()}`
+      } else {
+        return `${t('trifecta').toUpperCase()} ${t('in_order').toUpperCase()}`
+      }
+    } else {
+      if (hasAnyOrder) {
+        return `${t('quinella').toUpperCase()}`
+      } else {
+        return `${t('perfecta').toUpperCase()} ${t('in_order').toUpperCase()}`
+      }
+    }
+  }
+
+  const getMarketName = () => {
+    const hasAnyOrder = disorderSelection.length > 0
+
+    if (isTris) {
+      return hasAnyOrder ? `${t('boxed_trifecta')}` : `${t('triplets')}`
+    } else {
+      return hasAnyOrder ? `${t('quinella')}` : `${t('couples')}`
+    }
+  }
+
+  const marketName = getMarketName()
+
+  const allBetsSelected = useMemo(() => {
+    return combinations.every(
+      (bet) =>
+        !!betEntries.find(
+          (entry) =>
+            entry.market === marketName &&
+            entry.bet.event.number === bet.event.number &&
+            entry.bet.competitors === bet.competitors &&
+            entry.bet.option.outcome === bet.option.outcome,
+        ),
+    )
+  }, [combinations, betEntries, marketName])
+
+  const shouldShowEmptyState =
+    combinations.length === 0 &&
+    (position1Selection ||
+      position2Selection ||
+      position3Selection ||
+      disorderSelection.length > 0)
+
+  if (shouldShowEmptyState) {
     return (
       <Card className="mt-4">
-        <CardHeader>
-          <CardTitle>
-            {isTris ? 'TRIS IN ORDINE' : 'ACCOPPIATA IN ORDINE'}
+        <CardHeader className="flex h-14 items-center justify-center bg-accent px-4 text-accent-foreground">
+          <CardTitle className="justify-center text-lg text-white">
+            {getTitle()}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-center text-[19px] text-muted-foreground">
-            {position1Selection || position2Selection || position3Selection
-              ? `${t('no_combinations')}`
-              : `${t('select_positions')}`}
+            {t('no_combinations_available')}
           </p>
         </CardContent>
       </Card>
@@ -161,9 +288,7 @@ export default function BetCombinationsTable({
     <Card className="mt-4">
       <CardHeader className="flex h-14 items-center justify-center bg-accent px-4 text-accent-foreground">
         <CardTitle className="justify-center text-lg text-white">
-          {isTris
-            ? `${t('trifecta').toUpperCase()} ${t('in_order').toUpperCase()}`
-            : `${t('perfecta').toUpperCase()} ${t('in_order').toUpperCase()}`}
+          {getTitle()}
         </CardTitle>
         <div className="flex gap-2">
           <Button
@@ -179,7 +304,7 @@ export default function BetCombinationsTable({
             onClick={() => {
               if (allBetsSelected) {
                 removeBets(
-                  isTris ? 'tris' : 'accoppiata',
+                  marketName,
                   combinations.map((bet) => ({
                     option: bet.option,
                     competitors: bet.competitors,
@@ -187,7 +312,7 @@ export default function BetCombinationsTable({
                 )
                 return
               }
-              addBets(isTris ? 'tris' : 'accoppiata', combinations)
+              addBets(marketName, combinations)
             }}
           >
             {allBetsSelected
@@ -197,13 +322,12 @@ export default function BetCombinationsTable({
         </div>
       </CardHeader>
       <CardContent className="p-4">
-        {/* Layout a griglia come nell'immagine */}
         <div className="grid grid-cols-12 gap-2">
           {combinations.map((bet) => (
             <BetEntryToggle
               key={bet.option.outcome}
               bet={bet}
-              marketName={isTris ? 'tris' : 'accoppiata'}
+              marketName={marketName}
               variant="racecombination"
             />
           ))}
