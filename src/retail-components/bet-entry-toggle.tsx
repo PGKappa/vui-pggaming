@@ -31,6 +31,12 @@ export default function BetEntryToggle(props: {
   )
 
   const formatOutcome = (outcome: string, marketName: string): string => {
+    if (marketName === 'Parziale/Finale') {
+      if (outcome.length === 2) {
+        return `${outcome[0]}/${outcome[1]}`
+      }
+    }
+
     const isUnderOverMarket =
       marketName.toLowerCase().includes('under') ||
       marketName.toLowerCase().includes('over') ||
