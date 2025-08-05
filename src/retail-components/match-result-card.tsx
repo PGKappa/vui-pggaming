@@ -17,7 +17,7 @@ export default function MatchResultCard(props: { matchResult?: MatchResult }) {
   const [team1, team2] = props.matchResult.teams.split(' - ')
 
   return (
-    <div className="flex w-full flex-col items-center justify-start gap-10">
+    <div className="flex w-full flex-col items-center justify-start gap-10 px-20">
       <div className="text-center">
         <h4 className="text-[22px] font-extrabold text-secondary">
           {t('result').toUpperCase()}
