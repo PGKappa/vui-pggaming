@@ -581,73 +581,78 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
     if (eventResult.result && detailedResult.podium && !detailedResult.odds) {
       return (
         <div className="space-y-4">
-          {/* PODIUM per dati mockati */}
+          {/* PODIUM*/}
           <div className="border">
             <div className="bg-accent py-2 text-center">
               <div className="text-[16px] font-bold uppercase text-accent-foreground">
                 ARRIVAL ORDER
               </div>
             </div>
-            <div className="flex items-center justify-center gap-6 p-4">
+            <div className="space-y-3 p-4">
               {detailedResult.podium
                 .slice(0, 3)
                 .map((competitor: any, index: number) => {
                   let imageSrc = ''
-                  let alt = ''
+                  let medalNumber = ''
 
                   switch (index + 1) {
                     case 1:
                       imageSrc = '/cockade_gold.png'
-                      alt = '1'
+                      medalNumber = '1'
                       break
                     case 2:
                       imageSrc = '/cockade_silver.png'
-                      alt = '2'
+                      medalNumber = '2'
                       break
                     case 3:
                       imageSrc = '/cockade_bronze.png'
-                      alt = '3'
+                      medalNumber = '3'
                       break
                   }
 
                   return (
                     <div
                       key={competitor.number}
-                      className="flex flex-col items-center gap-2"
+                      className="flex items-center gap-4"
                     >
-                      {/* Medaglia */}
+                      {/* Medaglia con numero posizione */}
                       <div className="relative flex h-12 w-12 items-center justify-center">
                         <Image
                           src={imageSrc}
-                          alt={alt}
+                          alt={medalNumber}
                           width={48}
                           height={48}
                           className="absolute"
                         />
-                        <div className="relative">
-                          <div
-                            className={
-                              'flex h-7 w-7 items-center justify-center rounded-md font-bold text-white ' +
-                              (competitor.number === 1
-                                ? 'bg-red-500'
-                                : competitor.number === 2
-                                  ? 'bg-blue-500'
-                                  : competitor.number === 3
-                                    ? 'bg-orange-500'
-                                    : competitor.number === 4
-                                      ? 'bg-green-500'
-                                      : competitor.number === 5
-                                        ? 'bg-yellow-500'
-                                        : competitor.number === 6
-                                          ? 'bg-purple-500'
-                                          : 'border border-gray-300 bg-white text-black')
-                            }
-                          >
-                            {competitor.number}
-                          </div>
+                        <div className="relative text-[18px] font-bold text-black">
+                          {medalNumber}
                         </div>
                       </div>
-                      <div className="text-center text-sm font-semibold">
+
+                      {/* Numero corridore */}
+                      <div
+                        className={
+                          'flex h-10 w-10 items-center justify-center rounded-md font-bold text-white ' +
+                          (competitor.number === 1
+                            ? 'bg-red-500'
+                            : competitor.number === 2
+                              ? 'bg-blue-500'
+                              : competitor.number === 3
+                                ? 'bg-orange-500'
+                                : competitor.number === 4
+                                  ? 'bg-green-500'
+                                  : competitor.number === 5
+                                    ? 'bg-yellow-500'
+                                    : competitor.number === 6
+                                      ? 'bg-purple-500'
+                                      : 'border border-gray-300 bg-white text-black')
+                        }
+                      >
+                        {competitor.number}
+                      </div>
+
+                      {/* Nome corridore */}
+                      <div className="text-[16px] font-semibold">
                         {competitor.name}
                       </div>
                     </div>
@@ -785,64 +790,67 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                   ARRIVAL ORDER
                 </div>
               </div>
-              <div className="flex items-center justify-center gap-6 p-4">
+              <div className="flex items-center justify-center gap-8 p-4">
                 {raceResult.podium.slice(0, 3).map((competitor, index) => {
                   let imageSrc = ''
-                  let alt = ''
+                  let medalNumber = ''
 
                   switch (index + 1) {
                     case 1:
                       imageSrc = '/cockade_gold.png'
-                      alt = '1'
+                      medalNumber = '1'
                       break
                     case 2:
                       imageSrc = '/cockade_silver.png'
-                      alt = '2'
+                      medalNumber = '2'
                       break
                     case 3:
                       imageSrc = '/cockade_bronze.png'
-                      alt = '3'
+                      medalNumber = '3'
                       break
                   }
 
                   return (
                     <div
                       key={competitor.number}
-                      className="flex flex-col items-center gap-2"
+                      className="flex items-center gap-2"
                     >
                       {/* Medaglia con numero */}
-                      <div className="relative flex h-12 w-12 items-center justify-center">
+                      <div className="relative flex h-11 w-11 items-center justify-center">
                         <Image
                           src={imageSrc}
-                          alt={alt}
+                          alt={medalNumber}
                           width={48}
                           height={48}
                           className="absolute"
                         />
-                        <div className="relative text-[18px] font-bold text-black">
-                          <div
-                            className={
-                              'flex h-7 w-7 items-center justify-center rounded-md font-bold text-white ' +
-                              (competitor.number === 1
-                                ? 'bg-red-500'
-                                : competitor.number === 2
-                                  ? 'bg-blue-500'
-                                  : competitor.number === 3
-                                    ? 'bg-orange-500'
-                                    : competitor.number === 4
-                                      ? 'bg-green-500'
-                                      : competitor.number === 5
-                                        ? 'bg-yellow-500'
-                                        : competitor.number === 6
-                                          ? 'bg-purple-500'
-                                          : 'border border-gray-300 bg-white text-black')
-                            }
-                          >
-                            {competitor.number}
-                          </div>
+                        <div className="relative pb-2 text-[20px] font-bold">
+                          {medalNumber}
                         </div>
                       </div>
-                      <div className="text-center text-sm font-semibold">
+
+                      <div
+                        className={
+                          'flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold text-white ' +
+                          (competitor.number === 1
+                            ? 'bg-red-500'
+                            : competitor.number === 2
+                              ? 'bg-blue-500'
+                              : competitor.number === 3
+                                ? 'bg-orange-500'
+                                : competitor.number === 4
+                                  ? 'bg-green-500'
+                                  : competitor.number === 5
+                                    ? 'bg-yellow-500'
+                                    : competitor.number === 6
+                                      ? 'bg-purple-500'
+                                      : 'border border-gray-300 bg-white text-black')
+                        }
+                      >
+                        {competitor.number}
+                      </div>
+
+                      <div className="min-w-0 text-[16px] font-semibold pr-10">
                         {competitor.name}
                       </div>
                     </div>
