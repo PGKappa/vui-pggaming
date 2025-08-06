@@ -7,7 +7,7 @@ import { UpcomingEventsCarousel } from '@/retail-components/upcoming-events-caro
 import UpcomingRoundCard from '@/retail-components/upcoming-round-card'
 import { RootContext } from '@/retail-contexts/root-context'
 import { Market, UpcomingEvent, UpcomingRound } from '@/retail-lib/types'
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 export default function Home() {
@@ -32,6 +32,8 @@ export default function Home() {
 
   const [isLeaderboardExpanded, setIsLeaderboardExpanded] = useState(false)
 
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+
   useEffect(() => {
     if (!selectedEvent && upcomingEvents && upcomingEvents.length > 0) {
       setSelectedEvent(upcomingEvents[0])
@@ -48,6 +50,7 @@ export default function Home() {
               setSelectedEvent(event)
               setSearchRoundResults(undefined)
               setMatchBetOptions(undefined)
+              setIsLeaderboardExpanded(false)
             }}
           />
         </div>
@@ -67,19 +70,21 @@ export default function Home() {
                 close={() => setMatchBetOptions(undefined)}
               />
             ) : (
-              <div className="flex h-[942px] flex-col">
-                <div
-                  className={`overflow-y-auto transition-all duration-300 ${isLeaderboardExpanded ? 'h-[470px]' : 'h-[805px]'} `}
-                >
+              <div ref={scrollContainerRef} className="overflow-y-auto">
+                <div className="h-[805px] overflow-y-auto">
                   <UpcomingRoundCard
                     round={selectedEvent.data as UpcomingRound}
                     viewMatchBettingOptions={setMatchBetOptions}
+                    onTabChange={() => {
+                      scrollContainerRef.current?.scrollTo({
+                        top: 0,
+                        behavior: 'smooth',
+                      })
+                    }}
                   />
                 </div>
 
-                <div
-                  className={`flex-shrink-0 bg-background transition-all duration-300 ${isLeaderboardExpanded ? 'h-[472px]' : 'h-[120px]'} `}
-                >
+                <div>
                   <Leaderboard
                     isExpanded={isLeaderboardExpanded}
                     onToggle={setIsLeaderboardExpanded}
@@ -95,7 +100,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* RIGHT COLUMN - Betting slip */}
       <div className="h-[942px] w-[410px] bg-background pr-2 text-foreground">
         <BettingSlip />
       </div>
