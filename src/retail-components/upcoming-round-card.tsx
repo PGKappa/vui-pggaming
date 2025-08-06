@@ -28,17 +28,14 @@ export default function UpcomingRoundCard(props: {
   viewMatchBettingOptions: Dispatch<
     SetStateAction<
       | {
-          round: {
-            name: string
-            number: number
-            startingAt: Date
-          }
+          round: { name: string; number: number; startingAt: Date }
           teams: string
           markets: Market[]
         }
       | undefined
     >
   >
+  onTabChange?: (tabName: string) => void
 }) {
   const { t } = useTranslation()
 
@@ -124,6 +121,22 @@ export default function UpcomingRoundCard(props: {
 
   const [selectedTab, setSelectedTab] = useState(marketTabs[0].name)
 
+  const handleTabChange = (tabName: string) => {
+    setSelectedTab(tabName)
+
+    setTimeout(() => {
+      const container =
+        document.querySelector('div.h-\\[805px\\].overflow-y-auto') ||
+        document.querySelector('[class*="overflow-y-auto"]')
+
+      if (container) {
+        container.scrollTo({ top: 0, behavior: 'smooth' })
+      }
+    }, 50)
+
+    props.onTabChange?.(tabName)
+  }
+
   const formatMarketHeader = (marketName: string) => {
     if (marketName.includes('Casa Under/Over')) {
       const valueMatch = marketName.match(/(\d+\.?\d*)/)
@@ -158,20 +171,19 @@ export default function UpcomingRoundCard(props: {
 
   return (
     <Card className="border-b border-t border-card-foreground">
-      <CardHeader className="flex h-16 w-full flex-row items-center justify-start gap-2 bg-accent">
+      <CardHeader className="sticky top-0 z-40 flex h-16 w-full flex-row items-center justify-start gap-2 border-b bg-accent">
         {marketTabs.map((tab, index) => (
           <Button
             key={index}
             variant={selectedTab === tab.name ? 'marketSelected' : 'market'}
             className="h-full w-[202px] border border-b px-2 text-[20px] font-semibold"
-            onClick={() => {
-              setSelectedTab(tab.name)
-            }}
+            onClick={() => handleTabChange(tab.name)}
           >
             {tab.name}
           </Button>
         ))}
       </CardHeader>
+
       <CardContent className="px-0">
         <Table>
           <TableHeader className="h-11 bg-card-header text-[20px] text-card-header-foreground">
