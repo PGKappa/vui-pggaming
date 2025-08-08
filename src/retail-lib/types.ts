@@ -163,13 +163,26 @@ export enum Discipline {
 
 export type EventResult = {
   id: number
+  extId?: string
   name: string
   startTime: Date
   discipline: Discipline
-  result: MatchResult | RaceResult
+  result?: MatchResult | RaceResult
 }
 
 export type RaceResult = {
+  odds: {
+    winner: Record<string, string>
+    placed: Record<string, string>
+    show: Record<string, string>
+    exacta: Record<string, Record<string, string>>
+    quinella: Record<string, Record<string, string>>
+    trifecta: Record<string, Record<string, Record<string, string>>>
+    boxedtrifecta: Record<string, Record<string, Record<string, string>>>
+    evenodd: Record<string, string>
+    underover: Record<string, string>
+  }
+  raceDuration?: number
   podium: {
     name: string
     number: number

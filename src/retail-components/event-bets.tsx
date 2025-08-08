@@ -1,7 +1,6 @@
 import { BetsContext } from '@/retail-contexts/bets-context'
 import { BetEntry } from '@/retail-lib/types'
 import useTimeLeft from '@/retail-lib/use-time-left'
-import { Checkbox } from '@radix-ui/react-checkbox'
 import { format } from 'date-fns'
 import { t } from 'i18next'
 import { CircleXIcon } from 'lucide-react'
@@ -10,6 +9,7 @@ import { useContext } from 'react'
 import { BetMode } from './betting-slip'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
+import { Checkbox } from './ui/checkbox'
 
 export default function EventBets(props: {
   betMode: BetMode

@@ -1,8 +1,11 @@
-import { Discipline, EventResult } from '@/retail-lib/types'
-import { format, isSameDay } from 'date-fns'
+import { RootContext } from '@/retail-contexts/root-context'
+import { Discipline, EventResult, RaceResult } from '@/retail-lib/types'
+import { format } from 'date-fns'
 import { ChevronRight } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import Image from 'next/image'
+import { useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 import {
   Accordion,
   AccordionContent,
@@ -19,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select'
+import { t } from 'i18next'
 
 const dates = Array.from({ length: 10 }, (_, index) => {
   const date = new Date()
@@ -40,40 +44,308 @@ const timeSlots = [
 ]
 
 export default function SearchEventResults(props: {
-  eventResults: EventResult[]
   onClose: () => void
+  eventResults: EventResult[]
 }) {
   const { t } = useTranslation()
-
+  const rootContext = useContext(RootContext)
   const [selectedDiscipline, setSelectedDiscipline] = useState<
     Discipline | 'NONE'
   >('NONE')
-  const [selectedDate, setSelectedDate] = useState<string>('ALL')
+  const [selectedDate, setSelectedDate] = useState<string>()
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>('ALL')
-  const [lastTenGames, setLastTenGames] = useState<boolean>(false)
+  const [lastTenGames, setLastTenGames] = useState<boolean>(true)
+  const [fetchedResults, setFetchedResults] = useState<EventResult[]>([])
 
-  const eventResults = useMemo(() => {
-    if (lastTenGames) {
-      return props.eventResults
-        .filter(
-          (result) =>
-            selectedDiscipline === 'NONE' ||
-            result.discipline === selectedDiscipline,
-        )
-        .sort((a, b) => b.startTime.getTime() - a.startTime.getTime())
-        .slice(0, 10)
+  const fetchDetailedEventResult = async (extId: string, eventId: string) => {
+    try {
+      const response = await fetch(
+        `https://apidev.pgvirtual.eu/api/event/results/${extId}/${eventId}`,
+        {
+          headers: {
+            accept: 'application/json',
+            'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
+            authorization: 'Bearer ffffffff-ffff-ffff-ffff-ffffffffffee',
+            'content-type': 'application/json',
+            operator: 'pg',
+            priority: 'u=1, i',
+            'sec-ch-ua':
+              '"Not)A;Brand";v="8", "Chromium";v="138", "Google Chrome";v="138"',
+            'sec-ch-ua-mobile': '?1',
+            'sec-ch-ua-platform': '"Android"',
+            'sec-fetch-dest': 'empty',
+            'sec-fetch-mode': 'cors',
+            'sec-fetch-site': 'same-site',
+          },
+          referrer: 'https://test.pgvirtual.eu/',
+          method: 'GET',
+          mode: 'cors',
+          credentials: 'include',
+        },
+      )
+
+      if (!response.ok) {
+        console.warn(`Failed to fetch detailed results for event ${eventId}`)
+        return null
+      }
+
+      return await response.json()
+    } catch (error) {
+      console.warn(
+        `Error fetching detailed results for event ${eventId}:`,
+        error,
+      )
+      return null
+    }
+  }
+
+  useEffect(() => {
+    if (selectedDiscipline === 'NONE') {
+      setFetchedResults([])
+      return
     }
 
-    const filteredResults = props.eventResults.filter((result) => {
-      if (selectedDiscipline && result.discipline !== selectedDiscipline) {
+    if (lastTenGames) {
+      // Usa i dati del context (prev_events)
+      setFetchedResults([])
+      return
+    }
+
+    if (!selectedDate) {
+      setFetchedResults([])
+      return
+    }
+
+    const fetchEventResults = async (discipline: Discipline, date: string) => {
+      try {
+        // Converti la data dal formato italiano al formato americano per l'API
+        const [day, month, year] = date.split('/')
+        const apiDateFormat = `${month}/${day}/${year}`
+
+        const gameIds =
+          discipline === Discipline.HORSES
+            ? 'horses6'
+            : discipline === Discipline.DOGS
+              ? 'dogs6'
+              : `${discipline.toLowerCase()}6`
+
+        console.log('Fetching results for:', {
+          discipline,
+          date: apiDateFormat,
+          gameIds,
+        })
+
+        const response = await fetch(
+          'https://apidev.pgvirtual.eu/api/event/results/list',
+          {
+            headers: {
+              accept: 'application/json',
+              'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
+              authorization: 'Bearer ffffffff-ffff-ffff-ffff-ffffffffffee',
+              'content-type': 'application/json',
+              operator: 'pg',
+              priority: 'u=1, i',
+              'sec-ch-ua':
+                '"Not)A;Brand";v="8", "Chromium";v="138", "Google Chrome";v="138"',
+              'sec-ch-ua-mobile': '?1',
+              'sec-ch-ua-platform': '"Android"',
+              'sec-fetch-dest': 'empty',
+              'sec-fetch-mode': 'cors',
+              'sec-fetch-site': 'same-site',
+            },
+            referrer: 'https://test.pgvirtual.eu/',
+            body: JSON.stringify({
+              gameIds: [gameIds],
+              dateStart: apiDateFormat,
+              dateEnd: apiDateFormat,
+            }),
+            method: 'POST',
+            mode: 'cors',
+            credentials: 'include',
+          },
+        )
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+
+        const data = await response.json()
+        console.log('API Response:', data)
+
+        if (!data.items || !Array.isArray(data.items)) {
+          console.warn('No items found in API response')
+          setFetchedResults([])
+          return
+        }
+
+        let results: EventResult[]
+
+        if (
+          discipline === Discipline.HORSES ||
+          discipline === Discipline.DOGS
+        ) {
+          console.log(`Processing ${discipline}:`, data.items.length, 'events')
+
+          // Processa tutti i risultati
+          results = await Promise.all(
+            data.items.map(async (result: any) => {
+              const detailedResult = await fetchDetailedEventResult(
+                result.ext_pal_id,
+                result.int_event_id.toString(),
+              )
+
+              let startTime: Date
+              try {
+                if (result.time) {
+                  startTime = new Date(result.time)
+
+                  if (result.start_time && result.start_time.includes(':')) {
+                    const [hours, minutes] = result.start_time.split(':')
+                    startTime.setHours(parseInt(hours, 10))
+                    startTime.setMinutes(parseInt(minutes, 10))
+                  }
+                } else {
+                  startTime = new Date(date.split('/').reverse().join('-'))
+                  if (result.start_time && result.start_time.includes(':')) {
+                    const [hours, minutes] = result.start_time.split(':')
+                    startTime.setHours(parseInt(hours, 10))
+                    startTime.setMinutes(parseInt(minutes, 10))
+                  }
+                }
+              } catch (error) {
+                console.warn(
+                  'Error parsing date for event:',
+                  result.int_event_id,
+                  error,
+                )
+                startTime = new Date()
+              }
+
+              return {
+                id: result.int_event_id,
+                extId: result.ext_pal_id,
+                name:
+                  detailedResult?.track_name ||
+                  result.track_name ||
+                  `${discipline} Race ${result.int_event_id}`,
+                startTime,
+                discipline: discipline,
+                result: detailedResult,
+              } as EventResult
+            }),
+          )
+        } else if (discipline === Discipline.SOCCER) {
+          console.log('Processing SOCCER:', data.items.length, 'events')
+
+          results = data.items.map((result: any) => {
+            let startTime: Date
+            try {
+              startTime = new Date(result.time)
+              if (result.start_time && result.start_time.includes(':')) {
+                const [hours, minutes] = result.start_time.split(':')
+                startTime.setHours(parseInt(hours, 10))
+                startTime.setMinutes(parseInt(minutes, 10))
+              }
+            } catch (error) {
+              console.warn(
+                'Error parsing date for soccer event:',
+                result.int_event_id,
+                error,
+              )
+              startTime = new Date()
+            }
+
+            return {
+              id: result.int_event_id,
+              extId: result.ext_pal_id,
+              name: result.round_name || `Soccer Match ${result.int_event_id}`,
+              startTime,
+              discipline: Discipline.SOCCER,
+              result: {
+                round: {
+                  name: result.round_name || 'Unknown Round',
+                  number: result.round_number || 0,
+                },
+                teams: result.teams || 'Team A - Team B',
+                score1: result.score1 || 0,
+                score2: result.score2 || 0,
+                odds: result.odds || null,
+              },
+            } as EventResult
+          })
+        } else {
+          console.log('Processing OTHER discipline:', discipline)
+          results = data.items.map((result: any) => {
+            let startTime: Date
+            try {
+              startTime = new Date(result.time)
+              if (result.start_time && result.start_time.includes(':')) {
+                const [hours, minutes] = result.start_time.split(':')
+                startTime.setHours(parseInt(hours, 10))
+                startTime.setMinutes(parseInt(minutes, 10))
+              }
+            } catch {
+              startTime = new Date()
+            }
+
+            return {
+              id: result.int_event_id,
+              extId: result.ext_pal_id,
+              name: result.name || `${discipline} Event ${result.int_event_id}`,
+              startTime,
+              discipline: discipline,
+            } as EventResult
+          })
+        }
+
+        console.log('Processed results:', results.length, 'events')
+        setFetchedResults(results)
+      } catch (error: unknown) {
+        const message = error instanceof Error ? error.message : 'Unknown error'
+        console.error('❌ API Error:', message)
+        toast.error(`Failed to fetch results: ${message}`)
+        setFetchedResults([])
+      }
+    }
+
+    fetchEventResults(selectedDiscipline, selectedDate)
+  }, [selectedDate, selectedDiscipline, lastTenGames])
+
+  const filteredEventResults = useMemo(() => {
+    console.log('Filtering results:', {
+      selectedDiscipline,
+      lastTenGames,
+      selectedDate,
+      selectedTimeSlot,
+      fetchedResultsCount: fetchedResults.length,
+      contextResultsCount: rootContext.eventResults?.length || 0,
+    })
+
+    if (selectedDiscipline === 'NONE') return []
+
+    if (lastTenGames) {
+      const filtered = (rootContext.eventResults || [])
+        .filter((result) => result.discipline === selectedDiscipline)
+        .sort((a, b) => b.startTime.getTime() - a.startTime.getTime())
+        .slice(0, 10)
+
+      console.log('Last 10 games filtered:', filtered.length)
+      return filtered
+    }
+
+    // Modalità con data selezionata: usa fetchedResults (tutti i risultati del giorno)
+    if (!selectedDate) {
+      console.log('No date selected, returning empty array')
+      return []
+    }
+
+    const resultsToFilter = fetchedResults
+
+    const filteredResults = resultsToFilter.filter((result) => {
+      if (result.discipline !== selectedDiscipline) {
         return false
       }
-      if (
-        selectedDate !== 'ALL' &&
-        !isSameDay(result.startTime, new Date(selectedDate))
-      ) {
-        return false
-      }
+
       if (selectedTimeSlot !== 'ALL') {
         const [startTimeStr, endTimeStr] = selectedTimeSlot.split(' | ')
         const [startHours, startMinutes] = startTimeStr.split(':').map(Number)
@@ -83,18 +355,24 @@ export default function SearchEventResults(props: {
         const timeInMinutes = hours * 60 + minutes
         const startInMinutes = startHours * 60 + startMinutes
         const endInMinutes = endHours * 60 + endMinutes
-        if (timeInMinutes < startInMinutes || timeInMinutes > endInMinutes)
+
+        if (timeInMinutes < startInMinutes || timeInMinutes > endInMinutes) {
           return false
+        }
       }
+
       return true
     })
+
+    console.log('Date-filtered results:', filteredResults.length)
     return filteredResults
   }, [
-    lastTenGames,
-    props.eventResults,
     selectedDiscipline,
     selectedDate,
+    lastTenGames,
+    fetchedResults,
     selectedTimeSlot,
+    rootContext.eventResults,
   ])
 
   const handleReset = () => {
@@ -104,21 +382,26 @@ export default function SearchEventResults(props: {
     setLastTenGames(false)
   }
 
-  const formatSafeDate = (date: Date, formatStr: string) => {
+  const formatSafeDate = (date: any): string => {
     try {
-      const dateObj = typeof date === 'string' ? new Date(date) : date
-      if (!(dateObj instanceof Date) || isNaN(dateObj.getTime())) {
-        return 'Data non valida'
+      if (date instanceof Date && !isNaN(date.getTime())) {
+        return format(date, 'dd-MM-yyyy HH:mm')
       }
-      return format(dateObj, formatStr)
+
+      const parsedDate = new Date(date)
+      if (!isNaN(parsedDate.getTime())) {
+        return format(parsedDate, 'dd-MM-yyyy HH:mm')
+      }
+
+      return 'Invalid Date'
     } catch (error) {
       console.error('Error formatting date:', error)
-      return 'Data non valida'
+      return 'Invalid Date'
     }
   }
 
   return (
-    <div className="flex h-full flex-col gap-4">
+    <div className="flex h-full flex-col gap-1">
       <div className="flex flex-col items-center bg-accent p-2">
         <div className="flex flex-wrap items-center gap-8">
           <div className="flex flex-row items-center gap-2 bg-badge text-background">
@@ -126,7 +409,7 @@ export default function SearchEventResults(props: {
               {t('discipline')}
             </span>
             <Select
-              value={selectedDiscipline?.toString()}
+              value={selectedDiscipline.toString()}
               onValueChange={(value) => {
                 setSelectedDiscipline(
                   value === 'NONE'
@@ -198,7 +481,7 @@ export default function SearchEventResults(props: {
               onValueChange={setSelectedTimeSlot}
               disabled={lastTenGames}
             >
-              <SelectTrigger className="w-[130px] bg-background text-[16px] text-foreground">
+              <SelectTrigger className="w-[150px] bg-background text-[16px] text-foreground">
                 <SelectValue placeholder={t('time_slot')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
@@ -237,161 +520,1014 @@ export default function SearchEventResults(props: {
         </div>
       </div>
 
-      <div className="h-full">
-        {!!selectedDiscipline ? (
-          eventResults.length > 0 ? (
-            <ScrollArea className="pb-20">
-              <Accordion type="multiple" className="space-y-4">
-                {eventResults.map((eventResult) => {
-                  return (
-                    <AccordionItem
-                      key={eventResult.id}
-                      value={eventResult.id.toString()}
-                      className="gap-0"
-                    >
-                      <AccordionTrigger className="bg-accent p-2 text-base text-accent-foreground [&[data-state=open]>svg]:-rotate-90">
-                        <div className="flex w-[600px] flex-row justify-between gap-2">
-                          <div className="flex flex-row gap-2">
-                            <span className="font-bold">
-                              {formatSafeDate(
-                                eventResult.startTime,
-                                'dd-MM-yyyy HH:mm',
-                              )}{' '}
-                              {eventResult.name}
-                              {' / '}
-                            </span>
-                            {'teams' in eventResult.result && (
-                              <span>{eventResult.result.teams}</span>
-                            )}
-                          </div>
-                          <span className="font-bold">
-                            {'score1' in eventResult.result ? (
-                              <>
-                                {eventResult.result.score1} - {''}
-                                {eventResult.result.score2}
-                              </>
-                            ) : (
-                              t('not_applicable')
-                            )}
-                          </span>
-                        </div>
-                        <ChevronRight className="h-6 w-6 shrink-0 transition-transform duration-200" />
-                      </AccordionTrigger>
-                      <AccordionContent>
-                        <table className="w-full border-collapse bg-background text-center">
-                          <tbody>
-                            {/* 1X2 and DOUBLE CHANCE */}
-                            <tr className="border-b-2 border-betSlip">
-                              <td className="border-r-2 border-betSlip p-2 text-center">
-                                <div className="font-bold">1X2</div>
-                                <div>
-                                  {'odds' in eventResult.result &&
-                                  eventResult.result.odds?.oneXTwo
-                                    ? `2 ${eventResult.result.odds.oneXTwo.odds.toFixed(2)}`
-                                    : '2 1.95'}
-                                </div>
-                              </td>
-                              <td className="p-2 text-center">
-                                <div className="font-bold">DOUBLE CHANCE</div>
-                                <div>
-                                  {'odds' in eventResult.result &&
-                                  eventResult.result.odds?.doubleChance
-                                    ? `2 ${eventResult.result.odds.doubleChance.odds.toFixed(2)}`
-                                    : '2 1.63'}
-                                </div>
-                              </td>
-                            </tr>
-
-                            {/* FIRST SCORER and SUM GOALS */}
-                            <tr className="border-b-2 border-betSlip">
-                              <td className="border-r-2 border-betSlip p-2 text-center">
-                                <div className="font-bold">FIRST SCORER</div>
-                                <div>
-                                  {'odds' in eventResult.result &&
-                                  eventResult.result.odds?.firstScorer
-                                    ? `${eventResult.result.odds.firstScorer.teamLabel || 'TEAM 2'} ${eventResult.result.odds.firstScorer.odds.toFixed(2)}`
-                                    : 'TEAM 2 2.05'}
-                                </div>
-                              </td>
-                              <td className="p-2 text-center">
-                                <div className="font-bold">SUM GOALS</div>
-                                <div>
-                                  {'odds' in eventResult.result &&
-                                  eventResult.result.odds?.sumGoals
-                                    ? `${eventResult.result.odds.sumGoals.value} ${eventResult.result.odds.sumGoals.odds.toFixed(2)}`
-                                    : '2 1.63'}
-                                </div>
-                              </td>
-                            </tr>
-
-                            {/* GOAL / NO GOAL and RED CARD */}
-                            <tr className="border-b-2 border-betSlip">
-                              <td className="border-r-2 border-betSlip p-2 text-center">
-                                <div className="font-bold">GOAL / NO GOAL</div>
-                                <div>
-                                  {'odds' in eventResult.result &&
-                                  eventResult.result.odds?.goalNoGoal
-                                    ? `${eventResult.result.odds.goalNoGoal.value} ${eventResult.result.odds.goalNoGoal.odds.toFixed(2)}`
-                                    : '1 1.95'}
-                                </div>
-                              </td>
-                              <td className="p-2 text-center">
-                                <div className="font-bold">RED CARD</div>
-                                <div>
-                                  {'odds' in eventResult.result &&
-                                  eventResult.result.odds?.redCard
-                                    ? `${eventResult.result.odds.redCard.value} ${eventResult.result.odds.redCard.odds.toFixed(2)}`
-                                    : 'Yes 2.95'}
-                                </div>
-                              </td>
-                            </tr>
-
-                            {/* WINNING COMBO & SCORES and EXACT NUMBER OF GOALS */}
-                            <tr>
-                              <td className="border-r-2 border-betSlip p-2 text-center">
-                                <div className="font-bold">
-                                  WINNING COMBO & SCORES
-                                </div>
-                                <div>
-                                  {'odds' in eventResult.result &&
-                                  eventResult.result.odds?.winningCombo
-                                    ? `${eventResult.result.odds.winningCombo.value} ${eventResult.result.odds.winningCombo.odds.toFixed(2)}`
-                                    : '2+G 1.90'}
-                                </div>
-                              </td>
-                              <td className="p-2 text-center">
-                                <div className="font-bold">
-                                  EXACT NUMBER OF GOALS
-                                </div>
-                                <div>
-                                  {'odds' in eventResult.result &&
-                                  eventResult.result.odds?.exactGoals
-                                    ? `${eventResult.result.odds.exactGoals.value} ${eventResult.result.odds.exactGoals.odds.toFixed(2)}`
-                                    : '2 1.90'}
-                                </div>
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </AccordionContent>
-                    </AccordionItem>
-                  )
-                })}
-              </Accordion>
-            </ScrollArea>
+      <div className="h-full overflow-auto pb-2">
+        {selectedDiscipline !== 'NONE' ? (
+          filteredEventResults.length > 0 ? (
+            (() => {
+              return (
+                <ScrollArea className="pb-20">
+                  <Accordion type="multiple" className="space-y-4">
+                    {filteredEventResults.map((eventResult, index) => {
+                      const uniqueKey = `${eventResult.discipline}-${eventResult.id}-${eventResult.extId || index}`
+                      return (
+                        <AccordionItem
+                          key={uniqueKey}
+                          value={uniqueKey}
+                          className="gap-0"
+                        >
+                          <AccordionTrigger className="bg-accent p-2 text-base text-accent-foreground [&[data-state=open]>svg]:-rotate-90">
+                            <div className="flex w-[600px] flex-row justify-between gap-2">
+                              <div className="flex flex-row gap-2">
+                                <span className="font-bold">
+                                  {formatSafeDate(eventResult.startTime)}
+                                  {eventResult.name}
+                                  {' / '}
+                                </span>
+                                {eventResult.discipline ===
+                                  Discipline.SOCCER && (
+                                  <span>Soccer Match</span>
+                                )}
+                              </div>
+                              <span className="font-bold">
+                                {t('completed').toUpperCase()}
+                              </span>
+                            </div>
+                            <ChevronRight className="h-6 w-6 shrink-0 transition-transform duration-200" />
+                          </AccordionTrigger>
+                          <AccordionContent>
+                            <EventResultDetails eventResult={eventResult} />
+                          </AccordionContent>
+                        </AccordionItem>
+                      )
+                    })}
+                  </Accordion>
+                </ScrollArea>
+              )
+            })()
           ) : (
-            <div className="flex h-full flex-col items-center justify-start">
+            <div className="flex h-full flex-col items-center justify-start pt-4">
               {t('no_results_found')}
             </div>
           )
         ) : (
-          <div className="flex h-full flex-col items-center justify-center">
-            <p className="text-lg text-muted-foreground">
-              {t('search_for_results')}
+          <div className="flex h-full flex-col items-center justify-start">
+            <p className="pt-4 text-[16px] text-black">
+              {t('select_param_for_research')}
             </p>
           </div>
         )}
       </div>
+    </div>
+  )
+}
+
+function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
+  const [detailedResult, setDetailedResult] = useState<any>(null)
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    if (eventResult.result) {
+      setDetailedResult(eventResult.result)
+      return
+    }
+
+    if (!eventResult.extId) {
+      setDetailedResult(null)
+      return
+    }
+
+    const fetchDetails = async () => {
+      setLoading(true)
+      try {
+        const response = await fetch(
+          `https://apidev.pgvirtual.eu/api/event/results/${eventResult.extId}/${eventResult.id}`,
+          {
+            headers: {
+              accept: 'application/json',
+              'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
+              authorization: 'Bearer ffffffff-ffff-ffff-ffff-ffffffffffee',
+              operator: 'pg',
+              priority: 'u=1, i',
+              'sec-ch-ua':
+                '"Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"',
+              'sec-ch-ua-mobile': '?1',
+              'sec-ch-ua-platform': '"Android"',
+              'sec-fetch-dest': 'empty',
+              'sec-fetch-mode': 'cors',
+              'sec-fetch-site': 'same-site',
+            },
+            referrer: 'https://test.pgvirtual.eu/',
+            referrerPolicy: 'strict-origin-when-cross-origin',
+            method: 'GET',
+            mode: 'cors',
+            credentials: 'include',
+          },
+        )
+
+        if (response.ok) {
+          const data = await response.json()
+          setDetailedResult(data)
+        }
+      } catch (error) {
+        console.warn('Failed to fetch detailed results:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchDetails()
+  }, [eventResult])
+
+  if (loading) {
+    return (
+      <div className="p-4 text-center text-muted-foreground">
+        {t('loading')}...
+      </div>
+    )
+  }
+
+  if (!detailedResult) {
+    return (
+      <div className="p-4 text-center text-muted-foreground">
+        No detailed results available
+      </div>
+    )
+  }
+
+  if (
+    (eventResult.discipline === Discipline.HORSES ||
+      eventResult.discipline === Discipline.DOGS) &&
+    detailedResult
+  ) {
+    if (eventResult.result && detailedResult.podium && !detailedResult.odds) {
+      return (
+        <div className="space-y-4">
+          {/* PODIUM*/}
+          <div className="border">
+            <div className="bg-accent py-2 text-center">
+              <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                {t('arrival_order').toUpperCase()}
+              </div>
+            </div>
+            <div className="space-y-3 p-4">
+              {detailedResult.podium
+                .slice(0, 3)
+                .map((competitor: any, index: number) => {
+                  let imageSrc = ''
+                  let medalNumber = ''
+
+                  switch (index + 1) {
+                    case 1:
+                      imageSrc = '/cockade_gold.png'
+                      medalNumber = '1'
+                      break
+                    case 2:
+                      imageSrc = '/cockade_silver.png'
+                      medalNumber = '2'
+                      break
+                    case 3:
+                      imageSrc = '/cockade_bronze.png'
+                      medalNumber = '3'
+                      break
+                  }
+
+                  return (
+                    <div
+                      key={competitor.number}
+                      className="flex items-center gap-4"
+                    >
+                      {/* Medaglia con numero posizione */}
+                      <div className="relative flex h-12 w-12 items-center justify-center">
+                        <Image
+                          src={imageSrc}
+                          alt={medalNumber}
+                          width={48}
+                          height={48}
+                          className="absolute"
+                        />
+                        <div className="relative text-[18px] font-bold text-black">
+                          {medalNumber}
+                        </div>
+                      </div>
+
+                      {/* Numero corridore */}
+                      <div
+                        className={
+                          'flex h-10 w-10 items-center justify-center rounded-md font-bold text-white ' +
+                          (competitor.number === 1
+                            ? 'bg-red-500'
+                            : competitor.number === 2
+                              ? 'bg-blue-500'
+                              : competitor.number === 3
+                                ? 'bg-orange-500'
+                                : competitor.number === 4
+                                  ? 'bg-green-500'
+                                  : competitor.number === 5
+                                    ? 'bg-yellow-500'
+                                    : competitor.number === 6
+                                      ? 'bg-purple-500'
+                                      : 'border border-gray-300 bg-white text-black')
+                        }
+                      >
+                        {competitor.number}
+                      </div>
+
+                      {/* Nome corridore */}
+                      <div className="text-[16px] font-semibold">
+                        {competitor.name}
+                      </div>
+                    </div>
+                  )
+                })}
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    if (detailedResult.odds) {
+      const raceResult = detailedResult as RaceResult
+      const disciplineName =
+        eventResult.discipline === Discipline.HORSES ? 'Horse' : 'Dog'
+
+      const formatSafeDate = (date: any): string => {
+        try {
+          if (date instanceof Date && !isNaN(date.getTime())) {
+            return format(date, 'dd-MM-yyyy HH:mm')
+          }
+
+          const parsedDate = new Date(date)
+          if (!isNaN(parsedDate.getTime())) {
+            return format(parsedDate, 'dd-MM-yyyy HH:mm')
+          }
+
+          return 'Invalid Date'
+        } catch (error) {
+          console.error('Error formatting date:', error)
+          return 'Invalid Date'
+        }
+      }
+
+      const extractExacta = (exacta: any) => {
+        const results: Array<{ combination: string; odds: string }> = []
+
+        Object.entries(exacta).forEach(([first, secondObj]: [string, any]) => {
+          if (typeof secondObj === 'object') {
+            Object.entries(secondObj).forEach(
+              ([second, odds]: [string, any]) => {
+                results.push({
+                  combination: `${first}-${second}`,
+                  odds: String(odds),
+                })
+              },
+            )
+          }
+        })
+
+        return results
+      }
+
+      const extractQuinella = (quinella: any) => {
+        const results: Array<{ combination: string; odds: string }> = []
+
+        Object.entries(quinella).forEach(
+          ([first, secondObj]: [string, any]) => {
+            if (typeof secondObj === 'object') {
+              Object.entries(secondObj).forEach(
+                ([second, odds]: [string, any]) => {
+                  results.push({
+                    combination: `${first}-${second}`,
+                    odds: String(odds),
+                  })
+                },
+              )
+            }
+          },
+        )
+
+        return results
+      }
+
+      const extractTrifecta = (trifecta: any) => {
+        const results: Array<{ combination: string; odds: string }> = []
+
+        Object.entries(trifecta).forEach(
+          ([first, secondObj]: [string, any]) => {
+            if (typeof secondObj === 'object') {
+              Object.entries(secondObj).forEach(
+                ([second, thirdObj]: [string, any]) => {
+                  if (typeof thirdObj === 'object') {
+                    Object.entries(thirdObj).forEach(
+                      ([third, odds]: [string, any]) => {
+                        results.push({
+                          combination: `${first}-${second}-${third}`,
+                          odds: String(odds),
+                        })
+                      },
+                    )
+                  }
+                },
+              )
+            }
+          },
+        )
+
+        return results
+      }
+
+      const extractBoxedTrifecta = (boxedtrifecta: any) => {
+        const results: Array<{ combination: string; odds: string }> = []
+
+        Object.entries(boxedtrifecta).forEach(
+          ([first, secondObj]: [string, any]) => {
+            if (typeof secondObj === 'object') {
+              Object.entries(secondObj).forEach(
+                ([second, thirdObj]: [string, any]) => {
+                  if (typeof thirdObj === 'object') {
+                    Object.entries(thirdObj).forEach(
+                      ([third, odds]: [string, any]) => {
+                        results.push({
+                          combination: `${first}-${second}-${third}`,
+                          odds: String(odds),
+                        })
+                      },
+                    )
+                  }
+                },
+              )
+            }
+          },
+        )
+
+        return results
+      }
+
+      return (
+        <div className="space-y-4">
+          {raceResult.podium && raceResult.podium.length > 0 && (
+            <div className="border">
+              <div className="bg-accent py-2 text-center">
+                <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                  {t('arrival_order').toUpperCase()}
+                </div>
+              </div>
+              <div className="flex items-center justify-center gap-8 p-4">
+                {raceResult.podium.slice(0, 3).map((competitor, index) => {
+                  let imageSrc = ''
+                  let medalNumber = ''
+
+                  switch (index + 1) {
+                    case 1:
+                      imageSrc = '/cockade_gold.png'
+                      medalNumber = '1'
+                      break
+                    case 2:
+                      imageSrc = '/cockade_silver.png'
+                      medalNumber = '2'
+                      break
+                    case 3:
+                      imageSrc = '/cockade_bronze.png'
+                      medalNumber = '3'
+                      break
+                  }
+
+                  return (
+                    <div
+                      key={competitor.number}
+                      className="flex items-center gap-2"
+                    >
+                      {/* Medaglia con numero */}
+                      <div className="relative flex h-11 w-11 items-center justify-center">
+                        <Image
+                          src={imageSrc}
+                          alt={medalNumber}
+                          width={48}
+                          height={48}
+                          className="absolute"
+                        />
+                        <div className="relative pb-2 text-[20px] font-bold">
+                          {medalNumber}
+                        </div>
+                      </div>
+
+                      <div
+                        className={
+                          'flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold text-white ' +
+                          (competitor.number === 1
+                            ? 'bg-red-500'
+                            : competitor.number === 2
+                              ? 'bg-blue-500'
+                              : competitor.number === 3
+                                ? 'bg-orange-500'
+                                : competitor.number === 4
+                                  ? 'bg-green-500'
+                                  : competitor.number === 5
+                                    ? 'bg-yellow-500'
+                                    : competitor.number === 6
+                                      ? 'bg-purple-500'
+                                      : 'border border-gray-300 bg-white text-black')
+                        }
+                      >
+                        {competitor.number}
+                      </div>
+
+                      <div className="min-w-0 pr-10 text-[16px] font-semibold">
+                        {competitor.name}
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          <div className="grid grid-cols-3 gap-2">
+            {/* WINNER */}
+            {raceResult.odds.winner && (
+              <div className="border">
+                <div className="bg-accent py-2 text-center">
+                  <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                    {t('winner').toUpperCase()}
+                  </div>
+                </div>
+                <div className="space-y-2 p-3">
+                  {Object.entries(raceResult.odds.winner).map(
+                    ([number, odds]) => (
+                      <div
+                        key={number}
+                        className="flex items-center justify-between"
+                      >
+                        <span className="flex items-center gap-2">
+                          <div
+                            className={
+                              'flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold text-white ' +
+                              (parseInt(number) === 1
+                                ? 'bg-red-500'
+                                : parseInt(number) === 2
+                                  ? 'bg-blue-500'
+                                  : parseInt(number) === 3
+                                    ? 'bg-orange-500'
+                                    : parseInt(number) === 4
+                                      ? 'bg-green-500'
+                                      : parseInt(number) === 5
+                                        ? 'bg-yellow-500'
+                                        : parseInt(number) === 6
+                                          ? 'bg-purple-500'
+                                          : 'border border-gray-300 bg-white text-black')
+                            }
+                          >
+                            {number}
+                          </div>
+                          <span className="text-[16px] font-semibold">
+                            {odds}
+                          </span>
+                        </span>
+                      </div>
+                    ),
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* PLACED */}
+            {raceResult.odds.placed && (
+              <div className="border">
+                <div className="bg-accent py-2 text-center">
+                  <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                    {t('place_2').toUpperCase()}
+                  </div>
+                </div>
+                <div className="space-y-2 p-3">
+                  {Object.entries(raceResult.odds.placed).map(
+                    ([number, odds]) => (
+                      <div
+                        key={number}
+                        className="flex items-center justify-between"
+                      >
+                        <span className="flex items-center gap-2">
+                          <div
+                            className={
+                              'flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold text-white ' +
+                              (parseInt(number) === 1
+                                ? 'bg-red-500'
+                                : parseInt(number) === 2
+                                  ? 'bg-blue-500'
+                                  : parseInt(number) === 3
+                                    ? 'bg-orange-500'
+                                    : parseInt(number) === 4
+                                      ? 'bg-green-500'
+                                      : parseInt(number) === 5
+                                        ? 'bg-yellow-500'
+                                        : parseInt(number) === 6
+                                          ? 'bg-purple-500'
+                                          : 'border border-gray-300 bg-white text-black')
+                            }
+                          >
+                            {number}
+                          </div>
+                          <span className="text-[16px] font-semibold">
+                            {odds}
+                          </span>
+                        </span>
+                      </div>
+                    ),
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* SHOW */}
+            {raceResult.odds.show && (
+              <div className="border">
+                <div className="bg-accent py-2 text-center">
+                  <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                    {t('show_3').toUpperCase()}
+                  </div>
+                </div>
+                <div className="space-y-2 p-3">
+                  {Object.entries(raceResult.odds.show).map(
+                    ([number, odds]) => (
+                      <div
+                        key={number}
+                        className="flex items-center justify-between"
+                      >
+                        <span className="flex items-center gap-2">
+                          <div
+                            className={
+                              'flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold text-white ' +
+                              (parseInt(number) === 1
+                                ? 'bg-red-500'
+                                : parseInt(number) === 2
+                                  ? 'bg-blue-500'
+                                  : parseInt(number) === 3
+                                    ? 'bg-orange-500'
+                                    : parseInt(number) === 4
+                                      ? 'bg-green-500'
+                                      : parseInt(number) === 5
+                                        ? 'bg-yellow-500'
+                                        : parseInt(number) === 6
+                                          ? 'bg-purple-500'
+                                          : 'border border-gray-300 bg-white text-black')
+                            }
+                          >
+                            {number}
+                          </div>
+                          <span className="text-[16px] font-semibold">
+                            {odds}
+                          </span>
+                        </span>
+                      </div>
+                    ),
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="grid grid-cols-4 gap-1">
+            {/* EXACTA */}
+            {raceResult.odds.exacta && (
+              <div className="border">
+                <div className="bg-accent py-2 text-center">
+                  <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                    {t('exacta').toUpperCase()}
+                  </div>
+                </div>
+                <div className="space-y-2 p-3">
+                  {extractExacta(raceResult.odds.exacta).map(
+                    ({ combination, odds }) => (
+                      <div
+                        key={combination}
+                        className="flex items-center justify-between"
+                      >
+                        <span className="flex items-center gap-1">
+                          {combination.split('-').map((num, idx) => (
+                            <div
+                              key={idx}
+                              className={
+                                'flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold text-accent-foreground ' +
+                                (parseInt(num) === 1
+                                  ? 'bg-red-500'
+                                  : parseInt(num) === 2
+                                    ? 'bg-blue-500'
+                                    : parseInt(num) === 3
+                                      ? 'bg-orange-500'
+                                      : parseInt(num) === 4
+                                        ? 'bg-green-500'
+                                        : parseInt(num) === 5
+                                          ? 'bg-yellow-500'
+                                          : parseInt(num) === 6
+                                            ? 'bg-purple-500'
+                                            : 'border border-gray-300 bg-white text-black')
+                              }
+                            >
+                              {num}
+                            </div>
+                          ))}
+                        </span>
+                        <span className="text-[16px] font-semibold">
+                          {odds}
+                        </span>
+                      </div>
+                    ),
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* QUINELLA */}
+            {raceResult.odds.quinella && (
+              <div className="border">
+                <div className="bg-accent py-2 text-center">
+                  <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                    {t('quinella').toUpperCase()}
+                  </div>
+                </div>
+                <div className="space-y-2 p-3">
+                  {extractQuinella(raceResult.odds.quinella).map(
+                    ({ combination, odds }) => (
+                      <div
+                        key={combination}
+                        className="flex items-center justify-between"
+                      >
+                        <span className="flex items-center gap-1">
+                          {combination.split('-').map((num, idx) => (
+                            <div
+                              key={idx}
+                              className={
+                                'flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold text-accent-foreground ' +
+                                (parseInt(num) === 1
+                                  ? 'bg-red-500'
+                                  : parseInt(num) === 2
+                                    ? 'bg-blue-500'
+                                    : parseInt(num) === 3
+                                      ? 'bg-orange-500'
+                                      : parseInt(num) === 4
+                                        ? 'bg-green-500'
+                                        : parseInt(num) === 5
+                                          ? 'bg-yellow-500'
+                                          : parseInt(num) === 6
+                                            ? 'bg-purple-500'
+                                            : 'border border-gray-300 bg-white text-black')
+                              }
+                            >
+                              {num}
+                            </div>
+                          ))}
+                        </span>
+                        <span className="text-[16px] font-semibold">
+                          {odds}
+                        </span>
+                      </div>
+                    ),
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* TRIFECTA */}
+            {raceResult.odds.trifecta && (
+              <div className="border">
+                <div className="bg-accent py-2 text-center">
+                  <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                    {t('trifecta').toUpperCase()}
+                  </div>
+                </div>
+                <div className="space-y-2 p-3">
+                  {extractTrifecta(raceResult.odds.trifecta).map(
+                    ({ combination, odds }) => (
+                      <div
+                        key={combination}
+                        className="flex items-center justify-between"
+                      >
+                        <span className="flex items-center gap-1">
+                          {combination.split('-').map((num, idx) => (
+                            <div
+                              key={idx}
+                              className={
+                                'flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold text-accent-foreground ' +
+                                (parseInt(num) === 1
+                                  ? 'bg-red-500'
+                                  : parseInt(num) === 2
+                                    ? 'bg-blue-500'
+                                    : parseInt(num) === 3
+                                      ? 'bg-orange-500'
+                                      : parseInt(num) === 4
+                                        ? 'bg-green-500'
+                                        : parseInt(num) === 5
+                                          ? 'bg-yellow-500'
+                                          : parseInt(num) === 6
+                                            ? 'bg-purple-500'
+                                            : 'border border-gray-300 bg-white text-black')
+                              }
+                            >
+                              {num}
+                            </div>
+                          ))}
+                        </span>
+                        <span className="text-[16px] font-semibold">
+                          {odds}
+                        </span>
+                      </div>
+                    ),
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* BOX TRIFECTA */}
+            {raceResult.odds.boxedtrifecta && (
+              <div className="border">
+                <div className="bg-accent py-2 text-center">
+                  <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                    {t('boxed_trifecta').toUpperCase()}
+                  </div>
+                </div>
+                <div className="space-y-2 p-3">
+                  {extractBoxedTrifecta(raceResult.odds.boxedtrifecta).map(
+                    ({ combination, odds }) => (
+                      <div
+                        key={combination}
+                        className="flex items-center justify-between"
+                      >
+                        <span className="flex items-center justify-center gap-1">
+                          {combination.split('-').map((num, idx) => (
+                            <div
+                              key={idx}
+                              className={
+                                'flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold text-accent-foreground ' +
+                                (parseInt(num) === 1
+                                  ? 'bg-red-500'
+                                  : parseInt(num) === 2
+                                    ? 'bg-blue-500'
+                                    : parseInt(num) === 3
+                                      ? 'bg-orange-500'
+                                      : parseInt(num) === 4
+                                        ? 'bg-green-500'
+                                        : parseInt(num) === 5
+                                          ? 'bg-yellow-500'
+                                          : parseInt(num) === 6
+                                            ? 'bg-purple-500'
+                                            : 'border border-gray-300 bg-white text-black')
+                              }
+                            >
+                              {num}
+                            </div>
+                          ))}
+                        </span>
+                        <span className="text-[16px] font-semibold">
+                          {odds}
+                        </span>
+                      </div>
+                    ),
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="grid grid-cols-2 gap-1">
+            {/* EVEN/ODD */}
+            {raceResult.odds.evenodd && (
+              <div className="border">
+                <div className="bg-accent py-2 text-center">
+                  <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                    {t('even_odd').toUpperCase()}
+                  </div>
+                </div>
+                <div className="flex items-center justify-center">
+                  {raceResult.odds.evenodd.even && (
+                    <div className="text-center">
+                      <div className="py-2 text-[16px] font-semibold">
+                        {t('even')}: {raceResult.odds.evenodd.even}
+                      </div>
+                    </div>
+                  )}
+                  {raceResult.odds.evenodd.odd && (
+                    <div className="text-center">
+                      <div className="py-2 text-[16px] font-semibold">
+                        {t('odd')}: {raceResult.odds.evenodd.odd}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* UNDER/OVER */}
+            {raceResult.odds.underover && (
+              <div className="border">
+                <div className="bg-accent py-2 text-center">
+                  <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                    {t('under_over')} 3.5
+                  </div>
+                </div>
+                <div className="flex items-center justify-center">
+                  {raceResult.odds.underover.under && (
+                    <div className="text-center">
+                      <div className="py-2 text-[16px] font-semibold">
+                        {t('under')}: {raceResult.odds.underover.under}
+                      </div>
+                    </div>
+                  )}
+                  {raceResult.odds.underover.over && (
+                    <div className="text-center">
+                      <div className="py-2 text-[16px] font-semibold">
+                        {t('over')}: {raceResult.odds.underover.over}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 gap-1">
+            {/* RACE DURATION */}
+            {raceResult.raceDuration && (
+              <div className="border">
+                <div className="bg-accent py-2 text-center">
+                  <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                    {t('race_duration').toUpperCase()}
+                  </div>
+                </div>
+                <div className="p-3 text-center">
+                  <div className="text-[16px] font-semibold">
+                    {raceResult.raceDuration} {t('seconds')}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* TRACK INFO */}
+            <div className="border">
+              <div className="bg-accent py-2 text-center">
+                <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                  {disciplineName} RACING
+                </div>
+              </div>
+              <div className="space-y-1 p-3">
+                <div className="text-[16px]">
+                  <span className="font-semibold">{t('track')}:</span>{' '}
+                  {t('track')} {eventResult.extId}
+                </div>
+                <div className="text-[16px]">
+                  <span className="font-semibold">{t('event')}:</span>{' '}
+                  {eventResult.id}
+                </div>
+                <div className="text-[16px]">
+                  <span className="font-semibold">{t('start_time')}:</span>{' '}
+                  {formatSafeDate(eventResult.startTime)}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
+    }
+  }
+
+  // CALCIO
+  if (eventResult.discipline === Discipline.SOCCER) {
+    const formatSafeDate = (date: any): string => {
+      try {
+        if (date instanceof Date && !isNaN(date.getTime())) {
+          return format(date, 'dd-MM-yyyy HH:mm')
+        }
+
+        const parsedDate = new Date(date)
+        if (!isNaN(parsedDate.getTime())) {
+          return format(parsedDate, 'dd-MM-yyyy HH:mm')
+        }
+
+        return 'Invalid Date'
+      } catch (error) {
+        console.error('Error formatting date:', error)
+        return 'Invalid Date'
+      }
+    }
+
+    return (
+      <div className="space-y-4">
+        {/* Teams e Score */}
+        <div className="border">
+          <div className="bg-accent py-2 text-center">
+            <div className="text-[16px] font-bold uppercase text-accent-foreground">
+              {t('match_result').toUpperCase()}
+            </div>
+          </div>
+          <div className="p-4 text-center">
+            <div className="mb-2 text-[18px] font-bold">
+              {detailedResult.teams}
+            </div>
+            <div className="text-[24px] font-bold">
+              {detailedResult.score1} - {detailedResult.score2}
+            </div>
+          </div>
+        </div>
+
+        {/* Betting Markets */}
+        <div className="grid grid-cols-2 gap-4">
+          {/* 1X2 */}
+          {detailedResult.odds?.oneXTwo && (
+            <div className="border">
+              <div className="bg-accent py-2 text-center">
+                <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                  1X2
+                </div>
+              </div>
+              <div className="p-3 text-center">
+                <div className="text-[16px] font-semibold">
+                  {t('odds')}: {detailedResult.odds.oneXTwo.odds}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Double Chance */}
+          {detailedResult.odds?.doubleChance && (
+            <div className="border">
+              <div className="bg-accent py-2 text-center">
+                <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                  {t('double_chance').toUpperCase()}
+                </div>
+              </div>
+              <div className="p-3 text-center">
+                <div className="text-[16px] font-semibold">
+                  {t('odds')}: {detailedResult.odds.doubleChance.odds}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* First Scorer */}
+          {detailedResult.odds?.firstScorer && (
+            <div className="border">
+              <div className="bg-accent py-2 text-center">
+                <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                  {t('first_scorer').toUpperCase()}
+                </div>
+              </div>
+              <div className="p-3 text-center">
+                <div className="mb-1 text-[14px]">
+                  {t('team')}: {detailedResult.odds.firstScorer.teamLabel}
+                </div>
+                <div className="text-[16px] font-semibold">
+                  {t('odds')}: {detailedResult.odds.firstScorer.odds}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Sum Goals */}
+          {detailedResult.odds?.sumGoals && (
+            <div className="border">
+              <div className="bg-accent py-2 text-center">
+                <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                  {t('total_goals').toUpperCase()}
+                </div>
+              </div>
+              <div className="p-3 text-center">
+                <div className="mb-1 text-[14px]">
+                  {t('goals')}: {detailedResult.odds.sumGoals.value}
+                </div>
+                <div className="text-[16px] font-semibold">
+                  {t('odds')}: {detailedResult.odds.sumGoals.odds}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Round Info */}
+        <div className="border">
+          <div className="bg-accent py-2 text-center">
+            <div className="text-[16px] font-bold uppercase text-accent-foreground">
+              {t('match_info').toUpperCase()}
+            </div>
+          </div>
+          <div className="space-y-1 p-3">
+            <div className="text-[14px]">
+              <span className="font-semibold">{t('round_name')}:</span>{' '}
+              {detailedResult.round?.name}
+            </div>
+            <div className="text-[14px]">
+              <span className="font-semibold">{t('match')}:</span> #
+              {detailedResult.round?.number}
+            </div>
+            <div className="text-[14px]">
+              <span className="font-semibold">{t('start_time')}:</span>{' '}
+              {formatSafeDate(eventResult.startTime)}
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="p-4 text-center text-muted-foreground">
+      {t('event_completed_detailed_results')}
     </div>
   )
 }
