@@ -90,7 +90,7 @@ export default function Leaderboard({
                       <td className="p-3 text-center">
                         {ranking.goalsAgainst}
                       </td>
-                      <td className="p-3 text-center font-bold">
+                      <td className="p-3 text-center">
                         {ranking.goalDifference}
                       </td>
                       <td className="flex justify-center gap-1 p-3">
