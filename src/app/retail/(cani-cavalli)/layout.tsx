@@ -29,13 +29,13 @@ function AppContent({ children }: { children: React.ReactNode }) {
       className={`${inter.variable} ${skin} flex h-screen flex-col font-inter antialiased`}
     >
       <ResolutionGate>
-        <header>
-          <div className="h-[60px]"></div>
-          <Navbar />
-        </header>
-        <main className="h-full overflow-hidden p-2">
+        <main className="h-full gap-2 overflow-hidden">
           <RootContextProvider>
-            <BetsContextProvider>{children}</BetsContextProvider>
+            <div className="h-[60px]"></div>
+            <Navbar />
+            <div className="p-2">
+              <BetsContextProvider>{children}</BetsContextProvider>
+            </div>
           </RootContextProvider>
         </main>
 

@@ -4,7 +4,7 @@ import { RootContext } from '@/retail-contexts/root-context'
 import { cn } from '@/retail-lib/utils'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
+import { usePathname, useSearchParams } from 'next/navigation'
 import { useContext } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button, buttonVariants } from './ui/button'
@@ -12,12 +12,16 @@ import { Button, buttonVariants } from './ui/button'
 export default function Navbar() {
   const { t } = useTranslation()
   const searchParams = useSearchParams()
+  const pathname = usePathname()
   const initCode = searchParams.get('init_code')
 
   const { eventResults, setSearchEventResults } = useContext(RootContext)
 
   return (
-    <div className="flex w-full flex-row items-center justify-start bg-accent p-3">
+    <div
+      className="flex w-full flex-row items-center justify-start bg-accent p-3"
+      suppressHydrationWarning={true}
+    >
       <span className="whitespace-nowrap pl-14 text-center text-[16px] font-semibold text-background">
         {t('select_category')}
       </span>
@@ -26,9 +30,10 @@ export default function Navbar() {
           href={`/retail/dogs-horses${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
             buttonVariants({
-              variant: window.location.pathname.includes('/retail/dogs-horses')
-                ? 'navbarSelected'
-                : 'navbar',
+              variant:
+                pathname === '/retail/dogs-horses'
+                  ? 'navbarSelected'
+                  : 'navbar',
               size: 'lg',
             }),
             'flex w-28 flex-row items-center justify-between',
@@ -54,9 +59,8 @@ export default function Navbar() {
           href={`/retail/dogs${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
             buttonVariants({
-              variant: window.location.pathname.includes('/retail/dogs')
-                ? 'navbarSelected'
-                : 'navbar',
+              variant:
+                pathname === '/retail/dogs' ? 'navbarSelected' : 'navbar',
               size: 'lg',
             }),
             'flex w-24 flex-row items-center justify-between',
@@ -76,9 +80,8 @@ export default function Navbar() {
           href={`/retail/horses${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
             buttonVariants({
-              variant: window.location.pathname.includes('/retail/horses')
-                ? 'navbarSelected'
-                : 'navbar',
+              variant:
+                pathname === '/retail/horses' ? 'navbarSelected' : 'navbar',
               size: 'lg',
             }),
             'flex w-24 flex-row items-center justify-between',
@@ -98,9 +101,8 @@ export default function Navbar() {
           href={`/retail/calcio${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
             buttonVariants({
-              variant: window.location.pathname.includes('/retail/calcio')
-                ? 'navbarSelected'
-                : 'navbar',
+              variant:
+                pathname === '/retail/calcio' ? 'navbarSelected' : 'navbar',
               size: 'lg',
             }),
             'flex w-24 flex-row items-center justify-center gap-3',

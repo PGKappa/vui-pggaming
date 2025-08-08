@@ -1,4 +1,5 @@
 import { MatchStatistics } from '@/retail-lib/types'
+import { t } from 'i18next'
 
 export default function MatchStatisticsCard({
   match,
@@ -19,13 +20,13 @@ export default function MatchStatisticsCard({
     <div className="flex w-full flex-col gap-2 px-20">
       <div className="text-center">
         <h4 className="text-[22px] font-extrabold text-secondary">
-          STATISTICS
+          {t('statistics').toUpperCase()}
         </h4>
       </div>
 
       <div className="flex flex-col items-center justify-center gap-2">
-        <div className="flex w-full flex-row items-center justify-between">
-          <div className="grid grid-cols-2 lg:grid-cols-1 2xl:grid-cols-2">
+        <div className="flex w-full flex-row items-center justify-center gap-20">
+          <div className="grid grid-cols-2 gap-2 lg:grid-cols-1 2xl:grid-cols-2">
             <div className="flex flex-col items-center gap-2">
               <div className="h-5 w-5 rounded-full bg-chart-3"></div>
               <span className="text-xl font-semibold">{team1}</span>
@@ -33,7 +34,7 @@ export default function MatchStatisticsCard({
             <span className="text-xl font-semibold">{home}%</span>
           </div>
 
-          <div className="relative w-28 md:w-32 lg:w-28">
+          <div className="w-22 relative md:w-32 lg:w-28">
             <svg viewBox="0 0 100 100" className="h-full w-full">
               <circle
                 cx="50"
@@ -71,11 +72,11 @@ export default function MatchStatisticsCard({
 
             <div className="absolute left-1/2 top-1/2 z-[1] flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-1">
               <span className="text-md font-semibold sm:text-lg">{draw}%</span>
-              <p className="text-sm">Draw</p>
+              <p className="text-sm">{t('draw')}</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-1 2xl:grid-cols-2">
+          <div className="grid grid-cols-2 gap-2 lg:grid-cols-1 2xl:grid-cols-2">
             <span className="text-xl font-semibold lg:hidden 2xl:block">
               {away}%
             </span>
@@ -89,8 +90,8 @@ export default function MatchStatisticsCard({
           </div>
         </div>
 
-        <p className="text-sm">Last 4 matches</p>
-        <div className="flex w-full flex-row items-center justify-between font-semibold">
+        <p className="text-[16px]">{t('last_4_matches')}</p>
+        <div className="flex w-full flex-row items-center justify-center gap-10 font-semibold">
           {['1-1', '1-1', '1-1', '1-1'].map((match, index) => (
             <div key={index} className="flex items-center gap-1">
               <div className="h-3 w-5 bg-chart-3"></div>

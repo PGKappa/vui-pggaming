@@ -1,12 +1,11 @@
 'use client'
 import BettingSlip from '@/retail-components/betting-slip'
-import MatchBettingOptions from '@/retail-components/match-betting-options'
 import SearchEventResults from '@/retail-components/search-event-results'
 import { ScrollArea } from '@/retail-components/ui/scroll-area'
 import { UpcomingEventsCarousel } from '@/retail-components/upcoming-events-carousel'
 import UpcomingRaceCard from '@/retail-components/upcoming-race-card'
 import { RootContext } from '@/retail-contexts/root-context'
-import { Market, UpcomingEvent } from '@/retail-lib/types'
+import { UpcomingEvent } from '@/retail-lib/types'
 import { useContext, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -17,16 +16,6 @@ export default function Home() {
     searchEventResults: searchRoundResults,
     setSearchEventResults: setSearchRoundResults,
   } = useContext(RootContext)
-
-  const [matchBetOptions, setMatchBetOptions] = useState<{
-    round: {
-      name: string
-      number: number
-      startingAt: Date
-    }
-    teams: string
-    markets: Market[]
-  }>()
 
   const [selectedEvent, setSelectedEvent] = useState<UpcomingEvent | undefined>(
     upcomingEvents?.filter((e) => e.discipline === 'DOGS')[0],
@@ -64,18 +53,7 @@ export default function Home() {
                   onClose={() => setSearchRoundResults(undefined)}
                 />
               ) : selectedEvent ? (
-                matchBetOptions ? (
-                  <MatchBettingOptions
-                    round={matchBetOptions.round}
-                    teams={matchBetOptions.teams}
-                    markets={matchBetOptions.markets}
-                    close={() => setMatchBetOptions(undefined)}
-                  />
-                ) : (
-                  <>
-                    <UpcomingRaceCard race={selectedEvent} />
-                  </>
-                )
+                <UpcomingRaceCard race={selectedEvent} />
               ) : (
                 <div className="flex h-full items-center justify-center">
                   {t('no_round_selected')}
