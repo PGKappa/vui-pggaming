@@ -381,13 +381,21 @@ export default function RootContextProvider(props: {
       }
 
       localStorage.setItem('initCode', initCode)
+
+      // Extract and set language from URL immediately
+      const parts = initCode.split('-')
+      if (parts.length >= 3) {
+        const langPart = parts[2].toLowerCase() // 'en' or 'ru'
+        console.log('🌍 Setting language from URL:', langPart)
+        i18n.changeLanguage(langPart)
+      }
     } else {
       localStorage.removeItem('initCode')
       setIsLoading(false)
     }
 
     setInitCode(initCode)
-  }, [])
+  }, [i18n])
 
   useEffect(() => {
     if (!initCode) return
@@ -399,13 +407,28 @@ export default function RootContextProvider(props: {
           description: 'Success',
           playerId: 'daniel1983-306#29',
           currency: 'EUR',
-          lang: 'it-IT',
+          lang: 'it-IT', // This will be overridden by URL language
           level: 1,
           group: [],
         } as UserApiResponse
 
         if (userData?.status === '1024') {
-          i18n.changeLanguage(userData.lang.substring(0, 2))
+          // Don't override language if already set from URL
+          const currentLang = i18n.language
+          const userLang = userData.lang.substring(0, 2)
+
+          console.log(
+            '👤 User language:',
+            userLang,
+            'Current language:',
+            currentLang,
+          )
+
+          // Only change language if not already set from URL
+          if (currentLang === 'en' && userLang !== 'en') {
+            i18n.changeLanguage(userLang)
+          }
+
           setRootContext((prev) => ({
             ...prev,
             userData,
