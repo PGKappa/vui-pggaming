@@ -23,9 +23,9 @@ type UpcomingRaceCardProps = {
   onSelectionChange?: (
     raceInfo: UpcomingRace | undefined,
     isTris: boolean,
-    position1Selection: number | null,
-    position2Selection: number | null,
-    position3Selection: number | null,
+    position1Selection: number[],
+    position2Selection: number[],
+    position3Selection: number[],
     disorderSelection: number[],
   ) => void
 }
@@ -41,17 +41,13 @@ export default function UpcomingRaceCard({
 
   const [activeTab, setActiveTab] = useState<TabType>('main')
 
-  const [position1Selection, setPosition1Selection] = useState<number | null>(
-    null,
-  )
-  const [position2Selection, setPosition2Selection] = useState<number | null>(
-    null,
-  )
-  const [position3Selection, setPosition3Selection] = useState<number | null>(
-    null,
-  )
+  const [position1Selection, setPosition1Selection] = useState<number[]>([])
+  const [position2Selection, setPosition2Selection] = useState<number[]>([])
+  const [position3Selection, setPosition3Selection] = useState<number[]>([])
   const [disorderSelection, setDisorderSelection] = useState<number[]>([])
   const [isLoading, setIsLoading] = useState(true)
+
+  const isAnyOrderMode = disorderSelection.length > 0
 
   const tabConfig = {
     main: {
@@ -146,7 +142,6 @@ export default function UpcomingRaceCard({
     fetchEventInfo()
   }, [race.id, race.extId])
 
-  // Notifica le modifiche alle selezioni
   useEffect(() => {
     if (onSelectionChange) {
       onSelectionChange(
@@ -175,66 +170,82 @@ export default function UpcomingRaceCard({
   }
 
   const togglePosition1Selection = (competitorId: number) => {
-    if (position1Selection === competitorId) {
-      setPosition1Selection(null)
-    } else {
-      setPosition1Selection(competitorId)
+    setPosition1Selection((current) => {
+      const newSelection = current.includes(competitorId)
+        ? current.filter((id) => id !== competitorId)
+        : [...current, competitorId]
 
-      if (position2Selection === competitorId) {
-        setPosition2Selection(null)
+      // Clear any order selections when using position selections
+      if (newSelection.length > 0) {
+        setDisorderSelection([])
       }
 
-      if (position3Selection === competitorId) {
-        setPosition3Selection(null)
-      }
-    }
+      return newSelection
+    })
   }
 
   const togglePosition2Selection = (competitorId: number) => {
-    if (position2Selection === competitorId) {
-      setPosition2Selection(null)
-    } else {
-      setPosition2Selection(competitorId)
+    setPosition2Selection((current) => {
+      const newSelection = current.includes(competitorId)
+        ? current.filter((id) => id !== competitorId)
+        : [...current, competitorId]
 
-      if (position1Selection === competitorId) {
-        setPosition1Selection(null)
+      // Clear any order selections when using position selections
+      if (newSelection.length > 0) {
+        setDisorderSelection([])
       }
 
-      if (position3Selection === competitorId) {
-        setPosition3Selection(null)
-      }
-    }
+      return newSelection
+    })
   }
 
   const togglePosition3Selection = (competitorId: number) => {
-    if (position3Selection === competitorId) {
-      setPosition3Selection(null)
-    } else {
-      setPosition3Selection(competitorId)
+    setPosition3Selection((current) => {
+      const newSelection = current.includes(competitorId)
+        ? current.filter((id) => id !== competitorId)
+        : [...current, competitorId]
 
-      if (position1Selection === competitorId) {
-        setPosition1Selection(null)
+      // Clear any order selections when using position selections
+      if (newSelection.length > 0) {
+        setDisorderSelection([])
       }
 
-      if (position2Selection === competitorId) {
-        setPosition2Selection(null)
-      }
-    }
+      return newSelection
+    })
   }
 
   const toggleDisorderSelection = (competitorId: number) => {
     setDisorderSelection((current) => {
-      if (current.includes(competitorId)) {
-        return current.filter((id) => id !== competitorId)
+      // Check if we're trying to add a new selection
+      if (!current.includes(competitorId)) {
+        // Determine max selections based on active tab
+        const maxSelections = activeTab === 'couples' ? 2 : 3
+
+        // If we're at the limit, don't add more
+        if (current.length >= maxSelections) {
+          return current
+        }
       }
-      return [...current, competitorId]
+
+      const newSelection = current.includes(competitorId)
+        ? current.filter((id) => id !== competitorId)
+        : [...current, competitorId]
+
+      // Clear position selections when using any order
+      if (newSelection.length > 0) {
+        setPosition1Selection([])
+        setPosition2Selection([])
+        setPosition3Selection([])
+      }
+
+      return newSelection
     })
   }
 
   const clearSelections = () => {
-    setPosition1Selection(null)
-    setPosition2Selection(null)
-    setPosition3Selection(null)
+    setPosition1Selection([])
+    setPosition2Selection([])
+    setPosition3Selection([])
     setDisorderSelection([])
   }
 
@@ -242,32 +253,32 @@ export default function UpcomingRaceCard({
     return (
       <TableHeader className="h-14 bg-card-header text-[16px] text-card-header-foreground">
         <TableRow>
-          <TableHead className="w-[245px] text-center font-bold">
+          <TableHead className="w-[249px] text-center font-bold">
             {t('starters_list').toUpperCase()}
           </TableHead>
           <TableHead className="w-[1px] bg-border p-0" />
 
-          <TableHead className="w-[225px] text-center font-bold">
+          <TableHead className="w-[249px] text-center font-bold">
             {t('performance').toUpperCase()}
           </TableHead>
           <TableHead className="w-[1px] bg-border p-0" />
 
-          <TableHead className="w-[225px] text-center font-bold">
+          <TableHead className="w-[249px] text-center font-bold">
             {t('history').toUpperCase()}
           </TableHead>
           <TableHead className="w-[1px] bg-border p-0" />
 
           {activeTab === 'main' && (
             <>
-              <TableHead className="text-center font-bold">
+              <TableHead className="w-[249px] text-center font-bold">
                 {t('winner').toUpperCase()}
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
-              <TableHead className="text-center font-bold">
+              <TableHead className="w-[249px] text-center font-bold">
                 {t('place_2').toUpperCase()}
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
-              <TableHead className="text-center font-bold">
+              <TableHead className="w-[249px] text-center font-bold">
                 {t('show_3').toUpperCase()}
               </TableHead>
             </>
@@ -275,14 +286,11 @@ export default function UpcomingRaceCard({
 
           {activeTab === 'couples' && (
             <>
-              <TableHead className="text-center font-bold">
-                {t('first').toUpperCase()}
-              </TableHead>
-              <TableHead className="text-center font-bold">
-                {t('second').toUpperCase()}
+              <TableHead className="text-center font-bold" colSpan={2}>
+                EXACTA
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
-              <TableHead className="text-center font-bold">
+              <TableHead className="w-[249px] text-center font-bold">
                 {t('any_order').toUpperCase()}
               </TableHead>
             </>
@@ -290,17 +298,11 @@ export default function UpcomingRaceCard({
 
           {activeTab === 'triplets' && (
             <>
-              <TableHead className="text-center font-bold">
-              {t('first').toUpperCase()}
-              </TableHead>
-              <TableHead className="text-center font-bold">
-                {t('second').toUpperCase()}
-              </TableHead>
-              <TableHead className="text-center font-bold">
-                {t('third').toUpperCase()}
+              <TableHead className="text-center font-bold" colSpan={3}>
+                TRIFECTA
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
-              <TableHead className="text-center font-bold">
+              <TableHead className="w-[187px] text-center font-bold">
                 {t('any_order').toUpperCase()}
               </TableHead>
             </>
@@ -311,8 +313,6 @@ export default function UpcomingRaceCard({
   }
 
   const renderTabSpecificCells = (racer: UpcomingRace['racers'][number]) => {
-    const isAnyRacerInDisorder = disorderSelection.length > 0
-
     if (activeTab === 'main') {
       return (
         <>
@@ -393,22 +393,24 @@ export default function UpcomingRaceCard({
     if (activeTab === 'couples') {
       return (
         <>
-          <TableCell className="h-16 text-center">
+          <TableCell
+            className={`h-16 text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
+          >
             <Toggle
-              pressed={position1Selection === racer.number}
+              pressed={position1Selection.includes(racer.number)}
               onPressedChange={() => togglePosition1Selection(racer.number)}
-              disabled={isAnyRacerInDisorder}
               className="h-10 w-20 border-betEntry-border"
             >
               <span className="text-[19px]">1°</span>
             </Toggle>
           </TableCell>
 
-          <TableCell className="text-center">
+          <TableCell
+            className={`text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
+          >
             <Toggle
-              pressed={position2Selection === racer.number}
+              pressed={position2Selection.includes(racer.number)}
               onPressedChange={() => togglePosition2Selection(racer.number)}
-              disabled={isAnyRacerInDisorder}
               className="h-10 w-20 border-betEntry-border"
             >
               <span className="text-[19px]">2°</span>
@@ -417,7 +419,9 @@ export default function UpcomingRaceCard({
 
           <TableCell className="w-[1px] bg-border p-0" />
 
-          <TableCell className="p-2 text-center">
+          <TableCell
+            className={`p-2 text-center ${!isAnyOrderMode ? 'bg-gray-300' : ''}`}
+          >
             <Toggle
               pressed={disorderSelection.includes(racer.number)}
               onPressedChange={() => toggleDisorderSelection(racer.number)}
@@ -432,33 +436,36 @@ export default function UpcomingRaceCard({
     if (activeTab === 'triplets') {
       return (
         <>
-          <TableCell className="h-16 text-center">
+          <TableCell
+            className={`h-16 text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
+          >
             <Toggle
-              pressed={position1Selection === racer.number}
+              pressed={position1Selection.includes(racer.number)}
               onPressedChange={() => togglePosition1Selection(racer.number)}
-              disabled={isAnyRacerInDisorder}
               className="h-10 w-20 border-betEntry-border"
             >
               <span className="text-[19px]">1°</span>
             </Toggle>
           </TableCell>
 
-          <TableCell className="text-center">
+          <TableCell
+            className={`text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
+          >
             <Toggle
-              pressed={position2Selection === racer.number}
+              pressed={position2Selection.includes(racer.number)}
               onPressedChange={() => togglePosition2Selection(racer.number)}
-              disabled={isAnyRacerInDisorder}
               className="h-10 w-20 border-betEntry-border"
             >
               <span className="text-[19px]">2°</span>
             </Toggle>
           </TableCell>
 
-          <TableCell className="text-center">
+          <TableCell
+            className={`text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
+          >
             <Toggle
-              pressed={position3Selection === racer.number}
+              pressed={position3Selection.includes(racer.number)}
               onPressedChange={() => togglePosition3Selection(racer.number)}
-              disabled={isAnyRacerInDisorder}
               className="h-10 w-20 border-betEntry-border"
             >
               <span className="text-[19px]">3°</span>
@@ -467,7 +474,9 @@ export default function UpcomingRaceCard({
 
           <TableCell className="w-[1px] bg-border p-0" />
 
-          <TableCell className="p-2 text-center">
+          <TableCell
+            className={`p-2 text-center ${!isAnyOrderMode ? 'bg-gray-300' : ''}`}
+          >
             <Toggle
               pressed={disorderSelection.includes(racer.number)}
               onPressedChange={() => toggleDisorderSelection(racer.number)}
@@ -608,20 +617,32 @@ export default function UpcomingRaceCard({
     <>
       <Card className="h-full w-full">
         <CardHeader className="flex h-16 flex-row items-center justify-between px-5">
-          <div className="flex w-full items-center justify-between">
-            <div className="flex items-center gap-2">
-              {Object.entries(tabConfig).map(([key, config]) => (
-                <Button
-                  key={key}
-                  variant={activeTab === key ? 'marketSelected' : 'market'}
-                  className="h-12 w-28 border px-4 text-[19px] font-semibold"
-                  onClick={() => handleTabChange(key as TabType)}
-                >
-                  {config.name}
-                </Button>
-              ))}
-            </div>
+          <div className="flex items-center gap-2">
+            {Object.entries(tabConfig).map(([key, config]) => (
+              <Button
+                key={key}
+                variant={activeTab === key ? 'marketSelected' : 'market'}
+                className="h-12 w-28 border px-4 text-[19px] font-semibold"
+                onClick={() => handleTabChange(key as TabType)}
+              >
+                {config.name}
+              </Button>
+            ))}
           </div>
+
+          {(activeTab === 'couples' || activeTab === 'triplets') &&
+            (position1Selection.length > 0 ||
+              position2Selection.length > 0 ||
+              position3Selection.length > 0 ||
+              disorderSelection.length > 0) && (
+              <Button
+                variant="ghost"
+                className="h-11 w-28 bg-secondary px-4 text-[16px] font-bold text-secondary-foreground"
+                onClick={clearSelections}
+              >
+                {t('clear_all').toUpperCase()}
+              </Button>
+            )}
         </CardHeader>
 
         <CardContent>
@@ -685,8 +706,8 @@ export default function UpcomingRaceCard({
                     <TableCell className="w-[1px] bg-border p-0" />
 
                     {/* Storico */}
-                    <TableCell className="p-2">
-                      <div className="flex items-center justify-center gap-3">
+                    <TableCell>
+                      <div className="flex items-center justify-center gap-1">
                         <MedalsHistory history={racer.history} />
                       </div>
                     </TableCell>
