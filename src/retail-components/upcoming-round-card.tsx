@@ -39,6 +39,37 @@ export default function UpcomingRoundCard(props: {
 }) {
   const { t } = useTranslation()
 
+  // Funzione per tradurre i nomi dei mercati
+  const translateMarketName = (marketName: string): string => {
+    const marketMap: { [key: string]: string } = {
+      'Esito finale 1X2': t('market_esito_finale_1x2'),
+      'Doppia Chance': t('market_doppia_chance'),
+      'Under/Over 2.5': t('market_under_over_2_5'),
+      'Gol no gol': t('market_gol_no_gol'),
+      'Under/Over 1.5': t('market_under_over_1_5'),
+      'Under/Over 3.5': t('market_under_over_3_5'),
+      'Under/Over 4.5': t('market_under_over_4_5'),
+      'Risultato esatto': t('market_risultato_esatto'),
+      'Combo Vincente & Segna': t('market_combo_vincente_segna'),
+      'Combo Vincente & Goals (1.5)': t('market_combo_vincente_goals_1_5'),
+      'Combo Vincente & Goals (2.5)': t('market_combo_vincente_goals_2_5'),
+      'Somma gol': t('market_somma_gol'),
+      'Somma gol Casa': t('market_somma_gol_casa'),
+      'Somma gol Trasferta': t('market_somma_gol_trasferta'),
+      'Casa Under/Over 0.5': t('market_casa_under_over_0_5'),
+      'Casa Under/Over 1.5': t('market_casa_under_over_1_5'),
+      'Casa Under/Over 2.5': t('market_casa_under_over_2_5'),
+      'Trasferta Under/Over 0.5': t('market_trasferta_under_over_0_5'),
+      'Trasferta Under/Over 1.5': t('market_trasferta_under_over_1_5'),
+      'Trasferta Under/Over 2.5': t('market_trasferta_under_over_2_5'),
+      'Parziale/Finale': t('market_parziale_finale'),
+      'Primo marcatore': t('market_primo_marcatore'),
+      'Cartellino Rosso': t('market_cartellino_rosso'),
+    }
+
+    return marketMap[marketName.trim()] || marketName
+  }
+
   const today = new Date()
   const tomorrow = new Date()
   tomorrow.setDate(today.getDate() + 1)
@@ -138,6 +169,8 @@ export default function UpcomingRoundCard(props: {
   }
 
   const formatMarketHeader = (marketName: string) => {
+    const translatedName = translateMarketName(marketName)
+
     if (marketName.includes('Casa Under/Over')) {
       const valueMatch = marketName.match(/(\d+\.?\d*)/)
       const value = valueMatch ? valueMatch[1] : ''
@@ -166,7 +199,7 @@ export default function UpcomingRoundCard(props: {
       )
     }
 
-    return marketName
+    return translatedName
   }
 
   return (
