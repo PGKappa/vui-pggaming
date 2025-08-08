@@ -4,7 +4,7 @@ import BetEntryToggle from './bet-entry-toggle'
 import { Button } from './ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { BetsContext } from '@/retail-contexts/bets-context'
-import { t } from 'i18next'
+import { useTranslation } from 'react-i18next'
 
 type BetCombinationsTableProps = {
   race: UpcomingEvent
@@ -23,6 +23,7 @@ export default function BetCombinationsTable({
   position3Selection,
   disorderSelection,
 }: BetCombinationsTableProps) {
+  const { t } = useTranslation()
   const [sortMode, setSortMode] = useState<'default' | 'asc' | 'desc'>(
     'default',
   )

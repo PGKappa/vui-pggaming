@@ -22,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select'
+import { t } from 'i18next'
 
 const dates = Array.from({ length: 10 }, (_, index) => {
   const date = new Date()
@@ -548,7 +549,7 @@ export default function SearchEventResults(props: {
                                 )}
                               </div>
                               <span className="font-bold">
-                                {t('completed')}
+                                {t('completed').toUpperCase()}
                               </span>
                             </div>
                             <ChevronRight className="h-6 w-6 shrink-0 transition-transform duration-200" />
@@ -640,7 +641,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
   if (loading) {
     return (
       <div className="p-4 text-center text-muted-foreground">
-        Loading detailed results...
+        {t('loading')}...
       </div>
     )
   }
@@ -665,7 +666,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
           <div className="border">
             <div className="bg-accent py-2 text-center">
               <div className="text-[16px] font-bold uppercase text-accent-foreground">
-                ARRIVAL ORDER
+                {t('arrival_order').toUpperCase()}
               </div>
             </div>
             <div className="space-y-3 p-4">
@@ -867,7 +868,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
             <div className="border">
               <div className="bg-accent py-2 text-center">
                 <div className="text-[16px] font-bold uppercase text-accent-foreground">
-                  ARRIVAL ORDER
+                  {t('arrival_order').toUpperCase()}
                 </div>
               </div>
               <div className="flex items-center justify-center gap-8 p-4">
@@ -946,7 +947,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
               <div className="border">
                 <div className="bg-accent py-2 text-center">
                   <div className="text-[16px] font-bold uppercase text-accent-foreground">
-                    WINNER
+                    {t('winner').toUpperCase()}
                   </div>
                 </div>
                 <div className="space-y-2 p-3">
@@ -993,7 +994,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
               <div className="border">
                 <div className="bg-accent py-2 text-center">
                   <div className="text-[16px] font-bold uppercase text-accent-foreground">
-                    PLACED
+                    {t('place_2').toUpperCase()}
                   </div>
                 </div>
                 <div className="space-y-2 p-3">
@@ -1040,7 +1041,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
               <div className="border">
                 <div className="bg-accent py-2 text-center">
                   <div className="text-[16px] font-bold uppercase text-accent-foreground">
-                    SHOW
+                    {t('show_3').toUpperCase()}
                   </div>
                 </div>
                 <div className="space-y-2 p-3">
@@ -1089,7 +1090,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
               <div className="border">
                 <div className="bg-accent py-2 text-center">
                   <div className="text-[16px] font-bold uppercase text-accent-foreground">
-                    EXACTA
+                    {t('exacta').toUpperCase()}
                   </div>
                 </div>
                 <div className="space-y-2 p-3">
@@ -1139,7 +1140,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
               <div className="border">
                 <div className="bg-accent py-2 text-center">
                   <div className="text-[16px] font-bold uppercase text-accent-foreground">
-                    QUINELLA
+                    {t('quinella').toUpperCase()}
                   </div>
                 </div>
                 <div className="space-y-2 p-3">
@@ -1189,7 +1190,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
               <div className="border">
                 <div className="bg-accent py-2 text-center">
                   <div className="text-[16px] font-bold uppercase text-accent-foreground">
-                    TRIFECTA
+                    {t('trifecta').toUpperCase()}
                   </div>
                 </div>
                 <div className="space-y-2 p-3">
@@ -1239,7 +1240,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
               <div className="border">
                 <div className="bg-accent py-2 text-center">
                   <div className="text-[16px] font-bold uppercase text-accent-foreground">
-                    BOX TRIFECTA
+                    {t('boxed_trifecta').toUpperCase()}
                   </div>
                 </div>
                 <div className="space-y-2 p-3">
@@ -1291,21 +1292,21 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
               <div className="border">
                 <div className="bg-accent py-2 text-center">
                   <div className="text-[16px] font-bold uppercase text-accent-foreground">
-                    EVEN / ODD
+                    {t('even_odd').toUpperCase()}
                   </div>
                 </div>
                 <div className="flex items-center justify-center">
                   {raceResult.odds.evenodd.even && (
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
-                        Even: {raceResult.odds.evenodd.even}
+                        {t('even')}: {raceResult.odds.evenodd.even}
                       </div>
                     </div>
                   )}
                   {raceResult.odds.evenodd.odd && (
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
-                        Odd: {raceResult.odds.evenodd.odd}
+                        {t('odd')}: {raceResult.odds.evenodd.odd}
                       </div>
                     </div>
                   )}
@@ -1318,21 +1319,21 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
               <div className="border">
                 <div className="bg-accent py-2 text-center">
                   <div className="text-[16px] font-bold uppercase text-accent-foreground">
-                    UNDER / OVER 3.5
+                    {t('under_over')} 3.5
                   </div>
                 </div>
                 <div className="flex items-center justify-center">
                   {raceResult.odds.underover.under && (
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
-                        Under: {raceResult.odds.underover.under}
+                        {t('under')}: {raceResult.odds.underover.under}
                       </div>
                     </div>
                   )}
                   {raceResult.odds.underover.over && (
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
-                        Over: {raceResult.odds.underover.over}
+                        {t('over')}: {raceResult.odds.underover.over}
                       </div>
                     </div>
                   )}
@@ -1347,12 +1348,12 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
               <div className="border">
                 <div className="bg-accent py-2 text-center">
                   <div className="text-[16px] font-bold uppercase text-accent-foreground">
-                    RACE DURATION
+                    {t('race_duration').toUpperCase()}
                   </div>
                 </div>
                 <div className="p-3 text-center">
                   <div className="text-[16px] font-semibold">
-                    {raceResult.raceDuration} seconds
+                    {raceResult.raceDuration} {t('seconds')}
                   </div>
                 </div>
               </div>
@@ -1367,14 +1368,15 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
               </div>
               <div className="space-y-1 p-3">
                 <div className="text-[16px]">
-                  <span className="font-semibold">Track:</span> Track{' '}
-                  {eventResult.extId}
+                  <span className="font-semibold">{t('track')}:</span>{' '}
+                  {t('track')} {eventResult.extId}
                 </div>
                 <div className="text-[16px]">
-                  <span className="font-semibold">Event:</span> {eventResult.id}
+                  <span className="font-semibold">{t('event')}:</span>{' '}
+                  {eventResult.id}
                 </div>
                 <div className="text-[16px]">
-                  <span className="font-semibold">Start Time:</span>{' '}
+                  <span className="font-semibold">{t('start_time')}:</span>{' '}
                   {formatSafeDate(eventResult.startTime)}
                 </div>
               </div>
@@ -1411,7 +1413,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
         <div className="border">
           <div className="bg-accent py-2 text-center">
             <div className="text-[16px] font-bold uppercase text-accent-foreground">
-              MATCH RESULT
+              {t('match_result').toUpperCase()}
             </div>
           </div>
           <div className="p-4 text-center">
@@ -1436,7 +1438,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
               </div>
               <div className="p-3 text-center">
                 <div className="text-[16px] font-semibold">
-                  Odds: {detailedResult.odds.oneXTwo.odds}
+                  {t('odds')}: {detailedResult.odds.oneXTwo.odds}
                 </div>
               </div>
             </div>
@@ -1447,12 +1449,12 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
             <div className="border">
               <div className="bg-accent py-2 text-center">
                 <div className="text-[16px] font-bold uppercase text-accent-foreground">
-                  DOUBLE CHANCE
+                  {t('double_chance').toUpperCase()}
                 </div>
               </div>
               <div className="p-3 text-center">
                 <div className="text-[16px] font-semibold">
-                  Odds: {detailedResult.odds.doubleChance.odds}
+                  {t('odds')}: {detailedResult.odds.doubleChance.odds}
                 </div>
               </div>
             </div>
@@ -1463,15 +1465,15 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
             <div className="border">
               <div className="bg-accent py-2 text-center">
                 <div className="text-[16px] font-bold uppercase text-accent-foreground">
-                  FIRST SCORER
+                  {t('first_scorer').toUpperCase()}
                 </div>
               </div>
               <div className="p-3 text-center">
                 <div className="mb-1 text-[14px]">
-                  Team: {detailedResult.odds.firstScorer.teamLabel}
+                  {t('team')}: {detailedResult.odds.firstScorer.teamLabel}
                 </div>
                 <div className="text-[16px] font-semibold">
-                  Odds: {detailedResult.odds.firstScorer.odds}
+                  {t('odds')}: {detailedResult.odds.firstScorer.odds}
                 </div>
               </div>
             </div>
@@ -1482,15 +1484,15 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
             <div className="border">
               <div className="bg-accent py-2 text-center">
                 <div className="text-[16px] font-bold uppercase text-accent-foreground">
-                  TOTAL GOALS
+                  {t('total_goals').toUpperCase()}
                 </div>
               </div>
               <div className="p-3 text-center">
                 <div className="mb-1 text-[14px]">
-                  Goals: {detailedResult.odds.sumGoals.value}
+                  {t('goals')}: {detailedResult.odds.sumGoals.value}
                 </div>
                 <div className="text-[16px] font-semibold">
-                  Odds: {detailedResult.odds.sumGoals.odds}
+                  {t('odds')}: {detailedResult.odds.sumGoals.odds}
                 </div>
               </div>
             </div>
@@ -1501,20 +1503,20 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
         <div className="border">
           <div className="bg-accent py-2 text-center">
             <div className="text-[16px] font-bold uppercase text-accent-foreground">
-              MATCH INFO
+              {t('match_info').toUpperCase()}
             </div>
           </div>
           <div className="space-y-1 p-3">
             <div className="text-[14px]">
-              <span className="font-semibold">Round:</span>{' '}
+              <span className="font-semibold">{t('round_name')}:</span>{' '}
               {detailedResult.round?.name}
             </div>
             <div className="text-[14px]">
-              <span className="font-semibold">Match:</span> #
+              <span className="font-semibold">{t('match')}:</span> #
               {detailedResult.round?.number}
             </div>
             <div className="text-[14px]">
-              <span className="font-semibold">Start Time:</span>{' '}
+              <span className="font-semibold">{t('start_time')}:</span>{' '}
               {formatSafeDate(eventResult.startTime)}
             </div>
           </div>
@@ -1525,7 +1527,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
 
   return (
     <div className="p-4 text-center text-muted-foreground">
-      Event completed - detailed results available for horse and dog racing only
+      {t('event_completed_detailed_results')}
     </div>
   )
 }

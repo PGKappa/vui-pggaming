@@ -287,7 +287,7 @@ export default function UpcomingRaceCard({
           {activeTab === 'couples' && (
             <>
               <TableHead className="text-center font-bold" colSpan={2}>
-                EXACTA
+                {t('exacta').toUpperCase()}
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
               <TableHead className="w-[249px] text-center font-bold">
@@ -299,7 +299,7 @@ export default function UpcomingRaceCard({
           {activeTab === 'triplets' && (
             <>
               <TableHead className="text-center font-bold" colSpan={3}>
-                TRIFECTA
+                {t('trifecta').toUpperCase()}
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
               <TableHead className="w-[187px] text-center font-bold">
