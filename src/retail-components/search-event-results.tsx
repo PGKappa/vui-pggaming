@@ -54,8 +54,7 @@ export default function SearchEventResults(props: {
   const [selectedDate, setSelectedDate] = useState<string>()
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>('ALL')
   const [lastTenGames, setLastTenGames] = useState<boolean>(true)
-
-  const eventResults = props.eventResults
+  const [fetchedResults, setFetchedResults] = useState<EventResult[]>([])
 
   const fetchDetailedEventResult = async (extId: string, eventId: string) => {
     try {
@@ -101,29 +100,39 @@ export default function SearchEventResults(props: {
 
   useEffect(() => {
     if (selectedDiscipline === 'NONE') {
+      setFetchedResults([])
       return
     }
 
     if (lastTenGames) {
-      return
-    }
-
-    if (selectedDiscipline === Discipline.SOCCER) {
+      // Usa i dati del context (prev_events)
+      setFetchedResults([])
       return
     }
 
     if (!selectedDate) {
+      setFetchedResults([])
       return
     }
 
     const fetchEventResults = async (discipline: Discipline, date: string) => {
       try {
+        // Converti la data dal formato italiano al formato americano per l'API
+        const [day, month, year] = date.split('/')
+        const apiDateFormat = `${month}/${day}/${year}`
+
         const gameIds =
           discipline === Discipline.HORSES
             ? 'horses6'
             : discipline === Discipline.DOGS
               ? 'dogs6'
               : `${discipline.toLowerCase()}6`
+
+        console.log('Fetching results for:', {
+          discipline,
+          date: apiDateFormat,
+          gameIds,
+        })
 
         const response = await fetch(
           'https://apidev.pgvirtual.eu/api/event/results/list',
@@ -146,8 +155,8 @@ export default function SearchEventResults(props: {
             referrer: 'https://test.pgvirtual.eu/',
             body: JSON.stringify({
               gameIds: [gameIds],
-              dateStart: date,
-              dateEnd: date,
+              dateStart: apiDateFormat,
+              dateEnd: apiDateFormat,
             }),
             method: 'POST',
             mode: 'cors',
@@ -156,14 +165,27 @@ export default function SearchEventResults(props: {
         )
 
         if (!response.ok) {
-          throw new Error('Failed to fetch event results')
+          throw new Error(`HTTP error! status: ${response.status}`)
         }
+
         const data = await response.json()
+        console.log('API Response:', data)
+
+        if (!data.items || !Array.isArray(data.items)) {
+          console.warn('No items found in API response')
+          setFetchedResults([])
+          return
+        }
 
         let results: EventResult[]
 
-        if (discipline === Discipline.HORSES) {
-          console.log('Processing HORSES')
+        if (
+          discipline === Discipline.HORSES ||
+          discipline === Discipline.DOGS
+        ) {
+          console.log(`Processing ${discipline}:`, data.items.length, 'events')
+
+          // Processa tutti i risultati
           results = await Promise.all(
             data.items.map(async (result: any) => {
               const detailedResult = await fetchDetailedEventResult(
@@ -171,11 +193,32 @@ export default function SearchEventResults(props: {
                 result.int_event_id.toString(),
               )
 
-              const startTime = new Date(result.time)
-              const hours = result.start_time.split(':')[0]
-              const minutes = result.start_time.split(':')[1]
-              startTime.setHours(parseInt(hours, 10))
-              startTime.setMinutes(parseInt(minutes, 10))
+              let startTime: Date
+              try {
+                if (result.time) {
+                  startTime = new Date(result.time)
+
+                  if (result.start_time && result.start_time.includes(':')) {
+                    const [hours, minutes] = result.start_time.split(':')
+                    startTime.setHours(parseInt(hours, 10))
+                    startTime.setMinutes(parseInt(minutes, 10))
+                  }
+                } else {
+                  startTime = new Date(date.split('/').reverse().join('-'))
+                  if (result.start_time && result.start_time.includes(':')) {
+                    const [hours, minutes] = result.start_time.split(':')
+                    startTime.setHours(parseInt(hours, 10))
+                    startTime.setMinutes(parseInt(minutes, 10))
+                  }
+                }
+              } catch (error) {
+                console.warn(
+                  'Error parsing date for event:',
+                  result.int_event_id,
+                  error,
+                )
+                startTime = new Date()
+              }
 
               return {
                 id: result.int_event_id,
@@ -183,79 +226,99 @@ export default function SearchEventResults(props: {
                 name:
                   detailedResult?.track_name ||
                   result.track_name ||
-                  `${result.discipline} Race ${result.int_event_id}`,
+                  `${discipline} Race ${result.int_event_id}`,
                 startTime,
-                discipline: Discipline.HORSES,
+                discipline: discipline,
+                result: detailedResult,
               } as EventResult
             }),
           )
-        } else if (discipline === Discipline.DOGS) {
-          console.log('Processing DOGS')
-          results = await Promise.all(
-            data.items.map(async (result: any) => {
-              const detailedResult = await fetchDetailedEventResult(
-                result.ext_pal_id,
-                result.int_event_id.toString(),
-              )
+        } else if (discipline === Discipline.SOCCER) {
+          console.log('Processing SOCCER:', data.items.length, 'events')
 
-              const startTime = new Date(result.time)
-              const hours = result.start_time.split(':')[0]
-              const minutes = result.start_time.split(':')[1]
-              startTime.setHours(parseInt(hours, 10))
-              startTime.setMinutes(parseInt(minutes, 10))
-
-              return {
-                id: result.int_event_id,
-                extId: result.ext_pal_id,
-                name:
-                  detailedResult?.track_name ||
-                  result.track_name ||
-                  `${result.discipline} Race ${result.int_event_id}`,
-                startTime,
-                discipline: Discipline.DOGS,
-              } as EventResult
-            }),
-          )
-        } else {
-          console.log('Processing the OTHER')
           results = data.items.map((result: any) => {
-            const startTime = new Date(result.time)
-            const hours = result.start_time.split(':')[0]
-            const minutes = result.start_time.split(':')[1]
-            startTime.setHours(parseInt(hours, 10))
-            startTime.setMinutes(parseInt(minutes, 10))
+            let startTime: Date
+            try {
+              startTime = new Date(result.time)
+              if (result.start_time && result.start_time.includes(':')) {
+                const [hours, minutes] = result.start_time.split(':')
+                startTime.setHours(parseInt(hours, 10))
+                startTime.setMinutes(parseInt(minutes, 10))
+              }
+            } catch (error) {
+              console.warn(
+                'Error parsing date for soccer event:',
+                result.int_event_id,
+                error,
+              )
+              startTime = new Date()
+            }
 
             return {
               id: result.int_event_id,
               extId: result.ext_pal_id,
-              name:
-                result.track_name ||
-                `${discipline} Event ${result.int_event_id}`,
+              name: result.round_name || `Soccer Match ${result.int_event_id}`,
+              startTime,
+              discipline: Discipline.SOCCER,
+              result: {
+                round: {
+                  name: result.round_name || 'Unknown Round',
+                  number: result.round_number || 0,
+                },
+                teams: result.teams || 'Team A - Team B',
+                score1: result.score1 || 0,
+                score2: result.score2 || 0,
+                odds: result.odds || null,
+              },
+            } as EventResult
+          })
+        } else {
+          console.log('Processing OTHER discipline:', discipline)
+          results = data.items.map((result: any) => {
+            let startTime: Date
+            try {
+              startTime = new Date(result.time)
+              if (result.start_time && result.start_time.includes(':')) {
+                const [hours, minutes] = result.start_time.split(':')
+                startTime.setHours(parseInt(hours, 10))
+                startTime.setMinutes(parseInt(minutes, 10))
+              }
+            } catch {
+              startTime = new Date()
+            }
+
+            return {
+              id: result.int_event_id,
+              extId: result.ext_pal_id,
+              name: result.name || `${discipline} Event ${result.int_event_id}`,
               startTime,
               discipline: discipline,
             } as EventResult
           })
         }
 
-        return results
+        console.log('Processed results:', results.length, 'events')
+        setFetchedResults(results)
       } catch (error: unknown) {
-        const message =
-          (error as { message: string }).message || 'Unknown error'
-        toast.error(message)
+        const message = error instanceof Error ? error.message : 'Unknown error'
+        console.error('❌ API Error:', message)
+        toast.error(`Failed to fetch results: ${message}`)
+        setFetchedResults([])
       }
     }
+
     fetchEventResults(selectedDiscipline, selectedDate)
-  }, [selectedDate, selectedDiscipline, lastTenGames, rootContext.eventResults])
+  }, [selectedDate, selectedDiscipline, lastTenGames])
 
   const filteredEventResults = useMemo(() => {
-    if (selectedDiscipline !== 'NONE') {
-      console.log('🔍 Filtering Results:', {
-        discipline: selectedDiscipline,
-        date: selectedDate,
-        lastTenGames,
-        resultsCount: eventResults.length,
-      })
-    }
+    console.log('Filtering results:', {
+      selectedDiscipline,
+      lastTenGames,
+      selectedDate,
+      selectedTimeSlot,
+      fetchedResultsCount: fetchedResults.length,
+      contextResultsCount: rootContext.eventResults?.length || 0,
+    })
 
     if (selectedDiscipline === 'NONE') return []
 
@@ -264,12 +327,24 @@ export default function SearchEventResults(props: {
         .filter((result) => result.discipline === selectedDiscipline)
         .sort((a, b) => b.startTime.getTime() - a.startTime.getTime())
         .slice(0, 10)
+
+      console.log('Last 10 games filtered:', filtered.length)
       return filtered
     }
 
-    if (!selectedDate) return []
+    // Modalità con data selezionata: usa fetchedResults (tutti i risultati del giorno)
+    if (!selectedDate) {
+      console.log('No date selected, returning empty array')
+      return []
+    }
 
-    const filteredResults = eventResults.filter((result) => {
+    const resultsToFilter = fetchedResults
+
+    const filteredResults = resultsToFilter.filter((result) => {
+      if (result.discipline !== selectedDiscipline) {
+        return false
+      }
+
       if (selectedTimeSlot !== 'ALL') {
         const [startTimeStr, endTimeStr] = selectedTimeSlot.split(' | ')
         const [startHours, startMinutes] = startTimeStr.split(':').map(Number)
@@ -279,17 +354,22 @@ export default function SearchEventResults(props: {
         const timeInMinutes = hours * 60 + minutes
         const startInMinutes = startHours * 60 + startMinutes
         const endInMinutes = endHours * 60 + endMinutes
-        if (timeInMinutes < startInMinutes || timeInMinutes > endInMinutes)
+
+        if (timeInMinutes < startInMinutes || timeInMinutes > endInMinutes) {
           return false
+        }
       }
+
       return true
     })
+
+    console.log('Date-filtered results:', filteredResults.length)
     return filteredResults
   }, [
     selectedDiscipline,
     selectedDate,
     lastTenGames,
-    eventResults,
+    fetchedResults,
     selectedTimeSlot,
     rootContext.eventResults,
   ])
@@ -400,7 +480,7 @@ export default function SearchEventResults(props: {
               onValueChange={setSelectedTimeSlot}
               disabled={lastTenGames}
             >
-              <SelectTrigger className="w-[130px] bg-background text-[16px] text-foreground">
+              <SelectTrigger className="w-[150px] bg-background text-[16px] text-foreground">
                 <SelectValue placeholder={t('time_slot')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
@@ -484,14 +564,14 @@ export default function SearchEventResults(props: {
               )
             })()
           ) : (
-            <div className="flex h-full flex-col items-center justify-start">
+            <div className="flex h-full flex-col items-center justify-start pt-4">
               {t('no_results_found')}
             </div>
           )
         ) : (
-          <div className="flex h-full flex-col items-center justify-center">
-            <p className="text-lg text-muted-foreground">
-              {t('search_for_results')}
+          <div className="flex h-full flex-col items-center justify-start">
+            <p className="pt-4 text-[16px] text-black">
+              {t('select_param_for_research')}
             </p>
           </div>
         )}
@@ -850,7 +930,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                         {competitor.number}
                       </div>
 
-                      <div className="min-w-0 text-[16px] font-semibold pr-10">
+                      <div className="min-w-0 pr-10 text-[16px] font-semibold">
                         {competitor.name}
                       </div>
                     </div>
@@ -1443,7 +1523,6 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
     )
   }
 
-  // Fallback per altre discipline
   return (
     <div className="p-4 text-center text-muted-foreground">
       Event completed - detailed results available for horse and dog racing only
