@@ -720,12 +720,6 @@ export default function RootContextProvider(props: {
 
               if (response.ok) {
                 detailedResult = await response.json()
-                console.log(
-                  '🐴 HORSES - API Result for event',
-                  event.int_event_id,
-                  ':',
-                  detailedResult,
-                )
               }
             } catch (error) {
               console.warn('Failed to fetch detailed horse result:', error)
@@ -910,12 +904,6 @@ export default function RootContextProvider(props: {
 
               if (response.ok) {
                 detailedResult = await response.json()
-                console.log(
-                  '🐕 DOGS - API Result for event',
-                  event.int_event_id,
-                  ':',
-                  detailedResult,
-                )
               }
             } catch (error) {
               console.warn('Failed to fetch detailed dog result:', error)
