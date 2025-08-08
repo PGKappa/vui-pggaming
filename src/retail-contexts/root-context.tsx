@@ -384,9 +384,17 @@ export default function RootContextProvider(props: {
 
       // Extract and set language from URL immediately
       const parts = initCode.split('-')
-      if (parts.length >= 3) {
-        const langPart = parts[2].toLowerCase() // 'en' or 'ru'
-        console.log('🌍 Setting language from URL:', langPart)
+      console.log('🔍 Root context - parsing init code:', initCode, parts)
+
+      if (parts.length >= 4) {
+        // Format: TEST-USD-en-US
+        const langPart = parts[2].toLowerCase() // 'en'
+        console.log('🌍 Setting language from URL (4 parts):', langPart)
+        i18n.changeLanguage(langPart)
+      } else if (parts.length >= 3) {
+        // Format: TEST-RUS-ru-RU
+        const langPart = parts[2].toLowerCase() // 'ru'
+        console.log('🌍 Setting language from URL (3 parts):', langPart)
         i18n.changeLanguage(langPart)
       }
     } else {
@@ -407,27 +415,16 @@ export default function RootContextProvider(props: {
           description: 'Success',
           playerId: 'daniel1983-306#29',
           currency: 'EUR',
-          lang: 'it-IT', // This will be overridden by URL language
-          level: 1,
-          group: [],
+          lang: 'it-IT', 
         } as UserApiResponse
 
         if (userData?.status === '1024') {
-          // Don't override language if already set from URL
-          const currentLang = i18n.language
-          const userLang = userData.lang.substring(0, 2)
-
           console.log(
-            '👤 User language:',
-            userLang,
-            'Current language:',
-            currentLang,
+            'User data loaded, keeping URL language. User lang:',
+            userData.lang,
+            'Current lang:',
+            i18n.language,
           )
-
-          // Only change language if not already set from URL
-          if (currentLang === 'en' && userLang !== 'en') {
-            i18n.changeLanguage(userLang)
-          }
 
           setRootContext((prev) => ({
             ...prev,
