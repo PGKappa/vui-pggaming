@@ -34,9 +34,6 @@ export type Team = {
 export type Selection = {
   outcome: string
   decPrice: number
-  order: number
-  externCode: string
-  extraInfo?: string
 }
 
 export type Market = {
@@ -85,6 +82,58 @@ export type UpcomingMatch = {
   timeOfDay: string
 }
 
+export type UpcomingEvent = {
+  id: number
+  extId?: string
+  discipline: Discipline
+  name: string
+  startTime: string
+  time: Date
+  duration: number
+  data?: UpcomingRound | UpcomingRace
+}
+
+export type UpcomingRace = {
+  id: number
+  odds: {
+    winner: Record<string, string>
+    placed: Record<string, string>
+    show: Record<string, string>
+    exacta: Record<string, Record<string, string>>
+    quinella: Record<string, Record<string, string>>
+    trifecta: Record<string, Record<string, Record<string, string>>>
+    boxedtrifecta: Record<string, Record<string, Record<string, string>>>
+    evenodd: {
+      even: string
+      odd: string
+    }
+    underover: {
+      under: string
+      over: string
+    }
+  }
+  latecomers: {
+    winner: {
+      racers: number[]
+      delay: number
+    }
+    exacta: {
+      racers: number[]
+      delay: number
+    }
+    trifecta: {
+      racers: number[]
+      delay: number
+    }
+  }
+  racers: Array<{
+    number: number
+    name: string
+    history: number[]
+    performance: number
+  }>
+}
+
 export type UpcomingRound = {
   channel: number
   oddsFormat: string
@@ -114,20 +163,40 @@ export enum Discipline {
 
 export type EventResult = {
   id: number
-  title: string
+  extId?: string
+  name: string
   startTime: Date
-  duration: number
   discipline: Discipline
-  result: MatchResult
+  result?: MatchResult | RaceResult
+}
+
+export type RaceResult = {
+  odds: {
+    winner: Record<string, string>
+    placed: Record<string, string>
+    show: Record<string, string>
+    exacta: Record<string, Record<string, string>>
+    quinella: Record<string, Record<string, string>>
+    trifecta: Record<string, Record<string, Record<string, string>>>
+    boxedtrifecta: Record<string, Record<string, Record<string, string>>>
+    evenodd: Record<string, string>
+    underover: Record<string, string>
+  }
+  raceDuration?: number
+  podium: {
+    name: string
+    number: number
+  }[]
 }
 
 export type Bet = {
-  round: {
+  event: {
     name: string
     number: number
     startingAt: Date
   }
-  teams: string
+  discipline: Discipline
+  competitors: string
   option: Selection
 }
 
@@ -139,12 +208,12 @@ export type BetEntry = {
 }
 
 export type SystemGroup = {
-  name: string;
-  size: number;
-  combinations: BetEntry[][];
-  stake: number;
-  minWin: number;
-  maxWin: number;
+  name: string
+  size: number
+  combinations: BetEntry[][]
+  stake: number
+  minWin: number
+  maxWin: number
 }
 
 export type Ticket = {

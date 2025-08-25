@@ -4,8 +4,10 @@ import LoadingSpinner from '@/retail-components/loading-spinner'
 import {
   Discipline,
   EventResult,
+  RaceResult,
   TeamRanking,
   Ticket,
+  UpcomingEvent,
   UpcomingMatch,
   UpcomingRound,
   User,
@@ -24,125 +26,278 @@ export type RootContextType = {
     params?: Record<string, string>,
   ) => Promise<T>
   upcomingRounds?: UpcomingRound[]
-  roundResults: EventResult[]
-  searchRoundResults?: EventResult[]
-  setSearchRoundResults: (
-    searchRoundResults?: EventResult[],
-  ) => void
+  upcomingEvents?: UpcomingEvent[]
+  searchEventResults?: EventResult[]
+  setSearchEventResults: (searchEventResults?: EventResult[]) => void
   betsHistory: Ticket[]
   teamRankings?: TeamRanking[]
+  eventResults?: EventResult[]
 }
 
 const defaultRootContext: RootContextType = {
-  //TODO: remove mock data
-  roundResults: [],
-  setSearchRoundResults: () => {},
-  upcomingRounds: [],
+  setSearchEventResults: () => {},
   betsHistory: [],
+  eventResults: [],
   teamRankings: [
     {
       position: 1,
-      team: 'AST',
+      team: 'LEE',
       played: 17,
       wins: 14,
       draws: 2,
       losses: 1,
       points: 44,
-      goalsFor: 44,
-      goalsAgainst: 43,
-      goalDifference: 1,
-      last8: ['W', 'W', 'W', 'W', 'W', 'W', 'W', 'L'],
+      goalsFor: 42,
+      goalsAgainst: 12,
+      goalDifference: 30,
+      last8: ['W', 'W', 'W', 'W', 'W', 'W', 'D', 'W'],
     },
     {
       position: 2,
-      team: 'WOL',
+      team: 'BUR',
       played: 17,
       wins: 11,
       draws: 4,
       losses: 2,
       points: 37,
-      goalsFor: 37,
-      goalsAgainst: 34,
-      goalDifference: 3,
-      last8: ['W', 'W', 'W', 'D', 'W', 'W', 'D', 'D'],
+      goalsFor: 35,
+      goalsAgainst: 18,
+      goalDifference: 17,
+      last8: ['W', 'W', 'D', 'W', 'W', 'W', 'D', 'W'],
     },
     {
       position: 3,
-      team: 'SOU',
+      team: 'WAT',
       played: 17,
       wins: 11,
       draws: 1,
       losses: 5,
       points: 34,
-      goalsFor: 30,
-      goalsAgainst: 34,
-      goalDifference: 4,
-      last8: ['W', 'W', 'W', 'L', 'W', 'L', 'W', 'D'],
+      goalsFor: 32,
+      goalsAgainst: 21,
+      goalDifference: 11,
+      last8: ['W', 'L', 'W', 'W', 'L', 'W', 'W', 'W'],
     },
     {
       position: 4,
-      team: 'TOT',
+      team: 'NOR',
       played: 17,
-      wins: 9,
-      draws: 4,
+      wins: 10,
+      draws: 3,
       losses: 4,
-      points: 31,
-      goalsFor: 25,
-      goalsAgainst: 31,
-      goalDifference: 6,
-      last8: ['W', 'W', 'L', 'W', 'W', 'L', 'D', 'D'],
+      points: 33,
+      goalsFor: 28,
+      goalsAgainst: 19,
+      goalDifference: 9,
+      last8: ['W', 'D', 'W', 'L', 'W', 'W', 'D', 'W'],
     },
     {
       position: 5,
-      team: 'CHE',
-      played: 17,
-      wins: 9,
-      draws: 4,
-      losses: 4,
-      points: 31,
-      goalsFor: 24,
-      goalsAgainst: 31,
-      goalDifference: 7,
-      last8: ['W', 'L', 'L', 'D', 'D', 'D', 'W', 'W'],
-    },
-    {
-      position: 6,
-      team: 'BNF',
-      played: 17,
-      wins: 9,
-      draws: 4,
-      losses: 4,
-      points: 31,
-      goalsFor: 23,
-      goalsAgainst: 31,
-      goalDifference: 8,
-      last8: ['W', 'L', 'L', 'D', 'D', 'D', 'W', 'W'],
-    },
-    {
-      position: 7,
-      team: 'LEE',
-      played: 17,
-      wins: 9,
-      draws: 4,
-      losses: 4,
-      points: 31,
-      goalsFor: 31,
-      goalsAgainst: 21,
-      goalDifference: 10,
-      last8: ['W', 'L', 'L', 'D', 'D', 'D', 'W', 'W'],
-    },
-    {
-      position: 8,
       team: 'BRE',
       played: 17,
       wins: 9,
       draws: 4,
       losses: 4,
       points: 31,
+      goalsFor: 26,
+      goalsAgainst: 20,
+      goalDifference: 6,
+      last8: ['W', 'D', 'L', 'W', 'D', 'W', 'W', 'D'],
+    },
+    {
+      position: 6,
+      team: 'WOL',
+      played: 17,
+      wins: 8,
+      draws: 6,
+      losses: 3,
+      points: 30,
+      goalsFor: 24,
+      goalsAgainst: 17,
+      goalDifference: 7,
+      last8: ['D', 'W', 'D', 'W', 'D', 'D', 'W', 'W'],
+    },
+    {
+      position: 7,
+      team: 'MCI',
+      played: 17,
+      wins: 8,
+      draws: 5,
+      losses: 4,
+      points: 29,
+      goalsFor: 31,
+      goalsAgainst: 22,
+      goalDifference: 9,
+      last8: ['W', 'D', 'L', 'W', 'D', 'W', 'D', 'W'],
+    },
+    {
+      position: 8,
+      team: 'MUN',
+      played: 17,
+      wins: 8,
+      draws: 4,
+      losses: 5,
+      points: 28,
+      goalsFor: 23,
+      goalsAgainst: 24,
+      goalDifference: -1,
+      last8: ['L', 'W', 'W', 'D', 'L', 'W', 'W', 'D'],
+    },
+    {
+      position: 9,
+      team: 'LIV',
+      played: 17,
+      wins: 7,
+      draws: 6,
+      losses: 4,
+      points: 27,
+      goalsFor: 25,
+      goalsAgainst: 22,
+      goalDifference: 3,
+      last8: ['D', 'W', 'D', 'L', 'D', 'W', 'D', 'W'],
+    },
+    {
+      position: 10,
+      team: 'CHE',
+      played: 17,
+      wins: 7,
+      draws: 5,
+      losses: 5,
+      points: 26,
+      goalsFor: 22,
+      goalsAgainst: 23,
+      goalDifference: -1,
+      last8: ['W', 'L', 'D', 'W', 'L', 'D', 'W', 'D'],
+    },
+    {
+      position: 11,
+      team: 'ARS',
+      played: 17,
+      wins: 7,
+      draws: 4,
+      losses: 6,
+      points: 25,
+      goalsFor: 21,
+      goalsAgainst: 25,
+      goalDifference: -4,
+      last8: ['L', 'W', 'D', 'L', 'W', 'W', 'D', 'L'],
+    },
+    {
+      position: 12,
+      team: 'MCU',
+      played: 17,
+      wins: 6,
+      draws: 6,
+      losses: 5,
+      points: 24,
       goalsFor: 20,
-      goalsAgainst: 31,
-      goalDifference: 11,
-      last8: ['W', 'L', 'L', 'D', 'D', 'D', 'W', 'W'],
+      goalsAgainst: 22,
+      goalDifference: -2,
+      last8: ['D', 'L', 'W', 'D', 'D', 'W', 'L', 'D'],
+    },
+    {
+      position: 13,
+      team: 'CIA',
+      played: 17,
+      wins: 6,
+      draws: 5,
+      losses: 6,
+      points: 23,
+      goalsFor: 19,
+      goalsAgainst: 24,
+      goalDifference: -5,
+      last8: ['L', 'D', 'W', 'L', 'D', 'L', 'W', 'D'],
+    },
+    {
+      position: 14,
+      team: 'GBI',
+      played: 17,
+      wins: 5,
+      draws: 7,
+      losses: 5,
+      points: 22,
+      goalsFor: 18,
+      goalsAgainst: 23,
+      goalDifference: -5,
+      last8: ['D', 'D', 'L', 'D', 'W', 'D', 'L', 'D'],
+    },
+    {
+      position: 15,
+      team: 'NSC',
+      played: 17,
+      wins: 5,
+      draws: 6,
+      losses: 6,
+      points: 21,
+      goalsFor: 17,
+      goalsAgainst: 25,
+      goalDifference: -8,
+      last8: ['L', 'D', 'W', 'L', 'D', 'L', 'D', 'W'],
+    },
+    {
+      position: 16,
+      team: 'FBI',
+      played: 17,
+      wins: 4,
+      draws: 8,
+      losses: 5,
+      points: 20,
+      goalsFor: 16,
+      goalsAgainst: 24,
+      goalDifference: -8,
+      last8: ['D', 'L', 'D', 'D', 'L', 'D', 'D', 'D'],
+    },
+    {
+      position: 17,
+      team: 'NAP',
+      played: 17,
+      wins: 4,
+      draws: 6,
+      losses: 7,
+      points: 18,
+      goalsFor: 15,
+      goalsAgainst: 27,
+      goalDifference: -12,
+      last8: ['L', 'D', 'L', 'W', 'L', 'D', 'L', 'D'],
+    },
+    {
+      position: 18,
+      team: 'LOT',
+      played: 17,
+      wins: 3,
+      draws: 7,
+      losses: 7,
+      points: 16,
+      goalsFor: 14,
+      goalsAgainst: 28,
+      goalDifference: -14,
+      last8: ['L', 'D', 'L', 'D', 'L', 'W', 'D', 'L'],
+    },
+    {
+      position: 19,
+      team: 'ARC',
+      played: 17,
+      wins: 2,
+      draws: 6,
+      losses: 9,
+      points: 12,
+      goalsFor: 12,
+      goalsAgainst: 32,
+      goalDifference: -20,
+      last8: ['L', 'L', 'D', 'L', 'L', 'D', 'W', 'L'],
+    },
+    {
+      position: 20,
+      team: 'UDO',
+      played: 17,
+      wins: 1,
+      draws: 4,
+      losses: 12,
+      points: 7,
+      goalsFor: 9,
+      goalsAgainst: 38,
+      goalDifference: -29,
+      last8: ['L', 'L', 'L', 'D', 'L', 'L', 'L', 'W'],
     },
   ],
 }
@@ -153,8 +308,6 @@ function getInitCodeFromUrl(): string | undefined {
   if (typeof window === 'undefined') return undefined
 
   const params = new URLSearchParams(window.location.search)
-
-  console.log('init_code: ', params.get('init_code'))
 
   return params.get('init_code') || undefined
 }
@@ -211,16 +364,12 @@ export default function RootContextProvider(props: {
     [initCode],
   )
 
-  const setSearchRoundResults = (
-    searchRoundResults?: EventResult[],
-  ) => {
-    console.log('Setting searchRoundResults:', searchRoundResults)
+  const setSearchEventResults = (searchEventResults?: EventResult[]) => {
     setRootContext((prev) => ({
       ...prev,
-      searchRoundResults,
+      searchEventResults: searchEventResults,
     }))
   }
-  
 
   useEffect(() => {
     const initCode = getInitCodeFromUrl()
@@ -232,13 +381,29 @@ export default function RootContextProvider(props: {
       }
 
       localStorage.setItem('initCode', initCode)
+
+      // Extract and set language from URL immediately
+      const parts = initCode.split('-')
+      console.log('🔍 Root context - parsing init code:', initCode, parts)
+
+      if (parts.length >= 4) {
+        // Format: TEST-USD-en-US
+        const langPart = parts[2].toLowerCase() // 'en'
+        console.log('🌍 Setting language from URL (4 parts):', langPart)
+        i18n.changeLanguage(langPart)
+      } else if (parts.length >= 3) {
+        // Format: TEST-RUS-ru-RU
+        const langPart = parts[2].toLowerCase() // 'ru'
+        console.log('🌍 Setting language from URL (3 parts):', langPart)
+        i18n.changeLanguage(langPart)
+      }
     } else {
       localStorage.removeItem('initCode')
       setIsLoading(false)
     }
 
     setInitCode(initCode)
-  }, [])
+  }, [i18n])
 
   useEffect(() => {
     if (!initCode) return
@@ -250,13 +415,17 @@ export default function RootContextProvider(props: {
           description: 'Success',
           playerId: 'daniel1983-306#29',
           currency: 'EUR',
-          lang: 'it-IT',
-          level: 1,
-          group: [],
+          lang: 'it-IT', 
         } as UserApiResponse
 
         if (userData?.status === '1024') {
-          i18n.changeLanguage(userData.lang.substring(0, 2))
+          console.log(
+            'User data loaded, keeping URL language. User lang:',
+            userData.lang,
+            'Current lang:',
+            i18n.language,
+          )
+
           setRootContext((prev) => ({
             ...prev,
             userData,
@@ -354,14 +523,14 @@ export default function RootContextProvider(props: {
       )
 
       const roundResults: EventResult[] = Array.from(
-        { length: 12 },
+        { length: 10 },
         (_, index) => {
           const date = new Date(rounds[0].mag_event[0].startTime)
           date.setMinutes(date.getMinutes() - (index + 1) * 3)
 
           return {
-            id: 12 - index,
-            title: `Trident round ${12 - index}`,
+            id: 10 - index,
+            name: ` Trident round ${10 - index}`,
             startTime: date,
             duration: 3,
             discipline: Discipline.SOCCER,
@@ -410,17 +579,406 @@ export default function RootContextProvider(props: {
         },
       )
 
-      console.log('Round results:', roundResults)
+      setRootContext((prev) => ({
+        ...prev,
+        upcomingEvents: [
+          ...(prev.upcomingEvents?.filter(
+            (event) => event.discipline !== Discipline.SOCCER,
+          ) || []),
+          ...rounds.map((round) => ({
+            id: round.scheduleId,
+            name: round.scheduleName,
+            startTime: new Date(
+              round.mag_event[0].startTime,
+            ).toLocaleTimeString('it-IT', {
+              hour: '2-digit',
+              minute: '2-digit',
+            }),
+            time: new Date(round.mag_event[0].startTime),
+            duration: 3,
+            discipline: Discipline.SOCCER,
+            ext_pal_id:
+              round.mag_event[0].eventIdentity?.parentGroupIdSpecified || '',
+            data: round,
+          })),
+        ],
+        eventResults: [
+          ...(prev.eventResults || []).filter(
+            (result) => result.discipline !== Discipline.SOCCER,
+          ),
+          ...roundResults,
+        ],
+        setSearchEventResults: setSearchEventResults,
+      }))
+    }
+
+    const fetchUpcomingHorseEvents = async () => {
+      const response = await fetch(
+        'https://apidev.pgvirtual.eu/api/event/list',
+        {
+          headers: {
+            accept: 'application/json',
+            'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
+            authorization: 'Bearer ffffffff-ffff-ffff-ffff-ffffffffffee',
+            operator: 'pg',
+            priority: 'u=1, i',
+            'sec-ch-ua':
+              '"Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"',
+            'sec-ch-ua-mobile': '?1',
+            'sec-ch-ua-platform': '"Android"',
+            'sec-fetch-dest': 'empty',
+            'sec-fetch-mode': 'cors',
+            'sec-fetch-site': 'same-site',
+          },
+          referrer: 'https://test.pgvirtual.eu/',
+          referrerPolicy: 'strict-origin-when-cross-origin',
+          body: null,
+          method: 'GET',
+          mode: 'cors',
+          credentials: 'include',
+        },
+      )
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch horse events')
+      }
+
+      const horseEvents = await response.json()
+
+      const horseChannel = horseEvents.channels?.[1]
+
+      const upcomingHorseEvents: UpcomingEvent[] = horseChannel.next_events.map(
+        (
+          event: {
+            int_event_id: string
+            ext_pal_id: string
+            start_time: string
+            time: string
+          },
+          index: number,
+        ): UpcomingEvent => {
+          const startTime = new Date(event.time)
+          const hours = event.start_time.split(':')[0]
+          const minutes = event.start_time.split(':')[1]
+          startTime.setHours(parseInt(hours, 10))
+          startTime.setMinutes(parseInt(minutes, 10))
+          return {
+            id: parseInt(event.int_event_id),
+            extId: event.ext_pal_id,
+            duration: horseEvents.channels[1].duration[index],
+            name: `Horse `,
+            startTime: event.start_time,
+            time: startTime,
+            discipline: Discipline.HORSES,
+          }
+        },
+      )
+
+      // ✅ Chiamate API parallele per ottenere i dettagli di ogni evento
+      const horseEventResults: EventResult[] = await Promise.all(
+        horseChannel.prev_events.map(
+          async (event: {
+            arrival: {
+              name: string
+              number: number
+            }[]
+            int_event_id: number
+            ext_pal_id: string
+            start_time: string
+            time: string
+          }) => {
+            let startTime: Date
+            try {
+              startTime = new Date(event.time)
+
+              if (isNaN(startTime.getTime()) && event.start_time) {
+                startTime = new Date()
+                const [hours, minutes] = event.start_time.split(':')
+                if (hours && minutes) {
+                  startTime.setHours(parseInt(hours, 10))
+                  startTime.setMinutes(parseInt(minutes, 10))
+                  startTime.setSeconds(0)
+                  startTime.setMilliseconds(0)
+                }
+              }
+
+              if (isNaN(startTime.getTime())) {
+                startTime = new Date()
+              }
+            } catch {
+              startTime = new Date()
+            }
+
+            // ✅ Chiama l'API per ottenere i dettagli completi dell'evento
+            let detailedResult = null
+            try {
+              const response = await fetch(
+                `https://apidev.pgvirtual.eu/api/event/results/${event.ext_pal_id}/${event.int_event_id}`,
+                {
+                  headers: {
+                    accept: 'application/json',
+                    'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
+                    authorization:
+                      'Bearer ffffffff-ffff-ffff-ffff-ffffffffffee',
+                    operator: 'pg',
+                    priority: 'u=1, i',
+                    'sec-ch-ua':
+                      '"Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"',
+                    'sec-ch-ua-mobile': '?1',
+                    'sec-ch-ua-platform': '"Android"',
+                    'sec-fetch-dest': 'empty',
+                    'sec-fetch-mode': 'cors',
+                    'sec-fetch-site': 'same-site',
+                  },
+                  referrer: 'https://test.pgvirtual.eu/',
+                  referrerPolicy: 'strict-origin-when-cross-origin',
+                  method: 'GET',
+                  mode: 'cors',
+                  credentials: 'include',
+                },
+              )
+
+              if (response.ok) {
+                detailedResult = await response.json()
+              }
+            } catch (error) {
+              console.warn('Failed to fetch detailed horse result:', error)
+            }
+
+            return {
+              id: event.int_event_id,
+              extId: event.ext_pal_id,
+              name: ` Horse Race ${event.int_event_id}`,
+              startTime,
+              time: event.time,
+              discipline: Discipline.HORSES,
+              result: {
+                podium: event.arrival.map((horse, index) => ({
+                  name: horse.name,
+                  number: horse.number,
+                  position: index + 1,
+                })),
+                odds: (detailedResult as any)?.odds || {
+                  winner: {},
+                  placed: {},
+                  show: {},
+                  exacta: {},
+                  quinella: {},
+                  trifecta: {},
+                  boxedtrifecta: {},
+                  evenodd: {},
+                  underover: {},
+                },
+              } as RaceResult,
+            } as EventResult
+          },
+        ),
+      )
 
       setRootContext((prev) => ({
         ...prev,
-        upcomingRounds: rounds,
-        roundResults,
-        setSearchRoundResults,
+        upcomingEvents: [
+          ...(prev.upcomingEvents?.filter(
+            (event) => event.discipline !== Discipline.HORSES,
+          ) || []),
+          ...upcomingHorseEvents,
+        ],
+        eventResults: [
+          ...(prev.eventResults || []).filter(
+            (e) => e.discipline !== Discipline.HORSES,
+          ),
+          ...horseEventResults,
+        ],
+      }))
+    }
+
+    const fetchUpcomingDogEvents = async () => {
+      const response = await fetch(
+        'https://apidev.pgvirtual.eu/api/event/list',
+        {
+          headers: {
+            accept: 'application/json',
+            'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
+            authorization: 'Bearer ffffffff-ffff-ffff-ffff-ffffffffffee',
+            operator: 'pg',
+            priority: 'u=1, i',
+            'sec-ch-ua':
+              '"Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"',
+            'sec-ch-ua-mobile': '?1',
+            'sec-ch-ua-platform': '"Android"',
+            'sec-fetch-dest': 'empty',
+            'sec-fetch-mode': 'cors',
+            'sec-fetch-site': 'same-site',
+          },
+          referrer: 'https://test.pgvirtual.eu/',
+          referrerPolicy: 'strict-origin-when-cross-origin',
+          body: null,
+          method: 'GET',
+          mode: 'cors',
+          credentials: 'include',
+        },
+      )
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch dog events')
+      }
+
+      const dogEvents = await response.json()
+
+      const dogChannel = dogEvents.channels?.[0]
+
+      const upcomingDogEvents: UpcomingEvent[] = dogChannel.next_events.map(
+        (
+          event: {
+            int_event_id: string
+            ext_pal_id: string
+            start_time: string
+            time: number
+          },
+          index: number,
+        ): UpcomingEvent => {
+          const startTime = new Date(event.time)
+          const hours = event.start_time.split(':')[0]
+          const minutes = event.start_time.split(':')[1]
+          startTime.setHours(parseInt(hours, 10))
+          startTime.setMinutes(parseInt(minutes, 10))
+          return {
+            id: parseInt(event.int_event_id),
+            extId: event.ext_pal_id,
+            duration: dogEvents.channels[1].duration[index],
+            name: `Dog `,
+            startTime: event.start_time,
+            time: startTime,
+            discipline: Discipline.DOGS,
+          }
+        },
+      )
+
+      // ✅ Chiamate API parallele per ottenere i dettagli di ogni evento
+      const dogEventResults: EventResult[] = await Promise.all(
+        dogChannel.prev_events.map(
+          async (event: {
+            arrival: {
+              name: string
+              number: number
+            }[]
+            int_event_id: number
+            ext_pal_id: string
+            start_time: string
+            time: number
+          }) => {
+            let startTime: Date
+            try {
+              if (typeof event.time === 'number') {
+                startTime =
+                  event.time > 1000000000000
+                    ? new Date(event.time)
+                    : new Date(event.time * 1000)
+              } else {
+                startTime = new Date(event.time)
+              }
+
+              if (event.start_time && !isNaN(startTime.getTime())) {
+                const [hours, minutes] = event.start_time.split(':')
+                if (hours && minutes) {
+                  startTime.setHours(parseInt(hours, 10))
+                  startTime.setMinutes(parseInt(minutes, 10))
+                }
+              }
+
+              if (isNaN(startTime.getTime())) {
+                startTime = new Date()
+              }
+            } catch {
+              startTime = new Date()
+            }
+
+            // ✅ Chiama l'API per ottenere i dettagli completi dell'evento
+            let detailedResult = null
+            try {
+              const response = await fetch(
+                `https://apidev.pgvirtual.eu/api/event/results/${event.ext_pal_id}/${event.int_event_id}`,
+                {
+                  headers: {
+                    accept: 'application/json',
+                    'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
+                    authorization:
+                      'Bearer ffffffff-ffff-ffff-ffff-ffffffffffee',
+                    operator: 'pg',
+                    priority: 'u=1, i',
+                    'sec-ch-ua':
+                      '"Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"',
+                    'sec-ch-ua-mobile': '?1',
+                    'sec-ch-ua-platform': '"Android"',
+                    'sec-fetch-dest': 'empty',
+                    'sec-fetch-mode': 'cors',
+                    'sec-fetch-site': 'same-site',
+                  },
+                  referrer: 'https://test.pgvirtual.eu/',
+                  referrerPolicy: 'strict-origin-when-cross-origin',
+                  method: 'GET',
+                  mode: 'cors',
+                  credentials: 'include',
+                },
+              )
+
+              if (response.ok) {
+                detailedResult = await response.json()
+              }
+            } catch (error) {
+              console.warn('Failed to fetch detailed dog result:', error)
+            }
+
+            return {
+              id: event.int_event_id,
+              extId: event.ext_pal_id,
+              name: ` Dog Race ${event.int_event_id}`,
+              startTime,
+              time: event.time,
+              discipline: Discipline.DOGS,
+              result: {
+                podium: event.arrival.map((dog, index) => ({
+                  name: dog.name,
+                  number: dog.number,
+                  position: index + 1,
+                })),
+                odds: (detailedResult as any)?.odds || {
+                  winner: {},
+                  placed: {},
+                  show: {},
+                  exacta: {},
+                  quinella: {},
+                  trifecta: {},
+                  boxedtrifecta: {},
+                  evenodd: {},
+                  underover: {},
+                },
+              } as RaceResult,
+            } as EventResult
+          },
+        ),
+      )
+
+      setRootContext((prev) => ({
+        ...prev,
+        upcomingEvents: [
+          ...(prev.upcomingEvents?.filter(
+            (event) => event.discipline !== Discipline.DOGS,
+          ) || []),
+          ...upcomingDogEvents,
+        ],
+        eventResults: [
+          ...(prev.eventResults || []).filter(
+            (e) => e.discipline !== Discipline.DOGS,
+          ),
+          ...dogEventResults,
+        ],
       }))
     }
 
     fetchUpcomingRounds()
+    fetchUpcomingHorseEvents()
+    fetchUpcomingDogEvents()
   }, [initCode, apiRequest])
 
   if (isLoading) {

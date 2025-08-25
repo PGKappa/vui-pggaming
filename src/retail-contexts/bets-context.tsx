@@ -1,38 +1,83 @@
 'use client'
 
 import { Bet, BetEntry, Selection, SubmittedTicket } from '@/retail-lib/types'
-import { createContext, useEffect, useState } from 'react'
+import { BetMode } from '@/retail-components/betting-slip'
+import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 
 export type BetsContextType = {
   betEntries: BetEntry[]
+  betsByEvent: { [key: string]: BetEntry[] }
   lastId: number
+  betMode: BetMode
   addBet: (market: string, bet: Bet) => void
-  removeBet: (marketName: string, option: Selection, teams: string) => void
-  removeMatchBets: (matchId: string) => void
-  toggleMatchBetsFixed: (matchId: string) => void
+  removeBet: (
+    marketName: string,
+    option: Selection,
+    competitors: string,
+  ) => void
+  removeEventBets: (eventId: string) => void
+  toggleEventBetsFixed: (eventId: string) => void
   removeAllBets: () => void
   restoreLastSubmittedTicket: () => void
+  addBets: (market: string, bet: Bet[]) => void
+  removeBets: (
+    market: string,
+    betIds: { option: Selection; competitors: string }[],
+  ) => void
 }
 
 const defaultBetsContext: BetsContextType = {
   betEntries: [],
+  betsByEvent: {},
   lastId: 0,
+  betMode: 'SINGLE',
   addBet: () => {},
   removeBet: () => {},
-  removeMatchBets: () => {},
-  toggleMatchBetsFixed: () => {},
+  removeEventBets: () => {},
+  toggleEventBetsFixed: () => {},
   removeAllBets: () => {},
   restoreLastSubmittedTicket: () => {},
+  addBets: () => {},
+  removeBets: () => {},
 }
 
 export const BetsContext = createContext<BetsContextType>(defaultBetsContext)
+
+function getBetsByEvent(betEntries: BetEntry[]): { [key: string]: BetEntry[] } {
+  return betEntries.reduce(
+    (groupedBets: { [key: string]: BetEntry[] }, betEntry) => {
+      const key = betEntry.bet.event.number.toString()
+      if (!groupedBets[key]) {
+        groupedBets[key] = []
+      }
+      groupedBets[key].push(betEntry)
+      return groupedBets
+    },
+    {},
+  )
+}
 
 function getBetsContext(): BetsContextType {
   try {
     const betsContext = localStorage.getItem('betsContext')
     return betsContext
-      ? (JSON.parse(betsContext) as BetsContextType)
+      ? ({
+          ...JSON.parse(betsContext),
+          betEntries: JSON.parse(betsContext).betEntries.map(
+            (betEntry: BetEntry) => ({
+              ...betEntry,
+              bet: {
+                ...betEntry.bet,
+                event: {
+                  ...betEntry.bet.event,
+                  startingAt: new Date(betEntry.bet.event.startingAt),
+                },
+              },
+            }),
+          ),
+          betsByEvent: getBetsByEvent(JSON.parse(betsContext).betEntries),
+        } as BetsContextType)
       : defaultBetsContext
   } catch (error) {
     console.error('Failed to parse betsContext from localStorage:', error)
@@ -47,13 +92,63 @@ export default function BetsContextProvider(props: {
   const [betsContext, setBetsContext] =
     useState<BetsContextType>(initialBetsContext)
 
-  const addBet = (market: string, bet: Bet) => {
-    setBetsContext((prev) => ({
-      ...prev,
-      betEntries: [...prev.betEntries, { id: prev.lastId + 1, bet, market }],
-      lastId: prev.lastId + 1,
-    }))
-  }
+  const betMode: BetMode = useMemo(() => {
+    if (betsContext.betEntries.length <= 1) return 'SINGLE'
+    if (
+      Object.keys(betsContext.betsByEvent).length > 1 &&
+      Object.values(betsContext.betsByEvent).find((e) => e.length > 1)
+    )
+      return 'SYSTEM'
+    return 'MULTIPLE'
+  }, [betsContext.betEntries, betsContext.betsByEvent])
+
+  const checkSystemLimits = useCallback(
+    (newEntries: BetEntry[]): boolean => {
+      if (betMode !== 'SYSTEM') return true
+
+      const totalEntries = betsContext.betEntries.length + newEntries.length
+      if (totalEntries > 50) {
+        toast.error(
+          'Cannot add more bets: Maximum 50 bet entries allowed for system betting',
+        )
+        return false
+      }
+
+      const allEntries = [...betsContext.betEntries, ...newEntries]
+      const eventsSet = new Set<string>()
+      allEntries.forEach((entry) => {
+        const eventKey = entry.bet.event.number.toString()
+        eventsSet.add(eventKey)
+      })
+      const eventsNumber = eventsSet.size
+
+      if (eventsNumber > 15) {
+        toast.error(
+          'Cannot add more bets: Maximum 15 unique events allowed for system betting',
+        )
+        return false
+      }
+
+      return true
+    },
+    [betMode, betsContext.betEntries],
+  )
+
+  const addBet = useCallback(
+    (market: string, bet: Bet) => {
+      const newEntry = { id: betsContext.lastId + 1, bet, market }
+      if (!checkSystemLimits([newEntry])) {
+        return
+      }
+
+      setBetsContext((prev) => ({
+        ...prev,
+        betEntries: [...prev.betEntries, newEntry],
+        lastId: prev.lastId + 1,
+      }))
+    },
+    [betsContext.lastId, checkSystemLimits],
+  )
 
   const removeBet = (marketName: string, option: Selection, teams: string) => {
     setBetsContext((prev) => ({
@@ -61,34 +156,28 @@ export default function BetsContextProvider(props: {
       betEntries: prev.betEntries.filter(
         (betEntry) =>
           betEntry.market !== marketName ||
-          betEntry.bet.teams !== teams ||
+          betEntry.bet.competitors !== teams ||
           betEntry.bet.option.outcome !== option.outcome,
       ),
     }))
   }
 
-  const removeMatchBets = (matchId: string) => {
-    const [roundNumber, teams] = matchId.split('.')
-
+  const removeEventBets = (eventId: string) => {
+    const eventNumber = parseInt(eventId)
     setBetsContext((prev) => ({
       ...prev,
       betEntries: prev.betEntries.filter(
-        (betEntry) =>
-          betEntry.bet.round.number !== parseInt(roundNumber) ||
-          betEntry.bet.teams !== teams,
+        (betEntry) => betEntry.bet.event.number !== eventNumber,
       ),
     }))
   }
 
-  const toggleMatchBetsFixed = (matchId: string) => {
-    const [roundNumber, teams] = matchId.split('.')
+  const toggleEventBetsFixed = (eventId: string) => {
+    const eventNumber = parseInt(eventId)
     setBetsContext((prev) => ({
       ...prev,
       betEntries: prev.betEntries.map((betEntry) => {
-        if (
-          betEntry.bet.round.number === parseInt(roundNumber) &&
-          betEntry.bet.teams === teams
-        ) {
+        if (betEntry.bet.event.number === eventNumber) {
           return { ...betEntry, fixed: !betEntry.fixed }
         }
         return betEntry
@@ -120,17 +209,68 @@ export default function BetsContextProvider(props: {
     }))
   }
 
+  const addBets = useCallback(
+    (market: string, bets: Bet[]) => {
+      const newEntries = bets.map((bet, index) => ({
+        id: betsContext.lastId + index + 1,
+        bet,
+        market,
+      }))
+
+      if (!checkSystemLimits(newEntries)) {
+        return
+      }
+
+      setBetsContext((prev) => {
+        return {
+          ...prev,
+          betEntries: [...prev.betEntries, ...newEntries],
+          lastId: prev.lastId + newEntries.length,
+        }
+      })
+    },
+    [betsContext.lastId, checkSystemLimits],
+  )
+
+  const removeBets = (
+    market: string,
+    betIds: { option: Selection; competitors: string }[],
+  ) => {
+    setBetsContext((prev) => ({
+      ...prev,
+      betEntries: prev.betEntries.filter(
+        (betEntry) =>
+          betEntry.market !== market ||
+          !betIds.some(
+            (id) =>
+              betEntry.bet.option.outcome === id.option.outcome &&
+              betEntry.bet.competitors === id.competitors,
+          ),
+      ),
+    }))
+  }
+
   useEffect(() => {
     setBetsContext((prev) => ({
       ...prev,
+      betsByEvent: getBetsByEvent(betsContext.betEntries),
+    }))
+  }, [betsContext.betEntries])
+
+  useEffect(() => {
+    setBetsContext((prev) => ({
+      ...prev,
+      betMode,
       addBet,
       removeBet,
-      removeMatchBets,
-      toggleMatchBetsFixed,
+      removeEventBets,
+      toggleEventBetsFixed,
       removeAllBets,
       restoreLastSubmittedTicket,
+      addBets,
+      removeBets,
     }))
-  }, [])
+  }, [addBet, addBets, betMode])
 
   useEffect(() => {
     if (!betsContext) return
