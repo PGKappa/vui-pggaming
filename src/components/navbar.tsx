@@ -4,12 +4,16 @@ import Link from 'next/link'
 import { buttonVariants } from './ui/button'
 import { t } from 'i18next'
 import BallSvg from './ball'
+import { /* usePathname, */ useSearchParams } from 'next/navigation'
 
 export default function Navbar() {
+  const searchParams = useSearchParams()
+  /* const pathname = usePathname() */
+  const initCode = searchParams.get('init_code')
   return (
     <nav className="flex w-full flex-row gap-1 bg-primary-foreground p-0.5 text-black">
       <Link
-        href="/dogs"
+        href={`/virtual/cani${initCode ? `?init_code=${initCode}` : ''}`}
         className={cn(
           buttonVariants({ variant: 'navbar' }),
           'flex w-full flex-row items-center justify-center gap-2',
@@ -28,7 +32,7 @@ export default function Navbar() {
       </Link>
 
       <Link
-        href="/horses"
+        href={`/virtual/cavalli${initCode ? `?init_code=${initCode}` : ''}`}
         className={cn(
           buttonVariants({ variant: 'navbar' }),
           'flex w-full flex-row items-center justify-center gap-2',
@@ -47,7 +51,7 @@ export default function Navbar() {
       </Link>
 
       <Link
-        href="/"
+        href={`/virtual/calcio${initCode ? `?init_code=${initCode}` : ''}`}
         className="flex w-full flex-row items-center justify-center gap-2 rounded-sm bg-accent transition-all hover:bg-accent/90"
         prefetch={false}
       >
