@@ -1,20 +1,20 @@
 'use client'
-import BettingSlip from '@/components/betting-slip'
-import BettingSlipSheet from '@/components/betting-slip-sheet'
-import Leaderboard from '@/components/leaderboard'
-import LeaderboardSheet from '@/components/leaderboard-sheet'
-import LiveMatchInfo from '@/components/live-match-info'
-import LiveRoundScores from '@/components/live-round-scores'
-import LiveRoundStatistics from '@/components/live-round-statistics'
-import LoadingSpinner from '@/components/loading-spinner'
-import MatchBettingOptions from '@/components/match-betting-options'
-import MatchEndBadge from '@/components/match-end-badge'
-import MatchResult from '@/components/match-result'
-import MatchStatisticsCard from '@/components/match-statistics-card'
-import UpcomingRoundCard from '@/components/upcoming-round-card'
-import VideoStreamCard from '@/components/video-stream-card'
-import { RootContext } from '@/contexts/root-context'
-import { Market, MatchStatistics } from '@/lib/types'
+import BettingSlip from '@/virtual-components/betting-slip'
+import BettingSlipSheet from '@/virtual-components/betting-slip-sheet'
+/* import Leaderboard from '@/virtual-components/leaderboard' */
+import LeaderboardSheet from '@/virtual-components/leaderboard-sheet'
+import LiveMatchInfo from '@/virtual-components/live-match-info'
+/* import LiveRoundScores from '@/virtual-components/live-round-scores'
+import LiveRoundStatistics from '@/virtual-components/live-round-statistics' */
+import LoadingSpinner from '@/virtual-components/loading-spinner'
+import MatchBettingOptions from '@/virtual-components/match-betting-options'
+import MatchEndBadge from '@/virtual-components/match-end-badge'
+/* import MatchResult from '@/virtual-components/match-result'
+import MatchStatisticsCard from '@/virtual-components/match-statistics-card' */
+import UpcomingRoundCard from '@/virtual-components/upcoming-round-card'
+import VideoStreamCard from '@/virtual-components/video-stream-card'
+import { RootContext } from '@/virtual-contexts/root-context'
+import { Market, MatchStatistics } from '@/virtual-lib/types'
 import { useContext, useMemo, useState } from 'react'
 
 export default function Home() {
@@ -29,7 +29,7 @@ export default function Home() {
     markets: Market[]
   }>()
 
-  const [selectedMatch, setSelectedMatch] = useState<MatchStatistics>()
+  const [selectedMatch/* , setSelectedMatch */] = useState<MatchStatistics>()
   const highlightedTeams = useMemo(() => {
     return selectedMatch ? selectedMatch.teams.split(' - ') : []
   }, [selectedMatch])
