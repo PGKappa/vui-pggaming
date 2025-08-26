@@ -1,22 +1,34 @@
 import { cn } from '@/lib/utils'
+import { t } from 'i18next'
 import Image from 'next/image'
 import Link from 'next/link'
+import { usePathname, useSearchParams } from 'next/navigation'
 import { buttonVariants } from './ui/button'
-import { t } from 'i18next'
-import BallSvg from './ball'
-import { /* usePathname, */ useSearchParams } from 'next/navigation'
 
 export default function Navbar() {
   const searchParams = useSearchParams()
-  /* const pathname = usePathname() */
+  const pathname = usePathname()
   const initCode = searchParams.get('init_code')
+  const skin = searchParams.get('skin') || 'default'
+
+  const queryParams = new URLSearchParams()
+  if (initCode) queryParams.set('init_code', initCode)
+  if (skin) queryParams.set('skin', skin)
+  const queryString = queryParams.toString() ? `?${queryParams.toString()}` : ''
+
+  const isActive = (path: string) => {
+    return pathname.includes(path)
+  }
+
   return (
     <nav className="flex w-full flex-row gap-1 bg-primary-foreground p-0.5 text-black">
       <Link
-        href={`/virtual/cani${initCode ? `?init_code=${initCode}` : ''}`}
+        href={`/virtual/cani${queryString}`}
         className={cn(
           buttonVariants({ variant: 'navbar' }),
           'flex w-full flex-row items-center justify-center gap-2',
+          isActive('/virtual/cani') &&
+            'bg-accent text-accent-foreground hover:bg-accent/90',
         )}
         prefetch={false}
       >
@@ -32,10 +44,12 @@ export default function Navbar() {
       </Link>
 
       <Link
-        href={`/virtual/cavalli${initCode ? `?init_code=${initCode}` : ''}`}
+        href={`/virtual/cavalli${queryString}`}
         className={cn(
           buttonVariants({ variant: 'navbar' }),
           'flex w-full flex-row items-center justify-center gap-2',
+          isActive('/virtual/cavalli') &&
+            'bg-accent text-accent-foreground hover:bg-accent/90',
         )}
         prefetch={false}
       >
@@ -51,11 +65,24 @@ export default function Navbar() {
       </Link>
 
       <Link
-        href={`/virtual/calcio${initCode ? `?init_code=${initCode}` : ''}`}
-        className="flex w-full flex-row items-center justify-center gap-2 rounded-sm bg-accent transition-all hover:bg-accent/90"
+        href={`/virtual/calcio${queryString}`}
+        className={cn(
+          buttonVariants({ variant: 'navbar' }),
+          'flex w-full flex-row items-center justify-center gap-2',
+          isActive('/virtual/calcio')
+            ? 'bg-accent text-accent-foreground hover:bg-accent/90'
+            : 'hover:bg-accent/90',
+        )}
         prefetch={false}
       >
-        <BallSvg className="stroke-accent-foreground" />
+        <Image
+          src="/soccer.svg"
+          alt="Calcio"
+          width={60}
+          height={36}
+          className="h-6 w-auto"
+        />
+        <span className="text-xs font-medium">{t('football')}</span>
       </Link>
     </nav>
   )
