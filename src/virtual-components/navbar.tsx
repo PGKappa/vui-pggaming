@@ -3,7 +3,6 @@ import { t } from 'i18next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
-import { buttonVariants } from './ui/button'
 
 export default function Navbar() {
   const searchParams = useSearchParams()
@@ -25,8 +24,7 @@ export default function Navbar() {
       <Link
         href={`/virtual/cani${queryString}`}
         className={cn(
-          buttonVariants({ variant: 'navbar' }),
-          'flex w-full flex-row items-center justify-center gap-2',
+          'flex w-full flex-row items-center justify-center gap-2 px-2 py-2',
           isActive('/virtual/cani') &&
             'bg-accent text-accent-foreground hover:bg-accent/90',
         )}
@@ -35,9 +33,9 @@ export default function Navbar() {
         <Image
           src="/dogs.png"
           alt="Dogs"
-          width={69}
+          width={60}
           height={33}
-          className="h-6 w-auto"
+          className="h-5 w-10"
           priority
         />
         <span className="text-xs font-medium">{t('dogs')}</span>
@@ -46,8 +44,7 @@ export default function Navbar() {
       <Link
         href={`/virtual/cavalli${queryString}`}
         className={cn(
-          buttonVariants({ variant: 'navbar' }),
-          'flex w-full flex-row items-center justify-center gap-2',
+          'flex w-full flex-row items-center justify-center gap-2 px-2 py-2',
           isActive('/virtual/cavalli') &&
             'bg-accent text-accent-foreground hover:bg-accent/90',
         )}
@@ -58,7 +55,7 @@ export default function Navbar() {
           alt="Horses"
           width={60}
           height={36}
-          className="h-6 w-auto"
+          className="h-6 w-10"
           priority
         />
         <span className="text-xs font-medium">{t('horses')}</span>
@@ -67,8 +64,7 @@ export default function Navbar() {
       <Link
         href={`/virtual/calcio${queryString}`}
         className={cn(
-          buttonVariants({ variant: 'navbar' }),
-          'flex w-full flex-row items-center justify-center gap-2',
+          'flex w-full flex-row items-center justify-center px-2 py-2',
           isActive('/virtual/calcio')
             ? 'bg-accent text-accent-foreground hover:bg-accent/90'
             : 'hover:bg-accent/90',
