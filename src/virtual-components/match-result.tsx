@@ -9,7 +9,7 @@ export default function MatchResult() {
   if (!matchResult || matchResult.length === 0) {
     return (
       <Card className="w-full">
-        <CardHeader className="text-center">
+        <CardHeader className="h-12 text-center">
           <CardTitle className="font-extrabold">
             {t('results').toUpperCase()}
           </CardTitle>
@@ -23,7 +23,7 @@ export default function MatchResult() {
 
   return (
     <Card className="w-full">
-      <CardHeader className="text-center">
+      <CardHeader className="items-center py-3 text-center">
         <CardTitle className="font-extrabold">
           {t('results').toUpperCase()}
         </CardTitle>
@@ -35,7 +35,8 @@ export default function MatchResult() {
         return (
           <CardContent
             key={index}
-            className="flex w-full items-center justify-around bg-card-header py-16"
+            className="flex w-full items-center justify-center gap-20 bg-card-header"
+            style={{ paddingTop: '4rem', paddingBottom: '4rem' }}
           >
             <div className="flex flex-row gap-4">
               <div className="flex flex-col items-center gap-2">
