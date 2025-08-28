@@ -123,13 +123,27 @@ export type Bet = {
   }
   teams: string
   option: Selection
+  event: {
+    number: number
+  }
 }
 
 export type BetEntry = {
   id: number
   market: string
   bet: Bet
+  fixed?: boolean
 }
+
+export type SystemGroup = {
+  name: string
+  size: number
+  combinations: BetEntry[][]
+  stake: number
+  minWin: number
+  maxWin: number
+}
+
 export type MatchStatistics = {
   teams: string
   probabilities: [number, number, number]
@@ -156,6 +170,7 @@ export type SubmittedTicket = {
   amount: number
   winning: number
   betEntries: BetEntry[]
+  timestamp: string
 }
 
 export type MatchResult = {
