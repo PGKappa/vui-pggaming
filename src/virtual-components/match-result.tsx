@@ -23,7 +23,7 @@ export default function MatchResult() {
 
   return (
     <Card className="w-full">
-      <CardHeader className="items-center py-3 text-center">
+      <CardHeader className="items-center pt-3 text-center">
         <CardTitle className="font-extrabold">
           {t('results').toUpperCase()}
         </CardTitle>
