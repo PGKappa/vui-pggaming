@@ -89,6 +89,23 @@ export type EventIdentity = {
   parentGroupIdSpecified: boolean
 }
 
+export type UpcomingEvent = {
+  id: number
+  extId?: string
+  discipline: Discipline
+  name: string
+  startTime: string
+  time: Date
+  duration: number
+  data?: UpcomingRound | UpcomingRace
+}
+
+export enum Discipline {
+  DOGS = 'DOGS',
+  HORSES = 'HORSES',
+  FOOTBALL = 'FOOTBALL',
+}
+
 export type UpcomingMatch = {
   eventIdentity: EventIdentity
   eventName: string
@@ -113,6 +130,75 @@ export type UpcomingRound = {
   subType: string
   type: string
   mag_event: UpcomingMatch[]
+}
+
+export type UpcomingRace = {
+  id: number
+  odds: {
+    winner: Record<string, string>
+    placed: Record<string, string>
+    show: Record<string, string>
+    exacta: Record<string, Record<string, string>>
+    quinella: Record<string, Record<string, string>>
+    trifecta: Record<string, Record<string, Record<string, string>>>
+    boxedtrifecta: Record<string, Record<string, Record<string, string>>>
+    evenodd: {
+      even: string
+      odd: string
+    }
+    underover: {
+      under: string
+      over: string
+    }
+  }
+  latecomers: {
+    winner: {
+      racers: number[]
+      delay: number
+    }
+    exacta: {
+      racers: number[]
+      delay: number
+    }
+    trifecta: {
+      racers: number[]
+      delay: number
+    }
+  }
+  racers: Array<{
+    number: number
+    name: string
+    history: number[]
+    performance: number
+  }>
+}
+
+export type EventResult = {
+  id: string
+  extId?: string
+  name: string
+  startTime: Date
+  discipline: Discipline
+  result?: MatchResult | RaceResult
+}
+
+export type RaceResult = {
+  odds: {
+    winner: Record<string, string>
+    placed: Record<string, string>
+    show: Record<string, string>
+    exacta: Record<string, Record<string, string>>
+    quinella: Record<string, Record<string, string>>
+    trifecta: Record<string, Record<string, Record<string, string>>>
+    boxedtrifecta: Record<string, Record<string, Record<string, string>>>
+    evenodd: Record<string, string>
+    underover: Record<string, string>
+  }
+  raceDuration?: number
+  podium: {
+    name: string
+    number: number
+  }[]
 }
 
 export type Bet = {
