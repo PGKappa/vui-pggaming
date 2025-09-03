@@ -45,8 +45,7 @@ export const BetsContext = createContext<BetsContextType>(defaultBetsContext)
 function getBetsByEvent(betEntries: BetEntry[]): { [key: string]: BetEntry[] } {
   return betEntries.reduce(
     (groupedBets: { [key: string]: BetEntry[] }, betEntry) => {
-      // Per virtual usiamo round.number invece di event.number
-      const key = betEntry.bet.round.number.toString()
+      const key = betEntry.bet.event.number.toString()
       if (!groupedBets[key]) {
         groupedBets[key] = []
       }
@@ -69,9 +68,9 @@ function getBetsContext(): BetsContextType {
               ...betEntry,
               bet: {
                 ...betEntry.bet,
-                round: {
-                  ...betEntry.bet.round,
-                  startingAt: new Date(betEntry.bet.round.startingAt),
+                event: {
+                  ...betEntry.bet.event,
+                  startingAt: new Date(betEntry.bet.event.startingAt),
                 },
               },
             }),
@@ -119,8 +118,7 @@ export default function BetsContextProvider(props: {
       const allEntries = [...betsContext.betEntries, ...newEntries]
       const eventsSet = new Set<string>()
       allEntries.forEach((entry) => {
-        // Per virtual usiamo round.number invece di event.number
-        const eventKey = entry.bet.round.number.toString()
+        const eventKey = entry.bet.event.number.toString()
         eventsSet.add(eventKey)
       })
       const eventsNumber = eventsSet.size
@@ -161,7 +159,7 @@ export default function BetsContextProvider(props: {
       betEntries: prev.betEntries.filter(
         (betEntry) =>
           betEntry.market !== marketName ||
-          betEntry.bet.teams !== teams ||
+          betEntry.bet.competitors !== teams ||
           betEntry.bet.option.outcome !== option.outcome,
       ),
     }))
@@ -173,7 +171,7 @@ export default function BetsContextProvider(props: {
     setBetsContext((prev) => ({
       ...prev,
       betEntries: prev.betEntries.filter(
-        (betEntry) => betEntry.bet.round.number !== eventNumber,
+        (betEntry) => betEntry.bet.event.number !== eventNumber,
       ),
     }))
   }
@@ -184,7 +182,7 @@ export default function BetsContextProvider(props: {
     setBetsContext((prev) => ({
       ...prev,
       betEntries: prev.betEntries.map((betEntry) => {
-        if (betEntry.bet.round.number === eventNumber) {
+        if (betEntry.bet.event.number === eventNumber) {
           return { ...betEntry, fixed: !betEntry.fixed }
         }
         return betEntry
@@ -255,7 +253,7 @@ export default function BetsContextProvider(props: {
           !betIds.some(
             (id) =>
               betEntry.bet.option.outcome === id.option.outcome &&
-              betEntry.bet.teams === id.teams,
+              betEntry.bet.competitors === id.teams,
           ),
       ),
     }))
