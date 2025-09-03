@@ -1,24 +1,23 @@
 'use client'
 import BettingSlip from '@/virtual-components/betting-slip'
 import BettingSlipSheet from '@/virtual-components/betting-slip-sheet'
-/* import Leaderboard from '@/virtual-components/leaderboard' */
+import Leaderboard from '@/virtual-components/leaderboard'
 import LeaderboardSheet from '@/virtual-components/leaderboard-sheet'
 import LiveMatchInfo from '@/virtual-components/live-match-info'
-/* import LiveRoundScores from '@/virtual-components/live-round-scores'
-import LiveRoundStatistics from '@/virtual-components/live-round-statistics' */
+import LiveRoundScores from '@/virtual-components/live-round-scores'
+import LiveRoundStatistics from '@/virtual-components/live-round-statistics'
 import LoadingSpinner from '@/virtual-components/loading-spinner'
 import MatchBettingOptions from '@/virtual-components/match-betting-options'
 import MatchEndBadge from '@/virtual-components/match-end-badge'
-/* import MatchResult from '@/virtual-components/match-result'
-import MatchStatisticsCard from '@/virtual-components/match-statistics-card' */
-import UpcomingRoundCard from '@/virtual-components/upcoming-round-card'
+import MatchResult from '@/virtual-components/match-result'
+import MatchStatisticsCard from '@/virtual-components/match-statistics-card'
 import VideoStreamCard from '@/virtual-components/video-stream-card'
 import { RootContext } from '@/virtual-contexts/root-context'
-import { Market, MatchStatistics } from '@/virtual-lib/types'
+import { Discipline, Market, MatchStatistics } from '@/virtual-lib/types'
 import { useContext, useMemo, useState } from 'react'
 
 export default function Home() {
-  const { upcomingRounds, liveRound } = useContext(RootContext)
+  const { upcomingEvents, liveRound } = useContext(RootContext)
   const [matchBetOptions, setMatchBetOptions] = useState<{
     round: {
       name: string
@@ -29,7 +28,17 @@ export default function Home() {
     markets: Market[]
   }>()
 
-  const [selectedMatch/* , setSelectedMatch */] = useState<MatchStatistics>()
+  const [selectedMatch, setSelectedMatch] = useState<MatchStatistics>()
+
+  // Filtra eventi per cani
+  const horseEvents = useMemo(() => {
+    return (
+      upcomingEvents?.filter(
+        (event) => event.discipline === Discipline.HORSES,
+      ) || []
+    )
+  }, [upcomingEvents])
+
   const highlightedTeams = useMemo(() => {
     return selectedMatch ? selectedMatch.teams.split(' - ') : []
   }, [selectedMatch])
@@ -52,22 +61,31 @@ export default function Home() {
               close={() => setMatchBetOptions(undefined)}
             />
           )}
-          {!upcomingRounds && (
+          {!horseEvents && (
             <div className="flex justify-center">
               <LoadingSpinner />
             </div>
           )}
 
-          {/* Upcoming rounds - visible on desktop */}
+          {/* Upcoming horse events - visible on desktop */}
           <div className="hidden w-full lg:block">
-            {upcomingRounds && !matchBetOptions && (
+            {horseEvents && !matchBetOptions && (
               <ol className="w-full space-y-7">
-                {upcomingRounds.map((round) => (
+                {/* {upcomingRounds.map((round) => (
                   <li key={round.scheduleId}>
                     <UpcomingRoundCard
                       round={round}
                       viewMatchBettingOptions={setMatchBetOptions}
-                    />
+                    /> */}
+                {horseEvents.map((event) => (
+                  <li key={event.id}>
+                    <div className="rounded-lg border bg-card p-4 text-card-foreground">
+                      <h3 className="font-semibold">{event.name}</h3>
+                      <p className="text-sm">ID: {event.id}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Start time: {event.startTime}
+                      </p>
+                    </div>
                   </li>
                 ))}
               </ol>
@@ -77,7 +95,7 @@ export default function Home() {
 
         {/* Second column content - appears after first column but before upcoming rounds on mobile */}
         <div className="space-y-3 lg:col-span-1">
-          {/* <LiveRoundScores />
+          <LiveRoundScores />
           {selectedMatch ? (
             <MatchStatisticsCard
               match={selectedMatch}
@@ -89,19 +107,28 @@ export default function Home() {
           <MatchResult />
           <div className="hidden lg:block">
             <Leaderboard highlightedTeams={highlightedTeams} />
-          </div> */}
+          </div>
         </div>
 
-        {/* Upcoming rounds - visible only on mobile, appears at the bottom */}
+        {/* Upcoming horse events - visible only on mobile, appears at the bottom */}
         <div className="block lg:hidden">
-          {upcomingRounds && !matchBetOptions && (
+          {horseEvents && !matchBetOptions && (
             <ol className="w-full space-y-7">
-              {upcomingRounds.map((round) => (
+              {/* {upcomingRounds.map((round) => (
                 <li key={round.scheduleId}>
                   <UpcomingRoundCard
                     round={round}
                     viewMatchBettingOptions={setMatchBetOptions}
-                  />
+                  /> */}
+              {horseEvents.map((event) => (
+                <li key={event.id}>
+                  <div className="rounded-lg border bg-card p-4 text-card-foreground">
+                    <h3 className="font-semibold">{event.name}</h3>
+                    <p className="text-sm">ID: {event.id}</p>
+                    <p className="text-sm text-muted-foreground">
+                      Start time: {event.startTime}
+                    </p>
+                  </div>{' '}
                 </li>
               ))}
             </ol>
