@@ -36,7 +36,7 @@ function AppContent({ children }: { children: React.ReactNode }) {
         <Navbar />
       </header>
       <main className="flex-1">
-        <RootContextProvider gameType="football">
+        <RootContextProvider>
           <BetsContextProvider>{children}</BetsContextProvider>
         </RootContextProvider>
       </main>
