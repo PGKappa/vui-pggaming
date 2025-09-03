@@ -2,9 +2,11 @@
 
 import LoadingSpinner from '@/virtual-components/loading-spinner'
 import {
+  Discipline,
   EventResult,
   LiveRound,
   MatchResult,
+  RaceResult,
   RoundStatistics,
   TeamRanking,
   Ticket,
@@ -12,20 +14,18 @@ import {
   UpcomingMatch,
   UpcomingRound,
   User,
-  Discipline,
-  RaceResult,
 } from '@/virtual-lib/types'
 import { BASE_API_URL } from '@/virtual-lib/utils'
-import {
-  createContext,
-  ReactNode,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from 'react'
+import { createContext, useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+
+const DEBUG_ENABLED = true
+const debugLog = (section: string, message: string, data?: any) => {
+  if (DEBUG_ENABLED) {
+    console.log(`[${section}] ${message}`, data || '')
+  }
+}
 
 export type RootContextType = {
   userData?: User
@@ -150,12 +150,8 @@ function getInitCodeFromUrl(): string | undefined {
   return params.get('init_code') || undefined
 }
 
-export default function RootContextProvider({
-  children,
-  gameType,
-}: {
-  children: ReactNode
-  gameType: 'dogs' | 'horses' | 'football'
+export default function RootContextProvider(props: {
+  children: React.ReactNode
 }) {
   const [initCode, setInitCode] = useState<string | undefined>(undefined)
   const [rootContext, setRootContext] =
@@ -382,12 +378,6 @@ export default function RootContextProvider({
       }))
     }
 
-    fetchUpcomingRounds()
-  }, [initCode, apiRequest])
-
-  useEffect(() => {
-    if (!initCode) return
-
     const fetchUpcomingHorseEvents = async () => {
       const response = await fetch(
         'https://apidev.pgvirtual.eu/api/event/list',
@@ -414,15 +404,23 @@ export default function RootContextProvider({
         },
       )
 
+      debugLog('FETCH', `Response status: ${response.status}`)
+
       if (!response.ok) {
         throw new Error(`Failed to fetch horse events: ${response.status}`)
       }
 
       const horseEvents = await response.json()
 
-      const horseChannel = horseEvents.channel?.[1]
+      debugLog('API-RESPONSE - HORSES', 'Full API Response:', horseEvents)
+      debugLog(
+        'API-RESPONSE',
+        `Channels found: ${horseEvents.channels?.length || 0}`,
+      )
 
-      console.log('🐎 Events API Response:', horseEvents)
+      const horseChannel = horseEvents.channels?.[1]
+
+      /* console.log('🐎 Events API Response:', horseEvents) */
 
       const upcomingHorseEvents: UpcomingEvent[] = horseChannel.next_events.map(
         (
@@ -452,6 +450,7 @@ export default function RootContextProvider({
         },
       )
 
+      // Chiamate API parallele per ottenere i dettagli di ogni evento
       const horseEventResults: EventResult[] = await Promise.all(
         horseChannel.prev_events.map(
           async (event: {
@@ -486,10 +485,11 @@ export default function RootContextProvider({
               startTime = new Date()
             }
 
+            // Chiama l'API per ottenere i dettagli completi dell'evento
             let detailedResult = null
             try {
               const response = await fetch(
-                `https://apidev.pgvirtual.eu/api/event/${event.int_event_id}/result`,
+                `https://apidev.pgvirtual.eu/api/event/results/${event.ext_pal_id}/${event.int_event_id}`,
                 {
                   headers: {
                     accept: 'application/json',
@@ -568,187 +568,213 @@ export default function RootContextProvider({
     }
 
     const fetchUpcomingDogEvents = async () => {
-      const response = await fetch(
-        'https://apidev.pgvirtual.eu/api/event/list',
-        {
-          headers: {
-            accept: 'application/json',
-            'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
-            authorization: `Bearer ${initCode}`,
-            operator: 'sc',
-            priority: 'u=1, i',
-            'sec-ch-ua':
-              '"Not;A=Brand";v="99", "Google Chrome";v="139", "Chromium";v="139"',
-            'sec-ch-ua-mobile': '?1',
-            'sec-ch-ua-platform': '"Android"',
-            'sec-fetch-dest': 'empty',
-            'sec-fetch-mode': 'cors',
-            'sec-fetch-site': 'same-site',
+      try {
+        const response = await fetch(
+          'https://apidev.pgvirtual.eu/api/event/list',
+          {
+            headers: {
+              accept: 'application/json',
+              'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
+              authorization: `Bearer ${initCode}`,
+              operator: 'sc',
+              priority: 'u=1, i',
+              'sec-ch-ua':
+                '"Not;A=Brand";v="99", "Google Chrome";v="139", "Chromium";v="139"',
+              'sec-ch-ua-mobile': '?1',
+              'sec-ch-ua-platform': '"Android"',
+              'sec-fetch-dest': 'empty',
+              'sec-fetch-mode': 'cors',
+              'sec-fetch-site': 'same-site',
+            },
+            referrer: 'https://test.pgvirtual.eu/',
+            body: null,
+            method: 'GET',
+            mode: 'cors',
+            credentials: 'include',
           },
-          referrer: 'https://test.pgvirtual.eu/',
-          body: null,
-          method: 'GET',
-          mode: 'cors',
-          credentials: 'include',
-        },
-      )
+        )
 
-      if (!response.ok) {
-        throw new Error(`Failed to fetch dog events: ${response.status}`)
-      }
+        debugLog('FETCH', `Response status: ${response.status}`)
 
-      const dogEvents = await response.json()
+        if (!response.ok) {
+          throw new Error(`Failed to fetch dog events: ${response.status}`)
+        }
 
-      const dogChannel = dogEvents.channel?.[0]
+        const dogEvents = await response.json()
 
-      console.log('Events API Response:', dogEvents)
+        debugLog('API-RESPONSE - DOGS', 'Full API Response:', dogEvents)
+        debugLog(
+          'API-RESPONSE',
+          `Channels found: ${dogEvents.channels?.length || 0}`,
+        )
 
-      const upcomingDogEvents: UpcomingEvent[] = dogChannel.next_events.map(
-        (
-          event: {
-            int_event_id: string
-            ext_pal_id: string
-            start_time: string
-            time: string
-          },
-          index: number,
-        ): UpcomingEvent => {
-          const startTime = new Date(event.time)
-          const hours = event.start_time.split(':')[0]
-          const minutes = event.start_time.split(':')[1]
-          startTime.setHours(parseInt(hours, 10))
-          startTime.setMinutes(parseInt(minutes, 10))
+        const dogChannel = dogEvents.channels?.[0]
 
-          return {
-            id: parseInt(event.int_event_id),
-            extId: event.ext_pal_id,
-            duration: dogEvents.channels[1].duration[index],
-            discipline: Discipline.DOGS,
-            name: `Dog Race `,
-            startTime: event.start_time,
-            time: startTime,
-          }
-        },
-      )
+        // Controllo di sicurezza per evitare errori
+        if (
+          !dogChannel ||
+          !dogChannel.next_events ||
+          !Array.isArray(dogChannel.next_events)
+        ) {
+          debugLog('ERROR', 'Invalid dog channel data structure:', dogChannel)
+          return
+        }
 
-      const dogEventResults: EventResult[] = await Promise.all(
-        dogChannel.prev_events.map(
-          async (event: {
-            arrival: {
-              name: string
-              number: number
-            }[]
-            int_event_id: string
-            ext_pal_id: string
-            start_time: string
-            time: string
-          }) => {
-            let startTime: Date
-            try {
-              startTime = new Date(event.time)
+        /* console.log('Events API Response:', dogEvents) */
 
-              if (isNaN(startTime.getTime()) && event.start_time) {
-                startTime = new Date()
-                const [hours, minutes] = event.start_time.split(':')
-                if (hours && minutes) {
-                  startTime.setHours(parseInt(hours, 10))
-                  startTime.setMinutes(parseInt(minutes, 10))
-                  startTime.setSeconds(0)
-                  startTime.setMilliseconds(0)
-                }
-              }
-
-              if (isNaN(startTime.getTime())) {
-                startTime = new Date()
-              }
-            } catch {
-              startTime = new Date()
-            }
-
-            let detailedResult = null
-            try {
-              const response = await fetch(
-                `https://apidev.pgvirtual.eu/api/event/${event.int_event_id}/result`,
-                {
-                  headers: {
-                    accept: 'application/json',
-                    'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
-                    authorization: `Bearer ${initCode}`,
-                    operator: 'sc',
-                    priority: 'u=1, i',
-                    'sec-ch-ua':
-                      '"Not;A=Brand";v="99", "Google Chrome";v="139", "Chromium";v="139"',
-                    'sec-ch-ua-mobile': '?1',
-                    'sec-ch-ua-platform': '"Android"',
-                    'sec-fetch-dest': 'empty',
-                    'sec-fetch-mode': 'cors',
-                    'sec-fetch-site': 'same-site',
-                  },
-                  referrer: 'https://test.pgvirtual.eu/',
-                  body: null,
-                  method: 'GET',
-                  mode: 'cors',
-                  credentials: 'include',
-                },
-              )
-
-              if (response.ok) {
-                detailedResult = await response.json()
-              }
-            } catch (error) {
-              console.warn('Failed to fetch detailed dog result:', error)
-            }
+        const upcomingDogEvents: UpcomingEvent[] = dogChannel.next_events.map(
+          (
+            event: {
+              int_event_id: string
+              ext_pal_id: string
+              start_time: string
+              time: string
+            },
+            index: number,
+          ): UpcomingEvent => {
+            const startTime = new Date(event.time)
+            const hours = event.start_time.split(':')[0]
+            const minutes = event.start_time.split(':')[1]
+            startTime.setHours(parseInt(hours, 10))
+            startTime.setMinutes(parseInt(minutes, 10))
 
             return {
-              id: event.int_event_id,
+              id: parseInt(event.int_event_id),
               extId: event.ext_pal_id,
-              name: ` Dog Race ${event.int_event_id}`,
-              startTime,
-              time: event.time,
+              duration: dogEvents.channels?.[0]?.duration?.[index],
               discipline: Discipline.DOGS,
-              result: {
-                podium: event.arrival.map((dog, index) => ({
-                  name: dog.name,
-                  number: dog.number,
-                  position: index + 1,
-                })),
-                odds: (detailedResult as any)?.odds || {
-                  winner: {},
-                  placed: {},
-                  show: {},
-                  exacta: {},
-                  quinella: {},
-                  trifecta: {},
-                  boxedtrifecta: {},
-                  evenodd: {},
-                  underover: {},
-                },
-              } as RaceResult,
-            } as EventResult
+              name: `Dog Race `,
+              startTime: event.start_time,
+              time: startTime,
+            }
           },
-        ),
-      )
+        )
 
-      setRootContext((prev) => ({
-        ...prev,
-        upcomingEvents: [
-          ...(prev.upcomingEvents?.filter(
-            (event) => event.discipline !== Discipline.DOGS,
-          ) || []),
-          ...upcomingDogEvents,
-        ],
-        eventResults: [
-          ...(prev.eventResults || []).filter(
-            (e) => e.discipline !== Discipline.DOGS,
+        // Chiamate API parallele per ottenere i dettagli di ogni evento
+        const dogEventResults: EventResult[] = await Promise.all(
+          dogChannel.prev_events.map(
+            async (event: {
+              arrival: {
+                name: string
+                number: number
+              }[]
+              int_event_id: string
+              ext_pal_id: string
+              start_time: string
+              time: string
+            }) => {
+              let startTime: Date
+              try {
+                startTime = new Date(event.time)
+
+                if (isNaN(startTime.getTime()) && event.start_time) {
+                  startTime = new Date()
+                  const [hours, minutes] = event.start_time.split(':')
+                  if (hours && minutes) {
+                    startTime.setHours(parseInt(hours, 10))
+                    startTime.setMinutes(parseInt(minutes, 10))
+                    startTime.setSeconds(0)
+                    startTime.setMilliseconds(0)
+                  }
+                }
+
+                if (isNaN(startTime.getTime())) {
+                  startTime = new Date()
+                }
+              } catch {
+                startTime = new Date()
+              }
+
+              // Chiama l'API per ottenere i dettagli completi dell'evento
+              let detailedResult = null
+              try {
+                const response = await fetch(
+                  `https://apidev.pgvirtual.eu/api/event/results/${event.ext_pal_id}/${event.int_event_id}`,
+                  {
+                    headers: {
+                      accept: 'application/json',
+                      'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
+                      authorization: `Bearer ${initCode}`,
+                      operator: 'sc',
+                      priority: 'u=1, i',
+                      'sec-ch-ua':
+                        '"Not;A=Brand";v="99", "Google Chrome";v="139", "Chromium";v="139"',
+                      'sec-ch-ua-mobile': '?1',
+                      'sec-ch-ua-platform': '"Android"',
+                      'sec-fetch-dest': 'empty',
+                      'sec-fetch-mode': 'cors',
+                      'sec-fetch-site': 'same-site',
+                    },
+                    referrer: 'https://test.pgvirtual.eu/',
+                    body: null,
+                    method: 'GET',
+                    mode: 'cors',
+                    credentials: 'include',
+                  },
+                )
+
+                if (response.ok) {
+                  detailedResult = await response.json()
+                }
+              } catch (error) {
+                console.warn('Failed to fetch detailed dog result:', error)
+              }
+
+              return {
+                id: event.int_event_id,
+                extId: event.ext_pal_id,
+                name: ` Dog Race ${event.int_event_id}`,
+                startTime,
+                time: event.time,
+                discipline: Discipline.DOGS,
+                result: {
+                  podium: event.arrival.map((dog, index) => ({
+                    name: dog.name,
+                    number: dog.number,
+                    position: index + 1,
+                  })),
+                  odds: (detailedResult as any)?.odds || {
+                    winner: {},
+                    placed: {},
+                    show: {},
+                    exacta: {},
+                    quinella: {},
+                    trifecta: {},
+                    boxedtrifecta: {},
+                    evenodd: {},
+                    underover: {},
+                  },
+                } as RaceResult,
+              } as EventResult
+            },
           ),
-          ...dogEventResults,
-        ],
-      }))
+        )
+
+        setRootContext((prev) => ({
+          ...prev,
+          upcomingEvents: [
+            ...(prev.upcomingEvents?.filter(
+              (event) => event.discipline !== Discipline.DOGS,
+            ) || []),
+            ...upcomingDogEvents,
+          ],
+          eventResults: [
+            ...(prev.eventResults || []).filter(
+              (e) => e.discipline !== Discipline.DOGS,
+            ),
+            ...dogEventResults,
+          ],
+        }))
+      } catch (error) {
+        debugLog('ERROR', 'Failed to fetch dog events:', error)
+        console.error('Dog events fetch error:', error)
+      }
     }
 
+    fetchUpcomingRounds()
     fetchUpcomingHorseEvents()
     fetchUpcomingDogEvents()
-  }, [initCode, gameType])
+  }, [initCode, apiRequest])
 
   if (isLoading) {
     return (
@@ -777,6 +803,8 @@ export default function RootContextProvider({
   }
 
   return (
-    <RootContext.Provider value={rootContext}>{children}</RootContext.Provider>
+    <RootContext.Provider value={rootContext}>
+      {props.children}
+    </RootContext.Provider>
   )
 }
