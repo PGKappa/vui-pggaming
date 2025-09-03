@@ -53,9 +53,9 @@ export type Team = {
 export type Selection = {
   outcome: string
   decPrice: number
-  order: number
+  /*   order: number
   externCode: string
-  extraInfo?: string
+  extraInfo?: string */
 }
 
 export type Market = {
@@ -202,16 +202,14 @@ export type RaceResult = {
 }
 
 export type Bet = {
-  round: {
+  event: {
     name: string
     number: number
     startingAt: Date
   }
-  teams: string
+  discipline: Discipline
+  competitors: string
   option: Selection
-  event: {
-    number: number
-  }
 }
 
 export type BetEntry = {
@@ -256,15 +254,47 @@ export type SubmittedTicket = {
   amount: number
   winning: number
   betEntries: BetEntry[]
-  timestamp: string
+  /* timestamp: string */
 }
 
 export type MatchResult = {
-  round: {
+  round?: {
     name: string
     number: number
   }
   teams: string
   score1: number
   score2: number
+  odds?: {
+    oneXTwo: {
+      odds: number
+    }
+    doubleChance: {
+      odds: number
+    }
+    firstScorer: {
+      teamLabel?: string
+      odds: number
+    }
+    sumGoals: {
+      value: number
+      odds: number
+    }
+    goalNoGoal: {
+      value: number
+      odds: number
+    }
+    redCard: {
+      value: string
+      odds: number
+    }
+    winningCombo: {
+      value: string
+      odds: number
+    }
+    exactGoals: {
+      value: number
+      odds: number
+    }
+  }
 }
