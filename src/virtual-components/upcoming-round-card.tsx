@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/virtual-components/ui/table'
-import { Market, UpcomingRound } from '@/virtual-lib/types'
+import { Discipline, Market, UpcomingRound } from '@/virtual-lib/types'
 import { PlusIcon } from 'lucide-react'
 import { Dispatch, SetStateAction } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -108,11 +108,18 @@ export default function UpcomingRoundCard(props: {
                       marketOptions.map((option, i) => (
                         <TableCell key={i}>
                           <BetEntryToggle
-                            matchStart={matchStart}
-                            round={props.round}
-                            teams={teamNames}
                             marketName={mainMarket.name}
-                            option={option}
+                            bet={{
+                              event: {
+                                name: props.round.scheduleName,
+                                number: props.round.scheduleId,
+                                startingAt: matchStart,
+                              },
+                              discipline: Discipline.FOOTBALL,
+                              competitors: teamNames,
+                              option: option,
+                            }}
+                            variant="roundcard"
                           />
                         </TableCell>
                       ))
