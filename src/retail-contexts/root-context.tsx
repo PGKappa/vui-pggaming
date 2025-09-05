@@ -415,7 +415,7 @@ export default function RootContextProvider(props: {
           description: 'Success',
           playerId: 'daniel1983-306#29',
           currency: 'EUR',
-          lang: 'it-IT', 
+          lang: 'it-IT',
         } as UserApiResponse
 
         if (userData?.status === '1024') {
@@ -793,187 +793,208 @@ export default function RootContextProvider(props: {
     }
 
     const fetchUpcomingDogEvents = async () => {
-      const response = await fetch(
-        'https://apidev.pgvirtual.eu/api/event/list',
-        {
-          headers: {
-            accept: 'application/json',
-            'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
-            authorization: 'Bearer ffffffff-ffff-ffff-ffff-ffffffffffee',
-            operator: 'pg',
-            priority: 'u=1, i',
-            'sec-ch-ua':
-              '"Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"',
-            'sec-ch-ua-mobile': '?1',
-            'sec-ch-ua-platform': '"Android"',
-            'sec-fetch-dest': 'empty',
-            'sec-fetch-mode': 'cors',
-            'sec-fetch-site': 'same-site',
+      try {
+        const response = await fetch(
+          'https://apidev.pgvirtual.eu/api/event/list',
+          {
+            headers: {
+              accept: 'application/json',
+              'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
+              authorization: 'Bearer ffffffff-ffff-ffff-ffff-ffffffffffee',
+              operator: 'pg',
+              priority: 'u=1, i',
+              'sec-ch-ua':
+                '"Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"',
+              'sec-ch-ua-mobile': '?1',
+              'sec-ch-ua-platform': '"Android"',
+              'sec-fetch-dest': 'empty',
+              'sec-fetch-mode': 'cors',
+              'sec-fetch-site': 'same-site',
+            },
+            referrer: 'https://test.pgvirtual.eu/',
+            referrerPolicy: 'strict-origin-when-cross-origin',
+            body: null,
+            method: 'GET',
+            mode: 'cors',
+            credentials: 'include',
           },
-          referrer: 'https://test.pgvirtual.eu/',
-          referrerPolicy: 'strict-origin-when-cross-origin',
-          body: null,
-          method: 'GET',
-          mode: 'cors',
-          credentials: 'include',
-        },
-      )
+        )
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch dog events')
-      }
+        if (!response.ok) {
+          throw new Error('Failed to fetch dog events')
+        }
 
-      const dogEvents = await response.json()
+        const dogEvents = await response.json()
+        const dogChannel = dogEvents.channels?.[0]
 
-      const dogChannel = dogEvents.channels?.[0]
+        // Controlli di sicurezza
+        if (
+          !dogChannel ||
+          !dogChannel.next_events ||
+          !Array.isArray(dogChannel.next_events)
+        ) {
+          console.warn('Invalid dog channel data:', dogChannel)
+          return
+        }
 
-      const upcomingDogEvents: UpcomingEvent[] = dogChannel.next_events.map(
-        (
-          event: {
-            int_event_id: string
-            ext_pal_id: string
-            start_time: string
-            time: number
-          },
-          index: number,
-        ): UpcomingEvent => {
-          const startTime = new Date(event.time)
-          const hours = event.start_time.split(':')[0]
-          const minutes = event.start_time.split(':')[1]
-          startTime.setHours(parseInt(hours, 10))
-          startTime.setMinutes(parseInt(minutes, 10))
-          return {
-            id: parseInt(event.int_event_id),
-            extId: event.ext_pal_id,
-            duration: dogEvents.channels[1].duration[index],
-            name: `Dog `,
-            startTime: event.start_time,
-            time: startTime,
-            discipline: Discipline.DOGS,
-          }
-        },
-      )
-
-      // ✅ Chiamate API parallele per ottenere i dettagli di ogni evento
-      const dogEventResults: EventResult[] = await Promise.all(
-        dogChannel.prev_events.map(
-          async (event: {
-            arrival: {
-              name: string
-              number: number
-            }[]
-            int_event_id: number
-            ext_pal_id: string
-            start_time: string
-            time: number
-          }) => {
-            let startTime: Date
-            try {
-              if (typeof event.time === 'number') {
-                startTime =
-                  event.time > 1000000000000
-                    ? new Date(event.time)
-                    : new Date(event.time * 1000)
-              } else {
-                startTime = new Date(event.time)
-              }
-
-              if (event.start_time && !isNaN(startTime.getTime())) {
-                const [hours, minutes] = event.start_time.split(':')
-                if (hours && minutes) {
-                  startTime.setHours(parseInt(hours, 10))
-                  startTime.setMinutes(parseInt(minutes, 10))
-                }
-              }
-
-              if (isNaN(startTime.getTime())) {
-                startTime = new Date()
-              }
-            } catch {
-              startTime = new Date()
-            }
-
-            // ✅ Chiama l'API per ottenere i dettagli completi dell'evento
-            let detailedResult = null
-            try {
-              const response = await fetch(
-                `https://apidev.pgvirtual.eu/api/event/results/${event.ext_pal_id}/${event.int_event_id}`,
-                {
-                  headers: {
-                    accept: 'application/json',
-                    'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
-                    authorization:
-                      'Bearer ffffffff-ffff-ffff-ffff-ffffffffffee',
-                    operator: 'pg',
-                    priority: 'u=1, i',
-                    'sec-ch-ua':
-                      '"Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"',
-                    'sec-ch-ua-mobile': '?1',
-                    'sec-ch-ua-platform': '"Android"',
-                    'sec-fetch-dest': 'empty',
-                    'sec-fetch-mode': 'cors',
-                    'sec-fetch-site': 'same-site',
-                  },
-                  referrer: 'https://test.pgvirtual.eu/',
-                  referrerPolicy: 'strict-origin-when-cross-origin',
-                  method: 'GET',
-                  mode: 'cors',
-                  credentials: 'include',
-                },
-              )
-
-              if (response.ok) {
-                detailedResult = await response.json()
-              }
-            } catch (error) {
-              console.warn('Failed to fetch detailed dog result:', error)
-            }
-
+        const upcomingDogEvents: UpcomingEvent[] = dogChannel.next_events.map(
+          (
+            event: {
+              int_event_id: string
+              ext_pal_id: string
+              start_time: string
+              time: number
+            },
+            index: number,
+          ): UpcomingEvent => {
+            const startTime = new Date(event.time)
+            const hours = event.start_time.split(':')[0]
+            const minutes = event.start_time.split(':')[1]
+            startTime.setHours(parseInt(hours, 10))
+            startTime.setMinutes(parseInt(minutes, 10))
             return {
-              id: event.int_event_id,
+              id: parseInt(event.int_event_id),
               extId: event.ext_pal_id,
-              name: ` Dog Race ${event.int_event_id}`,
-              startTime,
-              time: event.time,
+              duration: dogEvents.channels[1]?.duration?.[index] || 3,
+              name: `Dog `,
+              startTime: event.start_time,
+              time: startTime,
               discipline: Discipline.DOGS,
-              result: {
-                podium: event.arrival.map((dog, index) => ({
-                  name: dog.name,
-                  number: dog.number,
-                  position: index + 1,
-                })),
-                odds: (detailedResult as any)?.odds || {
-                  winner: {},
-                  placed: {},
-                  show: {},
-                  exacta: {},
-                  quinella: {},
-                  trifecta: {},
-                  boxedtrifecta: {},
-                  evenodd: {},
-                  underover: {},
-                },
-              } as RaceResult,
-            } as EventResult
+            }
           },
-        ),
-      )
+        )
 
-      setRootContext((prev) => ({
-        ...prev,
-        upcomingEvents: [
-          ...(prev.upcomingEvents?.filter(
-            (event) => event.discipline !== Discipline.DOGS,
-          ) || []),
-          ...upcomingDogEvents,
-        ],
-        eventResults: [
-          ...(prev.eventResults || []).filter(
-            (e) => e.discipline !== Discipline.DOGS,
-          ),
-          ...dogEventResults,
-        ],
-      }))
+        // Controllo per prev_events
+        const dogEventResults: EventResult[] =
+          dogChannel.prev_events && Array.isArray(dogChannel.prev_events)
+            ? await Promise.all(
+                dogChannel.prev_events.map(
+                  async (event: {
+                    arrival: {
+                      name: string
+                      number: number
+                    }[]
+                    int_event_id: number
+                    ext_pal_id: string
+                    start_time: string
+                    time: number
+                  }) => {
+                    let startTime: Date
+                    try {
+                      if (typeof event.time === 'number') {
+                        startTime =
+                          event.time > 1000000000000
+                            ? new Date(event.time)
+                            : new Date(event.time * 1000)
+                      } else {
+                        startTime = new Date(event.time)
+                      }
+
+                      if (event.start_time && !isNaN(startTime.getTime())) {
+                        const [hours, minutes] = event.start_time.split(':')
+                        if (hours && minutes) {
+                          startTime.setHours(parseInt(hours, 10))
+                          startTime.setMinutes(parseInt(minutes, 10))
+                        }
+                      }
+
+                      if (isNaN(startTime.getTime())) {
+                        startTime = new Date()
+                      }
+                    } catch {
+                      startTime = new Date()
+                    }
+
+                    // ✅ Chiama l'API per ottenere i dettagli completi dell'evento
+                    let detailedResult = null
+                    try {
+                      const response = await fetch(
+                        `https://apidev.pgvirtual.eu/api/event/results/${event.ext_pal_id}/${event.int_event_id}`,
+                        {
+                          headers: {
+                            accept: 'application/json',
+                            'accept-language':
+                              'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
+                            authorization:
+                              'Bearer ffffffff-ffff-ffff-ffff-ffffffffffee',
+                            operator: 'pg',
+                            priority: 'u=1, i',
+                            'sec-ch-ua':
+                              '"Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"',
+                            'sec-ch-ua-mobile': '?1',
+                            'sec-ch-ua-platform': '"Android"',
+                            'sec-fetch-dest': 'empty',
+                            'sec-fetch-mode': 'cors',
+                            'sec-fetch-site': 'same-site',
+                          },
+                          referrer: 'https://test.pgvirtual.eu/',
+                          referrerPolicy: 'strict-origin-when-cross-origin',
+                          method: 'GET',
+                          mode: 'cors',
+                          credentials: 'include',
+                        },
+                      )
+
+                      if (response.ok) {
+                        detailedResult = await response.json()
+                      }
+                    } catch (error) {
+                      console.warn(
+                        'Failed to fetch detailed dog result:',
+                        error,
+                      )
+                    }
+
+                    return {
+                      id: event.int_event_id,
+                      extId: event.ext_pal_id,
+                      name: ` Dog Race ${event.int_event_id}`,
+                      startTime,
+                      time: event.time,
+                      discipline: Discipline.DOGS,
+                      result: {
+                        podium:
+                          event.arrival?.map((dog, index) => ({
+                            name: dog.name,
+                            number: dog.number,
+                            position: index + 1,
+                          })) || [],
+                        odds: (detailedResult as any)?.odds || {
+                          winner: {},
+                          placed: {},
+                          show: {},
+                          exacta: {},
+                          quinella: {},
+                          trifecta: {},
+                          boxedtrifecta: {},
+                          evenodd: {},
+                          underover: {},
+                        },
+                      } as RaceResult,
+                    } as EventResult
+                  },
+                ),
+              )
+            : []
+
+        setRootContext((prev) => ({
+          ...prev,
+          upcomingEvents: [
+            ...(prev.upcomingEvents?.filter(
+              (event) => event.discipline !== Discipline.DOGS,
+            ) || []),
+            ...upcomingDogEvents,
+          ],
+          eventResults: [
+            ...(prev.eventResults || []).filter(
+              (e) => e.discipline !== Discipline.DOGS,
+            ),
+            ...dogEventResults,
+          ],
+        }))
+      } catch (error) {
+        console.error('Error fetching dog events:', error)
+      }
     }
 
     fetchUpcomingRounds()
