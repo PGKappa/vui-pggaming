@@ -1,6 +1,5 @@
 import { UpcomingEvent, UpcomingRace } from '@/retail-lib/types'
 import { t } from 'i18next'
-import { Check } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import BetCombinationsTable from './bet-combination-table'
 import BetEntryToggle from './bet-entry-toggle'
@@ -335,7 +334,7 @@ export default function UpcomingRaceCard({
                 },
               }}
               variant="racecard"
-              className="h-12 w-[100px] bg-betEntry text-betEntry-foreground"
+              className="h-12 w-24 bg-betEntry text-betEntry-foreground"
             />
           </TableCell>
           <TableCell className="w-[1px] bg-border p-0" />
@@ -359,7 +358,7 @@ export default function UpcomingRaceCard({
                 },
               }}
               variant="racecard"
-              className="h-12 w-[100px] bg-betEntry text-betEntry-foreground"
+              className="h-12 w-24 bg-betEntry text-betEntry-foreground"
             />
           </TableCell>
 
@@ -384,7 +383,7 @@ export default function UpcomingRaceCard({
                 },
               }}
               variant="racecard"
-              className="h-12 w-[100px] bg-betEntry text-betEntry-foreground"
+              className="h-12 w-24 bg-betEntry text-betEntry-foreground"
             />
           </TableCell>
         </>
@@ -394,24 +393,24 @@ export default function UpcomingRaceCard({
       return (
         <>
           <TableCell
-            className={`h-16 text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
+            className={`h-16 !pr-0 pl-10 text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
           >
             <Toggle
               pressed={position1Selection.includes(racer.number)}
               onPressedChange={() => togglePosition1Selection(racer.number)}
-              className="h-10 w-20 border-betEntry-border"
+              className="h-12 w-24 border-betEntry-border"
             >
               <span className="text-[19px]">1°</span>
             </Toggle>
           </TableCell>
 
           <TableCell
-            className={`text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
+            className={`!pl-0 pr-10 text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
           >
             <Toggle
               pressed={position2Selection.includes(racer.number)}
               onPressedChange={() => togglePosition2Selection(racer.number)}
-              className="h-10 w-20 border-betEntry-border"
+              className="h-12 w-24 border-betEntry-border"
             >
               <span className="text-[19px]">2°</span>
             </Toggle>
@@ -420,15 +419,13 @@ export default function UpcomingRaceCard({
           <TableCell className="w-[1px] bg-border p-0" />
 
           <TableCell
-            className={`p-2 text-center ${!isAnyOrderMode ? 'bg-gray-300' : ''}`}
+            className={`flex items-center justify-center p-2 ${!isAnyOrderMode ? 'bg-gray-300' : ''}`}
           >
             <Toggle
               pressed={disorderSelection.includes(racer.number)}
               onPressedChange={() => toggleDisorderSelection(racer.number)}
-              className="h-10 w-20 border-betEntry-border"
-            >
-              <Check className="text-black" style={{ scale: 1.5 }} />
-            </Toggle>
+              className="h-12 w-24 border-betEntry-border"
+            ></Toggle>
           </TableCell>
         </>
       )
@@ -437,12 +434,12 @@ export default function UpcomingRaceCard({
       return (
         <>
           <TableCell
-            className={`h-16 text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
+            className={`h-16 !pr-0 pl-10 text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
           >
             <Toggle
               pressed={position1Selection.includes(racer.number)}
               onPressedChange={() => togglePosition1Selection(racer.number)}
-              className="h-10 w-20 border-betEntry-border"
+              className="h-12 w-24 border-betEntry-border"
             >
               <span className="text-[19px]">1°</span>
             </Toggle>
@@ -454,19 +451,19 @@ export default function UpcomingRaceCard({
             <Toggle
               pressed={position2Selection.includes(racer.number)}
               onPressedChange={() => togglePosition2Selection(racer.number)}
-              className="h-10 w-20 border-betEntry-border"
+              className="h-12 w-24 border-betEntry-border"
             >
               <span className="text-[19px]">2°</span>
             </Toggle>
           </TableCell>
 
           <TableCell
-            className={`text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
+            className={`!pl-0 pr-10 text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
           >
             <Toggle
               pressed={position3Selection.includes(racer.number)}
               onPressedChange={() => togglePosition3Selection(racer.number)}
-              className="h-10 w-20 border-betEntry-border"
+              className="h-12 w-24 border-betEntry-border"
             >
               <span className="text-[19px]">3°</span>
             </Toggle>
@@ -475,15 +472,13 @@ export default function UpcomingRaceCard({
           <TableCell className="w-[1px] bg-border p-0" />
 
           <TableCell
-            className={`p-2 text-center ${!isAnyOrderMode ? 'bg-gray-300' : ''}`}
+            className={`flex items-center justify-center p-2 ${!isAnyOrderMode ? 'bg-gray-300' : ''}`}
           >
             <Toggle
               pressed={disorderSelection.includes(racer.number)}
               onPressedChange={() => toggleDisorderSelection(racer.number)}
-              className="h-10 w-20 border-betEntry-border"
-            >
-              <Check className="text-black" style={{ scale: 1.5 }} />
-            </Toggle>
+              className="h-12 w-24 border-betEntry-border"
+            ></Toggle>
           </TableCell>
         </>
       )
