@@ -8,20 +8,20 @@ import { useTranslation } from 'react-i18next'
 
 type BetCombinationsTableProps = {
   race: UpcomingEvent
-  isTris: boolean
   position1Selection: number[]
   position2Selection: number[]
   position3Selection: number[]
   disorderSelection: number[]
+  marketType?: 'exacta' | 'quinella' | 'trifecta' | 'boxtrifecta'
 }
 
 export default function BetCombinationsTable({
   race,
-  isTris,
   position1Selection,
   position2Selection,
   position3Selection,
   disorderSelection,
+  marketType = 'exacta',
 }: BetCombinationsTableProps) {
   const { t } = useTranslation()
   const [sortMode, setSortMode] = useState<'default' | 'asc' | 'desc'>(
@@ -33,164 +33,128 @@ export default function BetCombinationsTable({
     const allCombinations: Bet[] = []
     const raceData = race.data as UpcomingRace
 
-    // Determina modalità operativa
-    const hasAnyOrder = disorderSelection.length > 0
+    console.log('Debug BetCombinationsTable:', {
+      marketType,
+      disorderSelection,
+    })
 
-    if (isTris) {
-      if (hasAnyOrder) {
-        // ANY ORDER: Solo BoxedTrifecta E solo se abbiamo almeno 3 corridori
-        if (disorderSelection.length >= 3 && raceData.odds.boxedtrifecta) {
-          const selectedRacers = disorderSelection.sort((a, b) => a - b)
+    if (marketType === 'exacta') {
+      const pos1Options =
+        position1Selection.length > 0
+          ? position1Selection
+          : Object.keys(raceData.odds.exacta).map(Number)
+      const pos2Options =
+        position2Selection.length > 0 ? position2Selection : []
 
-          // Trova la prima combinazione disponibile per calcolare l'odds
-          let boxOdds = 0
-          let foundOdds = false
+      pos1Options.forEach((racer1) => {
+        const availablePos2 =
+          pos2Options.length > 0
+            ? pos2Options
+            : Object.keys(raceData.odds.exacta[racer1] || {}).map(Number)
 
-          for (let i = 0; i < selectedRacers.length && !foundOdds; i++) {
-            for (let j = 0; j < selectedRacers.length && !foundOdds; j++) {
-              for (let k = 0; k < selectedRacers.length && !foundOdds; k++) {
-                if (i !== j && j !== k && i !== k) {
-                  const odds =
-                    raceData.odds.boxedtrifecta?.[selectedRacers[i]]?.[
-                      selectedRacers[j]
-                    ]?.[selectedRacers[k]]
-                  if (odds) {
-                    boxOdds = parseFloat(odds)
-                    foundOdds = true
+        availablePos2.forEach((racer2) => {
+          if (racer1 === racer2) return
+          const odds = raceData.odds.exacta[racer1]?.[racer2]
+          if (odds) {
+            allCombinations.push({
+              discipline: race.discipline,
+              event: {
+                name: race.name,
+                number: race.id,
+                startingAt: race.time,
+              },
+              competitors: `${racer1}-${racer2}`,
+              option: {
+                outcome: `${racer1}-${racer2}`,
+                decPrice: parseFloat(odds),
+              },
+            })
+          }
+        })
+      })
+    } else if (marketType === 'quinella') {
+      if (raceData.odds.quinella) {
+        Object.keys(raceData.odds.quinella).forEach((racer1Str) => {
+          const racer1 = parseInt(racer1Str)
+          Object.keys(raceData.odds.quinella[racer1] || {}).forEach(
+            (racer2Str) => {
+              const racer2 = parseInt(racer2Str)
+              if (racer1 < racer2) {
+                if (disorderSelection.length > 0) {
+                  const combinationRacers = [racer1, racer2]
+
+                  if (disorderSelection.length === 1) {
+                    // Un solo corridore selezionato
+                    const hasSelectedRacer = combinationRacers.includes(
+                      disorderSelection[0],
+                    )
+                    if (!hasSelectedRacer) return
+                  } else if (disorderSelection.length === 2) {
+                    // Due corridori selezionati
+                    const exactMatch =
+                      disorderSelection.length === combinationRacers.length &&
+                      disorderSelection.every((selectedRacer) =>
+                        combinationRacers.includes(selectedRacer),
+                      ) &&
+                      combinationRacers.every((racer) =>
+                        disorderSelection.includes(racer),
+                      )
+                    if (!exactMatch) return
+                  } else {
+                    // Più di 2 corridori selezionati: non mostrare nulla (quinella ha solo 2 corridori)
+                    return
                   }
                 }
+
+                const odds = raceData.odds.quinella[racer1]?.[racer2]
+                if (odds) {
+                  allCombinations.push({
+                    discipline: race.discipline,
+                    event: {
+                      name: race.name,
+                      number: race.id,
+                      startingAt: race.time,
+                    },
+                    competitors: `${racer1}-${racer2} any Order`,
+                    option: {
+                      outcome: `${racer1}-${racer2} any`,
+                      decPrice: parseFloat(odds),
+                    },
+                  })
+                }
               }
-            }
-          }
-
-          if (foundOdds) {
-            allCombinations.push({
-              discipline: race.discipline,
-              event: {
-                name: race.name,
-                number: race.id,
-                startingAt: race.time,
-              },
-              competitors: `${selectedRacers.join('-')} any Order`,
-              option: {
-                outcome: `${selectedRacers.join('-')} any`,
-                decPrice: boxOdds,
-              },
-            })
-          }
-        }
-        // Se hasAnyOrder ma non abbastanza corridori, non mostrare nulla
-      } else {
-        // Trifecta (default o con selezioni posizioni)
-        const pos1Options =
-          position1Selection.length > 0
-            ? position1Selection
-            : Object.keys(raceData.odds.trifecta).map(Number)
-        const pos2Options =
-          position2Selection.length > 0 ? position2Selection : []
-        const pos3Options =
-          position3Selection.length > 0 ? position3Selection : []
-
-        // Generate all valid trifecta combinations
-        pos1Options.forEach((racer1) => {
-          const availablePos2 =
-            pos2Options.length > 0
-              ? pos2Options
-              : Object.keys(raceData.odds.trifecta[racer1] || {}).map(Number)
-
-          availablePos2.forEach((racer2) => {
-            if (racer1 === racer2) return
-
-            const availablePos3 =
-              pos3Options.length > 0
-                ? pos3Options
-                : Object.keys(
-                    raceData.odds.trifecta[racer1]?.[racer2] || {},
-                  ).map(Number)
-
-            availablePos3.forEach((racer3) => {
-              if (racer1 === racer3 || racer2 === racer3) return
-
-              const odds = raceData.odds.trifecta[racer1]?.[racer2]?.[racer3]
-              if (odds) {
-                allCombinations.push({
-                  discipline: race.discipline,
-                  event: {
-                    name: race.name,
-                    number: race.id,
-                    startingAt: race.time,
-                  },
-                  competitors: `${racer1}-${racer2}-${racer3}`,
-                  option: {
-                    outcome: `${racer1}-${racer2}-${racer3}`,
-                    decPrice: parseFloat(odds),
-                  },
-                })
-              }
-            })
-          })
+            },
+          )
         })
       }
-    } else {
-      if (hasAnyOrder) {
-        // ANY ORDER: Solo Quinella E solo se abbiamo almeno 2 corridori
-        if (disorderSelection.length >= 2 && raceData.odds.quinella) {
-          const selectedRacers = disorderSelection.sort((a, b) => a - b)
+    } else if (marketType === 'trifecta') {
+      const pos1Options =
+        position1Selection.length > 0
+          ? position1Selection
+          : Object.keys(raceData.odds.trifecta).map(Number)
+      const pos2Options =
+        position2Selection.length > 0 ? position2Selection : []
+      const pos3Options =
+        position3Selection.length > 0 ? position3Selection : []
 
-          // Trova la prima combinazione quinella disponibile
-          let quinellaOdds = 0
-          let foundOdds = false
+      pos1Options.forEach((racer1) => {
+        const availablePos2 =
+          pos2Options.length > 0
+            ? pos2Options
+            : Object.keys(raceData.odds.trifecta[racer1] || {}).map(Number)
 
-          for (let i = 0; i < selectedRacers.length && !foundOdds; i++) {
-            for (let j = i + 1; j < selectedRacers.length && !foundOdds; j++) {
-              const odds =
-                raceData.odds.quinella?.[selectedRacers[i]]?.[
-                  selectedRacers[j]
-                ] ||
-                raceData.odds.quinella?.[selectedRacers[j]]?.[selectedRacers[i]]
-              if (odds) {
-                quinellaOdds = parseFloat(odds)
-                foundOdds = true
-              }
-            }
-          }
+        availablePos2.forEach((racer2) => {
+          if (racer1 === racer2) return
+          const availablePos3 =
+            pos3Options.length > 0
+              ? pos3Options
+              : Object.keys(raceData.odds.trifecta[racer1]?.[racer2] || {}).map(
+                  Number,
+                )
 
-          if (foundOdds) {
-            allCombinations.push({
-              discipline: race.discipline,
-              event: {
-                name: race.name,
-                number: race.id,
-                startingAt: race.time,
-              },
-              competitors: `${selectedRacers.join('-')} any Order`,
-              option: {
-                outcome: `${selectedRacers.join('-')} any`,
-                decPrice: quinellaOdds,
-              },
-            })
-          }
-        }
-        // Se hasAnyOrder ma non abbastanza corridori, non mostrare nulla
-      } else {
-        // Exacta (default o con selezioni posizioni)
-        const pos1Options =
-          position1Selection.length > 0
-            ? position1Selection
-            : Object.keys(raceData.odds.exacta).map(Number)
-        const pos2Options =
-          position2Selection.length > 0 ? position2Selection : []
-
-        pos1Options.forEach((racer1) => {
-          const availablePos2 =
-            pos2Options.length > 0
-              ? pos2Options
-              : Object.keys(raceData.odds.exacta[racer1] || {}).map(Number)
-
-          availablePos2.forEach((racer2) => {
-            if (racer1 === racer2) return
-
-            const odds = raceData.odds.exacta[racer1]?.[racer2]
+          availablePos3.forEach((racer3) => {
+            if (racer1 === racer3 || racer2 === racer3) return
+            const odds = raceData.odds.trifecta[racer1]?.[racer2]?.[racer3]
             if (odds) {
               allCombinations.push({
                 discipline: race.discipline,
@@ -199,19 +163,100 @@ export default function BetCombinationsTable({
                   number: race.id,
                   startingAt: race.time,
                 },
-                competitors: `${racer1}-${racer2}`,
+                competitors: `${racer1}-${racer2}-${racer3}`,
                 option: {
-                  outcome: `${racer1}-${racer2}`,
+                  outcome: `${racer1}-${racer2}-${racer3}`,
                   decPrice: parseFloat(odds),
                 },
               })
             }
           })
         })
+      })
+    } else if (marketType === 'boxtrifecta') {
+      if (raceData.odds.boxedtrifecta) {
+        const processedCombinations = new Set<string>()
+
+        Object.keys(raceData.odds.boxedtrifecta).forEach((racer1Str) => {
+          const racer1 = parseInt(racer1Str)
+          Object.keys(raceData.odds.boxedtrifecta[racer1] || {}).forEach(
+            (racer2Str) => {
+              const racer2 = parseInt(racer2Str)
+              Object.keys(
+                raceData.odds.boxedtrifecta[racer1]?.[racer2] || {},
+              ).forEach((racer3Str) => {
+                const racer3 = parseInt(racer3Str)
+                if (
+                  racer1 !== racer2 &&
+                  racer2 !== racer3 &&
+                  racer1 !== racer3
+                ) {
+                  const sortedRacers = [racer1, racer2, racer3].sort(
+                    (a, b) => a - b,
+                  )
+                  const combinationKey = sortedRacers.join('-')
+
+                  if (!processedCombinations.has(combinationKey)) {
+                    processedCombinations.add(combinationKey)
+
+                    if (disorderSelection.length > 0) {
+                      if (disorderSelection.length === 1) {
+                        // Un corridore
+                        const hasSelectedRacer = sortedRacers.includes(
+                          disorderSelection[0],
+                        )
+                        if (!hasSelectedRacer) return
+                      } else if (disorderSelection.length === 2) {
+                        // Due corridori
+                        const hasAllSelectedRacers = disorderSelection.every(
+                          (selectedRacer) =>
+                            sortedRacers.includes(selectedRacer),
+                        )
+                        if (!hasAllSelectedRacers) return
+                      } else if (disorderSelection.length === 3) {
+                        // Tre corridori
+                        const exactMatch =
+                          disorderSelection.length === sortedRacers.length &&
+                          disorderSelection.every((selectedRacer) =>
+                            sortedRacers.includes(selectedRacer),
+                          ) &&
+                          sortedRacers.every((racer) =>
+                            disorderSelection.includes(racer),
+                          )
+                        if (!exactMatch) return
+                      } else {
+                        // Più di 3 corridori: non mostrare nulla
+                        return
+                      }
+                    }
+
+                    const odds =
+                      raceData.odds.boxedtrifecta[racer1]?.[racer2]?.[racer3]
+                    if (odds) {
+                      allCombinations.push({
+                        discipline: race.discipline,
+                        event: {
+                          name: race.name,
+                          number: race.id,
+                          startingAt: race.time,
+                        },
+                        competitors: `${combinationKey} any Order`,
+                        option: {
+                          outcome: `${combinationKey} any`,
+                          decPrice: parseFloat(odds),
+                        },
+                      })
+                    }
+                  }
+                }
+              })
+            },
+          )
+        })
       }
     }
 
-    // Apply sorting based on sort mode
+    // Ordinamento delle combinazioni in base al sortMode
     if (sortMode === 'asc') {
       return allCombinations.sort(
         (a, b) => a.option.decPrice - b.option.decPrice,
@@ -221,11 +266,8 @@ export default function BetCombinationsTable({
         (a, b) => b.option.decPrice - a.option.decPrice,
       )
     }
-
-    // Default order (no sorting)
     return allCombinations
   }, [
-    isTris,
     position1Selection,
     position2Selection,
     position3Selection,
@@ -236,33 +278,36 @@ export default function BetCombinationsTable({
     race.name,
     race.time,
     sortMode,
+    marketType,
   ])
 
   const getTitle = () => {
-    const hasAnyOrder = disorderSelection.length > 0
-
-    if (isTris) {
-      if (hasAnyOrder) {
-        return `${t('trifecta').toUpperCase()} ${t('any_order').toUpperCase()}`
-      } else {
-        return `${t('trifecta').toUpperCase()} ${t('in_order').toUpperCase()}`
-      }
-    } else {
-      if (hasAnyOrder) {
+    switch (marketType) {
+      case 'exacta':
+        return `${t('exacta').toUpperCase()}`
+      case 'quinella':
         return `${t('quinella').toUpperCase()}`
-      } else {
-        return `${t('exacta').toUpperCase()} ${t('in_order').toUpperCase()}`
-      }
+      case 'trifecta':
+        return `${t('trifecta').toUpperCase()}`
+      case 'boxtrifecta':
+        return `${t('boxed_trifecta').toUpperCase()}`
+      default:
+        return ''
     }
   }
 
   const getMarketName = () => {
-    const hasAnyOrder = disorderSelection.length > 0
-
-    if (isTris) {
-      return hasAnyOrder ? `${t('boxed_trifecta')}` : `${t('triplets')}`
-    } else {
-      return hasAnyOrder ? `${t('quinella')}` : `${t('couples')}`
+    switch (marketType) {
+      case 'exacta':
+        return `${t('couples')}`
+      case 'quinella':
+        return `${t('quinella')}`
+      case 'trifecta':
+        return `${t('triplets')}`
+      case 'boxtrifecta':
+        return `${t('boxed_trifecta')}`
+      default:
+        return ''
     }
   }
 
@@ -368,6 +413,10 @@ export default function BetCombinationsTable({
               ? `${t('deselect_all').toUpperCase()}`
               : `${t('select_all').toUpperCase()}`}
           </Button>
+
+          <div className="flex h-10 min-w-[60px] items-center justify-center rounded bg-accent-foreground px-3 text-accent">
+            <span className="text-[16px] font-bold">{combinations.length}</span>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="p-4">
