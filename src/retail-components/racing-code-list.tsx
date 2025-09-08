@@ -21,21 +21,20 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 const racingCodeListLeft = [
-  { label: 'Vincente\nV [Selezione]', code: 'V' },
-  { label: 'Piazzato 1° 2°\n2P [Selezione]', code: '2P' },
-  { label: 'Podio 1° 2° 3°\n3P [Selezione]', code: '3P' },
-  { label: 'Accoppiata in Ordine\nAO [Selezione]', code: 'AO' },
-  { label: 'Accoppiata a Girare\nAX [Selezione]', code: 'AX' },
-  { label: 'Trio in Ordine\nTO [Selezione]', code: 'TO' },
+  { label: 'winner_bet', code: 'V' },
+  { label: 'place_1_2', code: '2P' },
+  { label: 'show_1_2_3', code: '3P' },
+  { label: 'exacta_bet', code: 'AO' },
+  { label: 'quinella_bet', code: 'AX' },
+  { label: 'trifecta_bet', code: 'TO' },
 ]
 
 const racingCodeListRight = [
-  
-  { label: 'Trio a Girare\nTX [Selezione]', code: 'TX' },
-  { label: 'Pari\nP', code: 'P' },
-  { label: 'Dispari\nD', code: 'D' },
-  { label: 'Under\nU', code: 'U' },
-  { label: 'Over\nO', code: 'O' },
+  { label: 'boxed_trifecta_bet', code: 'TX' },
+  { label: 'even_race', code: 'P' },
+  { label: 'odd_race', code: 'D' },
+  { label: 'under_race', code: 'U' },
+  { label: 'over_race', code: 'O' },
 ]
 
 export default function RacingCodeList() {
@@ -90,7 +89,7 @@ export default function RacingCodeList() {
                   (item, index) => (
                     <TableRow key={index} className="border-b border-border">
                       <TableCell className="whitespace-pre-wrap text-[16px] font-medium">
-                        {item.label}
+                        {t(item.label)}
                       </TableCell>
                       <TableCell className="text-center">
                         <div className="ml-auto flex h-8 w-8 items-center justify-center bg-bet font-bold text-bet-foreground">
@@ -110,7 +109,7 @@ export default function RacingCodeList() {
                 {racingCodeListLeft.map((item, index) => (
                   <TableRow key={index} className="border-b border-border">
                     <TableCell className="whitespace-pre-wrap text-[16px] font-medium">
-                      {item.label}
+                      {t(item.label)}
                     </TableCell>
                     <TableCell>
                       <div className="ml-auto flex h-8 w-8 items-center justify-center bg-bet font-bold text-bet-foreground">
@@ -127,7 +126,7 @@ export default function RacingCodeList() {
                 {racingCodeListRight.map((item, index) => (
                   <TableRow key={index} className="border-b border-border">
                     <TableCell className="whitespace-pre-wrap text-[16px] font-medium">
-                      {item.label}
+                      {t(item.label)}
                     </TableCell>
                     <TableCell className="text-center">
                       <div className="ml-auto flex h-8 w-8 items-center justify-center bg-bet font-bold text-bet-foreground">

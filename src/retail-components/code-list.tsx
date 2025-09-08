@@ -21,26 +21,26 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 const codeListLeft = [
-  { label: 'Esito Finale 1\n1 [Team Casa]', code: '1' },
-  { label: 'Esito Finale X\nX', code: 'X' },
-  { label: 'Esito Finale 2\n2 [Team Ospite]', code: '2' },
-  { label: 'Doppia Chance 1X\n1X', code: '1X' },
-  { label: 'Doppia Chance 12\n1 [Team Casa]', code: '12' },
-  { label: 'Doppia Chance X2\n1 [Team Casa]', code: 'X2' },
-  { label: 'Goal/Goal\nGG', code: 'GG' },
-  { label: 'No Goal\nNG', code: 'NG' },
-  { label: 'Under 2.5\nU25', code: 'U25' },
+  { label: 'result_final_1', code: '1' },
+  { label: 'result_final_x', code: 'X' },
+  { label: 'result_final_2', code: '2' },
+  { label: 'double_chance_1x', code: '1X' },
+  { label: 'double_chance_12', code: '12' },
+  { label: 'double_chance_x2', code: 'X2' },
+  { label: 'goal_goal', code: 'GG' },
+  { label: 'no_goal', code: 'NG' },
+  { label: 'under_25', code: 'U25' },
 ]
 
 const codeListRight = [
-  { label: 'Over 2.5\n025', code: '025' },
-  { label: 'Even\nEV', code: 'EV' },
-  { label: 'Odd\nOD', code: 'OD' },
-  { label: 'Esito 1° Tempo = 1\n1T1', code: '1T1' },
-  { label: 'Esito 1° Tempo = 2\n1T2', code: '1T2' },
-  { label: 'Esito 1° Tempo = X\n1TX', code: '1TX' },
-  { label: 'Multigoal Casa > 1\n1+', code: '1+' },
-  { label: 'Multigoal Trasferta > 2\n2+', code: '2+' },
+  { label: 'over_25', code: '025' },
+  { label: 'even_result', code: 'EV' },
+  { label: 'odd_result', code: 'OD' },
+  { label: 'first_half_1', code: '1T1' },
+  { label: 'first_half_2', code: '1T2' },
+  { label: 'first_half_x', code: '1TX' },
+  { label: 'multigoal_home_1plus', code: '1+' },
+  { label: 'multigoal_away_2plus', code: '2+' },
 ]
 
 export default function CodeList() {
@@ -94,7 +94,7 @@ export default function CodeList() {
                 {[...codeListLeft, ...codeListRight].map((item, index) => (
                   <TableRow key={index} className="border-b border-border">
                     <TableCell className="whitespace-pre-wrap text-[16px] font-medium">
-                      {item.label}
+                      {t(item.label)}
                     </TableCell>
                     <TableCell className="text-center">
                       <div className="ml-auto flex h-8 w-8 items-center justify-center bg-bet font-bold text-bet-foreground">
@@ -113,9 +113,8 @@ export default function CodeList() {
                 {codeListLeft.map((item, index) => (
                   <TableRow key={index} className="border-b border-border">
                     <TableCell className="whitespace-pre-wrap text-[16px] font-medium">
-                      {item.label}
+                      {t(item.label)}
                     </TableCell>
-
                     <TableCell>
                       <div className="ml-auto flex h-8 w-8 items-center justify-center bg-bet font-bold text-bet-foreground">
                         {item.code}
@@ -131,7 +130,7 @@ export default function CodeList() {
                 {codeListRight.map((item, index) => (
                   <TableRow key={index} className="border-b border-border">
                     <TableCell className="whitespace-pre-wrap text-[16px] font-medium">
-                      {item.label}
+                      {t(item.label)}
                     </TableCell>
                     <TableCell className="text-center">
                       <div className="ml-auto flex h-8 w-8 items-center justify-center bg-bet font-bold text-bet-foreground">
