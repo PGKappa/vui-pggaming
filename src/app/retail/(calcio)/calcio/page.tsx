@@ -57,10 +57,7 @@ export default function Home() {
 
         <div className="mx-2 flex h-[942px] w-[1500px] flex-col gap-2">
           {!!searchRoundResults ? (
-            <SearchEventResults
-              eventResults={searchRoundResults}
-              onClose={() => setSearchRoundResults(undefined)}
-            />
+            <SearchEventResults />
           ) : selectedEvent ? (
             matchBetOptions ? (
               <MatchBettingOptions

@@ -48,10 +48,7 @@ export default function Home() {
           <div className="flex h-[942px] w-[1500px] flex-col gap-2 overflow-y-auto">
             <ScrollArea className="h-full w-full">
               {!!searchEventResults ? (
-                <SearchEventResults
-                  eventResults={searchEventResults}
-                  onClose={() => setSearchEventResults(undefined)}
-                />
+                <SearchEventResults />
               ) : selectedEvent ? (
                 <UpcomingRaceCard race={selectedEvent} />
               ) : (
@@ -66,7 +63,7 @@ export default function Home() {
 
       {/* RIGHT COLUMN - Betting slip */}
       <div className="h-[942px] w-[410px] bg-background text-foreground">
-        <BettingSlip />
+        <BettingSlip selectedEvent={selectedEvent} />
       </div>
     </div>
   )

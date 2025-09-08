@@ -48,10 +48,7 @@ export default function Home() {
           <div className="flex h-[942px] w-[1500px] flex-col gap-2 overflow-y-auto">
             <ScrollArea className="h-full w-full">
               {!!searchRoundResults ? (
-                <SearchEventResults
-                  eventResults={searchRoundResults}
-                  onClose={() => setSearchRoundResults(undefined)}
-                />
+                <SearchEventResults />
               ) : selectedEvent ? (
                 <UpcomingRaceCard race={selectedEvent} />
               ) : (
