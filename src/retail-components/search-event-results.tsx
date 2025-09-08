@@ -43,10 +43,7 @@ const timeSlots = [
   '21:00 | 23:59',
 ]
 
-export default function SearchEventResults(props: {
-  onClose: () => void
-  eventResults: EventResult[]
-}) {
+export default function SearchEventResults() {
   const { t } = useTranslation()
   const rootContext = useContext(RootContext)
   const [selectedDiscipline, setSelectedDiscipline] = useState<
@@ -221,6 +218,15 @@ export default function SearchEventResults(props: {
                 startTime = new Date()
               }
 
+              // CORREZIONE: Aggiungi podium ai risultati anche per ricerca per data
+              let raceResult = detailedResult
+              if (detailedResult && !detailedResult.arrival && result.arrival) {
+                raceResult = {
+                  ...detailedResult,
+                  arrival: result.arrival,
+                }
+              }
+
               return {
                 id: result.int_event_id,
                 extId: result.ext_pal_id,
@@ -230,7 +236,7 @@ export default function SearchEventResults(props: {
                   `${discipline} Race ${result.int_event_id}`,
                 startTime,
                 discipline: discipline,
-                result: detailedResult,
+                result: raceResult,
               } as EventResult
             }),
           )
@@ -505,17 +511,6 @@ export default function SearchEventResults(props: {
             >
               {t('reset')}
             </Button>
-
-            <Button
-              variant="outline"
-              className="text-bold w-[80px] bg-muted text-[16px] text-muted-foreground hover:bg-muted/70"
-              onClick={() => {
-                handleReset()
-                props.onClose()
-              }}
-            >
-              {t('cancel')}
-            </Button>
           </div>
         </div>
       </div>
@@ -539,7 +534,7 @@ export default function SearchEventResults(props: {
                             <div className="flex w-[600px] flex-row justify-between gap-2">
                               <div className="flex flex-row gap-2">
                                 <span className="font-bold">
-                                  {formatSafeDate(eventResult.startTime)}
+                                  {formatSafeDate(eventResult.startTime)}{' '}
                                   {eventResult.name}
                                   {' / '}
                                 </span>
@@ -659,7 +654,12 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
       eventResult.discipline === Discipline.DOGS) &&
     detailedResult
   ) {
-    if (eventResult.result && detailedResult.podium && !detailedResult.odds) {
+    if (
+      detailedResult.arrival &&
+      Array.isArray(detailedResult.arrival) &&
+      detailedResult.arrival.length > 0 &&
+      !detailedResult.odds
+    ) {
       return (
         <div className="space-y-4">
           {/* PODIUM*/}
@@ -670,7 +670,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
               </div>
             </div>
             <div className="space-y-3 p-4">
-              {detailedResult.podium
+              {detailedResult.arrival
                 .slice(0, 3)
                 .map((competitor: any, index: number) => {
                   let imageSrc = ''
@@ -864,82 +864,85 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
 
       return (
         <div className="space-y-4">
-          {raceResult.podium && raceResult.podium.length > 0 && (
-            <div className="border">
-              <div className="bg-accent py-2 text-center">
-                <div className="text-[16px] font-bold uppercase text-accent-foreground">
-                  {t('arrival_order').toUpperCase()}
+          {/* ARRIVAL ORDER - Mostra SEMPRE se presente */}
+          {detailedResult.arrival &&
+            Array.isArray(detailedResult.arrival) &&
+            detailedResult.arrival.length > 0 && (
+              <div className="border">
+                <div className="bg-accent py-2 text-center">
+                  <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                    {t('arrival_order').toUpperCase()}
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center justify-center gap-8 p-4">
-                {raceResult.podium.slice(0, 3).map((competitor, index) => {
-                  let imageSrc = ''
-                  let medalNumber = ''
+                <div className="flex items-center justify-center gap-8 p-4">
+                  {detailedResult.arrival.slice(0, 3).map((competitor, index) => {
+                    let imageSrc = ''
+                    let medalNumber = ''
 
-                  switch (index + 1) {
-                    case 1:
-                      imageSrc = '/cockade_gold.png'
-                      medalNumber = '1'
-                      break
-                    case 2:
-                      imageSrc = '/cockade_silver.png'
-                      medalNumber = '2'
-                      break
-                    case 3:
-                      imageSrc = '/cockade_bronze.png'
-                      medalNumber = '3'
-                      break
-                  }
+                    switch (index + 1) {
+                      case 1:
+                        imageSrc = '/cockade_gold.png'
+                        medalNumber = '1'
+                        break
+                      case 2:
+                        imageSrc = '/cockade_silver.png'
+                        medalNumber = '2'
+                        break
+                      case 3:
+                        imageSrc = '/cockade_bronze.png'
+                        medalNumber = '3'
+                        break
+                    }
 
-                  return (
-                    <div
-                      key={competitor.number}
-                      className="flex items-center gap-2"
-                    >
-                      {/* Medaglia con numero */}
-                      <div className="relative flex h-11 w-11 items-center justify-center">
-                        <Image
-                          src={imageSrc}
-                          alt={medalNumber}
-                          width={48}
-                          height={48}
-                          className="absolute"
-                        />
-                        <div className="relative pb-2 text-[20px] font-bold">
-                          {medalNumber}
+                    return (
+                      <div
+                        key={competitor.number || index}
+                        className="flex items-center gap-2"
+                      >
+                        {/* Medaglia con numero */}
+                        <div className="relative flex h-11 w-11 items-center justify-center">
+                          <Image
+                            src={imageSrc}
+                            alt={medalNumber}
+                            width={48}
+                            height={48}
+                            className="absolute"
+                          />
+                          <div className="relative pb-2 text-[20px] font-bold">
+                            {medalNumber}
+                          </div>
+                        </div>
+
+                        <div
+                          className={
+                            'flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold text-white ' +
+                            (competitor.number === 1
+                              ? 'bg-red-500'
+                              : competitor.number === 2
+                                ? 'bg-blue-500'
+                                : competitor.number === 3
+                                  ? 'bg-orange-500'
+                                  : competitor.number === 4
+                                    ? 'bg-green-500'
+                                    : competitor.number === 5
+                                      ? 'bg-yellow-500'
+                                      : competitor.number === 6
+                                        ? 'bg-purple-500'
+                                        : 'border border-gray-300 bg-white text-black')
+                          }
+                        >
+                          {competitor.number}
+                        </div>
+
+                        <div className="min-w-0 pr-10 text-[16px] font-semibold">
+                          {competitor.name}
                         </div>
                       </div>
-
-                      <div
-                        className={
-                          'flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold text-white ' +
-                          (competitor.number === 1
-                            ? 'bg-red-500'
-                            : competitor.number === 2
-                              ? 'bg-blue-500'
-                              : competitor.number === 3
-                                ? 'bg-orange-500'
-                                : competitor.number === 4
-                                  ? 'bg-green-500'
-                                  : competitor.number === 5
-                                    ? 'bg-yellow-500'
-                                    : competitor.number === 6
-                                      ? 'bg-purple-500'
-                                      : 'border border-gray-300 bg-white text-black')
-                        }
-                      >
-                        {competitor.number}
-                      </div>
-
-                      <div className="min-w-0 pr-10 text-[16px] font-semibold">
-                        {competitor.name}
-                      </div>
-                    </div>
-                  )
-                })}
+                    )
+                  })}
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
           <div className="grid grid-cols-3 gap-2">
             {/* WINNER */}
@@ -1385,6 +1388,13 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
         </div>
       )
     }
+
+    // Fallback se non ci sono né arrival né odds
+    return (
+      <div className="p-4 text-center text-muted-foreground">
+        {t('event_completed_detailed_results')}
+      </div>
+    )
   }
 
   // CALCIO

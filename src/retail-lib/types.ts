@@ -183,7 +183,7 @@ export type RaceResult = {
     underover: Record<string, string>
   }
   raceDuration?: number
-  podium: {
+  arrival?: {
     name: string
     number: number
   }[]
