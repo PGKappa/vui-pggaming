@@ -21,7 +21,6 @@ type UpcomingRaceCardProps = {
   race: UpcomingEvent
   onSelectionChange?: (
     raceInfo: UpcomingRace | undefined,
-    isTris: boolean,
     position1Selection: number[],
     position2Selection: number[],
     position3Selection: number[],
@@ -36,8 +35,6 @@ export default function UpcomingRaceCard({
   onSelectionChange,
 }: UpcomingRaceCardProps) {
   const [raceInfo, setRaceInfo] = useState<UpcomingRace>()
-  const [isTris /* setIsTris */] = useState(false)
-
   const [activeTab, setActiveTab] = useState<TabType>('main')
 
   const [position1Selection, setPosition1Selection] = useState<number[]>([])
@@ -46,13 +43,41 @@ export default function UpcomingRaceCard({
   const [disorderSelection, setDisorderSelection] = useState<number[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
-  const isAnyOrderMode = disorderSelection.length > 0
+  // Inizializzazione corretta del marketType basata su activeTab
+  const [marketType, setMarketType] = useState<
+    'exacta' | 'quinella' | 'trifecta' | 'boxtrifecta'
+  >(() => {
+    return activeTab === 'triplets' ? 'trifecta' : 'exacta'
+  })
+
+  // Reset marketType quando cambia activeTab
+  useEffect(() => {
+    if (activeTab === 'couples') {
+      setMarketType('exacta')
+    } else if (activeTab === 'triplets') {
+      setMarketType('trifecta')
+    }
+    clearSelections()
+  }, [activeTab])
+
+  const handleMarketTypeToggle = () => {
+    if (activeTab === 'couples') {
+      setMarketType((prev) => (prev === 'exacta' ? 'quinella' : 'exacta'))
+    } else if (activeTab === 'triplets') {
+      setMarketType((prev) =>
+        prev === 'trifecta' ? 'boxtrifecta' : 'trifecta',
+      )
+    }
+    clearSelections()
+  }
+
+  const isAnyOrderMode =
+    marketType === 'quinella' || marketType === 'boxtrifecta'
 
   const tabConfig = {
     main: {
       name: t('main'),
       showCombinations: false,
-      isTris: false,
       columns: [
         'starters',
         'performance',
@@ -65,7 +90,6 @@ export default function UpcomingRaceCard({
     couples: {
       name: t('couples'),
       showCombinations: true,
-      isTris: false,
       columns: [
         'starters',
         'performance',
@@ -78,7 +102,6 @@ export default function UpcomingRaceCard({
     triplets: {
       name: t('triplets'),
       showCombinations: true,
-      isTris: true,
       columns: [
         'starters',
         'performance',
@@ -145,7 +168,6 @@ export default function UpcomingRaceCard({
     if (onSelectionChange) {
       onSelectionChange(
         raceInfo,
-        isTris,
         position1Selection,
         position2Selection,
         position3Selection,
@@ -154,7 +176,6 @@ export default function UpcomingRaceCard({
     }
   }, [
     raceInfo,
-    isTris,
     activeTab,
     position1Selection,
     position2Selection,
@@ -165,16 +186,23 @@ export default function UpcomingRaceCard({
 
   const handleTabChange = (tab: TabType) => {
     setActiveTab(tab)
-    clearSelections()
   }
 
   const togglePosition1Selection = (competitorId: number) => {
+    if (isAnyOrderMode) {
+      if (activeTab === 'couples') {
+        setMarketType('exacta')
+      } else if (activeTab === 'triplets') {
+        setMarketType('trifecta')
+      }
+      setDisorderSelection([])
+    }
+
     setPosition1Selection((current) => {
       const newSelection = current.includes(competitorId)
         ? current.filter((id) => id !== competitorId)
         : [...current, competitorId]
 
-      // Clear any order selections when using position selections
       if (newSelection.length > 0) {
         setDisorderSelection([])
       }
@@ -184,12 +212,21 @@ export default function UpcomingRaceCard({
   }
 
   const togglePosition2Selection = (competitorId: number) => {
+    if (isAnyOrderMode) {
+      if (activeTab === 'couples') {
+        setMarketType('exacta')
+      } else if (activeTab === 'triplets') {
+        setMarketType('trifecta')
+      }
+      setDisorderSelection([])
+    }
+
     setPosition2Selection((current) => {
       const newSelection = current.includes(competitorId)
         ? current.filter((id) => id !== competitorId)
         : [...current, competitorId]
 
-      // Clear any order selections when using position selections
+
       if (newSelection.length > 0) {
         setDisorderSelection([])
       }
@@ -199,12 +236,18 @@ export default function UpcomingRaceCard({
   }
 
   const togglePosition3Selection = (competitorId: number) => {
+    if (isAnyOrderMode) {
+      if (activeTab === 'triplets') {
+        setMarketType('trifecta')
+      }
+      setDisorderSelection([])
+    }
+
     setPosition3Selection((current) => {
       const newSelection = current.includes(competitorId)
         ? current.filter((id) => id !== competitorId)
         : [...current, competitorId]
 
-      // Clear any order selections when using position selections
       if (newSelection.length > 0) {
         setDisorderSelection([])
       }
@@ -214,13 +257,21 @@ export default function UpcomingRaceCard({
   }
 
   const toggleDisorderSelection = (competitorId: number) => {
+    if (!isAnyOrderMode) {
+      if (activeTab === 'couples') {
+        setMarketType('quinella')
+      } else if (activeTab === 'triplets') {
+        setMarketType('boxtrifecta')
+      }
+      setPosition1Selection([])
+      setPosition2Selection([])
+      setPosition3Selection([])
+    }
+
     setDisorderSelection((current) => {
-      // Check if we're trying to add a new selection
       if (!current.includes(competitorId)) {
-        // Determine max selections based on active tab
         const maxSelections = activeTab === 'couples' ? 2 : 3
 
-        // If we're at the limit, don't add more
         if (current.length >= maxSelections) {
           return current
         }
@@ -230,7 +281,6 @@ export default function UpcomingRaceCard({
         ? current.filter((id) => id !== competitorId)
         : [...current, competitorId]
 
-      // Clear position selections when using any order
       if (newSelection.length > 0) {
         setPosition1Selection([])
         setPosition2Selection([])
@@ -393,11 +443,13 @@ export default function UpcomingRaceCard({
       return (
         <>
           <TableCell
-            className={`h-16 !pr-0 pl-10 text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
+            className={`h-16 cursor-pointer !pr-0 pl-10 text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
+            onClick={handleMarketTypeToggle}
           >
             <Toggle
               pressed={position1Selection.includes(racer.number)}
               onPressedChange={() => togglePosition1Selection(racer.number)}
+              onClick={(e) => e.stopPropagation()}
               className="h-12 w-24 border-betEntry-border"
             >
               <span className="text-[19px]">1°</span>
@@ -405,11 +457,13 @@ export default function UpcomingRaceCard({
           </TableCell>
 
           <TableCell
-            className={`!pl-0 pr-10 text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
+            className={`cursor-pointer !pl-0 pr-10 text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
+            onClick={handleMarketTypeToggle}
           >
             <Toggle
               pressed={position2Selection.includes(racer.number)}
               onPressedChange={() => togglePosition2Selection(racer.number)}
+              onClick={(e) => e.stopPropagation()}
               className="h-12 w-24 border-betEntry-border"
             >
               <span className="text-[19px]">2°</span>
@@ -418,14 +472,22 @@ export default function UpcomingRaceCard({
 
           <TableCell className="w-[1px] bg-border p-0" />
 
-          <TableCell
-            className={`flex items-center justify-center p-2 ${!isAnyOrderMode ? 'bg-gray-300' : ''}`}
-          >
-            <Toggle
-              pressed={disorderSelection.includes(racer.number)}
-              onPressedChange={() => toggleDisorderSelection(racer.number)}
-              className="h-12 w-24 border-betEntry-border"
-            ></Toggle>
+          <TableCell className="p-0">
+            <div
+              className="flex h-full cursor-pointer flex-col text-center"
+              onClick={handleMarketTypeToggle}
+            >
+              <div
+                className={`flex flex-1 items-center justify-center p-2 ${!isAnyOrderMode ? 'bg-gray-300' : ''}`}
+              >
+                <Toggle
+                  pressed={disorderSelection.includes(racer.number)}
+                  onPressedChange={() => toggleDisorderSelection(racer.number)}
+                  onClick={(e) => e.stopPropagation()}
+                  className="h-12 w-24 border-betEntry-border"
+                />
+              </div>
+            </div>
           </TableCell>
         </>
       )
@@ -434,11 +496,13 @@ export default function UpcomingRaceCard({
       return (
         <>
           <TableCell
-            className={`h-16 !pr-0 pl-10 text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
+            className={`h-16 cursor-pointer !pr-0 pl-10 text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
+            onClick={handleMarketTypeToggle}
           >
             <Toggle
               pressed={position1Selection.includes(racer.number)}
               onPressedChange={() => togglePosition1Selection(racer.number)}
+              onClick={(e) => e.stopPropagation()}
               className="h-12 w-24 border-betEntry-border"
             >
               <span className="text-[19px]">1°</span>
@@ -446,11 +510,13 @@ export default function UpcomingRaceCard({
           </TableCell>
 
           <TableCell
-            className={`text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
+            className={`cursor-pointer text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
+            onClick={handleMarketTypeToggle}
           >
             <Toggle
               pressed={position2Selection.includes(racer.number)}
               onPressedChange={() => togglePosition2Selection(racer.number)}
+              onClick={(e) => e.stopPropagation()}
               className="h-12 w-24 border-betEntry-border"
             >
               <span className="text-[19px]">2°</span>
@@ -458,11 +524,13 @@ export default function UpcomingRaceCard({
           </TableCell>
 
           <TableCell
-            className={`!pl-0 pr-10 text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
+            className={`cursor-pointer !pl-0 pr-10 text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
+            onClick={handleMarketTypeToggle}
           >
             <Toggle
               pressed={position3Selection.includes(racer.number)}
               onPressedChange={() => togglePosition3Selection(racer.number)}
+              onClick={(e) => e.stopPropagation()}
               className="h-12 w-24 border-betEntry-border"
             >
               <span className="text-[19px]">3°</span>
@@ -471,14 +539,22 @@ export default function UpcomingRaceCard({
 
           <TableCell className="w-[1px] bg-border p-0" />
 
-          <TableCell
-            className={`flex items-center justify-center p-2 ${!isAnyOrderMode ? 'bg-gray-300' : ''}`}
-          >
-            <Toggle
-              pressed={disorderSelection.includes(racer.number)}
-              onPressedChange={() => toggleDisorderSelection(racer.number)}
-              className="h-12 w-24 border-betEntry-border"
-            ></Toggle>
+          <TableCell className="p-0">
+            <div
+              className="flex h-full cursor-pointer flex-col"
+              onClick={handleMarketTypeToggle}
+            >
+              <div
+                className={`flex flex-1 items-center justify-center p-2 ${!isAnyOrderMode ? 'bg-gray-300' : ''}`}
+              >
+                <Toggle
+                  pressed={disorderSelection.includes(racer.number)}
+                  onPressedChange={() => toggleDisorderSelection(racer.number)}
+                  onClick={(e) => e.stopPropagation()}
+                  className="h-12 w-24 border-betEntry-border"
+                />
+              </div>
+            </div>
           </TableCell>
         </>
       )
@@ -737,11 +813,11 @@ export default function UpcomingRaceCard({
       {!isLoading && raceInfo && tabConfig[activeTab].showCombinations && (
         <BetCombinationsTable
           race={{ ...race, data: raceInfo }}
-          isTris={tabConfig[activeTab].isTris}
           position1Selection={position1Selection}
           position2Selection={position2Selection}
           position3Selection={position3Selection}
           disorderSelection={disorderSelection}
+          marketType={marketType}
         />
       )}
     </>
