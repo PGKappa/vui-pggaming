@@ -299,11 +299,11 @@ export default function BetCombinationsTable({
   const getMarketName = () => {
     switch (marketType) {
       case 'exacta':
-        return `${t('couples')}`
+        return `${t('exacta')}`
       case 'quinella':
         return `${t('quinella')}`
       case 'trifecta':
-        return `${t('triplets')}`
+        return `${t('trifecta')}`
       case 'boxtrifecta':
         return `${t('boxed_trifecta')}`
       default:
