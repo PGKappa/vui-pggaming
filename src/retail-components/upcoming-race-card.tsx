@@ -1,6 +1,7 @@
+import { BetsContext } from '@/retail-contexts/bets-context'
 import { UpcomingEvent, UpcomingRace } from '@/retail-lib/types'
 import { t } from 'i18next'
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import BetCombinationsTable from './bet-combination-table'
 import BetEntryToggle from './bet-entry-toggle'
 import MedalsHistory from './medals-history'
@@ -43,6 +44,9 @@ export default function UpcomingRaceCard({
   const [disorderSelection, setDisorderSelection] = useState<number[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
+  // Aggiungi il context
+  const { addBet, removeBet, betEntries } = useContext(BetsContext)
+
   // Inizializzazione corretta del marketType basata su activeTab
   const [marketType, setMarketType] = useState<
     'exacta' | 'quinella' | 'trifecta' | 'boxtrifecta'
@@ -59,6 +63,33 @@ export default function UpcomingRaceCard({
     }
     clearSelections()
   }, [activeTab])
+
+  useEffect(() => {
+    const raceEntries = betEntries.filter(
+      (entry) => entry.bet.event.number === race.id,
+    )
+
+    if (raceEntries.length > 0) {
+      raceEntries.forEach((entry) => {
+        const market = entry.market
+
+        // Rimuovi i controlli activeTab !== 'couples' etc.
+        if (market === 'Exacta') {
+          setActiveTab('couples')
+          setMarketType('exacta')
+        } else if (market === 'Quinella') {
+          setActiveTab('couples')
+          setMarketType('quinella')
+        } else if (market === 'Trifecta') {
+          setActiveTab('triplets')
+          setMarketType('trifecta')
+        } else if (market === 'Box Trifecta') {
+          setActiveTab('triplets')
+          setMarketType('boxtrifecta')
+        }
+      })
+    }
+  }, [betEntries, race.id])
 
   const handleMarketTypeToggle = () => {
     if (activeTab === 'couples') {
@@ -199,9 +230,38 @@ export default function UpcomingRaceCard({
     }
 
     setPosition1Selection((current) => {
-      const newSelection = current.includes(competitorId)
+      const isRemoving = current.includes(competitorId)
+      const newSelection = isRemoving
         ? current.filter((id) => id !== competitorId)
         : [...current, competitorId]
+
+      // Aggiungi/rimuovi dal BetsContext
+      const marketName = activeTab === 'couples' ? 'Exacta' : 'Trifecta'
+      const racer = raceInfo?.racers.find((r) => r.number === competitorId)
+
+      if (racer) {
+        if (isRemoving) {
+          removeBet(
+            marketName,
+            { outcome: `${competitorId}_1`, decPrice: 1.0 },
+            racer.name,
+          )
+        } else {
+          addBet(marketName, {
+            event: {
+              name: race.name,
+              number: race.id,
+              startingAt: race.time,
+            },
+            discipline: race.discipline,
+            competitors: racer.name,
+            option: {
+              outcome: `${competitorId}_1`,
+              decPrice: 1.0,
+            },
+          })
+        }
+      }
 
       if (newSelection.length > 0) {
         setDisorderSelection([])
@@ -222,10 +282,38 @@ export default function UpcomingRaceCard({
     }
 
     setPosition2Selection((current) => {
-      const newSelection = current.includes(competitorId)
+      const isRemoving = current.includes(competitorId)
+      const newSelection = isRemoving
         ? current.filter((id) => id !== competitorId)
         : [...current, competitorId]
 
+      // Aggiungi/rimuovi dal BetsContext
+      const marketName = activeTab === 'couples' ? 'Exacta' : 'Trifecta'
+      const racer = raceInfo?.racers.find((r) => r.number === competitorId)
+
+      if (racer) {
+        if (isRemoving) {
+          removeBet(
+            marketName,
+            { outcome: `${competitorId}_2`, decPrice: 1.0 },
+            racer.name,
+          )
+        } else {
+          addBet(marketName, {
+            event: {
+              name: race.name,
+              number: race.id,
+              startingAt: race.time,
+            },
+            discipline: race.discipline,
+            competitors: racer.name,
+            option: {
+              outcome: `${competitorId}_2`,
+              decPrice: 1.0,
+            },
+          })
+        }
+      }
 
       if (newSelection.length > 0) {
         setDisorderSelection([])
@@ -244,9 +332,38 @@ export default function UpcomingRaceCard({
     }
 
     setPosition3Selection((current) => {
-      const newSelection = current.includes(competitorId)
+      const isRemoving = current.includes(competitorId)
+      const newSelection = isRemoving
         ? current.filter((id) => id !== competitorId)
         : [...current, competitorId]
+
+      // Aggiungi/rimuovi dal BetsContext
+      const marketName = 'Trifecta'
+      const racer = raceInfo?.racers.find((r) => r.number === competitorId)
+
+      if (racer) {
+        if (isRemoving) {
+          removeBet(
+            marketName,
+            { outcome: `${competitorId}_3`, decPrice: 1.0 },
+            racer.name,
+          )
+        } else {
+          addBet(marketName, {
+            event: {
+              name: race.name,
+              number: race.id,
+              startingAt: race.time,
+            },
+            discipline: race.discipline,
+            competitors: racer.name,
+            option: {
+              outcome: `${competitorId}_3`,
+              decPrice: 1.0,
+            },
+          })
+        }
+      }
 
       if (newSelection.length > 0) {
         setDisorderSelection([])
@@ -277,9 +394,38 @@ export default function UpcomingRaceCard({
         }
       }
 
-      const newSelection = current.includes(competitorId)
+      const isRemoving = current.includes(competitorId)
+      const newSelection = isRemoving
         ? current.filter((id) => id !== competitorId)
         : [...current, competitorId]
+
+      // Aggiungi/rimuovi dal BetsContext
+      const marketName = activeTab === 'couples' ? 'Quinella' : 'Box Trifecta'
+      const racer = raceInfo?.racers.find((r) => r.number === competitorId)
+
+      if (racer) {
+        if (isRemoving) {
+          removeBet(
+            marketName,
+            { outcome: `${competitorId}_ANY`, decPrice: 1.0 },
+            racer.name,
+          )
+        } else {
+          addBet(marketName, {
+            event: {
+              name: race.name,
+              number: race.id,
+              startingAt: race.time,
+            },
+            discipline: race.discipline,
+            competitors: racer.name,
+            option: {
+              outcome: `${competitorId}_ANY`,
+              decPrice: 1.0,
+            },
+          })
+        }
+      }
 
       if (newSelection.length > 0) {
         setPosition1Selection([])
