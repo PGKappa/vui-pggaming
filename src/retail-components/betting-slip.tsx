@@ -196,7 +196,9 @@ export default function BettingSlip({
             eventAny.extId ||
             selectedEvent?.extId ||
             selectedEvent?.palimpsestId ||
-            '1000003504'
+            (firstEntry.bet.discipline === 'HORSES'
+              ? '1000003504'
+              : '1000003502')
 
           return {
             gameId: gameId,
