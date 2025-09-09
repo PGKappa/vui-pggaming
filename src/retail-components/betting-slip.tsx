@@ -25,7 +25,11 @@ import {
 
 export type BetMode = 'SINGLE' | 'MULTIPLE' | 'SYSTEM'
 
-export default function BettingSlip() {
+export default function BettingSlip({
+  selectedEvent,
+}: {
+  selectedEvent?: any
+}) {
   const {
     betEntries,
     betsByEvent,
@@ -308,7 +312,7 @@ export default function BettingSlip() {
           </Button>
         </div>
 
-        <FastBet />
+        <FastBet selectedEvent={selectedEvent} />
       </CardFooter>
     </Card>
   )
