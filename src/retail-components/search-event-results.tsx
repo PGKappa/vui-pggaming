@@ -875,71 +875,73 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                   </div>
                 </div>
                 <div className="flex items-center justify-center gap-8 p-4">
-                  {detailedResult.arrival.slice(0, 3).map((competitor, index) => {
-                    let imageSrc = ''
-                    let medalNumber = ''
+                  {detailedResult.arrival
+                    .slice(0, 3)
+                    .map((competitor, index) => {
+                      let imageSrc = ''
+                      let medalNumber = ''
 
-                    switch (index + 1) {
-                      case 1:
-                        imageSrc = '/cockade_gold.png'
-                        medalNumber = '1'
-                        break
-                      case 2:
-                        imageSrc = '/cockade_silver.png'
-                        medalNumber = '2'
-                        break
-                      case 3:
-                        imageSrc = '/cockade_bronze.png'
-                        medalNumber = '3'
-                        break
-                    }
+                      switch (index + 1) {
+                        case 1:
+                          imageSrc = '/cockade_gold.png'
+                          medalNumber = '1'
+                          break
+                        case 2:
+                          imageSrc = '/cockade_silver.png'
+                          medalNumber = '2'
+                          break
+                        case 3:
+                          imageSrc = '/cockade_bronze.png'
+                          medalNumber = '3'
+                          break
+                      }
 
-                    return (
-                      <div
-                        key={competitor.number || index}
-                        className="flex items-center gap-2"
-                      >
-                        {/* Medaglia con numero */}
-                        <div className="relative flex h-11 w-11 items-center justify-center">
-                          <Image
-                            src={imageSrc}
-                            alt={medalNumber}
-                            width={48}
-                            height={48}
-                            className="absolute"
-                          />
-                          <div className="relative pb-2 text-[20px] font-bold">
-                            {medalNumber}
+                      return (
+                        <div
+                          key={competitor.number || index}
+                          className="flex items-center gap-2"
+                        >
+                          {/* Medaglia con numero */}
+                          <div className="relative flex h-11 w-11 items-center justify-center">
+                            <Image
+                              src={imageSrc}
+                              alt={medalNumber}
+                              width={48}
+                              height={48}
+                              className="absolute"
+                            />
+                            <div className="relative pb-2 text-[20px] font-bold">
+                              {medalNumber}
+                            </div>
+                          </div>
+
+                          <div
+                            className={
+                              'flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold text-white ' +
+                              (competitor.number === 1
+                                ? 'bg-red-500'
+                                : competitor.number === 2
+                                  ? 'bg-blue-500'
+                                  : competitor.number === 3
+                                    ? 'bg-orange-500'
+                                    : competitor.number === 4
+                                      ? 'bg-green-500'
+                                      : competitor.number === 5
+                                        ? 'bg-yellow-500'
+                                        : competitor.number === 6
+                                          ? 'bg-purple-500'
+                                          : 'border border-gray-300 bg-white text-black')
+                            }
+                          >
+                            {competitor.number}
+                          </div>
+
+                          <div className="min-w-0 pr-10 text-[16px] font-semibold">
+                            {competitor.name}
                           </div>
                         </div>
-
-                        <div
-                          className={
-                            'flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold text-white ' +
-                            (competitor.number === 1
-                              ? 'bg-red-500'
-                              : competitor.number === 2
-                                ? 'bg-blue-500'
-                                : competitor.number === 3
-                                  ? 'bg-orange-500'
-                                  : competitor.number === 4
-                                    ? 'bg-green-500'
-                                    : competitor.number === 5
-                                      ? 'bg-yellow-500'
-                                      : competitor.number === 6
-                                        ? 'bg-purple-500'
-                                        : 'border border-gray-300 bg-white text-black')
-                          }
-                        >
-                          {competitor.number}
-                        </div>
-
-                        <div className="min-w-0 pr-10 text-[16px] font-semibold">
-                          {competitor.name}
-                        </div>
-                      </div>
-                    )
-                  })}
+                      )
+                    })}
                 </div>
               </div>
             )}
