@@ -21,20 +21,20 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 const racingCodeListLeft = [
-  { label: 'winner_bet', code: 'V' },
-  { label: 'place_1_2', code: '2P' },
-  { label: 'show_1_2_3', code: '3P' },
-  { label: 'exacta_bet', code: 'AO' },
-  { label: 'quinella_bet', code: 'AX' },
-  { label: 'trifecta_bet', code: 'TO' },
+  { label: 'Winner\nW [Selection]', code: 'W' },
+  { label: 'Show\nS [Selection]', code: 'S' },
+  { label: 'Quinella\nQ [Selection/Selection]', code: 'Q' },
+  { label: 'Over\nO', code: 'O' },
+  { label: 'Odd\nOD', code: 'OD' },
+  { label: 'Box Trifecta\nBT [Selection/Selection/Selection]', code: 'BT' },
 ]
 
 const racingCodeListRight = [
-  { label: 'boxed_trifecta_bet', code: 'TX' },
-  { label: 'even_race', code: 'P' },
-  { label: 'odd_race', code: 'D' },
-  { label: 'under_race', code: 'U' },
-  { label: 'over_race', code: 'O' },
+  { label: 'Placed\nP [Selection]', code: 'P' },
+  { label: 'Exacta\nE [Selection/Selection]', code: 'E' },
+  { label: 'Under\nU', code: 'U' },
+  { label: 'Even\nEV', code: 'EV' },
+  { label: 'Trifecta\nT [Selection/Selection/Selection]', code: 'T' },
 ]
 
 export default function RacingCodeList() {
@@ -52,7 +52,7 @@ export default function RacingCodeList() {
       <DialogContent
         className={cn(
           'overflow-hidden p-0',
-          singleColumn ? 'max-h-[500px] w-[320px]' : 'max-h-[600px] w-[600px]',
+          singleColumn ? 'max-h-[500px] w-[350px]' : 'max-h-[7000px] w-[700px]',
         )}
       >
         <DialogHeader className="relative flex items-center justify-center bg-accent py-4">
