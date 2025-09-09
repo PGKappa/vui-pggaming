@@ -17,11 +17,8 @@ export default function EventBets(props: {
   eventBets: BetEntry[]
 }) {
   const { betMode, eventKey, eventBets } = props
-  const {
-    removeBet,
-    removeEventBets,
-    toggleEventBetsFixed,
-  } = useContext(BetsContext)
+  const { removeBet, removeEventBets, toggleEventBetsFixed } =
+    useContext(BetsContext)
 
   const timeToMatchStart = useTimeLeft(eventBets[0].bet.event.startingAt)
 
