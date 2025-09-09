@@ -33,16 +33,12 @@ export default function FastBet({ selectedEvent }: { selectedEvent?: any }) {
   const { addBets } = useContext(BetsContext)
 
   const handleSubmit = async () => {
-    console.log('FastBet handleSubmit called')
-    console.log('Inputs:', { codeInput, selectionInput })
-
     if (!codeInput.trim()) {
       toast.error(t('enter_code'))
       return
     }
 
     const parsedCode = parseFastBetInput(codeInput, selectionInput)
-    console.log('Parsed Code:', parsedCode)
 
     if (!parsedCode) {
       toast.error(t('invalid_code_selection'))
@@ -55,8 +51,6 @@ export default function FastBet({ selectedEvent }: { selectedEvent?: any }) {
     }
 
     const bets = await createBetFromFastCode(parsedCode, selectedEvent)
-    console.log('Created bets:', bets)
-
     if (!bets || bets.length === 0) {
       toast.error(t('no_odds_found'))
       return
@@ -76,11 +70,8 @@ export default function FastBet({ selectedEvent }: { selectedEvent?: any }) {
           return 'Quinella'
         case 'TO':
           return 'Trifecta'
-        case 'TX':
+        case 'BT':
           return 'Boxed Trifecta'
-        case 'P':
-        case 'D':
-          return 'Even/Odd'
         case 'U':
         case 'O':
           return 'Under/Over'
@@ -90,15 +81,12 @@ export default function FastBet({ selectedEvent }: { selectedEvent?: any }) {
     }
 
     const marketName = getMarketName(parsedCode.code)
-    console.log('Market name:', marketName)
-    console.log('Adding bets to betting slip...')
 
     addBets(marketName, bets)
     toast.success(`${bets.length} ${t('bets_added')}`)
 
     setCodeInput('')
     setSelectionInput('')
-    console.log('FastBet completed successfully')
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
