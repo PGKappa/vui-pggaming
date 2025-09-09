@@ -3,7 +3,7 @@ name: Deploy Production
 on:
   push:
     branches:
-      - "feature/doc-horses"
+      - "feature/dogs-horses"
 
 permissions:
   id-token: write
