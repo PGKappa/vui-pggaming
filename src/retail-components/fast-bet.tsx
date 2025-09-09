@@ -37,7 +37,7 @@ export default function FastBet({ selectedEvent }: { selectedEvent?: any }) {
     console.log('Inputs:', { codeInput, selectionInput })
 
     if (!codeInput.trim()) {
-      toast.error('Inserisci un codice')
+      toast.error(t('enter_code'))
       return
     }
 
@@ -45,12 +45,12 @@ export default function FastBet({ selectedEvent }: { selectedEvent?: any }) {
     console.log('Parsed Code:', parsedCode)
 
     if (!parsedCode) {
-      toast.error('Codice o selezione non validi')
+      toast.error(t('invalid_code_selection'))
       return
     }
 
     if (!selectedEvent) {
-      toast.error('Nessun evento selezionato')
+      toast.error(t('no_event_selected'))
       return
     }
 
@@ -58,32 +58,32 @@ export default function FastBet({ selectedEvent }: { selectedEvent?: any }) {
     console.log('Created bets:', bets)
 
     if (!bets || bets.length === 0) {
-      toast.error('Nessuna quota trovata per questo codice')
+      toast.error(t('no_odds_found'))
       return
     }
 
     const getMarketName = (code: string) => {
       switch (code) {
         case 'V':
-          return t('winner')
+          return 'Vincente'
         case '2P':
-          return t('place_2')
+          return 'Piazzato su 2'
         case '3P':
-          return t('show_3')
+          return 'Piazzato su 3'
         case 'AO':
-          return t('exacta')
+          return 'Exacta'
         case 'AX':
-          return t('quinella')
+          return 'Quinella'
         case 'TO':
-          return t('trifecta')
+          return 'Trifecta'
         case 'TX':
-          return t('boxed_trifecta')
+          return 'Boxed Trifecta'
         case 'P':
         case 'D':
-          return t('even_odd')
+          return 'Even/Odd'
         case 'U':
         case 'O':
-          return t('under_over')
+          return 'Under/Over'
         default:
           return 'FastBet'
       }
@@ -94,7 +94,7 @@ export default function FastBet({ selectedEvent }: { selectedEvent?: any }) {
     console.log('Adding bets to betting slip...')
 
     addBets(marketName, bets)
-    toast.success(`${bets.length} scommessa/e aggiunta/e`)
+    toast.success(`${bets.length} ${t('bets_added')}`)
 
     setCodeInput('')
     setSelectionInput('')

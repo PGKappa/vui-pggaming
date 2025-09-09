@@ -215,5 +215,16 @@
   "even_race": "Even\nP",
   "odd_race": "Odd\nD",
   "under_race": "Under\nU",
-  "over_race": "Over\nO"
+  "over_race": "Over\nO",
+  "no_bet_selected": "No bet selected",
+  "enter_valid_amount": "Enter a valid amount",
+  "enter_system_amount": "Enter at least one amount for the system",
+  "submitting": "Submitting...",
+  "bet_submitted_successfully": "Bet submitted successfully!",
+  "bet_submission_error": "Error submitting bet. Please try again.",
+  "enter_code": "Enter a code",
+  "invalid_code_selection": "Invalid code or selection",
+  "no_event_selected": "No event selected",
+  "no_odds_found": "No odds found for this code",
+  "bets_added": "bet(s) added"
 }
