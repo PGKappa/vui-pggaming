@@ -1,9 +1,9 @@
-name: Deploy Staging
+name: Deploy Production
 
 on:
   push:
     branches:
-      - "main"
+      - "feature/doc-horses"
 
 permissions:
   id-token: write
@@ -12,8 +12,6 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    env:
-
     steps:
       - name: Git clone the repository
         uses: actions/checkout@v3
