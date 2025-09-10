@@ -45,7 +45,7 @@ export default function UpcomingRaceCard({
   const [isLoading, setIsLoading] = useState(true)
 
   // Aggiungi il context
-  const { addBet, removeBet, betEntries } = useContext(BetsContext)
+  const { betEntries } = useContext(BetsContext)
 
   // Inizializzazione corretta del marketType basata su activeTab
   const [marketType, setMarketType] = useState<
@@ -64,6 +64,7 @@ export default function UpcomingRaceCard({
     clearSelections()
   }, [activeTab])
 
+  // useEffect per cambio automatico tab da FastBet (SENZA activeTab nelle dependencies)
   useEffect(() => {
     const raceEntries = betEntries.filter(
       (entry) => entry.bet.event.number === race.id,
@@ -73,7 +74,7 @@ export default function UpcomingRaceCard({
       raceEntries.forEach((entry) => {
         const market = entry.market
 
-        // Rimuovi i controlli activeTab !== 'couples' etc.
+        // Cambia automaticamente il tab basato sul market FastBet
         if (market === 'Exacta') {
           setActiveTab('couples')
           setMarketType('exacta')
@@ -89,7 +90,7 @@ export default function UpcomingRaceCard({
         }
       })
     }
-  }, [betEntries, race.id])
+  }, [betEntries, race.id]) // NON includere activeTab qui
 
   const handleMarketTypeToggle = () => {
     if (activeTab === 'couples') {
@@ -193,6 +194,10 @@ export default function UpcomingRaceCard({
     }
 
     fetchEventInfo()
+
+    const interval = setInterval(fetchEventInfo, 5000)
+
+    return () => clearInterval(interval)
   }, [race.id, race.extId])
 
   useEffect(() => {
@@ -235,34 +240,6 @@ export default function UpcomingRaceCard({
         ? current.filter((id) => id !== competitorId)
         : [...current, competitorId]
 
-      // Aggiungi/rimuovi dal BetsContext
-      const marketName = activeTab === 'couples' ? 'Exacta' : 'Trifecta'
-      const racer = raceInfo?.racers.find((r) => r.number === competitorId)
-
-      if (racer) {
-        if (isRemoving) {
-          removeBet(
-            marketName,
-            { outcome: `${competitorId}_1`, decPrice: 1.0 },
-            racer.name,
-          )
-        } else {
-          addBet(marketName, {
-            event: {
-              name: race.name,
-              number: race.id,
-              startingAt: race.time,
-            },
-            discipline: race.discipline,
-            competitors: racer.name,
-            option: {
-              outcome: `${competitorId}_1`,
-              decPrice: 1.0,
-            },
-          })
-        }
-      }
-
       if (newSelection.length > 0) {
         setDisorderSelection([])
       }
@@ -287,34 +264,6 @@ export default function UpcomingRaceCard({
         ? current.filter((id) => id !== competitorId)
         : [...current, competitorId]
 
-      // Aggiungi/rimuovi dal BetsContext
-      const marketName = activeTab === 'couples' ? 'Exacta' : 'Trifecta'
-      const racer = raceInfo?.racers.find((r) => r.number === competitorId)
-
-      if (racer) {
-        if (isRemoving) {
-          removeBet(
-            marketName,
-            { outcome: `${competitorId}_2`, decPrice: 1.0 },
-            racer.name,
-          )
-        } else {
-          addBet(marketName, {
-            event: {
-              name: race.name,
-              number: race.id,
-              startingAt: race.time,
-            },
-            discipline: race.discipline,
-            competitors: racer.name,
-            option: {
-              outcome: `${competitorId}_2`,
-              decPrice: 1.0,
-            },
-          })
-        }
-      }
-
       if (newSelection.length > 0) {
         setDisorderSelection([])
       }
@@ -336,34 +285,6 @@ export default function UpcomingRaceCard({
       const newSelection = isRemoving
         ? current.filter((id) => id !== competitorId)
         : [...current, competitorId]
-
-      // Aggiungi/rimuovi dal BetsContext
-      const marketName = 'Trifecta'
-      const racer = raceInfo?.racers.find((r) => r.number === competitorId)
-
-      if (racer) {
-        if (isRemoving) {
-          removeBet(
-            marketName,
-            { outcome: `${competitorId}_3`, decPrice: 1.0 },
-            racer.name,
-          )
-        } else {
-          addBet(marketName, {
-            event: {
-              name: race.name,
-              number: race.id,
-              startingAt: race.time,
-            },
-            discipline: race.discipline,
-            competitors: racer.name,
-            option: {
-              outcome: `${competitorId}_3`,
-              decPrice: 1.0,
-            },
-          })
-        }
-      }
 
       if (newSelection.length > 0) {
         setDisorderSelection([])
@@ -398,34 +319,6 @@ export default function UpcomingRaceCard({
       const newSelection = isRemoving
         ? current.filter((id) => id !== competitorId)
         : [...current, competitorId]
-
-      // Aggiungi/rimuovi dal BetsContext
-      const marketName = activeTab === 'couples' ? 'Quinella' : 'Box Trifecta'
-      const racer = raceInfo?.racers.find((r) => r.number === competitorId)
-
-      if (racer) {
-        if (isRemoving) {
-          removeBet(
-            marketName,
-            { outcome: `${competitorId}_ANY`, decPrice: 1.0 },
-            racer.name,
-          )
-        } else {
-          addBet(marketName, {
-            event: {
-              name: race.name,
-              number: race.id,
-              startingAt: race.time,
-            },
-            discipline: race.discipline,
-            competitors: racer.name,
-            option: {
-              outcome: `${competitorId}_ANY`,
-              decPrice: 1.0,
-            },
-          })
-        }
-      }
 
       if (newSelection.length > 0) {
         setPosition1Selection([])
@@ -513,7 +406,7 @@ export default function UpcomingRaceCard({
         <>
           <TableCell className="p-2 text-center">
             <BetEntryToggle
-              marketName="Vincente"
+              marketName="Winner"
               bet={{
                 discipline: race.discipline,
                 event: {
@@ -521,13 +414,14 @@ export default function UpcomingRaceCard({
                   number: race.id,
                   startingAt: race.time,
                 },
-                competitors: racer.name,
+                competitors: racer.number.toString(),
                 option: {
                   outcome: racer.number.toString(),
                   decPrice: parseFloat(
                     raceInfo?.odds?.winner?.[racer.number.toString()] || '0',
                   ),
                 },
+                track: `Track  6`,
               }}
               variant="racecard"
               className="h-12 w-24 bg-betEntry text-betEntry-foreground"
@@ -537,7 +431,7 @@ export default function UpcomingRaceCard({
 
           <TableCell className="p-2 text-center">
             <BetEntryToggle
-              marketName="Piazzato su 2"
+              marketName="Placed"
               bet={{
                 discipline: race.discipline,
                 event: {
@@ -545,13 +439,14 @@ export default function UpcomingRaceCard({
                   number: race.id,
                   startingAt: race.time,
                 },
-                competitors: racer.name,
+                competitors: racer.number.toString(),
                 option: {
                   outcome: racer.number.toString(),
                   decPrice: parseFloat(
                     raceInfo?.odds?.placed?.[racer.number.toString()] || '0',
                   ),
                 },
+                track: `Track  6`,
               }}
               variant="racecard"
               className="h-12 w-24 bg-betEntry text-betEntry-foreground"
@@ -562,7 +457,7 @@ export default function UpcomingRaceCard({
 
           <TableCell className="p-2 text-center">
             <BetEntryToggle
-              marketName="Piazzato su 3"
+              marketName="Show"
               bet={{
                 discipline: race.discipline,
                 event: {
@@ -570,13 +465,14 @@ export default function UpcomingRaceCard({
                   number: race.id,
                   startingAt: race.time,
                 },
-                competitors: racer.name,
+                competitors: racer.number.toString(),
                 option: {
                   outcome: racer.number.toString(),
                   decPrice: parseFloat(
                     raceInfo?.odds?.show?.[racer.number.toString()] || '0',
                   ),
                 },
+                track: `Track  6`,
               }}
               variant="racecard"
               className="h-12 w-24 bg-betEntry text-betEntry-foreground"
@@ -740,6 +636,7 @@ export default function UpcomingRaceCard({
                       outcome: 'Even',
                       decPrice: parseFloat(raceInfo.odds.evenodd?.even || '0'),
                     },
+                    track: `Track  6`,
                   }}
                   variant="matchcard"
                   className="h-[45px] w-full text-[19px] text-black"
@@ -761,6 +658,7 @@ export default function UpcomingRaceCard({
                       outcome: 'Odd',
                       decPrice: parseFloat(raceInfo.odds.evenodd?.odd || '0'),
                     },
+                    track: `Track  6`,
                   }}
                   variant="matchcard"
                   className="h-[45px] w-full text-[19px] text-black"
@@ -788,13 +686,14 @@ export default function UpcomingRaceCard({
                       number: race.id,
                       startingAt: race.time,
                     },
-                    competitors: 'Under 3.5',
+                    competitors: 'Under',
                     option: {
                       outcome: 'Under',
                       decPrice: parseFloat(
                         raceInfo.odds.underover?.under || '0',
                       ),
                     },
+                    track: `Track  6`,
                   }}
                   variant="matchcard"
                   className="h-[45px] w-full text-[19px] text-black"
@@ -811,13 +710,14 @@ export default function UpcomingRaceCard({
                       number: race.id,
                       startingAt: race.time,
                     },
-                    competitors: 'Over 3.5',
+                    competitors: 'Over',
                     option: {
                       outcome: 'Over',
                       decPrice: parseFloat(
                         raceInfo.odds.underover?.over || '0',
                       ),
                     },
+                    track: `Track  6`,
                   }}
                   variant="matchcard"
                   className="h-[45px] w-full text-[19px] text-black"
@@ -964,6 +864,7 @@ export default function UpcomingRaceCard({
           position3Selection={position3Selection}
           disorderSelection={disorderSelection}
           marketType={marketType}
+          onClearSelections={clearSelections}
         />
       )}
     </>
