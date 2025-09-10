@@ -123,6 +123,7 @@ export default function BettingSlip({
           quinella: 'quinella',
           trifecta: 'trifecta',
           'boxed trifecta': 'boxedtrifecta',
+          'box trifecta': 'boxedtrifecta',
           'even/odd': 'evenodd',
           'under/over': 'underover',
 
