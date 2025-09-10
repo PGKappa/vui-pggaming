@@ -44,33 +44,46 @@ export function parseFastBetInput(
 // Aggiungi funzione per fetch delle quote
 async function fetchRaceData(event: UpcomingEvent): Promise<any> {
   if (!event) {
-    return null
+    throw new Error('Event is required')
   }
 
   try {
-    // CORREZIONE: URL corretto con palimpsestId dinamico basato sulla disciplina
-    const palimpsestId =
-      event.discipline === Discipline.HORSES ? '1000003504' : '1000003502'
-
     const response = await fetch(
-      `https://apidev.pgvirtual.eu/api/event/info/${palimpsestId}/${event.id}`,
+      `https://apidev.pgvirtual.eu/api/event/info/${event.extId}/${event.id}`,
       {
         headers: {
           accept: 'application/json',
+          'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
           authorization: 'Bearer ffffffff-ffff-ffff-ffff-ffffffffffee',
           operator: 'pg',
+          priority: 'u=1, i',
+          'sec-ch-ua':
+            '"Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"',
+          'sec-ch-ua-mobile': '?1',
+          'sec-ch-ua-platform': '"Android"',
+          'sec-fetch-dest': 'empty',
+          'sec-fetch-mode': 'cors',
+          'sec-fetch-site': 'same-site',
         },
+        referrer: 'https://test.pgvirtual.eu/',
+        referrerPolicy: 'strict-origin-when-cross-origin',
+        body: null,
+        method: 'GET',
+        mode: 'cors',
+        credentials: 'include',
       },
     )
 
     if (!response.ok) {
-      return null
+      throw new Error(`HTTP error! status: ${response.status}`)
     }
 
     const data = await response.json()
+
     return data
-  } catch {
-    return null
+  } catch (error) {
+    console.error('Error fetching race data:', error)
+    throw error
   }
 }
 
@@ -90,11 +103,13 @@ export async function createBetFromFastCode(
     return null
   }
 
-  // CORREZIONE: Accesso alle odds nel formato corretto dell'API
   const odds = raceData.odds || raceData.current?.odds || null
   if (!odds) {
     return null
   }
+
+  const trackName =
+    raceData.track?.name || `Track ${raceData.current?.channel || '6'}`
 
   const bets: Bet[] = []
 
@@ -120,6 +135,7 @@ export async function createBetFromFastCode(
                   outcome: `${selection}`,
                   decPrice: parseFloat(oddsValue),
                 },
+                track: trackName,
               }
               bets.push(bet)
             }
@@ -144,6 +160,7 @@ export async function createBetFromFastCode(
                   outcome: `${selection}`,
                   decPrice: parseFloat(oddsValue),
                 },
+                track: trackName,
               }
               bets.push(bet)
             }
@@ -168,6 +185,7 @@ export async function createBetFromFastCode(
                   outcome: `${selection}`,
                   decPrice: parseFloat(oddsValue),
                 },
+                track: trackName,
               }
               bets.push(bet)
             }
@@ -196,6 +214,7 @@ export async function createBetFromFastCode(
                 outcome: `${first}-${second}`,
                 decPrice: parseFloat(oddsValue),
               },
+              track: trackName,
             }
             bets.push(bet)
           }
@@ -223,6 +242,7 @@ export async function createBetFromFastCode(
                 outcome: `${first}-${second} any`,
                 decPrice: parseFloat(oddsValue),
               },
+              track: trackName,
             }
             bets.push(bet)
           }
@@ -253,6 +273,7 @@ export async function createBetFromFastCode(
                 outcome: `${first}-${second}-${third}`,
                 decPrice: parseFloat(oddsValue),
               },
+              track: trackName,
             }
             bets.push(bet)
           }
@@ -284,6 +305,7 @@ export async function createBetFromFastCode(
                 outcome: `${sortedRacers.join('-')} any`,
                 decPrice: parseFloat(oddsValue),
               },
+              track: trackName,
             }
             bets.push(bet)
           }
@@ -304,6 +326,7 @@ export async function createBetFromFastCode(
               outcome: 'Even',
               decPrice: parseFloat(odds.evenodd.even),
             },
+            track: trackName,
           }
           bets.push(bet)
         }
@@ -323,6 +346,7 @@ export async function createBetFromFastCode(
               outcome: 'Odd',
               decPrice: parseFloat(odds.evenodd.odd),
             },
+            track: trackName,
           }
           bets.push(bet)
         }
@@ -342,6 +366,7 @@ export async function createBetFromFastCode(
               outcome: 'Under',
               decPrice: parseFloat(odds.underover.under),
             },
+            track: trackName,
           }
           bets.push(bet)
         }
@@ -361,6 +386,7 @@ export async function createBetFromFastCode(
               outcome: 'Over',
               decPrice: parseFloat(odds.underover.over),
             },
+            track: trackName,
           }
           bets.push(bet)
         }
