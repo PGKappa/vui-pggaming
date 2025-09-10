@@ -198,6 +198,7 @@ export type Bet = {
   discipline: Discipline
   competitors: string
   option: Selection
+  track?: string
 }
 
 export type BetEntry = {
