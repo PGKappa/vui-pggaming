@@ -32,7 +32,7 @@ function AppContent({ children }: { children: React.ReactNode }) {
       <ResolutionGate>
         <RootContextProvider>
           <header>
-            <div className="h-[60px]"></div>
+            {/* <div className="h-[60px]"></div> */}
             <Navbar />
           </header>
           <main className="h-full overflow-hidden">

@@ -31,7 +31,7 @@ function AppContent({ children }: { children: React.ReactNode }) {
       <ResolutionGate>
         <main className="h-full gap-2 overflow-hidden">
           <RootContextProvider>
-            <div className="h-[60px]"></div>
+            {/* <div className="h-[60px]"></div> */}
             <Navbar />
             <div className="p-2">
               <BetsContextProvider>{children}</BetsContextProvider>
