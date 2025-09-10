@@ -15,6 +15,7 @@ export default function BetEntryToggle(props: {
   bet: Bet
   variant: BetEntryToggleVariants
   className?: string
+  onToggle?: (isPressed: boolean) => void
 }) {
   const { addBet, removeBet, betEntries } = useContext(BetsContext)
 
@@ -116,6 +117,9 @@ export default function BetEntryToggle(props: {
             competitors: props.bet.competitors,
             option: props.bet.option,
           })
+        }
+        if (props.onToggle) {
+          props.onToggle(!isSelected)
         }
       }}
       className={cn(
