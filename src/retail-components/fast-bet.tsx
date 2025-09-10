@@ -51,6 +51,7 @@ export default function FastBet({ selectedEvent }: { selectedEvent?: any }) {
     }
 
     const bets = await createBetFromFastCode(parsedCode, selectedEvent)
+
     if (!bets || bets.length === 0) {
       toast.error(t('no_odds_found'))
       return
@@ -58,22 +59,27 @@ export default function FastBet({ selectedEvent }: { selectedEvent?: any }) {
 
     const getMarketName = (code: string) => {
       switch (code) {
-        case 'V':
-          return 'Vincente'
-        case '2P':
-          return 'Piazzato su 2'
-        case '3P':
-          return 'Piazzato su 3'
-        case 'AO':
+        case 'W':
+          return 'Winner'
+        case 'P':
+          return 'Placed'
+        case 'S':
+          return 'Show'
+        case 'E':
           return 'Exacta'
-        case 'AX':
+        case 'Q':
           return 'Quinella'
-        case 'TO':
+        case 'O':
+          return 'Under/Over'
+        case 'EV':
+          return 'Even/Odd'
+        case 'OD':
+          return 'Even/Odd'
+        case 'T':
           return 'Trifecta'
         case 'BT':
           return 'Boxed Trifecta'
         case 'U':
-        case 'O':
           return 'Under/Over'
         default:
           return 'FastBet'
