@@ -194,10 +194,6 @@ export default function UpcomingRaceCard({
     }
 
     fetchEventInfo()
-
-    const interval = setInterval(fetchEventInfo, 5000)
-
-    return () => clearInterval(interval)
   }, [race.id, race.extId])
 
   useEffect(() => {
