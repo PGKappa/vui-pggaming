@@ -13,6 +13,7 @@ type BetCombinationsTableProps = {
   position3Selection: number[]
   disorderSelection: number[]
   marketType?: 'exacta' | 'quinella' | 'trifecta' | 'boxtrifecta'
+  onClearSelections?: () => void
 }
 
 export default function BetCombinationsTable({
@@ -22,6 +23,7 @@ export default function BetCombinationsTable({
   position3Selection,
   disorderSelection,
   marketType = 'exacta',
+  onClearSelections,
 }: BetCombinationsTableProps) {
   const { t } = useTranslation()
   const [sortMode, setSortMode] = useState<'default' | 'asc' | 'desc'>(
@@ -68,6 +70,7 @@ export default function BetCombinationsTable({
                 outcome: `${racer1}-${racer2}`,
                 decPrice: parseFloat(odds),
               },
+              track: `Track  6`,
             })
           }
         })
@@ -120,6 +123,7 @@ export default function BetCombinationsTable({
                       outcome: `${racer1}-${racer2} any`,
                       decPrice: parseFloat(odds),
                     },
+                    track: `Track  6`,
                   })
                 }
               }
@@ -168,6 +172,7 @@ export default function BetCombinationsTable({
                   outcome: `${racer1}-${racer2}-${racer3}`,
                   decPrice: parseFloat(odds),
                 },
+                track: `Track  6`,
               })
             }
           })
@@ -245,6 +250,7 @@ export default function BetCombinationsTable({
                           outcome: `${combinationKey} any`,
                           decPrice: parseFloat(odds),
                         },
+                        track: `Track  6`,
                       })
                     }
                   }
@@ -404,9 +410,9 @@ export default function BetCombinationsTable({
                     competitors: bet.competitors,
                   })),
                 )
-                return
+              } else {
+                addBets(marketName, combinations)
               }
-              addBets(marketName, combinations)
             }}
           >
             {allBetsSelected
@@ -427,6 +433,13 @@ export default function BetCombinationsTable({
               bet={bet}
               marketName={marketName}
               variant="racecombination"
+              onToggle={(isPressed) => {
+                if (isPressed && onClearSelections) {
+                  setTimeout(() => {
+                    onClearSelections()
+                  }, 100)
+                }
+              }}
             />
           ))}
         </div>
