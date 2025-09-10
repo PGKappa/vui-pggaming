@@ -56,8 +56,8 @@ export default function EventBets(props: {
             {eventBets[0].bet.discipline === 'SOCCER'
               ? t('football')
               : eventBets[0].bet.discipline === 'DOGS'
-                ? t('dogs')
-                : t('horses')}
+                ? t('dog') + ' ' + t('racing')
+                : t('horse') + ' ' + t('racing')}
           </span>
 
           <div className="flex items-center gap-2">
@@ -70,7 +70,7 @@ export default function EventBets(props: {
           </div>
         </div>
 
-        <span className="text-[16px]">{eventBets[0].bet.competitors}</span>
+        <span className="text-[16px]">{`Track 6`}</span>
       </div>
 
       <div className="border border-betSlip-foreground bg-primary-foreground p-1">
