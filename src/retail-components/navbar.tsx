@@ -130,7 +130,7 @@ export default function Navbar() {
           <span className="text-[16px] font-bold">{t('search_results')}</span>
         </Button>
 
-        <Link
+        {/* <Link
           href={`/retail/calcio/ticket-list${initCode ? `?init_code=${initCode}` : ''}`}
           className={buttonVariants({
             variant: 'ticketButton',
@@ -148,7 +148,7 @@ export default function Navbar() {
           })}
         >
           <span className="text-[16px] font-bold">{t('ticket_check')}</span>
-        </Link>
+        </Link> */}
       </div>
     </div>
   )
