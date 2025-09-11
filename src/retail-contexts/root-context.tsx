@@ -461,7 +461,7 @@ export default function RootContextProvider(props: {
       const response = await fetchResponse.json() as { schedules: { schedule: UpcomingRound[] } }
       if (!response.schedules.schedule.length) return
 
-      const allEvents = response.schedules.schedule[0].mag_event.slice(4) || [] //TODO: remove .slice(4) when the API is fixed
+      const allEvents = response.schedules.schedule[0].mag_event || []
 
       const eventsByGroup: Record<number, UpcomingMatch[]> = {}
 
@@ -486,25 +486,9 @@ export default function RootContextProvider(props: {
               firstEvent.eventIdentity.scheduleType ??
               response.schedules.schedule[0].scheduleName,
             mag_event: events.map((event) => {
-              //TODO: replace this events.map() with events when the API is fixed
-              const startTime = new Date()
-
-              // Hardcode Peru timezone hours and minutes instead of using eventDate
-              // Get the current time and adjust it for Peru timezone (UTC-5)
-              const peruHour = startTime.getUTCHours() - 5
-              const peruMinutes = startTime.getUTCMinutes()
-
-              // Adjust for negative hours (previous day)
-              const adjustedHour = peruHour < 0 ? peruHour + 24 : peruHour
-
-              startTime.setHours(adjustedHour)
-              startTime.setMinutes(peruMinutes)
-              startTime.setSeconds(0)
-              startTime.setMilliseconds(0)
-
               return {
                 ...event,
-                startTime: startTime.toISOString(),
+                startTime: new Date(event.eventIdentity.startTime).toISOString(),
               }
             }),
           }
