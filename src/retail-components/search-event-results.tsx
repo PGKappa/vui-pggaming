@@ -126,12 +126,6 @@ export default function SearchEventResults() {
               ? 'dogs6'
               : `${discipline.toLowerCase()}6`
 
-        console.log('Fetching results for:', {
-          discipline,
-          date: apiDateFormat,
-          gameIds,
-        })
-
         const response = await fetch(
           'https://apidev.pgvirtual.eu/api/event/results/list',
           {
@@ -167,7 +161,6 @@ export default function SearchEventResults() {
         }
 
         const data = await response.json()
-        console.log('API Response:', data)
 
         if (!data.items || !Array.isArray(data.items)) {
           console.warn('No items found in API response')
@@ -181,8 +174,6 @@ export default function SearchEventResults() {
           discipline === Discipline.HORSES ||
           discipline === Discipline.DOGS
         ) {
-          console.log(`Processing ${discipline}:`, data.items.length, 'events')
-
           // Processa tutti i risultati
           results = await Promise.all(
             data.items.map(async (result: any) => {
@@ -241,8 +232,6 @@ export default function SearchEventResults() {
             }),
           )
         } else if (discipline === Discipline.SOCCER) {
-          console.log('Processing SOCCER:', data.items.length, 'events')
-
           results = data.items.map((result: any) => {
             let startTime: Date
             try {
@@ -280,7 +269,6 @@ export default function SearchEventResults() {
             } as EventResult
           })
         } else {
-          console.log('Processing OTHER discipline:', discipline)
           results = data.items.map((result: any) => {
             let startTime: Date
             try {
@@ -304,7 +292,6 @@ export default function SearchEventResults() {
           })
         }
 
-        console.log('Processed results:', results.length, 'events')
         setFetchedResults(results)
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : 'Unknown error'
@@ -318,15 +305,6 @@ export default function SearchEventResults() {
   }, [selectedDate, selectedDiscipline, lastTenGames])
 
   const filteredEventResults = useMemo(() => {
-    console.log('Filtering results:', {
-      selectedDiscipline,
-      lastTenGames,
-      selectedDate,
-      selectedTimeSlot,
-      fetchedResultsCount: fetchedResults.length,
-      contextResultsCount: rootContext.eventResults?.length || 0,
-    })
-
     if (selectedDiscipline === 'NONE') return []
 
     if (lastTenGames) {
@@ -335,13 +313,11 @@ export default function SearchEventResults() {
         .sort((a, b) => b.startTime.getTime() - a.startTime.getTime())
         .slice(0, 10)
 
-      console.log('Last 10 games filtered:', filtered.length)
       return filtered
     }
 
     // Modalità con data selezionata: usa fetchedResults (tutti i risultati del giorno)
     if (!selectedDate) {
-      console.log('No date selected, returning empty array')
       return []
     }
 

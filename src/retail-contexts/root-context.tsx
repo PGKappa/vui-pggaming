@@ -384,17 +384,17 @@ export default function RootContextProvider(props: {
 
       // Extract and set language from URL immediately
       const parts = initCode.split('-')
-      console.log('🔍 Root context - parsing init code:', initCode, parts)
+      console.log('Root context - parsing init code:', initCode, parts)
 
       if (parts.length >= 4) {
         // Format: TEST-USD-en-US
         const langPart = parts[2].toLowerCase() // 'en'
-        console.log('🌍 Setting language from URL (4 parts):', langPart)
+        console.log('Setting language from URL (4 parts):', langPart)
         i18n.changeLanguage(langPart)
       } else if (parts.length >= 3) {
         // Format: TEST-RUS-ru-RU
         const langPart = parts[2].toLowerCase() // 'ru'
-        console.log('🌍 Setting language from URL (3 parts):', langPart)
+        console.log('Setting language from URL (3 parts):', langPart)
         i18n.changeLanguage(langPart)
       }
     } else {
@@ -419,13 +419,6 @@ export default function RootContextProvider(props: {
         } as UserApiResponse
 
         if (userData?.status === '1024') {
-          console.log(
-            'User data loaded, keeping URL language. User lang:',
-            userData.lang,
-            'Current lang:',
-            i18n.language,
-          )
-
           setRootContext((prev) => ({
             ...prev,
             userData,
