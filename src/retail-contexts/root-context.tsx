@@ -457,13 +457,10 @@ export default function RootContextProvider(props: {
     if (!initCode) return
 
     const fetchUpcomingRounds = async () => {
-      const response = upcomingRoundsJson as unknown as {
-        schedules: {
-          schedule: UpcomingRound[]
-        }
-      }
-
-      if (!response?.schedules?.schedule?.length) return
+      const fetchResponse = await fetch('https://pg-gaming.stg.startegois.com/proxy/football/incoming.php')
+      if (!fetchResponse.ok) return
+      const response = await fetchResponse.json() as { schedules: { schedule: UpcomingRound[] } }
+      if (!response.schedules.schedule.length) return
 
       const allEvents = response.schedules.schedule[0].mag_event.slice(4) || [] //TODO: remove .slice(4) when the API is fixed
 
