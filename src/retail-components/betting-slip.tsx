@@ -26,13 +26,32 @@ import { toast } from 'sonner'
 
 export type BetMode = 'SINGLE' | 'MULTIPLE' | 'SYSTEM'
 
+const getEventStatus = (event: any): 'active' | 'expired' => {
+  if (!event) {
+    return 'active'
+  }
+
+  if (!event.startingAt) {
+    return 'active'
+  }
+
+  const now = new Date()
+  const eventTime = new Date(event.startingAt)
+
+  if (event.discipline === 'SOCCER') {
+    return 'active'
+  }
+
+  const isExpired = now >= eventTime
+
+  return isExpired ? 'expired' : 'active'
+}
+
 export default function BettingSlip({
   selectedEvent,
 }: {
   selectedEvent?: any
 }) {
-  console.log('BettingSlip rendered with selectedEvent:', selectedEvent)
-
   const {
     betEntries,
     betsByEvent,
@@ -75,6 +94,20 @@ export default function BettingSlip({
   const handleBetNow = async () => {
     if (betEntries.length === 0) {
       toast.error(t('no_bet_selected'))
+      return
+    }
+
+    const expiredEvents: string[] = []
+    betEntries.forEach((entry) => {
+      const eventStatus = getEventStatus(entry.bet.event)
+
+      if (eventStatus === 'expired') {
+        expiredEvents.push(entry.bet.event.name)
+      }
+    })
+
+    if (expiredEvents.length > 0) {
+      toast.error(t('cannot_bet_expired_events'))
       return
     }
 

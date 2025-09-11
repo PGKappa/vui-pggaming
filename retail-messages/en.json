@@ -233,5 +233,6 @@
   "invalid_code_selection": "Invalid code or selection",
   "no_event_selected": "No event selected",
   "no_odds_found": "No odds found for this code",
-  "bets_added": "bet(s) added"
+  "bets_added": "Bet(s) added",
+  "cannot_bet_expired_events": "Cannot bet on expired events"
 }
