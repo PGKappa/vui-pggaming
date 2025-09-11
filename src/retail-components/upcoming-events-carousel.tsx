@@ -46,13 +46,10 @@ export function UpcomingEventsCarousel(props: {
       : []
   }, [upcomingEvents, disciplines])
 
-  // ✅ Callback per gestire eventi scaduti
+  // Callback per gestire eventi scaduti
   const handleEventExpired = useCallback(
     (expiredEvent: UpcomingEvent) => {
-      console.log(
-        `🗑️ Event expired: ${expiredEvent.name} (ID: ${expiredEvent.id})`,
-      )
-
+      
       // Se l'evento scaduto è quello attualmente selezionato
       if (
         props.selectedEvent?.id === expiredEvent.id &&
@@ -66,9 +63,6 @@ export function UpcomingEventsCarousel(props: {
         )
 
         if (availableEvents.length > 0) {
-          console.log(
-            `🔄 Auto-selecting next event: ${availableEvents[0].name}`,
-          )
           props.setSelectedEvent(availableEvents[0])
         }
       }
@@ -76,7 +70,7 @@ export function UpcomingEventsCarousel(props: {
     [filteredAndSortedEvents, props],
   )
 
-  // ✅ Auto-selezione del primo evento se nessuno è selezionato
+  // Auto-selezione del primo evento se nessuno è selezionato
   useEffect(() => {
     if (!props.selectedEvent && filteredAndSortedEvents.length > 0) {
       props.setSelectedEvent(filteredAndSortedEvents[0])
