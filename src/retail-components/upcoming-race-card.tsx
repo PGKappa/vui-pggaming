@@ -17,6 +17,7 @@ import {
   TableRow,
 } from './ui/table'
 import { Toggle } from './ui/toggle'
+import { Check } from 'lucide-react'
 
 type UpcomingRaceCardProps = {
   race: UpcomingEvent
@@ -523,7 +524,14 @@ export default function UpcomingRaceCard({
                   onPressedChange={() => toggleDisorderSelection(racer.number)}
                   onClick={(e) => e.stopPropagation()}
                   className="h-12 w-24 border-betEntry-border"
-                />
+                >
+                  {disorderSelection.includes(racer.number) && (
+                    <Check
+                      className="h-12 w-12 text-accent"
+                      style={{ scale: 1.5 }}
+                    />
+                  )}
+                </Toggle>
               </div>
             </div>
           </TableCell>
@@ -590,7 +598,14 @@ export default function UpcomingRaceCard({
                   onPressedChange={() => toggleDisorderSelection(racer.number)}
                   onClick={(e) => e.stopPropagation()}
                   className="h-12 w-24 border-betEntry-border"
-                />
+                >
+                  {disorderSelection.includes(racer.number) && (
+                    <Check
+                      className="h-12 w-12 text-accent"
+                      style={{ scale: 1.5 }}
+                    />
+                  )}
+                </Toggle>
               </div>
             </div>
           </TableCell>
