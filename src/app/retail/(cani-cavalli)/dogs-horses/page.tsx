@@ -68,7 +68,7 @@ export default function Home() {
 
       {/* RIGHT COLUMN - Betting slip */}
       <div className="h-[942px] w-[410px] bg-background text-foreground">
-        <BettingSlip />
+        <BettingSlip selectedEvent={selectedEvent} />
       </div>
     </div>
   )
