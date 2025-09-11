@@ -16,7 +16,6 @@ import { BASE_API_URL } from '@/retail-lib/utils'
 import { createContext, useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import upcomingRoundsJson from './upcoming-rounds.json'
 
 export type RootContextType = {
   userData?: User
