@@ -1,13 +1,19 @@
 import { useEffect, useState } from 'react'
 
-export default function useTimeLeft(targetTime: Date | string): string {
+export default function useTimeLeft(
+  targetTime: Date | string,
+  discipline?: string,
+): string {
   const [timeLeft, setTimeLeft] = useState<string>('')
 
   useEffect(() => {
     const calculateTimeLeft = () => {
-      // Assicurati che targetTime sia un oggetto Date
       const target =
         targetTime instanceof Date ? targetTime : new Date(targetTime)
+
+      if (discipline === 'SOCCER') {
+        return '05:00'
+      }
 
       // Controlla se la data è valida
       if (isNaN(target.getTime())) {
@@ -34,13 +40,17 @@ export default function useTimeLeft(targetTime: Date | string): string {
 
     setTimeLeft(calculateTimeLeft())
 
+    if (discipline === 'SOCCER') {
+      return
+    }
+
     // Aggiorna ogni secondo per vedere i secondi cambiare
     const timer = setInterval(() => {
       setTimeLeft(calculateTimeLeft())
     }, 1000)
 
     return () => clearInterval(timer)
-  }, [targetTime])
+  }, [targetTime, discipline])
 
   return timeLeft
 }
