@@ -216,5 +216,10 @@
   "even_race": "Pari\nP",
   "odd_race": "Dispari\nD",
   "under_race": "Under\nU",
-  "over_race": "Over\nO"
+  "over_race": "Over\nO",
+  "game_rules": "Regole del Gioco",
+  "latecomers": "Ritardatari",
+  "delay": "Ritardo",
+  "no_latecomers": "Nessun ritardatario per questa corsa",
+  "market": "Mercato"
 }

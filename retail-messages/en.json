@@ -235,5 +235,9 @@
   "no_odds_found": "No odds found for this code",
   "bets_added": "Bet(s) added",
   "cannot_bet_expired_events": "Cannot bet on expired events",
-  "game_rules": "Game Rules"
+  "game_rules": "Game Rules",
+  "latecomers": "Latecomers",
+  "delay": "Delay",
+  "no_latecomers": "No latecomers for this race",
+  "market": "Market"
 }

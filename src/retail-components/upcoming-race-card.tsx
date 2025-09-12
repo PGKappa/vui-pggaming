@@ -4,6 +4,7 @@ import { t } from 'i18next'
 import { useContext, useEffect, useState } from 'react'
 import BetCombinationsTable from './bet-combination-table'
 import BetEntryToggle from './bet-entry-toggle'
+import LatecomersDialog from './latecomers-dialog'
 import MedalsHistory from './medals-history'
 import { Button } from './ui/button'
 import { Card, CardContent, CardHeader } from './ui/card'
@@ -18,7 +19,7 @@ import {
   TableRow,
 } from './ui/table'
 import { Toggle } from './ui/toggle'
-import { Check, Info } from 'lucide-react'
+import { Check, Info, Clock } from 'lucide-react'
 
 type UpcomingRaceCardProps = {
   race: UpcomingEvent
@@ -46,6 +47,7 @@ export default function UpcomingRaceCard({
   const [disorderSelection, setDisorderSelection] = useState<number[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isInfoDialogOpen, setIsInfoDialogOpen] = useState(false)
+  const [isLatecomersDialogOpen, setIsLatecomersDialogOpen] = useState(false)
 
   // Aggiungi il context
   const { betEntries } = useContext(BetsContext)
@@ -789,7 +791,19 @@ export default function UpcomingRaceCard({
                 className="h-11 w-11 border-border bg-secondary text-secondary-foreground"
                 onClick={() => setIsInfoDialogOpen(true)}
               >
-                <Info style={{ scale: 1.2 }} />
+                <Info style={{ scale: 1.5 }} />
+              </Button>
+            )}
+
+            {/* Pulsante Latecomers (solo per cani e cavalli) */}
+            {shouldShowInfoButton() && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-11 w-11 border-border bg-secondary text-secondary-foreground"
+                onClick={() => setIsLatecomersDialogOpen(true)}
+              >
+                <Clock style={{ scale: 1.5 }} />
               </Button>
             )}
           </div>
@@ -916,6 +930,13 @@ export default function UpcomingRaceCard({
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Dialog per i Latecomers */}
+      <LatecomersDialog
+        isOpen={isLatecomersDialogOpen}
+        onOpenChange={setIsLatecomersDialogOpen}
+        raceInfo={raceInfo}
+      />
     </>
   )
 }
