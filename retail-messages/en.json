@@ -1,7 +1,7 @@
 {
   "select_category": "Select Category",
   "ch1": "Ch1",
-  "ch2": "Ch2",
+  "ch4": "Ch4",
   "ch3": "Ch3",
   "ticket_list": "Ticket List",
   "ticket_check": "Ticket Check",
@@ -234,5 +234,6 @@
   "no_event_selected": "No event selected",
   "no_odds_found": "No odds found for this code",
   "bets_added": "Bet(s) added",
-  "cannot_bet_expired_events": "Cannot bet on expired events"
+  "cannot_bet_expired_events": "Cannot bet on expired events",
+  "game_rules": "Game Rules"
 }

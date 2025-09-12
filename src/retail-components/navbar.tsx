@@ -94,7 +94,7 @@ export default function Navbar() {
             height={20}
             className="object-contain"
           />
-          <span className="text-[16px] font-bold">{t('ch2')}</span>
+          <span className="text-[16px] font-bold">{t('ch3')}</span>
         </Link>
 
         <Link
@@ -115,7 +115,7 @@ export default function Navbar() {
             height={20}
             className="size-5 object-contain brightness-0 invert filter"
           />
-          <span className="text-[16px] font-bold">{t('ch3')}</span>
+          <span className="text-[16px] font-bold">{t('ch4')}</span>
         </Link>
       </div>
 

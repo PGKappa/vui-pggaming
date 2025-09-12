@@ -7,6 +7,7 @@ import BetEntryToggle from './bet-entry-toggle'
 import MedalsHistory from './medals-history'
 import { Button } from './ui/button'
 import { Card, CardContent, CardHeader } from './ui/card'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog'
 import { Progress } from './ui/progress'
 import {
   Table,
@@ -17,7 +18,7 @@ import {
   TableRow,
 } from './ui/table'
 import { Toggle } from './ui/toggle'
-import { Check } from 'lucide-react'
+import { Check, Info } from 'lucide-react'
 
 type UpcomingRaceCardProps = {
   race: UpcomingEvent
@@ -44,6 +45,7 @@ export default function UpcomingRaceCard({
   const [position3Selection, setPosition3Selection] = useState<number[]>([])
   const [disorderSelection, setDisorderSelection] = useState<number[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [isInfoDialogOpen, setIsInfoDialogOpen] = useState(false)
 
   // Aggiungi il context
   const { betEntries } = useContext(BetsContext)
@@ -145,6 +147,11 @@ export default function UpcomingRaceCard({
         'anyOrder',
       ],
     },
+  }
+
+  // Helper per determinare se mostrare il pulsante info (solo per cani e cavalli)
+  const shouldShowInfoButton = () => {
+    return race.discipline === 'DOGS' || race.discipline === 'HORSES'
   }
 
   useEffect(() => {
@@ -758,19 +765,34 @@ export default function UpcomingRaceCard({
             ))}
           </div>
 
-          {(activeTab === 'couples' || activeTab === 'triplets') &&
-            (position1Selection.length > 0 ||
-              position2Selection.length > 0 ||
-              position3Selection.length > 0 ||
-              disorderSelection.length > 0) && (
+          <div className="flex items-center gap-2">
+            {/* Pulsante Clear */}
+            {(activeTab === 'couples' || activeTab === 'triplets') &&
+              (position1Selection.length > 0 ||
+                position2Selection.length > 0 ||
+                position3Selection.length > 0 ||
+                disorderSelection.length > 0) && (
+                <Button
+                  variant="ghost"
+                  className="h-11 w-28 bg-secondary px-4 text-[16px] font-bold text-secondary-foreground"
+                  onClick={clearSelections}
+                >
+                  {t('clear_all').toUpperCase()}
+                </Button>
+              )}
+
+            {/* Pulsante Info (solo per cani e cavalli) */}
+            {shouldShowInfoButton() && (
               <Button
                 variant="ghost"
-                className="h-11 w-28 bg-secondary px-4 text-[16px] font-bold text-secondary-foreground"
-                onClick={clearSelections}
+                size="icon"
+                className="h-11 w-11 border-border bg-secondary text-secondary-foreground"
+                onClick={() => setIsInfoDialogOpen(true)}
               >
-                {t('clear_all').toUpperCase()}
+                <Info style={{ scale: 1.2 }} />
               </Button>
             )}
+          </div>
         </CardHeader>
 
         <CardContent>
@@ -878,6 +900,22 @@ export default function UpcomingRaceCard({
           onClearSelections={clearSelections}
         />
       )}
+
+      {/* Dialog per le informazioni sul gioco */}
+      <Dialog open={isInfoDialogOpen} onOpenChange={setIsInfoDialogOpen}>
+        <DialogContent className="w-full overflow-hidden bg-accent">
+          <DialogHeader className="bg-secondary text-secondary-foreground">
+            <DialogTitle>{t('game_rules')}</DialogTitle>
+          </DialogHeader>
+          <div className="h-[1020px] w-full">
+            <iframe
+              src="https://d190050z3qr0m1.cloudfront.net/public/Gaming_manual_us.html"
+              className="h-full w-full border-0"
+              title="Game Rules"
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   )
 }
