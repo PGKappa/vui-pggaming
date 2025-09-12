@@ -136,6 +136,37 @@ export default function FastBet({ selectedEvent }: { selectedEvent?: any }) {
     setSelectionInput('')
   }
 
+  const handleCodeClick = (code: string) => {
+    setCodeInput(code)
+    setSelectionInput('') // Clear selection when changing code
+  }
+
+  const handleDirectBet = async (code: string) => {
+    if (!selectedEvent) {
+      toast.error(t('no_event_selected'))
+      return
+    }
+
+    const parsedCode = parseFastBetInput(code, '')
+
+    if (!parsedCode) {
+      toast.error(t('invalid_code_selection'))
+      return
+    }
+
+    const bets = await createBetFromFastCode(parsedCode, selectedEvent)
+
+    if (!bets || bets.length === 0) {
+      toast.error(t('no_odds_found'))
+      return
+    }
+
+    const marketName = markets[parsedCode.code]?.name || 'FastBet'
+
+    addBets(marketName, bets)
+    toast.success(`${bets.length} ${t('bets_added')}`)
+  }
+
   const submitOnEnter = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       handleSubmit()
@@ -149,9 +180,13 @@ export default function FastBet({ selectedEvent }: { selectedEvent?: any }) {
           {t('fastbet')}
         </span>
         {discipline === 'racing' ? (
-          <RacingCodeList markets={markets} />
+          <RacingCodeList
+            markets={markets}
+            onCodeClick={handleCodeClick}
+            onDirectBet={handleDirectBet}
+          />
         ) : (
-          <CodeList />
+          <CodeList onDirectBet={handleDirectBet} />
         )}
       </div>
       <div className="flex flex-row items-center gap-1">

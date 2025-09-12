@@ -43,12 +43,20 @@ const codeListRight = [
   { label: 'multigoal_away_2plus', code: '2+' },
 ]
 
-export default function CodeList() {
+export default function CodeList(props?: {
+  onDirectBet?: (code: string) => void
+}) {
   const { t } = useTranslation()
   const [singleColumn, setSingleColumn] = useState(false)
+  const [open, setOpen] = useState(false)
+
+  const handleCodeClick = (code: string) => {
+    props?.onDirectBet?.(code)
+    setOpen(false)
+  }
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button className="w-32 bg-bet text-[16px] font-bold text-bet-foreground hover:bg-bet/70">
           {t('code_list')}
@@ -97,7 +105,10 @@ export default function CodeList() {
                       {t(item.label)}
                     </TableCell>
                     <TableCell className="text-center">
-                      <div className="ml-auto flex h-8 w-8 items-center justify-center bg-bet font-bold text-bet-foreground">
+                      <div
+                        className="ml-auto flex h-8 w-8 cursor-pointer items-center justify-center bg-bet font-bold text-bet-foreground transition-colors hover:bg-bet/80"
+                        onClick={() => handleCodeClick(item.code)}
+                      >
                         {item.code}
                       </div>
                     </TableCell>
@@ -116,7 +127,10 @@ export default function CodeList() {
                       {t(item.label)}
                     </TableCell>
                     <TableCell>
-                      <div className="ml-auto flex h-8 w-8 items-center justify-center bg-bet font-bold text-bet-foreground">
+                      <div
+                        className="ml-auto flex h-8 w-8 cursor-pointer items-center justify-center bg-bet font-bold text-bet-foreground transition-colors hover:bg-bet/80"
+                        onClick={() => handleCodeClick(item.code)}
+                      >
                         {item.code}
                       </div>
                     </TableCell>
@@ -133,7 +147,10 @@ export default function CodeList() {
                       {t(item.label)}
                     </TableCell>
                     <TableCell className="text-center">
-                      <div className="ml-auto flex h-8 w-8 items-center justify-center bg-bet font-bold text-bet-foreground">
+                      <div
+                        className="ml-auto flex h-8 w-8 cursor-pointer items-center justify-center bg-bet font-bold text-bet-foreground transition-colors hover:bg-bet/80"
+                        onClick={() => handleCodeClick(item.code)}
+                      >
                         {item.code}
                       </div>
                     </TableCell>
