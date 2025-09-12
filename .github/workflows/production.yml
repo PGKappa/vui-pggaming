@@ -42,4 +42,4 @@ jobs:
         run: pnpm run build
 
       - name: Deploy
-        run: aws s3 sync out/ s3://pg-gaming/
+        run: aws s3 sync out/ s3://pg-gaming.startegois.com/
