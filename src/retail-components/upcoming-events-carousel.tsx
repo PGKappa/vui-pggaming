@@ -7,7 +7,7 @@ import {
 } from '@/retail-components/ui/carousel'
 import { RootContext } from '@/retail-contexts/root-context'
 import { Discipline, UpcomingEvent } from '@/retail-lib/types'
-import { useCallback, useContext, useEffect, useMemo } from 'react'
+import { useContext, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import useTimeLeft from '@/retail-lib/use-time-left'
@@ -22,17 +22,17 @@ export function UpcomingEventsCarousel(props: {
   const { t } = useTranslation()
 
   const disciplines = useMemo(() => {
-  const path = window.location.pathname
-  if (path.includes('dogs-horses')) {
-    return [Discipline.DOGS, Discipline.HORSES]
-  } else if (path.includes('dogs')) {
-    return [Discipline.DOGS]
-  } else if (path.includes('horses')) {
-    return [Discipline.HORSES]
-  } else {
-    return [Discipline.SOCCER]
-  }
-}, [])
+    const path = window.location.pathname
+    if (path.includes('dogs-horses')) {
+      return [Discipline.DOGS, Discipline.HORSES]
+    } else if (path.includes('dogs')) {
+      return [Discipline.DOGS]
+    } else if (path.includes('horses')) {
+      return [Discipline.HORSES]
+    } else {
+      return [Discipline.SOCCER]
+    }
+  }, [])
 
   const filteredAndSortedEvents = useMemo(() => {
     return upcomingEvents
@@ -46,37 +46,6 @@ export function UpcomingEventsCarousel(props: {
       : []
   }, [upcomingEvents, disciplines])
 
-  // Callback per gestire eventi scaduti
-  const handleEventExpired = useCallback(
-    (expiredEvent: UpcomingEvent) => {
-      
-      // Se l'evento scaduto è quello attualmente selezionato
-      if (
-        props.selectedEvent?.id === expiredEvent.id &&
-        props.selectedEvent?.discipline === expiredEvent.discipline
-      ) {
-        // Trova il prossimo evento disponibile
-        const availableEvents = filteredAndSortedEvents.filter(
-          (event) =>
-            event.id !== expiredEvent.id ||
-            event.discipline !== expiredEvent.discipline,
-        )
-
-        if (availableEvents.length > 0) {
-          props.setSelectedEvent(availableEvents[0])
-        }
-      }
-    },
-    [filteredAndSortedEvents, props],
-  )
-
-  // Auto-selezione del primo evento se nessuno è selezionato
-  useEffect(() => {
-    if (!props.selectedEvent && filteredAndSortedEvents.length > 0) {
-      props.setSelectedEvent(filteredAndSortedEvents[0])
-    }
-  }, [filteredAndSortedEvents, props])
-
   return (
     <Carousel className="w-[1370px]">
       <CarouselContent className="-ml-1">
@@ -88,7 +57,6 @@ export function UpcomingEventsCarousel(props: {
                 event={event}
                 selectedEvent={props.selectedEvent}
                 setSelectedEvent={props.setSelectedEvent}
-                onEventExpired={handleEventExpired}
               />
             )
           })
@@ -108,21 +76,14 @@ function UpcomingEventItem(props: {
   event: UpcomingEvent
   selectedEvent?: UpcomingEvent
   setSelectedEvent: (event: UpcomingEvent) => void
-  onEventExpired?: (expiredEvent: UpcomingEvent) => void
 }) {
   const { event } = props
 
   const { t } = useTranslation()
   const timeToEventStart = useTimeLeft(event.time)
 
-  useEffect(() => {
-    if (event.discipline !== 'SOCCER' && timeToEventStart === '00:00') {
-      props.onEventExpired?.(event)
-    }
-  }, [timeToEventStart, props, event])
-
   // Rimuovi quando scaduto
-  if (event.discipline !== 'SOCCER' && timeToEventStart === '00:00') {
+  if (timeToEventStart === '00:00') {
     return null
   }
 
