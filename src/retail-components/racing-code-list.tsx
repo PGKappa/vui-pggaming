@@ -39,14 +39,25 @@ const racingCodeListRight = [
 
 export default function RacingCodeList(props: {
   markets: Record<string, { name: string; selections: number }>
+  onCodeClick?: (code: string) => void
+  onDirectBet?: (code: string) => void
 }) {
   const { t } = useTranslation()
   const [singleColumn, setSingleColumn] = useState(false)
+  const [open, setOpen] = useState(false)
 
-  console.log(props.markets['E'].selections)
+  const handleCodeClick = (code: string) => {
+    const market = props.markets[code]
+    if (market.selections === 0) {
+      props.onDirectBet?.(code)
+    } else {
+      props.onCodeClick?.(code)
+    }
+    setOpen(false)
+  }
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button className="w-32 bg-bet text-[16px] font-bold text-bet-foreground hover:bg-bet/70">
           {t('code_list')}
@@ -105,7 +116,10 @@ export default function RacingCodeList(props: {
                         )}
                       </TableCell>
                       <TableCell className="text-center">
-                        <div className="ml-auto flex h-8 w-8 items-center justify-center bg-bet font-bold text-bet-foreground">
+                        <div
+                          className="ml-auto flex h-8 w-8 cursor-pointer items-center justify-center bg-bet font-bold text-bet-foreground transition-colors hover:bg-bet/80"
+                          onClick={() => handleCodeClick(item.code)}
+                        >
                           {item.code}
                         </div>
                       </TableCell>
@@ -134,7 +148,10 @@ export default function RacingCodeList(props: {
                       )}
                     </TableCell>
                     <TableCell>
-                      <div className="ml-auto flex h-8 w-8 items-center justify-center bg-bet font-bold text-bet-foreground">
+                      <div
+                        className="ml-auto flex h-8 w-8 cursor-pointer items-center justify-center bg-bet font-bold text-bet-foreground transition-colors hover:bg-bet/80"
+                        onClick={() => handleCodeClick(item.code)}
+                      >
                         {item.code}
                       </div>
                     </TableCell>
@@ -160,7 +177,10 @@ export default function RacingCodeList(props: {
                       )}
                     </TableCell>
                     <TableCell className="text-center">
-                      <div className="ml-auto flex h-8 w-8 items-center justify-center bg-bet font-bold text-bet-foreground">
+                      <div
+                        className="ml-auto flex h-8 w-8 cursor-pointer items-center justify-center bg-bet font-bold text-bet-foreground transition-colors hover:bg-bet/80"
+                        onClick={() => handleCodeClick(item.code)}
+                      >
                         {item.code}
                       </div>
                     </TableCell>
