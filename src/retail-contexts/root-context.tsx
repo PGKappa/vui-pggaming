@@ -313,6 +313,26 @@ function getInitCodeFromUrl(): string | undefined {
   return params.get('init_code') || undefined
 }
 
+type Area = "dogs" | "horses" | "calcio"
+
+function getAreaFromUrl(): Area[] {
+  if (typeof window === 'undefined') return []
+
+  if (window.location.pathname.includes("dogs-horses")) {
+    return ["dogs", "horses"]
+  }
+  if (window.location.pathname.includes("dogs")) {
+    return ["dogs"]
+  }
+  if (window.location.pathname.includes("horses")) {
+    return ["horses"]
+  }
+  if (window.location.pathname.includes("calcio")) {
+    return ["calcio"]
+  }
+  return [];
+}
+
 export default function RootContextProvider(props: {
   children: React.ReactNode
 }) {
@@ -983,11 +1003,18 @@ export default function RootContextProvider(props: {
 
     const fetchAllEvents = async () => {
       try {
-        await Promise.all([
-          fetchUpcomingRounds(),
-          fetchUpcomingHorseEvents(),
-          fetchUpcomingDogEvents(),
-        ])
+        const promises: Promise<void>[] = [];
+        const area = getAreaFromUrl();
+        if (area.includes("calcio")) {
+          promises.push(fetchUpcomingRounds())
+        }
+        if (area.includes("dogs")) {
+          promises.push(fetchUpcomingDogEvents())
+        }
+        if (area.includes("horses")) {
+          promises.push(fetchUpcomingHorseEvents())
+        }
+        await Promise.all(promises)
       } finally {
         setIsLoadingEvents(false)
       }
