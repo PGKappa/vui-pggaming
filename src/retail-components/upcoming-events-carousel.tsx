@@ -53,9 +53,9 @@ export function UpcomingEventsCarousel(props: {
         {isLoadingEvents ? (
           // Show skeleton loading
           Array.from({ length: 6 }).map((_, index) => (
-            <CarouselItem
+            <div
               key={`skeleton-${index}`}
-              className="flex h-[72px] basis-1/6 items-center justify-center gap-3 py-2"
+              className="flex h-[72px] basis-1/6 items-center justify-center gap-3 bg-muted/30 py-2"
             >
               <Skeleton className="h-12 w-12 rounded" />
               <div className="flex flex-col gap-2">
@@ -63,7 +63,7 @@ export function UpcomingEventsCarousel(props: {
                 <Skeleton className="h-4 w-16" />
                 <Skeleton className="h-3 w-24" />
               </div>
-            </CarouselItem>
+            </div>
           ))
         ) : filteredAndSortedEvents.length > 0 ? (
           filteredAndSortedEvents.map((event, index) => {
