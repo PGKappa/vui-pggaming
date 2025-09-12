@@ -2,12 +2,14 @@
 
 import { RootContext } from '@/retail-contexts/root-context'
 import { cn } from '@/retail-lib/utils'
+import { Info } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
-import { useContext } from 'react'
+import { useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button, buttonVariants } from './ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog'
 
 export default function Navbar() {
   const { t } = useTranslation()
@@ -16,6 +18,18 @@ export default function Navbar() {
   const initCode = searchParams.get('init_code')
 
   const { eventResults, setSearchEventResults } = useContext(RootContext)
+  const [isInfoDialogOpen, setIsInfoDialogOpen] = useState(false)
+
+  // Helper per determinare il link info basato sulla pagina
+  const getInfoLink = () => {
+    if (pathname.includes('/calcio')) {
+      // Link per il calcio (per ora fake)
+      return 'https://d190050z3qr0m1.cloudfront.net/public/Soccer_manual_fake.html'
+    } else {
+      // Per cani e cavalli
+      return 'https://d190050z3qr0m1.cloudfront.net/public/RD-RH_Gaming_manual_en.html'
+    }
+  }
 
   return (
     <div
@@ -130,6 +144,16 @@ export default function Navbar() {
           <span className="text-[16px] font-bold">{t('search_results')}</span>
         </Button>
 
+        {/* Pulsante Info - sempre visibile con dialog diversi per calcio vs racing */}
+        <Button
+          className="w-10"
+          variant="ticketButton"
+          size="lg"
+          onClick={() => setIsInfoDialogOpen(true)}
+        >
+          <Info style={{ scale: 1.5 }} />
+        </Button>
+
         {/* <Link
           href={`/retail/calcio/ticket-list${initCode ? `?init_code=${initCode}` : ''}`}
           className={buttonVariants({
@@ -150,6 +174,22 @@ export default function Navbar() {
           <span className="text-[16px] font-bold">{t('ticket_check')}</span>
         </Link> */}
       </div>
+
+      {/* Dialog per le informazioni sul gioco - cambia contenuto per disciplina */}
+      <Dialog open={isInfoDialogOpen} onOpenChange={setIsInfoDialogOpen}>
+        <DialogContent className="w-full overflow-hidden bg-accent">
+          <DialogHeader className="bg-secondary text-secondary-foreground">
+            <DialogTitle>{t('game_rules')}</DialogTitle>
+          </DialogHeader>
+          <div className="h-[1020px] w-full">
+            <iframe
+              src={getInfoLink()}
+              className="h-full w-full border-0"
+              title="Game Rules"
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

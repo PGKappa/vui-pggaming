@@ -8,7 +8,6 @@ import LatecomersDialog from './latecomers-dialog'
 import MedalsHistory from './medals-history'
 import { Button } from './ui/button'
 import { Card, CardContent, CardHeader } from './ui/card'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog'
 import { Progress } from './ui/progress'
 import {
   Table,
@@ -19,7 +18,7 @@ import {
   TableRow,
 } from './ui/table'
 import { Toggle } from './ui/toggle'
-import { Check, Info, Clock } from 'lucide-react'
+import { Check, Clock } from 'lucide-react'
 
 type UpcomingRaceCardProps = {
   race: UpcomingEvent
@@ -46,7 +45,6 @@ export default function UpcomingRaceCard({
   const [position3Selection, setPosition3Selection] = useState<number[]>([])
   const [disorderSelection, setDisorderSelection] = useState<number[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [isInfoDialogOpen, setIsInfoDialogOpen] = useState(false)
   const [isLatecomersDialogOpen, setIsLatecomersDialogOpen] = useState(false)
 
   // Aggiungi il context
@@ -783,18 +781,6 @@ export default function UpcomingRaceCard({
                 </Button>
               )}
 
-            {/* Pulsante Info (solo per cani e cavalli) */}
-            {shouldShowInfoButton() && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-11 w-11 border-border bg-secondary text-secondary-foreground"
-                onClick={() => setIsInfoDialogOpen(true)}
-              >
-                <Info style={{ scale: 1.5 }} />
-              </Button>
-            )}
-
             {/* Pulsante Latecomers (solo per cani e cavalli) */}
             {shouldShowInfoButton() && (
               <Button
@@ -914,22 +900,6 @@ export default function UpcomingRaceCard({
           onClearSelections={clearSelections}
         />
       )}
-
-      {/* Dialog per le informazioni sul gioco */}
-      <Dialog open={isInfoDialogOpen} onOpenChange={setIsInfoDialogOpen}>
-        <DialogContent className="w-full overflow-hidden bg-accent">
-          <DialogHeader className="bg-secondary text-secondary-foreground">
-            <DialogTitle>{t('game_rules')}</DialogTitle>
-          </DialogHeader>
-          <div className="h-[1020px] w-full">
-            <iframe
-              src="https://d190050z3qr0m1.cloudfront.net/public/Gaming_manual_us.html"
-              className="h-full w-full border-0"
-              title="Game Rules"
-            />
-          </div>
-        </DialogContent>
-      </Dialog>
 
       {/* Dialog per i Latecomers */}
       <LatecomersDialog
