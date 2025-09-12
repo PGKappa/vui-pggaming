@@ -119,10 +119,10 @@ function UpcomingEventItem(props: {
         <Image
           src={
             event.discipline === 'SOCCER'
-              ? '/soccer.svg'
+              ? '/calciatore_blu.png'
               : event.discipline === 'DOGS'
-                ? '/dogs.png'
-                : '/horses.png'
+                ? '/cavallo_blu.png'
+                : '/cane_blu.png'
           }
           alt={'Horses'}
           width={40}
