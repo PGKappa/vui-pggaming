@@ -1,6 +1,7 @@
 'use client'
 import BettingSlip from '@/retail-components/betting-slip'
 import SearchEventResults from '@/retail-components/search-event-results'
+import SkeletonRaceCard from '@/retail-components/skeleton-race-card'
 import { ScrollArea } from '@/retail-components/ui/scroll-area'
 import { UpcomingEventsCarousel } from '@/retail-components/upcoming-events-carousel'
 import UpcomingRaceCard from '@/retail-components/upcoming-race-card'
@@ -15,6 +16,7 @@ export default function Home() {
     upcomingEvents,
     searchEventResults: searchRoundResults,
     setSearchEventResults: setSearchRoundResults,
+    isLoadingEvents,
   } = useContext(RootContext)
 
   const [selectedEvent, setSelectedEvent] = useState<UpcomingEvent | undefined>(
@@ -54,6 +56,8 @@ export default function Home() {
             <ScrollArea className="h-full w-full">
               {!!searchRoundResults ? (
                 <SearchEventResults />
+              ) : isLoadingEvents ? (
+                <SkeletonRaceCard />
               ) : selectedEvent ? (
                 <UpcomingRaceCard race={selectedEvent} />
               ) : (
