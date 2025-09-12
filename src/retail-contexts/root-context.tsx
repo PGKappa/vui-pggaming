@@ -456,7 +456,7 @@ export default function RootContextProvider(props: {
     if (!initCode) return
 
     const fetchUpcomingRounds = async () => {
-      const fetchResponse = await fetch('https://pg-gaming.stg.startegois.com/proxy/football/incoming.php')
+      const fetchResponse = await fetch(`https://cvgl.eu/football/incoming.php?t=${(new Date).getTime()}`)
       if (!fetchResponse.ok) return
       const response = await fetchResponse.json() as { schedules: { schedule: UpcomingRound[] } }
       if (!response.schedules.schedule.length) return
