@@ -5,6 +5,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@/retail-components/ui/carousel'
+import { Skeleton } from '@/retail-components/ui/skeleton'
 import { RootContext } from '@/retail-contexts/root-context'
 import { Discipline, UpcomingEvent } from '@/retail-lib/types'
 import { useContext, useMemo } from 'react'
@@ -17,7 +18,7 @@ export function UpcomingEventsCarousel(props: {
   selectedEvent?: UpcomingEvent
   setSelectedEvent: (event: UpcomingEvent) => void
 }) {
-  const { upcomingEvents } = useContext(RootContext)
+  const { upcomingEvents, isLoadingEvents } = useContext(RootContext)
 
   const { t } = useTranslation()
 
@@ -49,7 +50,22 @@ export function UpcomingEventsCarousel(props: {
   return (
     <Carousel className="w-[1370px]">
       <CarouselContent className="-ml-1">
-        {filteredAndSortedEvents.length > 0 ? (
+        {isLoadingEvents ? (
+          // Show skeleton loading
+          Array.from({ length: 6 }).map((_, index) => (
+            <CarouselItem
+              key={`skeleton-${index}`}
+              className="flex h-[72px] basis-1/6 items-center justify-center gap-3 py-2"
+            >
+              <Skeleton className="h-12 w-12 rounded" />
+              <div className="flex flex-col gap-2">
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-4 w-16" />
+                <Skeleton className="h-3 w-24" />
+              </div>
+            </CarouselItem>
+          ))
+        ) : filteredAndSortedEvents.length > 0 ? (
           filteredAndSortedEvents.map((event, index) => {
             return (
               <UpcomingEventItem

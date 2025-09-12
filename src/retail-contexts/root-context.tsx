@@ -31,12 +31,14 @@ export type RootContextType = {
   betsHistory: Ticket[]
   teamRankings?: TeamRanking[]
   eventResults?: EventResult[]
+  isLoadingEvents: boolean
 }
 
 const defaultRootContext: RootContextType = {
   setSearchEventResults: () => {},
   betsHistory: [],
   eventResults: [],
+  isLoadingEvents: false,
   teamRankings: [
     {
       position: 1,
@@ -319,6 +321,7 @@ export default function RootContextProvider(props: {
     useState<RootContextType>(defaultRootContext)
   const { i18n } = useTranslation()
   const [isLoading, setIsLoading] = useState(true)
+  const [isLoadingEvents, setIsLoadingEvents] = useState(false)
 
   type UserApiResponse = {
     status: string
@@ -456,9 +459,13 @@ export default function RootContextProvider(props: {
     if (!initCode) return
 
     const fetchUpcomingRounds = async () => {
-      const fetchResponse = await fetch(`https://cvgl.eu/football/incoming.php?t=${(new Date).getTime()}`)
+      const fetchResponse = await fetch(
+        `https://cvgl.eu/football/incoming.php?t=${new Date().getTime()}`,
+      )
       if (!fetchResponse.ok) return
-      const response = await fetchResponse.json() as { schedules: { schedule: UpcomingRound[] } }
+      const response = (await fetchResponse.json()) as {
+        schedules: { schedule: UpcomingRound[] }
+      }
       if (!response.schedules.schedule.length) return
 
       const allEvents = response.schedules.schedule[0].mag_event || []
@@ -488,7 +495,9 @@ export default function RootContextProvider(props: {
             mag_event: events.map((event) => {
               return {
                 ...event,
-                startTime: new Date(event.eventIdentity.startTime).toISOString(),
+                startTime: new Date(
+                  event.eventIdentity.startTime,
+                ).toISOString(),
               }
             }),
           }
@@ -970,9 +979,21 @@ export default function RootContextProvider(props: {
       }
     }
 
-    fetchUpcomingRounds()
-    fetchUpcomingHorseEvents()
-    fetchUpcomingDogEvents()
+    setIsLoadingEvents(true)
+
+    const fetchAllEvents = async () => {
+      try {
+        await Promise.all([
+          fetchUpcomingRounds(),
+          fetchUpcomingHorseEvents(),
+          fetchUpcomingDogEvents(),
+        ])
+      } finally {
+        setIsLoadingEvents(false)
+      }
+    }
+
+    fetchAllEvents()
   }, [initCode, apiRequest])
 
   if (isLoading) {
@@ -1002,7 +1023,7 @@ export default function RootContextProvider(props: {
   }
 
   return (
-    <RootContext.Provider value={rootContext}>
+    <RootContext.Provider value={{ ...rootContext, isLoadingEvents }}>
       {props.children}
     </RootContext.Provider>
   )
