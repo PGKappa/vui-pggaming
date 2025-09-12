@@ -27,14 +27,70 @@ function getDisciplineFromPath(): 'soccer' | 'racing' {
 export default function FastBet({ selectedEvent }: { selectedEvent?: any }) {
   const { t } = useTranslation()
   const discipline = getDisciplineFromPath()
+
+  const markets = {
+    W: { name: 'Winner', selections: 1 },
+    P: { name: 'Placed', selections: 1 },
+    S: { name: 'Show', selections: 1 },
+    E: { name: 'Exacta', selections: 2 },
+    Q: { name: 'Quinella', selections: 2 },
+    O: { name: 'Under/Over', selections: 0 },
+    EV: { name: 'Even/Odd', selections: 0 },
+    OD: { name: 'Even/Odd', selections: 0 },
+    T: { name: 'Trifecta', selections: 3 },
+    BT: { name: 'Boxed Trifecta', selections: 3 },
+    U: { name: 'Under/Over', selections: 0 },
+  }
+
   const [codeInput, setCodeInput] = useState('')
   const [selectionInput, setSelectionInput] = useState('')
 
   const { addBets } = useContext(BetsContext)
 
+  const currentMarket = markets[codeInput.trim()]
+  const isSelectionInputDisabled =
+    !codeInput.trim() || currentMarket?.selections === 0
+
+  const handleSelectionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!currentMarket || currentMarket.selections === 0) return
+
+    const value = e.target.value
+    const numbersOnly = value.replace(/[^0-9]/g, '')
+
+    let formattedValue = ''
+    for (
+      let i = 0;
+      i < numbersOnly.length && i < currentMarket.selections;
+      i++
+    ) {
+      if (i > 0) formattedValue += '-'
+      formattedValue += numbersOnly[i]
+    }
+
+    setSelectionInput(formattedValue)
+  }
+
   const handleSubmit = async () => {
     if (!codeInput.trim()) {
       toast.error(t('enter_code'))
+      return
+    }
+
+    if (
+      currentMarket &&
+      currentMarket.selections > 0 &&
+      !selectionInput.trim()
+    ) {
+      toast.error(t('enter_selection'))
+      return
+    }
+
+    if (
+      currentMarket &&
+      currentMarket.selections === 0 &&
+      selectionInput.trim()
+    ) {
+      toast.error(t('no_selection_needed'))
       return
     }
 
@@ -43,6 +99,20 @@ export default function FastBet({ selectedEvent }: { selectedEvent?: any }) {
     if (!parsedCode) {
       toast.error(t('invalid_code_selection'))
       return
+    }
+
+    if (currentMarket && currentMarket.selections > 0) {
+      const providedSelections = parsedCode.selections?.length || 0
+      if (providedSelections !== currentMarket.selections) {
+        toast.error(
+          t('wrong_selection_count', {
+            expected: currentMarket.selections,
+            provided: providedSelections,
+          }) ||
+            `Expected ${currentMarket.selections} selections, got ${providedSelections}`,
+        )
+        return
+      }
     }
 
     if (!selectedEvent) {
@@ -57,36 +127,7 @@ export default function FastBet({ selectedEvent }: { selectedEvent?: any }) {
       return
     }
 
-    const getMarketName = (code: string) => {
-      switch (code) {
-        case 'W':
-          return 'Winner'
-        case 'P':
-          return 'Placed'
-        case 'S':
-          return 'Show'
-        case 'E':
-          return 'Exacta'
-        case 'Q':
-          return 'Quinella'
-        case 'O':
-          return 'Under/Over'
-        case 'EV':
-          return 'Even/Odd'
-        case 'OD':
-          return 'Even/Odd'
-        case 'T':
-          return 'Trifecta'
-        case 'BT':
-          return 'Boxed Trifecta'
-        case 'U':
-          return 'Under/Over'
-        default:
-          return 'FastBet'
-      }
-    }
-
-    const marketName = getMarketName(parsedCode.code)
+    const marketName = markets[parsedCode.code]?.name || 'FastBet'
 
     addBets(marketName, bets)
     toast.success(`${bets.length} ${t('bets_added')}`)
@@ -95,7 +136,7 @@ export default function FastBet({ selectedEvent }: { selectedEvent?: any }) {
     setSelectionInput('')
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const submitOnEnter = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       handleSubmit()
     }
@@ -107,7 +148,11 @@ export default function FastBet({ selectedEvent }: { selectedEvent?: any }) {
         <span className="text-[16px] font-bold text-bet-foreground">
           {t('fastbet')}
         </span>
-        {discipline === 'racing' ? <RacingCodeList /> : <CodeList />}
+        {discipline === 'racing' ? (
+          <RacingCodeList markets={markets} />
+        ) : (
+          <CodeList />
+        )}
       </div>
       <div className="flex flex-row items-center gap-1">
         <Input
@@ -115,14 +160,19 @@ export default function FastBet({ selectedEvent }: { selectedEvent?: any }) {
           placeholder={t('code')}
           value={codeInput}
           onChange={(e) => setCodeInput(e.target.value.toUpperCase())}
-          onKeyDown={handleKeyDown}
+          onKeyDown={submitOnEnter}
         />
         <Input
           className="text-bold h-10 w-3/4 text-[16px]"
-          placeholder={t('selection')}
+          placeholder={
+            currentMarket?.selections > 1
+              ? t('selection') + ' (e.g., 1-2-3)'
+              : t('selection')
+          }
           value={selectionInput}
-          onChange={(e) => setSelectionInput(e.target.value)}
-          onKeyDown={handleKeyDown}
+          onChange={handleSelectionChange}
+          onKeyDown={submitOnEnter}
+          disabled={isSelectionInputDisabled}
         />
       </div>
     </div>

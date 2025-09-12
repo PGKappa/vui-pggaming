@@ -37,9 +37,13 @@ const racingCodeListRight = [
   { translationKey: 'racing_trifecta', code: 'T' },
 ]
 
-export default function RacingCodeList() {
+export default function RacingCodeList(props: {
+  markets: Record<string, { name: string; selections: number }>
+}) {
   const { t } = useTranslation()
   const [singleColumn, setSingleColumn] = useState(false)
+
+  console.log(props.markets['E'].selections)
 
   return (
     <Dialog>
@@ -90,6 +94,15 @@ export default function RacingCodeList() {
                     <TableRow key={index} className="border-b border-border">
                       <TableCell className="whitespace-pre-wrap text-[16px] font-medium">
                         {t(item.translationKey)}
+                        {props.markets[item.code].selections > 0 && (
+                          <>
+                            {' ['}
+                            {Array(props.markets[item.code].selections)
+                              .fill('Selection')
+                              .join('/')}
+                            {']'}
+                          </>
+                        )}
                       </TableCell>
                       <TableCell className="text-center">
                         <div className="ml-auto flex h-8 w-8 items-center justify-center bg-bet font-bold text-bet-foreground">
@@ -110,6 +123,15 @@ export default function RacingCodeList() {
                   <TableRow key={index} className="border-b border-border">
                     <TableCell className="whitespace-pre-wrap text-[16px] font-medium">
                       {t(item.translationKey)}
+                      {props.markets[item.code].selections > 0 && (
+                        <>
+                          {' ['}
+                          {Array(props.markets[item.code].selections)
+                            .fill('Selection')
+                            .join('/')}
+                          {']'}
+                        </>
+                      )}
                     </TableCell>
                     <TableCell>
                       <div className="ml-auto flex h-8 w-8 items-center justify-center bg-bet font-bold text-bet-foreground">
@@ -127,6 +149,15 @@ export default function RacingCodeList() {
                   <TableRow key={index} className="border-b border-border">
                     <TableCell className="whitespace-pre-wrap text-[16px] font-medium">
                       {t(item.translationKey)}
+                      {props.markets[item.code].selections > 0 && (
+                        <>
+                          {' ['}
+                          {Array(props.markets[item.code].selections)
+                            .fill('Selection')
+                            .join('/')}
+                          {']'}
+                        </>
+                      )}
                     </TableCell>
                     <TableCell className="text-center">
                       <div className="ml-auto flex h-8 w-8 items-center justify-center bg-bet font-bold text-bet-foreground">
