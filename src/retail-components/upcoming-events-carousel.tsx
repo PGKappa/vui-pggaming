@@ -78,7 +78,7 @@ export function UpcomingEventsCarousel(props: {
           })
         ) : (
           <div className="p-4 text-center text-background">
-            {t('no_upcoming_rounds')}
+            {t('no_upcoming_events')}
           </div>
         )}
       </CarouselContent>
@@ -133,7 +133,7 @@ function UpcomingEventItem(props: {
       <div className="flex flex-col items-start">
         <span className="text-md font-bold">{event.name}</span>
         <span className="text-md font-bold">
-          {t('round')} {event.id}
+          {event.discipline === 'SOCCER' ? t('round') : t('event')} {event.id}
         </span>
         <div className="flex flex-row gap-2">
           <span className="text-md font-bold">{event.startTime}</span>

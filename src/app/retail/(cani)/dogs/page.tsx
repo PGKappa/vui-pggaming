@@ -57,7 +57,7 @@ export default function Home() {
                 <UpcomingRaceCard race={selectedEvent} />
               ) : (
                 <div className="flex h-full items-center justify-center">
-                  {t('no_round_selected')}
+                  {t('no_event_selected')}
                 </div>
               )}
             </ScrollArea>
