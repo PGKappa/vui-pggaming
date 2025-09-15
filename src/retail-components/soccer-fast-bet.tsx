@@ -93,8 +93,8 @@ export default function SoccerFastBet(props: { selectedEvent: UpcomingEvent }) {
       </div>
       <div className="flex flex-row items-center gap-1">
         <Input
-          className="text-bold h-10 w-1/3 text-[16px]"
-          placeholder={t('event_number')}
+          className="text-bold h-10 w-1/4 text-[16px]"
+          placeholder={t('event_id')}
           type="text"
           value={eventNumber ? eventNumber.toString().padStart(2, '0') : ''}
           onChange={(e) => {
@@ -114,7 +114,7 @@ export default function SoccerFastBet(props: { selectedEvent: UpcomingEvent }) {
           }}
         />
         <Input
-          className="text-bold h-10 w-2/3 text-[16px]"
+          className="text-bold h-10 w-3/4 text-[16px]"
           placeholder={t('selection')}
           value={selection}
           onChange={(e) => setSelection(e.target.value.toUpperCase())}
