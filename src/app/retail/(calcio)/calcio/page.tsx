@@ -3,6 +3,7 @@ import BettingSlip from '@/retail-components/betting-slip'
 import Leaderboard from '@/retail-components/leaderboard'
 import MatchBettingOptions from '@/retail-components/match-betting-options'
 import SearchEventResults from '@/retail-components/search-event-results'
+import SkeletonRoundCard from '@/retail-components/skeleton-round-card'
 import { UpcomingEventsCarousel } from '@/retail-components/upcoming-events-carousel'
 import UpcomingRoundCard from '@/retail-components/upcoming-round-card'
 import { RootContext } from '@/retail-contexts/root-context'
@@ -16,6 +17,7 @@ export default function Home() {
     upcomingEvents,
     searchEventResults: searchRoundResults,
     setSearchEventResults: setSearchRoundResults,
+    isLoadingEvents,
   } = useContext(RootContext)
 
   const [matchBetOptions, setMatchBetOptions] = useState<{
@@ -58,6 +60,8 @@ export default function Home() {
         <div className="mx-2 flex h-[942px] w-[1500px] flex-col gap-2">
           {!!searchRoundResults ? (
             <SearchEventResults />
+          ) : isLoadingEvents ? (
+            <SkeletonRoundCard />
           ) : selectedEvent ? (
             matchBetOptions ? (
               <MatchBettingOptions
