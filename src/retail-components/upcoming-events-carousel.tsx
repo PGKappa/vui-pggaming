@@ -115,7 +115,7 @@ function UpcomingEventItem(props: {
         props.setSelectedEvent(event)
       }}
     >
-      <div className="flex h-full w-12 flex-col items-center justify-center bg-white py-0.5">
+      <div className="flex h-full w-12 flex-col items-center justify-center py-0.5">
         <Image
           src={
             event.discipline === 'SOCCER'
@@ -127,7 +127,7 @@ function UpcomingEventItem(props: {
           alt={'Horses'}
           width={40}
           height={20}
-          className="size-10 object-contain"
+          className="size-12 object-contain"
         />
       </div>
       <div className="flex flex-col items-start">
