@@ -1,32 +1,20 @@
 import { Input } from '@/retail-components/ui/input'
-import CodeList from './code-list'
-import RacingCodeList from './racing-code-list'
-import { useTranslation } from 'react-i18next'
-import { useState, useContext } from 'react'
 import { BetsContext } from '@/retail-contexts/bets-context'
 import {
-  parseFastBetInput,
   createBetFromFastCode,
+  parseFastBetInput,
 } from '@/retail-lib/fastbet-parser'
+import { useContext, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import RacingCodeList from './racing-code-list'
 
-function getDisciplineFromPath(): 'soccer' | 'racing' {
-  if (typeof window === 'undefined') return 'soccer'
-
-  const path = window.location.pathname
-  if (
-    path.includes('/horses') ||
-    path.includes('/dogs') ||
-    path.includes('/dogs-horses')
-  ) {
-    return 'racing'
-  }
-  return 'soccer'
-}
-
-export default function FastBet({ selectedEvent }: { selectedEvent?: any }) {
+export default function RacingFastBet({
+  selectedEvent,
+}: {
+  selectedEvent?: any
+}) {
   const { t } = useTranslation()
-  const discipline = getDisciplineFromPath()
 
   const markets = {
     W: { name: 'Winner', selections: 1 },
@@ -179,15 +167,11 @@ export default function FastBet({ selectedEvent }: { selectedEvent?: any }) {
         <span className="text-[16px] font-bold text-bet-foreground">
           {t('fastbet')}
         </span>
-        {discipline === 'racing' ? (
-          <RacingCodeList
-            markets={markets}
-            onCodeClick={handleCodeClick}
-            onDirectBet={handleDirectBet}
-          />
-        ) : (
-          <CodeList onDirectBet={handleDirectBet} />
-        )}
+        <RacingCodeList
+          markets={markets}
+          onCodeClick={handleCodeClick}
+          onDirectBet={handleDirectBet}
+        />
       </div>
       <div className="flex flex-row items-center gap-1">
         <Input
