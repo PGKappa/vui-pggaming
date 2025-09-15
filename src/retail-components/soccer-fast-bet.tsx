@@ -27,6 +27,26 @@ const markets: Record<string, { marketName: string; outcome: string }> = {
     marketName: 'Esito finale 1X2',
     outcome: '2',
   },
+  '1X': {
+    marketName: 'Doppia Chance',
+    outcome: '1X',
+  },
+  '12': {
+    marketName: 'Doppia Chance',
+    outcome: '12',
+  },
+  X2: {
+    marketName: 'Doppia Chance',
+    outcome: 'X2',
+  },
+  GG: {
+    marketName: 'Gol no gol',
+    outcome: 'G',
+  },
+  NG: {
+    marketName: 'Gol no gol',
+    outcome: 'NG',
+  },
 }
 
 export default function SoccerFastBet(props: { selectedEvent: UpcomingEvent }) {
@@ -36,6 +56,11 @@ export default function SoccerFastBet(props: { selectedEvent: UpcomingEvent }) {
   const { addBetsWithMarket } = useContext(BetsContext)
 
   const upcomingRound = props.selectedEvent.data as UpcomingRound
+
+  // Validazione sicurezza per evitare errori runtime
+  if (!upcomingRound || !upcomingRound.mag_event) {
+    return <div>{t('no_events_available')}</div>
+  }
 
   return (
     <div className="flex w-full flex-col gap-2 bg-accent px-2 py-3">
@@ -96,53 +121,64 @@ export default function SoccerFastBet(props: { selectedEvent: UpcomingEvent }) {
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               if (!selection) {
-                toast.error('Selection is required')
+                toast.error(`${t('selection_required')}`)
                 return
               }
               const selections = selection.split('/')
 
               const marketsNotFound = selections.filter((s) => !markets[s])
               if (marketsNotFound.length > 0) {
-                toast.error(`Markets not found: ${marketsNotFound.join(', ')}`)
+                toast.error(`$${t('markets_not_found')}: ${marketsNotFound.join(', ')}`)
                 return
               }
 
               if (!eventNumber) {
-                toast.error('Event number is required')
+                toast.error(`${t('event_number_required')}`)
                 return
               }
 
-              const bets: { marketName: string; bet: Bet }[] = selections.map(
-                (s) => ({
-                  marketName: markets[s].marketName,
-                  bet: {
-                    event: {
-                      name: props.selectedEvent.name,
-                      number:
-                        upcomingRound.mag_event[eventNumber - 1].eventIdentity
-                          .eventId,
-                      startingAt: props.selectedEvent.time,
-                    },
-                    discipline: Discipline.SOCCER,
-                    competitors: upcomingRound.mag_event[
-                      eventNumber - 1
-                    ].teams.team
-                      .map((team) => team.name)
-                      .join(' - '),
-                    option: (
-                      props.selectedEvent.data as UpcomingRound
-                    ).mag_event[0].markets.market
-                      .find((m) => m.name === markets[s].marketName)!
-                      .selections[0].selection.find(
-                        (sel) => sel.outcome === markets[s].outcome,
-                      )!,
-                  },
-                }),
-              )
+              try {
+                const bets: { marketName: string; bet: Bet }[] = selections.map(
+                  (s) => {
+                    const selectedMatch =
+                      upcomingRound.mag_event[eventNumber - 1]
+                    const market = selectedMatch.markets?.market?.find(
+                      (m) => m.name === markets[s].marketName,
+                    )
+                    const selection = market?.selections?.[0]?.selection?.find(
+                      (sel) => sel.outcome === markets[s].outcome,
+                    )
 
-              addBetsWithMarket(bets)
-              setEventNumber(undefined)
-              setSelection('')
+                    if (!selection) {
+                      throw new Error(`${t('selection_not_found')} ${s}`)
+                    }
+
+                    return {
+                      marketName: markets[s].marketName,
+                      bet: {
+                        event: {
+                          name: props.selectedEvent.name,
+                          number: selectedMatch.eventIdentity.eventId,
+                          startingAt: props.selectedEvent.time,
+                        },
+                        discipline: Discipline.SOCCER,
+                        competitors: selectedMatch.teams.team
+                          .map((team) => team.name)
+                          .join(' - '),
+                        option: selection,
+                      },
+                    }
+                  },
+                )
+
+                addBetsWithMarket(bets)
+                setEventNumber(undefined)
+                setSelection('')
+              } catch (error) {
+                toast.error(
+                  `${t('error_creating_bet')} ${error instanceof Error ? error.message : t('unknown_error')}`,
+                )
+              }
             }
           }}
         />

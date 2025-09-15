@@ -241,5 +241,12 @@
   "delay": "Delay",
   "no_latecomers": "No latecomers for this race",
   "market": "Market",
-  "event_number": "Event Number"
+  "event_number": "Event Number",
+  "no_events_available": "No events available",
+  "selection_not_found": "Selection not found for",
+  "unknown_error": "Unknown error",
+  "error_creating_bet": "Error creating bet:",
+  "event_number_required": "Event number is required",
+  "markets_not_found": "Markets not found:",
+  "selection_required": "Selection is required"
 }
