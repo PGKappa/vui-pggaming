@@ -7,7 +7,11 @@ import {
 import { useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import RacingCodeList from './racing-code-list'
+/* import RacingCodeList from './racing-code-list' */
+import { Dialog, DialogContent } from './ui/dialog'
+import { DialogTrigger } from '@/components/ui/dialog'
+import { Button } from './ui/button'
+import Image from 'next/image'
 
 export default function RacingFastBet({
   selectedEvent,
@@ -124,7 +128,7 @@ export default function RacingFastBet({
     setSelectionInput('')
   }
 
-  const handleCodeClick = (code: string) => {
+  /* const handleCodeClick = (code: string) => {
     setCodeInput(code)
     setSelectionInput('') // Clear selection when changing code
   }
@@ -153,7 +157,7 @@ export default function RacingFastBet({
 
     addBets(marketName, bets)
     toast.success(`${bets.length} ${t('bets_added')}`)
-  }
+  } */
 
   const submitOnEnter = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
@@ -167,11 +171,32 @@ export default function RacingFastBet({
         <span className="text-[16px] font-bold text-bet-foreground">
           {t('fastbet')}
         </span>
-        <RacingCodeList
+        {/* <RacingCodeList
           markets={markets}
           onCodeClick={handleCodeClick}
           onDirectBet={handleDirectBet}
-        />
+        /> */}
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button className="w-32 bg-bet text-[16px] font-bold text-bet-foreground hover:bg-bet/70">
+              {t('code_list')}
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-6xl">
+            <div className="flex flex-col items-center justify-center bg-accent pt-4">
+              <h2 className="h-10 text-[19px] font-bold text-accent-foreground">
+                {t('code_list')}
+              </h2>
+              <Image
+                src="/dogshorses-codes-image.png"
+                alt="Codici scommesse calcio"
+                width={1920}
+                height={1080}
+                className="h-auto max-w-full"
+              />
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
       <div className="flex flex-row items-center gap-1">
         <Input
