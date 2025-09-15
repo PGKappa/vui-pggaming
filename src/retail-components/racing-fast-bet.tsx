@@ -8,8 +8,7 @@ import { useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 /* import RacingCodeList from './racing-code-list' */
-import { Dialog, DialogContent } from './ui/dialog'
-import { DialogTrigger } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogTrigger } from './ui/dialog'
 import { Button } from './ui/button'
 import Image from 'next/image'
 
