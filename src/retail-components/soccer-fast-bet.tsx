@@ -44,16 +44,28 @@ export default function SoccerFastBet(props: { selectedEvent: UpcomingEvent }) {
       </div>
       <div className="flex flex-row items-center gap-1">
         <Input
-          className="text-bold h-10 w-1/4 text-[16px]"
+          className="text-bold h-10 w-1/3 text-[16px]"
           placeholder={t('event_number')}
-          type="number"
-          min={1}
-          max={upcomingRound.mag_event.length}
-          value={eventNumber || ''}
-          onChange={(e) => setEventNumber(Number(e.target.value))}
+          type="text"
+          value={eventNumber ? eventNumber.toString().padStart(2, '0') : ''}
+          onChange={(e) => {
+            const value = e.target.value.replace(/\D/g, '') // Solo numeri
+            const num = Number(value)
+            if (num >= 1 && num <= upcomingRound.mag_event.length) {
+              setEventNumber(num)
+            } else if (value === '') {
+              setEventNumber(undefined)
+            }
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Backspace' || e.key === 'Delete') {
+              e.preventDefault()
+              setEventNumber(undefined)
+            }
+          }}
         />
         <Input
-          className="text-bold h-10 w-3/4 text-[16px]"
+          className="text-bold h-10 w-2/3 text-[16px]"
           placeholder={t('selection')}
           value={selection}
           onChange={(e) => setSelection(e.target.value.toUpperCase())}
@@ -64,7 +76,6 @@ export default function SoccerFastBet(props: { selectedEvent: UpcomingEvent }) {
                 return
               }
               const selections = selection.split('/')
-
 
               const marketsNotFound = selections.filter((s) => !markets[s])
               if (marketsNotFound.length > 0) {
