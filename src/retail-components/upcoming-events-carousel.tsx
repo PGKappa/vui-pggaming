@@ -121,8 +121,8 @@ function UpcomingEventItem(props: {
             event.discipline === 'SOCCER'
               ? '/calciatore_blu.png'
               : event.discipline === 'DOGS'
-                ? '/cavallo_blu.png'
-                : '/cane_blu.png'
+                ? '/cane_blu.png'
+                : '/cavallo_blu.png'
           }
           alt={'Horses'}
           width={40}
