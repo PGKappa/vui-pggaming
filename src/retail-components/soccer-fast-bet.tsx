@@ -1,3 +1,5 @@
+import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { BetsContext } from '@/retail-contexts/bets-context'
 import {
@@ -8,7 +10,8 @@ import {
 } from '@/retail-lib/types'
 import { useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import CodeList from './code-list'
+/* import CodeList from './code-list' */
+import Image from 'next/image'
 import { toast } from 'sonner'
 
 const markets: Record<string, { marketName: string; outcome: string }> = {
@@ -40,7 +43,28 @@ export default function SoccerFastBet(props: { selectedEvent: UpcomingEvent }) {
         <span className="text-[16px] font-bold text-bet-foreground">
           {t('fastbet')}
         </span>
-        <CodeList />
+        {/* <CodeList /> */}
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button className="w-32 bg-bet text-[16px] font-bold text-bet-foreground hover:bg-bet/70">
+              {t('code_list')}
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-6xl">
+            <div className="flex flex-col items-center justify-center bg-accent pt-4">
+              <h2 className="h-10 text-[19px] font-bold text-accent-foreground">
+                {t('code_list')}
+              </h2>
+              <Image
+                src="/soccer-codes-image.png"
+                alt="Codici scommesse calcio"
+                width={1920}
+                height={1080}
+                className="h-auto max-w-full"
+              />
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
       <div className="flex flex-row items-center gap-1">
         <Input
