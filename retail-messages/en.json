@@ -240,5 +240,6 @@
   "latecomers": "Latecomers",
   "delay": "Delay",
   "no_latecomers": "No latecomers for this race",
-  "market": "Market"
+  "market": "Market",
+  "event_number": "Event Number"
 }
