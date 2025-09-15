@@ -69,8 +69,11 @@ export default function EventBets(props: {
             </Badge>
           </div>
         </div>
-
-        <span className="text-[16px]">{`Track 6`}</span>
+        {eventBets[0].bet.discipline === 'SOCCER' ? (
+          <span className="text-[16px]">{eventBets[0].bet.competitors}</span>
+        ) : (
+          <span className="text-[16px]">{`Track 6`}</span>
+        )}
       </div>
 
       <div className="border border-betSlip-foreground bg-primary-foreground p-1">
