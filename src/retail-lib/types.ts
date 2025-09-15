@@ -85,7 +85,7 @@ export type UpcomingMatch = {
 export type UpcomingEvent = {
   id: number
   extId?: string
-  palimpsestId: number
+  palimpsestId?: number
   discipline: Discipline
   name: string
   startTime: string
