@@ -25,6 +25,7 @@ export type BetsContextType = {
     market: string,
     betIds: { option: Selection; competitors: string }[],
   ) => void
+  addBetsWithMarket: (bets: { marketName: string; bet: Bet }[]) => void
 }
 
 const defaultBetsContext: BetsContextType = {
@@ -40,6 +41,7 @@ const defaultBetsContext: BetsContextType = {
   restoreLastSubmittedTicket: () => {},
   addBets: () => {},
   removeBets: () => {},
+  addBetsWithMarket: () => {},
 }
 
 export const BetsContext = createContext<BetsContextType>(defaultBetsContext)
@@ -232,6 +234,43 @@ export default function BetsContextProvider(props: {
     [betsContext.lastId, checkSystemLimits],
   )
 
+  const addBetsWithMarket = useCallback(
+    (bets: { marketName: string; bet: Bet }[]) => {
+      const newEntries: BetEntry[] = []
+
+      bets.forEach((bet, index) => {
+        const existingEntry = betsContext.betEntries.find(
+          (entry) =>
+            entry.bet.event.number === bet.bet.event.number &&
+            entry.bet.option.outcome === bet.bet.option.outcome,
+        )
+        if (existingEntry) {
+          toast.error('Duplicate bet found')
+          return
+        }
+
+        newEntries.push({
+          id: betsContext.lastId + index + 1,
+          bet: bet.bet,
+          market: bet.marketName,
+        })
+      })
+
+      if (!checkSystemLimits(newEntries)) {
+        return
+      }
+
+      setBetsContext((prev) => {
+        return {
+          ...prev,
+          betEntries: [...prev.betEntries, ...newEntries],
+          lastId: prev.lastId + newEntries.length,
+        }
+      })
+    },
+    [betsContext.betEntries, betsContext.lastId, checkSystemLimits],
+  )
+
   const removeBets = (
     market: string,
     betIds: { option: Selection; competitors: string }[],
@@ -269,8 +308,9 @@ export default function BetsContextProvider(props: {
       restoreLastSubmittedTicket,
       addBets,
       removeBets,
+      addBetsWithMarket,
     }))
-  }, [addBet, addBets, betMode])
+  }, [addBet, addBets, addBetsWithMarket, betMode])
 
   useEffect(() => {
     if (!betsContext) return
