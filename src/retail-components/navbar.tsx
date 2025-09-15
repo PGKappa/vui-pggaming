@@ -77,7 +77,7 @@ export default function Navbar() {
                 pathname === '/retail/dogs' ? 'navbarSelected' : 'navbar',
               size: 'lg',
             }),
-            'flex w-24 flex-row items-center justify-between',
+            'flex w-24 flex-row items-center justify-center',
           )}
         >
           <Image
@@ -87,7 +87,8 @@ export default function Navbar() {
             height={20}
             className="object-contain"
           />
-          <span className="text-[16px] font-bold">{t('ch1')}</span>
+          {/* 
+          <span className="text-[16px] font-bold">{t('ch1')}</span> */}
         </Link>
 
         <Link
@@ -98,7 +99,7 @@ export default function Navbar() {
                 pathname === '/retail/horses' ? 'navbarSelected' : 'navbar',
               size: 'lg',
             }),
-            'flex w-24 flex-row items-center justify-between',
+            'flex w-24 flex-row items-center justify-center',
           )}
         >
           <Image
@@ -108,7 +109,8 @@ export default function Navbar() {
             height={20}
             className="object-contain"
           />
-          <span className="text-[16px] font-bold">{t('ch3')}</span>
+          {/* 
+          <span className="text-[16px] font-bold">{t('ch3')}</span> */}
         </Link>
 
         <Link
@@ -129,7 +131,8 @@ export default function Navbar() {
             height={20}
             className="size-7 object-contain brightness-0 invert filter"
           />
-          <span className="text-[16px] font-bold">{t('ch4')}</span>
+          {/* 
+          <span className="text-[16px] font-bold">{t('ch4')}</span> */}
         </Link>
       </div>
 
