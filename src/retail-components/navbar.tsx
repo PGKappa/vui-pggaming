@@ -23,8 +23,8 @@ export default function Navbar() {
   // Helper per determinare il link info basato sulla pagina
   const getInfoLink = () => {
     if (pathname.includes('/calcio')) {
-      // Link per il calcio (per ora fake)
-      return 'https://d190050z3qr0m1.cloudfront.net/public/Soccer_manual_fake.html'
+      // Link per il calcio
+      return 'https://d190050z3qr0m1.cloudfront.net/public/Soccer_Gaming_manual_en.html'
     } else {
       // Per cani e cavalli
       return 'https://d190050z3qr0m1.cloudfront.net/public/RD-RH_Gaming_manual_en.html'
