@@ -313,24 +313,22 @@ function getInitCodeFromUrl(): string | undefined {
   return params.get('init_code') || undefined
 }
 
-type Area = "dogs" | "horses" | "calcio"
-
-function getAreaFromUrl(): Area[] {
+function getAreaFromUrl(): Discipline[] {
   if (typeof window === 'undefined') return []
 
-  if (window.location.pathname.includes("dogs-horses")) {
-    return ["dogs", "horses"]
+  if (window.location.pathname.includes('dogs-horses')) {
+    return [Discipline.DOGS, Discipline.HORSES]
   }
-  if (window.location.pathname.includes("dogs")) {
-    return ["dogs"]
+  if (window.location.pathname.includes('dogs')) {
+    return [Discipline.DOGS]
   }
-  if (window.location.pathname.includes("horses")) {
-    return ["horses"]
+  if (window.location.pathname.includes('horses')) {
+    return [Discipline.HORSES]
   }
-  if (window.location.pathname.includes("calcio")) {
-    return ["calcio"]
+  if (window.location.pathname.includes('calcio')) {
+    return [Discipline.SOCCER]
   }
-  return [];
+  return []
 }
 
 export default function RootContextProvider(props: {
@@ -1003,18 +1001,41 @@ export default function RootContextProvider(props: {
 
     const fetchAllEvents = async () => {
       try {
-        const promises: Promise<void>[] = [];
-        const area = getAreaFromUrl();
-        if (area.includes("calcio")) {
+        const areas = getAreaFromUrl()
+
+        if (areas.length === 0) {
+          return
+        }
+
+        if (areas.length === 1) {
+          switch (areas[0]) {
+            case Discipline.SOCCER:
+              await fetchUpcomingRounds()
+              return
+            case Discipline.DOGS:
+              await fetchUpcomingDogEvents()
+              return
+            case Discipline.HORSES:
+              await fetchUpcomingHorseEvents()
+              return
+          }
+        }
+
+        const promises: Promise<void>[] = []
+
+        if (areas.includes(Discipline.SOCCER)) {
           promises.push(fetchUpcomingRounds())
         }
-        if (area.includes("dogs")) {
+        if (areas.includes(Discipline.DOGS)) {
           promises.push(fetchUpcomingDogEvents())
         }
-        if (area.includes("horses")) {
+        if (areas.includes(Discipline.HORSES)) {
           promises.push(fetchUpcomingHorseEvents())
         }
+
         await Promise.all(promises)
+      } catch (error) {
+        console.error('Error fetching events:', error)
       } finally {
         setIsLoadingEvents(false)
       }
