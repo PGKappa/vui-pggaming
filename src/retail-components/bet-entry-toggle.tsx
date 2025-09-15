@@ -32,7 +32,7 @@ export default function BetEntryToggle(props: {
   )
 
   const formatOutcome = (outcome: string, marketName: string): string => {
-    if (marketName === 'Parziale/Finale') {
+    if (marketName === 'Half Time\/ Full Time') {
       if (outcome.length === 2) {
         return `${outcome[0]}/${outcome[1]}`
       }

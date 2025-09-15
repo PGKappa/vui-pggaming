@@ -92,12 +92,9 @@ export default function UpcomingRoundCard(props: {
         {
           name: t('main'),
           markets: props.round.mag_event[0].markets.market.filter((market) =>
-            [
-              'Esito finale 1X2',
-              'Doppia Chance',
-              'Under\/Over 2.5',
-              'Gol no gol',
-            ].includes(market.name.trim()),
+            ['1X2', 'Double Chance', 'Under\/Over 2.5', 'Gol no gol'].includes(
+              market.name.trim(),
+            ),
           ),
         },
         {
@@ -114,23 +111,23 @@ export default function UpcomingRoundCard(props: {
         {
           name: t('exact_result'),
           markets: props.round.mag_event[0].markets.market.filter((market) =>
-            ['Risultato esatto'].includes(market.name.trim()),
+            ['Correct Score'].includes(market.name.trim()),
           ),
         },
         {
           name: t('combo'),
           markets: props.round.mag_event[0].markets.market.filter((market) =>
             [
-              'Combo Vincente & Segna',
-              'Combo Vincente & Goals (1.5)',
-              'Combo Vincente & Goals (2.5)',
+              'Combo 1x2 + Goal\/No Goal',
+              'Combo 1x2 + Under\/Over (1.5)',
+              'Combo 1x2 + Under\/Over (2.5)',
             ].includes(market.name.trim()),
           ),
         },
         {
           name: t('multi_goal'),
           markets: props.round.mag_event[0].markets.market.filter((market) =>
-            ['Somma gol', 'Somma gol Casa', 'Somma gol Trasferta'].includes(
+            ['Multigoal', 'Multigoal Home', 'Multigoal Away'].includes(
               market.name.trim(),
             ),
           ),
@@ -139,27 +136,25 @@ export default function UpcomingRoundCard(props: {
           name: t('home/away_team'),
           markets: props.round.mag_event[0].markets.market.filter((market) =>
             [
-              'Casa Under/Over 0.5',
-              'Casa Under/Over 1.5',
-              'Casa Under/Over 2.5',
-              'Trasferta Under/Over 0.5',
-              'Trasferta Under/Over 1.5',
-              'Trasferta Under/Over 2.5',
+              'Home Under\/Over 0.5',
+              'Home Under\/Over 1.5',
+              'Home Under\/Over 2.5',
+              'Away Under\/Over 0.5',
+              'Away Under\/Over 1.5',
+              'Away Under\/Over 2.5',
             ].includes(market.name.trim()),
           ),
         },
         {
           name: t('partial/final'),
           markets: props.round.mag_event[0].markets.market.filter((market) =>
-            ['Parziale/Finale'].includes(market.name.trim()),
+            ['Half Time\/ Full Time'].includes(market.name.trim()),
           ),
         },
         {
           name: t('special'),
           markets: props.round.mag_event[0].markets.market.filter((market) =>
-            ['Primo marcatore', 'Cartellino Rosso'].includes(
-              market.name.trim(),
-            ),
+            ['First Scorer', 'Red Card'].includes(market.name.trim()),
           ),
         },
       ]

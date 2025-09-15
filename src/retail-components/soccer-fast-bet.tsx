@@ -16,27 +16,27 @@ import { toast } from 'sonner'
 
 const markets: Record<string, { marketName: string; outcome: string }> = {
   1: {
-    marketName: 'Esito finale 1X2',
+    marketName: '1X2',
     outcome: '1',
   },
   X: {
-    marketName: 'Esito finale 1X2',
+    marketName: '1X2',
     outcome: 'X',
   },
   2: {
-    marketName: 'Esito finale 1X2',
+    marketName: '1X2',
     outcome: '2',
   },
   '1X': {
-    marketName: 'Doppia Chance',
+    marketName: 'Double Chance',
     outcome: '1X',
   },
   '12': {
-    marketName: 'Doppia Chance',
+    marketName: 'Double Chance',
     outcome: '12',
   },
   X2: {
-    marketName: 'Doppia Chance',
+    marketName: 'Double Chance',
     outcome: 'X2',
   },
   GG: {
@@ -128,7 +128,9 @@ export default function SoccerFastBet(props: { selectedEvent: UpcomingEvent }) {
 
               const marketsNotFound = selections.filter((s) => !markets[s])
               if (marketsNotFound.length > 0) {
-                toast.error(`$${t('markets_not_found')}: ${marketsNotFound.join(', ')}`)
+                toast.error(
+                  `$${t('markets_not_found')}: ${marketsNotFound.join(', ')}`,
+                )
                 return
               }
 
