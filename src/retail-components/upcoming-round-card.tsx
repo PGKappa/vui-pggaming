@@ -84,83 +84,92 @@ export default function UpcomingRoundCard(props: {
   const tomorrow = new Date()
   tomorrow.setDate(today.getDate() + 1)
 
-  const marketTabs: { name: string; markets: Market[] }[] = [
-    {
-      name: t('main'),
-      markets: props.round.mag_event[0].markets.market.filter((market) =>
-        [
-          'Esito finale 1X2',
-          'Doppia Chance',
-          'Under\/Over 2.5',
-          'Gol no gol',
-        ].includes(market.name.trim()),
-      ),
-    },
-    {
-      name: t('under/over'),
-      markets: props.round.mag_event[0].markets.market.filter((market) =>
-        [
-          'Under/Over 1.5',
-          'Under/Over 2.5',
-          'Under/Over 3.5',
-          'Under/Over 4.5',
-        ].includes(market.name.trim()),
-      ),
-    },
-    {
-      name: t('exact_result'),
-      markets: props.round.mag_event[0].markets.market.filter((market) =>
-        ['Risultato esatto'].includes(market.name.trim()),
-      ),
-    },
-    {
-      name: t('combo'),
-      markets: props.round.mag_event[0].markets.market.filter((market) =>
-        [
-          'Combo Vincente & Segna',
-          'Combo Vincente & Goals (1.5)',
-          'Combo Vincente & Goals (2.5)',
-        ].includes(market.name.trim()),
-      ),
-    },
-    {
-      name: t('multi_goal'),
-      markets: props.round.mag_event[0].markets.market.filter((market) =>
-        ['Somma gol', 'Somma gol Casa', 'Somma gol Trasferta'].includes(
-          market.name.trim(),
-        ),
-      ),
-    },
-    {
-      name: t('home/away_team'),
-      markets: props.round.mag_event[0].markets.market.filter((market) =>
-        [
-          'Casa Under/Over 0.5',
-          'Casa Under/Over 1.5',
-          'Casa Under/Over 2.5',
-          'Trasferta Under/Over 0.5',
-          'Trasferta Under/Over 1.5',
-          'Trasferta Under/Over 2.5',
-        ].includes(market.name.trim()),
-      ),
-    },
-    {
-      name: t('partial/final'),
-      markets: props.round.mag_event[0].markets.market.filter((market) =>
-        ['Parziale/Finale'].includes(market.name.trim()),
-      ),
-    },
-    {
-      name: t('special'),
-      markets: props.round.mag_event[0].markets.market.filter((market) =>
-        ['Primo marcatore', 'Cartellino Rosso'].includes(market.name.trim()),
-      ),
-    },
-  ]
+  // Verifica sicurezza per evitare errori runtime
+  const hasEvents = props.round.mag_event && props.round.mag_event.length > 0
+
+  const marketTabs: { name: string; markets: Market[] }[] = hasEvents
+    ? [
+        {
+          name: t('main'),
+          markets: props.round.mag_event[0].markets.market.filter((market) =>
+            [
+              'Esito finale 1X2',
+              'Doppia Chance',
+              'Under\/Over 2.5',
+              'Gol no gol',
+            ].includes(market.name.trim()),
+          ),
+        },
+        {
+          name: t('under/over'),
+          markets: props.round.mag_event[0].markets.market.filter((market) =>
+            [
+              'Under/Over 1.5',
+              'Under/Over 2.5',
+              'Under/Over 3.5',
+              'Under/Over 4.5',
+            ].includes(market.name.trim()),
+          ),
+        },
+        {
+          name: t('exact_result'),
+          markets: props.round.mag_event[0].markets.market.filter((market) =>
+            ['Risultato esatto'].includes(market.name.trim()),
+          ),
+        },
+        {
+          name: t('combo'),
+          markets: props.round.mag_event[0].markets.market.filter((market) =>
+            [
+              'Combo Vincente & Segna',
+              'Combo Vincente & Goals (1.5)',
+              'Combo Vincente & Goals (2.5)',
+            ].includes(market.name.trim()),
+          ),
+        },
+        {
+          name: t('multi_goal'),
+          markets: props.round.mag_event[0].markets.market.filter((market) =>
+            ['Somma gol', 'Somma gol Casa', 'Somma gol Trasferta'].includes(
+              market.name.trim(),
+            ),
+          ),
+        },
+        {
+          name: t('home/away_team'),
+          markets: props.round.mag_event[0].markets.market.filter((market) =>
+            [
+              'Casa Under/Over 0.5',
+              'Casa Under/Over 1.5',
+              'Casa Under/Over 2.5',
+              'Trasferta Under/Over 0.5',
+              'Trasferta Under/Over 1.5',
+              'Trasferta Under/Over 2.5',
+            ].includes(market.name.trim()),
+          ),
+        },
+        {
+          name: t('partial/final'),
+          markets: props.round.mag_event[0].markets.market.filter((market) =>
+            ['Parziale/Finale'].includes(market.name.trim()),
+          ),
+        },
+        {
+          name: t('special'),
+          markets: props.round.mag_event[0].markets.market.filter((market) =>
+            ['Primo marcatore', 'Cartellino Rosso'].includes(
+              market.name.trim(),
+            ),
+          ),
+        },
+      ]
+    : []
 
   const specialTabs = [t('exact_result'), t('combo'), t('home/away_team')]
 
-  const [selectedTab, setSelectedTab] = useState(marketTabs[0].name)
+  const [selectedTab, setSelectedTab] = useState(
+    marketTabs.length > 0 ? marketTabs[0].name : '',
+  )
 
   const handleTabChange = (tabName: string) => {
     setSelectedTab(tabName)
@@ -208,6 +217,16 @@ export default function UpcomingRoundCard(props: {
     }
 
     return translatedName
+  }
+
+  if (!hasEvents) {
+    return (
+      <Card className="border-b border-t border-card-foreground">
+        <CardHeader className="sticky top-0 z-40 flex h-16 w-full flex-row items-center justify-center gap-2 border-b bg-accent">
+          <div className="text-lg">{t('no_events_available')}</div>
+        </CardHeader>
+      </Card>
+    )
   }
 
   return (
