@@ -5,12 +5,12 @@ import { Card, CardContent, CardFooter } from '@/retail-components/ui/card'
 import { ScrollArea } from '@/retail-components/ui/scroll-area'
 import { BetsContext } from '@/retail-contexts/bets-context'
 import { generateSystemGroups } from '@/retail-lib/system-bets'
-import { SubmittedTicket } from '@/retail-lib/types'
+import { SubmittedTicket, UpcomingEvent } from '@/retail-lib/types'
 import { RotateCcwIcon } from 'lucide-react'
 import { useContext, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import EventBets from './event-bets'
-import FastBet from './fast-bet'
+import RacingFastBet from './racing-fast-bet'
 import StakeInputDialog from './stake-input-dialog'
 import { Separator } from './ui/separator'
 import {
@@ -23,6 +23,7 @@ import {
   TableRow,
 } from './ui/table'
 import { toast } from 'sonner'
+import SoccerFastBet from './soccer-fast-bet'
 
 export type BetMode = 'SINGLE' | 'MULTIPLE' | 'SYSTEM'
 
@@ -47,10 +48,24 @@ const getEventStatus = (event: any): 'active' | 'expired' => {
   return isExpired ? 'expired' : 'active'
 }
 
+// function getDisciplineFromPath(): 'soccer' | 'racing' | undefined {
+//   if (typeof window === 'undefined') return 'soccer'
+
+//   const path = window.location.pathname
+//   if (
+//     path.includes('/horses') ||
+//     path.includes('/dogs') ||
+//     path.includes('/dogs-horses')
+//   ) {
+//     return 'racing'
+//   }
+//   return undefined
+// }
+
 export default function BettingSlip({
   selectedEvent,
 }: {
-  selectedEvent?: any
+  selectedEvent?: UpcomingEvent
 }) {
   const {
     betEntries,
@@ -90,6 +105,7 @@ export default function BettingSlip({
   }, [baseSystemGroups, systemGroupStakes])
 
   const [isSubmitting, setIsSubmitting] = useState(false)
+  // const discipline = useMemo(() => getDisciplineFromPath(), [])
 
   const handleBetNow = async () => {
     if (betEntries.length === 0) {
@@ -569,7 +585,11 @@ export default function BettingSlip({
           </Button>
         </div>
 
-        <FastBet selectedEvent={selectedEvent} />
+        {selectedEvent?.discipline === 'SOCCER' ? (
+          <SoccerFastBet selectedEvent={selectedEvent} />
+        ) : (
+          <RacingFastBet selectedEvent={selectedEvent} />
+        )}
       </CardFooter>
     </Card>
   )
