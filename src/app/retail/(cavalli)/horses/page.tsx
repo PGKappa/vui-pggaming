@@ -14,8 +14,8 @@ export default function Home() {
   const { t } = useTranslation()
   const {
     upcomingEvents,
-    searchEventResults: searchEventResults,
-    setSearchEventResults: setSearchEventResults,
+    searchEventResults,
+    setSearchEventResults,
     isLoadingEvents,
   } = useContext(RootContext)
 
