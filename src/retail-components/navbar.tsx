@@ -8,7 +8,7 @@ import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button, buttonVariants } from './ui/button'
+import { Button } from './ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog'
 
 export default function Navbar() {
@@ -43,14 +43,10 @@ export default function Navbar() {
         <Link
           href={`/retail/dogs-horses${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
-            buttonVariants({
-              variant:
-                pathname === '/retail/dogs-horses'
-                  ? 'navbarSelected'
-                  : 'navbar',
-              size: 'lg',
-            }),
-            'flex w-28 flex-row items-center justify-between',
+            'flex w-28 flex-row items-center justify-between px-4 py-2 text-foreground transition-colors',
+            pathname.includes('/retail/dogs-horses')
+              ? 'bg-tertiary'
+              : 'bg-secondary',
           )}
         >
           <Image
@@ -72,12 +68,10 @@ export default function Navbar() {
         <Link
           href={`/retail/dogs${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
-            buttonVariants({
-              variant:
-                pathname === '/retail/dogs' ? 'navbarSelected' : 'navbar',
-              size: 'lg',
-            }),
-            'flex w-24 flex-row items-center justify-center',
+            'flex w-24 flex-row items-center justify-center px-4 py-2 text-foreground transition-colors',
+            pathname.includes('/retail/dogs') && !pathname.includes('/retail/dogs-horses') 
+              ? 'bg-tertiary' 
+              : 'bg-secondary',
           )}
         >
           <Image
@@ -94,12 +88,10 @@ export default function Navbar() {
         <Link
           href={`/retail/horses${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
-            buttonVariants({
-              variant:
-                pathname === '/retail/horses' ? 'navbarSelected' : 'navbar',
-              size: 'lg',
-            }),
-            'flex w-24 flex-row items-center justify-center',
+            'flex w-24 flex-row items-center justify-center px-4 py-2 text-foreground transition-colors',
+            pathname.includes('/retail/horses')
+              ? 'bg-tertiary'
+              : 'bg-secondary',
           )}
         >
           <Image
@@ -116,12 +108,10 @@ export default function Navbar() {
         <Link
           href={`/retail/calcio${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
-            buttonVariants({
-              variant:
-                pathname === '/retail/calcio' ? 'navbarSelected' : 'navbar',
-              size: 'lg',
-            }),
-            'flex w-24 flex-row items-center justify-center gap-3',
+            'flex w-24 flex-row items-center justify-center gap-3 px-4 py-2 text-foreground transition-colors',
+            pathname.includes('/retail/calcio')
+              ? 'bg-tertiary'
+              : 'bg-secondary',
           )}
         >
           <Image
