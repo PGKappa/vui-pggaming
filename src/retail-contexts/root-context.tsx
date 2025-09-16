@@ -360,8 +360,7 @@ export default function RootContextProvider(props: {
           timestamp: Date.now(),
         }),
       )
-    } catch {
-    }
+    } catch {}
   }, [])
 
   const loadFromCache = useCallback(
@@ -483,12 +482,23 @@ export default function RootContextProvider(props: {
     [initCode],
   )
 
-  const setSearchEventResults = (searchEventResults?: EventResult[]) => {
+  const setSearchEventResults = useCallback(
+    (searchEventResults?: EventResult[]) => {
+      console.log('ROOT CONTEXT:', searchEventResults)
+      setRootContext((prev) => ({
+        ...prev,
+        searchEventResults,
+      }))
+    },
+    [],
+  )
+
+  useEffect(() => {
     setRootContext((prev) => ({
       ...prev,
-      searchEventResults,
+      setSearchEventResults,
     }))
-  }
+  }, [setSearchEventResults])
 
   useEffect(() => {
     const initCode = getInitCodeFromUrl()
