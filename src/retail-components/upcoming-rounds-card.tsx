@@ -41,7 +41,7 @@ export default function UpcomingRoundsCard({
       <SheetTrigger asChild>
         <Button
           variant="ghost"
-          className="text-background hover:bg-transparent"
+          className="text-background"
           style={{ scale: 2 }}
         >
           <CalendarIcon />
@@ -70,7 +70,7 @@ export default function UpcomingRoundsCard({
                   return (
                     <button
                       key={round.scheduleId}
-                      className={`flex w-full cursor-pointer flex-row items-center justify-between border-b border-border p-1 px-4 ${round.scheduleId === selectedRound?.scheduleId ? 'bg-muted' : 'bg-muted-foreground hover:bg-accent hover:text-accent-foreground'}`}
+                      className={`flex w-full cursor-pointer flex-row items-center justify-between border-b border-border p-1 px-4 ${round.scheduleId === selectedRound?.scheduleId ? 'bg-muted' : 'bg-muted-foreground'}`}
                       onClick={() => {
                         setSelectedRound(round)
                         setOpen(false)

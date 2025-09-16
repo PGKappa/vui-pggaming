@@ -135,7 +135,7 @@ export default function StakeInputDialog(props: {
                   <Button
                     key={amount}
                     onClick={() => setDialogValue((prev) => prev + amount)}
-                    className="h-12 w-full bg-tertiary text-[20px] font-bold text-white hover:bg-tertiary/80"
+                    className="h-12 w-full bg-tertiary text-[20px] font-bold text-white"
                   >
                     +{amount.toFixed(2)}€
                   </Button>
@@ -170,7 +170,7 @@ export default function StakeInputDialog(props: {
             {/* Bottoni Delete e Done */}
             <div className="mt-2 flex gap-2">
               <Button
-                className="flex-1 bg-gray-600 text-[16px] text-white hover:bg-gray-700"
+                className="flex-1 bg-gray-600 text-[16px] text-white"
                 onClick={() => {
                   setDialogValue(0)
                 }}
@@ -178,7 +178,7 @@ export default function StakeInputDialog(props: {
                 {t('clear')}
               </Button>
               <Button
-                className="flex-1 bg-green-600 text-[16px] text-white hover:bg-green-700"
+                className="flex-1 bg-green-600 text-[16px] text-white"
                 onClick={() => {
                   setValue(dialogValue)
                   props.setValue(dialogValue)

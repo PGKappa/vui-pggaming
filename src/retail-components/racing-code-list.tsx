@@ -59,7 +59,7 @@ export default function RacingCodeList(props: {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="w-32 bg-bet text-[16px] font-bold text-bet-foreground hover:bg-bet/70">
+        <Button className="w-32 bg-bet text-[16px] font-bold text-bet-foreground">
           {t('code_list')}
         </Button>
       </DialogTrigger>
@@ -117,7 +117,7 @@ export default function RacingCodeList(props: {
                       </TableCell>
                       <TableCell className="text-center">
                         <div
-                          className="ml-auto flex h-8 w-8 cursor-pointer items-center justify-center bg-bet font-bold text-bet-foreground transition-colors hover:bg-bet/80"
+                          className="ml-auto flex h-8 w-8 cursor-pointer items-center justify-center bg-bet font-bold text-bet-foreground transition-colors"
                           onClick={() => handleCodeClick(item.code)}
                         >
                           {item.code}
@@ -149,7 +149,7 @@ export default function RacingCodeList(props: {
                     </TableCell>
                     <TableCell>
                       <div
-                        className="ml-auto flex h-8 w-8 cursor-pointer items-center justify-center bg-bet font-bold text-bet-foreground transition-colors hover:bg-bet/80"
+                        className="ml-auto flex h-8 w-8 cursor-pointer items-center justify-center bg-bet font-bold text-bet-foreground transition-colors"
                         onClick={() => handleCodeClick(item.code)}
                       >
                         {item.code}
@@ -178,7 +178,7 @@ export default function RacingCodeList(props: {
                     </TableCell>
                     <TableCell className="text-center">
                       <div
-                        className="ml-auto flex h-8 w-8 cursor-pointer items-center justify-center bg-bet font-bold text-bet-foreground transition-colors hover:bg-bet/80"
+                        className="ml-auto flex h-8 w-8 cursor-pointer items-center justify-center bg-bet font-bold text-bet-foreground transition-colors"
                         onClick={() => handleCodeClick(item.code)}
                       >
                         {item.code}

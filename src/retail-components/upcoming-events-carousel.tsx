@@ -109,7 +109,7 @@ function UpcomingEventItem(props: {
         event.id === props.selectedEvent?.id &&
         event.discipline === props.selectedEvent?.discipline
           ? 'bg-tertiary text-tertiary-foreground'
-          : 'hover:bg-trasparent bg-secondary text-secondary-foreground hover:text-accent-foreground'
+          : ': bg-secondary text-secondary-foreground '
       }`}
       onClick={() => {
         props.setSelectedEvent(event)
