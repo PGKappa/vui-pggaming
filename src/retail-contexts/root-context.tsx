@@ -349,10 +349,8 @@ export default function RootContextProvider(props: {
     LAST_FETCH_TIME: 'racing_events_last_fetch',
   }
 
-  // Cache duration: 5 minutes in milliseconds
   const CACHE_DURATION = 5 * 60 * 1000
 
-  // Utility functions for cache management
   const saveToCache = useCallback((key: string, data: any) => {
     try {
       localStorage.setItem(
@@ -363,7 +361,6 @@ export default function RootContextProvider(props: {
         }),
       )
     } catch {
-      // Failed to save to cache
     }
   }, [])
 
@@ -401,7 +398,6 @@ export default function RootContextProvider(props: {
     return age < CACHE_DURATION
   }, [CACHE_KEYS.LAST_FETCH_TIME, CACHE_DURATION])
 
-  // Load cached racing events on mount
   const loadCachedRacingEvents = useCallback(() => {
     const cachedDogsEvents = loadFromCache(CACHE_KEYS.DOGS_EVENTS)
     const cachedHorsesEvents = loadFromCache(CACHE_KEYS.HORSES_EVENTS)
@@ -712,9 +708,7 @@ export default function RootContextProvider(props: {
       }))
     }
 
-    // Combined function to fetch both dogs and horses from the same API
     const fetchRacingEvents = async (forceRefresh = false) => {
-      // Check cache first unless forced refresh
       if (!forceRefresh && isCacheValid()) {
         return
       }
@@ -751,7 +745,6 @@ export default function RootContextProvider(props: {
 
         const racingEvents = await response.json()
 
-        // Process dogs (channel 0)
         const dogChannel = racingEvents.channels?.[0]
         const upcomingDogEvents: UpcomingEvent[] =
           dogChannel?.next_events?.map(
@@ -772,7 +765,6 @@ export default function RootContextProvider(props: {
             },
           ) || []
 
-        // Process horses (channel 1)
         const horseChannel = racingEvents.channels?.[1]
         const upcomingHorseEvents: UpcomingEvent[] =
           horseChannel?.next_events?.map(
@@ -793,7 +785,6 @@ export default function RootContextProvider(props: {
             },
           ) || []
 
-        // Process results for both
         const dogEventResults: EventResult[] = dogChannel?.prev_events
           ? await Promise.all(
               dogChannel.prev_events.map(async (event: any) => ({
@@ -838,7 +829,6 @@ export default function RootContextProvider(props: {
             )
           : []
 
-        // Update context
         setRootContext((prev) => ({
           ...prev,
           upcomingEvents: [
@@ -857,14 +847,13 @@ export default function RootContextProvider(props: {
           ],
         }))
 
-        // Save to cache
         saveToCache(CACHE_KEYS.DOGS_EVENTS, upcomingDogEvents)
         saveToCache(CACHE_KEYS.HORSES_EVENTS, upcomingHorseEvents)
         saveToCache(CACHE_KEYS.DOGS_RESULTS, dogEventResults)
         saveToCache(CACHE_KEYS.HORSES_RESULTS, horseEventResults)
         localStorage.setItem(CACHE_KEYS.LAST_FETCH_TIME, Date.now().toString())
       } catch {
-        // Error fetching racing events
+        toast.error('Error fetching racing events')
       }
     }
 
@@ -878,7 +867,6 @@ export default function RootContextProvider(props: {
           return
         }
 
-        // Load cached data first for racing events
         const racingAreas = areas.filter(
           (area) => area === Discipline.DOGS || area === Discipline.HORSES,
         )
@@ -886,7 +874,6 @@ export default function RootContextProvider(props: {
           loadCachedRacingEvents()
         }
 
-        // Handle single discipline pages (optimized path)
         if (areas.length === 1) {
           switch (areas[0]) {
             case Discipline.SOCCER:
@@ -901,14 +888,12 @@ export default function RootContextProvider(props: {
           }
         }
 
-        // Handle multi-discipline pages (parallel fetching)
         const promises: Promise<void>[] = []
 
         if (areas.includes(Discipline.SOCCER)) {
           promises.push(fetchUpcomingRounds())
         }
 
-        // Use combined racing fetch if any racing discipline is needed
         if (
           areas.includes(Discipline.DOGS) ||
           areas.includes(Discipline.HORSES)
@@ -918,7 +903,7 @@ export default function RootContextProvider(props: {
 
         await Promise.all(promises)
       } catch {
-        // Error fetching events
+        toast.error('Error fetching events')
       } finally {
         setIsLoadingEvents(false)
       }
@@ -926,7 +911,6 @@ export default function RootContextProvider(props: {
 
     fetchAllEvents()
 
-    // Set up auto-refresh timer for racing events (5 minutes)
     const refreshInterval = setInterval(
       () => {
         const areas = getAreaFromUrl()
@@ -939,9 +923,8 @@ export default function RootContextProvider(props: {
         }
       },
       5 * 60 * 1000,
-    ) // 5 minutes
+    )
 
-    // Cleanup interval on unmount
     return () => {
       clearInterval(refreshInterval)
     }
