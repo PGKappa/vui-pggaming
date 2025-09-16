@@ -70,7 +70,7 @@ export default function UpcomingRaceCard({
   // useEffect per cambio automatico tab da FastBet (SENZA activeTab nelle dependencies)
   useEffect(() => {
     const raceEntries = betEntries.filter(
-      (entry) => entry.bet.event.number === race.id,
+(entry) => entry.bet.discipline === race.discipline && entry.bet.event.number === race.id,
     )
 
     if (raceEntries.length > 0) {
@@ -93,7 +93,7 @@ export default function UpcomingRaceCard({
         }
       })
     }
-  }, [betEntries, race.id]) // NON includere activeTab qui
+  }, [betEntries, race.id, race.discipline])
 
   const handleMarketTypeToggle = () => {
     if (activeTab === 'couples') {

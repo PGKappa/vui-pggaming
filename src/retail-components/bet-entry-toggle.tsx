@@ -20,14 +20,18 @@ export default function BetEntryToggle(props: {
   const { addBet, removeBet, betEntries } = useContext(BetsContext)
 
   const isSelected = useMemo(
-    () =>
-      !!betEntries.find(
+    () => {
+      const found = betEntries.find(
         (entry) =>
           entry.market === props.marketName &&
+          entry.bet.discipline === props.bet.discipline &&
           entry.bet.event.number === props.bet.event.number &&
           entry.bet.competitors === props.bet.competitors &&
           entry.bet.option.outcome === props.bet.option.outcome,
-      ),
+      )
+      
+      return !!found
+    },
     [betEntries, props.marketName, props.bet],
   )
 
