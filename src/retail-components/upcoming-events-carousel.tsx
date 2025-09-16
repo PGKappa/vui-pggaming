@@ -105,7 +105,7 @@ function UpcomingEventItem(props: {
 
   return (
     <CarouselItem
-      className={`flex h-[72px] basis-1/6 cursor-pointer flex-row items-center justify-center gap-3 py-2 ${
+      className={`basis-1/7 flex h-[72px] cursor-pointer flex-row items-center justify-center gap-3 py-2 ${
         event.id === props.selectedEvent?.id &&
         event.discipline === props.selectedEvent?.discipline
           ? 'bg-tertiary text-tertiary-foreground'
@@ -115,7 +115,7 @@ function UpcomingEventItem(props: {
         props.setSelectedEvent(event)
       }}
     >
-      <div className="flex h-full w-12 flex-col items-center justify-center py-0.5">
+      <div className="flex h-full w-12 flex-col items-center justify-center py-0.5 pl-2">
         <Image
           src={
             event.discipline === 'SOCCER'
@@ -127,10 +127,10 @@ function UpcomingEventItem(props: {
           alt={'Horses'}
           width={40}
           height={20}
-          className="size-12 object-contain"
+          className="size-10 object-contain"
         />
       </div>
-      <div className="flex flex-col items-start">
+      <div className="flex flex-col items-start pr-2">
         {event.discipline === 'SOCCER'
           ? event.name
           : `${event.name} ${t('racing')}`}
