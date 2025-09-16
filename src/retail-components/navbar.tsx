@@ -43,32 +43,32 @@ export default function Navbar() {
         <Link
           href={`/retail/dogs-horses${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
-            'flex w-28 flex-row items-center justify-between px-4 py-2 text-foreground transition-colors',
+            'flex w-28 flex-row items-center justify-between px-4 py-1 text-foreground transition-colors',
             pathname.includes('/retail/dogs-horses')
               ? 'bg-tertiary'
               : 'bg-secondary',
           )}
         >
           <Image
-            src="/dog-image.png"
+            src="/dog.png"
             alt="Dogs"
             width={40}
             height={20}
-            className="object-contain"
+            className="size-8 object-contain"
           />
           <Image
-            src="/horse-image.png"
+            src="/horse.png"
             alt="Horses"
             width={40}
             height={20}
-            className="object-contain"
+            className="size-8 object-contain"
           />
         </Link>
 
         <Link
           href={`/retail/dogs${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
-            'flex w-24 flex-row items-center justify-center px-4 py-2 text-foreground transition-colors',
+            'flex w-24 flex-row items-center justify-center px-4 py-1 text-foreground transition-colors',
             pathname.includes('/retail/dogs') &&
               !pathname.includes('/retail/dogs-horses')
               ? 'bg-tertiary'
@@ -76,11 +76,11 @@ export default function Navbar() {
           )}
         >
           <Image
-            src="/dog-image.png"
+            src="/dog.png"
             alt="Dogs"
             width={40}
             height={20}
-            className="object-contain"
+            className="size-8 object-contain"
           />
           {/* 
           <span className="text-[16px] font-bold">{t('ch1')}</span> */}
@@ -89,18 +89,18 @@ export default function Navbar() {
         <Link
           href={`/retail/horses${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
-            'flex w-24 flex-row items-center justify-center px-4 py-2 text-foreground transition-colors',
+            'flex w-24 flex-row items-center justify-center px-4 py-1 text-foreground transition-colors',
             pathname.includes('/retail/horses')
               ? 'bg-tertiary'
               : 'bg-secondary',
           )}
         >
           <Image
-            src="/horse-image.png"
+            src="/horse.png"
             alt="Horses"
             width={40}
             height={20}
-            className="object-contain"
+            className="size-8 object-contain"
           />
           {/* 
           <span className="text-[16px] font-bold">{t('ch3')}</span> */}
@@ -109,7 +109,7 @@ export default function Navbar() {
         <Link
           href={`/retail/calcio${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
-            'flex w-24 flex-row items-center justify-center gap-3 px-4 py-2 text-foreground transition-colors',
+            'flex w-24 flex-row items-center justify-center gap-3 px-4 py-1 text-foreground transition-colors',
             pathname.includes('/retail/calcio')
               ? 'bg-tertiary'
               : 'bg-secondary',
@@ -120,7 +120,7 @@ export default function Navbar() {
             alt="Calcio"
             width={40}
             height={20}
-            className="size-7 object-contain brightness-0 invert filter"
+            className="size-8 object-contain brightness-0 invert filter"
           />
           {/* 
           <span className="text-[16px] font-bold">{t('ch4')}</span> */}
