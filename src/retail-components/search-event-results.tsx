@@ -3,9 +3,10 @@ import { Discipline, EventResult, RaceResult } from '@/retail-lib/types'
 import { format } from 'date-fns'
 import { ChevronRight } from 'lucide-react'
 import Image from 'next/image'
-import { useContext, useEffect, useMemo, useState } from 'react'
+import { useContext, useEffect, useMemo, useState, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import LoadingSpinner from './loading-spinner'
 import {
   Accordion,
   AccordionContent,
@@ -49,52 +50,51 @@ export default function SearchEventResults() {
   const [selectedDiscipline, setSelectedDiscipline] = useState<
     Discipline | 'NONE'
   >('NONE')
-  const [selectedDate, setSelectedDate] = useState<string>()
+  const [selectedDate, setSelectedDate] = useState<string>(dates[0])
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>('ALL')
   const [lastTenGames, setLastTenGames] = useState<boolean>(true)
   const [fetchedResults, setFetchedResults] = useState<EventResult[]>([])
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
-  const fetchDetailedEventResult = async (extId: string, eventId: string) => {
-    try {
-      const response = await fetch(
-        `https://apidev.pgvirtual.eu/api/event/results/${extId}/${eventId}`,
-        {
-          headers: {
-            accept: 'application/json',
-            'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
-            authorization: 'Bearer ffffffff-ffff-ffff-ffff-ffffffffffee',
-            'content-type': 'application/json',
-            operator: 'pg',
-            priority: 'u=1, i',
-            'sec-ch-ua':
-              '"Not)A;Brand";v="8", "Chromium";v="138", "Google Chrome";v="138"',
-            'sec-ch-ua-mobile': '?1',
-            'sec-ch-ua-platform': '"Android"',
-            'sec-fetch-dest': 'empty',
-            'sec-fetch-mode': 'cors',
-            'sec-fetch-site': 'same-site',
+  const fetchDetailedEventResult = useCallback(
+    async (extId: string, eventId: string) => {
+      try {
+        const response = await fetch(
+          `https://apidev.pgvirtual.eu/api/event/results/${extId}/${eventId}`,
+          {
+            headers: {
+              accept: 'application/json',
+              'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
+              authorization: 'Bearer ffffffff-ffff-ffff-ffff-ffffffffffee',
+              'content-type': 'application/json',
+              operator: 'pg',
+              priority: 'u=1, i',
+              'sec-ch-ua':
+                '"Not)A;Brand";v="8", "Chromium";v="138", "Google Chrome";v="138"',
+              'sec-ch-ua-mobile': '?1',
+              'sec-ch-ua-platform': '"Android"',
+              'sec-fetch-dest': 'empty',
+              'sec-fetch-mode': 'cors',
+              'sec-fetch-site': 'same-site',
+            },
+            referrer: 'https://test.pgvirtual.eu/',
+            method: 'GET',
+            mode: 'cors',
+            credentials: 'include',
           },
-          referrer: 'https://test.pgvirtual.eu/',
-          method: 'GET',
-          mode: 'cors',
-          credentials: 'include',
-        },
-      )
+        )
 
-      if (!response.ok) {
-        console.warn(`Failed to fetch detailed results for event ${eventId}`)
+        if (!response.ok) {
+          return null
+        }
+
+        return await response.json()
+      } catch {
         return null
       }
-
-      return await response.json()
-    } catch (error) {
-      console.warn(
-        `Error fetching detailed results for event ${eventId}:`,
-        error,
-      )
-      return null
-    }
-  }
+    },
+    [],
+  )
 
   useEffect(() => {
     if (selectedDiscipline === 'NONE') {
@@ -103,21 +103,20 @@ export default function SearchEventResults() {
     }
 
     if (lastTenGames) {
-      // Usa i dati del context (prev_events)
       setFetchedResults([])
       return
     }
 
-    if (!selectedDate) {
+    if (!selectedDate || selectedDate === 'ALL') {
       setFetchedResults([])
       return
     }
 
     const fetchEventResults = async (discipline: Discipline, date: string) => {
+      setIsLoading(true)
+
       try {
-        // Converti la data dal formato italiano al formato americano per l'API
-        const [day, month, year] = date.split('/')
-        const apiDateFormat = `${month}/${day}/${year}`
+        const apiDateFormat = date
 
         const gameIds =
           discipline === Discipline.HORSES
@@ -125,6 +124,12 @@ export default function SearchEventResults() {
             : discipline === Discipline.DOGS
               ? 'dogs6'
               : `${discipline.toLowerCase()}6`
+
+        const requestBody = {
+          gameIds: [gameIds],
+          dateStart: apiDateFormat,
+          dateEnd: apiDateFormat,
+        }
 
         const response = await fetch(
           'https://apidev.pgvirtual.eu/api/event/results/list',
@@ -145,11 +150,7 @@ export default function SearchEventResults() {
               'sec-fetch-site': 'same-site',
             },
             referrer: 'https://test.pgvirtual.eu/',
-            body: JSON.stringify({
-              gameIds: [gameIds],
-              dateStart: apiDateFormat,
-              dateEnd: apiDateFormat,
-            }),
+            body: JSON.stringify(requestBody),
             method: 'POST',
             mode: 'cors',
             credentials: 'include',
@@ -163,7 +164,6 @@ export default function SearchEventResults() {
         const data = await response.json()
 
         if (!data.items || !Array.isArray(data.items)) {
-          console.warn('No items found in API response')
           setFetchedResults([])
           return
         }
@@ -174,7 +174,6 @@ export default function SearchEventResults() {
           discipline === Discipline.HORSES ||
           discipline === Discipline.DOGS
         ) {
-          // Processa tutti i risultati
           results = await Promise.all(
             data.items.map(async (result: any) => {
               const detailedResult = await fetchDetailedEventResult(
@@ -200,16 +199,10 @@ export default function SearchEventResults() {
                     startTime.setMinutes(parseInt(minutes, 10))
                   }
                 }
-              } catch (error) {
-                console.warn(
-                  'Error parsing date for event:',
-                  result.int_event_id,
-                  error,
-                )
+              } catch {
                 startTime = new Date()
               }
 
-              // CORREZIONE: Aggiungi podium ai risultati anche per ricerca per data
               let raceResult = detailedResult
               if (detailedResult && !detailedResult.arrival && result.arrival) {
                 raceResult = {
@@ -241,12 +234,7 @@ export default function SearchEventResults() {
                 startTime.setHours(parseInt(hours, 10))
                 startTime.setMinutes(parseInt(minutes, 10))
               }
-            } catch (error) {
-              console.warn(
-                'Error parsing date for soccer event:',
-                result.int_event_id,
-                error,
-              )
+            } catch {
               startTime = new Date()
             }
 
@@ -295,17 +283,20 @@ export default function SearchEventResults() {
         setFetchedResults(results)
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : 'Unknown error'
-        console.error('❌ API Error:', message)
         toast.error(`Failed to fetch results: ${message}`)
         setFetchedResults([])
+      } finally {
+        setIsLoading(false)
       }
     }
 
     fetchEventResults(selectedDiscipline, selectedDate)
-  }, [selectedDate, selectedDiscipline, lastTenGames])
+  }, [selectedDate, selectedDiscipline, lastTenGames, fetchDetailedEventResult])
 
   const filteredEventResults = useMemo(() => {
-    if (selectedDiscipline === 'NONE') return []
+    if (selectedDiscipline === 'NONE') {
+      return []
+    }
 
     if (lastTenGames) {
       const filtered = (rootContext.eventResults || [])
@@ -316,8 +307,7 @@ export default function SearchEventResults() {
       return filtered
     }
 
-    // Modalità con data selezionata: usa fetchedResults (tutti i risultati del giorno)
-    if (!selectedDate) {
+    if (!selectedDate || selectedDate === 'ALL') {
       return []
     }
 
@@ -346,7 +336,6 @@ export default function SearchEventResults() {
       return true
     })
 
-    console.log('Date-filtered results:', filteredResults.length)
     return filteredResults
   }, [
     selectedDiscipline,
@@ -359,7 +348,7 @@ export default function SearchEventResults() {
 
   const handleReset = () => {
     setSelectedDiscipline('NONE')
-    setSelectedDate('ALL')
+    setSelectedDate(dates[0])
     setSelectedTimeSlot('ALL')
     setLastTenGames(false)
   }
@@ -376,8 +365,7 @@ export default function SearchEventResults() {
       }
 
       return 'Invalid Date'
-    } catch (error) {
-      console.error('Error formatting date:', error)
+    } catch {
       return 'Invalid Date'
     }
   }
@@ -493,7 +481,14 @@ export default function SearchEventResults() {
 
       <div className="h-full overflow-auto pb-2">
         {selectedDiscipline !== 'NONE' ? (
-          filteredEventResults.length > 0 ? (
+          isLoading ? (
+            <div className="flex h-full flex-col items-center justify-center pt-4">
+              <LoadingSpinner />
+              <p className="mt-4 text-[16px] text-muted-foreground">
+                {t('loading')}...
+              </p>
+            </div>
+          ) : filteredEventResults.length > 0 ? (
             (() => {
               return (
                 <ScrollArea className="pb-20">
@@ -599,8 +594,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
           const data = await response.json()
           setDetailedResult(data)
         }
-      } catch (error) {
-        console.warn('Failed to fetch detailed results:', error)
+      } catch {
       } finally {
         setLoading(false)
       }
@@ -638,7 +632,6 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
     ) {
       return (
         <div className="space-y-4">
-          {/* PODIUM*/}
           <div className="border">
             <div className="bg-accent py-2 text-center">
               <div className="text-[16px] font-bold uppercase text-accent-foreground">
@@ -672,7 +665,6 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                       key={competitor.number}
                       className="flex items-center gap-4"
                     >
-                      {/* Medaglia con numero posizione */}
                       <div className="relative flex h-12 w-12 items-center justify-center">
                         <Image
                           src={imageSrc}
@@ -686,7 +678,6 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                         </div>
                       </div>
 
-                      {/* Numero corridore */}
                       <div
                         className={
                           'flex h-10 w-10 items-center justify-center rounded-md font-bold text-white ' +
@@ -708,7 +699,6 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                         {competitor.number}
                       </div>
 
-                      {/* Nome corridore */}
                       <div className="text-[16px] font-semibold">
                         {competitor.name}
                       </div>
@@ -738,8 +728,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
           }
 
           return 'Invalid Date'
-        } catch (error) {
-          console.error('Error formatting date:', error)
+        } catch {
           return 'Invalid Date'
         }
       }
@@ -1389,8 +1378,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
         }
 
         return 'Invalid Date'
-      } catch (error) {
-        console.error('Error formatting date:', error)
+      } catch {
         return 'Invalid Date'
       }
     }

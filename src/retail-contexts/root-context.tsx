@@ -422,8 +422,14 @@ export default function RootContextProvider(props: {
           ...(prev.eventResults?.filter(
             (result) => result.discipline === Discipline.SOCCER,
           ) || []),
-          ...(cachedDogsResults || []),
-          ...(cachedHorsesResults || []),
+          ...((cachedDogsResults as EventResult[])?.map((r) => ({
+            ...r,
+            startTime: new Date(r.startTime),
+          })) || []),
+          ...((cachedHorsesResults as EventResult[])?.map((r) => ({
+            ...r,
+            startTime: new Date(r.startTime),
+          })) || []),
         ],
       }))
 
