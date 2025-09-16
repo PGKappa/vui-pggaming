@@ -84,7 +84,84 @@ export const soccerMarkets: Record<string, MarketConfig> = {
   S61: { marketName: 'Correct Score', outcome: '6-1' },
   S70: { marketName: 'Correct Score', outcome: '7-0' },
 
-  
+  // 1X2 + GOAL/NO GOAL
+  C1GG: { marketName: 'Combo 1x2 + Goal\/No Goal', outcome: '1+G' },
+  C1NG: { marketName: 'Combo 1x2 + Goal\/No Goal', outcome: '1+NG' },
+  CXGG: { marketName: 'Combo 1x2 + Goal\/No Goal', outcome: 'X+G' },
+  CXNG: { marketName: 'Combo 1x2 + Goal\/No Goal', outcome: 'X+NG' },
+  C2GG: { marketName: 'Combo 1x2 + Goal\/No Goal', outcome: '2+G' },
+  C2NG: { marketName: 'Combo 1x2 + Goal\/No Goal', outcome: '2+NG' },
+
+  // 1X2 + UNDER/OVER 1.5
+  C1U0: { marketName: 'Combo 1x2 + Under\/Over (1.5)', outcome: '1+U' },
+  CXU0: { marketName: 'Combo 1x2 + Under\/Over (1.5)', outcome: 'X+U' },
+  C2U0: { marketName: 'Combo 1x2 + Under\/Over (1.5)', outcome: '2+U' },
+  C1O0: { marketName: 'Combo 1x2 + Under\/Over (1.5)', outcome: '1+O' },
+  CXO0: { marketName: 'Combo 1x2 + Under\/Over (1.5)', outcome: 'X+O' },
+  C2O0: { marketName: 'Combo 1x2 + Under\/Over (1.5)', outcome: '2+O' },
+
+  // 1X2 + UNDER/OVER 2.5
+  C1U2: { marketName: 'Combo 1x2 + Under\/Over (2.5)', outcome: '1+U' },
+  //... add other combo for this market
+
+  // MULTIGOAL
+  M01: { marketName: 'Multigoal', outcome: '0-1' },
+  M23: { marketName: 'Multigoal', outcome: '2-3' },
+  M4: { marketName: 'Multigoal', outcome: '4+' },
+
+  // MULTIGOAL HOME
+  HM0: { marketName: 'Multigoal Home', outcome: '0' },
+  HM12: { marketName: 'Multigoal Home', outcome: '1-2' },
+  HM3: { marketName: 'Multigoal Home', outcome: '3+' },
+
+  // MULTIGOAL AWAY
+  AM0: { marketName: 'Multigoal Away', outcome: '0' },
+  AM12: { marketName: 'Multigoal Away', outcome: '1-2' },
+  AM3: { marketName: 'Multigoal Away', outcome: '3+' },
+
+  // HOME UNDER
+  HU0: { marketName: 'Home Under\/Over 0.5', outcome: 'U' },
+  HU1: { marketName: 'Home Under\/Over 1.5', outcome: 'U' },
+  HU2: { marketName: 'Home Under\/Over 2.5', outcome: 'U' },
+
+  // HOME OVER
+  HO0: { marketName: 'Home Under\/Over 0.5', outcome: 'O' },
+  HO1: { marketName: 'Home Under\/Over 1.5', outcome: 'O' },
+  HO2: { marketName: 'Home Under\/Over 2.5', outcome: 'O' },
+
+  // AWAY UNDER
+  AU0: { marketName: 'Away Under\/Over 0.5', outcome: 'U' },
+  AU1: { marketName: 'Away Under\/Over 1.5', outcome: 'U' },
+  AU2: { marketName: 'Away Under\/Over 2.5', outcome: 'U' },
+
+  // AWAY OVER
+  AO0: { marketName: 'Away Under\/Over 0.5', outcome: 'O' },
+  AO1: { marketName: 'Away Under\/Over 1.5', outcome: 'O' },
+  AO2: { marketName: 'Away Under\/Over 2.5', outcome: 'O' },
+
+  // HALF TIME / FULL TIME
+  HFXX: { marketName: 'Half Time\/ Full Time', outcome: 'XX' },
+  HFX1: { marketName: 'Half Time\/ Full Time', outcome: 'X1' },
+  HFX2: { marketName: 'Half Time\/ Full Time', outcome: 'X2' },
+  HF1X: { marketName: 'Half Time\/ Full Time', outcome: '1X' },
+  HF11: { marketName: 'Half Time\/ Full Time', outcome: '11' },
+  HF12: { marketName: 'Half Time\/ Full Time', outcome: '12' },
+  HF2X: { marketName: 'Half Time\/ Full Time', outcome: '2X' },
+  HF21: { marketName: 'Half Time\/ Full Time', outcome: '21' },
+  HF22: { marketName: 'Half Time\/ Full Time', outcome: '22' },
+
+  // FIRST SCORER
+  FNG: { marketName: 'First Scorer', outcome: 'NG' },
+  F11: { marketName: 'First Scorer', outcome: '11' },
+  F12: { marketName: 'First Scorer', outcome: '12' },
+  F13: { marketName: 'First Scorer', outcome: '13' },
+  F21: { marketName: 'First Scorer', outcome: '21' },
+  F22: { marketName: 'First Scorer', outcome: '22' },
+  F23: { marketName: 'First Scorer', outcome: '23' },
+
+  // RED CARD
+  R1: { marketName: 'Red Card ', outcome: 'Yes' },
+  R0: { marketName: 'Red Card ', outcome: 'No' },
 }
 
 // Helper function to get market config by code
