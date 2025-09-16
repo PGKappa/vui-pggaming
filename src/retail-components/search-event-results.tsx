@@ -479,7 +479,7 @@ export default function SearchEventResults() {
 
           <div className="flex flex-row items-center gap-2">
             <Button
-              className="text-bold w-[80px] bg-tertiary text-[16px] text-tertiary-foreground hover:bg-tertiary/70"
+              className="text-bold w-[80px] bg-tertiary text-[16px] text-tertiary-foreground"
               disabled={
                 !selectedDate && !selectedDiscipline && !selectedTimeSlot
               }

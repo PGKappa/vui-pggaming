@@ -457,7 +457,7 @@ export default function BettingSlip({
               <div className="max-h-[150px] min-w-full">
                 <Table>
                   <TableHeader className="bg-accent text-accent-foreground">
-                    <TableRow className="border-border hover:bg-accent">
+                    <TableRow className="border-border">
                       <TableHead className="text-left text-[13px] font-bold tracking-wide">
                         {t('group')}
                       </TableHead>
@@ -511,7 +511,7 @@ export default function BettingSlip({
                     ))}
                   </TableBody>
                   <TableFooter className="text-[14px] font-semibold">
-                    <TableRow className="hover:bg-muted">
+                    <TableRow>
                       <TableCell colSpan={4} className="text-left">
                         {t('total')}
                       </TableCell>
@@ -522,7 +522,7 @@ export default function BettingSlip({
                           .toFixed(2)}
                       </TableCell>
                     </TableRow>
-                    <TableRow className="hover:bg-muted">
+                    <TableRow>
                       <TableCell colSpan={4} className="text-left">
                         {t('max')} {t('win')}
                       </TableCell>
@@ -540,7 +540,7 @@ export default function BettingSlip({
                           .toFixed(2)}
                       </TableCell>
                     </TableRow>
-                    <TableRow className="hover:bg-muted">
+                    <TableRow>
                       <TableCell colSpan={4} className="text-left">
                         {t('min')} {t('win')}
                       </TableCell>

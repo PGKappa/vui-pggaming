@@ -38,7 +38,7 @@ export default function MatchBettingOptions(props: {
       <div className="flex flex-row items-center justify-between bg-accent p-3 text-accent-foreground">
         <div className="flex flex-row items-center gap-2">
           <Button
-            className="rounded-[8px] bg-tertiary text-tertiary-foreground hover:bg-tertiary/70"
+            className="rounded-[8px] bg-tertiary text-tertiary-foreground"
             onClick={props.close}
             size="icon-lg"
           >

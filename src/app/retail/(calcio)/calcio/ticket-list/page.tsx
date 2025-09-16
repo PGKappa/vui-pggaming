@@ -48,7 +48,7 @@ export default function TicketListPage() {
         <h2 className="text-[20px] font-bold">{t('ticket_list')}</h2>
         <Button
           variant="ghost"
-          className="absolute right-4 bg-secondary text-xl text-secondary-foreground hover:bg-secondary/70"
+          className="absolute right-4 bg-secondary text-xl text-secondary-foreground"
           onClick={() => router.back()}
         >
           ✕
@@ -180,7 +180,7 @@ export default function TicketListPage() {
           </div>
 
           {/* Reload */}
-          <Button className="text-bold w-[80px] bg-tertiary text-[14px] text-tertiary-foreground hover:bg-tertiary/70">
+          <Button className="text-bold w-[80px] bg-tertiary text-[14px] text-tertiary-foreground">
             {t('reload')}
           </Button>
         </div>
@@ -246,7 +246,7 @@ export default function TicketListPage() {
                 <td className="p-2">
                   <Button
                     onClick={() => handleDetailsClick(1400 - i)}
-                    className="h-8 w-20 bg-tertiary text-[16px] text-tertiary-foreground hover:bg-tertiary/80"
+                    className="h-8 w-20 bg-tertiary text-[16px] text-tertiary-foreground"
                   >
                     {t('details')}
                   </Button>

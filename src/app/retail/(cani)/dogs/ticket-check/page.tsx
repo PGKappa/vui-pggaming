@@ -35,7 +35,7 @@ export default function TicketCheckPage() {
       <Button
         variant="navbar"
         onClick={() => router.back()}
-        className="absolute right-4 top-4 hover:opacity-80"
+        className="absolute right-4 top-4 "
       >
         <XIcon className="h-6 w-6" />
       </Button>
@@ -55,7 +55,7 @@ export default function TicketCheckPage() {
               {row.map((key) => (
                 <Button
                   key={key}
-                  className="h-20 w-20 rounded-none bg-tertiary text-[22px] font-bold text-tertiary-foreground hover:bg-tertiary/80"
+                  className="h-20 w-20 rounded-none bg-tertiary text-[22px] font-bold text-tertiary-foreground"
                   onClick={() => handleClick(key)}
                 >
                   {key}
@@ -68,7 +68,7 @@ export default function TicketCheckPage() {
 
       <div className="flex justify-center">
         <Button
-          className="h-16 w-[1200px] bg-green-600 text-[20px] font-bold text-white hover:bg-green-700"
+          className="h-16 w-[1200px] bg-green-600 text-[20px] font-bold text-white"
           onClick={handleSubmit}
         >
           {t('confirm')}

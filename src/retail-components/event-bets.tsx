@@ -37,7 +37,7 @@ export default function EventBets(props: {
           </div>
           <Button
             variant="ghost"
-            className="group size-7 hover:text-tertiary-foreground"
+            className="group size-7"
             size="icon"
             onClick={() => removeEventBets(eventKey)}
           >
