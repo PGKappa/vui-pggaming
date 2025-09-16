@@ -188,7 +188,7 @@ export default function SearchEventResults() {
       return
     }
 
-    if (!selectedDate || selectedDate === 'ALL') {
+    if (!selectedDate) {
       setFetchedResults([])
       return
     }
@@ -405,7 +405,7 @@ export default function SearchEventResults() {
       return filtered
     }
 
-    if (!selectedDate || selectedDate === 'ALL') {
+    if (!selectedDate) {
       return []
     }
 
@@ -530,7 +530,6 @@ export default function SearchEventResults() {
                 <SelectValue placeholder={t('date')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
-                <SelectItem value="ALL">{t('all')}</SelectItem>
                 {dates.map((date) => (
                   <SelectItem key={date} value={date}>
                     {date}
