@@ -115,7 +115,7 @@ export default function Navbar() {
           )}
         >
           <Image
-            src="/soccer.png"
+            src="/soccer.svg"
             alt="Calcio"
             width={40}
             height={20}
