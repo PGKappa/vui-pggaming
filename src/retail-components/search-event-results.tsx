@@ -103,11 +103,92 @@ export default function SearchEventResults() {
     }
 
     if (lastTenGames) {
-      setFetchedResults([])
+      const existingResults = (rootContext.eventResults || []).filter(
+        (result) => result.discipline === selectedDiscipline,
+      )
+
+      if (existingResults.length > 0) {
+        return
+      }
+
+      if (
+        selectedDiscipline === Discipline.HORSES ||
+        selectedDiscipline === Discipline.DOGS
+      ) {
+        const fetchRacingResults = async () => {
+          setIsLoading(true)
+          try {
+            const response = await fetch(
+              'https://apidev.pgvirtual.eu/api/event/list',
+              {
+                headers: {
+                  accept: 'application/json',
+                  'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
+                  authorization: 'Bearer ffffffff-ffff-ffff-ffff-ffffffffffee',
+                  operator: 'pg',
+                  priority: 'u=1, i',
+                  'sec-ch-ua':
+                    '"Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"',
+                  'sec-ch-ua-mobile': '?1',
+                  'sec-ch-ua-platform': '"Android"',
+                  'sec-fetch-dest': 'empty',
+                  'sec-fetch-mode': 'cors',
+                  'sec-fetch-site': 'same-site',
+                },
+                referrer: 'https://test.pgvirtual.eu/',
+                referrerPolicy: 'strict-origin-when-cross-origin',
+                method: 'GET',
+                mode: 'cors',
+                credentials: 'include',
+              },
+            )
+
+            if (!response.ok) {
+              throw new Error('Failed to fetch racing events')
+            }
+
+            const racingEvents = await response.json()
+
+            // Extract results based on selected discipline
+            const channelIndex = selectedDiscipline === Discipline.DOGS ? 0 : 1
+            const channel = racingEvents.channels?.[channelIndex]
+
+            if (channel?.prev_events) {
+              const results: EventResult[] = await Promise.all(
+                channel.prev_events.map(async (event: any) => ({
+                  id: event.int_event_id,
+                  extId: event.ext_pal_id,
+                  name: `${selectedDiscipline === Discipline.DOGS ? 'Dog' : 'Horse'} Race ${event.int_event_id}`,
+                  startTime: new Date(event.time),
+                  discipline: selectedDiscipline,
+                  result: {
+                    podium:
+                      event.arrival?.map((competitor: any, index: number) => ({
+                        name: competitor.name,
+                        number: competitor.number,
+                        position: index + 1,
+                      })) || [],
+                    odds: {},
+                  },
+                })),
+              )
+
+              setFetchedResults(results)
+            }
+          } catch (error) {
+            console.error('Failed to fetch racing results:', error)
+            setFetchedResults([])
+          } finally {
+            setIsLoading(false)
+          }
+        }
+
+        fetchRacingResults()
+      }
       return
     }
 
-    if (!selectedDate || selectedDate === 'ALL') {
+    if (!selectedDate) {
       setFetchedResults([])
       return
     }
@@ -291,7 +372,13 @@ export default function SearchEventResults() {
     }
 
     fetchEventResults(selectedDiscipline, selectedDate)
-  }, [selectedDate, selectedDiscipline, lastTenGames, fetchDetailedEventResult])
+  }, [
+    selectedDate,
+    selectedDiscipline,
+    lastTenGames,
+    fetchDetailedEventResult,
+    rootContext.eventResults,
+  ])
 
   const filteredEventResults = useMemo(() => {
     if (selectedDiscipline === 'NONE') {
@@ -299,15 +386,26 @@ export default function SearchEventResults() {
     }
 
     if (lastTenGames) {
-      const filtered = (rootContext.eventResults || [])
-        .filter((result) => result.discipline === selectedDiscipline)
+      const allResults = rootContext.eventResults || []
+      const disciplineResults = allResults.filter(
+        (result) => result.discipline === selectedDiscipline,
+      )
+
+      const resultsToUse =
+        disciplineResults.length > 0
+          ? disciplineResults
+          : fetchedResults.filter(
+              (result) => result.discipline === selectedDiscipline,
+            )
+
+      const filtered = resultsToUse
         .sort((a, b) => b.startTime.getTime() - a.startTime.getTime())
         .slice(0, 10)
 
       return filtered
     }
 
-    if (!selectedDate || selectedDate === 'ALL') {
+    if (!selectedDate) {
       return []
     }
 
@@ -432,7 +530,6 @@ export default function SearchEventResults() {
                 <SelectValue placeholder={t('date')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
-                <SelectItem value="ALL">{t('all')}</SelectItem>
                 {dates.map((date) => (
                   <SelectItem key={date} value={date}>
                     {date}
@@ -481,7 +578,7 @@ export default function SearchEventResults() {
 
       <div className="h-full overflow-auto pb-2">
         {selectedDiscipline !== 'NONE' ? (
-          isLoading ? (
+          isLoading || (lastTenGames && rootContext.isLoadingEvents) ? (
             <div className="flex h-full flex-col items-center justify-center pt-4">
               <LoadingSpinner />
               <p className="mt-4 text-[16px] text-muted-foreground">
