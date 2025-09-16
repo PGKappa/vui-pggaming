@@ -8,46 +8,12 @@ import {
   UpcomingEvent,
   UpcomingRound,
 } from '@/retail-lib/types'
+import { soccerMarkets } from '@/retail-lib/soccer-markets'
 import { useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 /* import CodeList from './code-list' */
 import Image from 'next/image'
 import { toast } from 'sonner'
-
-const markets: Record<string, { marketName: string; outcome: string }> = {
-  1: {
-    marketName: '1X2',
-    outcome: '1',
-  },
-  X: {
-    marketName: '1X2',
-    outcome: 'X',
-  },
-  2: {
-    marketName: '1X2',
-    outcome: '2',
-  },
-  '1X': {
-    marketName: 'Double Chance',
-    outcome: '1X',
-  },
-  '12': {
-    marketName: 'Double Chance',
-    outcome: '12',
-  },
-  X2: {
-    marketName: 'Double Chance',
-    outcome: 'X2',
-  },
-  GG: {
-    marketName: 'Gol no gol',
-    outcome: 'G',
-  },
-  NG: {
-    marketName: 'Gol no gol',
-    outcome: 'NG',
-  },
-}
 
 export default function SoccerFastBet(props: { selectedEvent: UpcomingEvent }) {
   const { t } = useTranslation()
@@ -126,7 +92,9 @@ export default function SoccerFastBet(props: { selectedEvent: UpcomingEvent }) {
               }
               const selections = selection.split('/')
 
-              const marketsNotFound = selections.filter((s) => !markets[s])
+              const marketsNotFound = selections.filter(
+                (s) => !soccerMarkets[s],
+              )
               if (marketsNotFound.length > 0) {
                 toast.error(
                   `$${t('markets_not_found')}: ${marketsNotFound.join(', ')}`,
@@ -145,10 +113,10 @@ export default function SoccerFastBet(props: { selectedEvent: UpcomingEvent }) {
                     const selectedMatch =
                       upcomingRound.mag_event[eventNumber - 1]
                     const market = selectedMatch.markets?.market?.find(
-                      (m) => m.name === markets[s].marketName,
+                      (m) => m.name === soccerMarkets[s].marketName,
                     )
                     const selection = market?.selections?.[0]?.selection?.find(
-                      (sel) => sel.outcome === markets[s].outcome,
+                      (sel) => sel.outcome === soccerMarkets[s].outcome,
                     )
 
                     if (!selection) {
@@ -156,7 +124,7 @@ export default function SoccerFastBet(props: { selectedEvent: UpcomingEvent }) {
                     }
 
                     return {
-                      marketName: markets[s].marketName,
+                      marketName: soccerMarkets[s].marketName,
                       bet: {
                         event: {
                           name: props.selectedEvent.name,
