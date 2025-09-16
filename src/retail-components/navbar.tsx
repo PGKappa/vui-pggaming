@@ -69,8 +69,9 @@ export default function Navbar() {
           href={`/retail/dogs${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
             'flex w-24 flex-row items-center justify-center px-4 py-2 text-foreground transition-colors',
-            pathname.includes('/retail/dogs') && !pathname.includes('/retail/dogs-horses') 
-              ? 'bg-tertiary' 
+            pathname.includes('/retail/dogs') &&
+              !pathname.includes('/retail/dogs-horses')
+              ? 'bg-tertiary'
               : 'bg-secondary',
           )}
         >
@@ -115,7 +116,7 @@ export default function Navbar() {
           )}
         >
           <Image
-            src="/soccer.svg"
+            src="/soccer.png"
             alt="Calcio"
             width={40}
             height={20}
