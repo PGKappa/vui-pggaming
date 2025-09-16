@@ -46,7 +46,7 @@ export default function EventBets(props: {
               alt="Bin"
               width={40}
               height={20}
-              className="size-5 object-contain group-hover:brightness-0 group-hover:invert"
+              className="size-5 object-contain"
             />
           </Button>
         </div>
