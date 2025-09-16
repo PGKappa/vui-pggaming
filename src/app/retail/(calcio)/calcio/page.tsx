@@ -15,8 +15,8 @@ export default function Home() {
   const { t } = useTranslation()
   const {
     upcomingEvents,
-    searchEventResults: searchRoundResults,
-    setSearchEventResults: setSearchRoundResults,
+    searchEventResults,
+    setSearchEventResults,
     isLoadingEvents,
   } = useContext(RootContext)
 
@@ -50,7 +50,7 @@ export default function Home() {
             selectedEvent={selectedEvent}
             setSelectedEvent={(event) => {
               setSelectedEvent(event)
-              setSearchRoundResults(undefined)
+              setSearchEventResults(undefined)
               setMatchBetOptions(undefined)
               setIsLeaderboardExpanded(false)
             }}
@@ -58,7 +58,7 @@ export default function Home() {
         </div>
 
         <div className="mx-2 flex h-[942px] w-[1500px] flex-col gap-2">
-          {!!searchRoundResults ? (
+          {!!searchEventResults ? (
             <SearchEventResults />
           ) : isLoadingEvents ? (
             <SkeletonRoundCard />
