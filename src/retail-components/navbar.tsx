@@ -2,12 +2,14 @@
 
 import { RootContext } from '@/retail-contexts/root-context'
 import { cn } from '@/retail-lib/utils'
+import { Info } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
-import { useContext } from 'react'
+import { useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button, buttonVariants } from './ui/button'
+import { Button } from './ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog'
 
 export default function Navbar() {
   const { t } = useTranslation()
@@ -16,6 +18,18 @@ export default function Navbar() {
   const initCode = searchParams.get('init_code')
 
   const { eventResults, setSearchEventResults } = useContext(RootContext)
+  const [isInfoDialogOpen, setIsInfoDialogOpen] = useState(false)
+
+  // Helper per determinare il link info basato sulla pagina
+  const getInfoLink = () => {
+    if (pathname.includes('/calcio')) {
+      // Link per il calcio
+      return 'https://d190050z3qr0m1.cloudfront.net/public/Soccer_Gaming_manual_en.html'
+    } else {
+      // Per cani e cavalli
+      return 'https://d190050z3qr0m1.cloudfront.net/public/RD-RH_Gaming_manual_en.html'
+    }
+  }
 
   return (
     <div
@@ -29,93 +43,87 @@ export default function Navbar() {
         <Link
           href={`/retail/dogs-horses${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
-            buttonVariants({
-              variant:
-                pathname === '/retail/dogs-horses'
-                  ? 'navbarSelected'
-                  : 'navbar',
-              size: 'lg',
-            }),
-            'flex w-28 flex-row items-center justify-between',
+            'flex w-28 flex-row items-center justify-between px-4 py-1 text-foreground transition-colors',
+            pathname.includes('/retail/dogs-horses')
+              ? 'bg-tertiary'
+              : 'bg-secondary',
           )}
         >
           <Image
-            src="/dog-image.png"
+            src="/dog.png"
             alt="Dogs"
             width={40}
             height={20}
-            className="object-contain"
+            className="size-8 object-contain"
           />
           <Image
-            src="/horse-image.png"
+            src="/horse.png"
             alt="Horses"
             width={40}
             height={20}
-            className="object-contain"
+            className="size-8 object-contain"
           />
         </Link>
 
         <Link
           href={`/retail/dogs${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
-            buttonVariants({
-              variant:
-                pathname === '/retail/dogs' ? 'navbarSelected' : 'navbar',
-              size: 'lg',
-            }),
-            'flex w-24 flex-row items-center justify-between',
+            'flex w-24 flex-row items-center justify-center px-4 py-1 text-foreground transition-colors',
+            pathname.includes('/retail/dogs') &&
+              !pathname.includes('/retail/dogs-horses')
+              ? 'bg-tertiary'
+              : 'bg-secondary',
           )}
         >
           <Image
-            src="/dog-image.png"
+            src="/dog.png"
             alt="Dogs"
             width={40}
             height={20}
-            className="object-contain"
+            className="size-8 object-contain"
           />
-          <span className="text-[16px] font-bold">{t('ch1')}</span>
+          {/* 
+          <span className="text-[16px] font-bold">{t('ch1')}</span> */}
         </Link>
 
         <Link
           href={`/retail/horses${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
-            buttonVariants({
-              variant:
-                pathname === '/retail/horses' ? 'navbarSelected' : 'navbar',
-              size: 'lg',
-            }),
-            'flex w-24 flex-row items-center justify-between',
+            'flex w-24 flex-row items-center justify-center px-4 py-1 text-foreground transition-colors',
+            pathname.includes('/retail/horses')
+              ? 'bg-tertiary'
+              : 'bg-secondary',
           )}
         >
           <Image
-            src="/horse-image.png"
+            src="/horse.png"
             alt="Horses"
             width={40}
             height={20}
-            className="object-contain"
+            className="size-8 object-contain"
           />
-          <span className="text-[16px] font-bold">{t('ch2')}</span>
+          {/* 
+          <span className="text-[16px] font-bold">{t('ch3')}</span> */}
         </Link>
 
         <Link
           href={`/retail/calcio${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
-            buttonVariants({
-              variant:
-                pathname === '/retail/calcio' ? 'navbarSelected' : 'navbar',
-              size: 'lg',
-            }),
-            'flex w-24 flex-row items-center justify-center gap-3',
+            'flex w-24 flex-row items-center justify-center gap-3 px-4 py-1 text-foreground transition-colors',
+            pathname.includes('/retail/calcio')
+              ? 'bg-tertiary'
+              : 'bg-secondary',
           )}
         >
           <Image
-            src="/soccer.svg"
+            src="/soccer.png"
             alt="Calcio"
             width={40}
             height={20}
-            className="size-5 object-contain brightness-0 invert filter"
+            className="size-8 object-contain brightness-0 invert filter"
           />
-          <span className="text-[16px] font-bold">{t('ch3')}</span>
+          {/* 
+          <span className="text-[16px] font-bold">{t('ch4')}</span> */}
         </Link>
       </div>
 
@@ -130,7 +138,17 @@ export default function Navbar() {
           <span className="text-[16px] font-bold">{t('search_results')}</span>
         </Button>
 
-        <Link
+        {/* Pulsante Info - sempre visibile con dialog diversi per calcio vs racing */}
+        <Button
+          className="w-10"
+          variant="ticketButton"
+          size="lg"
+          onClick={() => setIsInfoDialogOpen(true)}
+        >
+          <Info style={{ scale: 1.5 }} />
+        </Button>
+
+        {/* <Link
           href={`/retail/calcio/ticket-list${initCode ? `?init_code=${initCode}` : ''}`}
           className={buttonVariants({
             variant: 'ticketButton',
@@ -148,8 +166,24 @@ export default function Navbar() {
           })}
         >
           <span className="text-[16px] font-bold">{t('ticket_check')}</span>
-        </Link>
+        </Link> */}
       </div>
+
+      {/* Dialog per le informazioni sul gioco - cambia contenuto per disciplina */}
+      <Dialog open={isInfoDialogOpen} onOpenChange={setIsInfoDialogOpen}>
+        <DialogContent className="w-full overflow-hidden bg-accent">
+          <DialogHeader className="bg-secondary text-secondary-foreground">
+            <DialogTitle>{t('game_rules')}</DialogTitle>
+          </DialogHeader>
+          <div className="h-[1020px] w-full">
+            <iframe
+              src={getInfoLink()}
+              className="h-full w-full border-0"
+              title="Game Rules"
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

@@ -15,23 +15,28 @@ export default function BetEntryToggle(props: {
   bet: Bet
   variant: BetEntryToggleVariants
   className?: string
+  onToggle?: (isPressed: boolean) => void
 }) {
   const { addBet, removeBet, betEntries } = useContext(BetsContext)
 
   const isSelected = useMemo(
-    () =>
-      !!betEntries.find(
+    () => {
+      const found = betEntries.find(
         (entry) =>
           entry.market === props.marketName &&
+          entry.bet.discipline === props.bet.discipline &&
           entry.bet.event.number === props.bet.event.number &&
           entry.bet.competitors === props.bet.competitors &&
           entry.bet.option.outcome === props.bet.option.outcome,
-      ),
+      )
+      
+      return !!found
+    },
     [betEntries, props.marketName, props.bet],
   )
 
   const formatOutcome = (outcome: string, marketName: string): string => {
-    if (marketName === 'Parziale/Finale') {
+    if (marketName === 'Half Time\/ Full Time') {
       if (outcome.length === 2) {
         return `${outcome[0]}/${outcome[1]}`
       }
@@ -116,6 +121,9 @@ export default function BetEntryToggle(props: {
             competitors: props.bet.competitors,
             option: props.bet.option,
           })
+        }
+        if (props.onToggle) {
+          props.onToggle(!isSelected)
         }
       }}
       className={cn(

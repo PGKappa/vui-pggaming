@@ -24,25 +24,19 @@ const detectLanguageFromURL = () => {
   const urlParams = new URLSearchParams(window.location.search)
   const initCode = urlParams.get('init_code')
 
-  console.log('🔍 Detecting language from URL:', initCode)
-
   if (initCode) {
     const parts = initCode.split('-')
-    console.log('📝 Init code parts:', parts)
 
     if (parts.length >= 4) {
       const langPart = parts[2].toLowerCase() // 'en'
-      console.log('🌍 Extracted language:', langPart)
       return langPart
     } else if (parts.length >= 3) {
       // Per formato TEST-RUS-ru-RU: parts[2] = 'ru'
       const langPart = parts[2].toLowerCase()
-      console.log('🌍 Extracted language (fallback):', langPart)
       return langPart
     }
   }
 
-  console.log('⚠️ No language found, defaulting to en')
   return 'en'
 }
 

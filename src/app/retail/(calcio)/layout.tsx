@@ -1,8 +1,8 @@
 'use client'
 
 import Navbar from '@/retail-components/navbar'
-import ResolutionGate from '@/retail-components/resolution-gate'
-import { Toaster } from '@/retail-components/ui/sonner'
+/* import ResolutionGate from '@/retail-components/resolution-gate'
+ */ import { Toaster } from '@/retail-components/ui/sonner'
 import BetsContextProvider from '@/retail-contexts/bets-context'
 import RootContextProvider from '@/retail-contexts/root-context'
 import SkinProvider, { SkinContext } from '@/retail-contexts/skin-context'
@@ -29,25 +29,25 @@ function AppContent({ children }: { children: React.ReactNode }) {
     <body
       className={`${inter.variable} ${skin} flex h-screen flex-col font-inter antialiased`}
     >
-      <ResolutionGate>
-        <RootContextProvider>
-          <header>
-            <div className="h-[60px]"></div>
-            <Navbar />
-          </header>
-          <main className="h-full overflow-hidden">
-            <BetsContextProvider>{children}</BetsContextProvider>
-          </main>
-        </RootContextProvider>
+      {/* <ResolutionGate> */}
+      <RootContextProvider>
+        <header>
+          {/* <div className="h-[60px]"></div> */}
+          <Navbar />
+        </header>
+        <main className="h-full overflow-hidden">
+          <BetsContextProvider>{children}</BetsContextProvider>
+        </main>
+      </RootContextProvider>
 
-        <Toaster
-          position={
-            typeof window !== 'undefined' && window.innerWidth >= 1024
-              ? 'bottom-right'
-              : 'top-center'
-          }
-        />
-      </ResolutionGate>
+      <Toaster
+        position={
+          typeof window !== 'undefined' && window.innerWidth >= 1024
+            ? 'bottom-right'
+            : 'top-center'
+        }
+      />
+      {/* </ResolutionGate> */}
     </body>
   )
 }

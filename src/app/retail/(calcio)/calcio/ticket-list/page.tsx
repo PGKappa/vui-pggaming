@@ -48,7 +48,7 @@ export default function TicketListPage() {
         <h2 className="text-[20px] font-bold">{t('ticket_list')}</h2>
         <Button
           variant="ghost"
-          className="absolute right-4 bg-secondary text-xl text-secondary-foreground hover:bg-secondary/70"
+          className="absolute right-4 bg-secondary text-xl text-secondary-foreground"
           onClick={() => router.back()}
         >
           ✕
@@ -56,9 +56,10 @@ export default function TicketListPage() {
       </div>
 
       {/* Filter Bar */}
-      <div className="flex justify-center px-4 pb-8 pt-10">
-        <div className="flex flex-wrap items-center gap-10">
-          <div className="flex flex-row items-center gap-2 bg-badge text-background">
+      <div className="flex flex-col items-center gap-4 px-4 pb-8 pt-10">
+        <div className="flex items-center gap-8">
+          {/* Terminal */}
+          <div className="mr-20 flex flex-row items-center gap-2 bg-badge text-background">
             <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
               {t('terminal')}
             </span>
@@ -74,88 +75,95 @@ export default function TicketListPage() {
             </Select>
           </div>
 
-          <div className="flex flex-row items-center gap-2 bg-badge text-background">
-            <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
-              {t('status')}
-            </span>
-            <Select value={status} onValueChange={setStatus}>
-              <SelectTrigger className="w-[100px] bg-background text-[12px] text-foreground">
-                <SelectValue placeholder={t('status')} />
-              </SelectTrigger>
-              <SelectContent className="bg-white p-0">
-                <SelectItem value="all">{t('all')}</SelectItem>
-                <SelectItem value="won">{t('won')}</SelectItem>
-                <SelectItem value="lost">{t('lost')}</SelectItem>
-                <SelectItem value="cancelled">{t('cancelled')}</SelectItem>
-              </SelectContent>
-            </Select>
+          {/* Status + Payment */}
+          <div className="mr-20 flex items-center gap-4">
+            <div className="flex flex-row items-center gap-2 bg-badge text-background">
+              <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
+                {t('status')}
+              </span>
+              <Select value={status} onValueChange={setStatus}>
+                <SelectTrigger className="w-[100px] bg-background text-[12px] text-foreground">
+                  <SelectValue placeholder={t('status')} />
+                </SelectTrigger>
+                <SelectContent className="bg-white p-0">
+                  <SelectItem value="all">{t('all')}</SelectItem>
+                  <SelectItem value="won">{t('won')}</SelectItem>
+                  <SelectItem value="lost">{t('lost')}</SelectItem>
+                  <SelectItem value="cancelled">{t('cancelled')}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex flex-row items-center gap-2 bg-badge text-background">
+              <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
+                {t('payment')}
+              </span>
+              <Select value={payment} onValueChange={setPayment}>
+                <SelectTrigger className="w-[100px] bg-background text-[12px] text-foreground">
+                  <SelectValue placeholder={t('payment')} />
+                </SelectTrigger>
+                <SelectContent className="bg-white p-0">
+                  <SelectItem value="all">{t('all')}</SelectItem>
+                  <SelectItem value="paid">{t('paid')}</SelectItem>
+                  <SelectItem value="unpaid">{t('unpaid')}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
-          <div className="flex flex-row items-center gap-2 bg-badge text-background">
-            <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
-              {t('payment')}
-            </span>
-            <Select value={payment} onValueChange={setPayment}>
-              <SelectTrigger className="w-[100px] bg-background text-[12px] text-foreground">
-                <SelectValue placeholder={t('payment')} />
-              </SelectTrigger>
-              <SelectContent className="bg-white p-0">
-                <SelectItem value="all">{t('all')}</SelectItem>
-                <SelectItem value="paid">{t('paid')}</SelectItem>
-                <SelectItem value="unpaid">{t('unpaid')}</SelectItem>
-              </SelectContent>
-            </Select>
+          {/* From + To */}
+          <div className="mr-20 flex items-center gap-4">
+            <div className="flex flex-row items-center gap-2 bg-badge text-background">
+              <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
+                {t('from')}
+              </span>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="ticketFilter"
+                    className="w-[100px] justify-center text-[12px]"
+                  >
+                    {from ? format(from, 'dd/MM/yyyy') : 'Da'}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="bg-white">
+                  <Calendar
+                    mode="single"
+                    selected={from}
+                    onSelect={setFrom}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            <div className="flex flex-row items-center gap-2 bg-badge text-background">
+              <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
+                {t('to')}
+              </span>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="ticketFilter"
+                    className="w-[100px] justify-center text-[12px]"
+                  >
+                    {to ? format(to, 'dd/MM/yyyy') : 'A'}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="bg-white">
+                  <Calendar
+                    mode="single"
+                    selected={to}
+                    onSelect={setTo}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
 
-          <div className="flex flex-row items-center gap-2 bg-badge text-background">
-            <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
-              {t('from')}
-            </span>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="ticketFilter"
-                  className="w-[100px] justify-center text-[12px]"
-                >
-                  {from ? format(from, 'dd/MM/yyyy') : 'Da'}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="bg-white">
-                <Calendar
-                  mode="single"
-                  selected={from}
-                  onSelect={setFrom}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
-
-          <div className="flex flex-row items-center gap-2 bg-badge text-background">
-            <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
-              {t('to')}
-            </span>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="ticketFilter"
-                  className="w-[100px] justify-center text-[12px]"
-                >
-                  {to ? format(to, 'dd/MM/yyyy') : 'A'}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="bg-white">
-                <Calendar
-                  mode="single"
-                  selected={to}
-                  onSelect={setTo}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
-
-          <div className="flex flex-row items-center gap-2 bg-badge text-background">
+          {/* Page Size */}
+          <div className="mr-20 flex flex-row items-center gap-2 bg-badge text-background">
             <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
               {t('page_size')}
             </span>
@@ -171,7 +179,8 @@ export default function TicketListPage() {
             </Select>
           </div>
 
-          <Button className="text-bold w-[80px] bg-tertiary text-[14px] text-tertiary-foreground hover:bg-tertiary/70">
+          {/* Reload */}
+          <Button className="text-bold w-[80px] bg-tertiary text-[14px] text-tertiary-foreground">
             {t('reload')}
           </Button>
         </div>
@@ -237,7 +246,7 @@ export default function TicketListPage() {
                 <td className="p-2">
                   <Button
                     onClick={() => handleDetailsClick(1400 - i)}
-                    className="h-8 w-20 bg-tertiary text-[16px] text-tertiary-foreground hover:bg-tertiary/80"
+                    className="h-8 w-20 bg-tertiary text-[16px] text-tertiary-foreground"
                   >
                     {t('details')}
                   </Button>

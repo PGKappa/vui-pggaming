@@ -25,6 +25,7 @@ export type BetsContextType = {
     market: string,
     betIds: { option: Selection; competitors: string }[],
   ) => void
+  addBetsWithMarket: (bets: { marketName: string; bet: Bet }[]) => void
 }
 
 const defaultBetsContext: BetsContextType = {
@@ -40,6 +41,7 @@ const defaultBetsContext: BetsContextType = {
   restoreLastSubmittedTicket: () => {},
   addBets: () => {},
   removeBets: () => {},
+  addBetsWithMarket: () => {},
 }
 
 export const BetsContext = createContext<BetsContextType>(defaultBetsContext)
@@ -47,7 +49,8 @@ export const BetsContext = createContext<BetsContextType>(defaultBetsContext)
 function getBetsByEvent(betEntries: BetEntry[]): { [key: string]: BetEntry[] } {
   return betEntries.reduce(
     (groupedBets: { [key: string]: BetEntry[] }, betEntry) => {
-      const key = betEntry.bet.event.number.toString()
+      // Includiamo la disciplina nella chiave per evitare conflitti
+      const key = `${betEntry.bet.discipline}-${betEntry.bet.event.number}`
       if (!groupedBets[key]) {
         groupedBets[key] = []
       }
@@ -61,24 +64,32 @@ function getBetsByEvent(betEntries: BetEntry[]): { [key: string]: BetEntry[] } {
 function getBetsContext(): BetsContextType {
   try {
     const betsContext = localStorage.getItem('betsContext')
-    return betsContext
-      ? ({
-          ...JSON.parse(betsContext),
-          betEntries: JSON.parse(betsContext).betEntries.map(
-            (betEntry: BetEntry) => ({
-              ...betEntry,
-              bet: {
-                ...betEntry.bet,
-                event: {
-                  ...betEntry.bet.event,
-                  startingAt: new Date(betEntry.bet.event.startingAt),
-                },
-              },
-            }),
-          ),
-          betsByEvent: getBetsByEvent(JSON.parse(betsContext).betEntries),
-        } as BetsContextType)
-      : defaultBetsContext
+    if (!betsContext) return defaultBetsContext
+
+    const parsed = JSON.parse(betsContext)
+
+    // MIGRATION: Se non c'è la versione, reset del localStorage
+    if (!parsed.version || parsed.version < 2) {
+      localStorage.removeItem('betsContext')
+      return defaultBetsContext
+    }
+
+    const rehydratedEntries = parsed.betEntries.map((betEntry: BetEntry) => ({
+      ...betEntry,
+      bet: {
+        ...betEntry.bet,
+        event: {
+          ...betEntry.bet.event,
+          startingAt: new Date(betEntry.bet.event.startingAt),
+        },
+      },
+    }))
+
+    return {
+      ...parsed,
+      betEntries: rehydratedEntries,
+      betsByEvent: getBetsByEvent(rehydratedEntries),
+    } as BetsContextType
   } catch (error) {
     console.error('Failed to parse betsContext from localStorage:', error)
     return defaultBetsContext
@@ -117,7 +128,7 @@ export default function BetsContextProvider(props: {
       const allEntries = [...betsContext.betEntries, ...newEntries]
       const eventsSet = new Set<string>()
       allEntries.forEach((entry) => {
-        const eventKey = entry.bet.event.number.toString()
+        const eventKey = `${entry.bet.discipline}-${entry.bet.event.number}`
         eventsSet.add(eventKey)
       })
       const eventsNumber = eventsSet.size
@@ -163,21 +174,21 @@ export default function BetsContextProvider(props: {
   }
 
   const removeEventBets = (eventId: string) => {
-    const eventNumber = parseInt(eventId)
     setBetsContext((prev) => ({
       ...prev,
-      betEntries: prev.betEntries.filter(
-        (betEntry) => betEntry.bet.event.number !== eventNumber,
-      ),
+      betEntries: prev.betEntries.filter((betEntry) => {
+        const entryKey = `${betEntry.bet.discipline}-${betEntry.bet.event.number}`
+        return entryKey !== eventId
+      }),
     }))
   }
 
   const toggleEventBetsFixed = (eventId: string) => {
-    const eventNumber = parseInt(eventId)
     setBetsContext((prev) => ({
       ...prev,
       betEntries: prev.betEntries.map((betEntry) => {
-        if (betEntry.bet.event.number === eventNumber) {
+        const entryKey = `${betEntry.bet.discipline}-${betEntry.bet.event.number}`
+        if (entryKey === eventId) {
           return { ...betEntry, fixed: !betEntry.fixed }
         }
         return betEntry
@@ -232,6 +243,44 @@ export default function BetsContextProvider(props: {
     [betsContext.lastId, checkSystemLimits],
   )
 
+  const addBetsWithMarket = useCallback(
+    (bets: { marketName: string; bet: Bet }[]) => {
+      const newEntries: BetEntry[] = []
+
+      bets.forEach((bet, index) => {
+        const existingEntry = betsContext.betEntries.find(
+          (entry) =>
+            entry.bet.discipline === bet.bet.discipline &&
+            entry.bet.event.number === bet.bet.event.number &&
+            entry.bet.option.outcome === bet.bet.option.outcome,
+        )
+        if (existingEntry) {
+          toast.error('Duplicate bet found')
+          return
+        }
+
+        newEntries.push({
+          id: betsContext.lastId + index + 1,
+          bet: bet.bet,
+          market: bet.marketName,
+        })
+      })
+
+      if (!checkSystemLimits(newEntries)) {
+        return
+      }
+
+      setBetsContext((prev) => {
+        return {
+          ...prev,
+          betEntries: [...prev.betEntries, ...newEntries],
+          lastId: prev.lastId + newEntries.length,
+        }
+      })
+    },
+    [betsContext.betEntries, betsContext.lastId, checkSystemLimits],
+  )
+
   const removeBets = (
     market: string,
     betIds: { option: Selection; competitors: string }[],
@@ -269,12 +318,15 @@ export default function BetsContextProvider(props: {
       restoreLastSubmittedTicket,
       addBets,
       removeBets,
+      addBetsWithMarket,
     }))
-  }, [addBet, addBets, betMode])
+  }, [addBet, addBets, addBetsWithMarket, betMode])
 
   useEffect(() => {
     if (!betsContext) return
-    localStorage.setItem('betsContext', JSON.stringify(betsContext))
+    // VERSIONING: Salviamo con numero di versione per future migrazioni
+    const toSave = { ...betsContext, version: 2 }
+    localStorage.setItem('betsContext', JSON.stringify(toSave))
   }, [betsContext])
 
   return (

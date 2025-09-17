@@ -6,7 +6,6 @@ export default function ResolutionGate({
 }: {
   children: React.ReactNode
 }) {
-  
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
 
   useEffect(() => {
@@ -21,7 +20,7 @@ export default function ResolutionGate({
     return () => window.removeEventListener('resize', update)
   }, [])
 
-  if (dimensions.width !== 1920 || dimensions.height !== 1080) {
+  if (dimensions.width !== 1920 || dimensions.height < 1020) {
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-white">
         <div className="border border-gray-200 bg-white px-8 py-6 text-center shadow-md">
@@ -43,7 +42,7 @@ export default function ResolutionGate({
   }
 
   return (
-    <div className="fixed left-0 top-0 h-[1080px] w-[1920px] overflow-hidden">
+    <div className="fixed left-0 top-0 h-[1020px] w-[1920px] overflow-hidden">
       {children}
     </div>
   )

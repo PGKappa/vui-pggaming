@@ -3,9 +3,10 @@ import { Discipline, EventResult, RaceResult } from '@/retail-lib/types'
 import { format } from 'date-fns'
 import { ChevronRight } from 'lucide-react'
 import Image from 'next/image'
-import { useContext, useEffect, useMemo, useState } from 'react'
+import { useContext, useEffect, useMemo, useState, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import LoadingSpinner from './loading-spinner'
 import {
   Accordion,
   AccordionContent,
@@ -43,61 +44,57 @@ const timeSlots = [
   '21:00 | 23:59',
 ]
 
-export default function SearchEventResults(props: {
-  onClose: () => void
-  eventResults: EventResult[]
-}) {
+export default function SearchEventResults() {
   const { t } = useTranslation()
   const rootContext = useContext(RootContext)
   const [selectedDiscipline, setSelectedDiscipline] = useState<
     Discipline | 'NONE'
   >('NONE')
-  const [selectedDate, setSelectedDate] = useState<string>()
+  const [selectedDate, setSelectedDate] = useState<string>(dates[0])
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>('ALL')
   const [lastTenGames, setLastTenGames] = useState<boolean>(true)
   const [fetchedResults, setFetchedResults] = useState<EventResult[]>([])
+  const [isLoading, setIsLoading] = useState<boolean>(false)
 
-  const fetchDetailedEventResult = async (extId: string, eventId: string) => {
-    try {
-      const response = await fetch(
-        `https://apidev.pgvirtual.eu/api/event/results/${extId}/${eventId}`,
-        {
-          headers: {
-            accept: 'application/json',
-            'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
-            authorization: 'Bearer ffffffff-ffff-ffff-ffff-ffffffffffee',
-            'content-type': 'application/json',
-            operator: 'pg',
-            priority: 'u=1, i',
-            'sec-ch-ua':
-              '"Not)A;Brand";v="8", "Chromium";v="138", "Google Chrome";v="138"',
-            'sec-ch-ua-mobile': '?1',
-            'sec-ch-ua-platform': '"Android"',
-            'sec-fetch-dest': 'empty',
-            'sec-fetch-mode': 'cors',
-            'sec-fetch-site': 'same-site',
+  const fetchDetailedEventResult = useCallback(
+    async (extId: string, eventId: string) => {
+      try {
+        const response = await fetch(
+          `https://apidev.pgvirtual.eu/api/event/results/${extId}/${eventId}`,
+          {
+            headers: {
+              accept: 'application/json',
+              'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
+              authorization: 'Bearer ffffffff-ffff-ffff-ffff-ffffffffffee',
+              'content-type': 'application/json',
+              operator: 'pg',
+              priority: 'u=1, i',
+              'sec-ch-ua':
+                '"Not)A;Brand";v="8", "Chromium";v="138", "Google Chrome";v="138"',
+              'sec-ch-ua-mobile': '?1',
+              'sec-ch-ua-platform': '"Android"',
+              'sec-fetch-dest': 'empty',
+              'sec-fetch-mode': 'cors',
+              'sec-fetch-site': 'same-site',
+            },
+            referrer: 'https://test.pgvirtual.eu/',
+            method: 'GET',
+            mode: 'cors',
+            credentials: 'include',
           },
-          referrer: 'https://test.pgvirtual.eu/',
-          method: 'GET',
-          mode: 'cors',
-          credentials: 'include',
-        },
-      )
+        )
 
-      if (!response.ok) {
-        console.warn(`Failed to fetch detailed results for event ${eventId}`)
+        if (!response.ok) {
+          return null
+        }
+
+        return await response.json()
+      } catch {
         return null
       }
-
-      return await response.json()
-    } catch (error) {
-      console.warn(
-        `Error fetching detailed results for event ${eventId}:`,
-        error,
-      )
-      return null
-    }
-  }
+    },
+    [],
+  )
 
   useEffect(() => {
     if (selectedDiscipline === 'NONE') {
@@ -106,8 +103,88 @@ export default function SearchEventResults(props: {
     }
 
     if (lastTenGames) {
-      // Usa i dati del context (prev_events)
-      setFetchedResults([])
+      const existingResults = (rootContext.eventResults || []).filter(
+        (result) => result.discipline === selectedDiscipline,
+      )
+
+      if (existingResults.length > 0) {
+        return
+      }
+
+      if (
+        selectedDiscipline === Discipline.HORSES ||
+        selectedDiscipline === Discipline.DOGS
+      ) {
+        const fetchRacingResults = async () => {
+          setIsLoading(true)
+          try {
+            const response = await fetch(
+              'https://apidev.pgvirtual.eu/api/event/list',
+              {
+                headers: {
+                  accept: 'application/json',
+                  'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
+                  authorization: 'Bearer ffffffff-ffff-ffff-ffff-ffffffffffee',
+                  operator: 'pg',
+                  priority: 'u=1, i',
+                  'sec-ch-ua':
+                    '"Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"',
+                  'sec-ch-ua-mobile': '?1',
+                  'sec-ch-ua-platform': '"Android"',
+                  'sec-fetch-dest': 'empty',
+                  'sec-fetch-mode': 'cors',
+                  'sec-fetch-site': 'same-site',
+                },
+                referrer: 'https://test.pgvirtual.eu/',
+                referrerPolicy: 'strict-origin-when-cross-origin',
+                method: 'GET',
+                mode: 'cors',
+                credentials: 'include',
+              },
+            )
+
+            if (!response.ok) {
+              throw new Error('Failed to fetch racing events')
+            }
+
+            const racingEvents = await response.json()
+
+            // Extract results based on selected discipline
+            const channelIndex = selectedDiscipline === Discipline.DOGS ? 0 : 1
+            const channel = racingEvents.channels?.[channelIndex]
+
+            if (channel?.prev_events) {
+              const results: EventResult[] = await Promise.all(
+                channel.prev_events.map(async (event: any) => ({
+                  id: event.int_event_id,
+                  extId: event.ext_pal_id,
+                  name: `${selectedDiscipline === Discipline.DOGS ? 'Dog' : 'Horse'} Race ${event.int_event_id}`,
+                  startTime: new Date(event.time),
+                  discipline: selectedDiscipline,
+                  result: {
+                    podium:
+                      event.arrival?.map((competitor: any, index: number) => ({
+                        name: competitor.name,
+                        number: competitor.number,
+                        position: index + 1,
+                      })) || [],
+                    odds: {},
+                  },
+                })),
+              )
+
+              setFetchedResults(results)
+            }
+          } catch (error) {
+            console.error('Failed to fetch racing results:', error)
+            setFetchedResults([])
+          } finally {
+            setIsLoading(false)
+          }
+        }
+
+        fetchRacingResults()
+      }
       return
     }
 
@@ -117,10 +194,10 @@ export default function SearchEventResults(props: {
     }
 
     const fetchEventResults = async (discipline: Discipline, date: string) => {
+      setIsLoading(true)
+
       try {
-        // Converti la data dal formato italiano al formato americano per l'API
-        const [day, month, year] = date.split('/')
-        const apiDateFormat = `${month}/${day}/${year}`
+        const apiDateFormat = date
 
         const gameIds =
           discipline === Discipline.HORSES
@@ -129,11 +206,11 @@ export default function SearchEventResults(props: {
               ? 'dogs6'
               : `${discipline.toLowerCase()}6`
 
-        console.log('Fetching results for:', {
-          discipline,
-          date: apiDateFormat,
-          gameIds,
-        })
+        const requestBody = {
+          gameIds: [gameIds],
+          dateStart: apiDateFormat,
+          dateEnd: apiDateFormat,
+        }
 
         const response = await fetch(
           'https://apidev.pgvirtual.eu/api/event/results/list',
@@ -154,11 +231,7 @@ export default function SearchEventResults(props: {
               'sec-fetch-site': 'same-site',
             },
             referrer: 'https://test.pgvirtual.eu/',
-            body: JSON.stringify({
-              gameIds: [gameIds],
-              dateStart: apiDateFormat,
-              dateEnd: apiDateFormat,
-            }),
+            body: JSON.stringify(requestBody),
             method: 'POST',
             mode: 'cors',
             credentials: 'include',
@@ -170,10 +243,8 @@ export default function SearchEventResults(props: {
         }
 
         const data = await response.json()
-        console.log('API Response:', data)
 
         if (!data.items || !Array.isArray(data.items)) {
-          console.warn('No items found in API response')
           setFetchedResults([])
           return
         }
@@ -184,9 +255,6 @@ export default function SearchEventResults(props: {
           discipline === Discipline.HORSES ||
           discipline === Discipline.DOGS
         ) {
-          console.log(`Processing ${discipline}:`, data.items.length, 'events')
-
-          // Processa tutti i risultati
           results = await Promise.all(
             data.items.map(async (result: any) => {
               const detailedResult = await fetchDetailedEventResult(
@@ -212,13 +280,16 @@ export default function SearchEventResults(props: {
                     startTime.setMinutes(parseInt(minutes, 10))
                   }
                 }
-              } catch (error) {
-                console.warn(
-                  'Error parsing date for event:',
-                  result.int_event_id,
-                  error,
-                )
+              } catch {
                 startTime = new Date()
+              }
+
+              let raceResult = detailedResult
+              if (detailedResult && !detailedResult.arrival && result.arrival) {
+                raceResult = {
+                  ...detailedResult,
+                  arrival: result.arrival,
+                }
               }
 
               return {
@@ -230,13 +301,11 @@ export default function SearchEventResults(props: {
                   `${discipline} Race ${result.int_event_id}`,
                 startTime,
                 discipline: discipline,
-                result: detailedResult,
+                result: raceResult,
               } as EventResult
             }),
           )
         } else if (discipline === Discipline.SOCCER) {
-          console.log('Processing SOCCER:', data.items.length, 'events')
-
           results = data.items.map((result: any) => {
             let startTime: Date
             try {
@@ -246,12 +315,7 @@ export default function SearchEventResults(props: {
                 startTime.setHours(parseInt(hours, 10))
                 startTime.setMinutes(parseInt(minutes, 10))
               }
-            } catch (error) {
-              console.warn(
-                'Error parsing date for soccer event:',
-                result.int_event_id,
-                error,
-              )
+            } catch {
               startTime = new Date()
             }
 
@@ -274,7 +338,6 @@ export default function SearchEventResults(props: {
             } as EventResult
           })
         } else {
-          console.log('Processing OTHER discipline:', discipline)
           results = data.items.map((result: any) => {
             let startTime: Date
             try {
@@ -298,44 +361,51 @@ export default function SearchEventResults(props: {
           })
         }
 
-        console.log('Processed results:', results.length, 'events')
         setFetchedResults(results)
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : 'Unknown error'
-        console.error('❌ API Error:', message)
         toast.error(`Failed to fetch results: ${message}`)
         setFetchedResults([])
+      } finally {
+        setIsLoading(false)
       }
     }
 
     fetchEventResults(selectedDiscipline, selectedDate)
-  }, [selectedDate, selectedDiscipline, lastTenGames])
+  }, [
+    selectedDate,
+    selectedDiscipline,
+    lastTenGames,
+    fetchDetailedEventResult,
+    rootContext.eventResults,
+  ])
 
   const filteredEventResults = useMemo(() => {
-    console.log('Filtering results:', {
-      selectedDiscipline,
-      lastTenGames,
-      selectedDate,
-      selectedTimeSlot,
-      fetchedResultsCount: fetchedResults.length,
-      contextResultsCount: rootContext.eventResults?.length || 0,
-    })
-
-    if (selectedDiscipline === 'NONE') return []
+    if (selectedDiscipline === 'NONE') {
+      return []
+    }
 
     if (lastTenGames) {
-      const filtered = (rootContext.eventResults || [])
-        .filter((result) => result.discipline === selectedDiscipline)
+      const allResults = rootContext.eventResults || []
+      const disciplineResults = allResults.filter(
+        (result) => result.discipline === selectedDiscipline,
+      )
+
+      const resultsToUse =
+        disciplineResults.length > 0
+          ? disciplineResults
+          : fetchedResults.filter(
+              (result) => result.discipline === selectedDiscipline,
+            )
+
+      const filtered = resultsToUse
         .sort((a, b) => b.startTime.getTime() - a.startTime.getTime())
         .slice(0, 10)
 
-      console.log('Last 10 games filtered:', filtered.length)
       return filtered
     }
 
-    // Modalità con data selezionata: usa fetchedResults (tutti i risultati del giorno)
     if (!selectedDate) {
-      console.log('No date selected, returning empty array')
       return []
     }
 
@@ -364,7 +434,6 @@ export default function SearchEventResults(props: {
       return true
     })
 
-    console.log('Date-filtered results:', filteredResults.length)
     return filteredResults
   }, [
     selectedDiscipline,
@@ -377,7 +446,7 @@ export default function SearchEventResults(props: {
 
   const handleReset = () => {
     setSelectedDiscipline('NONE')
-    setSelectedDate('ALL')
+    setSelectedDate(dates[0])
     setSelectedTimeSlot('ALL')
     setLastTenGames(false)
   }
@@ -394,8 +463,7 @@ export default function SearchEventResults(props: {
       }
 
       return 'Invalid Date'
-    } catch (error) {
-      console.error('Error formatting date:', error)
+    } catch {
       return 'Invalid Date'
     }
   }
@@ -462,7 +530,6 @@ export default function SearchEventResults(props: {
                 <SelectValue placeholder={t('date')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
-                <SelectItem value="ALL">{t('all')}</SelectItem>
                 {dates.map((date) => (
                   <SelectItem key={date} value={date}>
                     {date}
@@ -497,7 +564,7 @@ export default function SearchEventResults(props: {
 
           <div className="flex flex-row items-center gap-2">
             <Button
-              className="text-bold w-[80px] bg-tertiary text-[16px] text-tertiary-foreground hover:bg-tertiary/70"
+              className="text-bold w-[80px] bg-tertiary text-[16px] text-tertiary-foreground"
               disabled={
                 !selectedDate && !selectedDiscipline && !selectedTimeSlot
               }
@@ -505,24 +572,20 @@ export default function SearchEventResults(props: {
             >
               {t('reset')}
             </Button>
-
-            <Button
-              variant="outline"
-              className="text-bold w-[80px] bg-muted text-[16px] text-muted-foreground hover:bg-muted/70"
-              onClick={() => {
-                handleReset()
-                props.onClose()
-              }}
-            >
-              {t('cancel')}
-            </Button>
           </div>
         </div>
       </div>
 
       <div className="h-full overflow-auto pb-2">
         {selectedDiscipline !== 'NONE' ? (
-          filteredEventResults.length > 0 ? (
+          isLoading || (lastTenGames && rootContext.isLoadingEvents) ? (
+            <div className="flex h-full flex-col items-center justify-center pt-4">
+              <LoadingSpinner />
+              <p className="mt-4 text-[16px] text-muted-foreground">
+                {t('loading')}...
+              </p>
+            </div>
+          ) : filteredEventResults.length > 0 ? (
             (() => {
               return (
                 <ScrollArea className="pb-20">
@@ -539,7 +602,7 @@ export default function SearchEventResults(props: {
                             <div className="flex w-[600px] flex-row justify-between gap-2">
                               <div className="flex flex-row gap-2">
                                 <span className="font-bold">
-                                  {formatSafeDate(eventResult.startTime)}
+                                  {formatSafeDate(eventResult.startTime)}{' '}
                                   {eventResult.name}
                                   {' / '}
                                 </span>
@@ -628,8 +691,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
           const data = await response.json()
           setDetailedResult(data)
         }
-      } catch (error) {
-        console.warn('Failed to fetch detailed results:', error)
+      } catch {
       } finally {
         setLoading(false)
       }
@@ -659,10 +721,14 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
       eventResult.discipline === Discipline.DOGS) &&
     detailedResult
   ) {
-    if (eventResult.result && detailedResult.podium && !detailedResult.odds) {
+    if (
+      detailedResult.arrival &&
+      Array.isArray(detailedResult.arrival) &&
+      detailedResult.arrival.length > 0 &&
+      !detailedResult.odds
+    ) {
       return (
         <div className="space-y-4">
-          {/* PODIUM*/}
           <div className="border">
             <div className="bg-accent py-2 text-center">
               <div className="text-[16px] font-bold uppercase text-accent-foreground">
@@ -670,7 +736,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
               </div>
             </div>
             <div className="space-y-3 p-4">
-              {detailedResult.podium
+              {detailedResult.arrival
                 .slice(0, 3)
                 .map((competitor: any, index: number) => {
                   let imageSrc = ''
@@ -696,7 +762,6 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                       key={competitor.number}
                       className="flex items-center gap-4"
                     >
-                      {/* Medaglia con numero posizione */}
                       <div className="relative flex h-12 w-12 items-center justify-center">
                         <Image
                           src={imageSrc}
@@ -710,7 +775,6 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                         </div>
                       </div>
 
-                      {/* Numero corridore */}
                       <div
                         className={
                           'flex h-10 w-10 items-center justify-center rounded-md font-bold text-white ' +
@@ -732,7 +796,6 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                         {competitor.number}
                       </div>
 
-                      {/* Nome corridore */}
                       <div className="text-[16px] font-semibold">
                         {competitor.name}
                       </div>
@@ -762,8 +825,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
           }
 
           return 'Invalid Date'
-        } catch (error) {
-          console.error('Error formatting date:', error)
+        } catch {
           return 'Invalid Date'
         }
       }
@@ -864,82 +926,87 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
 
       return (
         <div className="space-y-4">
-          {raceResult.podium && raceResult.podium.length > 0 && (
-            <div className="border">
-              <div className="bg-accent py-2 text-center">
-                <div className="text-[16px] font-bold uppercase text-accent-foreground">
-                  {t('arrival_order').toUpperCase()}
+          {/* ARRIVAL ORDER - Mostra SEMPRE se presente */}
+          {detailedResult.arrival &&
+            Array.isArray(detailedResult.arrival) &&
+            detailedResult.arrival.length > 0 && (
+              <div className="border">
+                <div className="bg-accent py-2 text-center">
+                  <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                    {t('arrival_order').toUpperCase()}
+                  </div>
+                </div>
+                <div className="flex items-center justify-center gap-8 p-4">
+                  {detailedResult.arrival
+                    .slice(0, 3)
+                    .map((competitor, index) => {
+                      let imageSrc = ''
+                      let medalNumber = ''
+
+                      switch (index + 1) {
+                        case 1:
+                          imageSrc = '/cockade_gold.png'
+                          medalNumber = '1'
+                          break
+                        case 2:
+                          imageSrc = '/cockade_silver.png'
+                          medalNumber = '2'
+                          break
+                        case 3:
+                          imageSrc = '/cockade_bronze.png'
+                          medalNumber = '3'
+                          break
+                      }
+
+                      return (
+                        <div
+                          key={competitor.number || index}
+                          className="flex items-center gap-2"
+                        >
+                          {/* Medaglia con numero */}
+                          <div className="relative flex h-11 w-11 items-center justify-center">
+                            <Image
+                              src={imageSrc}
+                              alt={medalNumber}
+                              width={48}
+                              height={48}
+                              className="absolute"
+                            />
+                            <div className="relative pb-2 text-[20px] font-bold">
+                              {medalNumber}
+                            </div>
+                          </div>
+
+                          <div
+                            className={
+                              'flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold text-white ' +
+                              (competitor.number === 1
+                                ? 'bg-red-500'
+                                : competitor.number === 2
+                                  ? 'bg-blue-500'
+                                  : competitor.number === 3
+                                    ? 'bg-orange-500'
+                                    : competitor.number === 4
+                                      ? 'bg-green-500'
+                                      : competitor.number === 5
+                                        ? 'bg-yellow-500'
+                                        : competitor.number === 6
+                                          ? 'bg-purple-500'
+                                          : 'border border-gray-300 bg-white text-black')
+                            }
+                          >
+                            {competitor.number}
+                          </div>
+
+                          <div className="min-w-0 pr-10 text-[16px] font-semibold">
+                            {competitor.name}
+                          </div>
+                        </div>
+                      )
+                    })}
                 </div>
               </div>
-              <div className="flex items-center justify-center gap-8 p-4">
-                {raceResult.podium.slice(0, 3).map((competitor, index) => {
-                  let imageSrc = ''
-                  let medalNumber = ''
-
-                  switch (index + 1) {
-                    case 1:
-                      imageSrc = '/cockade_gold.png'
-                      medalNumber = '1'
-                      break
-                    case 2:
-                      imageSrc = '/cockade_silver.png'
-                      medalNumber = '2'
-                      break
-                    case 3:
-                      imageSrc = '/cockade_bronze.png'
-                      medalNumber = '3'
-                      break
-                  }
-
-                  return (
-                    <div
-                      key={competitor.number}
-                      className="flex items-center gap-2"
-                    >
-                      {/* Medaglia con numero */}
-                      <div className="relative flex h-11 w-11 items-center justify-center">
-                        <Image
-                          src={imageSrc}
-                          alt={medalNumber}
-                          width={48}
-                          height={48}
-                          className="absolute"
-                        />
-                        <div className="relative pb-2 text-[20px] font-bold">
-                          {medalNumber}
-                        </div>
-                      </div>
-
-                      <div
-                        className={
-                          'flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold text-white ' +
-                          (competitor.number === 1
-                            ? 'bg-red-500'
-                            : competitor.number === 2
-                              ? 'bg-blue-500'
-                              : competitor.number === 3
-                                ? 'bg-orange-500'
-                                : competitor.number === 4
-                                  ? 'bg-green-500'
-                                  : competitor.number === 5
-                                    ? 'bg-yellow-500'
-                                    : competitor.number === 6
-                                      ? 'bg-purple-500'
-                                      : 'border border-gray-300 bg-white text-black')
-                        }
-                      >
-                        {competitor.number}
-                      </div>
-
-                      <div className="min-w-0 pr-10 text-[16px] font-semibold">
-                        {competitor.name}
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-          )}
+            )}
 
           <div className="grid grid-cols-3 gap-2">
             {/* WINNER */}
@@ -1385,6 +1452,13 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
         </div>
       )
     }
+
+    // Fallback se non ci sono né arrival né odds
+    return (
+      <div className="p-4 text-center text-muted-foreground">
+        {t('event_completed_detailed_results')}
+      </div>
+    )
   }
 
   // CALCIO
@@ -1401,8 +1475,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
         }
 
         return 'Invalid Date'
-      } catch (error) {
-        console.error('Error formatting date:', error)
+      } catch {
         return 'Invalid Date'
       }
     }

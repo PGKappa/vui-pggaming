@@ -20,30 +20,26 @@ import { Menu } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-const codeListLeft = [
-  { label: 'result_final_1', code: '1' },
-  { label: 'result_final_x', code: 'X' },
-  { label: 'result_final_2', code: '2' },
-  { label: 'double_chance_1x', code: '1X' },
-  { label: 'double_chance_12', code: '12' },
-  { label: 'double_chance_x2', code: 'X2' },
-  { label: 'goal_goal', code: 'GG' },
-  { label: 'no_goal', code: 'NG' },
-  { label: 'under_25', code: 'U25' },
+const racingCodeListLeft = [
+  { translationKey: 'racing_winner', code: 'W' },
+  { translationKey: 'racing_show', code: 'S' },
+  { translationKey: 'racing_quinella', code: 'Q' },
+  { translationKey: 'racing_over', code: 'O' },
+  { translationKey: 'racing_odd', code: 'OD' },
+  { translationKey: 'racing_box_trifecta', code: 'BT' },
 ]
 
-const codeListRight = [
-  { label: 'over_25', code: '025' },
-  { label: 'even_result', code: 'EV' },
-  { label: 'odd_result', code: 'OD' },
-  { label: 'first_half_1', code: '1T1' },
-  { label: 'first_half_2', code: '1T2' },
-  { label: 'first_half_x', code: '1TX' },
-  { label: 'multigoal_home_1plus', code: '1+' },
-  { label: 'multigoal_away_2plus', code: '2+' },
+const racingCodeListRight = [
+  { translationKey: 'racing_placed', code: 'P' },
+  { translationKey: 'racing_exacta', code: 'E' },
+  { translationKey: 'racing_under', code: 'U' },
+  { translationKey: 'racing_even', code: 'EV' },
+  { translationKey: 'racing_trifecta', code: 'T' },
 ]
 
-export default function CodeList(props?: {
+export default function RacingCodeList(props: {
+  markets: Record<string, { name: string; selections: number }>
+  onCodeClick?: (code: string) => void
   onDirectBet?: (code: string) => void
 }) {
   const { t } = useTranslation()
@@ -51,7 +47,12 @@ export default function CodeList(props?: {
   const [open, setOpen] = useState(false)
 
   const handleCodeClick = (code: string) => {
-    props?.onDirectBet?.(code)
+    const market = props.markets[code]
+    if (market.selections === 0) {
+      props.onDirectBet?.(code)
+    } else {
+      props.onCodeClick?.(code)
+    }
     setOpen(false)
   }
 
@@ -66,7 +67,7 @@ export default function CodeList(props?: {
       <DialogContent
         className={cn(
           'overflow-hidden p-0',
-          singleColumn ? 'max-h-[500px] w-[320px]' : 'max-h-[600px] w-[600px]',
+          singleColumn ? 'max-h-[500px] w-[350px]' : 'max-h-[7000px] w-[700px]',
         )}
       >
         <DialogHeader className="relative flex items-center justify-center bg-accent py-4">
@@ -99,21 +100,32 @@ export default function CodeList(props?: {
           <ScrollArea className="h-full overflow-auto">
             <Table>
               <TableBody>
-                {[...codeListLeft, ...codeListRight].map((item, index) => (
-                  <TableRow key={index} className="border-b border-border">
-                    <TableCell className="whitespace-pre-wrap text-[16px] font-medium">
-                      {t(item.label)}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <div
-                        className="ml-auto flex h-8 w-8 cursor-pointer items-center justify-center bg-bet font-bold text-bet-foreground transition-colors"
-                        onClick={() => handleCodeClick(item.code)}
-                      >
-                        {item.code}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {[...racingCodeListLeft, ...racingCodeListRight].map(
+                  (item, index) => (
+                    <TableRow key={index} className="border-b border-border">
+                      <TableCell className="whitespace-pre-wrap text-[16px] font-medium">
+                        {t(item.translationKey)}
+                        {props.markets[item.code].selections > 0 && (
+                          <>
+                            {' ['}
+                            {Array(props.markets[item.code].selections)
+                              .fill('Selection')
+                              .join('/')}
+                            {']'}
+                          </>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <div
+                          className="ml-auto flex h-8 w-8 cursor-pointer items-center justify-center bg-bet font-bold text-bet-foreground transition-colors"
+                          onClick={() => handleCodeClick(item.code)}
+                        >
+                          {item.code}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ),
+                )}
               </TableBody>
             </Table>
           </ScrollArea>
@@ -121,10 +133,19 @@ export default function CodeList(props?: {
           <div className="grid grid-cols-2 divide-x">
             <Table>
               <TableBody>
-                {codeListLeft.map((item, index) => (
+                {racingCodeListLeft.map((item, index) => (
                   <TableRow key={index} className="border-b border-border">
                     <TableCell className="whitespace-pre-wrap text-[16px] font-medium">
-                      {t(item.label)}
+                      {t(item.translationKey)}
+                      {props.markets[item.code].selections > 0 && (
+                        <>
+                          {' ['}
+                          {Array(props.markets[item.code].selections)
+                            .fill('Selection')
+                            .join('/')}
+                          {']'}
+                        </>
+                      )}
                     </TableCell>
                     <TableCell>
                       <div
@@ -141,10 +162,19 @@ export default function CodeList(props?: {
 
             <Table className="border-b border-border">
               <TableBody>
-                {codeListRight.map((item, index) => (
+                {racingCodeListRight.map((item, index) => (
                   <TableRow key={index} className="border-b border-border">
                     <TableCell className="whitespace-pre-wrap text-[16px] font-medium">
-                      {t(item.label)}
+                      {t(item.translationKey)}
+                      {props.markets[item.code].selections > 0 && (
+                        <>
+                          {' ['}
+                          {Array(props.markets[item.code].selections)
+                            .fill('Selection')
+                            .join('/')}
+                          {']'}
+                        </>
+                      )}
                     </TableCell>
                     <TableCell className="text-center">
                       <div

@@ -3,6 +3,7 @@ import BettingSlip from '@/retail-components/betting-slip'
 import Leaderboard from '@/retail-components/leaderboard'
 import MatchBettingOptions from '@/retail-components/match-betting-options'
 import SearchEventResults from '@/retail-components/search-event-results'
+import SkeletonRoundCard from '@/retail-components/skeleton-round-card'
 import { UpcomingEventsCarousel } from '@/retail-components/upcoming-events-carousel'
 import UpcomingRoundCard from '@/retail-components/upcoming-round-card'
 import { RootContext } from '@/retail-contexts/root-context'
@@ -14,8 +15,9 @@ export default function Home() {
   const { t } = useTranslation()
   const {
     upcomingEvents,
-    searchEventResults: searchRoundResults,
-    setSearchEventResults: setSearchRoundResults,
+    searchEventResults,
+    setSearchEventResults,
+    isLoadingEvents,
   } = useContext(RootContext)
 
   const [matchBetOptions, setMatchBetOptions] = useState<{
@@ -48,7 +50,7 @@ export default function Home() {
             selectedEvent={selectedEvent}
             setSelectedEvent={(event) => {
               setSelectedEvent(event)
-              setSearchRoundResults(undefined)
+              setSearchEventResults(undefined)
               setMatchBetOptions(undefined)
               setIsLeaderboardExpanded(false)
             }}
@@ -56,11 +58,10 @@ export default function Home() {
         </div>
 
         <div className="mx-2 flex h-[942px] w-[1500px] flex-col gap-2">
-          {!!searchRoundResults ? (
-            <SearchEventResults
-              eventResults={searchRoundResults}
-              onClose={() => setSearchRoundResults(undefined)}
-            />
+          {!!searchEventResults ? (
+            <SearchEventResults />
+          ) : isLoadingEvents ? (
+            <SkeletonRoundCard />
           ) : selectedEvent ? (
             matchBetOptions ? (
               <MatchBettingOptions
@@ -71,7 +72,7 @@ export default function Home() {
               />
             ) : (
               <div ref={scrollContainerRef} className="overflow-y-auto">
-                <div className="h-[805px] overflow-y-auto">
+                <div className="h-[814px] overflow-y-auto">
                   <UpcomingRoundCard
                     round={selectedEvent.data as UpcomingRound}
                     viewMatchBettingOptions={setMatchBetOptions}
@@ -101,7 +102,7 @@ export default function Home() {
       </div>
 
       <div className="h-[942px] w-[410px] bg-background pr-2 text-foreground">
-        <BettingSlip />
+        <BettingSlip selectedEvent={selectedEvent} />
       </div>
     </div>
   )

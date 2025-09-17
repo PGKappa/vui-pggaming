@@ -85,6 +85,7 @@ export type UpcomingMatch = {
 export type UpcomingEvent = {
   id: number
   extId?: string
+  palimpsestId?: number
   discipline: Discipline
   name: string
   startTime: string
@@ -183,7 +184,7 @@ export type RaceResult = {
     underover: Record<string, string>
   }
   raceDuration?: number
-  podium: {
+  arrival?: {
     name: string
     number: number
   }[]
@@ -198,6 +199,7 @@ export type Bet = {
   discipline: Discipline
   competitors: string
   option: Selection
+  track?: string
 }
 
 export type BetEntry = {

@@ -17,11 +17,8 @@ export default function EventBets(props: {
   eventBets: BetEntry[]
 }) {
   const { betMode, eventKey, eventBets } = props
-  const {
-    removeBet,
-    removeEventBets,
-    toggleEventBetsFixed,
-  } = useContext(BetsContext)
+  const { removeBet, removeEventBets, toggleEventBetsFixed } =
+    useContext(BetsContext)
 
   const timeToMatchStart = useTimeLeft(eventBets[0].bet.event.startingAt)
 
@@ -40,7 +37,7 @@ export default function EventBets(props: {
           </div>
           <Button
             variant="ghost"
-            className="group size-7 hover:text-tertiary-foreground"
+            className="group size-7"
             size="icon"
             onClick={() => removeEventBets(eventKey)}
           >
@@ -49,7 +46,7 @@ export default function EventBets(props: {
               alt="Bin"
               width={40}
               height={20}
-              className="size-5 object-contain group-hover:brightness-0 group-hover:invert"
+              className="size-5 object-contain"
             />
           </Button>
         </div>
@@ -59,8 +56,8 @@ export default function EventBets(props: {
             {eventBets[0].bet.discipline === 'SOCCER'
               ? t('football')
               : eventBets[0].bet.discipline === 'DOGS'
-                ? t('dogs')
-                : t('horses')}
+                ? t('dog') + ' ' + t('racing')
+                : t('horse') + ' ' + t('racing')}
           </span>
 
           <div className="flex items-center gap-2">
@@ -72,8 +69,11 @@ export default function EventBets(props: {
             </Badge>
           </div>
         </div>
-
-        <span className="text-[16px]">{eventBets[0].bet.competitors}</span>
+        {eventBets[0].bet.discipline === 'SOCCER' ? (
+          <span className="text-[16px]">{eventBets[0].bet.competitors}</span>
+        ) : (
+          <span className="text-[16px]">{`Track 6`}</span>
+        )}
       </div>
 
       <div className="border border-betSlip-foreground bg-primary-foreground p-1">

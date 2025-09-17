@@ -10,7 +10,7 @@ import { useContext } from 'react'
 import { useTranslation } from 'react-i18next'
 import '../../globals.css'
 import './i18n'
-import ResolutionGate from '@/retail-components/resolution-gate'
+/* import ResolutionGate from '@/retail-components/resolution-gate' */
 
 const inter = Inter({
   variable: '--font-inter',
@@ -28,10 +28,10 @@ function AppContent({ children }: { children: React.ReactNode }) {
     <body
       className={`${inter.variable} ${skin} flex h-screen flex-col font-inter antialiased`}
     >
-      <ResolutionGate>
+      {/* <ResolutionGate> */}
         <main className="h-full gap-2 overflow-hidden">
           <RootContextProvider>
-            <div className="h-[60px]"></div>
+            {/* <div className="h-[60px]"></div> */}
             <Navbar />
             <div className="p-2">
               <BetsContextProvider>{children}</BetsContextProvider>
@@ -46,7 +46,7 @@ function AppContent({ children }: { children: React.ReactNode }) {
               : 'top-center'
           }
         />
-      </ResolutionGate>
+      {/* </ResolutionGate> */}
     </body>
   )
 }

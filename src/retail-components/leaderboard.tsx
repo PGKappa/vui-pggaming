@@ -33,7 +33,7 @@ export default function Leaderboard({
             onClick={handleToggle}
           >
             <CardTitle className="justify-start text-[19px] font-bold">
-              {t('standings')}
+              {t('standings').toUpperCase()}
             </CardTitle>
             <Button variant="ghost" size="icon-lg">
               {isExpanded ? (

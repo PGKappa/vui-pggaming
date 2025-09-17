@@ -9,29 +9,23 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: 'bg-primary text-primary-foreground shadow hover:bg-accent/90',
-        destructive:
-          'bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90',
-        outline:
-          'border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground',
-        secondary:
-          'bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80',
-        ghost: 'hover:bg-accent hover:text-accent-foreground',
-        link: 'text-primary underline-offset-4 hover:underline',
-        betNow:
-          'font-bold text-lg bg-bet text-bet-foreground shadow hover:bg-bet/90',
-        navbar: 'bg-secondary text-accent-foreground hover:bg-secondary/90',
+        default: 'bg-primary text-primary-foreground shadow',
+        destructive: 'bg-destructive text-destructive-foreground shadow-sm',
+        outline: 'border border-input bg-background shadow-sm',
+        secondary: 'bg-secondary text-secondary-foreground shadow-sm',
+        ghost: '',
+        link: 'text-primary underline-offset-4',
+        betNow: 'font-bold text-lg bg-bet text-bet-foreground shadow',
+        navbar: 'bg-secondary text-accent-foreground',
         navbarSelected:
           'bg-navbarButton-selected text-navbarButton-selected-foreground',
-        market: 'bg-secondary text-accent-foreground hover:bg-secondary/90',
-        marketSelected:
-          'bg-tertiary text-tertiary-foreground hover:bg-tertiary/90',
+        market: 'bg-secondary text-accent-foreground',
+        marketSelected: 'bg-tertiary text-tertiary-foreground',
         history: 'bg-accent text-accent-foreground',
         ticketButton: 'bg-navbarButton text-black font-bold',
         ticketFilter: 'bg-background text-foreground',
         info: 'bg-chart-1 text-muted',
-        action:
-          'rounded-[8px] bg-accent text-accent-foreground hover:bg-accent/80',
+        action: 'rounded-[8px] bg-tertiary text-tertiary-foreground',
       },
       size: {
         default: 'h-10 w-10',
