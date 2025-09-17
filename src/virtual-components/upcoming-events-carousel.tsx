@@ -37,7 +37,7 @@ export function UpcomingEventsCarousel(props: {
               })}
             </>
           ) : (
-            <div className="w-full p-4 text-center text-background">
+            <div className="w-full justify-center p-4 text-center text-background">
               {t('no_upcoming_matches')}
             </div>
           )}
@@ -56,6 +56,10 @@ function UpcomingEventItem(props: {
 }) {
   const { event } = props
   const timeToEventStart = useTimeLeft(event.time)
+
+  if (timeToEventStart === '00:00') {
+    return null
+  }
 
   return (
     <CarouselItem
