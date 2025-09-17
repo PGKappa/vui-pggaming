@@ -22,10 +22,10 @@ export default function Navbar() {
   return (
     <nav className="flex w-full flex-row gap-1 bg-primary-foreground p-0.5 text-black">
       <Link
-        href={`/virtual/cani${queryString}`}
+        href={`/virtual/dogs${queryString}`}
         className={cn(
           'flex w-full flex-row items-center justify-center gap-2 px-2 py-2',
-          isActive('/virtual/cani') &&
+          isActive('/virtual/dogs') &&
             'bg-accent text-accent-foreground hover:bg-accent/90',
         )}
         prefetch={false}
@@ -42,10 +42,10 @@ export default function Navbar() {
       </Link>
 
       <Link
-        href={`/virtual/cavalli${queryString}`}
+        href={`/virtual/horses${queryString}`}
         className={cn(
           'flex w-full flex-row items-center justify-center gap-2 px-2 py-2',
-          isActive('/virtual/cavalli') &&
+          isActive('/virtual/horses') &&
             'bg-accent text-accent-foreground hover:bg-accent/90',
         )}
         prefetch={false}
