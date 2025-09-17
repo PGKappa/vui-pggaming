@@ -22,16 +22,20 @@ export function UpcomingEventsCarousel(props: {
       <Carousel className="mx-auto w-full max-w-[849px]">
         <CarouselContent className="ml-0 h-10 pl-12">
           {props.events.length > 0 ? (
-            props.events.map((event, index) => {
-              return (
-                <UpcomingEventItem
-                  key={`${event.discipline}-${event.id}-${index}`}
-                  event={event}
-                  selectedEvent={props.selectedEvent}
-                  setSelectedEvent={props.setSelectedEvent}
-                />
-              )
-            })
+            <>
+              {/* Sposta gli eventi verso destra */}
+              <CarouselItem className="min-w-10 flex-shrink-0" />
+              {props.events.map((event, index) => {
+                return (
+                  <UpcomingEventItem
+                    key={`${event.discipline}-${event.id}-${index}`}
+                    event={event}
+                    selectedEvent={props.selectedEvent}
+                    setSelectedEvent={props.setSelectedEvent}
+                  />
+                )
+              })}
+            </>
           ) : (
             <div className="w-full p-4 text-center text-background">
               {t('no_upcoming_matches')}
