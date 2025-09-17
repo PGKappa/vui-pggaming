@@ -590,7 +590,7 @@ export default function RootContextProvider(props: {
 
     const fetchUpcomingRounds = async () => {
       const fetchResponse = await fetch(
-        `https://cvgl.eu/football/incoming.php?t=${new Date().getTime()}`,
+        `https://cvgl.it/football/incoming.php?t=${new Date().getTime()}`,
       )
       if (!fetchResponse.ok) return
       const response = (await fetchResponse.json()) as {
