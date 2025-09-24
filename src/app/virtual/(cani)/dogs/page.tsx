@@ -4,9 +4,13 @@ import BettingSlipSheet from '@/virtual-components/betting-slip-sheet'
 import LiveMatchInfo from '@/virtual-components/live-match-info'
 import MatchEndBadge from '@/virtual-components/match-end-badge'
 import { UpcomingEventsCarousel } from '@/virtual-components/upcoming-events-carousel'
+import UpcomingRaceCard from '@/virtual-components/upcoming-race-card'
 import VideoStreamCard from '@/virtual-components/video-stream-card'
+import PreviousResultsCard from '@/virtual-components/previous-results-card'
 import { RootContext } from '@/virtual-contexts/root-context'
 import { Discipline, UpcomingEvent } from '@/virtual-lib/types'
+import previousResultsMock from '@/virtual-lib/previous-results-mock.json'
+import { t } from 'i18next'
 import { useContext, useEffect, useMemo, useState } from 'react'
 
 export default function Home() {
@@ -29,12 +33,23 @@ export default function Home() {
 
   return (
     <>
-      <div className="container mb-10 mt-1 grid grid-cols-1 justify-center gap-3 bg-columnL-background text-columnL-foreground lg:mb-4 lg:grid-cols-3">
-        {/* First column - top content */}
-        <div className="flex flex-col items-center gap-4 lg:col-span-2">
+      <div className="container mb-10 mt-1 grid grid-cols-1 justify-center gap-3 bg-columnL-background text-columnL-foreground lg:mb-4 lg:grid-cols-4">
+        {/* First column - contenuto principale */}
+        <div className="flex flex-col items-center gap-4 lg:col-span-3">
           <div className="flex w-full flex-col gap-1">
             <LiveMatchInfo />
-            <VideoStreamCard streamUrl={liveRound?.streamUrl} />
+            {/* Video e Previous Results in due colonne affiancate */}
+            <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
+              <div className="lg:col-span-2">
+                <VideoStreamCard
+                  streamUrl={liveRound?.streamUrl}
+                  discipline={Discipline.DOGS}
+                />
+              </div>
+              <div className="h-[425px] overflow-y-auto lg:col-span-1">
+                <PreviousResultsCard results={previousResultsMock.dogs} />
+              </div>
+            </div>
           </div>
           <UpcomingEventsCarousel
             selectedEvent={selectedEvent}
@@ -42,19 +57,17 @@ export default function Home() {
             events={dogEvents}
           />
 
-          <MatchEndBadge />
-          <div className="flex h-full flex-row gap-2 overflow-hidden pr-2 pt-2">
-            {/* {selectedEvent ? (
-              <UpcomingRaceCard race={selectedEvent} />
-            ) : (
-              <div className="flex h-full items-center justify-center">
-                {t('no_round_selected')}
-              </div>
-            )} */}
-          </div>
+          <MatchEndBadge discipline={Discipline.DOGS} />
+          {selectedEvent ? (
+            <UpcomingRaceCard race={selectedEvent} />
+          ) : (
+            <div className="flex h-full items-center justify-center">
+              {t('no_round_selected')}
+            </div>
+          )}
         </div>
 
-        {/* Betting slip - rightmost column */}
+        {/* Second column - Betting slip */}
         <div className="bg-background text-foreground lg:col-span-1">
           <div className="hidden lg:block">
             <BettingSlip />

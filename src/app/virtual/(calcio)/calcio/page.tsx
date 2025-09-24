@@ -14,7 +14,7 @@ import MatchStatisticsCard from '@/virtual-components/match-statistics-card'
 import UpcomingRoundCard from '@/virtual-components/upcoming-round-card'
 import VideoStreamCard from '@/virtual-components/video-stream-card'
 import { RootContext } from '@/virtual-contexts/root-context'
-import { Market, MatchStatistics } from '@/virtual-lib/types'
+import { Market, MatchStatistics, Discipline } from '@/virtual-lib/types'
 import { useContext, useMemo, useState } from 'react'
 
 export default function Home() {
@@ -41,9 +41,12 @@ export default function Home() {
         <div className="flex flex-col items-center gap-4 lg:col-span-2">
           <div className="flex w-full flex-col gap-1">
             <LiveMatchInfo />
-            <VideoStreamCard streamUrl={liveRound?.streamUrl} />
+            <VideoStreamCard
+              streamUrl={liveRound?.streamUrl}
+              discipline={Discipline.FOOTBALL}
+            />
           </div>
-          <MatchEndBadge />
+          <MatchEndBadge discipline={Discipline.FOOTBALL} />
           {matchBetOptions && (
             <MatchBettingOptions
               round={matchBetOptions.round}
