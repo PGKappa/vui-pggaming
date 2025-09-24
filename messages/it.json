@@ -42,5 +42,9 @@
   "ticket_status": "Stato schedina",
   "details": "Dettagli",
   "details_not_available": "Dettagli non disponibili",
-  "ticket": "Schedina"
+  "ticket": "Schedina",
+  "latest_results": "Ultimi Risultati",
+  "time": "Ora",
+  "pal_event": "Pal. - Evento",
+  "arrival_order": "Ordine di Arrivo"
 }
