@@ -18,7 +18,7 @@ export type LiveRound = {
   number: number
   scores: Score[]
   startingAt: Date
-  streamUrl: string
+  streamUrl?: string
 }
 
 export type TeamRanking = {
@@ -210,6 +210,7 @@ export type Bet = {
   discipline: Discipline
   competitors: string
   option: Selection
+  track?: string
 }
 
 export type BetEntry = {
@@ -298,3 +299,21 @@ export type MatchResult = {
     }
   }
 }
+
+// Previous Results Types
+export type PreviousResultCompetitor = {
+  number: number
+  name: string
+}
+
+export type PreviousResult = {
+  int_pal_id: string
+  int_event_id: string
+  ext_pal_id: string
+  ext_event_id: string
+  status: number
+  arrival: PreviousResultCompetitor[]
+  start_time: string
+}
+
+export type PreviousChannelResult = PreviousResult[]
