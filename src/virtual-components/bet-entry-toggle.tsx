@@ -59,6 +59,7 @@ export default function BetEntryToggle(props: {
               : props.variant === 'racecombination'
                 ? 'flex flex-col justify-between text-[19px]'
                 : '',
+        isSelected ? 'bg-bet text-white' : 'bg-betEntry text-betEntry-foreground',
         props.className,
       )}
     >

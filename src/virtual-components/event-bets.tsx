@@ -24,6 +24,11 @@ export default function EventBets(props: {
   const timeToEventStart = useTimeLeft(eventBets[0].bet.event.startingAt)
 
   const getCategory = () => {
+    if (eventBets[0]?.bet?.event?.name) {
+      return eventBets[0].bet.event.name
+    }
+
+    // Fallback per vecchia logica
     if (pathname.includes('/cavalli')) return t('horses')
     if (pathname.includes('/calcio')) return t('football')
     if (pathname.includes('/cani')) return t('dogs')
@@ -65,6 +70,7 @@ export default function EventBets(props: {
 
         <div className="flex items-center justify-between bg-primary-foreground">
           <span className="text-[12px] font-semibold">{getCategory()}</span>
+
           <div className="flex items-center gap-2">
             <span className="text-[12px]">
               {format(eventBets[0].bet.event.startingAt, 'HH:mm')}
@@ -75,14 +81,14 @@ export default function EventBets(props: {
           </div>
         </div>
 
-        <span className="text-[12px]">{eventBets[0].bet.competitors}</span>
+        <span className="text-[12px]">ID {eventBets[0].bet.event.number}</span>
       </div>
 
       <div className="border border-betSlip-foreground bg-primary-foreground p-1">
         {eventBets.map((betEntry) => (
           <div
             key={betEntry.id}
-            className="flex items-center justify-between gap-8 text-[12px]"
+            className="flex items-center gap-10 text-[12px]"
           >
             <span className="flex-1 text-[12px]">{betEntry.market}</span>
             <span className="text-[12px]">{betEntry.bet.option.outcome}</span>

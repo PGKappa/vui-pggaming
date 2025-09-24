@@ -424,7 +424,7 @@ export default function UpcomingRaceCard({
                 track: `${t('track')} 6`,
               }}
               variant="racecard"
-              className="h-10 w-16 bg-betEntry text-md text-betEntry-foreground"
+              className="h-10 w-16 text-md"
             />
           </TableCell>
           <TableCell className="w-[1px] bg-border p-0" />
@@ -449,7 +449,7 @@ export default function UpcomingRaceCard({
                 track: `${t('track')} 6`,
               }}
               variant="racecard"
-              className="h-10 w-16 bg-betEntry text-md text-betEntry-foreground"
+              className="h-10 w-16 text-md"
             />
           </TableCell>
 
@@ -475,7 +475,7 @@ export default function UpcomingRaceCard({
                 track: `${t('track')} 6`,
               }}
               variant="racecard"
-              className="h-10 w-16 bg-betEntry text-md text-betEntry-foreground"
+              className="h-10 w-16 text-md"
             />
           </TableCell>
         </>
