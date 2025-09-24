@@ -23,7 +23,7 @@ const buttonVariants = cva(
         history: 'bg-accent text-accent-foreground',
         market: 'bg-secondary text-accent-foreground hover:bg-secondary/90',
         marketSelected:
-          'bg-tertiary text-tertiary-foreground hover:bg-tertiary/90',
+          'bg-accent text-accent-foreground hover:bg-accent/90',
       },
       size: {
         default: 'h-9 px-4 py-2',

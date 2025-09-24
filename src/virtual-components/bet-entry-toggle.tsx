@@ -53,7 +53,7 @@ export default function BetEntryToggle(props: {
         props.variant === 'matchcard'
           ? 'flex flex-row justify-between px-4 text-[19px]'
           : props.variant === 'roundcard'
-            ? 'flex flex-col justify-between text-[19px]'
+            ? 'flex flex-col justify-center text-[16px]'
             : props.variant === 'racecard'
               ? 'text-center text-[19px]'
               : props.variant === 'racecombination'
@@ -65,9 +65,8 @@ export default function BetEntryToggle(props: {
       {props.variant === 'matchcard' ? (
         <>
           <span>{props.bet.option.decPrice?.toFixed(2) || '0.00'}</span>
-          {/* 
           <span className="font-bold">{props.bet.option.outcome || 'N/A'}</span>
-          <span className="font-bold">{props.marketName}</span> */}
+          {/* <span className="font-bold">{props.marketName}</span> */}
         </>
       ) : props.variant === 'roundcard' ? (
         <>
