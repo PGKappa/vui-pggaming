@@ -13,9 +13,9 @@ export default function LiveMatchInfo() {
     if (typeof window === 'undefined') return Discipline.FOOTBALL
 
     const path = window.location.pathname
-    if (path.includes('cani')) {
+    if (path.includes('dogs')) {
       return Discipline.DOGS
-    } else if (path.includes('cavalli')) {
+    } else if (path.includes('horses')) {
       return Discipline.HORSES
     } else {
       return Discipline.FOOTBALL
