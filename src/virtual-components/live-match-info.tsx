@@ -105,7 +105,12 @@ export default function LiveMatchInfo() {
     <div className="flex w-full flex-row items-center justify-between">
       <div className="flex flex-row items-center gap-2">
         {disciplineInfo.icon}
-        <span>{disciplineInfo.name}</span>
+        <span>
+          {disciplineInfo.name}
+          {(getCurrentDiscipline() === Discipline.DOGS ||
+            getCurrentDiscipline() === Discipline.HORSES) &&
+            ` ${t('race')}`}
+        </span>
       </div>
       <span className="text-lg">{formattedTime}</span>
     </div>
