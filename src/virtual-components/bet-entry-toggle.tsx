@@ -59,7 +59,9 @@ export default function BetEntryToggle(props: {
               : props.variant === 'racecombination'
                 ? 'flex flex-col justify-between text-[19px]'
                 : '',
-        isSelected ? 'bg-bet text-white' : 'bg-betEntry text-betEntry-foreground',
+        isSelected
+          ? 'bg-bet text-white'
+          : 'bg-betEntry text-betEntry-foreground',
         props.className,
       )}
     >
@@ -80,9 +82,9 @@ export default function BetEntryToggle(props: {
         props.bet.option.decPrice?.toFixed(2) || '0.00'
       ) : (
         <>
-          {/* <span className="font-bold">{props.bet.option.outcome || 'N/A'}</span>
-          
-          <span className="font-bold">{props.marketName}</span> */}
+          <span className="font-bold">{props.bet.option.outcome || 'N/A'}</span>
+
+          {/* <span className="font-bold">{props.marketName}</span> */}
           <span>{props.bet.option.decPrice?.toFixed(2) || '0.00'}</span>
         </>
       )}
