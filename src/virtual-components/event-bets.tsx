@@ -21,7 +21,7 @@ export default function EventBets(props: {
     useContext(BetsContext)
   const pathname = usePathname()
 
-  const timeToEventStart = useTimeLeft(eventBets[0].bet.round.startingAt)
+  const timeToEventStart = useTimeLeft(eventBets[0].bet.event.startingAt)
 
   const getCategory = () => {
     if (pathname.includes('/cavalli')) return t('horses')
@@ -67,7 +67,7 @@ export default function EventBets(props: {
           <span className="text-[12px] font-semibold">{getCategory()}</span>
           <div className="flex items-center gap-2">
             <span className="text-[12px]">
-              {format(eventBets[0].bet.round.startingAt, 'HH:mm')}
+              {format(eventBets[0].bet.event.startingAt, 'HH:mm')}
             </span>
             <Badge className="h-6 w-14 rounded-sm text-sm">
               {timeToEventStart}
@@ -75,7 +75,7 @@ export default function EventBets(props: {
           </div>
         </div>
 
-        <span className="text-[12px]">{eventBets[0].bet.teams}</span>
+        <span className="text-[12px]">{eventBets[0].bet.competitors}</span>
       </div>
 
       <div className="border border-betSlip-foreground bg-primary-foreground p-1">
@@ -97,7 +97,7 @@ export default function EventBets(props: {
                 removeBet(
                   betEntry.market,
                   betEntry.bet.option,
-                  betEntry.bet.teams,
+                  betEntry.bet.competitors,
                 )
               }
             >
