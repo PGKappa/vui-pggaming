@@ -95,7 +95,7 @@ export default function Home() {
             )
           ) : (
             <div className="flex h-full items-center justify-center">
-              {t('no_round_selected')}
+              {t('no_event_selected')}
             </div>
           )}
         </div>
