@@ -49,7 +49,10 @@ export default function Home() {
                 />
               </div>
               <div className="h-[425px] overflow-y-auto lg:col-span-1">
-                <PreviousResultsCard results={previousResultsMock.horses} />
+                <PreviousResultsCard
+                  results={previousResultsMock.horses}
+                  discipline="HORSES"
+                />
               </div>
             </div>
           </div>
@@ -64,7 +67,7 @@ export default function Home() {
             <UpcomingRaceCard race={selectedEvent} />
           ) : (
             <div className="flex h-full items-center justify-center">
-              {t('no_round_selected')}
+              {t('no_event_selected')}
             </div>
           )}
         </div>
