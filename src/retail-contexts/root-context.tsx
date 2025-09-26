@@ -803,45 +803,123 @@ export default function RootContextProvider(props: {
 
         const dogEventResults: EventResult[] = dogChannel?.prev_events
           ? await Promise.all(
-              dogChannel.prev_events.map(async (event: any) => ({
-                id: event.int_event_id,
-                extId: event.ext_pal_id,
-                name: `Dog Race ${event.int_event_id}`,
-                startTime: new Date(event.time),
-                time: event.time,
-                discipline: Discipline.DOGS,
-                result: {
-                  podium:
-                    event.arrival?.map((dog: any, index: number) => ({
-                      name: dog.name,
-                      number: dog.number,
-                      position: index + 1,
-                    })) || [],
-                  odds: {},
-                },
-              })),
+              dogChannel.prev_events.map(async (event: any) => {
+                // Fetch dettagli completi come nel search-event-results
+                let detailedResult = null
+                try {
+                  const response = await fetch(
+                    `https://apidev.pgvirtual.eu/api/event/results/${event.ext_pal_id}/${event.int_event_id}`,
+                    {
+                      headers: {
+                        accept: 'application/json',
+                        'accept-language':
+                          'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
+                        authorization:
+                          'Bearer ffffffff-ffff-ffff-ffff-ffffffffffee',
+                        'content-type': 'application/json',
+                        operator: 'pg',
+                        priority: 'u=1, i',
+                        'sec-ch-ua':
+                          '"Not)A;Brand";v="8", "Chromium";v="138", "Google Chrome";v="138"',
+                        'sec-ch-ua-mobile': '?1',
+                        'sec-ch-ua-platform': '"Android"',
+                        'sec-fetch-dest': 'empty',
+                        'sec-fetch-mode': 'cors',
+                        'sec-fetch-site': 'same-site',
+                      },
+                      referrer: 'https://test.pgvirtual.eu/',
+                      method: 'GET',
+                      mode: 'cors',
+                      credentials: 'include',
+                    },
+                  )
+
+                  if (response.ok) {
+                    detailedResult = await response.json()
+                  }
+                } catch (error) {
+                  console.log('❌ Failed to fetch dog details:', error)
+                }
+
+                return {
+                  id: event.int_event_id,
+                  extId: event.ext_pal_id,
+                  name: `Dog Race ${event.int_event_id}`,
+                  startTime: new Date(event.time),
+                  time: event.time,
+                  discipline: Discipline.DOGS,
+                  result: detailedResult || {
+                    podium:
+                      event.arrival?.map((dog: any, index: number) => ({
+                        name: dog.name,
+                        number: dog.number,
+                        position: index + 1,
+                      })) || [],
+                    odds: {},
+                  },
+                }
+              }),
             )
           : []
 
         const horseEventResults: EventResult[] = horseChannel?.prev_events
           ? await Promise.all(
-              horseChannel.prev_events.map(async (event: any) => ({
-                id: event.int_event_id,
-                extId: event.ext_pal_id,
-                name: `Horse Race ${event.int_event_id}`,
-                startTime: new Date(event.time),
-                time: event.time,
-                discipline: Discipline.HORSES,
-                result: {
-                  podium:
-                    event.arrival?.map((horse: any, index: number) => ({
-                      name: horse.name,
-                      number: horse.number,
-                      position: index + 1,
-                    })) || [],
-                  odds: {},
-                },
-              })),
+              horseChannel.prev_events.map(async (event: any) => {
+                // Fetch dettagli completi come nel search-event-results
+                let detailedResult = null
+                try {
+                  const response = await fetch(
+                    `https://apidev.pgvirtual.eu/api/event/results/${event.ext_pal_id}/${event.int_event_id}`,
+                    {
+                      headers: {
+                        accept: 'application/json',
+                        'accept-language':
+                          'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
+                        authorization:
+                          'Bearer ffffffff-ffff-ffff-ffff-ffffffffffee',
+                        'content-type': 'application/json',
+                        operator: 'pg',
+                        priority: 'u=1, i',
+                        'sec-ch-ua':
+                          '"Not)A;Brand";v="8", "Chromium";v="138", "Google Chrome";v="138"',
+                        'sec-ch-ua-mobile': '?1',
+                        'sec-ch-ua-platform': '"Android"',
+                        'sec-fetch-dest': 'empty',
+                        'sec-fetch-mode': 'cors',
+                        'sec-fetch-site': 'same-site',
+                      },
+                      referrer: 'https://test.pgvirtual.eu/',
+                      method: 'GET',
+                      mode: 'cors',
+                      credentials: 'include',
+                    },
+                  )
+
+                  if (response.ok) {
+                    detailedResult = await response.json()
+                  }
+                } catch (error) {
+                  console.log('❌ Failed to fetch horse details:', error)
+                }
+
+                return {
+                  id: event.int_event_id,
+                  extId: event.ext_pal_id,
+                  name: `Horse Race ${event.int_event_id}`,
+                  startTime: new Date(event.time),
+                  time: event.time,
+                  discipline: Discipline.HORSES,
+                  result: detailedResult || {
+                    podium:
+                      event.arrival?.map((horse: any, index: number) => ({
+                        name: horse.name,
+                        number: horse.number,
+                        position: index + 1,
+                      })) || [],
+                    odds: {},
+                  },
+                }
+              }),
             )
           : []
 

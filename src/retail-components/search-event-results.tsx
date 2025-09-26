@@ -647,72 +647,25 @@ export default function SearchEventResults() {
 
 function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
   const [detailedResult, setDetailedResult] = useState<any>(null)
-  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    if (eventResult.result) {
+    if (eventResult.result && eventResult.result.odds) {
       setDetailedResult(eventResult.result)
       return
     }
 
     if (!eventResult.extId) {
-      setDetailedResult(null)
+      setDetailedResult(eventResult.result || null)
       return
     }
-
-    const fetchDetails = async () => {
-      setLoading(true)
-      try {
-        const response = await fetch(
-          `https://apidev.pgvirtual.eu/api/event/results/${eventResult.extId}/${eventResult.id}`,
-          {
-            headers: {
-              accept: 'application/json',
-              'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
-              authorization: 'Bearer ffffffff-ffff-ffff-ffff-ffffffffffee',
-              operator: 'pg',
-              priority: 'u=1, i',
-              'sec-ch-ua':
-                '"Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"',
-              'sec-ch-ua-mobile': '?1',
-              'sec-ch-ua-platform': '"Android"',
-              'sec-fetch-dest': 'empty',
-              'sec-fetch-mode': 'cors',
-              'sec-fetch-site': 'same-site',
-            },
-            referrer: 'https://test.pgvirtual.eu/',
-            referrerPolicy: 'strict-origin-when-cross-origin',
-            method: 'GET',
-            mode: 'cors',
-            credentials: 'include',
-          },
-        )
-
-        if (response.ok) {
-          const data = await response.json()
-          setDetailedResult(data)
-        }
-      } catch {
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchDetails()
+    setDetailedResult(eventResult.result || null)
+    return
   }, [eventResult])
-
-  if (loading) {
-    return (
-      <div className="p-4 text-center text-muted-foreground">
-        {t('loading')}...
-      </div>
-    )
-  }
 
   if (!detailedResult) {
     return (
       <div className="p-4 text-center text-muted-foreground">
-        No detailed results available
+        {t('no_detailed_results')}
       </div>
     )
   }
@@ -723,6 +676,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
     detailedResult
   ) {
     if (
+      false &&
       detailedResult.arrival &&
       Array.isArray(detailedResult.arrival) &&
       detailedResult.arrival.length > 0 &&
@@ -822,9 +776,9 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
             return format(parsedDate, 'dd-MM-yyyy HH:mm')
           }
 
-          return 'Invalid Date'
+          return t('invalid_date')
         } catch {
-          return 'Invalid Date'
+          return t('invalid_date')
         }
       }
 
@@ -1383,6 +1337,9 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
     return (
       <div className="p-4 text-center text-muted-foreground">
         {t('event_completed_detailed_results')}
+        <div className="mt-2 text-xs">
+          DEBUG: {JSON.stringify(Object.keys(detailedResult))}
+        </div>
       </div>
     )
   }
