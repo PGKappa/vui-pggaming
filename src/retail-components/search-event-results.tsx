@@ -1,5 +1,6 @@
 import { RootContext } from '@/retail-contexts/root-context'
 import { Discipline, EventResult, RaceResult } from '@/retail-lib/types'
+import { getRacerColors } from '@/retail-lib/utils'
 import { format } from 'date-fns'
 import { ChevronRight } from 'lucide-react'
 import Image from 'next/image'
@@ -776,21 +777,18 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                       </div>
 
                       <div
-                        className={
-                          'flex h-10 w-10 items-center justify-center rounded-md font-bold text-white ' +
-                          (competitor.number === 1
-                            ? 'bg-red-500'
-                            : competitor.number === 2
-                              ? 'bg-blue-500'
-                              : competitor.number === 3
-                                ? 'bg-orange-500'
-                                : competitor.number === 4
-                                  ? 'bg-green-500'
-                                  : competitor.number === 5
-                                    ? 'bg-yellow-500'
-                                    : competitor.number === 6
-                                      ? 'bg-purple-500'
-                                      : 'border border-gray-300 bg-white text-black')
+                        className={`flex h-10 w-10 items-center justify-center rounded-md text-[16px] font-bold ${(() => {
+                          const colors = getRacerColors(
+                            competitor.number,
+                            eventResult.discipline as 'DOGS' | 'HORSES',
+                          )
+                          return `${colors.bg} ${colors.text} ${colors.border}`
+                        })()}`}
+                        style={
+                          getRacerColors(
+                            competitor.number,
+                            eventResult.discipline as 'DOGS' | 'HORSES',
+                          ).style
                         }
                       >
                         {competitor.number}
@@ -978,21 +976,12 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                           </div>
 
                           <div
-                            className={
-                              'flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold text-white ' +
-                              (competitor.number === 1
-                                ? 'bg-red-500'
-                                : competitor.number === 2
-                                  ? 'bg-blue-500'
-                                  : competitor.number === 3
-                                    ? 'bg-orange-500'
-                                    : competitor.number === 4
-                                      ? 'bg-green-500'
-                                      : competitor.number === 5
-                                        ? 'bg-yellow-500'
-                                        : competitor.number === 6
-                                          ? 'bg-purple-500'
-                                          : 'border border-gray-300 bg-white text-black')
+                            className="flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold"
+                            style={
+                              getRacerColors(
+                                competitor.number,
+                                eventResult.discipline as 'DOGS' | 'HORSES',
+                              ).style
                             }
                           >
                             {competitor.number}
@@ -1026,21 +1015,12 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                       >
                         <span className="flex items-center gap-2">
                           <div
-                            className={
-                              'flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold text-white ' +
-                              (parseInt(number) === 1
-                                ? 'bg-red-500'
-                                : parseInt(number) === 2
-                                  ? 'bg-blue-500'
-                                  : parseInt(number) === 3
-                                    ? 'bg-orange-500'
-                                    : parseInt(number) === 4
-                                      ? 'bg-green-500'
-                                      : parseInt(number) === 5
-                                        ? 'bg-yellow-500'
-                                        : parseInt(number) === 6
-                                          ? 'bg-purple-500'
-                                          : 'border border-gray-300 bg-white text-black')
+                            className="flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold"
+                            style={
+                              getRacerColors(
+                                parseInt(number),
+                                eventResult.discipline as 'DOGS' | 'HORSES',
+                              ).style
                             }
                           >
                             {number}
@@ -1073,21 +1053,12 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                       >
                         <span className="flex items-center gap-2">
                           <div
-                            className={
-                              'flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold text-white ' +
-                              (parseInt(number) === 1
-                                ? 'bg-red-500'
-                                : parseInt(number) === 2
-                                  ? 'bg-blue-500'
-                                  : parseInt(number) === 3
-                                    ? 'bg-orange-500'
-                                    : parseInt(number) === 4
-                                      ? 'bg-green-500'
-                                      : parseInt(number) === 5
-                                        ? 'bg-yellow-500'
-                                        : parseInt(number) === 6
-                                          ? 'bg-purple-500'
-                                          : 'border border-gray-300 bg-white text-black')
+                            className="flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold"
+                            style={
+                              getRacerColors(
+                                parseInt(number),
+                                eventResult.discipline as 'DOGS' | 'HORSES',
+                              ).style
                             }
                           >
                             {number}
@@ -1120,21 +1091,12 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                       >
                         <span className="flex items-center gap-2">
                           <div
-                            className={
-                              'flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold text-white ' +
-                              (parseInt(number) === 1
-                                ? 'bg-red-500'
-                                : parseInt(number) === 2
-                                  ? 'bg-blue-500'
-                                  : parseInt(number) === 3
-                                    ? 'bg-orange-500'
-                                    : parseInt(number) === 4
-                                      ? 'bg-green-500'
-                                      : parseInt(number) === 5
-                                        ? 'bg-yellow-500'
-                                        : parseInt(number) === 6
-                                          ? 'bg-purple-500'
-                                          : 'border border-gray-300 bg-white text-black')
+                            className="flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold"
+                            style={
+                              getRacerColors(
+                                parseInt(number),
+                                eventResult.discipline as 'DOGS' | 'HORSES',
+                              ).style
                             }
                           >
                             {number}
@@ -1171,21 +1133,12 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                           {combination.split('-').map((num, idx) => (
                             <div
                               key={idx}
-                              className={
-                                'flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold text-accent-foreground ' +
-                                (parseInt(num) === 1
-                                  ? 'bg-red-500'
-                                  : parseInt(num) === 2
-                                    ? 'bg-blue-500'
-                                    : parseInt(num) === 3
-                                      ? 'bg-orange-500'
-                                      : parseInt(num) === 4
-                                        ? 'bg-green-500'
-                                        : parseInt(num) === 5
-                                          ? 'bg-yellow-500'
-                                          : parseInt(num) === 6
-                                            ? 'bg-purple-500'
-                                            : 'border border-gray-300 bg-white text-black')
+                              className="flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold"
+                              style={
+                                getRacerColors(
+                                  parseInt(num),
+                                  eventResult.discipline as 'DOGS' | 'HORSES',
+                                ).style
                               }
                             >
                               {num}
@@ -1221,21 +1174,12 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                           {combination.split('-').map((num, idx) => (
                             <div
                               key={idx}
-                              className={
-                                'flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold text-accent-foreground ' +
-                                (parseInt(num) === 1
-                                  ? 'bg-red-500'
-                                  : parseInt(num) === 2
-                                    ? 'bg-blue-500'
-                                    : parseInt(num) === 3
-                                      ? 'bg-orange-500'
-                                      : parseInt(num) === 4
-                                        ? 'bg-green-500'
-                                        : parseInt(num) === 5
-                                          ? 'bg-yellow-500'
-                                          : parseInt(num) === 6
-                                            ? 'bg-purple-500'
-                                            : 'border border-gray-300 bg-white text-black')
+                              className="flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold"
+                              style={
+                                getRacerColors(
+                                  parseInt(num),
+                                  eventResult.discipline as 'DOGS' | 'HORSES',
+                                ).style
                               }
                             >
                               {num}
@@ -1271,21 +1215,12 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                           {combination.split('-').map((num, idx) => (
                             <div
                               key={idx}
-                              className={
-                                'flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold text-accent-foreground ' +
-                                (parseInt(num) === 1
-                                  ? 'bg-red-500'
-                                  : parseInt(num) === 2
-                                    ? 'bg-blue-500'
-                                    : parseInt(num) === 3
-                                      ? 'bg-orange-500'
-                                      : parseInt(num) === 4
-                                        ? 'bg-green-500'
-                                        : parseInt(num) === 5
-                                          ? 'bg-yellow-500'
-                                          : parseInt(num) === 6
-                                            ? 'bg-purple-500'
-                                            : 'border border-gray-300 bg-white text-black')
+                              className="flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold"
+                              style={
+                                getRacerColors(
+                                  parseInt(num),
+                                  eventResult.discipline as 'DOGS' | 'HORSES',
+                                ).style
                               }
                             >
                               {num}
@@ -1321,21 +1256,12 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                           {combination.split('-').map((num, idx) => (
                             <div
                               key={idx}
-                              className={
-                                'flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold text-accent-foreground ' +
-                                (parseInt(num) === 1
-                                  ? 'bg-red-500'
-                                  : parseInt(num) === 2
-                                    ? 'bg-blue-500'
-                                    : parseInt(num) === 3
-                                      ? 'bg-orange-500'
-                                      : parseInt(num) === 4
-                                        ? 'bg-green-500'
-                                        : parseInt(num) === 5
-                                          ? 'bg-yellow-500'
-                                          : parseInt(num) === 6
-                                            ? 'bg-purple-500'
-                                            : 'border border-gray-300 bg-white text-black')
+                              className="flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold"
+                              style={
+                                getRacerColors(
+                                  parseInt(num),
+                                  eventResult.discipline as 'DOGS' | 'HORSES',
+                                ).style
                               }
                             >
                               {num}
