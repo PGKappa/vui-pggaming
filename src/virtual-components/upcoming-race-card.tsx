@@ -1,5 +1,6 @@
 import { BetsContext } from '@/virtual-contexts/bets-context'
 import { UpcomingEvent, UpcomingRace } from '@/virtual-lib/types'
+import { getRacerColors } from '@/virtual-lib/utils'
 import { t } from 'i18next'
 import { useContext, useEffect, useState } from 'react'
 import BetCombinationsTable from './bet-combination-table'
@@ -341,32 +342,32 @@ export default function UpcomingRaceCard({
     return (
       <TableHeader className="h-12 bg-card-header text-sm text-card-header-foreground">
         <TableRow>
-          <TableHead className="w-[220px] text-center font-bold">
-            {t('starters_list').toUpperCase()}
+          <TableHead className="w-[160px] text-center font-bold">
+            {t('starters').toUpperCase()}
           </TableHead>
           <TableHead className="w-[1px] bg-border p-0" />
 
-          <TableHead className="w-[150px] text-center font-bold">
+          <TableHead className="w-[140px] text-center font-bold">
             {t('performance').toUpperCase()}
           </TableHead>
           <TableHead className="w-[1px] bg-border p-0" />
 
-          <TableHead className="w-[150px] text-center font-bold">
+          <TableHead className="w-[140px] text-center font-bold">
             {t('history').toUpperCase()}
           </TableHead>
           <TableHead className="w-[1px] bg-border p-0" />
 
           {activeTab === 'main' && (
             <>
-              <TableHead className="w-[130px] text-center font-bold">
+              <TableHead className="w-[150px] text-center font-bold">
                 {t('winner').toUpperCase()}
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
-              <TableHead className="w-[130px] text-center font-bold">
+              <TableHead className="w-[150px] text-center font-bold">
                 {t('place_2').toUpperCase()}
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
-              <TableHead className="w-[130px] text-center font-bold">
+              <TableHead className="w-[150px] text-center font-bold">
                 {t('show_3').toUpperCase()}
               </TableHead>
             </>
@@ -378,7 +379,7 @@ export default function UpcomingRaceCard({
                 {t('exacta').toUpperCase()}
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
-              <TableHead className="w-[150px] text-center font-bold">
+              <TableHead className="w-[140px] text-center font-bold">
                 {t('any_order').toUpperCase()}
               </TableHead>
             </>
@@ -390,7 +391,7 @@ export default function UpcomingRaceCard({
                 {t('trifecta').toUpperCase()}
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
-              <TableHead className="w-[120px] text-center font-bold">
+              <TableHead className="w-[140px] text-center font-bold">
                 {t('any_order').toUpperCase()}
               </TableHead>
             </>
@@ -424,7 +425,7 @@ export default function UpcomingRaceCard({
                 track: `${t('track')} 6`,
               }}
               variant="racecard"
-              className="h-10 w-16 text-md"
+              className="h-11 w-16 text-md"
             />
           </TableCell>
           <TableCell className="w-[1px] bg-border p-0" />
@@ -449,7 +450,7 @@ export default function UpcomingRaceCard({
                 track: `${t('track')} 6`,
               }}
               variant="racecard"
-              className="h-10 w-16 text-md"
+              className="h-11 w-16 text-md"
             />
           </TableCell>
 
@@ -475,7 +476,7 @@ export default function UpcomingRaceCard({
                 track: `${t('track')} 6`,
               }}
               variant="racecard"
-              className="h-10 w-16 text-md"
+              className="h-11 w-16 text-md"
             />
           </TableCell>
         </>
@@ -492,7 +493,7 @@ export default function UpcomingRaceCard({
               pressed={position1Selection.includes(racer.number)}
               onPressedChange={() => togglePosition1Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className={`h-10 w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
+              className={`h-11 w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
                 position1Selection.includes(racer.number)
                   ? 'bg-accent text-accent-foreground'
                   : ''
@@ -510,7 +511,7 @@ export default function UpcomingRaceCard({
               pressed={position2Selection.includes(racer.number)}
               onPressedChange={() => togglePosition2Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className={`h-10 w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
+              className={`h-11 w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
                 position2Selection.includes(racer.number)
                   ? 'bg-accent text-accent-foreground'
                   : ''
@@ -534,7 +535,7 @@ export default function UpcomingRaceCard({
                   pressed={disorderSelection.includes(racer.number)}
                   onPressedChange={() => toggleDisorderSelection(racer.number)}
                   onClick={(e) => e.stopPropagation()}
-                  className={`h-10 w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
+                  className={`h-11 w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
                     disorderSelection.includes(racer.number)
                       ? 'bg-accent text-accent-foreground'
                       : ''
@@ -561,7 +562,7 @@ export default function UpcomingRaceCard({
               pressed={position1Selection.includes(racer.number)}
               onPressedChange={() => togglePosition1Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className={`h-10 w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
+              className={`h-11 w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
                 position1Selection.includes(racer.number)
                   ? 'bg-accent text-accent-foreground'
                   : ''
@@ -579,7 +580,7 @@ export default function UpcomingRaceCard({
               pressed={position2Selection.includes(racer.number)}
               onPressedChange={() => togglePosition2Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className={`h-10 w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
+              className={`h-11 w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
                 position2Selection.includes(racer.number)
                   ? 'bg-accent text-accent-foreground'
                   : ''
@@ -597,7 +598,7 @@ export default function UpcomingRaceCard({
               pressed={position3Selection.includes(racer.number)}
               onPressedChange={() => togglePosition3Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className={`h-10 w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
+              className={`h-11 w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
                 position3Selection.includes(racer.number)
                   ? 'bg-accent text-accent-foreground'
                   : ''
@@ -621,7 +622,7 @@ export default function UpcomingRaceCard({
                   pressed={disorderSelection.includes(racer.number)}
                   onPressedChange={() => toggleDisorderSelection(racer.number)}
                   onClick={(e) => e.stopPropagation()}
-                  className={`h-10 w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
+                  className={`h-11 w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
                     disorderSelection.includes(racer.number)
                       ? 'bg-accent text-accent-foreground'
                       : ''
@@ -828,21 +829,12 @@ export default function UpcomingRaceCard({
                     <TableCell className="p-2">
                       <div className="flex items-center gap-3">
                         <div
-                          className={
-                            'flex h-7 w-7 items-center justify-center rounded-md font-bold text-white ' +
-                            (racer.number === 1
-                              ? 'bg-red-500'
-                              : racer.number === 2
-                                ? 'bg-blue-500'
-                                : racer.number === 3
-                                  ? 'bg-orange-500'
-                                  : racer.number === 4
-                                    ? 'bg-green-500'
-                                    : racer.number === 5
-                                      ? 'bg-yellow-500'
-                                      : racer.number === 6
-                                        ? 'bg-purple-500'
-                                        : 'border border-gray-300 bg-white text-black')
+                          className="flex h-8 w-8 items-center justify-center rounded-md text-xl font-bold"
+                          style={
+                            getRacerColors(
+                              racer.number,
+                              race.discipline as 'DOGS' | 'HORSES',
+                            ).style
                           }
                         >
                           {racer.number}
@@ -925,6 +917,7 @@ export default function UpcomingRaceCard({
         isOpen={isLatecomersOpen}
         onOpenChange={setIsLatecomersOpen}
         raceInfo={raceInfo}
+        discipline={race.discipline as 'DOGS' | 'HORSES'}
       />
     </>
   )

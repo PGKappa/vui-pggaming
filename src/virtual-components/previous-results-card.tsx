@@ -1,32 +1,16 @@
 import { PreviousChannelResult } from '@/virtual-lib/types'
+import { getRacerColors } from '@/virtual-lib/utils'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { useTranslation } from 'react-i18next'
 
 type PreviousResultsCardProps = {
   results: PreviousChannelResult
-}
-
-const getCompetitorColorByNumber = (number: number): string => {
-  switch (number) {
-    case 1:
-      return 'bg-red-500'
-    case 2:
-      return 'bg-blue-500'
-    case 3:
-      return 'bg-orange-500'
-    case 4:
-      return 'bg-green-500'
-    case 5:
-      return 'bg-yellow-500'
-    case 6:
-      return 'bg-purple-500'
-    default:
-      return 'border border-gray-300 bg-white text-black'
-  }
+  discipline: 'DOGS' | 'HORSES'
 }
 
 export default function PreviousResultsCard({
   results,
+  discipline,
 }: PreviousResultsCardProps) {
   const { t } = useTranslation()
 
@@ -71,7 +55,10 @@ export default function PreviousResultsCard({
                     {result.arrival.slice(0, 3).map((competitor, index) => (
                       <div
                         key={`${competitor.number}-${index}`}
-                        className={`flex h-8 w-8 items-center justify-center rounded-md font-bold text-white ${getCompetitorColorByNumber(competitor.number)}`}
+                        className="flex h-8 w-8 items-center justify-center rounded-md text-xl font-bold"
+                        style={
+                          getRacerColors(competitor.number, discipline).style
+                        }
                       >
                         {competitor.number}
                       </div>
