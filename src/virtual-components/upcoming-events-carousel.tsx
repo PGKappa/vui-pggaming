@@ -20,7 +20,9 @@ export function UpcomingEventsCarousel(props: {
   return (
     <div className="relative w-full bg-white">
       <Carousel className="mx-auto w-full max-w-[849px]">
-        <CarouselContent className="ml-0 h-10 pl-12">
+        <CarouselContent
+          className={`ml-0 h-10 ${props.events.length > 0 ? 'pl-12' : ''}`}
+        >
           {props.events.length > 0 ? (
             <>
               {/* Sposta gli eventi verso destra */}
@@ -37,7 +39,7 @@ export function UpcomingEventsCarousel(props: {
               })}
             </>
           ) : (
-            <div className="w-full justify-center p-4 text-center text-background">
+            <div className="flex w-full items-center justify-center p-4 text-center text-background">
               {t('no_upcoming_matches')}
             </div>
           )}

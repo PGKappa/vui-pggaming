@@ -423,7 +423,7 @@ export default function BetCombinationsTable({
               marketName={marketName}
               bet={bet}
               variant="racecombination"
-              className="h-10 w-16 justify-center text-md"
+              className="h-13 w-18 justify-center text-md"
             />
           ))}
         </div>
