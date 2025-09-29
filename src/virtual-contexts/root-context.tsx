@@ -774,6 +774,28 @@ export default function RootContextProvider(props: {
     fetchUpcomingDogEvents()
   }, [initCode, apiRequest])
 
+  // Cleanup periodico degli eventi passati
+  useEffect(() => {
+    const cleanupExpiredEvents = () => {
+      const now = new Date()
+      
+      setRootContext((prev) => ({
+        ...prev,
+        upcomingEvents: prev.upcomingEvents?.filter(
+          (event) => new Date(event.time) > now
+        ) || [],
+      }))
+    }
+
+    // Esegui cleanup ogni 30 secondi
+    const cleanupInterval = setInterval(cleanupExpiredEvents, 30000)
+    
+    // Cleanup iniziale
+    cleanupExpiredEvents()
+
+    return () => clearInterval(cleanupInterval)
+  }, [])
+
   if (isLoading) {
     return (
       <div className="flex h-full flex-col items-center justify-center">

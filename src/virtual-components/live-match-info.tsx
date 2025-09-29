@@ -4,10 +4,13 @@ import { RootContext } from '@/virtual-contexts/root-context'
 import { Discipline } from '@/virtual-lib/types'
 import { t } from 'i18next'
 import Image from 'next/image'
-import { useCallback, useContext, useMemo } from 'react'
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 
 export default function LiveMatchInfo() {
   const { liveRound, upcomingEvents, upcomingRounds } = useContext(RootContext)
+  const [nextEventStartTime, setNextEventStartTime] = useState<Date | null>(
+    null,
+  )
 
   const getCurrentDiscipline = useCallback((): Discipline => {
     if (typeof window === 'undefined') return Discipline.FOOTBALL
@@ -22,30 +25,46 @@ export default function LiveMatchInfo() {
     }
   }, [])
 
-  const nextEventStartTime = useMemo(() => {
-    const discipline = getCurrentDiscipline()
+  // Aggiorna il prossimo evento periodicamente
+  useEffect(() => {
+    const updateNextEvent = () => {
+      const discipline = getCurrentDiscipline()
+      const now = new Date()
 
-    if (discipline === Discipline.FOOTBALL) {
-      // Per il calcio usa il liveRound o il prossimo round
-      if (liveRound) {
-        return new Date(liveRound.startingAt)
+      if (discipline === Discipline.FOOTBALL) {
+        if (liveRound) {
+          setNextEventStartTime(new Date(liveRound.startingAt))
+          return
+        }
+        const nextRound = upcomingRounds?.[0]
+        if (nextRound?.mag_event?.[0]?.startTime) {
+          setNextEventStartTime(new Date(nextRound.mag_event[0].startTime))
+          return
+        }
+      } else {
+        const disciplineEvents = upcomingEvents
+          ?.filter((event) => event.discipline === discipline)
+          ?.filter((event) => new Date(event.time) > now) // FILTRA EVENTI PASSATI
+          ?.sort(
+            (a, b) => new Date(a.time).getTime() - new Date(b.time).getTime(),
+          ) // ORDINA PER TEMPO
+
+        const nextEvent = disciplineEvents?.[0] // Prende il primo evento futuro
+        if (nextEvent) {
+          setNextEventStartTime(nextEvent.time)
+          return
+        }
       }
-      const nextRound = upcomingRounds?.[0]
-      if (nextRound?.mag_event?.[0]?.startTime) {
-        return new Date(nextRound.mag_event[0].startTime)
-      }
-    } else {
-      // Per cani e cavalli usa upcomingEvents filtrati per disciplina
-      const disciplineEvents = upcomingEvents?.filter(
-        (event) => event.discipline === discipline,
-      )
-      const nextEvent = disciplineEvents?.[0] // Prende il primo evento (più vicino nel tempo)
-      if (nextEvent) {
-        return nextEvent.time
-      }
+
+      setNextEventStartTime(null)
     }
 
-    return null
+    updateNextEvent()
+
+    // Aggiorna ogni secondo
+    const intervalId = setInterval(updateNextEvent, 1000)
+
+    return () => clearInterval(intervalId)
   }, [getCurrentDiscipline, liveRound, upcomingEvents, upcomingRounds])
 
   const disciplineInfo = useMemo(() => {
@@ -102,7 +121,7 @@ export default function LiveMatchInfo() {
   })
 
   return (
-    <div className="flex w-full flex-row items-center justify-between">
+    <div className="flex h-12 w-full flex-row items-center justify-between">
       <div className="flex flex-row items-center gap-2">
         {disciplineInfo.icon}
         <span>
@@ -112,7 +131,7 @@ export default function LiveMatchInfo() {
             ` ${t('race')}`}
         </span>
       </div>
-      <span className="text-lg">{formattedTime}</span>
+      <span className="text-xl">{formattedTime}</span>
     </div>
   )
 }

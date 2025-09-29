@@ -6,22 +6,35 @@ import { getTimeDistanceFromNow } from '@/virtual-lib/utils'
 import { t } from 'i18next'
 import { useContext, useEffect, useState } from 'react'
 
-export default function MatchEndBadge({ discipline }: { discipline: Discipline }) {
+export default function MatchEndBadge({
+  discipline,
+}: {
+  discipline: Discipline
+}) {
   const { upcomingRounds, upcomingEvents } = useContext(RootContext)
   const [timeToNextRound, setTimeToNextRound] = useState('')
 
   useEffect(() => {
     const updateTimeToNextRound = () => {
       let nextEventTime: Date | null = null
+      const now = new Date()
 
       if (discipline === Discipline.FOOTBALL) {
-        // Per il calcio usa upcomingRounds
-        if (upcomingRounds && upcomingRounds.length > 0 && upcomingRounds[0].mag_event[0]) {
+        if (
+          upcomingRounds &&
+          upcomingRounds.length > 0 &&
+          upcomingRounds[0].mag_event[0]
+        ) {
           nextEventTime = new Date(upcomingRounds[0].mag_event[0].startTime)
         }
       } else {
-        // Per cani e cavalli usa upcomingEvents filtrati per disciplina
-        const disciplineEvents = upcomingEvents?.filter(event => event.discipline === discipline)
+        const disciplineEvents = upcomingEvents
+          ?.filter((event) => event.discipline === discipline)
+          ?.filter((event) => new Date(event.time) > now) // FILTRA EVENTI PASSATI
+          ?.sort(
+            (a, b) => new Date(a.time).getTime() - new Date(b.time).getTime(),
+          ) // ORDINA PER TEMPO
+
         if (disciplineEvents && disciplineEvents.length > 0) {
           nextEventTime = new Date(disciplineEvents[0].time)
         }
