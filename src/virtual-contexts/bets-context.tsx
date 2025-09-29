@@ -11,6 +11,9 @@ export type BetsContextType = {
   betsByEvent: { [key: string]: BetEntry[] }
   lastId: number
   betMode: BetMode
+  isSystemToggleEnabled: boolean
+  systemToggleMode: 'multiple' | 'system'
+  setSystemToggleMode: (mode: 'multiple' | 'system') => void
   addBet: (market: string, bet: Bet) => void
   removeBet: (marketName: string, option: Selection, teams: string) => void
   removeEventBets: (eventId: string) => void
@@ -29,6 +32,9 @@ const defaultBetsContext: BetsContextType = {
   betsByEvent: {},
   lastId: 0,
   betMode: 'SINGLE',
+  isSystemToggleEnabled: false,
+  systemToggleMode: 'multiple',
+  setSystemToggleMode: () => {},
   addBet: () => {},
   removeBet: () => {},
   removeEventBets: () => {},
@@ -90,6 +96,30 @@ export default function BetsContextProvider(props: {
   const initialBetsContext = getBetsContext()
   const [betsContext, setBetsContext] =
     useState<BetsContextType>(initialBetsContext)
+
+  // Stato per il toggle Multiple/System
+  const [systemToggleMode, setSystemToggleMode] = useState<
+    'multiple' | 'system'
+  >('multiple')
+
+  // Calcola se il toggle System è abilitato
+  const isSystemToggleEnabled = useMemo(() => {
+    const eventGroups = Object.values(betsContext.betsByEvent)
+
+    // Se almeno un evento ha 2+ bet -> SOLO SYSTEM (no toggle)
+    const hasEventWithMultipleBets = eventGroups.some(
+      (group) => group.length > 1,
+    )
+    if (hasEventWithMultipleBets) {
+      return false
+    }
+
+    // Toggle abilitato solo se: esattamente 1 bet per evento su 2+ eventi diversi
+    const eventsWithSingleBet = eventGroups.filter(
+      (group) => group.length === 1,
+    )
+    return eventsWithSingleBet.length >= 2
+  }, [betsContext.betsByEvent])
 
   // Determina la modalità di betting
   const betMode: BetMode = useMemo(() => {
@@ -272,6 +302,9 @@ export default function BetsContextProvider(props: {
     setBetsContext((prev) => ({
       ...prev,
       betMode,
+      isSystemToggleEnabled,
+      systemToggleMode,
+      setSystemToggleMode,
       addBet,
       removeBet,
       removeEventBets,
@@ -281,7 +314,14 @@ export default function BetsContextProvider(props: {
       addBets,
       removeBets,
     }))
-  }, [addBet, addBets, betMode])
+  }, [
+    addBet,
+    addBets,
+    betMode,
+    isSystemToggleEnabled,
+    systemToggleMode,
+    setSystemToggleMode,
+  ])
 
   // Salva nel localStorage
   useEffect(() => {

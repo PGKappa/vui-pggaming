@@ -28,7 +28,9 @@ export default function BettingSlip() {
   const {
     betEntries,
     betsByEvent,
-    betMode,
+    isSystemToggleEnabled,
+    systemToggleMode,
+    setSystemToggleMode,
     removeAllBets,
     restoreLastSubmittedTicket,
   } = useContext(BetsContext)
@@ -46,12 +48,35 @@ export default function BettingSlip() {
     Record<string, number>
   >({})
 
+  // Determina la modalità effettiva basata sul toggle
+  const effectiveMode = useMemo(() => {
+    // Caso 1: Una sola scommessa o meno -> SINGLE
+    if (betEntries.length <= 1) return 'SINGLE'
+    
+    // Caso 2: Più eventi E almeno un evento ha 2+ bet -> SYSTEM obbligatorio
+    const eventGroups = Object.values(betsByEvent)
+    const hasEventWithMultipleBets = eventGroups.some(group => group.length > 1)
+    const hasMultipleEvents = Object.keys(betsByEvent).length > 1
+    
+    if (hasMultipleEvents && hasEventWithMultipleBets) {
+      return 'SYSTEM' // SYSTEM obbligatorio, no toggle
+    }
+    
+    // Caso 3: Toggle abilitato -> usa la selezione dell'utente
+    if (isSystemToggleEnabled) {
+      return systemToggleMode === 'system' ? 'SYSTEM' : 'MULTIPLE'
+    }
+    
+    // Caso 4: Default -> MULTIPLE (più bet, ma non condizioni per SYSTEM)
+    return 'MULTIPLE'
+  }, [betEntries.length, betsByEvent, isSystemToggleEnabled, systemToggleMode])
+
   const baseSystemGroups = useMemo(() => {
-    if (betMode !== 'SYSTEM') {
+    if (effectiveMode !== 'SYSTEM') {
       return []
     }
     return generateSystemGroups(betEntries)
-  }, [betEntries, betMode])
+  }, [betEntries, effectiveMode])
 
   // Combina i gruppi base con le puntate inserite dall'utente
   const systemGroups = useMemo(() => {
@@ -82,7 +107,7 @@ export default function BettingSlip() {
   }, [systemGroups])
 
   const handleSubmitTicket = () => {
-    if (betMode === 'SYSTEM') {
+    if (effectiveMode === 'SYSTEM') {
       console.log('Submitting system ticket with stakes:', systemGroupStakes)
     } else {
       console.log('Submitting ticket with amount:', global)
@@ -100,6 +125,12 @@ export default function BettingSlip() {
     }))
   }
 
+  // Controlla se siamo in modalità SYSTEM obbligatoria (almeno un evento con 2+ bet)
+  const isSystemMandatory = useMemo(() => {
+    const eventGroups = Object.values(betsByEvent)
+    return eventGroups.some(group => group.length > 1) && Object.keys(betsByEvent).length > 1
+  }, [betsByEvent])
+
   return (
     <Card
       className="flex h-full w-full flex-col overflow-hidden bg-primary-foreground text-betSlip-foreground"
@@ -111,39 +142,55 @@ export default function BettingSlip() {
         </span>
         <BetsHistoryDialog />
 
-        <div className="relative flex h-12 w-full flex-col items-center justify-center bg-betSlip">
+        <div
+          className={`relative flex h-12 w-full flex-col items-center justify-center transition-colors ${
+            isSystemMandatory 
+              ? 'bg-gray-100 cursor-not-allowed opacity-50'
+              : !isSystemToggleEnabled || systemToggleMode === 'multiple'
+                ? 'bg-betSlip cursor-pointer'
+                : 'bg-gray-100 cursor-pointer'
+          }`}
+          onClick={() =>
+            !isSystemMandatory && isSystemToggleEnabled && setSystemToggleMode('multiple')
+          }
+        >
           <span
-            className={`text-[16px] text-betSlip-header-foreground ${
-              betMode === 'SINGLE' || betMode === 'MULTIPLE'
-                ? 'font-semibold'
-                : ''
+            className={`text-[16px] ${
+              isSystemMandatory
+                ? 'text-gray-600'
+                : !isSystemToggleEnabled || systemToggleMode === 'multiple'
+                  ? 'font-semibold text-betSlip-header-foreground'
+                  : 'text-gray-600'
             }`}
           >
-            {betMode === 'SINGLE'
+            {effectiveMode === 'SINGLE'
               ? t('single')
               : `${t('multiple')} (${Object.entries(betsByEvent).length})`}
           </span>
 
-          {(betMode === 'SINGLE' || betMode === 'MULTIPLE') && (
+          {!isSystemMandatory && (!isSystemToggleEnabled || systemToggleMode === 'multiple') && (
             <div className="absolute bottom-0.5 h-[4px] w-[156px] bg-accent"></div>
           )}
         </div>
 
         <div
-          className={`relative flex w-full flex-col items-center justify-center ${
-            betMode === 'SYSTEM' ? 'bg-betSlip-header' : 'bg-gray-100'
-          }`}
+          className={`relative flex w-full flex-col items-center justify-center transition-colors ${
+            isSystemMandatory || (isSystemToggleEnabled && systemToggleMode === 'system')
+              ? 'bg-betSlip-header cursor-pointer'
+              : 'bg-gray-100'
+          } ${!isSystemToggleEnabled && !isSystemMandatory ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+          onClick={() => !isSystemMandatory && isSystemToggleEnabled && setSystemToggleMode('system')}
         >
           <span
             className={`text-[16px] ${
-              betMode === 'SYSTEM'
+              isSystemMandatory || (isSystemToggleEnabled && systemToggleMode === 'system')
                 ? 'font-semibold text-betSlip-header-foreground'
-                : ''
+                : 'text-gray-600'
             }`}
           >
             {t('system')}
           </span>
-          {betMode === 'SYSTEM' && (
+          {(isSystemMandatory || (isSystemToggleEnabled && systemToggleMode === 'system')) && (
             <div className="absolute bottom-0.5 h-[4px] w-[156px] bg-accent"></div>
           )}
         </div>
@@ -170,7 +217,7 @@ export default function BettingSlip() {
               {Object.entries(betsByEvent).map(([eventKey, eventBets]) => (
                 <EventBets
                   key={eventKey}
-                  betMode={betMode}
+                  betMode={effectiveMode}
                   eventKey={eventKey}
                   eventBets={eventBets}
                 />
@@ -183,7 +230,7 @@ export default function BettingSlip() {
       <Separator />
 
       <CardFooter className="flex flex-col gap-2 p-0">
-        {betMode !== 'SYSTEM' ? (
+        {effectiveMode !== 'SYSTEM' ? (
           // SINGLE/MULTIPLE - Input diretto per importo
           <>
             <div className="flex w-full justify-end bg-betSlip p-2">
@@ -279,7 +326,7 @@ export default function BettingSlip() {
                       </TableCell>
                       <TableCell className="py-2">
                         <div className="flex w-full items-center justify-center">
-                          <div className="flex items-center overflow-hidden rounded-sm border border-border">
+                          <div className="flex items-center overflow-hidden rounded-none border border-border">
                             <Button
                               variant="ghost"
                               size="sm"
