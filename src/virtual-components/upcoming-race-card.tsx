@@ -5,7 +5,6 @@ import { t } from 'i18next'
 import { useContext, useEffect, useState } from 'react'
 import BetCombinationsTable from './bet-combination-table'
 import BetEntryToggle from './bet-entry-toggle'
-import LatecomersDialog from './latecomers-dialog'
 import MedalsHistory from './medals-history'
 import { Button } from './ui/button'
 import { Card, CardContent, CardHeader } from './ui/card'
@@ -19,7 +18,7 @@ import {
   TableRow,
 } from './ui/table'
 import { Toggle } from './ui/toggle'
-import { Check, Clock } from 'lucide-react'
+import { Check } from 'lucide-react'
 
 type UpcomingRaceCardProps = {
   race: UpcomingEvent
@@ -46,7 +45,6 @@ export default function UpcomingRaceCard({
   const [position3Selection, setPosition3Selection] = useState<number[]>([])
   const [disorderSelection, setDisorderSelection] = useState<number[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [isLatecomersOpen, setIsLatecomersOpen] = useState(false)
 
   // Aggiungi i contexts
   const { betEntries } = useContext(BetsContext)
@@ -153,11 +151,6 @@ export default function UpcomingRaceCard({
         'anyOrder',
       ],
     },
-  }
-
-  // Helper per determinare se mostrare il pulsante info (solo per cani e cavalli)
-  const shouldShowInfoButton = () => {
-    return race.discipline === 'DOGS' || race.discipline === 'HORSES'
   }
 
   useEffect(() => {
@@ -648,12 +641,12 @@ export default function UpcomingRaceCard({
 
     return (
       <div className="mt-4 w-full">
-        <div className="grid grid-cols-2 gap-0.5 border border-card-foreground">
+        <div className="grid grid-cols-2 gap-0.5">
           {/* Even/Odd Market */}
           <div>
-            <div className="bg-accent text-accent-foreground">
+            <div className="bg-card-header text-card-header-foreground">
               <div className="flex h-12 items-center justify-center text-md font-bold">
-                {t('even_odd')}
+                {t('even_odd').toUpperCase()}
               </div>
             </div>
 
@@ -706,9 +699,9 @@ export default function UpcomingRaceCard({
 
           {/* Under/Over Market */}
           <div>
-            <div className="bg-accent text-accent-foreground">
+            <div className="bg-card-header text-card-header-foreground">
               <div className="flex h-12 items-center justify-center text-md font-bold">
-                {t('under_over')} 3.5
+                {t('under_over').toUpperCase()} 3.5
               </div>
             </div>
 
@@ -793,24 +786,12 @@ export default function UpcomingRaceCard({
                 disorderSelection.length > 0) && (
                 <Button
                   variant="ghost"
-                  className="h-11 w-28 bg-secondary px-4 text-[16px] font-bold text-secondary-foreground"
+                  className="h-11 w-28 bg-secondary px-4 text-[14px] font-bold text-secondary-foreground"
                   onClick={clearSelections}
                 >
                   {t('clear_all').toUpperCase()}
                 </Button>
               )}
-
-            {/* Pulsante Info (solo per cani e cavalli) */}
-            {shouldShowInfoButton() && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-11 w-11 border-border bg-secondary text-secondary-foreground"
-                onClick={() => setIsLatecomersOpen(true)}
-              >
-                <Clock style={{ scale: 1.5 }} />
-              </Button>
-            )}
           </div>
         </CardHeader>
 
@@ -911,14 +892,6 @@ export default function UpcomingRaceCard({
           {renderSpecialMarkets()}
         </CardContent>
       </Card>
-
-      {/* Latecomers Dialog */}
-      <LatecomersDialog
-        isOpen={isLatecomersOpen}
-        onOpenChange={setIsLatecomersOpen}
-        raceInfo={raceInfo}
-        discipline={race.discipline as 'DOGS' | 'HORSES'}
-      />
     </>
   )
 }
