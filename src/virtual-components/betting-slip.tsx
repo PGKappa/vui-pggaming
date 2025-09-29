@@ -52,21 +52,23 @@ export default function BettingSlip() {
   const effectiveMode = useMemo(() => {
     // Caso 1: Una sola scommessa o meno -> SINGLE
     if (betEntries.length <= 1) return 'SINGLE'
-    
+
     // Caso 2: Più eventi E almeno un evento ha 2+ bet -> SYSTEM obbligatorio
     const eventGroups = Object.values(betsByEvent)
-    const hasEventWithMultipleBets = eventGroups.some(group => group.length > 1)
+    const hasEventWithMultipleBets = eventGroups.some(
+      (group) => group.length > 1,
+    )
     const hasMultipleEvents = Object.keys(betsByEvent).length > 1
-    
+
     if (hasMultipleEvents && hasEventWithMultipleBets) {
       return 'SYSTEM' // SYSTEM obbligatorio, no toggle
     }
-    
+
     // Caso 3: Toggle abilitato -> usa la selezione dell'utente
     if (isSystemToggleEnabled) {
       return systemToggleMode === 'system' ? 'SYSTEM' : 'MULTIPLE'
     }
-    
+
     // Caso 4: Default -> MULTIPLE (più bet, ma non condizioni per SYSTEM)
     return 'MULTIPLE'
   }, [betEntries.length, betsByEvent, isSystemToggleEnabled, systemToggleMode])
@@ -128,7 +130,10 @@ export default function BettingSlip() {
   // Controlla se siamo in modalità SYSTEM obbligatoria (almeno un evento con 2+ bet)
   const isSystemMandatory = useMemo(() => {
     const eventGroups = Object.values(betsByEvent)
-    return eventGroups.some(group => group.length > 1) && Object.keys(betsByEvent).length > 1
+    return (
+      eventGroups.some((group) => group.length > 1) &&
+      Object.keys(betsByEvent).length > 1
+    )
   }, [betsByEvent])
 
   return (
@@ -144,14 +149,16 @@ export default function BettingSlip() {
 
         <div
           className={`relative flex h-12 w-full flex-col items-center justify-center transition-colors ${
-            isSystemMandatory 
-              ? 'bg-gray-100 cursor-not-allowed opacity-50'
+            isSystemMandatory
+              ? 'cursor-not-allowed bg-gray-100 opacity-50'
               : !isSystemToggleEnabled || systemToggleMode === 'multiple'
-                ? 'bg-betSlip cursor-pointer'
-                : 'bg-gray-100 cursor-pointer'
+                ? 'cursor-pointer bg-betSlip'
+                : 'cursor-pointer bg-gray-100'
           }`}
           onClick={() =>
-            !isSystemMandatory && isSystemToggleEnabled && setSystemToggleMode('multiple')
+            !isSystemMandatory &&
+            isSystemToggleEnabled &&
+            setSystemToggleMode('multiple')
           }
         >
           <span
@@ -168,29 +175,37 @@ export default function BettingSlip() {
               : `${t('multiple')} (${Object.entries(betsByEvent).length})`}
           </span>
 
-          {!isSystemMandatory && (!isSystemToggleEnabled || systemToggleMode === 'multiple') && (
-            <div className="absolute bottom-0.5 h-[4px] w-[156px] bg-accent"></div>
-          )}
+          {!isSystemMandatory &&
+            (!isSystemToggleEnabled || systemToggleMode === 'multiple') && (
+              <div className="absolute bottom-0.5 h-[4px] w-[156px] bg-accent"></div>
+            )}
         </div>
 
         <div
           className={`relative flex w-full flex-col items-center justify-center transition-colors ${
-            isSystemMandatory || (isSystemToggleEnabled && systemToggleMode === 'system')
-              ? 'bg-betSlip-header cursor-pointer'
+            isSystemMandatory ||
+            (isSystemToggleEnabled && systemToggleMode === 'system')
+              ? 'cursor-pointer bg-betSlip-header'
               : 'bg-gray-100'
-          } ${!isSystemToggleEnabled && !isSystemMandatory ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-          onClick={() => !isSystemMandatory && isSystemToggleEnabled && setSystemToggleMode('system')}
+          } ${!isSystemToggleEnabled && !isSystemMandatory ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+          onClick={() =>
+            !isSystemMandatory &&
+            isSystemToggleEnabled &&
+            setSystemToggleMode('system')
+          }
         >
           <span
             className={`text-[16px] ${
-              isSystemMandatory || (isSystemToggleEnabled && systemToggleMode === 'system')
+              isSystemMandatory ||
+              (isSystemToggleEnabled && systemToggleMode === 'system')
                 ? 'font-semibold text-betSlip-header-foreground'
                 : 'text-gray-600'
             }`}
           >
             {t('system')}
           </span>
-          {(isSystemMandatory || (isSystemToggleEnabled && systemToggleMode === 'system')) && (
+          {(isSystemMandatory ||
+            (isSystemToggleEnabled && systemToggleMode === 'system')) && (
             <div className="absolute bottom-0.5 h-[4px] w-[156px] bg-accent"></div>
           )}
         </div>
@@ -233,7 +248,7 @@ export default function BettingSlip() {
         {effectiveMode !== 'SYSTEM' ? (
           // SINGLE/MULTIPLE - Input diretto per importo
           <>
-            <div className="flex w-full justify-end bg-betSlip p-2">
+            <div className="flex w-full justify-end bg-betSlip p-2 pr-8">
               <span className="font-semibold">{t('amount')}</span>
             </div>
 
