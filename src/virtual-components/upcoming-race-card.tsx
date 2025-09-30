@@ -9,14 +9,6 @@ import MedalsHistory from './medals-history'
 import { Button } from './ui/button'
 import { Card, CardContent, CardHeader } from './ui/card'
 import { Progress } from './ui/progress'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from './ui/table'
 import { Toggle } from './ui/toggle'
 import { Check } from 'lucide-react'
 
@@ -333,64 +325,77 @@ export default function UpcomingRaceCard({
 
   const renderTableHeader = () => {
     return (
-      <TableHeader className="h-12 bg-card-header text-sm text-card-header-foreground">
-        <TableRow>
-          <TableHead className="w-[160px] text-center font-bold">
-            {t('starters').toUpperCase()}
-          </TableHead>
-          <TableHead className="w-[1px] bg-border p-0" />
+      <div
+        className="grid h-12 items-center bg-card-header text-sm text-card-header-foreground"
+        style={{
+          gridTemplateColumns:
+            activeTab === 'main'
+              ? '200px 1px 200px 1px 200px 1px 181px 1px 181px 1px 181px'
+              : activeTab === 'couples'
+                ? '200px 1px 200px 1px 200px 1px 180px 180px 1px 183px'
+                : '200px 1px 200px 1px 200px 1px 130px 130px 130px 1px 155px',
+        }}
+      >
+        <div className="text-center font-bold">
+          {t('starters').toUpperCase()}
+        </div>
+        <div className="bg-border" />
 
-          <TableHead className="w-[140px] text-center font-bold">
-            {t('performance').toUpperCase()}
-          </TableHead>
-          <TableHead className="w-[1px] bg-border p-0" />
+        <div className="text-center font-bold">
+          {t('performance').toUpperCase()}
+        </div>
+        <div className="bg-border" />
 
-          <TableHead className="w-[140px] text-center font-bold">
-            {t('history').toUpperCase()}
-          </TableHead>
-          <TableHead className="w-[1px] bg-border p-0" />
+        <div className="text-center font-bold">
+          {t('history').toUpperCase()}
+        </div>
+        <div className="bg-border" />
 
-          {activeTab === 'main' && (
-            <>
-              <TableHead className="w-[150px] text-center font-bold">
-                {t('winner').toUpperCase()}
-              </TableHead>
-              <TableHead className="w-[1px] bg-border p-0" />
-              <TableHead className="w-[150px] text-center font-bold">
-                {t('place_2').toUpperCase()}
-              </TableHead>
-              <TableHead className="w-[1px] bg-border p-0" />
-              <TableHead className="w-[150px] text-center font-bold">
-                {t('show_3').toUpperCase()}
-              </TableHead>
-            </>
-          )}
+        {activeTab === 'main' && (
+          <>
+            <div className="text-center font-bold">
+              {t('winner').toUpperCase()}
+            </div>
+            <div className="bg-border" />
+            <div className="text-center font-bold">
+              {t('place_2').toUpperCase()}
+            </div>
+            <div className="bg-border" />
+            <div className="text-center font-bold">
+              {t('show_3').toUpperCase()}
+            </div>
+          </>
+        )}
 
-          {activeTab === 'couples' && (
-            <>
-              <TableHead className="text-center font-bold" colSpan={2}>
-                {t('exacta').toUpperCase()}
-              </TableHead>
-              <TableHead className="w-[1px] bg-border p-0" />
-              <TableHead className="w-[140px] text-center font-bold">
-                {t('any_order').toUpperCase()}
-              </TableHead>
-            </>
-          )}
+        {activeTab === 'couples' && (
+          <>
+            <div
+              className="text-center font-bold"
+              style={{ gridColumn: 'span 2' }}
+            >
+              {t('exacta').toUpperCase()}
+            </div>
+            <div className="bg-border" />
+            <div className="text-center font-bold">
+              {t('any_order').toUpperCase()}
+            </div>
+          </>
+        )}
 
-          {activeTab === 'triplets' && (
-            <>
-              <TableHead className="text-center font-bold" colSpan={3}>
-                {t('trifecta').toUpperCase()}
-              </TableHead>
-              <TableHead className="w-[1px] bg-border p-0" />
-              <TableHead className="w-[140px] text-center font-bold">
-                {t('any_order').toUpperCase()}
-              </TableHead>
-            </>
-          )}
-        </TableRow>
-      </TableHeader>
+        {activeTab === 'triplets' && (
+          <>
+            <div className="text-center font-bold"></div>
+            <div className="text-center font-bold">
+              {t('trifecta').toUpperCase()}
+            </div>
+            <div className="text-center font-bold"></div>
+            <div className="bg-border" />
+            <div className="text-center font-bold">
+              {t('any_order').toUpperCase()}
+            </div>
+          </>
+        )}
+      </div>
     )
   }
 
@@ -398,7 +403,7 @@ export default function UpcomingRaceCard({
     if (activeTab === 'main') {
       return (
         <>
-          <TableCell className="p-1 text-center">
+          <div className="p-1 text-center">
             <BetEntryToggle
               marketName="Winner"
               bet={{
@@ -420,10 +425,10 @@ export default function UpcomingRaceCard({
               variant="racecard"
               className="h-11 w-16 text-md"
             />
-          </TableCell>
-          <TableCell className="w-[1px] bg-border p-0" />
+          </div>
+          <div className="bg-border" />
 
-          <TableCell className="p-1 text-center">
+          <div className="p-1 text-center">
             <BetEntryToggle
               marketName="Placed"
               bet={{
@@ -445,11 +450,11 @@ export default function UpcomingRaceCard({
               variant="racecard"
               className="h-11 w-16 text-md"
             />
-          </TableCell>
+          </div>
 
-          <TableCell className="w-[1px] bg-border p-0" />
+          <div className="bg-border" />
 
-          <TableCell className="p-1 text-center">
+          <div className="p-1 text-center">
             <BetEntryToggle
               marketName="Show"
               bet={{
@@ -471,15 +476,15 @@ export default function UpcomingRaceCard({
               variant="racecard"
               className="h-11 w-16 text-md"
             />
-          </TableCell>
+          </div>
         </>
       )
     }
     if (activeTab === 'couples') {
       return (
         <>
-          <TableCell
-            className={`h-12 cursor-pointer !pr-0 pl-6 text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
+          <div
+            className={`flex h-12 cursor-pointer items-center justify-center text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
             onClick={handleMarketTypeToggle}
           >
             <Toggle
@@ -494,10 +499,10 @@ export default function UpcomingRaceCard({
             >
               <span className="text-md">1°</span>
             </Toggle>
-          </TableCell>
+          </div>
 
-          <TableCell
-            className={`cursor-pointer !pl-0 pr-6 text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
+          <div
+            className={`flex cursor-pointer items-center justify-center text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
             onClick={handleMarketTypeToggle}
           >
             <Toggle
@@ -512,11 +517,11 @@ export default function UpcomingRaceCard({
             >
               <span className="text-md">2°</span>
             </Toggle>
-          </TableCell>
+          </div>
 
-          <TableCell className="w-[1px] bg-border p-0" />
+          <div className="bg-border" />
 
-          <TableCell className="p-0">
+          <div className="p-0">
             <div
               className="flex h-full cursor-pointer flex-col text-center"
               onClick={handleMarketTypeToggle}
@@ -540,15 +545,15 @@ export default function UpcomingRaceCard({
                 </Toggle>
               </div>
             </div>
-          </TableCell>
+          </div>
         </>
       )
     }
     if (activeTab === 'triplets') {
       return (
         <>
-          <TableCell
-            className={`h-12 cursor-pointer !pr-0 pl-4 text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
+          <div
+            className={`flex h-12 cursor-pointer items-center justify-center text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
             onClick={handleMarketTypeToggle}
           >
             <Toggle
@@ -563,10 +568,10 @@ export default function UpcomingRaceCard({
             >
               <span className="text-md">1°</span>
             </Toggle>
-          </TableCell>
+          </div>
 
-          <TableCell
-            className={`cursor-pointer text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
+          <div
+            className={`flex cursor-pointer items-center justify-center text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
             onClick={handleMarketTypeToggle}
           >
             <Toggle
@@ -581,10 +586,10 @@ export default function UpcomingRaceCard({
             >
               <span className="text-md">2°</span>
             </Toggle>
-          </TableCell>
+          </div>
 
-          <TableCell
-            className={`cursor-pointer !pl-0 pr-4 text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
+          <div
+            className={`flex cursor-pointer items-center justify-center text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
             onClick={handleMarketTypeToggle}
           >
             <Toggle
@@ -599,11 +604,11 @@ export default function UpcomingRaceCard({
             >
               <span className="text-md">3°</span>
             </Toggle>
-          </TableCell>
+          </div>
 
-          <TableCell className="w-[1px] bg-border p-0" />
+          <div className="bg-border" />
 
-          <TableCell className="p-0">
+          <div className="p-0">
             <div
               className="flex h-full cursor-pointer flex-col"
               onClick={handleMarketTypeToggle}
@@ -627,7 +632,7 @@ export default function UpcomingRaceCard({
                 </Toggle>
               </div>
             </div>
-          </TableCell>
+          </div>
         </>
       )
     }
@@ -796,81 +801,91 @@ export default function UpcomingRaceCard({
         </CardHeader>
 
         <CardContent>
-          <Table>
-            {renderTableHeader()}
+          <div className="overflow-x-auto">
+            <div className="min-w-[800px]">
+              {renderTableHeader()}
 
-            <TableBody>
-              {!isLoading && raceInfo?.racers && raceInfo.racers.length > 0 ? (
-                raceInfo.racers.map((racer) => (
-                  <TableRow
-                    key={racer.number}
-                    className="border-b border-border text-md"
-                  >
-                    {/* Informazioni sul corridore */}
-                    <TableCell className="p-2">
-                      <div className="flex items-center gap-3">
-                        <div
-                          className="flex h-8 w-8 items-center justify-center rounded-md text-xl font-bold"
-                          style={
-                            getRacerColors(
-                              racer.number,
-                              race.discipline as 'DOGS' | 'HORSES',
-                            ).style
-                          }
-                        >
-                          {racer.number}
-                        </div>
-                        <div>
-                          <div className="font-semibold">{racer.name}</div>
-                        </div>
-                      </div>
-                    </TableCell>
-
-                    <TableCell className="w-[1px] bg-border p-0" />
-
-                    {/* Performance */}
-                    <TableCell className="p-2">
-                      <div className="flex items-center justify-center gap-3">
-                        <div className="flex space-x-1">
-                          <div className="flex flex-col items-center justify-center gap-1">
-                            {racer.performance}%
-                            <Progress
-                              value={racer.performance}
-                              className="w-36 [&>div]:rounded-r-full [&>div]:bg-accent"
-                              style={{ height: '8px' }}
-                            />
+              <div className="">
+                {!isLoading &&
+                raceInfo?.racers &&
+                raceInfo.racers.length > 0 ? (
+                  raceInfo.racers.map((racer) => (
+                    <div
+                      key={racer.number}
+                      className="grid items-center border-b border-border text-md"
+                      style={{
+                        gridTemplateColumns:
+                          activeTab === 'main'
+                            ? '200px 1px 200px 1px 200px 1px 181px 1px 181px 1px 181px'
+                            : activeTab === 'couples'
+                              ? '200px 1px 200px 1px 200px 1px 180px 180px 1px 183px'
+                              : '200px 1px 200px 1px 200px 1px 130px 130px 130px 1px 155px',
+                      }}
+                    >
+                      {/* Informazioni sul corridore */}
+                      <div className="p-2">
+                        <div className="flex items-center gap-3">
+                          <div
+                            className="flex h-8 w-8 items-center justify-center rounded-md text-xl font-bold"
+                            style={
+                              getRacerColors(
+                                racer.number,
+                                race.discipline as 'DOGS' | 'HORSES',
+                              ).style
+                            }
+                          >
+                            {racer.number}
+                          </div>
+                          <div>
+                            <div className="font-semibold">{racer.name}</div>
                           </div>
                         </div>
                       </div>
-                    </TableCell>
 
-                    <TableCell className="w-[1px] bg-border p-0" />
+                      <div className="bg-border" />
 
-                    {/* Storico */}
-                    <TableCell>
-                      <div className="flex items-center justify-center gap-1">
-                        <MedalsHistory history={racer.history} />
+                      {/* Performance */}
+                      <div className="p-2">
+                        <div className="flex items-center justify-center gap-3">
+                          <div className="flex space-x-1">
+                            <div className="flex flex-col items-center justify-center gap-1">
+                              {racer.performance}%
+                              <Progress
+                                value={racer.performance}
+                                className="w-36 [&>div]:rounded-r-full [&>div]:bg-accent"
+                                style={{ height: '8px' }}
+                              />
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                    </TableCell>
 
-                    <TableCell className="w-[1px] bg-border p-0" />
+                      <div className="bg-border" />
 
-                    {renderTabSpecificCells(racer)}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={12} className="py-6 text-center text-sm">
+                      {/* Storico */}
+                      <div>
+                        <div className="flex items-center justify-center gap-1">
+                          <MedalsHistory history={racer.history} />
+                        </div>
+                      </div>
+
+                      <div className="bg-border" />
+
+                      {renderTabSpecificCells(racer)}
+                    </div>
+                  ))
+                ) : (
+                  <div className="col-span-full py-6 text-center text-sm">
                     {isLoading
                       ? `${t('loading')}...`
                       : raceInfo
                         ? `${t('no_racers_available')}`
                         : `${t('load_failed')}`}
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
 
           {/* Render combination table for couples and triplets tabs */}
           {(activeTab === 'couples' || activeTab === 'triplets') &&
