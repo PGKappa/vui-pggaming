@@ -181,7 +181,7 @@ export default function RacingFastBet({
               {t('code_list')}
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-6xl">
+          <DialogContent className="max-h-[75vh] max-w-[75vw]">
             <div className="flex flex-col items-center justify-center bg-accent pt-4">
               <h2 className="h-10 text-[19px] font-bold text-accent-foreground">
                 {t('code_list')}
@@ -191,7 +191,8 @@ export default function RacingFastBet({
                 alt="Codici scommesse calcio"
                 width={1920}
                 height={1080}
-                className="h-auto max-w-full"
+                className="h-auto w-full object-contain"
+                priority
               />
             </div>
           </DialogContent>
