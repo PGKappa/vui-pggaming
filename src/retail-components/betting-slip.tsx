@@ -478,7 +478,7 @@ export default function BettingSlip({
         ) : (
           <div className="rounded-md pt-2 text-sm">
             <ScrollArea>
-              <div className="max-h-[210px] min-w-full">
+              <div className="max-h-[310px] min-w-full">
                 <Table>
                   <TableHeader className="bg-accent text-accent-foreground">
                     <TableRow className="border-border">
