@@ -3,8 +3,9 @@ import { t } from 'i18next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
+import { Suspense } from 'react'
 
-export default function Navbar() {
+function NavbarContent() {
   const searchParams = useSearchParams()
   const pathname = usePathname()
   const initCode = searchParams.get('init_code')
@@ -81,5 +82,30 @@ export default function Navbar() {
         <span className="text-xs font-medium">{t('football')}</span>
       </Link>
     </nav>
+  )
+}
+
+export default function Navbar() {
+  return (
+    <Suspense
+      fallback={
+        <nav className="flex w-full flex-row gap-1 bg-primary-foreground p-0.5 text-black">
+          <div className="flex w-full flex-row items-center justify-center gap-2 px-2 py-2">
+            <div className="h-5 w-10 animate-pulse rounded bg-gray-200" />
+            <span className="text-xs font-medium">{t('dogs')}</span>
+          </div>
+          <div className="flex w-full flex-row items-center justify-center gap-2 px-2 py-2">
+            <div className="h-6 w-10 animate-pulse rounded bg-gray-200" />
+            <span className="text-xs font-medium">{t('horses')}</span>
+          </div>
+          <div className="flex w-full flex-row items-center justify-center px-2 py-2">
+            <div className="h-6 w-10 animate-pulse rounded bg-gray-200" />
+            <span className="text-xs font-medium">{t('football')}</span>
+          </div>
+        </nav>
+      }
+    >
+      <NavbarContent />
+    </Suspense>
   )
 }
