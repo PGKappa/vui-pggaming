@@ -1,5 +1,6 @@
 import { BetsContext } from '@/retail-contexts/bets-context'
 import { UpcomingEvent, UpcomingRace } from '@/retail-lib/types'
+import { getRacerColors } from '@/retail-lib/utils'
 import { t } from 'i18next'
 import { useContext, useEffect, useState } from 'react'
 import BetCombinationsTable from './bet-combination-table'
@@ -70,7 +71,9 @@ export default function UpcomingRaceCard({
   // useEffect per cambio automatico tab da FastBet (SENZA activeTab nelle dependencies)
   useEffect(() => {
     const raceEntries = betEntries.filter(
-(entry) => entry.bet.discipline === race.discipline && entry.bet.event.number === race.id,
+      (entry) =>
+        entry.bet.discipline === race.discipline &&
+        entry.bet.event.number === race.id,
     )
 
     if (raceEntries.length > 0) {
@@ -810,21 +813,12 @@ export default function UpcomingRaceCard({
                     <TableCell className="p-2">
                       <div className="flex items-center gap-3">
                         <div
-                          className={
-                            'flex h-7 w-7 items-center justify-center rounded-md font-bold text-white ' +
-                            (racer.number === 1
-                              ? 'bg-red-500'
-                              : racer.number === 2
-                                ? 'bg-blue-500'
-                                : racer.number === 3
-                                  ? 'bg-orange-500'
-                                  : racer.number === 4
-                                    ? 'bg-green-500'
-                                    : racer.number === 5
-                                      ? 'bg-yellow-500'
-                                      : racer.number === 6
-                                        ? 'bg-purple-500'
-                                        : 'border border-gray-300 bg-white text-black')
+                          className="flex h-8 w-8 items-center justify-center rounded-md text-[19px] font-bold"
+                          style={
+                            getRacerColors(
+                              racer.number,
+                              race.discipline as 'DOGS' | 'HORSES',
+                            ).style
                           }
                         >
                           {racer.number}
@@ -906,6 +900,7 @@ export default function UpcomingRaceCard({
         isOpen={isLatecomersDialogOpen}
         onOpenChange={setIsLatecomersDialogOpen}
         raceInfo={raceInfo}
+        discipline={race.discipline as 'DOGS' | 'HORSES'}
       />
     </>
   )

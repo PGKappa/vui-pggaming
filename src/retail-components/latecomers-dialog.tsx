@@ -1,4 +1,5 @@
 import { UpcomingRace } from '@/retail-lib/types'
+import { getRacerColors } from '@/retail-lib/utils'
 import { t } from 'i18next'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog'
 import {
@@ -14,34 +15,25 @@ type LatecomersDialogProps = {
   isOpen: boolean
   onOpenChange: (open: boolean) => void
   raceInfo: UpcomingRace | undefined
+  discipline: 'DOGS' | 'HORSES'
 }
 
 export default function LatecomersDialog({
   isOpen,
   onOpenChange,
   raceInfo,
+  discipline,
 }: LatecomersDialogProps) {
   const formatRacers = (racers: number[]) => {
     return racers.map((racerNumber) => {
       return (
         <div key={racerNumber} className="flex items-center gap-2">
           <div
-            className={
-              'flex h-8 w-8 items-center justify-center rounded text-[16px] font-bold text-white ' +
-              (racerNumber === 1
-                ? 'bg-red-500'
-                : racerNumber === 2
-                  ? 'bg-blue-500'
-                  : racerNumber === 3
-                    ? 'bg-orange-500'
-                    : racerNumber === 4
-                      ? 'bg-green-500'
-                      : racerNumber === 5
-                        ? 'bg-yellow-500'
-                        : racerNumber === 6
-                          ? 'bg-purple-500'
-                          : 'border border-gray-300 bg-white text-black')
-            }
+            className={`flex h-8 w-8 items-center justify-center rounded text-[19px] font-bold ${(() => {
+              const colors = getRacerColors(racerNumber, discipline)
+              return `${colors.bg} ${colors.text} ${colors.border}`
+            })()}`}
+            style={getRacerColors(racerNumber, discipline).style}
           >
             {racerNumber}
           </div>

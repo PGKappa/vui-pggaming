@@ -7,7 +7,7 @@ import { BetsContext } from '@/retail-contexts/bets-context'
 import { generateSystemGroups } from '@/retail-lib/system-bets'
 import { SubmittedTicket, UpcomingEvent } from '@/retail-lib/types'
 import { RotateCcwIcon } from 'lucide-react'
-import { useContext, useMemo, useState } from 'react'
+import { useContext, useMemo, useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import EventBets from './event-bets'
 import RacingFastBet from './racing-fast-bet'
@@ -71,13 +71,16 @@ export default function BettingSlip({
     betEntries,
     betsByEvent,
     betMode,
+    isSystemToggleEnabled,
+    systemToggleMode,
+    setSystemToggleMode,
     removeAllBets,
     restoreLastSubmittedTicket,
   } = useContext(BetsContext)
 
   const totalOdds = betEntries.reduce(
     (total, betEntry) => total * betEntry.bet.option.decPrice,
-    0,
+    1,
   )
 
   const [global, setGlobal] = useState(0)
@@ -106,6 +109,13 @@ export default function BettingSlip({
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   // const discipline = useMemo(() => getDisciplineFromPath(), [])
+
+  // Reset toggle when it's no longer enabled
+  useEffect(() => {
+    if (!isSystemToggleEnabled && systemToggleMode === 'SYSTEM') {
+      setSystemToggleMode('MULTIPLE')
+    }
+  }, [isSystemToggleEnabled, systemToggleMode, setSystemToggleMode])
 
   const handleBetNow = async () => {
     if (betEntries.length === 0) {
@@ -364,9 +374,18 @@ export default function BettingSlip({
           {t('bet_slip')} ( {betEntries.length} )
         </span>
 
-        <div className="relative flex h-12 w-full flex-col items-center justify-center bg-betSlip">
+        <div
+          className={`relative flex h-12 w-full flex-col items-center justify-center ${
+            isSystemToggleEnabled ? 'cursor-pointer' : ''
+          } ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'bg-betSlip' : 'bg-gray-100'}`}
+          onClick={
+            isSystemToggleEnabled
+              ? () => setSystemToggleMode('MULTIPLE')
+              : undefined
+          }
+        >
           <span
-            className={`text-[16px] text-betSlip-header-foreground ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'font-semibold' : ''}`}
+            className={`text-[16px] ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'font-semibold text-betSlip-header-foreground' : 'text-betSlip-foreground'}`}
           >
             {betMode === 'SINGLE'
               ? t('single')
@@ -381,11 +400,16 @@ export default function BettingSlip({
 
         <div
           className={`relative flex w-full flex-col items-center justify-center ${
-            betMode === 'SYSTEM' ? 'bg-betSlip-header' : 'bg-gray-100'
-          }`}
+            isSystemToggleEnabled ? 'cursor-pointer' : ''
+          } ${betMode === 'SYSTEM' ? 'bg-betSlip-header' : 'bg-gray-100'}`}
+          onClick={
+            isSystemToggleEnabled
+              ? () => setSystemToggleMode('SYSTEM')
+              : undefined
+          }
         >
           <span
-            className={`text-[16px] ${betMode === 'SYSTEM' ? 'font-semibold text-betSlip-header-foreground' : ''}`}
+            className={`text-[16px] ${betMode === 'SYSTEM' ? 'font-semibold text-betSlip-header-foreground' : 'text-betSlip-foreground'}`}
           >
             {t('system')}
           </span>
@@ -454,7 +478,7 @@ export default function BettingSlip({
         ) : (
           <div className="rounded-md pt-2 text-sm">
             <ScrollArea>
-              <div className="max-h-[150px] min-w-full">
+              <div className="max-h-[310px] min-w-full">
                 <Table>
                   <TableHeader className="bg-accent text-accent-foreground">
                     <TableRow className="border-border">

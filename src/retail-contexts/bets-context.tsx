@@ -10,6 +10,9 @@ export type BetsContextType = {
   betsByEvent: { [key: string]: BetEntry[] }
   lastId: number
   betMode: BetMode
+  isSystemToggleEnabled: boolean
+  systemToggleMode: 'MULTIPLE' | 'SYSTEM'
+  setSystemToggleMode: (mode: 'MULTIPLE' | 'SYSTEM') => void
   addBet: (market: string, bet: Bet) => void
   removeBet: (
     marketName: string,
@@ -33,6 +36,9 @@ const defaultBetsContext: BetsContextType = {
   betsByEvent: {},
   lastId: 0,
   betMode: 'SINGLE',
+  isSystemToggleEnabled: false,
+  systemToggleMode: 'MULTIPLE',
+  setSystemToggleMode: () => {},
   addBet: () => {},
   removeBet: () => {},
   removeEventBets: () => {},
@@ -102,16 +108,44 @@ export default function BetsContextProvider(props: {
   const initialBetsContext = getBetsContext()
   const [betsContext, setBetsContext] =
     useState<BetsContextType>(initialBetsContext)
+  const [systemToggleMode, setSystemToggleMode] = useState<
+    'MULTIPLE' | 'SYSTEM'
+  >('MULTIPLE')
+
+  // Determina se il toggle Multiple/System è abilitato
+  const isSystemToggleEnabled = useMemo(() => {
+    const numEvents = Object.keys(betsContext.betsByEvent).length
+    const hasMultipleBetsInSameEvent = Object.values(
+      betsContext.betsByEvent,
+    ).some((e) => e.length > 1)
+
+    // Toggle abilitato se: almeno 2 eventi diversi E nessun evento ha più di 1 bet
+    return numEvents >= 2 && !hasMultipleBetsInSameEvent
+  }, [betsContext.betsByEvent])
 
   const betMode: BetMode = useMemo(() => {
     if (betsContext.betEntries.length <= 1) return 'SINGLE'
+
+    // Sistema tradizionale: >1 evento E almeno 1 evento con >1 bet
     if (
       Object.keys(betsContext.betsByEvent).length > 1 &&
       Object.values(betsContext.betsByEvent).find((e) => e.length > 1)
-    )
+    ) {
       return 'SYSTEM'
+    }
+
+    // Se il toggle è abilitato, usa la modalità selezionata dall'utente
+    if (isSystemToggleEnabled) {
+      return systemToggleMode
+    }
+
     return 'MULTIPLE'
-  }, [betsContext.betEntries, betsContext.betsByEvent])
+  }, [
+    betsContext.betEntries,
+    betsContext.betsByEvent,
+    isSystemToggleEnabled,
+    systemToggleMode,
+  ])
 
   const checkSystemLimits = useCallback(
     (newEntries: BetEntry[]): boolean => {
@@ -310,6 +344,9 @@ export default function BetsContextProvider(props: {
     setBetsContext((prev) => ({
       ...prev,
       betMode,
+      isSystemToggleEnabled,
+      systemToggleMode,
+      setSystemToggleMode,
       addBet,
       removeBet,
       removeEventBets,
@@ -320,7 +357,14 @@ export default function BetsContextProvider(props: {
       removeBets,
       addBetsWithMarket,
     }))
-  }, [addBet, addBets, addBetsWithMarket, betMode])
+  }, [
+    addBet,
+    addBets,
+    addBetsWithMarket,
+    betMode,
+    isSystemToggleEnabled,
+    systemToggleMode,
+  ])
 
   useEffect(() => {
     if (!betsContext) return
