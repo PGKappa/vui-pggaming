@@ -344,9 +344,12 @@ export default function RootContextProvider(props: {
   const CACHE_KEYS = {
     DOGS_EVENTS: 'dogs_events_cache',
     HORSES_EVENTS: 'horses_events_cache',
+    SOCCER_EVENTS: 'soccer_events_cache',
     DOGS_RESULTS: 'dogs_results_cache',
     HORSES_RESULTS: 'horses_results_cache',
-    LAST_FETCH_TIME: 'racing_events_last_fetch',
+    SOCCER_RESULTS: 'soccer_results_cache',
+    LAST_RACING_FETCH_TIME: 'racing_events_last_fetch',
+    LAST_SOCCER_FETCH_TIME: 'soccer_events_last_fetch',
   }
 
   const CACHE_DURATION = 5 * 60 * 1000
@@ -389,13 +392,16 @@ export default function RootContextProvider(props: {
     [CACHE_DURATION],
   )
 
-  const isCacheValid = useCallback((): boolean => {
-    const lastFetch = localStorage.getItem(CACHE_KEYS.LAST_FETCH_TIME)
-    if (!lastFetch) return false
+  const isCacheValid = useCallback(
+    (key: string): boolean => {
+      const lastFetch = localStorage.getItem(key)
+      if (!lastFetch) return false
 
-    const age = Date.now() - parseInt(lastFetch)
-    return age < CACHE_DURATION
-  }, [CACHE_KEYS.LAST_FETCH_TIME, CACHE_DURATION])
+      const age = Date.now() - parseInt(lastFetch)
+      return age < CACHE_DURATION
+    },
+    [CACHE_DURATION],
+  )
 
   const loadCachedRacingEvents = useCallback(() => {
     const cachedDogsEvents = loadFromCache(CACHE_KEYS.DOGS_EVENTS)
@@ -444,6 +450,35 @@ export default function RootContextProvider(props: {
     CACHE_KEYS.DOGS_RESULTS,
     CACHE_KEYS.HORSES_RESULTS,
   ])
+
+  const loadCachedSoccerEvents = useCallback(() => {
+    const cachedSoccerEvents = loadFromCache(CACHE_KEYS.SOCCER_EVENTS)
+    const cachedSoccerResults = loadFromCache(CACHE_KEYS.SOCCER_RESULTS)
+    if (cachedSoccerEvents || cachedSoccerResults) {
+      setRootContext((prev) => ({
+        ...prev,
+        upcomingEvents: [
+          ...(prev.upcomingEvents?.filter(
+            (event) => event.discipline === Discipline.SOCCER,
+          ) || []),
+          ...(cachedSoccerEvents || []),
+        ],
+        eventResults: [
+          ...(prev.eventResults?.filter(
+            (result) => result.discipline === Discipline.SOCCER,
+          ) || []),
+          ...((cachedSoccerResults as EventResult[])?.map((r) => ({
+            ...r,
+            startTime: new Date(r.startTime),
+          })) || []),
+        ],
+      }))
+
+      return true
+    }
+
+    return false
+  }, [loadFromCache, CACHE_KEYS.SOCCER_EVENTS, CACHE_KEYS.SOCCER_RESULTS])
 
   type UserApiResponse = {
     status: string
@@ -589,6 +624,10 @@ export default function RootContextProvider(props: {
     if (!initCode) return
 
     const fetchUpcomingRounds = async () => {
+      if (isCacheValid(CACHE_KEYS.LAST_SOCCER_FETCH_TIME)) {
+        return
+      }
+
       const fetchResponse = await fetch(
         `https://cvgl.it/football/incoming.php?t=${new Date().getTime()}`,
       )
@@ -690,29 +729,30 @@ export default function RootContextProvider(props: {
           }
         },
       )
-
+      const upcomingSoccerEvents = rounds.map((round) => ({
+        id: round.scheduleId,
+        name: round.scheduleName,
+        startTime: new Date(round.mag_event[0].startTime).toLocaleTimeString(
+          'it-IT',
+          {
+            hour: '2-digit',
+            minute: '2-digit',
+          },
+        ),
+        time: new Date(round.mag_event[0].startTime),
+        duration: 3,
+        discipline: Discipline.SOCCER,
+        ext_pal_id:
+          round.mag_event[0].eventIdentity?.parentGroupIdSpecified || '',
+        data: round,
+      }))
       setRootContext((prev) => ({
         ...prev,
         upcomingEvents: [
           ...(prev.upcomingEvents?.filter(
             (event) => event.discipline !== Discipline.SOCCER,
           ) || []),
-          ...rounds.map((round) => ({
-            id: round.scheduleId,
-            name: round.scheduleName,
-            startTime: new Date(
-              round.mag_event[0].startTime,
-            ).toLocaleTimeString('it-IT', {
-              hour: '2-digit',
-              minute: '2-digit',
-            }),
-            time: new Date(round.mag_event[0].startTime),
-            duration: 3,
-            discipline: Discipline.SOCCER,
-            ext_pal_id:
-              round.mag_event[0].eventIdentity?.parentGroupIdSpecified || '',
-            data: round,
-          })),
+          ...upcomingSoccerEvents,
         ],
         eventResults: [
           ...(prev.eventResults || []).filter(
@@ -722,10 +762,16 @@ export default function RootContextProvider(props: {
         ],
         setSearchEventResults: setSearchEventResults,
       }))
+      saveToCache(CACHE_KEYS.SOCCER_EVENTS, upcomingSoccerEvents)
+      saveToCache(CACHE_KEYS.SOCCER_RESULTS, roundResults)
+      localStorage.setItem(
+        CACHE_KEYS.LAST_SOCCER_FETCH_TIME,
+        Date.now().toString(),
+      )
     }
 
-    const fetchRacingEvents = async (forceRefresh = false) => {
-      if (!forceRefresh && isCacheValid()) {
+    const fetchRacingEvents = async () => {
+      if (isCacheValid(CACHE_KEYS.LAST_RACING_FETCH_TIME)) {
         return
       }
 
@@ -945,7 +991,10 @@ export default function RootContextProvider(props: {
         saveToCache(CACHE_KEYS.HORSES_EVENTS, upcomingHorseEvents)
         saveToCache(CACHE_KEYS.DOGS_RESULTS, dogEventResults)
         saveToCache(CACHE_KEYS.HORSES_RESULTS, horseEventResults)
-        localStorage.setItem(CACHE_KEYS.LAST_FETCH_TIME, Date.now().toString())
+        localStorage.setItem(
+          CACHE_KEYS.LAST_RACING_FETCH_TIME,
+          Date.now().toString(),
+        )
       } catch {
         toast.error('Error fetching racing events')
       }
@@ -961,11 +1010,13 @@ export default function RootContextProvider(props: {
           return
         }
 
-        const racingAreas = areas.filter(
-          (area) => area === Discipline.DOGS || area === Discipline.HORSES,
-        )
-        if (racingAreas.length > 0) {
+        if (
+          areas.includes(Discipline.DOGS) ||
+          areas.includes(Discipline.HORSES)
+        ) {
           loadCachedRacingEvents()
+        } else if (areas.includes(Discipline.SOCCER)) {
+          loadCachedSoccerEvents()
         }
 
         if (areas.length === 1) {
