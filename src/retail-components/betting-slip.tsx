@@ -4,8 +4,14 @@ import { Button } from '@/retail-components/ui/button'
 import { Card, CardContent, CardFooter } from '@/retail-components/ui/card'
 import { ScrollArea } from '@/retail-components/ui/scroll-area'
 import { BetsContext } from '@/retail-contexts/bets-context'
+import { RootContext } from '@/retail-contexts/root-context'
 import { generateSystemGroups } from '@/retail-lib/system-bets'
-import { SubmittedTicket, UpcomingEvent } from '@/retail-lib/types'
+import {
+  SubmittedTicket,
+  UpcomingEvent,
+  Discipline,
+  BetEntry,
+} from '@/retail-lib/types'
 import { RotateCcwIcon } from 'lucide-react'
 import { useContext, useMemo, useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -78,6 +84,8 @@ export default function BettingSlip({
     restoreLastSubmittedTicket,
   } = useContext(BetsContext)
 
+  const rootContext = useContext(RootContext)
+
   const totalOdds = betEntries.reduce(
     (total, betEntry) => total * betEntry.bet.option.decPrice,
     1,
@@ -116,6 +124,39 @@ export default function BettingSlip({
       setSystemToggleMode('MULTIPLE')
     }
   }, [isSystemToggleEnabled, systemToggleMode, setSystemToggleMode])
+
+  // Funzione per calcolare il type basato sulle discipline nel ticket
+  const getTicketType = (entries: BetEntry[]): string => {
+    const disciplines = new Set(entries.map((entry) => entry.bet.discipline))
+
+    if (disciplines.has(Discipline.SOCCER)) {
+      return 'football'
+    }
+
+    const hasDogs = disciplines.has(Discipline.DOGS)
+    const hasHorses = disciplines.has(Discipline.HORSES)
+
+    if (hasDogs && hasHorses) {
+      return 'dogs-horses'
+    } else if (hasDogs) {
+      return 'dogs'
+    } else if (hasHorses) {
+      return 'horses'
+    }
+
+    return 'football' // fallback
+  }
+
+  // Funzione per calcolare il mode basato sul tipo di scommessa
+  const getTicketMode = (mode: BetMode, entries: BetEntry[]): string => {
+    if (mode === 'SYSTEM') {
+      return 'system'
+    } else if (mode === 'MULTIPLE' && entries.length > 1) {
+      return 'multiple'
+    } else {
+      return 'single'
+    }
+  }
 
   const handleBetNow = async () => {
     if (betEntries.length === 0) {
@@ -271,10 +312,16 @@ export default function BettingSlip({
         },
       )
 
+      // Calcola i valori per il payload
+      const ticketType = getTicketType(betEntries)
+      const ticketMode = getTicketMode(betMode, betEntries)
+
       // Prepara il payload nel formato esatto dell'API
       const ticketData = {
         placeBet: {
           currency: 'USD', // Cambiare valuta se necessario
+          type: ticketType,
+          mode: ticketMode,
           ...(betMode === 'SYSTEM'
             ? {
                 system: Object.fromEntries(
@@ -302,7 +349,7 @@ export default function BettingSlip({
           headers: {
             accept: 'application/json',
             'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
-            authorization: 'Bearer ffffffff-ffff-ffff-ffff-ffffffffffee',
+            authorization: `Bearer ${rootContext.initCode}`,
             'content-type': 'application/json',
             operator: 'pg',
             priority: 'u=1, i',
