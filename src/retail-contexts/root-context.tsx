@@ -17,6 +17,7 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
 export type RootContextType = {
+  initCode?: string
   userData?: User
   apiRequest?: <T>(
     input: string | URL | globalThis.Request,
@@ -782,7 +783,7 @@ export default function RootContextProvider(props: {
             headers: {
               accept: 'application/json',
               'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
-              authorization: 'Bearer ffffffff-ffff-ffff-ffff-ffffffffffee',
+              authorization: `Bearer ${initCode}`,
               operator: 'pg',
               priority: 'u=1, i',
               'sec-ch-ua':
@@ -860,8 +861,7 @@ export default function RootContextProvider(props: {
                         accept: 'application/json',
                         'accept-language':
                           'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
-                        authorization:
-                          'Bearer ffffffff-ffff-ffff-ffff-ffffffffffee',
+                        authorization: `Bearer ${initCode}`,
                         'content-type': 'application/json',
                         operator: 'pg',
                         priority: 'u=1, i',
@@ -921,8 +921,7 @@ export default function RootContextProvider(props: {
                         accept: 'application/json',
                         'accept-language':
                           'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
-                        authorization:
-                          'Bearer ffffffff-ffff-ffff-ffff-ffffffffffee',
+                        authorization: `Bearer ${initCode}`,
                         'content-type': 'application/json',
                         operator: 'pg',
                         priority: 'u=1, i',
@@ -1103,7 +1102,7 @@ export default function RootContextProvider(props: {
   }
 
   return (
-    <RootContext.Provider value={{ ...rootContext, isLoadingEvents }}>
+    <RootContext.Provider value={{ ...rootContext, initCode, isLoadingEvents }}>
       {props.children}
     </RootContext.Provider>
   )

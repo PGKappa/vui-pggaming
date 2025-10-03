@@ -1,4 +1,5 @@
 import { BetsContext } from '@/retail-contexts/bets-context'
+import { RootContext } from '@/retail-contexts/root-context'
 import { UpcomingEvent, UpcomingRace } from '@/retail-lib/types'
 import { getRacerColors } from '@/retail-lib/utils'
 import { t } from 'i18next'
@@ -50,6 +51,7 @@ export default function UpcomingRaceCard({
 
   // Aggiungi il context
   const { betEntries } = useContext(BetsContext)
+  const rootContext = useContext(RootContext)
 
   // Inizializzazione corretta del marketType basata su activeTab
   const [marketType, setMarketType] = useState<
@@ -167,7 +169,7 @@ export default function UpcomingRaceCard({
             headers: {
               accept: 'application/json',
               'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
-              authorization: 'Bearer ffffffff-ffff-ffff-ffff-ffffffffffee',
+              authorization: `Bearer ${rootContext.initCode}`,
               operator: 'pg',
               priority: 'u=1, i',
               'sec-ch-ua':
@@ -205,7 +207,7 @@ export default function UpcomingRaceCard({
     }
 
     fetchEventInfo()
-  }, [race.id, race.extId])
+  }, [race.id, race.extId, rootContext.initCode])
 
   useEffect(() => {
     if (onSelectionChange) {

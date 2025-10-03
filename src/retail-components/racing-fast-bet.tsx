@@ -1,5 +1,6 @@
 import { Input } from '@/retail-components/ui/input'
 import { BetsContext } from '@/retail-contexts/bets-context'
+import { RootContext } from '@/retail-contexts/root-context'
 import {
   createBetFromFastCode,
   parseFastBetInput,
@@ -37,6 +38,7 @@ export default function RacingFastBet({
   const [selectionInput, setSelectionInput] = useState('')
 
   const { addBets } = useContext(BetsContext)
+  const rootContext = useContext(RootContext)
 
   const currentMarket = markets[codeInput.trim()]
   const isSelectionInputDisabled =
@@ -111,7 +113,11 @@ export default function RacingFastBet({
       return
     }
 
-    const bets = await createBetFromFastCode(parsedCode, selectedEvent)
+    const bets = await createBetFromFastCode(
+      parsedCode,
+      selectedEvent,
+      rootContext.initCode || '',
+    )
 
     if (!bets || bets.length === 0) {
       toast.error(t('no_odds_found'))

@@ -66,7 +66,7 @@ export default function SearchEventResults() {
             headers: {
               accept: 'application/json',
               'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
-              authorization: 'Bearer ffffffff-ffff-ffff-ffff-ffffffffffee',
+              authorization: `Bearer ${rootContext.initCode}`,
               'content-type': 'application/json',
               operator: 'pg',
               priority: 'u=1, i',
@@ -94,7 +94,7 @@ export default function SearchEventResults() {
         return null
       }
     },
-    [],
+    [rootContext.initCode],
   )
 
   useEffect(() => {
@@ -125,7 +125,7 @@ export default function SearchEventResults() {
                 headers: {
                   accept: 'application/json',
                   'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
-                  authorization: 'Bearer ffffffff-ffff-ffff-ffff-ffffffffffee',
+                  authorization: `Bearer ${rootContext.initCode}`,
                   operator: 'pg',
                   priority: 'u=1, i',
                   'sec-ch-ua':
@@ -219,7 +219,7 @@ export default function SearchEventResults() {
             headers: {
               accept: 'application/json',
               'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
-              authorization: 'Bearer ffffffff-ffff-ffff-ffff-ffffffffffee',
+              authorization: `Bearer ${rootContext.initCode}`,
               'content-type': 'application/json',
               operator: 'pg',
               priority: 'u=1, i',
@@ -379,6 +379,7 @@ export default function SearchEventResults() {
     lastTenGames,
     fetchDetailedEventResult,
     rootContext.eventResults,
+    rootContext.initCode,
   ])
 
   const filteredEventResults = useMemo(() => {

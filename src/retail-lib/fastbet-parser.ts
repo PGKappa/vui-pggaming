@@ -42,7 +42,10 @@ export function parseFastBetInput(
 }
 
 // Aggiungi funzione per fetch delle quote
-async function fetchRaceData(event: UpcomingEvent): Promise<any> {
+async function fetchRaceData(
+  event: UpcomingEvent,
+  initCode: string,
+): Promise<any> {
   if (!event) {
     throw new Error('Event is required')
   }
@@ -54,7 +57,7 @@ async function fetchRaceData(event: UpcomingEvent): Promise<any> {
         headers: {
           accept: 'application/json',
           'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
-          authorization: 'Bearer ffffffff-ffff-ffff-ffff-ffffffffffee',
+          authorization: `Bearer ${initCode}`,
           operator: 'pg',
           priority: 'u=1, i',
           'sec-ch-ua':
@@ -91,13 +94,14 @@ async function fetchRaceData(event: UpcomingEvent): Promise<any> {
 export async function createBetFromFastCode(
   fastCode: FastBetCode,
   currentEvent: UpcomingEvent,
+  initCode: string,
 ): Promise<Bet[] | null> {
   if (!currentEvent) {
     return null
   }
 
   // Fetch delle quote dall'API
-  const raceData = await fetchRaceData(currentEvent)
+  const raceData = await fetchRaceData(currentEvent, initCode)
 
   if (!raceData) {
     return null
