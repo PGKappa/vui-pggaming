@@ -164,7 +164,7 @@ export default function UpcomingRaceCard({
       setIsLoading(true)
       try {
         const response = await fetch(
-          `https://apidev.pgvirtual.eu/api/event/info/${race.extId}/${race.id}`,
+          `https://apisuprema.pgvirtual.eu/api/event/info/${race.extId}/${race.id}`,
           {
             headers: {
               accept: 'application/json',

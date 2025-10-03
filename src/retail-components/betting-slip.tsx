@@ -343,7 +343,7 @@ export default function BettingSlip({
       )
 
       const response = await fetch(
-        'https://apidev.pgvirtual.eu/api/ticket/add',
+        'https://apisuprema.pgvirtual.eu/api/ticket/add',
         {
           method: 'POST',
           headers: {

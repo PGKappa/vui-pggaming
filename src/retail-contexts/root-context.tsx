@@ -778,7 +778,7 @@ export default function RootContextProvider(props: {
 
       try {
         const response = await fetch(
-          'https://apidev.pgvirtual.eu/api/event/list',
+          'https://apisuprema.pgvirtual.eu/api/event/list',
           {
             headers: {
               accept: 'application/json',
@@ -855,7 +855,7 @@ export default function RootContextProvider(props: {
                 let detailedResult = null
                 try {
                   const response = await fetch(
-                    `https://apidev.pgvirtual.eu/api/event/results/${event.ext_pal_id}/${event.int_event_id}`,
+                    `https://apisuprema.pgvirtual.eu/api/event/results/${event.ext_pal_id}/${event.int_event_id}`,
                     {
                       headers: {
                         accept: 'application/json',
@@ -915,7 +915,7 @@ export default function RootContextProvider(props: {
                 let detailedResult = null
                 try {
                   const response = await fetch(
-                    `https://apidev.pgvirtual.eu/api/event/results/${event.ext_pal_id}/${event.int_event_id}`,
+                    `https://apisuprema.pgvirtual.eu/api/event/results/${event.ext_pal_id}/${event.int_event_id}`,
                     {
                       headers: {
                         accept: 'application/json',

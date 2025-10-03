@@ -61,7 +61,7 @@ export default function SearchEventResults() {
     async (extId: string, eventId: string) => {
       try {
         const response = await fetch(
-          `https://apidev.pgvirtual.eu/api/event/results/${extId}/${eventId}`,
+          `https://apisuprema.pgvirtual.eu/api/event/results/${extId}/${eventId}`,
           {
             headers: {
               accept: 'application/json',
@@ -120,7 +120,7 @@ export default function SearchEventResults() {
           setIsLoading(true)
           try {
             const response = await fetch(
-              'https://apidev.pgvirtual.eu/api/event/list',
+              'https://apisuprema.pgvirtual.eu/api/event/list',
               {
                 headers: {
                   accept: 'application/json',
@@ -214,7 +214,7 @@ export default function SearchEventResults() {
         }
 
         const response = await fetch(
-          'https://apidev.pgvirtual.eu/api/event/results/list',
+          'https://apisuprema.pgvirtual.eu/api/event/results/list',
           {
             headers: {
               accept: 'application/json',

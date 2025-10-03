@@ -52,7 +52,7 @@ async function fetchRaceData(
 
   try {
     const response = await fetch(
-      `https://apidev.pgvirtual.eu/api/event/info/${event.extId}/${event.id}`,
+      `https://apisuprema.pgvirtual.eu/api/event/info/${event.extId}/${event.id}`,
       {
         headers: {
           accept: 'application/json',
