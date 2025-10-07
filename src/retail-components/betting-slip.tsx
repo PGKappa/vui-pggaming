@@ -803,7 +803,7 @@ export default function BettingSlip({
                   <Separator />
 
                   {/* ACCORDION GRUPPI con altezza fissa */}
-                  <div className="max-h-[150px] overflow-y-auto">
+                  <div className="max-h-[200px] overflow-y-auto">
                     <Accordion type="multiple" className="w-full">
                       {systemGroups.map((group) => (
                         <AccordionItem
