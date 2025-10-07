@@ -30,6 +30,7 @@ import {
 } from './ui/table'
 import { toast } from 'sonner'
 import SoccerFastBet from './soccer-fast-bet'
+import Image from 'next/image'
 
 export type BetMode = 'SINGLE' | 'MULTIPLE' | 'SYSTEM'
 
@@ -417,12 +418,28 @@ export default function BettingSlip({
       data-testid="betting-slip"
     >
       <div className="grid grid-cols-2 text-center">
-        <span className="col-span-2 flex h-[61.17px] w-full flex-col items-center justify-center bg-accent text-[19px] font-semibold text-accent-foreground">
-          {t('bet_slip')} ( {betEntries.length} )
-        </span>
+        <div className="col-span-2 flex h-[74.2px] w-full flex-row items-center justify-between bg-accent px-5">
+          <span className="items-start text-[19px] font-semibold text-accent-foreground">
+            {t('bet_slip').toUpperCase()} ({betEntries.length})
+          </span>
+          <Button
+            variant="ghost"
+            className="group size-7"
+            size="icon"
+            onClick={removeAllBets}
+          >
+            <Image
+              src="/bin.svg"
+              alt="Bin"
+              width={40}
+              height={20}
+              className="size-6 object-contain brightness-0 invert filter"
+            />
+          </Button>
+        </div>
 
         <div
-          className={`relative flex h-12 w-full flex-col items-center justify-center ${
+          className={`relative flex h-16 w-full flex-col items-center justify-center ${
             isSystemToggleEnabled ? 'cursor-pointer' : ''
           } ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'bg-betSlip' : 'bg-gray-100'}`}
           onClick={
@@ -435,8 +452,8 @@ export default function BettingSlip({
             className={`text-[16px] ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'font-semibold text-betSlip-header-foreground' : 'text-betSlip-foreground'}`}
           >
             {betMode === 'SINGLE'
-              ? t('single')
-              : `${t('multiple')} ( ${Object.entries(betsByEvent).length} )`}
+              ? `${t('single').toUpperCase()}`
+              : `${t('multiple').toUpperCase()} (${Object.entries(betsByEvent).length})`}
           </span>
 
           {betMode === 'SINGLE' ||
@@ -458,7 +475,7 @@ export default function BettingSlip({
           <span
             className={`text-[16px] ${betMode === 'SYSTEM' ? 'font-semibold text-betSlip-header-foreground' : 'text-betSlip-foreground'}`}
           >
-            {t('system')}
+            {t('system').toUpperCase()}
           </span>
           {betMode === 'SYSTEM' && (
             <div className="absolute bottom-0.5 h-[4px] w-[156px] bg-betSlip-header-foreground"></div>
@@ -499,27 +516,57 @@ export default function BettingSlip({
 
       <Separator />
 
-      <CardFooter className="flex flex-col gap-2 bg-muted-foreground">
+      <CardFooter className="flex flex-col gap-2 bg-background">
         {betMode !== 'SYSTEM' ? (
           <>
-            <div className="flex justify-end bg-accent py-2 pr-[56px]">
-              <span className="text-[16px] font-bold text-accent-foreground">
-                {t('stake')}
+            <div className="bg-accent py-3"></div>
+
+            {/* TOTALE QUOTA section */}
+            <div className="flex flex-row items-center justify-between px-4 py-3 text-foreground">
+              <span className="text-[16px] font-semibold">
+                {t('total_odd').toUpperCase()}
+              </span>
+              <span className="text-[16px] font-bold">
+                {totalOdds.toFixed(2)}
               </span>
             </div>
-            <div className="flex flex-row items-center justify-between p-2">
-              <span className="text-[16px] font-semibold">{t('total')}</span>
+            <Separator />
+
+            {/* Quick stake buttons */}
+            <div className="grid grid-cols-5 gap-2 px-2">
+              {[5, 10, 20, 30, 50].map((amount) => (
+                <Button
+                  key={amount}
+                  variant="outline"
+                  size="sm"
+                  className="h-8 bg-muted-foreground text-md"
+                  onClick={() => setGlobal((prev) => prev + amount)}
+                >
+                  € {amount}
+                </Button>
+              ))}
+            </div>
+
+            {/* IMPORTO section */}
+            <div className="flex flex-row items-center justify-between px-4 py-3">
+              <div className="flex items-center gap-2">
+                <span className="text-[16px] font-semibold">
+                  {t('amount').toUpperCase()}
+                </span>
+              </div>
               <StakeInputDialog value={global} setValue={setGlobal} />
             </div>
-            <div className="flex flex-col gap-1 px-2 text-[16px]">
-              <div className="flex justify-between">
-                <span>{t('total_odd')}</span>
-                <span>{totalOdds.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between font-bold">
-                <span>{t('potential_win')}</span>
-                <span>€ {potentialWinning.toFixed(2)}</span>
-              </div>
+
+            <Separator />
+
+            {/* VINCITA POTENZIALE section */}
+            <div className="flex flex-row items-center justify-between px-4 py-3 text-foreground">
+              <span className="text-[16px] font-semibold">
+                {t('potential_win').toUpperCase()}
+              </span>
+              <span className="text-[16px] font-bold">
+                € {potentialWinning.toFixed(2)}
+              </span>
             </div>
           </>
         ) : (
@@ -634,27 +681,17 @@ export default function BettingSlip({
           </div>
         )}
 
-        <div className="flex flex-row gap-2 px-2">
-          <Button
-            variant="ghost"
-            size="lg"
-            className="w-1/3 bg-betSlip text-[16px] font-bold text-betSlip-header-foreground"
-            onClick={removeAllBets}
-            disabled={isSubmitting}
-          >
-            {t('remove_all')}
-          </Button>
-
-          <Button
-            variant="betNow"
-            disabled={betEntries.length === 0 || isSubmitting}
-            size="lg"
-            className="w-2/3 text-[16px] font-bold"
-            onClick={handleBetNow}
-          >
-            {isSubmitting ? t('submitting') : t('bet_now')}
-          </Button>
-        </div>
+        <Button
+          variant="betNow"
+          disabled={betEntries.length === 0 || isSubmitting}
+          size="lg"
+          className="w-full text-[16px] font-bold"
+          onClick={handleBetNow}
+        >
+          {isSubmitting
+            ? t('submitting').toUpperCase()
+            : t('bet_now').toUpperCase()}
+        </Button>
 
         {selectedEvent?.discipline === 'SOCCER' ? (
           <SoccerFastBet selectedEvent={selectedEvent} />

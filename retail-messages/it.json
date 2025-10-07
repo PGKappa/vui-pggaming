@@ -135,6 +135,7 @@
   "ticket_id": "ID Biglietto",
   "date_n_time": "Data e Ora",
   "staked_amount": "Importo Puntato",
+  "amount": "Importo",
   "type": "Tipo",
   "details": "Dettagli",
   "page_total": "Totale Pagina",
