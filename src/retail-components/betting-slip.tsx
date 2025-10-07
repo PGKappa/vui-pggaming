@@ -701,7 +701,7 @@ export default function BettingSlip({
             <Separator />
 
             {/* Quick stake buttons */}
-            <div className="grid grid-cols-5 gap-2 px-2">
+            <div className="grid grid-cols-5 gap-2 p-2 pt-4">
               {[5, 10, 20, 30, 50].map((amount) => (
                 <Button
                   key={amount}
@@ -728,7 +728,7 @@ export default function BettingSlip({
             <Separator />
 
             {/* VINCITA POTENZIALE section */}
-            <div className="flex flex-row items-center justify-between px-4 py-3 text-foreground">
+            <div className="flex flex-row items-center justify-between px-4 py-4 text-foreground">
               <span className="text-[16px] font-semibold">
                 {t('potential_win').toUpperCase()}
               </span>
@@ -752,7 +752,7 @@ export default function BettingSlip({
                 </AccordionTrigger>
                 <AccordionContent className="pb-0">
                   {/* CONTROLLI DISTRIBUZIONE STAKE */}
-                  <div className="space-y-3 px-4 py-3">
+                  <div className="space-y-3 px-4 pb-3">
                     <div className="flex items-center justify-between gap-2">
                       <Checkbox
                         checked={allGroupsSelected}
@@ -957,7 +957,7 @@ export default function BettingSlip({
             (betMode !== 'SYSTEM' && global <= 0) ||
             (betMode === 'SYSTEM' && totalSystemStake <= 0)
           }
-          className="w-full text-[16px] font-bold"
+          className="h-12 w-full text-[19px] font-bold"
         >
           {isSubmitting ? t('submitting') : t('bet_now').toUpperCase()}
         </Button>
