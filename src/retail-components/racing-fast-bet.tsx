@@ -5,13 +5,13 @@ import {
   createBetFromFastCode,
   parseFastBetInput,
 } from '@/retail-lib/fastbet-parser'
+import { Search } from 'lucide-react'
+import Image from 'next/image'
 import { useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import { Dialog, DialogContent, DialogTrigger } from './ui/dialog'
 import { Button } from './ui/button'
-import Image from 'next/image'
-import { Search } from 'lucide-react'
+import { Dialog, DialogContent, DialogTrigger } from './ui/dialog'
 
 export default function RacingFastBet({
   selectedEvent,
