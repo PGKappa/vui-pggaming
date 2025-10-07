@@ -12,22 +12,27 @@ import {
   Discipline,
   BetEntry,
 } from '@/retail-lib/types'
-import { RotateCcwIcon } from 'lucide-react'
+import {
+  RotateCcwIcon,
+  PlusIcon,
+  MinusIcon,
+  DivideIcon,
+  CornerDownLeft,
+} from 'lucide-react'
 import { useContext, useMemo, useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import EventBets from './event-bets'
 import RacingFastBet from './racing-fast-bet'
 import StakeInputDialog from './stake-input-dialog'
 import { Separator } from './ui/separator'
+import { Input } from './ui/input'
+import { Checkbox } from './ui/checkbox'
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableFooter,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from './ui/table'
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from './ui/accordion'
 import { toast } from 'sonner'
 import SoccerFastBet from './soccer-fast-bet'
 import Image from 'next/image'
@@ -102,6 +107,15 @@ export default function BettingSlip({
     Record<string, number>
   >({})
 
+  // Stato per il controllo "Dividi/Aggiungi" delle combinazioni
+  const [systemDistributeStake, setSystemDistributeStake] = useState(0)
+
+  // Stati per i checkbox dei gruppi
+  const [selectedGroups, setSelectedGroups] = useState<Record<string, boolean>>(
+    {},
+  )
+  const [allGroupsSelected, setAllGroupsSelected] = useState(false)
+
   const baseSystemGroups = useMemo(() => {
     if (betMode !== 'SYSTEM') {
       return []
@@ -125,6 +139,29 @@ export default function BettingSlip({
       setSystemToggleMode('MULTIPLE')
     }
   }, [isSystemToggleEnabled, systemToggleMode, setSystemToggleMode])
+
+  // Inizializza i checkbox quando cambiano i gruppi di sistema
+  useEffect(() => {
+    if (betMode === 'SYSTEM' && baseSystemGroups.length > 0) {
+      const initialSelections: Record<string, boolean> = {}
+      const initialStakes: Record<string, number> = {}
+
+      baseSystemGroups.forEach((group) => {
+        // Per default, tutti i gruppi sono selezionati con importo minimo
+        initialSelections[group.name] = true
+        initialStakes[group.name] = MINIMUM_STAKE
+      })
+
+      setSelectedGroups(initialSelections)
+      setAllGroupsSelected(true)
+      setSystemGroupStakes(initialStakes)
+    } else {
+      // Reset quando non è più SYSTEM mode
+      setSelectedGroups({})
+      setAllGroupsSelected(false)
+      setSystemGroupStakes({})
+    }
+  }, [betMode, baseSystemGroups])
 
   // Funzione per calcolare il type basato sulle discipline nel ticket
   const getTicketType = (entries: BetEntry[]): string => {
@@ -158,6 +195,137 @@ export default function BettingSlip({
       return 'single'
     }
   }
+
+  // Funzioni per gestire la distribuzione degli importi nel sistema
+  const handleDistributeStake = () => {
+    if (systemDistributeStake <= 0 || systemGroups.length === 0) return
+
+    // Opera solo sui gruppi selezionati
+    const selectedGroupsList = systemGroups.filter(
+      (group) => selectedGroups[group.name],
+    )
+    if (selectedGroupsList.length === 0) return
+
+    const stakePerGroup = systemDistributeStake / selectedGroupsList.length
+    const newStakes: Record<string, number> = {}
+
+    selectedGroupsList.forEach((group) => {
+      newStakes[group.name] = stakePerGroup
+    })
+
+    setSystemGroupStakes((prev) => ({
+      ...prev,
+      ...newStakes,
+    }))
+  }
+
+  const handleAddStakeToAll = () => {
+    if (systemDistributeStake <= 0) return
+
+    const newStakes: Record<string, number> = {}
+
+    // Opera solo sui gruppi selezionati
+    systemGroups.forEach((group) => {
+      if (selectedGroups[group.name]) {
+        newStakes[group.name] =
+          (systemGroupStakes[group.name] || 0) + systemDistributeStake
+      }
+    })
+
+    setSystemGroupStakes((prev) => ({
+      ...prev,
+      ...newStakes,
+    }))
+  }
+
+  const handleUpdateGroupStake = (groupName: string, value: number) => {
+    setSystemGroupStakes((prev) => ({
+      ...prev,
+      [groupName]: Math.max(0, value),
+    }))
+  }
+
+  // Importo minimo per combinazione
+  const MINIMUM_STAKE = 0.5
+
+  // Funzioni per gestire i checkbox
+  // Azione 4: Checkbox principale (DIVIDI/AGGIUNGI) - seleziona/deseleziona tutti
+  const handleAllGroupsToggle = (checked: boolean) => {
+    setAllGroupsSelected(checked)
+    const newSelectedGroups: Record<string, boolean> = {}
+    const newStakes: Record<string, number> = {}
+
+    systemGroups.forEach((group) => {
+      newSelectedGroups[group.name] = checked
+
+      if (checked) {
+        // Quando viene selezionato, sempre importo minimo (anche se riflaggato)
+        newStakes[group.name] = MINIMUM_STAKE
+      } else {
+        // Quando viene deselezionato, azzera
+        newStakes[group.name] = 0
+      }
+    })
+
+    setSelectedGroups(newSelectedGroups)
+    setSystemGroupStakes((prev) => ({
+      ...prev,
+      ...newStakes,
+    }))
+  }
+
+  // Azione 1 & 2: Checkbox singolo gruppo - comportamento secondo guida
+  const handleGroupToggle = (groupName: string, checked: boolean) => {
+    setSelectedGroups((prev) => ({
+      ...prev,
+      [groupName]: checked,
+    }))
+
+    // Azione 2: Comportamento secondo la guida
+    if (checked) {
+      // Quando viene selezionato/riselezionato, SEMPRE importo minimo
+      setSystemGroupStakes((prev) => ({
+        ...prev,
+        [groupName]: MINIMUM_STAKE,
+      }))
+    } else {
+      // Quando viene deselezionato, va a 0
+      setSystemGroupStakes((prev) => ({
+        ...prev,
+        [groupName]: 0,
+      }))
+    }
+
+    // Aggiorna lo stato del checkbox "tutti" in base ai singoli
+    const updatedSelections = { ...selectedGroups, [groupName]: checked }
+    const allSelected = systemGroups.every(
+      (group) => updatedSelections[group.name],
+    )
+    setAllGroupsSelected(allSelected)
+  }
+
+  // Calcoli per il sistema - solo gruppi selezionati
+  const totalSystemStake = useMemo(() => {
+    return systemGroups
+      .filter((group) => selectedGroups[group.name])
+      .reduce((sum, group) => sum + group.stake, 0)
+  }, [systemGroups, selectedGroups])
+
+  const totalSystemCombinations = useMemo(() => {
+    return systemGroups
+      .filter((group) => selectedGroups[group.name])
+      .reduce((sum, group) => sum + group.combinations.length, 0)
+  }, [systemGroups, selectedGroups])
+
+  const totalSystemPotentialWin = useMemo(() => {
+    return systemGroups
+      .filter((group) => selectedGroups[group.name])
+      .reduce((sum, group) => {
+        if (group.stake === 0) return sum
+        // Calcolo della vincita potenziale basata su minWin e maxWin
+        return sum + group.maxWin * group.stake
+      }, 0)
+  }, [systemGroups, selectedGroups])
 
   const handleBetNow = async () => {
     if (betEntries.length === 0) {
@@ -516,7 +684,7 @@ export default function BettingSlip({
 
       <Separator />
 
-      <CardFooter className="flex flex-col gap-2 bg-background">
+      <CardFooter className="flex flex-col bg-background">
         {betMode !== 'SYSTEM' ? (
           <>
             <div className="bg-accent py-3"></div>
@@ -570,135 +738,241 @@ export default function BettingSlip({
             </div>
           </>
         ) : (
-          <div className="rounded-md pt-2 text-sm">
-            <ScrollArea>
-              <div className="max-h-[310px] min-w-full">
-                <Table>
-                  <TableHeader className="bg-accent text-accent-foreground">
-                    <TableRow className="border-border">
-                      <TableHead className="text-left text-[13px] font-bold tracking-wide">
-                        {t('group')}
-                      </TableHead>
-                      <TableHead className="text-center text-[13px] font-bold tracking-wide">
-                        {t('comb')}
-                      </TableHead>
-                      <TableHead className="text-center text-[13px] font-bold tracking-wide">
-                        {t('min')}.€
-                      </TableHead>
-                      <TableHead className="text-center text-[13px] font-bold tracking-wide">
-                        {t('max')}.€
-                      </TableHead>
-                      <TableHead className="text-center text-[13px] font-bold tracking-wide">
-                        {t('stake')}
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {systemGroups.map((group) => (
-                      <TableRow
-                        key={group.name}
-                        className="border-border bg-primary-foreground text-[14px]"
-                      >
-                        <TableCell className="py-1 font-semibold">
-                          {group.name}
-                        </TableCell>
-                        <TableCell className="py-1 text-center">
-                          {group.combinations.length}
-                        </TableCell>
-                        <TableCell className="py-1 text-center">
-                          {(group.minWin * group.stake).toFixed(2)}
-                        </TableCell>
-                        <TableCell className="py-1 text-center font-bold">
-                          {(group.maxWin * group.stake).toFixed(2)}
-                        </TableCell>
-                        <TableCell className="py-1">
-                          <StakeInputDialog
-                            value={
-                              systemGroups.find((g) => g.name === group.name)
-                                ?.stake ?? 0
+          <>
+            {/* HEADER ACCORDION GENERALE */}
+            <Accordion
+              type="single"
+              collapsible
+              defaultValue="combinations"
+              className="w-full"
+            >
+              <AccordionItem value="combinations" className="border-none">
+                <AccordionTrigger className="bg-accent px-4 py-1 text-accent-foreground hover:no-underline">
+                  {t('combinations').toUpperCase()}
+                </AccordionTrigger>
+                <AccordionContent className="pb-0">
+                  {/* CONTROLLI DISTRIBUZIONE STAKE */}
+                  <div className="space-y-3 px-4 py-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <Checkbox
+                        checked={allGroupsSelected}
+                        onCheckedChange={handleAllGroupsToggle}
+                      />
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm">
+                          {t('divide').toUpperCase()}
+                        </span>
+                        <div className="flex w-44 items-center border border-border">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={handleDistributeStake}
+                            disabled={systemDistributeStake <= 0}
+                            className="h-8 w-7 bg-bet p-3 text-[19px] text-bet-foreground"
+                          >
+                            <DivideIcon className="h-4 w-4" />
+                          </Button>
+                          <Input
+                            type="number"
+                            placeholder="0"
+                            value={systemDistributeStake || ''}
+                            onChange={(e) =>
+                              setSystemDistributeStake(
+                                Number(e.target.value) || 0,
+                              )
                             }
-                            setValue={(value) =>
-                              setSystemGroupStakes((prev) => ({
-                                ...prev,
-                                [group.name]: value,
-                              }))
-                            }
+                            className="flex-1 border-none text-center focus-visible:ring-0"
                           />
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                  <TableFooter className="text-[14px] font-semibold">
-                    <TableRow>
-                      <TableCell colSpan={4} className="text-left">
-                        {t('total')}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        €{' '}
-                        {systemGroups
-                          .reduce((sum, group) => sum + group.stake, 0)
-                          .toFixed(2)}
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell colSpan={4} className="text-left">
-                        {t('max')} {t('win')}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        €{' '}
-                        {systemGroups
-                          .reduce(
-                            (sum, group) =>
-                              sum +
-                              (group.stake > 0
-                                ? group.maxWin * group.stake
-                                : 0),
-                            0,
-                          )
-                          .toFixed(2)}
-                      </TableCell>
-                    </TableRow>
-                    <TableRow>
-                      <TableCell colSpan={4} className="text-left">
-                        {t('min')} {t('win')}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        €{' '}
-                        {systemGroups
-                          .reduce((min, group) => {
-                            if (group.stake === 0) return min
-                            return min === 0
-                              ? group.minWin * group.stake
-                              : Math.min(min, group.minWin * group.stake)
-                          }, 0)
-                          .toFixed(2)}
-                      </TableCell>
-                    </TableRow>
-                  </TableFooter>
-                </Table>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={handleAddStakeToAll}
+                            disabled={systemDistributeStake <= 0}
+                            className="h-8 w-7 bg-bet p-3 text-[19px] text-bet-foreground"
+                          >
+                            <CornerDownLeft className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        <span className="text-sm">
+                          {t('add').toUpperCase()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Separator />
+
+                  {/* ACCORDION GRUPPI con altezza fissa */}
+                  <div className="max-h-[150px] overflow-y-auto">
+                    <Accordion type="multiple" className="w-full">
+                      {systemGroups.map((group) => (
+                        <AccordionItem
+                          key={group.name}
+                          value={group.name}
+                          className="border-none bg-bet-foreground"
+                        >
+                          <AccordionTrigger className="bg-background px-4 py-2 hover:no-underline data-[state=open]:bg-muted">
+                            <div className="flex w-full items-center justify-between pr-4">
+                              <div className="flex items-center gap-2">
+                                {/* Checkbox singolo gruppo (Azione 1) */}
+                                <Checkbox
+                                  checked={selectedGroups[group.name] || false}
+                                  onCheckedChange={(checked) =>
+                                    handleGroupToggle(
+                                      group.name,
+                                      checked as boolean,
+                                    )
+                                  }
+                                  onClick={(e) => e.stopPropagation()}
+                                />
+                                <span className="font-bold">{group.name}</span>
+                                <span className="text-muted-background font-bold">
+                                  ({group.combinations.length})
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-4">
+                                <div className="flex items-center gap-1 border">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      handleUpdateGroupStake(
+                                        group.name,
+                                        Math.max(0, group.stake - 0.5),
+                                      )
+                                    }}
+                                    className="h-8 w-7 bg-bet p-3 text-[19px] text-bet-foreground"
+                                  >
+                                    <MinusIcon className="h-4 w-4" />
+                                  </Button>
+                                  <Input
+                                    type="number"
+                                    value={group.stake.toFixed(2)}
+                                    className="bg-background-foreground h-8 w-20 text-center"
+                                    readOnly
+                                  />
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      handleUpdateGroupStake(
+                                        group.name,
+                                        group.stake + 0.5,
+                                      )
+                                    }}
+                                    className="h-8 w-7 bg-bet p-3 text-[19px] text-bet-foreground"
+                                  >
+                                    <PlusIcon className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                          </AccordionTrigger>
+                          <AccordionContent className="px-4">
+                            <div className="grid grid-cols-3 text-sm">
+                              <div className="text-center">
+                                <div className="text-foreground">
+                                  {t('min').toUpperCase()}
+                                </div>
+                                <div className="font-semibold">
+                                  € {(group.minWin * group.stake).toFixed(2)}
+                                </div>
+                              </div>
+                              <div className="text-center">
+                                <div className="text-foreground">
+                                  {t('max').toUpperCase()}
+                                </div>
+                                <div className="font-semibold">
+                                  € {(group.maxWin * group.stake).toFixed(2)}
+                                </div>
+                              </div>
+                              <div className="text-center">
+                                <div className="text-foreground">
+                                  {t('total_played').toUpperCase()}
+                                </div>
+                                <div className="font-semibold">
+                                  €{' '}
+                                  {(
+                                    group.stake * group.combinations.length
+                                  ).toFixed(2)}
+                                </div>
+                              </div>
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                      ))}
+                    </Accordion>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+
+            <Separator />
+
+            {/* TOTALE COMBINAZIONI */}
+            <div className="flex flex-row items-center justify-between px-4 py-3 text-foreground">
+              <span className="text-[16px] font-semibold">
+                {t('total_combinations').toUpperCase()}
+              </span>
+              <span className="text-[16px] font-bold">
+                {totalSystemCombinations}/{totalSystemCombinations}
+              </span>
+            </div>
+
+            <Separator />
+
+            {/* IMPORTO */}
+            <div className="flex flex-row items-center justify-between px-4 py-3">
+              <div className="flex items-center gap-2">
+                <span className="text-[16px] font-semibold">
+                  {t('amount').toUpperCase()}
+                </span>
               </div>
-            </ScrollArea>
-          </div>
-        )}
+              <StakeInputDialog value={global} setValue={setGlobal} />
+            </div>
 
-        <Button
-          variant="betNow"
-          disabled={betEntries.length === 0 || isSubmitting}
-          size="lg"
-          className="w-full text-[16px] font-bold"
-          onClick={handleBetNow}
-        >
-          {isSubmitting
-            ? t('submitting').toUpperCase()
-            : t('bet_now').toUpperCase()}
-        </Button>
+            <Separator />
 
-        {selectedEvent?.discipline === 'SOCCER' ? (
-          <SoccerFastBet selectedEvent={selectedEvent} />
-        ) : (
-          <RacingFastBet selectedEvent={selectedEvent} />
+            {/* VINCITA POTENZIALE */}
+            <div className="flex flex-row items-center justify-between px-4 py-3 text-foreground">
+              <span className="text-[16px] font-semibold">
+                {t('potential_win').toUpperCase()}
+              </span>
+              <span className="text-[16px] font-bold">
+                € {totalSystemPotentialWin.toFixed(2)}
+              </span>
+            </div>
+          </>
         )}
       </CardFooter>
+
+      <div className="px-1 py-3">
+        <Button
+          variant="betNow"
+          onClick={handleBetNow}
+          disabled={
+            isSubmitting ||
+            (betMode !== 'SYSTEM' && global <= 0) ||
+            (betMode === 'SYSTEM' && totalSystemStake <= 0)
+          }
+          className="w-full text-[16px] font-bold"
+        >
+          {isSubmitting ? t('submitting') : t('bet_now').toUpperCase()}
+        </Button>
+      </div>
+
+      {/* FASTBET section */}
+      {selectedEvent && (
+        <div className="bg-background">
+          {selectedEvent?.discipline === 'SOCCER' ? (
+            <SoccerFastBet selectedEvent={selectedEvent} />
+          ) : (
+            <RacingFastBet selectedEvent={selectedEvent} />
+          )}
+        </div>
+      )}
     </Card>
   )
 }
