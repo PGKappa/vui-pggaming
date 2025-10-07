@@ -2,9 +2,9 @@ import { RootContext } from '@/retail-contexts/root-context'
 import { Discipline, EventResult, RaceResult } from '@/retail-lib/types'
 import { getRacerColors } from '@/retail-lib/utils'
 import { format } from 'date-fns'
-import { ChevronRight } from 'lucide-react'
+import { t } from 'i18next'
 import Image from 'next/image'
-import { useContext, useEffect, useMemo, useState, useCallback } from 'react'
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import LoadingSpinner from './loading-spinner'
@@ -24,7 +24,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select'
-import { t } from 'i18next'
 
 const dates = Array.from({ length: 10 }, (_, index) => {
   const date = new Date()
@@ -617,7 +616,6 @@ export default function SearchEventResults() {
                                 {t('completed').toUpperCase()}
                               </span>
                             </div>
-                            <ChevronRight className="h-6 w-6 shrink-0 transition-transform duration-200" />
                           </AccordionTrigger>
                           <AccordionContent>
                             <EventResultDetails eventResult={eventResult} />

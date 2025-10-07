@@ -5,13 +5,13 @@ import {
   createBetFromFastCode,
   parseFastBetInput,
 } from '@/retail-lib/fastbet-parser'
+import { Search } from 'lucide-react'
+import Image from 'next/image'
 import { useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-/* import RacingCodeList from './racing-code-list' */
-import { Dialog, DialogContent, DialogTrigger } from './ui/dialog'
 import { Button } from './ui/button'
-import Image from 'next/image'
+import { Dialog, DialogContent, DialogTrigger } from './ui/dialog'
 
 export default function RacingFastBet({
   selectedEvent,
@@ -34,197 +34,156 @@ export default function RacingFastBet({
     U: { name: 'Under/Over', selections: 0 },
   }
 
-  const [codeInput, setCodeInput] = useState('')
-  const [selectionInput, setSelectionInput] = useState('')
+  const [fastbetInput, setFastbetInput] = useState('')
 
   const { addBets } = useContext(BetsContext)
   const rootContext = useContext(RootContext)
 
-  const currentMarket = markets[codeInput.trim()]
-  const isSelectionInputDisabled =
-    !codeInput.trim() || currentMarket?.selections === 0
-
-  const handleSelectionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!currentMarket || currentMarket.selections === 0) return
-
-    const value = e.target.value
-    const numbersOnly = value.replace(/[^0-9]/g, '')
-
-    let formattedValue = ''
-    for (
-      let i = 0;
-      i < numbersOnly.length && i < currentMarket.selections;
-      i++
-    ) {
-      if (i > 0) formattedValue += '-'
-      formattedValue += numbersOnly[i]
-    }
-
-    setSelectionInput(formattedValue)
-  }
-
   const handleSubmit = async () => {
-    if (!codeInput.trim()) {
-      toast.error(t('enter_code'))
+    if (!fastbetInput.trim()) {
+      toast.error(t('enter_fastbet_code'))
       return
     }
 
-    if (
-      currentMarket &&
-      currentMarket.selections > 0 &&
-      !selectionInput.trim()
-    ) {
-      toast.error(t('enter_selection'))
+    // Parse the fastbet input to handle multiple bets separated by "/"
+    const trimmedInput = fastbetInput.trim().toUpperCase()
+    const betInputs = trimmedInput
+      .split('/')
+      .map((bet) => bet.trim())
+      .filter((bet) => bet.length > 0)
+
+    if (betInputs.length === 0) {
+      toast.error(t('enter_fastbet_code'))
       return
     }
 
-    if (
-      currentMarket &&
-      currentMarket.selections === 0 &&
-      selectionInput.trim()
-    ) {
-      toast.error(t('no_selection_needed'))
+    if (!selectedEvent) {
+      toast.error(t('no_event_selected'))
       return
     }
 
-    const parsedCode = parseFastBetInput(codeInput, selectionInput)
+    let totalBetsAdded = 0
+    const allMarketNames: string[] = []
 
-    if (!parsedCode) {
-      toast.error(t('invalid_code_selection'))
-      return
-    }
+    // Process each bet input
+    for (const betInput of betInputs) {
+      let code = ''
+      let selections = ''
 
-    if (currentMarket && currentMarket.selections > 0) {
-      const providedSelections = parsedCode.selections?.length || 0
-      if (providedSelections !== currentMarket.selections) {
+      // Check if input contains selections (numbers)
+      const hasNumbers = /\d/.test(betInput)
+
+      if (hasNumbers) {
+        // Extract letters (code) and numbers (selections)
+        const letters = betInput.match(/[A-Z]+/g)?.join('') || ''
+        const numbers = betInput.match(/\d+/g)?.join('-') || ''
+        code = letters
+        selections = numbers
+      } else {
+        // Only code provided
+        code = betInput
+      }
+
+      const parsedCode = parseFastBetInput(code, selections)
+
+      if (!parsedCode) {
+        toast.error(t('invalid_fastbet_format'))
+        return
+      }
+
+      const currentMarket = markets[parsedCode.code]
+
+      if (currentMarket && currentMarket.selections > 0 && !selections) {
         toast.error(
-          t('wrong_selection_count', {
-            expected: currentMarket.selections,
-            provided: providedSelections,
-          }) ||
-            `Expected ${currentMarket.selections} selections, got ${providedSelections}`,
+          t('selections_required_for_market', { market: currentMarket.name }),
         )
         return
       }
+
+      if (currentMarket && currentMarket.selections > 0) {
+        const providedSelections = parsedCode.selections?.length || 0
+        if (providedSelections !== currentMarket.selections) {
+          toast.error(
+            t('wrong_selection_count', {
+              expected: currentMarket.selections,
+              provided: providedSelections,
+            }) ||
+              `Expected ${currentMarket.selections} selections, got ${providedSelections}`,
+          )
+          return
+        }
+      }
+
+      const bets = await createBetFromFastCode(
+        parsedCode,
+        selectedEvent,
+        rootContext.initCode || '',
+      )
+
+      if (!bets || bets.length === 0) {
+        toast.error(t('no_odds_found'))
+        return
+      }
+
+      const marketName = markets[parsedCode.code]?.name || 'FastBet'
+      allMarketNames.push(marketName)
+
+      addBets(marketName, bets)
+      totalBetsAdded += bets.length
     }
 
-    if (!selectedEvent) {
-      toast.error(t('no_event_selected'))
-      return
-    }
+    // Success message showing all bets added
+    toast.success(`${totalBetsAdded} ${t('bets_added')}`)
 
-    const bets = await createBetFromFastCode(
-      parsedCode,
-      selectedEvent,
-      rootContext.initCode || '',
-    )
-
-    if (!bets || bets.length === 0) {
-      toast.error(t('no_odds_found'))
-      return
-    }
-
-    const marketName = markets[parsedCode.code]?.name || 'FastBet'
-
-    addBets(marketName, bets)
-    toast.success(`${bets.length} ${t('bets_added')}`)
-
-    setCodeInput('')
-    setSelectionInput('')
+    setFastbetInput('')
   }
-
-  /* const handleCodeClick = (code: string) => {
-    setCodeInput(code)
-    setSelectionInput('') // Clear selection when changing code
-  }
-
-  const handleDirectBet = async (code: string) => {
-    if (!selectedEvent) {
-      toast.error(t('no_event_selected'))
-      return
-    }
-
-    const parsedCode = parseFastBetInput(code, '')
-
-    if (!parsedCode) {
-      toast.error(t('invalid_code_selection'))
-      return
-    }
-
-    const bets = await createBetFromFastCode(parsedCode, selectedEvent)
-
-    if (!bets || bets.length === 0) {
-      toast.error(t('no_odds_found'))
-      return
-    }
-
-    const marketName = markets[parsedCode.code]?.name || 'FastBet'
-
-    addBets(marketName, bets)
-    toast.success(`${bets.length} ${t('bets_added')}`)
-  } */
 
   const submitOnEnter = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
+      e.preventDefault()
       handleSubmit()
     }
   }
 
   return (
-    <div className="flex w-full flex-col gap-2 bg-accent px-2 py-3">
-      <div className="flex flex-row items-center justify-between">
-        <span className="text-[16px] font-bold text-bet-foreground">
-          {t('fastbet')}
-        </span>
-        {/* <RacingCodeList
-          markets={markets}
-          onCodeClick={handleCodeClick}
-          onDirectBet={handleDirectBet}
-        /> */}
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button className="w-32 bg-bet text-[16px] font-bold text-bet-foreground">
+    <div className="flex h-14 w-full items-center gap-2 bg-accent">
+      <div className="relative flex-1">
+        <Search className="absolute left-3 top-1/2 h-6 w-6 -translate-y-1/2 text-background" />
+        <Input
+          className="h-10 w-full bg-accent pl-10 text-center text-[19px] font-bold text-accent-foreground"
+          placeholder="FASTBET"
+          value={fastbetInput}
+          onChange={(e) => setFastbetInput(e.target.value.toUpperCase())}
+          onKeyDown={submitOnEnter}
+        />
+      </div>
+
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-14 w-14 bg-tertiary text-2xl font-bold text-tertiary-foreground hover:bg-tertiary/90"
+          >
+            i
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="max-h-[75vh] max-w-[75vw]">
+          <div className="flex flex-col items-center justify-center bg-accent pt-4">
+            <h2 className="h-10 text-[19px] font-bold text-accent-foreground">
               {t('code_list')}
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-h-[75vh] max-w-[75vw]">
-            <div className="flex flex-col items-center justify-center bg-accent pt-4">
-              <h2 className="h-10 text-[19px] font-bold text-accent-foreground">
-                {t('code_list')}
-              </h2>
-              <Image
-                src="/dogshorses-codes-image.png"
-                alt="Codici scommesse calcio"
-                width={1920}
-                height={1080}
-                className="h-auto w-full object-contain"
-                priority
-              />
-            </div>
-          </DialogContent>
-        </Dialog>
-      </div>
-      <div className="flex flex-row items-center gap-1">
-        <Input
-          className="text-bold h-10 w-1/4 text-[16px]"
-          placeholder={t('code')}
-          value={codeInput}
-          onChange={(e) => setCodeInput(e.target.value.toUpperCase())}
-          onKeyDown={submitOnEnter}
-        />
-        <Input
-          className="text-bold h-10 w-3/4 text-[16px]"
-          placeholder={
-            currentMarket?.selections > 1
-              ? t('selection') + ' (e.g., 1-2-3)'
-              : t('selection')
-          }
-          value={selectionInput}
-          onChange={handleSelectionChange}
-          onKeyDown={submitOnEnter}
-          disabled={isSelectionInputDisabled}
-        />
-      </div>
+            </h2>
+            <Image
+              src="/dogshorses-codes-image.png"
+              alt="Codici scommesse cani e cavalli"
+              width={1920}
+              height={1080}
+              className="h-auto w-full object-contain"
+              priority
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
