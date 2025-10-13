@@ -6,6 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const BASE_API_URL = process.env.NEXT_PUBLIC_BASE_API_URL
+export const PGVIRTUAL_API_URL = process.env.NEXT_PUBLIC_PGVIRTUAL_API_URL
 
 export function getTimeDistanceFromNow(targetTime: Date) {
   const diff = targetTime.getTime() - Date.now()
@@ -22,6 +23,26 @@ export function getTimeDistanceFromNow(targetTime: Date) {
     .padStart(2, '0')
 
   return `${minutes}:${seconds}`
+}
+
+// Helper per chiamate API PGVirtual pulite
+export function createPGVirtualAPICall(
+  endpoint: string,
+  initCode: string,
+  options?: RequestInit,
+) {
+  return fetch(`${PGVIRTUAL_API_URL}${endpoint}`, {
+    ...options,
+    headers: {
+      accept: 'application/json',
+      authorization: `Bearer ${initCode}`,
+      'content-type': 'application/json',
+      operator: 'pg',
+      ...options?.headers,
+    },
+    mode: 'cors',
+    credentials: 'include',
+  })
 }
 
 // Colori delle pettorine per cani e cavalli con codici colore esadecimali
