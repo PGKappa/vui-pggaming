@@ -1,6 +1,6 @@
 import { RootContext } from '@/retail-contexts/root-context'
 import { Discipline, EventResult, RaceResult } from '@/retail-lib/types'
-import { getRacerColors } from '@/retail-lib/utils'
+import { getRacerColors, createPGVirtualAPICall } from '@/retail-lib/utils'
 import { format } from 'date-fns'
 import { t } from 'i18next'
 import Image from 'next/image'
@@ -59,29 +59,9 @@ export default function SearchEventResults() {
   const fetchDetailedEventResult = useCallback(
     async (extId: string, eventId: string) => {
       try {
-        const response = await fetch(
-          `https://apisuprema.pgvirtual.eu/api/event/results/${extId}/${eventId}`,
-          {
-            headers: {
-              accept: 'application/json',
-              'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
-              authorization: `Bearer ${rootContext.initCode}`,
-              'content-type': 'application/json',
-              operator: 'pg',
-              priority: 'u=1, i',
-              'sec-ch-ua':
-                '"Not)A;Brand";v="8", "Chromium";v="138", "Google Chrome";v="138"',
-              'sec-ch-ua-mobile': '?1',
-              'sec-ch-ua-platform': '"Android"',
-              'sec-fetch-dest': 'empty',
-              'sec-fetch-mode': 'cors',
-              'sec-fetch-site': 'same-site',
-            },
-            referrer: 'https://test.pgvirtual.eu/',
-            method: 'GET',
-            mode: 'cors',
-            credentials: 'include',
-          },
+        const response = await createPGVirtualAPICall(
+          `/api/event/results/${extId}/${eventId}`,
+          rootContext.initCode || '',
         )
 
         if (!response.ok) {
@@ -118,29 +98,9 @@ export default function SearchEventResults() {
         const fetchRacingResults = async () => {
           setIsLoading(true)
           try {
-            const response = await fetch(
-              'https://apisuprema.pgvirtual.eu/api/event/list',
-              {
-                headers: {
-                  accept: 'application/json',
-                  'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
-                  authorization: `Bearer ${rootContext.initCode}`,
-                  operator: 'pg',
-                  priority: 'u=1, i',
-                  'sec-ch-ua':
-                    '"Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"',
-                  'sec-ch-ua-mobile': '?1',
-                  'sec-ch-ua-platform': '"Android"',
-                  'sec-fetch-dest': 'empty',
-                  'sec-fetch-mode': 'cors',
-                  'sec-fetch-site': 'same-site',
-                },
-                referrer: 'https://test.pgvirtual.eu/',
-                referrerPolicy: 'strict-origin-when-cross-origin',
-                method: 'GET',
-                mode: 'cors',
-                credentials: 'include',
-              },
+            const response = await createPGVirtualAPICall(
+              '/api/event/list',
+              rootContext.initCode || '',
             )
 
             if (!response.ok) {
@@ -212,29 +172,12 @@ export default function SearchEventResults() {
           dateEnd: apiDateFormat,
         }
 
-        const response = await fetch(
-          'https://apisuprema.pgvirtual.eu/api/event/results/list',
+        const response = await createPGVirtualAPICall(
+          '/api/event/results/list',
+          rootContext.initCode || '',
           {
-            headers: {
-              accept: 'application/json',
-              'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
-              authorization: `Bearer ${rootContext.initCode}`,
-              'content-type': 'application/json',
-              operator: 'pg',
-              priority: 'u=1, i',
-              'sec-ch-ua':
-                '"Not)A;Brand";v="8", "Chromium";v="138", "Google Chrome";v="138"',
-              'sec-ch-ua-mobile': '?1',
-              'sec-ch-ua-platform': '"Android"',
-              'sec-fetch-dest': 'empty',
-              'sec-fetch-mode': 'cors',
-              'sec-fetch-site': 'same-site',
-            },
-            referrer: 'https://test.pgvirtual.eu/',
-            body: JSON.stringify(requestBody),
             method: 'POST',
-            mode: 'cors',
-            credentials: 'include',
+            body: JSON.stringify(requestBody),
           },
         )
 
