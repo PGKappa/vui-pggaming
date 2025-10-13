@@ -11,7 +11,7 @@ import {
   UpcomingRound,
   User,
 } from '@/retail-lib/types'
-import { BASE_API_URL } from '@/retail-lib/utils'
+import { BASE_API_URL, createPGVirtualAPICall } from '@/retail-lib/utils'
 import { createContext, useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -777,29 +777,9 @@ export default function RootContextProvider(props: {
       }
 
       try {
-        const response = await fetch(
-          'https://apisuprema.pgvirtual.eu/api/event/list',
-          {
-            headers: {
-              accept: 'application/json',
-              'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
-              authorization: `Bearer ${initCode}`,
-              operator: 'pg',
-              priority: 'u=1, i',
-              'sec-ch-ua':
-                '"Google Chrome";v="137", "Chromium";v="137", "Not/A)Brand";v="24"',
-              'sec-ch-ua-mobile': '?1',
-              'sec-ch-ua-platform': '"Android"',
-              'sec-fetch-dest': 'empty',
-              'sec-fetch-mode': 'cors',
-              'sec-fetch-site': 'same-site',
-            },
-            referrer: 'https://test.pgvirtual.eu/',
-            referrerPolicy: 'strict-origin-when-cross-origin',
-            method: 'GET',
-            mode: 'cors',
-            credentials: 'include',
-          },
+        const response = await createPGVirtualAPICall(
+          '/api/event/list',
+          initCode,
         )
 
         if (!response.ok) {
@@ -854,30 +834,9 @@ export default function RootContextProvider(props: {
                 // Fetch dettagli completi come nel search-event-results
                 let detailedResult = null
                 try {
-                  const response = await fetch(
-                    `https://apisuprema.pgvirtual.eu/api/event/results/${event.ext_pal_id}/${event.int_event_id}`,
-                    {
-                      headers: {
-                        accept: 'application/json',
-                        'accept-language':
-                          'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
-                        authorization: `Bearer ${initCode}`,
-                        'content-type': 'application/json',
-                        operator: 'pg',
-                        priority: 'u=1, i',
-                        'sec-ch-ua':
-                          '"Not)A;Brand";v="8", "Chromium";v="138", "Google Chrome";v="138"',
-                        'sec-ch-ua-mobile': '?1',
-                        'sec-ch-ua-platform': '"Android"',
-                        'sec-fetch-dest': 'empty',
-                        'sec-fetch-mode': 'cors',
-                        'sec-fetch-site': 'same-site',
-                      },
-                      referrer: 'https://test.pgvirtual.eu/',
-                      method: 'GET',
-                      mode: 'cors',
-                      credentials: 'include',
-                    },
+                  const response = await createPGVirtualAPICall(
+                    `/api/event/results/${event.ext_pal_id}/${event.int_event_id}`,
+                    initCode,
                   )
 
                   if (response.ok) {
@@ -914,30 +873,9 @@ export default function RootContextProvider(props: {
                 // Fetch dettagli completi come nel search-event-results
                 let detailedResult = null
                 try {
-                  const response = await fetch(
-                    `https://apisuprema.pgvirtual.eu/api/event/results/${event.ext_pal_id}/${event.int_event_id}`,
-                    {
-                      headers: {
-                        accept: 'application/json',
-                        'accept-language':
-                          'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
-                        authorization: `Bearer ${initCode}`,
-                        'content-type': 'application/json',
-                        operator: 'pg',
-                        priority: 'u=1, i',
-                        'sec-ch-ua':
-                          '"Not)A;Brand";v="8", "Chromium";v="138", "Google Chrome";v="138"',
-                        'sec-ch-ua-mobile': '?1',
-                        'sec-ch-ua-platform': '"Android"',
-                        'sec-fetch-dest': 'empty',
-                        'sec-fetch-mode': 'cors',
-                        'sec-fetch-site': 'same-site',
-                      },
-                      referrer: 'https://test.pgvirtual.eu/',
-                      method: 'GET',
-                      mode: 'cors',
-                      credentials: 'include',
-                    },
+                  const response = await createPGVirtualAPICall(
+                    `/api/event/results/${event.ext_pal_id}/${event.int_event_id}`,
+                    initCode,
                   )
 
                   if (response.ok) {
