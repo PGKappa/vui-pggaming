@@ -12,6 +12,7 @@ import {
   Discipline,
   BetEntry,
 } from '@/retail-lib/types'
+import { createPGVirtualAPICall } from '@/retail-lib/utils'
 import {
   RotateCcwIcon,
   PlusIcon,
@@ -511,29 +512,12 @@ export default function BettingSlip({
         JSON.stringify(ticketData, null, 2),
       )
 
-      const response = await fetch(
-        'https://apisuprema.pgvirtual.eu/api/ticket/add',
+      const response = await createPGVirtualAPICall(
+        '/api/ticket/add',
+        rootContext.initCode || '',
         {
           method: 'POST',
-          headers: {
-            accept: 'application/json',
-            'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
-            authorization: `Bearer ${rootContext.initCode}`,
-            'content-type': 'application/json',
-            operator: 'pg',
-            priority: 'u=1, i',
-            'sec-ch-ua':
-              '"Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"',
-            'sec-ch-ua-mobile': '?1',
-            'sec-ch-ua-platform': '"Android"',
-            'sec-fetch-dest': 'empty',
-            'sec-fetch-mode': 'cors',
-            'sec-fetch-site': 'same-site',
-          },
-          referrer: 'https://test.pgvirtual.eu/',
           body: JSON.stringify(ticketData),
-          mode: 'cors',
-          credentials: 'include',
         },
       )
 
