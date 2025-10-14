@@ -770,7 +770,6 @@ export default function BettingSlip({
                             variant="ghost"
                             size="sm"
                             onClick={handleDistributeStake}
-                            disabled={systemDistributeStake <= 0}
                             className="h-8 w-7 bg-bet p-3 text-[19px] text-bet-foreground"
                           >
                             <DivideIcon className="h-4 w-4" />
@@ -790,7 +789,6 @@ export default function BettingSlip({
                             variant="ghost"
                             size="sm"
                             onClick={handleAddStakeToAll}
-                            disabled={systemDistributeStake <= 0}
                             className="h-8 w-7 bg-bet p-3 text-[19px] text-bet-foreground"
                           >
                             <CornerDownLeft className="h-4 w-4" />
