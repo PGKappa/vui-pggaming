@@ -11,7 +11,7 @@ import {
   UpcomingRound,
   User,
 } from '@/retail-lib/types'
-import { BASE_API_URL, createPGVirtualAPICall } from '@/retail-lib/utils'
+import { BASE_API_URL, createPGVirtualAPICall, SOCCER_API_URL } from '@/retail-lib/utils'
 import { createContext, useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -19,6 +19,7 @@ import { toast } from 'sonner'
 export type RootContextType = {
   initCode?: string
   userData?: User
+  cashierData?: any // Dati completi dall'API cashier
   apiRequest?: <T>(
     input: string | URL | globalThis.Request,
     init?: RequestInit,
@@ -32,6 +33,11 @@ export type RootContextType = {
   teamRankings?: TeamRanking[]
   eventResults?: EventResult[]
   isLoadingEvents: boolean
+  // Helper functions per accedere ai dati cashier
+  getStakeButtons?: () => number[]
+  getCurrencySymbol?: () => string
+  getChannels?: () => any[]
+  getTranslation?: (key: string, fallback?: string) => string
 }
 
 const defaultRootContext: RootContextType = {
@@ -39,6 +45,10 @@ const defaultRootContext: RootContextType = {
   betsHistory: [],
   eventResults: [],
   isLoadingEvents: false,
+  getStakeButtons: () => [0.5, 1, 2, 5, 10, 50, 75, 100],
+  getCurrencySymbol: () => '€',
+  getChannels: () => [],
+  getTranslation: (key: string, fallback?: string) => fallback || key,
   teamRankings: [
     {
       position: 1,
@@ -584,6 +594,8 @@ export default function RootContextProvider(props: {
           playerId: 'daniel1983-306#29',
           currency: 'EUR',
           lang: 'it-IT',
+          level: 1,
+          group: ['retail'],
         } as UserApiResponse
 
         if (userData?.status === '1024') {
@@ -630,7 +642,7 @@ export default function RootContextProvider(props: {
       }
 
       const fetchResponse = await fetch(
-        `https://cvgl.it/football/incoming.php?t=${new Date().getTime()}`,
+        `${SOCCER_API_URL}?t=${new Date().getTime()}`,
       )
       if (!fetchResponse.ok) return
       const response = (await fetchResponse.json()) as {

@@ -5,8 +5,20 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export const BASE_API_URL = process.env.NEXT_PUBLIC_BASE_API_URL
-export const PGVIRTUAL_API_URL = process.env.NEXT_PUBLIC_PGVIRTUAL_API_URL
+// API URLs - direttamente nel codice per evitare problemi con env online
+export const API_URLS = {
+  PGVIRTUAL: 'https://apisuprema.pgvirtual.eu',
+  CASHIER_INIT: 'https://apisuprema.pgvirtual.eu/api/init/cashier',
+  SOCCER: 'https://cvgl.it/football/incoming.php',
+  // Base per altre chiamate se necessario
+  BASE: 'https://pg-gaming.stg.startegois.com/proxy',
+} as const
+
+// Backwards compatibility
+export const PGVIRTUAL_API_URL = API_URLS.PGVIRTUAL
+export const CASHIER_API_URL = API_URLS.CASHIER_INIT
+export const SOCCER_API_URL = API_URLS.SOCCER
+export const BASE_API_URL = API_URLS.BASE
 
 export function getTimeDistanceFromNow(targetTime: Date) {
   const diff = targetTime.getTime() - Date.now()
@@ -43,6 +55,67 @@ export function createPGVirtualAPICall(
     mode: 'cors',
     credentials: 'include',
   })
+}
+
+// Enum per le discipline
+export enum Discipline {
+  SOCCER = 'SOCCER',
+  DOGS = 'DOGS',
+  HORSES = 'HORSES',
+}
+
+// Helper per ottenere l'URL API corretto basato sulla disciplina
+export function getAPIUrlForDiscipline(discipline: Discipline): string {
+  switch (discipline) {
+    case Discipline.SOCCER:
+      return API_URLS.SOCCER
+    case Discipline.DOGS:
+    case Discipline.HORSES:
+      return API_URLS.PGVIRTUAL
+    default:
+      return API_URLS.PGVIRTUAL
+  }
+}
+
+// Helper per chiamate API basate su disciplina
+export async function fetchEventsByDiscipline(
+  discipline: Discipline,
+  initCode?: string,
+): Promise<any> {
+  const baseUrl = getAPIUrlForDiscipline(discipline)
+
+  if (discipline === Discipline.SOCCER) {
+    // Per il calcio usiamo l'API cvgl.it
+    const response = await fetch(`${baseUrl}?t=${new Date().getTime()}`)
+    return response.json()
+  } else {
+    // Per cani e cavalli usiamo PGVirtual API
+    if (!initCode) throw new Error('InitCode required for racing events')
+    return createPGVirtualAPICall('/api/event/list', initCode)
+  }
+}
+
+// Helper per l'inizializzazione cashier (sempre all'avvio)
+export async function fetchCashierInit(initCode: string): Promise<any> {
+  const response = await fetch(API_URLS.CASHIER_INIT, {
+    headers: {
+      accept: 'application/json',
+      'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
+      authorization: `Bearer ${initCode}`,
+      operator: 'pg',
+      'Content-Type': 'application/json',
+    },
+    method: 'POST',
+    mode: 'cors',
+    credentials: 'include',
+    body: JSON.stringify({ init_code: initCode }),
+  })
+
+  if (!response.ok) {
+    throw new Error(`Cashier API error: ${response.status}`)
+  }
+
+  return response.json()
 }
 
 // Colori delle pettorine per cani e cavalli con codici colore esadecimali
