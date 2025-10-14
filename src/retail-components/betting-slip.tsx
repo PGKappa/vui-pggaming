@@ -26,12 +26,11 @@ import { useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import EventBets from './event-bets'
+import NumericKeypadDrawer from './numeric-keypad-drawer'
 import RacingFastBet from './racing-fast-bet'
 import SoccerFastBet from './soccer-fast-bet'
-import StakeInputDialog from './stake-input-dialog'
 import { Accordion, AccordionContent, AccordionItem } from './ui/accordion'
 import { Checkbox } from './ui/checkbox'
-import { Input } from './ui/input'
 import { Separator } from './ui/separator'
 
 export type BetMode = 'SINGLE' | 'MULTIPLE' | 'SYSTEM'
@@ -208,7 +207,23 @@ export default function BettingSlip({
     )
     if (selectedGroupsList.length === 0) return
 
-    const stakePerGroup = systemDistributeStake / selectedGroupsList.length
+    // NUOVA LOGICA: Calcola il totale delle combinazioni dei gruppi selezionati
+    const totalCombinations = selectedGroupsList.reduce(
+      (sum, group) => sum + group.combinations.length,
+      0,
+    )
+
+    if (totalCombinations === 0) return
+
+    // Importo per gruppo = Importo totale ÷ Numero totale combinazioni
+    const baseStakePerGroup = systemDistributeStake / totalCombinations
+
+    // Arrotonda a step di 0,05€
+    const roundToFiveCents = (value: number) => {
+      return Math.round(value * 20) / 20 // Arrotonda a multipli di 0,05
+    }
+
+    const stakePerGroup = roundToFiveCents(baseStakePerGroup)
     const newStakes: Record<string, number> = {}
     const newSelections: Record<string, boolean> = {}
 
@@ -738,10 +753,12 @@ export default function BettingSlip({
                   {t('amount').toUpperCase()}
                 </span>
               </div>
-              <StakeInputDialog
+              <NumericKeypadDrawer
                 value={global}
                 setValue={setGlobal}
                 inputWidth="w-48"
+                triggerLabel={t('amount')}
+                showPlusMinus={true}
               />
             </div>
 
@@ -807,16 +824,12 @@ export default function BettingSlip({
                           >
                             <DivideIcon className="h-4 w-4" />
                           </Button>
-                          <Input
-                            type="number"
-                            placeholder="0"
-                            value={systemDistributeStake || ''}
-                            onChange={(e) =>
-                              setSystemDistributeStake(
-                                Number(e.target.value) || 0,
-                              )
-                            }
-                            className="h-8 w-20 border-none text-center focus-visible:ring-0"
+                          <NumericKeypadDrawer
+                            value={systemDistributeStake}
+                            setValue={setSystemDistributeStake}
+                            inputWidth="w-20"
+                            triggerLabel={t('divide/add_amount')}
+                            showPlusMinus={false}
                           />
                           <Button
                             variant="ghost"
@@ -914,11 +927,14 @@ export default function BettingSlip({
                                   >
                                     <MinusIcon className="h-4 w-4" />
                                   </Button>
-                                  <Input
-                                    type="number"
-                                    value={group.stake.toFixed(2)}
-                                    className="bg-background-foreground h-8 w-20 text-center"
-                                    readOnly
+                                  <NumericKeypadDrawer
+                                    value={group.stake}
+                                    setValue={(value) =>
+                                      handleUpdateGroupStake(group.name, value)
+                                    }
+                                    inputWidth="w-20"
+                                    triggerLabel={group.name}
+                                    showPlusMinus={false}
                                   />
                                   <Button
                                     variant="ghost"
@@ -1055,10 +1071,12 @@ export default function BettingSlip({
                   {t('amount').toUpperCase()}
                 </span>
               </div>
-              <StakeInputDialog
+              <NumericKeypadDrawer
                 value={global}
                 setValue={setGlobal}
                 inputWidth="w-48"
+                triggerLabel={t('amount')}
+                showPlusMinus={true}
               />
             </div>
 
