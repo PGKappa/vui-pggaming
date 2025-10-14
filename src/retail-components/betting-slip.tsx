@@ -124,10 +124,12 @@ export default function BettingSlip({
   }, [betMode, betEntries])
 
   const systemGroups = useMemo(() => {
-    return baseSystemGroups.map((group) => ({
-      ...group,
-      stake: systemGroupStakes[group.name] ?? 0,
-    }))
+    return baseSystemGroups
+      .map((group) => ({
+        ...group,
+        stake: systemGroupStakes[group.name] ?? 0,
+      }))
+      .sort((a, b) => b.size - a.size)
   }, [baseSystemGroups, systemGroupStakes])
 
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -208,27 +210,48 @@ export default function BettingSlip({
 
     const stakePerGroup = systemDistributeStake / selectedGroupsList.length
     const newStakes: Record<string, number> = {}
+    const newSelections: Record<string, boolean> = {}
 
     selectedGroupsList.forEach((group) => {
       newStakes[group.name] = stakePerGroup
+      // Sincronizza checkbox: se valore > 0 → selezionato, altrimenti deselezionato
+      newSelections[group.name] = stakePerGroup > 0
     })
 
     setSystemGroupStakes((prev) => ({
       ...prev,
       ...newStakes,
     }))
+
+    setSelectedGroups((prev) => ({
+      ...prev,
+      ...newSelections,
+    }))
+
+    // Aggiorna checkbox "tutti"
+    setTimeout(() => {
+      const updatedSelections = { ...selectedGroups, ...newSelections }
+      const allSelected = systemGroups.every(
+        (group) => updatedSelections[group.name] && newStakes[group.name] > 0,
+      )
+      setAllGroupsSelected(allSelected)
+    }, 0)
   }
 
   const handleAddStakeToAll = () => {
     if (systemDistributeStake <= 0) return
 
     const newStakes: Record<string, number> = {}
+    const newSelections: Record<string, boolean> = {}
 
     // Opera solo sui gruppi selezionati
     systemGroups.forEach((group) => {
       if (selectedGroups[group.name]) {
-        newStakes[group.name] =
+        const newValue =
           (systemGroupStakes[group.name] || 0) + systemDistributeStake
+        newStakes[group.name] = newValue
+        // Sincronizza checkbox: se valore > 0 → selezionato
+        newSelections[group.name] = newValue > 0
       }
     })
 
@@ -236,12 +259,30 @@ export default function BettingSlip({
       ...prev,
       ...newStakes,
     }))
+
+    setSelectedGroups((prev) => ({
+      ...prev,
+      ...newSelections,
+    }))
+
+    // Aggiorna checkbox "tutti"
+    setTimeout(() => {
+      const updatedSelections = { ...selectedGroups, ...newSelections }
+      const allSelected = systemGroups.every(
+        (group) =>
+          updatedSelections[group.name] &&
+          (newStakes[group.name] || systemGroupStakes[group.name] || 0) > 0,
+      )
+      setAllGroupsSelected(allSelected)
+    }, 0)
   }
 
   const handleUpdateGroupStake = (groupName: string, value: number) => {
+    const finalValue = Math.max(0, value)
+
     setSystemGroupStakes((prev) => ({
       ...prev,
-      [groupName]: Math.max(0, value),
+      [groupName]: finalValue,
     }))
   }
 
@@ -249,7 +290,6 @@ export default function BettingSlip({
   const MINIMUM_STAKE = 0.5
 
   // Funzioni per gestire i checkbox
-  // Azione 4: Checkbox principale (DIVIDI/AGGIUNGI) - seleziona/deseleziona tutti
   const handleAllGroupsToggle = (checked: boolean) => {
     setAllGroupsSelected(checked)
     const newSelectedGroups: Record<string, boolean> = {}
@@ -259,10 +299,8 @@ export default function BettingSlip({
       newSelectedGroups[group.name] = checked
 
       if (checked) {
-        // Quando viene selezionato, sempre importo minimo (anche se riflaggato)
         newStakes[group.name] = MINIMUM_STAKE
       } else {
-        // Quando viene deselezionato, azzera
         newStakes[group.name] = 0
       }
     })
@@ -274,22 +312,18 @@ export default function BettingSlip({
     }))
   }
 
-  // Azione 1 & 2: Checkbox singolo gruppo - comportamento secondo guida
   const handleGroupToggle = (groupName: string, checked: boolean) => {
     setSelectedGroups((prev) => ({
       ...prev,
       [groupName]: checked,
     }))
 
-    // Azione 2: Comportamento secondo la guida
     if (checked) {
-      // Quando viene selezionato/riselezionato, SEMPRE importo minimo
       setSystemGroupStakes((prev) => ({
         ...prev,
         [groupName]: MINIMUM_STAKE,
       }))
     } else {
-      // Quando viene deselezionato, va a 0
       setSystemGroupStakes((prev) => ({
         ...prev,
         [groupName]: 0,
@@ -322,7 +356,6 @@ export default function BettingSlip({
       .filter((group) => selectedGroups[group.name])
       .reduce((sum, group) => {
         if (group.stake === 0) return sum
-        // Calcolo della vincita potenziale basata su minWin e maxWin
         return sum + group.maxWin * group.stake
       }, 0)
   }, [systemGroups, selectedGroups])
@@ -488,7 +521,7 @@ export default function BettingSlip({
       // Prepara il payload nel formato esatto dell'API
       const ticketData = {
         placeBet: {
-          currency: 'USD', // Cambiare valuta se necessario
+          currency: 'USD',
           type: ticketType,
           mode: ticketMode,
           ...(betMode === 'SYSTEM'
@@ -844,10 +877,38 @@ export default function BettingSlip({
                                     size="sm"
                                     onClick={(e) => {
                                       e.stopPropagation()
+                                      const newValue = group.stake - 0.05
+                                      const finalValue = Math.max(0, newValue)
+
+                                      // Aggiorna il valore
                                       handleUpdateGroupStake(
                                         group.name,
-                                        Math.max(0, group.stake - 0.05),
+                                        newValue,
                                       )
+
+                                      // Se il valore va a zero o sotto, deseleziona immediatamente
+                                      if (finalValue === 0) {
+                                        setSelectedGroups((prev) => ({
+                                          ...prev,
+                                          [group.name]: false,
+                                        }))
+
+                                        // Aggiorna checkbox "tutti"
+                                        setTimeout(() => {
+                                          const updatedSelections = {
+                                            ...selectedGroups,
+                                            [group.name]: false,
+                                          }
+                                          const allSelected =
+                                            systemGroups.every(
+                                              (g) =>
+                                                updatedSelections[g.name] &&
+                                                (systemGroupStakes[g.name] ||
+                                                  0) > 0,
+                                            )
+                                          setAllGroupsSelected(allSelected)
+                                        }, 0)
+                                      }
                                     }}
                                     className="h-8 w-7 bg-bet p-3 text-[19px] text-bet-foreground"
                                   >
@@ -864,10 +925,37 @@ export default function BettingSlip({
                                     size="sm"
                                     onClick={(e) => {
                                       e.stopPropagation()
+                                      const newValue = group.stake + 0.05
+
+                                      // Aggiorna il valore
                                       handleUpdateGroupStake(
                                         group.name,
-                                        group.stake + 0.05,
+                                        newValue,
                                       )
+
+                                      // Se il valore è maggiore di zero, seleziona
+                                      if (newValue > 0) {
+                                        setSelectedGroups((prev) => ({
+                                          ...prev,
+                                          [group.name]: true,
+                                        }))
+
+                                        // Aggiorna checkbox "tutti"
+                                        setTimeout(() => {
+                                          const updatedSelections = {
+                                            ...selectedGroups,
+                                            [group.name]: true,
+                                          }
+                                          const allSelected =
+                                            systemGroups.every(
+                                              (g) =>
+                                                updatedSelections[g.name] &&
+                                                (systemGroupStakes[g.name] ||
+                                                  newValue) > 0,
+                                            )
+                                          setAllGroupsSelected(allSelected)
+                                        }, 0)
+                                      }
                                     }}
                                     className="h-8 w-7 bg-bet p-3 text-[19px] text-bet-foreground"
                                   >
