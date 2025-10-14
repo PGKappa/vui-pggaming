@@ -242,5 +242,9 @@
   "enter_selection": "Inserisci selezione",
   "no_selection_needed": "Nessuna selezione necessaria per questo mercato",
   "details_not_available": "Dettagli non disponibili",
-  "date_hour": "Data/Ora"
+  "date_hour": "Data/Ora",
+  "divide": "Dividi",
+  "add": "Aggiungi",
+  "divide/add_amount": "Dividi/Aggiungi Importo",
+  "ok": "OK"
 }
