@@ -15,6 +15,7 @@ import {
   BASE_API_URL,
   createPGVirtualAPICall,
   SOCCER_API_URL,
+  fetchCashierInit,
 } from '@/retail-lib/utils'
 import { createContext, useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -592,43 +593,92 @@ export default function RootContextProvider(props: {
 
     const fetchUserData = async (retryCount = 0, maxRetries = 3) => {
       try {
-        const userData = {
-          status: '1024',
-          description: 'Success',
-          playerId: 'daniel1983-306#29',
-          currency: 'EUR',
-          lang: 'it-IT',
-          level: 1,
-          group: ['retail'],
-        } as UserApiResponse
+        const cashierData = await fetchCashierInit(initCode)
 
-        if (userData?.status === '1024') {
+        if (cashierData?.ret_code === 1024) {
+          // Estrai i dati "utente" dai configs e intl
+          const userData = {
+            status: '1024',
+            description: cashierData.description,
+            playerId: `${cashierData.configs?.user_type}-${cashierData.configs?.terminals?.[0] || 'unknown'}`,
+            currency: cashierData.intl?.currency || 'EUR',
+            lang: cashierData.dictInfo?.lang || 'it',
+            level: 1,
+            group: [cashierData.configs?.ui_type || 'retail'],
+          } as UserApiResponse
+
+          // Crea funzioni helper per accedere ai dati cashier
+          const getStakeButtons = () =>
+            cashierData.intl?.stake_buttons || [0.5, 1, 2, 5, 10, 50, 75, 100]
+          const getCurrencySymbol = () =>
+            cashierData.dict?.misc?.currency?.symbol || '€'
+          const getChannels = () => cashierData.channels || []
+          const getTranslation = (key: string, fallback?: string) => {
+            const keys = key.split('.')
+            let value: any = cashierData.dict
+            for (const k of keys) {
+              value = value?.[k]
+              if (value === undefined) break
+            }
+            return typeof value === 'string' ? value : fallback || key
+          }
+
           setRootContext((prev) => ({
             ...prev,
             userData,
+            cashierData,
+            getStakeButtons,
+            getCurrencySymbol,
+            getChannels,
+            getTranslation,
           }))
-          toast.success('User data fetched successfully!')
+
+          toast.success('Cashier data initialized successfully!')
           setIsLoading(false)
         } else {
-          setInitCode(undefined)
-          throw new Error('Could not fetch User Data!')
+          console.error('Cashier API returned error:', cashierData)
+          throw new Error(
+            `Cashier API error: ${cashierData?.message || 'Unknown error'}`,
+          )
         }
-      } catch {
+      } catch (error) {
+        console.error('Cashier API error:', error)
+
         if (retryCount < maxRetries) {
           const delay = Math.pow(2, retryCount) * 1000
-          toast.loading('Retrying...', {
+          toast.loading('Retrying cashier API...', {
             id: 'retry-toast',
             description: `Attempt ${retryCount + 1} failed. Retrying in ${delay / 1000} seconds.`,
           })
           setTimeout(() => fetchUserData(retryCount + 1, maxRetries), delay)
         } else {
           toast.dismiss('retry-toast')
-          toast.error(`All ${maxRetries + 1} attempts failed. Giving up.`)
-          setInitCode(undefined)
+
+          // Fallback: usa dati mockup se l'API cashier fallisce
+          console.warn('Cashier API failed, using fallback data')
+          const fallbackUserData = {
+            status: '1024',
+            description: 'Fallback data - API cashier failed',
+            playerId: `fallback-${initCode?.slice(-6)}`,
+            currency: 'EUR',
+            lang: 'it',
+            level: 1,
+            group: ['retail'],
+          } as UserApiResponse
+
           setRootContext((prev) => ({
             ...prev,
-            userData: undefined,
+            userData: fallbackUserData,
+            cashierData: null,
+            getStakeButtons: () => [0.5, 1, 2, 5, 10, 50, 75, 100],
+            getCurrencySymbol: () => '€',
+            getChannels: () => [],
+            getTranslation: (key: string, fallback?: string) => fallback || key,
           }))
+
+          toast.warning(
+            'Using fallback configuration - cashier API unavailable',
+          )
           setIsLoading(false)
         }
       }
