@@ -7,36 +7,32 @@ import { BetsContext } from '@/retail-contexts/bets-context'
 import { RootContext } from '@/retail-contexts/root-context'
 import { generateSystemGroups } from '@/retail-lib/system-bets'
 import {
+  BetEntry,
+  Discipline,
   SubmittedTicket,
   UpcomingEvent,
-  Discipline,
-  BetEntry,
 } from '@/retail-lib/types'
 import { createPGVirtualAPICall } from '@/retail-lib/utils'
 import {
-  RotateCcwIcon,
-  PlusIcon,
-  MinusIcon,
-  DivideIcon,
+  ChevronDown,
   CornerDownLeft,
+  DivideIcon,
+  MinusIcon,
+  PlusIcon,
+  RotateCcwIcon,
 } from 'lucide-react'
-import { useContext, useMemo, useState, useEffect } from 'react'
+import Image from 'next/image'
+import { useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 import EventBets from './event-bets'
 import RacingFastBet from './racing-fast-bet'
-import StakeInputDialog from './stake-input-dialog'
-import { Separator } from './ui/separator'
-import { Input } from './ui/input'
-import { Checkbox } from './ui/checkbox'
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from './ui/accordion'
-import { toast } from 'sonner'
 import SoccerFastBet from './soccer-fast-bet'
-import Image from 'next/image'
+import StakeInputDialog from './stake-input-dialog'
+import { Accordion, AccordionContent, AccordionItem } from './ui/accordion'
+import { Checkbox } from './ui/checkbox'
+import { Input } from './ui/input'
+import { Separator } from './ui/separator'
 
 export type BetMode = 'SINGLE' | 'MULTIPLE' | 'SYSTEM'
 
@@ -92,6 +88,9 @@ export default function BettingSlip({
   } = useContext(BetsContext)
 
   const rootContext = useContext(RootContext)
+
+  const [accordionOpen, setAccordionOpen] = useState<string>('combinations')
+  const [systemGroupsOpen, setSystemGroupsOpen] = useState<string[]>([])
 
   const totalOdds = betEntries.reduce(
     (total, betEntry) => total * betEntry.bet.option.decPrice,
@@ -706,7 +705,11 @@ export default function BettingSlip({
                   {t('amount').toUpperCase()}
                 </span>
               </div>
-              <StakeInputDialog value={global} setValue={setGlobal} />
+              <StakeInputDialog
+                value={global}
+                setValue={setGlobal}
+                inputWidth="w-48"
+              />
             </div>
 
             <Separator />
@@ -726,14 +729,30 @@ export default function BettingSlip({
             {/* HEADER ACCORDION GENERALE */}
             <Accordion
               type="single"
-              collapsible
-              defaultValue="combinations"
+              value={accordionOpen}
+              onValueChange={setAccordionOpen}
               className="w-full"
             >
               <AccordionItem value="combinations" className="border-none">
-                <AccordionTrigger className="bg-accent px-4 py-1 text-accent-foreground hover:no-underline">
-                  {t('combinations').toUpperCase()}
-                </AccordionTrigger>
+                <div className="flex items-center justify-between bg-accent px-4 py-1 text-accent-foreground">
+                  <span>{t('combinations').toUpperCase()}</span>
+                  <button
+                    onClick={() => {
+                      setAccordionOpen(
+                        accordionOpen === 'combinations' ? '' : 'combinations',
+                      )
+                    }}
+                    className="transition-transform duration-200"
+                    style={{
+                      transform:
+                        accordionOpen === 'combinations'
+                          ? 'rotate(180deg)'
+                          : 'rotate(0deg)',
+                    }}
+                  >
+                    <ChevronDown className="h-5 w-5 shrink-0" />
+                  </button>
+                </div>
                 <AccordionContent className="pb-0">
                   {/* CONTROLLI DISTRIBUZIONE STAKE */}
                   <div className="space-y-3 px-4 pb-3">
@@ -742,11 +761,11 @@ export default function BettingSlip({
                         checked={allGroupsSelected}
                         onCheckedChange={handleAllGroupsToggle}
                       />
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 px-4">
                         <span className="text-sm">
                           {t('divide').toUpperCase()}
                         </span>
-                        <div className="flex w-44 items-center border border-border">
+                        <div className="flex items-center gap-1 border">
                           <Button
                             variant="ghost"
                             size="sm"
@@ -765,7 +784,7 @@ export default function BettingSlip({
                                 Number(e.target.value) || 0,
                               )
                             }
-                            className="flex-1 border-none text-center focus-visible:ring-0"
+                            className="h-8 w-20 border-none text-center focus-visible:ring-0"
                           />
                           <Button
                             variant="ghost"
@@ -787,16 +806,23 @@ export default function BettingSlip({
                   <Separator />
 
                   {/* ACCORDION GRUPPI con altezza fissa */}
-                  <div className="max-h-[200px] overflow-y-auto">
-                    <Accordion type="multiple" className="w-full">
+                  <div className="max-h-[160px] overflow-y-auto">
+                    <Accordion
+                      type="multiple"
+                      value={systemGroupsOpen}
+                      onValueChange={setSystemGroupsOpen}
+                      className="w-full"
+                    >
                       {systemGroups.map((group) => (
                         <AccordionItem
                           key={group.name}
                           value={group.name}
                           className="border-none bg-bet-foreground"
                         >
-                          <AccordionTrigger className="bg-background px-4 py-2 hover:no-underline data-[state=open]:bg-muted">
-                            <div className="flex w-full items-center justify-between pr-4">
+                          <div
+                            className={`px-4 py-2 ${systemGroupsOpen.includes(group.name) ? 'bg-muted' : 'bg-background'}`}
+                          >
+                            <div className="flex w-full items-center">
                               <div className="flex items-center gap-2">
                                 {/* Checkbox singolo gruppo (Azione 1) */}
                                 <Checkbox
@@ -807,14 +833,13 @@ export default function BettingSlip({
                                       checked as boolean,
                                     )
                                   }
-                                  onClick={(e) => e.stopPropagation()}
                                 />
                                 <span className="font-bold">{group.name}</span>
                                 <span className="text-muted-background font-bold">
-                                  ({group.combinations.length})
+                                  (x{group.combinations.length})
                                 </span>
                               </div>
-                              <div className="flex items-center gap-4">
+                              <div className="ml-auto flex items-center gap-2">
                                 <div className="flex items-center gap-1 border">
                                   <Button
                                     variant="ghost"
@@ -823,7 +848,7 @@ export default function BettingSlip({
                                       e.stopPropagation()
                                       handleUpdateGroupStake(
                                         group.name,
-                                        Math.max(0, group.stake - 0.5),
+                                        Math.max(0, group.stake - 0.05),
                                       )
                                     }}
                                     className="h-8 w-7 bg-bet p-3 text-[19px] text-bet-foreground"
@@ -843,7 +868,7 @@ export default function BettingSlip({
                                       e.stopPropagation()
                                       handleUpdateGroupStake(
                                         group.name,
-                                        group.stake + 0.5,
+                                        group.stake + 0.05,
                                       )
                                     }}
                                     className="h-8 w-7 bg-bet p-3 text-[19px] text-bet-foreground"
@@ -851,9 +876,39 @@ export default function BettingSlip({
                                     <PlusIcon className="h-4 w-4" />
                                   </Button>
                                 </div>
+                                <Button
+                                  variant="ghost"
+                                  onClick={() => {
+                                    const isOpen = systemGroupsOpen.includes(
+                                      group.name,
+                                    )
+                                    if (isOpen) {
+                                      setSystemGroupsOpen((prev) =>
+                                        prev.filter(
+                                          (name) => name !== group.name,
+                                        ),
+                                      )
+                                    } else {
+                                      setSystemGroupsOpen((prev) => [
+                                        ...prev,
+                                        group.name,
+                                      ])
+                                    }
+                                  }}
+                                  className="transition-transform duration-200"
+                                  style={{
+                                    transform: systemGroupsOpen.includes(
+                                      group.name,
+                                    )
+                                      ? 'rotate(180deg)'
+                                      : 'rotate(0deg)',
+                                  }}
+                                >
+                                  <ChevronDown className="h-5 w-5 shrink-0" />
+                                </Button>
                               </div>
                             </div>
-                          </AccordionTrigger>
+                          </div>
                           <AccordionContent className="px-4">
                             <div className="grid grid-cols-3 text-sm">
                               <div className="text-center">
@@ -914,7 +969,11 @@ export default function BettingSlip({
                   {t('amount').toUpperCase()}
                 </span>
               </div>
-              <StakeInputDialog value={global} setValue={setGlobal} />
+              <StakeInputDialog
+                value={global}
+                setValue={setGlobal}
+                inputWidth="w-48"
+              />
             </div>
 
             <Separator />

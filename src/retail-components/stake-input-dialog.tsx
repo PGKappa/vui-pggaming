@@ -16,6 +16,7 @@ import { useTranslation } from 'react-i18next'
 export default function StakeInputDialog(props: {
   value: number
   setValue: (value: number) => void
+  inputWidth?: string
 }) {
   const { t } = useTranslation()
   const [value, setValue] = useState(props.value)
@@ -65,7 +66,7 @@ export default function StakeInputDialog(props: {
           <Input
             type="number"
             value={value.toFixed(2)}
-            className="bg-background-foreground h-8 w-20 border-x text-center"
+            className={`bg-background-foreground h-8 border-x text-center ${props.inputWidth || 'w-20'}`}
             readOnly
           />
           <Button
