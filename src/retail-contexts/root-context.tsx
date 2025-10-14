@@ -11,7 +11,11 @@ import {
   UpcomingRound,
   User,
 } from '@/retail-lib/types'
-import { BASE_API_URL, createPGVirtualAPICall, SOCCER_API_URL } from '@/retail-lib/utils'
+import {
+  BASE_API_URL,
+  createPGVirtualAPICall,
+  SOCCER_API_URL,
+} from '@/retail-lib/utils'
 import { createContext, useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
