@@ -655,14 +655,13 @@ export default function BettingSlip({
               : `${t('multiple').toUpperCase()} (${Object.entries(betsByEvent).length})`}
           </span>
 
-          {betMode === 'SINGLE' ||
-            (betMode === 'MULTIPLE' && (
-              <div className="absolute bottom-0.5 h-[4px] w-[156px] bg-betSlip-header-foreground"></div>
-            ))}
+          {(betMode === 'SINGLE' || betMode === 'MULTIPLE') && (
+            <div className="absolute bottom-0.5 h-[4px] w-[156px] bg-betSlip-header-foreground"></div>
+          )}
         </div>
 
         <div
-          className={`relative flex w-full flex-col items-center justify-center ${
+          className={`relative flex h-16 w-full flex-col items-center justify-center ${
             isSystemToggleEnabled ? 'cursor-pointer' : ''
           } ${betMode === 'SYSTEM' ? 'bg-betSlip-header' : 'bg-gray-100'}`}
           onClick={

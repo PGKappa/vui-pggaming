@@ -117,20 +117,21 @@ export default function BetsContextProvider(props: {
     const numEvents = Object.keys(betsContext.betsByEvent).length
     const hasMultipleBetsInSameEvent = Object.values(
       betsContext.betsByEvent,
-    ).some((e) => e.length > 1)
+    ).some((bets) => bets.length > 1)
 
-    // Toggle abilitato se: almeno 2 eventi diversi E nessun evento ha più di 1 bet
+    // Toggle abilitato SOLO quando ci sono 2+ eventi E una singola bet per evento
     return numEvents >= 2 && !hasMultipleBetsInSameEvent
   }, [betsContext.betsByEvent])
 
   const betMode: BetMode = useMemo(() => {
     if (betsContext.betEntries.length <= 1) return 'SINGLE'
 
-    // Sistema tradizionale: >1 evento E almeno 1 evento con >1 bet
-    if (
-      Object.keys(betsContext.betsByEvent).length > 1 &&
-      Object.values(betsContext.betsByEvent).find((e) => e.length > 1)
-    ) {
+    // Se ci sono multiple bet nello stesso evento → automaticamente SYSTEM
+    const hasMultipleBetsInSameEvent = Object.values(
+      betsContext.betsByEvent,
+    ).some((bets) => bets.length > 1)
+    
+    if (Object.keys(betsContext.betsByEvent).length > 1 && hasMultipleBetsInSameEvent) {
       return 'SYSTEM'
     }
 
