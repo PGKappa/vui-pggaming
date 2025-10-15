@@ -24,7 +24,7 @@ import { toast } from 'sonner'
 export type RootContextType = {
   initCode?: string
   userData?: User
-  cashierData?: any // Dati completi dall'API cashier
+  cashierData?: any
   apiRequest?: <T>(
     input: string | URL | globalThis.Request,
     init?: RequestInit,
@@ -38,16 +38,18 @@ export type RootContextType = {
   teamRankings?: TeamRanking[]
   eventResults?: EventResult[]
   isLoadingEvents: boolean
-  // Helper functions per accedere ai dati cashier
   getStakeButtons?: () => number[]
   getCurrencySymbol?: () => string
   getChannels?: () => any[]
   getTranslation?: (key: string, fallback?: string) => string
+  activeDrawerId?: string
+  setActiveDrawer: (drawerId?: string) => void
 }
 
 const defaultRootContext: RootContextType = {
   setSearchEventResults: () => {},
   betsHistory: [],
+  setActiveDrawer: () => {},
   eventResults: [],
   isLoadingEvents: false,
   getStakeButtons: () => [0.5, 1, 2, 5, 10, 50, 75, 100],
@@ -320,14 +322,6 @@ const defaultRootContext: RootContextType = {
 
 export const RootContext = createContext<RootContextType>(defaultRootContext)
 
-function getInitCodeFromUrl(): string | undefined {
-  if (typeof window === 'undefined') return undefined
-
-  const params = new URLSearchParams(window.location.search)
-
-  return params.get('init_code') || undefined
-}
-
 function getAreaFromUrl(): Discipline[] {
   if (typeof window === 'undefined') return []
 
@@ -352,9 +346,18 @@ export default function RootContextProvider(props: {
   const [initCode, setInitCode] = useState<string | undefined>(undefined)
   const [rootContext, setRootContext] =
     useState<RootContextType>(defaultRootContext)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { i18n } = useTranslation()
   const [isLoading, setIsLoading] = useState(true)
   const [isLoadingEvents, setIsLoadingEvents] = useState(false)
+  const [activeDrawerId, setActiveDrawerId] = useState<string | undefined>(
+    undefined,
+  )
+
+  // Funzione per gestire l'apertura di un drawer numerico
+  const setActiveDrawer = useCallback((drawerId?: string) => {
+    setActiveDrawerId(drawerId)
+  }, [])
 
   // Cache keys for localStorage
   const CACHE_KEYS = {
@@ -541,7 +544,6 @@ export default function RootContextProvider(props: {
 
   const setSearchEventResults = useCallback(
     (searchEventResults?: EventResult[]) => {
-      console.log('ROOT CONTEXT:', searchEventResults)
       setRootContext((prev) => ({
         ...prev,
         searchEventResults,
@@ -558,7 +560,10 @@ export default function RootContextProvider(props: {
   }, [setSearchEventResults])
 
   useEffect(() => {
-    const initCode = getInitCodeFromUrl()
+    if (typeof window === 'undefined') return
+
+    const params = new URLSearchParams(window.location.search)
+    const initCode = params.get('init_code') || undefined
 
     if (initCode) {
       const storedInitCode = localStorage.getItem('initCode')
@@ -567,26 +572,13 @@ export default function RootContextProvider(props: {
       }
 
       localStorage.setItem('initCode', initCode)
-
-      // Extract and set language from URL immediately
-      const parts = initCode.split('-')
-
-      if (parts.length >= 4) {
-        // Format: TEST-USD-en-US
-        const langPart = parts[2].toLowerCase() // 'en'
-        i18n.changeLanguage(langPart)
-      } else if (parts.length >= 3) {
-        // Format: TEST-RUS-ru-RU
-        const langPart = parts[2].toLowerCase() // 'ru'
-        i18n.changeLanguage(langPart)
-      }
     } else {
       localStorage.removeItem('initCode')
       setIsLoading(false)
     }
 
     setInitCode(initCode)
-  }, [i18n])
+  }, [])
 
   useEffect(() => {
     if (!initCode) return
@@ -685,7 +677,7 @@ export default function RootContextProvider(props: {
     }
 
     fetchUserData()
-  }, [i18n, initCode])
+  }, [initCode])
 
   useEffect(() => {
     if (!initCode) return
@@ -1106,7 +1098,15 @@ export default function RootContextProvider(props: {
   }
 
   return (
-    <RootContext.Provider value={{ ...rootContext, initCode, isLoadingEvents }}>
+    <RootContext.Provider
+      value={{
+        ...rootContext,
+        initCode,
+        isLoadingEvents,
+        activeDrawerId,
+        setActiveDrawer,
+      }}
+    >
       {props.children}
     </RootContext.Provider>
   )
