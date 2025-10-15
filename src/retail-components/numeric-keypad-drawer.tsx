@@ -10,8 +10,9 @@ import {
 } from '@/retail-components/ui/drawer'
 import { Input } from '@/retail-components/ui/input'
 import { MinusIcon, PlusIcon, Delete, ChevronDown } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useContext, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { RootContext } from '@/retail-contexts/root-context'
 
 export default function NumericKeypadDrawer(props: {
   value: number
@@ -19,18 +20,28 @@ export default function NumericKeypadDrawer(props: {
   inputWidth?: string
   triggerLabel?: string
   showPlusMinus?: boolean
+  drawerId?: string
 }) {
   const { t } = useTranslation()
+  const { activeDrawerId, setActiveDrawer } = useContext(RootContext)
   const [value, setValue] = useState(props.value)
   const [drawerValue, setDrawerValue] = useState('0.00')
-  const [open, setOpen] = useState(false)
+
+  // Genera un ID univoco per questo drawer se non fornito
+  const drawerId = useMemo(
+    () =>
+      props.drawerId || `drawer-${Math.random().toString(36).substring(2, 9)}`,
+    [props.drawerId],
+  )
+
+  // Determina se questo drawer è aperto
+  const open = activeDrawerId === drawerId
 
   // Sync with props.value when it changes from outside
   useEffect(() => {
     setValue(props.value)
   }, [props.value])
 
-  // Reset drawer value when opening - always start with 0.00
   useEffect(() => {
     if (open) {
       setDrawerValue('0.00')
@@ -39,20 +50,17 @@ export default function NumericKeypadDrawer(props: {
 
   const handleNumberClick = (digit: string) => {
     setDrawerValue((prev) => {
-      // Check if we're at the initial state "0.00"
       if (prev === '0.00') {
         return digit === '0' ? '0.00' : digit
       }
 
-      // Check if we're just "0"
       if (prev === '0') {
         return digit
       }
 
-      // If there's a decimal point, check we don't exceed 2 decimal places
       const decimalIndex = prev.indexOf('.')
       if (decimalIndex !== -1 && prev.length - decimalIndex > 2) {
-        return prev // Don't add more digits after 2 decimal places
+        return prev
       }
 
       return prev + digit
@@ -95,7 +103,7 @@ export default function NumericKeypadDrawer(props: {
     } else if (e.key === 'Enter') {
       handleConfirm()
     } else if (e.key === 'Escape') {
-      setOpen(false)
+      closeDrawer()
     }
   }
 
@@ -103,13 +111,22 @@ export default function NumericKeypadDrawer(props: {
     const newValue = parseFloat(drawerValue) || 0
     setValue(newValue)
     props.setValue(newValue)
-    setOpen(false)
+    setActiveDrawer(undefined)
   }
 
   const handlePlusMinus = (increment: number) => {
     const newValue = Math.max(0, value + increment)
     setValue(newValue)
     props.setValue(newValue)
+  }
+
+  // Funzioni per aprire e chiudere il drawer
+  const openDrawer = () => {
+    setActiveDrawer(drawerId)
+  }
+
+  const closeDrawer = () => {
+    setActiveDrawer(undefined)
   }
 
   // Render trigger based on showPlusMinus prop
@@ -133,7 +150,7 @@ export default function NumericKeypadDrawer(props: {
             value={value.toFixed(2)}
             className={`bg-background-foreground h-8 border-x text-center ${props.inputWidth || 'w-20'}`}
             readOnly
-            onClick={() => setOpen(true)}
+            onClick={openDrawer}
           />
           <Button
             variant="ghost"
@@ -155,14 +172,18 @@ export default function NumericKeypadDrawer(props: {
           value={value.toFixed(2)}
           className={`bg-background-foreground h-8 text-center ${props.inputWidth || 'w-20'}`}
           readOnly
-          onClick={() => setOpen(true)}
+          onClick={openDrawer}
         />
       )
     }
   }
 
   return (
-    <Drawer open={open} onOpenChange={setOpen} modal={false}>
+    <Drawer
+      open={open}
+      onOpenChange={(isOpen) => (isOpen ? openDrawer() : closeDrawer())}
+      modal={false}
+    >
       <DrawerTrigger asChild>{renderTrigger()}</DrawerTrigger>
 
       <DrawerContent className="ml-auto mr-2 w-[396px]">
@@ -193,7 +214,6 @@ export default function NumericKeypadDrawer(props: {
 
           {/* Keypad */}
           <div className="grid grid-cols-3 gap-3">
-            {/* Row 1 */}
             <Button
               variant="outline"
               size="lg"
@@ -219,7 +239,6 @@ export default function NumericKeypadDrawer(props: {
               3
             </Button>
 
-            {/* Row 2 */}
             <Button
               variant="outline"
               size="lg"
@@ -245,7 +264,6 @@ export default function NumericKeypadDrawer(props: {
               6
             </Button>
 
-            {/* Row 3 */}
             <Button
               variant="outline"
               size="lg"
@@ -271,7 +289,6 @@ export default function NumericKeypadDrawer(props: {
               9
             </Button>
 
-            {/* Row 4 */}
             <Button
               variant="outline"
               size="lg"
@@ -292,13 +309,12 @@ export default function NumericKeypadDrawer(props: {
               variant="outline"
               size="lg"
               className="h-12"
-              onClick={() => setOpen(false)}
+              onClick={closeDrawer}
             >
               <ChevronDown className="h-10 w-10" style={{ scale: 1.5 }} />
             </Button>
           </div>
 
-          {/* Confirm Button */}
           <Button
             onClick={handleConfirm}
             className="h-12 w-full bg-accent text-2xl text-white"

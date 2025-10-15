@@ -759,6 +759,7 @@ export default function BettingSlip({
                 inputWidth="w-48"
                 triggerLabel={t('amount')}
                 showPlusMinus={true}
+                drawerId="global-amount"
               />
             </div>
 
@@ -830,6 +831,7 @@ export default function BettingSlip({
                             inputWidth="w-20"
                             triggerLabel={t('divide/add_amount')}
                             showPlusMinus={false}
+                            drawerId="system-divide-add"
                           />
                           <Button
                             variant="ghost"
@@ -935,6 +937,7 @@ export default function BettingSlip({
                                     inputWidth="w-20"
                                     triggerLabel={group.name}
                                     showPlusMinus={false}
+                                    drawerId={`system-group-${group.name}`}
                                   />
                                   <Button
                                     variant="ghost"
@@ -1077,6 +1080,7 @@ export default function BettingSlip({
                 inputWidth="w-48"
                 triggerLabel={t('amount')}
                 showPlusMinus={true}
+                drawerId="system-amount"
               />
             </div>
 
