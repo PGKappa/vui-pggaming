@@ -7,36 +7,31 @@ import { BetsContext } from '@/retail-contexts/bets-context'
 import { RootContext } from '@/retail-contexts/root-context'
 import { generateSystemGroups } from '@/retail-lib/system-bets'
 import {
+  BetEntry,
+  Discipline,
   SubmittedTicket,
   UpcomingEvent,
-  Discipline,
-  BetEntry,
 } from '@/retail-lib/types'
 import { createPGVirtualAPICall } from '@/retail-lib/utils'
 import {
-  RotateCcwIcon,
-  PlusIcon,
-  MinusIcon,
-  DivideIcon,
+  ChevronDown,
   CornerDownLeft,
+  DivideIcon,
+  MinusIcon,
+  PlusIcon,
+  RotateCcwIcon,
 } from 'lucide-react'
-import { useContext, useMemo, useState, useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
-import EventBets from './event-bets'
-import RacingFastBet from './racing-fast-bet'
-import StakeInputDialog from './stake-input-dialog'
-import { Separator } from './ui/separator'
-import { Input } from './ui/input'
-import { Checkbox } from './ui/checkbox'
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from './ui/accordion'
-import { toast } from 'sonner'
-import SoccerFastBet from './soccer-fast-bet'
 import Image from 'next/image'
+import { useContext, useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
+import EventBets from './event-bets'
+import NumericKeypadDrawer from './numeric-keypad-drawer'
+import RacingFastBet from './racing-fast-bet'
+import SoccerFastBet from './soccer-fast-bet'
+import { Accordion, AccordionContent, AccordionItem } from './ui/accordion'
+import { Checkbox } from './ui/checkbox'
+import { Separator } from './ui/separator'
 
 export type BetMode = 'SINGLE' | 'MULTIPLE' | 'SYSTEM'
 
@@ -93,6 +88,9 @@ export default function BettingSlip({
 
   const rootContext = useContext(RootContext)
 
+  const [accordionOpen, setAccordionOpen] = useState<string>('combinations')
+  const [systemGroupsOpen, setSystemGroupsOpen] = useState<string[]>([])
+
   const totalOdds = betEntries.reduce(
     (total, betEntry) => total * betEntry.bet.option.decPrice,
     1,
@@ -125,10 +123,12 @@ export default function BettingSlip({
   }, [betMode, betEntries])
 
   const systemGroups = useMemo(() => {
-    return baseSystemGroups.map((group) => ({
-      ...group,
-      stake: systemGroupStakes[group.name] ?? 0,
-    }))
+    return baseSystemGroups
+      .map((group) => ({
+        ...group,
+        stake: systemGroupStakes[group.name] ?? 0,
+      }))
+      .sort((a, b) => b.size - a.size)
   }, [baseSystemGroups, systemGroupStakes])
 
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -207,29 +207,66 @@ export default function BettingSlip({
     )
     if (selectedGroupsList.length === 0) return
 
-    const stakePerGroup = systemDistributeStake / selectedGroupsList.length
+    // NUOVA LOGICA: Calcola il totale delle combinazioni dei gruppi selezionati
+    const totalCombinations = selectedGroupsList.reduce(
+      (sum, group) => sum + group.combinations.length,
+      0,
+    )
+
+    if (totalCombinations === 0) return
+
+    // Importo per gruppo = Importo totale ÷ Numero totale combinazioni
+    const baseStakePerGroup = systemDistributeStake / totalCombinations
+
+    // Arrotonda a step di 0,05€
+    const roundToFiveCents = (value: number) => {
+      return Math.round(value * 20) / 20 // Arrotonda a multipli di 0,05
+    }
+
+    const stakePerGroup = roundToFiveCents(baseStakePerGroup)
     const newStakes: Record<string, number> = {}
+    const newSelections: Record<string, boolean> = {}
 
     selectedGroupsList.forEach((group) => {
       newStakes[group.name] = stakePerGroup
+      // Sincronizza checkbox: se valore > 0 → selezionato, altrimenti deselezionato
+      newSelections[group.name] = stakePerGroup > 0
     })
 
     setSystemGroupStakes((prev) => ({
       ...prev,
       ...newStakes,
     }))
+
+    setSelectedGroups((prev) => ({
+      ...prev,
+      ...newSelections,
+    }))
+
+    // Aggiorna checkbox "tutti"
+    setTimeout(() => {
+      const updatedSelections = { ...selectedGroups, ...newSelections }
+      const allSelected = systemGroups.every(
+        (group) => updatedSelections[group.name] && newStakes[group.name] > 0,
+      )
+      setAllGroupsSelected(allSelected)
+    }, 0)
   }
 
   const handleAddStakeToAll = () => {
     if (systemDistributeStake <= 0) return
 
     const newStakes: Record<string, number> = {}
+    const newSelections: Record<string, boolean> = {}
 
     // Opera solo sui gruppi selezionati
     systemGroups.forEach((group) => {
       if (selectedGroups[group.name]) {
-        newStakes[group.name] =
+        const newValue =
           (systemGroupStakes[group.name] || 0) + systemDistributeStake
+        newStakes[group.name] = newValue
+        // Sincronizza checkbox: se valore > 0 → selezionato
+        newSelections[group.name] = newValue > 0
       }
     })
 
@@ -237,12 +274,30 @@ export default function BettingSlip({
       ...prev,
       ...newStakes,
     }))
+
+    setSelectedGroups((prev) => ({
+      ...prev,
+      ...newSelections,
+    }))
+
+    // Aggiorna checkbox "tutti"
+    setTimeout(() => {
+      const updatedSelections = { ...selectedGroups, ...newSelections }
+      const allSelected = systemGroups.every(
+        (group) =>
+          updatedSelections[group.name] &&
+          (newStakes[group.name] || systemGroupStakes[group.name] || 0) > 0,
+      )
+      setAllGroupsSelected(allSelected)
+    }, 0)
   }
 
   const handleUpdateGroupStake = (groupName: string, value: number) => {
+    const finalValue = Math.max(0, value)
+
     setSystemGroupStakes((prev) => ({
       ...prev,
-      [groupName]: Math.max(0, value),
+      [groupName]: finalValue,
     }))
   }
 
@@ -250,7 +305,6 @@ export default function BettingSlip({
   const MINIMUM_STAKE = 0.5
 
   // Funzioni per gestire i checkbox
-  // Azione 4: Checkbox principale (DIVIDI/AGGIUNGI) - seleziona/deseleziona tutti
   const handleAllGroupsToggle = (checked: boolean) => {
     setAllGroupsSelected(checked)
     const newSelectedGroups: Record<string, boolean> = {}
@@ -260,10 +314,8 @@ export default function BettingSlip({
       newSelectedGroups[group.name] = checked
 
       if (checked) {
-        // Quando viene selezionato, sempre importo minimo (anche se riflaggato)
         newStakes[group.name] = MINIMUM_STAKE
       } else {
-        // Quando viene deselezionato, azzera
         newStakes[group.name] = 0
       }
     })
@@ -275,22 +327,18 @@ export default function BettingSlip({
     }))
   }
 
-  // Azione 1 & 2: Checkbox singolo gruppo - comportamento secondo guida
   const handleGroupToggle = (groupName: string, checked: boolean) => {
     setSelectedGroups((prev) => ({
       ...prev,
       [groupName]: checked,
     }))
 
-    // Azione 2: Comportamento secondo la guida
     if (checked) {
-      // Quando viene selezionato/riselezionato, SEMPRE importo minimo
       setSystemGroupStakes((prev) => ({
         ...prev,
         [groupName]: MINIMUM_STAKE,
       }))
     } else {
-      // Quando viene deselezionato, va a 0
       setSystemGroupStakes((prev) => ({
         ...prev,
         [groupName]: 0,
@@ -323,7 +371,6 @@ export default function BettingSlip({
       .filter((group) => selectedGroups[group.name])
       .reduce((sum, group) => {
         if (group.stake === 0) return sum
-        // Calcolo della vincita potenziale basata su minWin e maxWin
         return sum + group.maxWin * group.stake
       }, 0)
   }, [systemGroups, selectedGroups])
@@ -489,7 +536,7 @@ export default function BettingSlip({
       // Prepara il payload nel formato esatto dell'API
       const ticketData = {
         placeBet: {
-          currency: 'USD', // Cambiare valuta se necessario
+          currency: 'USD',
           type: ticketType,
           mode: ticketMode,
           ...(betMode === 'SYSTEM'
@@ -608,14 +655,13 @@ export default function BettingSlip({
               : `${t('multiple').toUpperCase()} (${Object.entries(betsByEvent).length})`}
           </span>
 
-          {betMode === 'SINGLE' ||
-            (betMode === 'MULTIPLE' && (
-              <div className="absolute bottom-0.5 h-[4px] w-[156px] bg-betSlip-header-foreground"></div>
-            ))}
+          {(betMode === 'SINGLE' || betMode === 'MULTIPLE') && (
+            <div className="absolute bottom-0.5 h-[4px] w-[156px] bg-betSlip-header-foreground"></div>
+          )}
         </div>
 
         <div
-          className={`relative flex w-full flex-col items-center justify-center ${
+          className={`relative flex h-16 w-full flex-col items-center justify-center ${
             isSystemToggleEnabled ? 'cursor-pointer' : ''
           } ${betMode === 'SYSTEM' ? 'bg-betSlip-header' : 'bg-gray-100'}`}
           onClick={
@@ -706,7 +752,14 @@ export default function BettingSlip({
                   {t('amount').toUpperCase()}
                 </span>
               </div>
-              <StakeInputDialog value={global} setValue={setGlobal} />
+              <NumericKeypadDrawer
+                value={global}
+                setValue={setGlobal}
+                inputWidth="w-48"
+                triggerLabel={t('amount')}
+                showPlusMinus={true}
+                drawerId="global-amount"
+              />
             </div>
 
             <Separator />
@@ -726,14 +779,30 @@ export default function BettingSlip({
             {/* HEADER ACCORDION GENERALE */}
             <Accordion
               type="single"
-              collapsible
-              defaultValue="combinations"
+              value={accordionOpen}
+              onValueChange={setAccordionOpen}
               className="w-full"
             >
               <AccordionItem value="combinations" className="border-none">
-                <AccordionTrigger className="bg-accent px-4 py-1 text-accent-foreground hover:no-underline">
-                  {t('combinations').toUpperCase()}
-                </AccordionTrigger>
+                <div className="flex items-center justify-between bg-accent px-4 py-1 text-accent-foreground">
+                  <span>{t('combinations').toUpperCase()}</span>
+                  <button
+                    onClick={() => {
+                      setAccordionOpen(
+                        accordionOpen === 'combinations' ? '' : 'combinations',
+                      )
+                    }}
+                    className="transition-transform duration-200"
+                    style={{
+                      transform:
+                        accordionOpen === 'combinations'
+                          ? 'rotate(180deg)'
+                          : 'rotate(0deg)',
+                    }}
+                  >
+                    <ChevronDown className="h-5 w-5 shrink-0" />
+                  </button>
+                </div>
                 <AccordionContent className="pb-0">
                   {/* CONTROLLI DISTRIBUZIONE STAKE */}
                   <div className="space-y-3 px-4 pb-3">
@@ -742,36 +811,31 @@ export default function BettingSlip({
                         checked={allGroupsSelected}
                         onCheckedChange={handleAllGroupsToggle}
                       />
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 px-4">
                         <span className="text-sm">
                           {t('divide').toUpperCase()}
                         </span>
-                        <div className="flex w-44 items-center border border-border">
+                        <div className="flex items-center gap-1 border">
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={handleDistributeStake}
-                            disabled={systemDistributeStake <= 0}
                             className="h-8 w-7 bg-bet p-3 text-[19px] text-bet-foreground"
                           >
                             <DivideIcon className="h-4 w-4" />
                           </Button>
-                          <Input
-                            type="number"
-                            placeholder="0"
-                            value={systemDistributeStake || ''}
-                            onChange={(e) =>
-                              setSystemDistributeStake(
-                                Number(e.target.value) || 0,
-                              )
-                            }
-                            className="flex-1 border-none text-center focus-visible:ring-0"
+                          <NumericKeypadDrawer
+                            value={systemDistributeStake}
+                            setValue={setSystemDistributeStake}
+                            inputWidth="w-20"
+                            triggerLabel={t('divide/add_amount')}
+                            showPlusMinus={false}
+                            drawerId="system-divide-add"
                           />
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={handleAddStakeToAll}
-                            disabled={systemDistributeStake <= 0}
                             className="h-8 w-7 bg-bet p-3 text-[19px] text-bet-foreground"
                           >
                             <CornerDownLeft className="h-4 w-4" />
@@ -787,16 +851,23 @@ export default function BettingSlip({
                   <Separator />
 
                   {/* ACCORDION GRUPPI con altezza fissa */}
-                  <div className="max-h-[200px] overflow-y-auto">
-                    <Accordion type="multiple" className="w-full">
+                  <div className="max-h-[160px] overflow-y-auto">
+                    <Accordion
+                      type="multiple"
+                      value={systemGroupsOpen}
+                      onValueChange={setSystemGroupsOpen}
+                      className="w-full"
+                    >
                       {systemGroups.map((group) => (
                         <AccordionItem
                           key={group.name}
                           value={group.name}
                           className="border-none bg-bet-foreground"
                         >
-                          <AccordionTrigger className="bg-background px-4 py-2 hover:no-underline data-[state=open]:bg-muted">
-                            <div className="flex w-full items-center justify-between pr-4">
+                          <div
+                            className={`px-4 py-2 ${systemGroupsOpen.includes(group.name) ? 'bg-muted' : 'bg-background'}`}
+                          >
+                            <div className="flex w-full items-center">
                               <div className="flex items-center gap-2">
                                 {/* Checkbox singolo gruppo (Azione 1) */}
                                 <Checkbox
@@ -807,53 +878,141 @@ export default function BettingSlip({
                                       checked as boolean,
                                     )
                                   }
-                                  onClick={(e) => e.stopPropagation()}
                                 />
                                 <span className="font-bold">{group.name}</span>
                                 <span className="text-muted-background font-bold">
-                                  ({group.combinations.length})
+                                  (x{group.combinations.length})
                                 </span>
                               </div>
-                              <div className="flex items-center gap-4">
+                              <div className="ml-auto flex items-center gap-2">
                                 <div className="flex items-center gap-1 border">
                                   <Button
                                     variant="ghost"
                                     size="sm"
                                     onClick={(e) => {
                                       e.stopPropagation()
+                                      const newValue = group.stake - 0.05
+                                      const finalValue = Math.max(0, newValue)
+
+                                      // Aggiorna il valore
                                       handleUpdateGroupStake(
                                         group.name,
-                                        Math.max(0, group.stake - 0.5),
+                                        newValue,
                                       )
+
+                                      // Se il valore va a zero o sotto, deseleziona immediatamente
+                                      if (finalValue === 0) {
+                                        setSelectedGroups((prev) => ({
+                                          ...prev,
+                                          [group.name]: false,
+                                        }))
+
+                                        // Aggiorna checkbox "tutti"
+                                        setTimeout(() => {
+                                          const updatedSelections = {
+                                            ...selectedGroups,
+                                            [group.name]: false,
+                                          }
+                                          const allSelected =
+                                            systemGroups.every(
+                                              (g) =>
+                                                updatedSelections[g.name] &&
+                                                (systemGroupStakes[g.name] ||
+                                                  0) > 0,
+                                            )
+                                          setAllGroupsSelected(allSelected)
+                                        }, 0)
+                                      }
                                     }}
                                     className="h-8 w-7 bg-bet p-3 text-[19px] text-bet-foreground"
                                   >
                                     <MinusIcon className="h-4 w-4" />
                                   </Button>
-                                  <Input
-                                    type="number"
-                                    value={group.stake.toFixed(2)}
-                                    className="bg-background-foreground h-8 w-20 text-center"
-                                    readOnly
+                                  <NumericKeypadDrawer
+                                    value={group.stake}
+                                    setValue={(value) =>
+                                      handleUpdateGroupStake(group.name, value)
+                                    }
+                                    inputWidth="w-20"
+                                    triggerLabel={group.name}
+                                    showPlusMinus={false}
+                                    drawerId={`system-group-${group.name}`}
                                   />
                                   <Button
                                     variant="ghost"
                                     size="sm"
                                     onClick={(e) => {
                                       e.stopPropagation()
+                                      const newValue = group.stake + 0.05
+
+                                      // Aggiorna il valore
                                       handleUpdateGroupStake(
                                         group.name,
-                                        group.stake + 0.5,
+                                        newValue,
                                       )
+
+                                      // Se il valore è maggiore di zero, seleziona
+                                      if (newValue > 0) {
+                                        setSelectedGroups((prev) => ({
+                                          ...prev,
+                                          [group.name]: true,
+                                        }))
+
+                                        // Aggiorna checkbox "tutti"
+                                        setTimeout(() => {
+                                          const updatedSelections = {
+                                            ...selectedGroups,
+                                            [group.name]: true,
+                                          }
+                                          const allSelected =
+                                            systemGroups.every(
+                                              (g) =>
+                                                updatedSelections[g.name] &&
+                                                (systemGroupStakes[g.name] ||
+                                                  newValue) > 0,
+                                            )
+                                          setAllGroupsSelected(allSelected)
+                                        }, 0)
+                                      }
                                     }}
                                     className="h-8 w-7 bg-bet p-3 text-[19px] text-bet-foreground"
                                   >
                                     <PlusIcon className="h-4 w-4" />
                                   </Button>
                                 </div>
+                                <Button
+                                  variant="ghost"
+                                  onClick={() => {
+                                    const isOpen = systemGroupsOpen.includes(
+                                      group.name,
+                                    )
+                                    if (isOpen) {
+                                      setSystemGroupsOpen((prev) =>
+                                        prev.filter(
+                                          (name) => name !== group.name,
+                                        ),
+                                      )
+                                    } else {
+                                      setSystemGroupsOpen((prev) => [
+                                        ...prev,
+                                        group.name,
+                                      ])
+                                    }
+                                  }}
+                                  className="transition-transform duration-200"
+                                  style={{
+                                    transform: systemGroupsOpen.includes(
+                                      group.name,
+                                    )
+                                      ? 'rotate(180deg)'
+                                      : 'rotate(0deg)',
+                                  }}
+                                >
+                                  <ChevronDown className="h-5 w-5 shrink-0" />
+                                </Button>
                               </div>
                             </div>
-                          </AccordionTrigger>
+                          </div>
                           <AccordionContent className="px-4">
                             <div className="grid grid-cols-3 text-sm">
                               <div className="text-center">
@@ -914,7 +1073,14 @@ export default function BettingSlip({
                   {t('amount').toUpperCase()}
                 </span>
               </div>
-              <StakeInputDialog value={global} setValue={setGlobal} />
+              <NumericKeypadDrawer
+                value={global}
+                setValue={setGlobal}
+                inputWidth="w-48"
+                triggerLabel={t('amount')}
+                showPlusMinus={true}
+                drawerId="system-amount"
+              />
             </div>
 
             <Separator />

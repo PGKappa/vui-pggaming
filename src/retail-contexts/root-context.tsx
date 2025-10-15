@@ -24,7 +24,7 @@ import { toast } from 'sonner'
 export type RootContextType = {
   initCode?: string
   userData?: User
-  cashierData?: any // Dati completi dall'API cashier
+  cashierData?: any
   apiRequest?: <T>(
     input: string | URL | globalThis.Request,
     init?: RequestInit,
@@ -38,16 +38,18 @@ export type RootContextType = {
   teamRankings?: TeamRanking[]
   eventResults?: EventResult[]
   isLoadingEvents: boolean
-  // Helper functions per accedere ai dati cashier
   getStakeButtons?: () => number[]
   getCurrencySymbol?: () => string
   getChannels?: () => any[]
   getTranslation?: (key: string, fallback?: string) => string
+  activeDrawerId?: string
+  setActiveDrawer: (drawerId?: string) => void
 }
 
 const defaultRootContext: RootContextType = {
   setSearchEventResults: () => {},
   betsHistory: [],
+  setActiveDrawer: () => {},
   eventResults: [],
   isLoadingEvents: false,
   getStakeButtons: () => [0.5, 1, 2, 5, 10, 50, 75, 100],
@@ -320,14 +322,6 @@ const defaultRootContext: RootContextType = {
 
 export const RootContext = createContext<RootContextType>(defaultRootContext)
 
-function getInitCodeFromUrl(): string | undefined {
-  if (typeof window === 'undefined') return undefined
-
-  const params = new URLSearchParams(window.location.search)
-
-  return params.get('init_code') || undefined
-}
-
 function getAreaFromUrl(): Discipline[] {
   if (typeof window === 'undefined') return []
 
@@ -352,9 +346,19 @@ export default function RootContextProvider(props: {
   const [initCode, setInitCode] = useState<string | undefined>(undefined)
   const [rootContext, setRootContext] =
     useState<RootContextType>(defaultRootContext)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { i18n } = useTranslation()
   const [isLoading, setIsLoading] = useState(true)
   const [isLoadingEvents, setIsLoadingEvents] = useState(false)
+  const [isCashierReady, setIsCashierReady] = useState(false)
+  const [activeDrawerId, setActiveDrawerId] = useState<string | undefined>(
+    undefined,
+  )
+
+  // Funzione per gestire l'apertura di un drawer numerico
+  const setActiveDrawer = useCallback((drawerId?: string) => {
+    setActiveDrawerId(drawerId)
+  }, [])
 
   // Cache keys for localStorage
   const CACHE_KEYS = {
@@ -366,9 +370,12 @@ export default function RootContextProvider(props: {
     SOCCER_RESULTS: 'soccer_results_cache',
     LAST_RACING_FETCH_TIME: 'racing_events_last_fetch',
     LAST_SOCCER_FETCH_TIME: 'soccer_events_last_fetch',
+    CASHIER_DATA: 'cashier_data_cache',
+    LAST_CASHIER_FETCH_TIME: 'cashier_last_fetch',
   }
 
-  const CACHE_DURATION = 5 * 60 * 1000
+  const CACHE_DURATION = 5 * 60 * 1000 // 5 minuti per eventi
+  const CASHIER_CACHE_DURATION = 30 * 60 * 1000 // 30 minuti per cashier
 
   const saveToCache = useCallback((key: string, data: any) => {
     try {
@@ -406,6 +413,71 @@ export default function RootContextProvider(props: {
       }
     },
     [CACHE_DURATION],
+  )
+
+  // Funzioni specifiche per il caching cashier
+  const saveCashierToCache = useCallback(
+    (initCode: string, cashierData: any, contextData: any) => {
+      if (typeof window === 'undefined') return
+
+      try {
+        const cacheData = {
+          initCode,
+          cashierData,
+          contextData,
+          timestamp: Date.now(),
+        }
+        localStorage.setItem(CACHE_KEYS.CASHIER_DATA, JSON.stringify(cacheData))
+        localStorage.setItem(
+          CACHE_KEYS.LAST_CASHIER_FETCH_TIME,
+          Date.now().toString(),
+        )
+      } catch (error) {
+        console.warn('Failed to cache cashier data:', error)
+      }
+    },
+    [CACHE_KEYS.CASHIER_DATA, CACHE_KEYS.LAST_CASHIER_FETCH_TIME],
+  )
+
+  const loadCashierFromCache = useCallback(
+    (initCode: string) => {
+      if (typeof window === 'undefined') return null
+
+      try {
+        const cached = localStorage.getItem(CACHE_KEYS.CASHIER_DATA)
+        if (!cached) return null
+
+        const parsed = JSON.parse(cached)
+        const now = Date.now()
+        const age = now - parsed.timestamp
+
+        // Verifica se il cache è ancora valido e per lo stesso initCode
+        if (age > CASHIER_CACHE_DURATION || parsed.initCode !== initCode) {
+          localStorage.removeItem(CACHE_KEYS.CASHIER_DATA)
+          localStorage.removeItem(CACHE_KEYS.LAST_CASHIER_FETCH_TIME)
+          return null
+        }
+
+        // Verifica che i dati essenziali siano presenti
+        if (!parsed.contextData || !parsed.contextData.userData) {
+          localStorage.removeItem(CACHE_KEYS.CASHIER_DATA)
+          localStorage.removeItem(CACHE_KEYS.LAST_CASHIER_FETCH_TIME)
+          return null
+        }
+
+        return parsed.contextData
+      } catch (error) {
+        console.warn('Failed to load cashier cache:', error)
+        localStorage.removeItem(CACHE_KEYS.CASHIER_DATA)
+        localStorage.removeItem(CACHE_KEYS.LAST_CASHIER_FETCH_TIME)
+        return null
+      }
+    },
+    [
+      CACHE_KEYS.CASHIER_DATA,
+      CACHE_KEYS.LAST_CASHIER_FETCH_TIME,
+      CASHIER_CACHE_DURATION,
+    ],
   )
 
   const isCacheValid = useCallback(
@@ -541,7 +613,6 @@ export default function RootContextProvider(props: {
 
   const setSearchEventResults = useCallback(
     (searchEventResults?: EventResult[]) => {
-      console.log('ROOT CONTEXT:', searchEventResults)
       setRootContext((prev) => ({
         ...prev,
         searchEventResults,
@@ -558,35 +629,27 @@ export default function RootContextProvider(props: {
   }, [setSearchEventResults])
 
   useEffect(() => {
-    const initCode = getInitCodeFromUrl()
+    if (typeof window === 'undefined') return
+
+    const params = new URLSearchParams(window.location.search)
+    const initCode = params.get('init_code') || undefined
 
     if (initCode) {
       const storedInitCode = localStorage.getItem('initCode')
       if (storedInitCode && storedInitCode !== initCode) {
         localStorage.removeItem('betsContext')
+        setIsCashierReady(false)
       }
 
       localStorage.setItem('initCode', initCode)
-
-      // Extract and set language from URL immediately
-      const parts = initCode.split('-')
-
-      if (parts.length >= 4) {
-        // Format: TEST-USD-en-US
-        const langPart = parts[2].toLowerCase() // 'en'
-        i18n.changeLanguage(langPart)
-      } else if (parts.length >= 3) {
-        // Format: TEST-RUS-ru-RU
-        const langPart = parts[2].toLowerCase() // 'ru'
-        i18n.changeLanguage(langPart)
-      }
     } else {
       localStorage.removeItem('initCode')
       setIsLoading(false)
+      setIsCashierReady(false)
     }
 
     setInitCode(initCode)
-  }, [i18n])
+  }, [])
 
   useEffect(() => {
     if (!initCode) return
@@ -623,18 +686,26 @@ export default function RootContextProvider(props: {
             return typeof value === 'string' ? value : fallback || key
           }
 
-          setRootContext((prev) => ({
-            ...prev,
+          const contextData = {
             userData,
             cashierData,
             getStakeButtons,
             getCurrencySymbol,
             getChannels,
             getTranslation,
+          }
+
+          setRootContext((prev) => ({
+            ...prev,
+            ...contextData,
           }))
+
+          // Salva i dati cashier in cache
+          saveCashierToCache(initCode, cashierData, contextData)
 
           toast.success('Cashier data initialized successfully!')
           setIsLoading(false)
+          setIsCashierReady(true)
         } else {
           console.error('Cashier API returned error:', cashierData)
           throw new Error(
@@ -666,29 +737,38 @@ export default function RootContextProvider(props: {
             group: ['retail'],
           } as UserApiResponse
 
-          setRootContext((prev) => ({
-            ...prev,
+          const fallbackContextData = {
             userData: fallbackUserData,
             cashierData: null,
             getStakeButtons: () => [0.5, 1, 2, 5, 10, 50, 75, 100],
             getCurrencySymbol: () => '€',
             getChannels: () => [],
             getTranslation: (key: string, fallback?: string) => fallback || key,
+          }
+
+          setRootContext((prev) => ({
+            ...prev,
+            ...fallbackContextData,
           }))
+
+          // Salva anche il fallback in cache (per evitare retry continui)
+          saveCashierToCache(initCode, null, fallbackContextData)
 
           toast.warning(
             'Using fallback configuration - cashier API unavailable',
           )
           setIsLoading(false)
+          setIsCashierReady(true)
         }
       }
     }
 
     fetchUserData()
-  }, [i18n, initCode])
+  }, [initCode, loadCashierFromCache, saveCashierToCache])
 
   useEffect(() => {
-    if (!initCode) return
+    // Aspetta che sia initCode che cashier siano pronti prima di caricare gli eventi
+    if (!initCode || !isCashierReady) return
 
     const fetchUpcomingRounds = async () => {
       if (isCacheValid(CACHE_KEYS.LAST_SOCCER_FETCH_TIME)) {
@@ -1077,7 +1157,7 @@ export default function RootContextProvider(props: {
       clearInterval(refreshInterval)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initCode, apiRequest, loadCachedRacingEvents])
+  }, [initCode, isCashierReady, apiRequest, loadCachedRacingEvents])
 
   if (isLoading) {
     return (
@@ -1106,7 +1186,15 @@ export default function RootContextProvider(props: {
   }
 
   return (
-    <RootContext.Provider value={{ ...rootContext, initCode, isLoadingEvents }}>
+    <RootContext.Provider
+      value={{
+        ...rootContext,
+        initCode,
+        isLoadingEvents,
+        activeDrawerId,
+        setActiveDrawer,
+      }}
+    >
       {props.children}
     </RootContext.Provider>
   )
