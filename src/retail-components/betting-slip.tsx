@@ -1076,9 +1076,9 @@ export default function BettingSlip({
               <NumericKeypadDrawer
                 value={global}
                 setValue={setGlobal}
-                inputWidth="w-48"
+                inputWidth="w-48 border"
                 triggerLabel={t('amount')}
-                showPlusMinus={true}
+                showPlusMinus={false}
                 drawerId="system-amount"
               />
             </div>
