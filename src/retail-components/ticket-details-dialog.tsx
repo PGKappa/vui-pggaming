@@ -19,11 +19,7 @@ import { ScrollArea } from '@radix-ui/react-scroll-area'
 import { Ticket } from '@/retail-lib/types'
 import { t } from 'i18next'
 
-export default function TicketDetailsDialog({
-  ticket,
-}: {
-  ticket: Ticket
-}) {
+export default function TicketDetailsDialog({ ticket }: { ticket: Ticket }) {
   if (!ticket || !ticket.id) {
     return (
       <Dialog>
@@ -102,7 +98,7 @@ export default function TicketDetailsDialog({
                           {ticket.status}
                         </TableCell>
                         <TableCell className="text-center">
-                          € {ticket.amount.toFixed(2)}
+                          $ {ticket.amount.toFixed(2)}
                         </TableCell>
                         <TableCell className="text-right">
                           {ticket.winning.toFixed(2)}

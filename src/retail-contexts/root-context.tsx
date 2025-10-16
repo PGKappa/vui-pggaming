@@ -53,7 +53,7 @@ const defaultRootContext: RootContextType = {
   eventResults: [],
   isLoadingEvents: false,
   getStakeButtons: () => [0.5, 1, 2, 5, 10, 50, 75, 100],
-  getCurrencySymbol: () => '€',
+  getCurrencySymbol: () => '$',
   getChannels: () => [],
   getTranslation: (key: string, fallback?: string) => fallback || key,
   teamRankings: [
@@ -674,7 +674,7 @@ export default function RootContextProvider(props: {
           const getStakeButtons = () =>
             cashierData.intl?.stake_buttons || [0.5, 1, 2, 5, 10, 50, 75, 100]
           const getCurrencySymbol = () =>
-            cashierData.dict?.misc?.currency?.symbol || '€'
+            cashierData.dict?.misc?.currency?.symbol || '$'
           const getChannels = () => cashierData.channels || []
           const getTranslation = (key: string, fallback?: string) => {
             const keys = key.split('.')
@@ -741,7 +741,7 @@ export default function RootContextProvider(props: {
             userData: fallbackUserData,
             cashierData: null,
             getStakeButtons: () => [0.5, 1, 2, 5, 10, 50, 75, 100],
-            getCurrencySymbol: () => '€',
+            getCurrencySymbol: () => '$',
             getChannels: () => [],
             getTranslation: (key: string, fallback?: string) => fallback || key,
           }
