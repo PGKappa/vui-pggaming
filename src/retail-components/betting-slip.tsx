@@ -208,15 +208,32 @@ export default function BettingSlip({
       return Math.round(value * 20) / 20 // Arrotonda a multipli di 0,05
     }
 
-    const stakePerGroup = roundToFiveCents(baseStakePerGroup)
     const newStakes: Record<string, number> = {}
     const newSelections: Record<string, boolean> = {}
 
-    selectedGroupsList.forEach((group) => {
-      newStakes[group.name] = stakePerGroup
-      // Sincronizza checkbox: se valore > 0 → selezionato, altrimenti deselezionato
-      newSelections[group.name] = stakePerGroup > 0
+    // Ordina i gruppi per size crescente
+    const sortedGroups = [...selectedGroupsList].sort((a, b) => a.size - b.size)
+
+    // Calcola gli stake per tutti i gruppi tranne l'ultimo (quello con size più alto)
+    let totalUsed = 0
+    sortedGroups.forEach((group, index) => {
+      if (index < sortedGroups.length - 1) {
+        // Per tutti i gruppi tranne l'ultimo, usa l'importo arrotondato
+        const stakePerCombination = roundToFiveCents(baseStakePerGroup)
+        newStakes[group.name] = stakePerCombination
+        totalUsed += stakePerCombination * group.combinations.length
+      }
+      newSelections[group.name] = true
     })
+
+    // Per l'ultimo gruppo, calcola esattamente l'importo che serve per raggiungere systemDistributeStake
+    const lastGroup = sortedGroups[sortedGroups.length - 1] // size più alto
+    const remainingAmount = systemDistributeStake - totalUsed
+    const lastGroupStakePerCombination =
+      remainingAmount / lastGroup.combinations.length
+
+    // NON arrotondare l'ultimo gruppo, usare il valore esatto per raggiungere il totale
+    newStakes[lastGroup.name] = Math.max(0.01, lastGroupStakePerCombination)
 
     setSystemGroupStakes((prev) => ({
       ...prev,
