@@ -56,20 +56,6 @@ const getEventStatus = (event: any): 'active' | 'expired' => {
   return isExpired ? 'expired' : 'active'
 }
 
-// function getDisciplineFromPath(): 'soccer' | 'racing' | undefined {
-//   if (typeof window === 'undefined') return 'soccer'
-
-//   const path = window.location.pathname
-//   if (
-//     path.includes('/horses') ||
-//     path.includes('/dogs') ||
-//     path.includes('/dogs-horses')
-//   ) {
-//     return 'racing'
-//   }
-//   return undefined
-// }
-
 export default function BettingSlip({
   selectedEvent,
 }: {
@@ -132,7 +118,6 @@ export default function BettingSlip({
   }, [baseSystemGroups, systemGroupStakes])
 
   const [isSubmitting, setIsSubmitting] = useState(false)
-  // const discipline = useMemo(() => getDisciplineFromPath(), [])
 
   // Reset toggle when it's no longer enabled
   useEffect(() => {
@@ -301,8 +286,46 @@ export default function BettingSlip({
     }))
   }
 
+  // Funzione per gestire l'input diretto nell'AMOUNT (va sui Single)
+  const handleDirectAmountInput = (value: number) => {
+    if (value <= 0) {
+      setGlobal(0)
+      setSystemGroupStakes({})
+      setSelectedGroups({})
+      setAllGroupsSelected(false)
+      return
+    }
+
+    const singleGroup = systemGroups.find((group) => group.size === 1)
+    if (!singleGroup) return
+
+    // Calcola stake per combinazione: valore totale / numero combinazioni Single
+    const stakePerCombination = value / singleGroup.combinations.length
+
+    // Deseleziona tutti i gruppi
+    const newSelectedGroups: Record<string, boolean> = {}
+    const newStakes: Record<string, number> = {}
+
+    systemGroups.forEach((group) => {
+      if (group.size === 1) {
+        // Solo Single attivo
+        newSelectedGroups[group.name] = true
+        newStakes[group.name] = stakePerCombination
+      } else {
+        // Altri gruppi disattivati
+        newSelectedGroups[group.name] = false
+        newStakes[group.name] = 0
+      }
+    })
+
+    setSelectedGroups(newSelectedGroups)
+    setSystemGroupStakes((prev) => ({ ...prev, ...newStakes }))
+    setAllGroupsSelected(false)
+    setGlobal(value)
+  }
+
   // Importo minimo per combinazione
-  const MINIMUM_STAKE = 0.5
+  const MINIMUM_STAKE = 0.05
 
   // Funzioni per gestire i checkbox
   const handleAllGroupsToggle = (checked: boolean) => {
@@ -360,6 +383,13 @@ export default function BettingSlip({
       .reduce((sum, group) => sum + group.stake, 0)
   }, [systemGroups, selectedGroups])
 
+  // Calcolo del totale effettivo di tutte le giocate (per il display)
+  const actualTotalStake = useMemo(() => {
+    return systemGroups
+      .filter((group) => selectedGroups[group.name] && group.stake > 0)
+      .reduce((sum, group) => sum + group.stake * group.combinations.length, 0)
+  }, [systemGroups, selectedGroups])
+
   const totalSystemCombinations = useMemo(() => {
     return systemGroups
       .filter((group) => selectedGroups[group.name])
@@ -374,6 +404,14 @@ export default function BettingSlip({
         return sum + group.maxWin * group.stake
       }, 0)
   }, [systemGroups, selectedGroups])
+
+  // Sincronizza automaticamente global con il totale effettivo quando cambiano i gruppi
+  useEffect(() => {
+    if (betMode === 'SYSTEM') {
+      // Aggiorna global solo se non è un input diretto dall'utente
+      setGlobal(actualTotalStake)
+    }
+  }, [actualTotalStake, betMode])
 
   const handleBetNow = async () => {
     if (betEntries.length === 0) {
@@ -1075,7 +1113,7 @@ export default function BettingSlip({
               </div>
               <NumericKeypadDrawer
                 value={global}
-                setValue={setGlobal}
+                setValue={handleDirectAmountInput}
                 inputWidth="w-48 border"
                 triggerLabel={t('amount')}
                 showPlusMinus={false}
