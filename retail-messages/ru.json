@@ -205,5 +205,6 @@
   "markets_not_found": "Рынки не найдены:",
   "selection_required": "Выбор обязателен",
   "details_not_available": "Детали недоступны",
-  "date_hour": "Дата/Время"
+  "date_hour": "Дата/Время",
+  "select_at_least_one_group": "Выберите хотя бы одну группу для распределения суммы"
 }

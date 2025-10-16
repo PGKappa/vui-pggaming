@@ -190,7 +190,10 @@ export default function BettingSlip({
     const selectedGroupsList = systemGroups.filter(
       (group) => selectedGroups[group.name],
     )
-    if (selectedGroupsList.length === 0) return
+    if (selectedGroupsList.length === 0) {
+      toast.error(t('select_at_least_one_group'))
+      return
+    }
 
     // NUOVA LOGICA: Calcola il totale delle combinazioni dei gruppi selezionati
     const totalCombinations = selectedGroupsList.reduce(
@@ -257,6 +260,13 @@ export default function BettingSlip({
 
   const handleAddStakeToAll = () => {
     if (systemDistributeStake <= 0) return
+
+    // Controlla se almeno un gruppo è selezionato
+    const hasSelectedGroups = systemGroups.some((group) => selectedGroups[group.name])
+    if (!hasSelectedGroups) {
+      toast.error(t('select_at_least_one_group'))
+      return
+    }
 
     const newStakes: Record<string, number> = {}
     const newSelections: Record<string, boolean> = {}
