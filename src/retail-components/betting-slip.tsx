@@ -262,7 +262,9 @@ export default function BettingSlip({
     if (systemDistributeStake <= 0) return
 
     // Controlla se almeno un gruppo è selezionato
-    const hasSelectedGroups = systemGroups.some((group) => selectedGroups[group.name])
+    const hasSelectedGroups = systemGroups.some(
+      (group) => selectedGroups[group.name],
+    )
     if (!hasSelectedGroups) {
       toast.error(t('select_at_least_one_group'))
       return
