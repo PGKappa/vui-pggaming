@@ -218,7 +218,7 @@ export default function BettingSlip({
     // Importo per gruppo = Importo totale ÷ Numero totale combinazioni
     const baseStakePerGroup = systemDistributeStake / totalCombinations
 
-    // Arrotonda a step di 0,05€
+    // Arrotonda a step di 0,05$
     const roundToFiveCents = (value: number) => {
       return Math.round(value * 20) / 20 // Arrotonda a multipli di 0,05
     }
@@ -740,7 +740,7 @@ export default function BettingSlip({
                   className="h-8 bg-muted-foreground text-md"
                   onClick={() => setGlobal((prev) => prev + amount)}
                 >
-                  € {amount}
+                  $ {amount}
                 </Button>
               ))}
             </div>
@@ -770,7 +770,7 @@ export default function BettingSlip({
                 {t('potential_win').toUpperCase()}
               </span>
               <span className="text-[16px] font-bold">
-                € {potentialWinning.toFixed(2)}
+                $ {potentialWinning.toFixed(2)}
               </span>
             </div>
           </>
@@ -1020,7 +1020,7 @@ export default function BettingSlip({
                                   {t('min').toUpperCase()}
                                 </div>
                                 <div className="font-semibold">
-                                  € {(group.minWin * group.stake).toFixed(2)}
+                                  $ {(group.minWin * group.stake).toFixed(2)}
                                 </div>
                               </div>
                               <div className="text-center">
@@ -1028,7 +1028,7 @@ export default function BettingSlip({
                                   {t('max').toUpperCase()}
                                 </div>
                                 <div className="font-semibold">
-                                  € {(group.maxWin * group.stake).toFixed(2)}
+                                  $ {(group.maxWin * group.stake).toFixed(2)}
                                 </div>
                               </div>
                               <div className="text-center">
@@ -1036,7 +1036,7 @@ export default function BettingSlip({
                                   {t('total_played').toUpperCase()}
                                 </div>
                                 <div className="font-semibold">
-                                  €{' '}
+                                  ${' '}
                                   {(
                                     group.stake * group.combinations.length
                                   ).toFixed(2)}
@@ -1091,7 +1091,7 @@ export default function BettingSlip({
                 {t('potential_win').toUpperCase()}
               </span>
               <span className="text-[16px] font-bold">
-                € {totalSystemPotentialWin.toFixed(2)}
+                $ {totalSystemPotentialWin.toFixed(2)}
               </span>
             </div>
           </>

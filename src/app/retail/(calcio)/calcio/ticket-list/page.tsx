@@ -219,12 +219,12 @@ export default function TicketListPage() {
                 <td className="w-[1px] bg-muted p-0"></td>
                 <td className="p-2">21/05/2025 10:00</td>
                 <td className="w-[1px] bg-muted p-0"></td>
-                <td className="p-2">€ {(5 + i).toFixed(2)}</td>
+                <td className="p-2">$ {(5 + i).toFixed(2)}</td>
                 <td className="w-[1px] bg-muted p-0"></td>
-                <td className="p-2">€ 0.00</td>
+                <td className="p-2">$ 0.00</td>
                 <td className="w-[1px] bg-muted p-0"></td>
                 <td className="p-2">
-                  € {(i % 2 === 0 ? 3.2 : 0.0).toFixed(2)}
+                  $ {(i % 2 === 0 ? 3.2 : 0.0).toFixed(2)}
                 </td>
                 <td className="w-[1px] bg-muted p-0"></td>
                 <td className="p-2">
@@ -285,13 +285,13 @@ export default function TicketListPage() {
                 {t('page_total')}
               </td>
               <td className="border border-muted bg-accent px-3 py-2 text-center align-middle">
-                € 86.50
+                $ 86.50
               </td>
               <td className="border border-muted bg-accent px-3 py-2 text-center align-middle">
-                € 0.00
+                $ 0.00
               </td>
               <td className="border border-muted bg-accent px-3 py-2 text-center align-middle">
-                € 47.28
+                $ 47.28
               </td>
               <td className="border border-muted bg-accent px-3 py-2 text-center align-middle font-bold">
                 {t('cash_total')}
@@ -308,16 +308,16 @@ export default function TicketListPage() {
                 {t('totals')}
               </td>
               <td className="border border-muted bg-accent px-3 py-2 text-center align-middle">
-                € 86.50
+                $ 86.50
               </td>
               <td className="border border-muted bg-accent px-3 py-2 text-center align-middle">
-                € 0.00
+                $ 0.00
               </td>
               <td className="border border-muted bg-accent px-3 py-2 text-center align-middle">
-                € 47.28
+                $ 47.28
               </td>
               <td className="border border-muted bg-accent px-3 py-2 text-center align-middle">
-                € 0.00
+                $ 0.00
               </td>
               <td className="border border-muted bg-accent px-3 py-2 text-center align-middle">
                 0 / 7
