@@ -18,8 +18,13 @@ import { Button } from '@/retail-components/ui/button'
 import { ScrollArea } from '@radix-ui/react-scroll-area'
 import { Ticket } from '@/retail-lib/types'
 import { t } from 'i18next'
+import { useContext } from 'react'
+import { RootContext } from '@/retail-contexts/root-context'
 
 export default function TicketDetailsDialog({ ticket }: { ticket: Ticket }) {
+  const rootContext = useContext(RootContext)
+  const currencySymbol = rootContext?.getCurrencySymbol?.() || '$'
+
   if (!ticket || !ticket.id) {
     return (
       <Dialog>
@@ -98,7 +103,7 @@ export default function TicketDetailsDialog({ ticket }: { ticket: Ticket }) {
                           {ticket.status}
                         </TableCell>
                         <TableCell className="text-center">
-                          $ {ticket.amount.toFixed(2)}
+                          {currencySymbol} {ticket.amount.toFixed(2)}
                         </TableCell>
                         <TableCell className="text-right">
                           {ticket.winning.toFixed(2)}

@@ -38,8 +38,8 @@ export type RootContextType = {
   teamRankings?: TeamRanking[]
   eventResults?: EventResult[]
   isLoadingEvents: boolean
-  getStakeButtons?: () => number[]
   getCurrencySymbol?: () => string
+  getCurrencyCode?: () => string
   getChannels?: () => any[]
   getTranslation?: (key: string, fallback?: string) => string
   activeDrawerId?: string
@@ -52,8 +52,8 @@ const defaultRootContext: RootContextType = {
   setActiveDrawer: () => {},
   eventResults: [],
   isLoadingEvents: false,
-  getStakeButtons: () => [0.5, 1, 2, 5, 10, 50, 75, 100],
   getCurrencySymbol: () => '$',
+  getCurrencyCode: () => 'USD',
   getChannels: () => [],
   getTranslation: (key: string, fallback?: string) => fallback || key,
   teamRankings: [
@@ -671,10 +671,23 @@ export default function RootContextProvider(props: {
           } as UserApiResponse
 
           // Crea funzioni helper per accedere ai dati cashier
-          const getStakeButtons = () =>
-            cashierData.intl?.stake_buttons || [0.5, 1, 2, 5, 10, 50, 75, 100]
-          const getCurrencySymbol = () =>
-            cashierData.dict?.misc?.currency?.symbol || '$'
+          const getCurrencyCode = () => cashierData.intl?.currency || 'EUR'
+
+          const getCurrencySymbol = () => {
+            const currencyCode = cashierData.intl?.currency || 'EUR'
+            // Mapping sicuro da currency code a simbolo
+            const currencyMap: Record<string, string> = {
+              USD: '$',
+              EUR: '€',
+              GBP: '£',
+              JPY: '¥',
+              CHF: 'CHF',
+              CAD: 'C$',
+              AUD: 'A$',
+            }
+            return currencyMap[currencyCode] || '$'
+          }
+
           const getChannels = () => cashierData.channels || []
           const getTranslation = (key: string, fallback?: string) => {
             const keys = key.split('.')
@@ -689,8 +702,8 @@ export default function RootContextProvider(props: {
           const contextData = {
             userData,
             cashierData,
-            getStakeButtons,
             getCurrencySymbol,
+            getCurrencyCode,
             getChannels,
             getTranslation,
           }
@@ -740,8 +753,8 @@ export default function RootContextProvider(props: {
           const fallbackContextData = {
             userData: fallbackUserData,
             cashierData: null,
-            getStakeButtons: () => [0.5, 1, 2, 5, 10, 50, 75, 100],
             getCurrencySymbol: () => '$',
+            getCurrencyCode: () => 'USD',
             getChannels: () => [],
             getTranslation: (key: string, fallback?: string) => fallback || key,
           }
