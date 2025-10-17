@@ -184,7 +184,11 @@ export default function BettingSlip({
 
   // Funzioni per gestire la distribuzione degli importi nel sistema
   const handleDistributeStake = () => {
-    if (systemDistributeStake <= 0 || systemGroups.length === 0) return
+    if (systemDistributeStake <= 0) {
+      toast.error(t('enter_valid_amount'))
+      return
+    }
+    if (systemGroups.length === 0) return
 
     // Opera solo sui gruppi selezionati
     const selectedGroupsList = systemGroups.filter(
@@ -259,7 +263,10 @@ export default function BettingSlip({
   }
 
   const handleAddStakeToAll = () => {
-    if (systemDistributeStake <= 0) return
+    if (systemDistributeStake <= 0) {
+      toast.error(t('enter_valid_amount'))
+      return
+    }
 
     // Controlla se almeno un gruppo è selezionato
     const hasSelectedGroups = systemGroups.some(
@@ -270,37 +277,26 @@ export default function BettingSlip({
       return
     }
 
-    const newStakes: Record<string, number> = {}
-    const newSelections: Record<string, boolean> = {}
+    const newStakes = { ...systemGroupStakes }
+    const newSelections = { ...selectedGroups }
 
-    // Opera solo sui gruppi selezionati
-    systemGroups.forEach((group) => {
-      if (selectedGroups[group.name]) {
-        const newValue =
-          (systemGroupStakes[group.name] || 0) + systemDistributeStake
-        newStakes[group.name] = newValue
-        // Sincronizza checkbox: se valore > 0 → selezionato
-        newSelections[group.name] = newValue > 0
+    // Itera sui gruppi selezionati e sostituisce il valore
+    Object.keys(selectedGroups).forEach((groupName) => {
+      if (selectedGroups[groupName]) {
+        // sostituisce completamente il valore
+        newStakes[groupName] = systemDistributeStake
+        newSelections[groupName] = true
       }
     })
 
-    setSystemGroupStakes((prev) => ({
-      ...prev,
-      ...newStakes,
-    }))
-
-    setSelectedGroups((prev) => ({
-      ...prev,
-      ...newSelections,
-    }))
+    // Sostituisce completamente lo stato invece di fare merge
+    setSystemGroupStakes(newStakes)
+    setSelectedGroups(newSelections)
 
     // Aggiorna checkbox "tutti"
     setTimeout(() => {
-      const updatedSelections = { ...selectedGroups, ...newSelections }
       const allSelected = systemGroups.every(
-        (group) =>
-          updatedSelections[group.name] &&
-          (newStakes[group.name] || systemGroupStakes[group.name] || 0) > 0,
+        (group) => newSelections[group.name] && newStakes[group.name] > 0,
       )
       setAllGroupsSelected(allSelected)
     }, 0)
@@ -315,7 +311,7 @@ export default function BettingSlip({
     }))
   }
 
-  // Funzione per gestire l'input diretto nell'AMOUNT (va sui Single)
+  // Funzione per gestire l'input diretto nell'AMOUNT (va sul gruppo più grande)
   const handleDirectAmountInput = (value: number) => {
     if (value <= 0) {
       setGlobal(0)
@@ -325,19 +321,23 @@ export default function BettingSlip({
       return
     }
 
-    const singleGroup = systemGroups.find((group) => group.size === 1)
-    if (!singleGroup) return
+    // Trova il gruppo con il size più grande
+    const largestGroup = systemGroups.reduce((largest, current) => {
+      return current.size > largest.size ? current : largest
+    }, systemGroups[0])
 
-    // Calcola stake per combinazione: valore totale / numero combinazioni Single
-    const stakePerCombination = value / singleGroup.combinations.length
+    if (!largestGroup) return
+
+    // Calcola stake per combinazione: valore totale / numero combinazioni del gruppo più grande
+    const stakePerCombination = value / largestGroup.combinations.length
 
     // Deseleziona tutti i gruppi
     const newSelectedGroups: Record<string, boolean> = {}
     const newStakes: Record<string, number> = {}
 
     systemGroups.forEach((group) => {
-      if (group.size === 1) {
-        // Solo Single attivo
+      if (group.size === largestGroup.size) {
+        // Solo il gruppo più grande attivo
         newSelectedGroups[group.name] = true
         newStakes[group.name] = stakePerCombination
       } else {
