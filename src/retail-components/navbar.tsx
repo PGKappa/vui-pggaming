@@ -126,7 +126,7 @@ export default function Navbar() {
 
       <div className="mr-[7px] flex w-full justify-end gap-[8px]">
         <Button
-          className="h-12"
+          className="h-12 w-36"
           variant="ticketButton"
           size="lg"
           onClick={() => {
