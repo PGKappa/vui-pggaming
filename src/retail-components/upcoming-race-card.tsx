@@ -52,6 +52,8 @@ export default function UpcomingRaceCard({
   // Aggiungi il context
   const { betEntries } = useContext(BetsContext)
   const rootContext = useContext(RootContext)
+  const getTrackName =
+    rootContext?.getTrackName || ((channel?: number) => `Track ${channel || 6}`)
 
   // Inizializzazione corretta del marketType basata su activeTab
   const [marketType, setMarketType] = useState<
@@ -409,7 +411,7 @@ export default function UpcomingRaceCard({
                     raceInfo?.odds?.winner?.[racer.number.toString()] || '0',
                   ),
                 },
-                track: `Track  6`,
+                track: getTrackName(6),
               }}
               variant="racecard"
               className="h-12 w-24 bg-betEntry text-betEntry-foreground"
@@ -434,7 +436,7 @@ export default function UpcomingRaceCard({
                     raceInfo?.odds?.placed?.[racer.number.toString()] || '0',
                   ),
                 },
-                track: `Track  6`,
+                track: getTrackName(6),
               }}
               variant="racecard"
               className="h-12 w-24 bg-betEntry text-betEntry-foreground"
@@ -460,7 +462,7 @@ export default function UpcomingRaceCard({
                     raceInfo?.odds?.show?.[racer.number.toString()] || '0',
                   ),
                 },
-                track: `Track  6`,
+                track: getTrackName(6),
               }}
               variant="racecard"
               className="h-12 w-24 bg-betEntry text-betEntry-foreground"
@@ -638,7 +640,7 @@ export default function UpcomingRaceCard({
                       outcome: 'Even',
                       decPrice: parseFloat(raceInfo.odds.evenodd?.even || '0'),
                     },
-                    track: `Track  6`,
+                    track: getTrackName(6),
                   }}
                   variant="matchcard"
                   className="h-[45px] w-full text-[19px] text-black"
@@ -660,7 +662,7 @@ export default function UpcomingRaceCard({
                       outcome: 'Odd',
                       decPrice: parseFloat(raceInfo.odds.evenodd?.odd || '0'),
                     },
-                    track: `Track  6`,
+                    track: getTrackName(6),
                   }}
                   variant="matchcard"
                   className="h-[45px] w-full text-[19px] text-black"
@@ -695,7 +697,7 @@ export default function UpcomingRaceCard({
                         raceInfo.odds.underover?.under || '0',
                       ),
                     },
-                    track: `Track  6`,
+                    track: getTrackName(6),
                   }}
                   variant="matchcard"
                   className="h-[45px] w-full text-[19px] text-black"
@@ -719,7 +721,7 @@ export default function UpcomingRaceCard({
                         raceInfo.odds.underover?.over || '0',
                       ),
                     },
-                    track: `Track  6`,
+                    track: getTrackName(6),
                   }}
                   variant="matchcard"
                   className="h-[45px] w-full text-[19px] text-black"

@@ -4,6 +4,7 @@ import BetEntryToggle from './bet-entry-toggle'
 import { Button } from './ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { BetsContext } from '@/retail-contexts/bets-context'
+import { RootContext } from '@/retail-contexts/root-context'
 import { useTranslation } from 'react-i18next'
 
 type BetCombinationsTableProps = {
@@ -26,6 +27,14 @@ export default function BetCombinationsTable({
   onClearSelections,
 }: BetCombinationsTableProps) {
   const { t } = useTranslation()
+  const rootContext = useContext(RootContext)
+  const getTrackName = useMemo(
+    () =>
+      rootContext?.getTrackName ||
+      ((channel?: number) => `Track ${channel || 6}`),
+    [rootContext?.getTrackName],
+  )
+
   const [sortMode, setSortMode] = useState<'default' | 'asc' | 'desc'>(
     'default',
   )
@@ -70,7 +79,7 @@ export default function BetCombinationsTable({
                 outcome: `${racer1}-${racer2}`,
                 decPrice: parseFloat(odds),
               },
-              track: `Track  6`,
+              track: getTrackName(6),
             })
           }
         })
@@ -123,7 +132,7 @@ export default function BetCombinationsTable({
                       outcome: `${racer1}-${racer2} any`,
                       decPrice: parseFloat(odds),
                     },
-                    track: `Track  6`,
+                    track: getTrackName(6),
                   })
                 }
               }
@@ -172,7 +181,7 @@ export default function BetCombinationsTable({
                   outcome: `${racer1}-${racer2}-${racer3}`,
                   decPrice: parseFloat(odds),
                 },
-                track: `Track  6`,
+                track: getTrackName(6),
               })
             }
           })
@@ -250,7 +259,7 @@ export default function BetCombinationsTable({
                           outcome: `${combinationKey} any`,
                           decPrice: parseFloat(odds),
                         },
-                        track: `Track  6`,
+                        track: getTrackName(6),
                       })
                     }
                   }
@@ -285,6 +294,7 @@ export default function BetCombinationsTable({
     race.time,
     sortMode,
     marketType,
+    getTrackName,
   ])
 
   const getTitle = () => {

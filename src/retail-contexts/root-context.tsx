@@ -41,6 +41,7 @@ export type RootContextType = {
   getCurrencySymbol?: () => string
   getCurrencyCode?: () => string
   getChannels?: () => any[]
+  getTrackName?: (channel?: number) => string
   getTranslation?: (key: string, fallback?: string) => string
   activeDrawerId?: string
   setActiveDrawer: (drawerId?: string) => void
@@ -55,6 +56,7 @@ const defaultRootContext: RootContextType = {
   getCurrencySymbol: () => '$',
   getCurrencyCode: () => 'USD',
   getChannels: () => [],
+  getTrackName: (channel?: number) => `Track ${channel || 6}`,
   getTranslation: (key: string, fallback?: string) => fallback || key,
   teamRankings: [
     {
@@ -674,8 +676,14 @@ export default function RootContextProvider(props: {
           const getCurrencyCode = () => cashierData.intl?.currency || 'EUR'
 
           const getCurrencySymbol = () => {
+            // Prima prova a usare il simbolo dall'API cashier
+            const apiSymbol = cashierData.dict?.misc?.currency?.symbol
+            if (apiSymbol) {
+              return apiSymbol
+            }
+
+            // Fallback: usa il mapping basato sul currency code
             const currencyCode = cashierData.intl?.currency || 'EUR'
-            // Mapping sicuro da currency code a simbolo
             const currencyMap: Record<string, string> = {
               USD: '$',
               EUR: '€',
@@ -685,10 +693,28 @@ export default function RootContextProvider(props: {
               CAD: 'C$',
               AUD: 'A$',
             }
-            return currencyMap[currencyCode] || '$'
+            const fallbackSymbol = currencyMap[currencyCode] || '$'
+            return fallbackSymbol
           }
 
           const getChannels = () => cashierData.channels || []
+
+          const getTrackName = (channel?: number) => {
+            const channels = cashierData.channels || []
+
+            if (channel !== undefined && channels[channel]) {
+              const trackName =
+                channels[channel].track_name || `Track ${channel + 1}`
+              return trackName
+            }
+            // Fallback per il channel di default (6 diventa indice 5)
+            const defaultChannel = channel ? channel - 1 : 5
+            const fallbackTrackName =
+              channels[defaultChannel]?.track_name ||
+              `Track ${defaultChannel + 1}`
+            return fallbackTrackName
+          }
+
           const getTranslation = (key: string, fallback?: string) => {
             const keys = key.split('.')
             let value: any = cashierData.dict
@@ -705,6 +731,7 @@ export default function RootContextProvider(props: {
             getCurrencySymbol,
             getCurrencyCode,
             getChannels,
+            getTrackName,
             getTranslation,
           }
 
@@ -756,6 +783,7 @@ export default function RootContextProvider(props: {
             getCurrencySymbol: () => '$',
             getCurrencyCode: () => 'USD',
             getChannels: () => [],
+            getTrackName: (channel?: number) => `Track ${channel || 6}`,
             getTranslation: (key: string, fallback?: string) => fallback || key,
           }
 

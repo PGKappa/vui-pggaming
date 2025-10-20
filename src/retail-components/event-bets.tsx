@@ -1,4 +1,5 @@
 import { BetsContext } from '@/retail-contexts/bets-context'
+import { RootContext } from '@/retail-contexts/root-context'
 import { BetEntry } from '@/retail-lib/types'
 import useTimeLeft from '@/retail-lib/use-time-left'
 import { format } from 'date-fns'
@@ -19,6 +20,9 @@ export default function EventBets(props: {
   const { betMode, eventKey, eventBets } = props
   const { removeBet, removeEventBets, toggleEventBetsFixed } =
     useContext(BetsContext)
+  const rootContext = useContext(RootContext)
+  const getTrackName =
+    rootContext?.getTrackName || ((channel?: number) => `Track ${channel || 6}`)
 
   const timeToMatchStart = useTimeLeft(eventBets[0].bet.event.startingAt)
 
@@ -72,7 +76,9 @@ export default function EventBets(props: {
         {eventBets[0].bet.discipline === 'SOCCER' ? (
           <span className="text-[16px]">{eventBets[0].bet.competitors}</span>
         ) : (
-          <span className="text-[16px]">{`Track 6`}</span>
+          <span className="text-[16px]">
+            {eventBets[0].bet.track || getTrackName(6)}
+          </span>
         )}
       </div>
 
