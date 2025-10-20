@@ -138,6 +138,7 @@ export default function NumericKeypadDrawer(props: {
             variant="ghost"
             size="sm"
             className="h-8 w-7 bg-bet p-3 text-[19px] text-bet-foreground"
+            disabled={value <= 0}
             onClick={(e) => {
               e.stopPropagation()
               handlePlusMinus(-0.5)

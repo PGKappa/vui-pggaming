@@ -994,6 +994,7 @@ export default function BettingSlip({
                                         }, 0)
                                       }
                                     }}
+                                    disabled={group.stake <= 0}
                                     className="h-8 w-7 bg-bet p-3 text-[19px] text-bet-foreground"
                                   >
                                     <MinusIcon className="h-4 w-4" />
