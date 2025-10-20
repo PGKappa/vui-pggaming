@@ -1,0 +1,175 @@
+{
+  "dogs": [
+    {
+      "int_pal_id": "1000002172",
+      "int_event_id": "8",
+      "ext_pal_id": "23029000001",
+      "ext_event_id": "1479",
+      "status": 5,
+      "arrival": [
+        { "number": 6, "name": "Thunder" },
+        { "number": 3, "name": "Lightning" },
+        { "number": 2, "name": "Storm" }
+      ],
+      "start_time": "10:05"
+    },
+    {
+      "int_pal_id": "1000002172",
+      "int_event_id": "7",
+      "ext_pal_id": "23029000001",
+      "ext_event_id": "1475",
+      "status": 5,
+      "arrival": [
+        { "number": 1, "name": "Flash" },
+        { "number": 4, "name": "Rocket" },
+        { "number": 5, "name": "Dash" }
+      ],
+      "start_time": "09:55"
+    },
+    {
+      "int_pal_id": "1000002172",
+      "int_event_id": "6",
+      "ext_pal_id": "23029000001",
+      "ext_event_id": "1471",
+      "status": 5,
+      "arrival": [
+        { "number": 2, "name": "Bolt" },
+        { "number": 6, "name": "Speed" },
+        { "number": 3, "name": "Quick" }
+      ],
+      "start_time": "09:45"
+    },
+    {
+      "int_pal_id": "1000002172",
+      "int_event_id": "5",
+      "ext_pal_id": "23029000001",
+      "ext_event_id": "1467",
+      "status": 5,
+      "arrival": [
+        { "number": 4, "name": "Turbo" },
+        { "number": 1, "name": "Ace" },
+        { "number": 5, "name": "Champion" }
+      ],
+      "start_time": "09:35"
+    },
+    {
+      "int_pal_id": "1000002172",
+      "int_event_id": "4",
+      "ext_pal_id": "23029000001",
+      "ext_event_id": "1463",
+      "status": 5,
+      "arrival": [
+        { "number": 3, "name": "Winner" },
+        { "number": 2, "name": "Star" },
+        { "number": 6, "name": "Hero" }
+      ],
+      "start_time": "09:25"
+    }
+  ],
+  "horses": [
+    {
+      "int_pal_id": "1000002172",
+      "int_event_id": "8",
+      "ext_pal_id": "23029000001",
+      "ext_event_id": "1479",
+      "status": 5,
+      "arrival": [
+        { "number": 6, "name": "Chance" },
+        { "number": 3, "name": "Maverick" },
+        { "number": 2, "name": "Bailey" }
+      ],
+      "start_time": "10:05"
+    },
+    {
+      "int_pal_id": "1000002172",
+      "int_event_id": "7",
+      "ext_pal_id": "23029000001",
+      "ext_event_id": "1475",
+      "status": 5,
+      "arrival": [
+        { "number": 3, "name": "Guardian" },
+        { "number": 5, "name": "Izzy" },
+        { "number": 4, "name": "Brave" }
+      ],
+      "start_time": "09:55"
+    },
+    {
+      "int_pal_id": "1000002172",
+      "int_event_id": "6",
+      "ext_pal_id": "23029000001",
+      "ext_event_id": "1471",
+      "status": 5,
+      "arrival": [
+        { "number": 3, "name": "Beverly" },
+        { "number": 2, "name": "Princess" },
+        { "number": 4, "name": "Hoofington" }
+      ],
+      "start_time": "09:45"
+    },
+    {
+      "int_pal_id": "1000002172",
+      "int_event_id": "5",
+      "ext_pal_id": "23029000001",
+      "ext_event_id": "1467",
+      "status": 5,
+      "arrival": [
+        { "number": 1, "name": "Ivory" },
+        { "number": 2, "name": "Seattle Slew" },
+        { "number": 3, "name": "Leia" }
+      ],
+      "start_time": "09:35"
+    },
+    {
+      "int_pal_id": "1000002172",
+      "int_event_id": "4",
+      "ext_pal_id": "23029000001",
+      "ext_event_id": "1463",
+      "status": 5,
+      "arrival": [
+        { "number": 5, "name": "Shanghai" },
+        { "number": 3, "name": "Sadie" },
+        { "number": 6, "name": "Ahsoka" }
+      ],
+      "start_time": "09:25"
+    },
+    {
+      "int_pal_id": "1000002172",
+      "int_event_id": "3",
+      "ext_pal_id": "23029000001",
+      "ext_event_id": "1459",
+      "status": 5,
+      "arrival": [
+        { "number": 3, "name": "Evan" },
+        { "number": 2, "name": "Clover" },
+        { "number": 6, "name": "Pokey" }
+      ],
+      "start_time": "09:15"
+    },
+    {
+      "int_pal_id": "1000002172",
+      "int_event_id": "2",
+      "ext_pal_id": "23029000001",
+      "ext_event_id": "1455",
+      "status": 5,
+      "arrival": [
+        { "number": 3, "name": "Jackson" },
+        { "number": 5, "name": "Whisper" },
+        { "number": 2, "name": "Marlon" }
+      ],
+      "start_time": "09:05"
+    },
+    {
+      "int_pal_id": "1000002168",
+      "int_event_id": "91",
+      "ext_pal_id": "23029000001",
+      "ext_event_id": "1449",
+      "status": 5,
+      "arrival": [
+        { "number": 6, "name": "Twisted" },
+        { "number": 1, "name": "Blitz" },
+        { "number": 2, "name": "Aragorn" }
+      ],
+      "start_time": "23:55"
+    }
+  ]
+}
