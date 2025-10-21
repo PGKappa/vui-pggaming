@@ -6,7 +6,7 @@ import { ScrollArea } from '@/retail-components/ui/scroll-area'
 import { UpcomingEventsCarousel } from '@/retail-components/upcoming-events-carousel'
 import UpcomingRaceCard from '@/retail-components/upcoming-race-card'
 import { RootContext } from '@/retail-contexts/root-context'
-import { Discipline, UpcomingEvent } from '@/retail-lib/types'
+import { UpcomingEvent } from '@/retail-lib/types'
 import { useContext, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -20,22 +20,70 @@ export default function Home() {
   } = useContext(RootContext)
 
   const [selectedEvent, setSelectedEvent] = useState<UpcomingEvent | undefined>(
-    upcomingEvents?.filter(
-      (e) =>
-        e.discipline === Discipline.DOGS || e.discipline === Discipline.HORSES,
-    )[0],
+    undefined,
   )
 
   useEffect(() => {
-    if (!selectedEvent && upcomingEvents && upcomingEvents.length > 0) {
-      const firstRaceEvent = upcomingEvents?.filter(
-        (e) =>
-          e.discipline === Discipline.DOGS ||
-          e.discipline === Discipline.HORSES,
-      )[0]
-      setSelectedEvent(firstRaceEvent)
+    // SEMPRE aggiorna al primo evento FUTURO disponibile quando cambiano gli upcomingEvents
+    if (upcomingEvents && upcomingEvents.length > 0) {
+      const now = new Date()
+
+      const futureRaceEvents = upcomingEvents
+        .filter((e) => {
+          const isFuture = e.time > now
+          const isCorrectDiscipline =
+            e.discipline === 'DOGS' || e.discipline === 'HORSES'
+          return isFuture && isCorrectDiscipline
+        })
+        .sort((a, b) => a.time.getTime() - b.time.getTime())
+
+      if (futureRaceEvents.length > 0) {
+        const firstFutureEvent = futureRaceEvents[0]
+        setSelectedEvent(firstFutureEvent)
+      } else {
+        // Fallback: se non ci sono eventi futuri, prova con tutti gli eventi (anche scaduti)
+        const allRaceEvents = upcomingEvents
+          .filter((e) => e.discipline === 'DOGS' || e.discipline === 'HORSES')
+          .sort((a, b) => b.time.getTime() - a.time.getTime())
+
+        if (allRaceEvents.length > 0) {
+          setSelectedEvent(allRaceEvents[0])
+        } else {
+          setSelectedEvent(undefined)
+        }
+      }
     }
-  }, [upcomingEvents, selectedEvent])
+  }, [upcomingEvents])
+
+  // Controllo automatico per eventi scaduti
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (selectedEvent && upcomingEvents) {
+        const now = new Date()
+        const eventTime = selectedEvent.time
+
+        if (now >= eventTime) {
+          // Trova SOLO eventi futuri (non scaduti) della disciplina corretta e ORDINALI per tempo
+          const availableEvents = upcomingEvents
+            .filter(
+              (e) =>
+                (e.discipline === 'DOGS' || e.discipline === 'HORSES') &&
+                new Date() < e.time,
+            )
+            .sort((a, b) => a.time.getTime() - b.time.getTime())
+
+          const nextEvent = availableEvents[0]
+          if (nextEvent) {
+            setSelectedEvent(nextEvent)
+          } else {
+            setSelectedEvent(undefined)
+          }
+        }
+      }
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [selectedEvent, upcomingEvents])
 
   return (
     <div className="flex h-full flex-row overflow-hidden">

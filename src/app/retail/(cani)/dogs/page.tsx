@@ -20,17 +20,65 @@ export default function Home() {
   } = useContext(RootContext)
 
   const [selectedEvent, setSelectedEvent] = useState<UpcomingEvent | undefined>(
-    upcomingEvents?.filter((e) => e.discipline === 'DOGS')[0],
+    undefined,
   )
 
   useEffect(() => {
-    if (!selectedEvent && upcomingEvents && upcomingEvents.length > 0) {
-      const firstDogsEvent = upcomingEvents?.filter(
-        (e) => e.discipline === 'DOGS',
-      )[0]
-      setSelectedEvent(firstDogsEvent)
+    // SEMPRE aggiorna al primo evento FUTURO disponibile quando cambiano gli upcomingEvents
+    if (upcomingEvents && upcomingEvents.length > 0) {
+      const now = new Date()
+
+      const futureDogsEvents = upcomingEvents
+        .filter((e) => {
+          const isFuture = e.time > now
+          const isCorrectDiscipline = e.discipline === 'DOGS'
+          return isFuture && isCorrectDiscipline
+        })
+        .sort((a, b) => a.time.getTime() - b.time.getTime())
+
+      if (futureDogsEvents.length > 0) {
+        const firstFutureEvent = futureDogsEvents[0]
+        setSelectedEvent(firstFutureEvent)
+      } else {
+        // Fallback: se non ci sono eventi futuri, prova con tutti gli eventi (anche scaduti)
+        const allDogsEvents = upcomingEvents
+          .filter((e) => e.discipline === 'DOGS')
+          .sort((a, b) => b.time.getTime() - a.time.getTime())
+
+        if (allDogsEvents.length > 0) {
+          setSelectedEvent(allDogsEvents[0])
+        } else {
+          setSelectedEvent(undefined)
+        }
+      }
     }
-  }, [upcomingEvents, selectedEvent])
+  }, [upcomingEvents])
+
+  // Controllo automatico per eventi scaduti
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (selectedEvent && upcomingEvents) {
+        const now = new Date()
+        const eventTime = selectedEvent.time
+
+        if (now >= eventTime) {
+          // Trova SOLO eventi futuri (non scaduti) della disciplina corretta e ORDINALI per tempo
+          const availableEvents = upcomingEvents
+            .filter((e) => e.discipline === 'DOGS' && new Date() < e.time)
+            .sort((a, b) => a.time.getTime() - b.time.getTime())
+
+          const nextEvent = availableEvents[0]
+          if (nextEvent) {
+            setSelectedEvent(nextEvent)
+          } else {
+            setSelectedEvent(undefined)
+          }
+        }
+      }
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [selectedEvent, upcomingEvents])
 
   return (
     <div className="flex h-full flex-row overflow-hidden">

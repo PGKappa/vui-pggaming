@@ -37,10 +37,89 @@ export default function Home() {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (!selectedEvent && upcomingEvents && upcomingEvents.length > 0) {
-      setSelectedEvent(upcomingEvents[0])
+    // SEMPRE aggiorna al primo evento FUTURO disponibile quando cambiano gli upcomingEvents
+    if (upcomingEvents && upcomingEvents.length > 0) {
+      const now = new Date()
+
+      const futureSoccerEvents = upcomingEvents
+        .filter((e) => {
+          // Per eventi SOCCER, potrebbe avere startTime invece di time
+          const eventTime =
+            e.time || (e.startTime ? new Date(e.startTime) : null)
+          const isFuture = eventTime ? eventTime > now : false
+          const isCorrectDiscipline = e.discipline === 'SOCCER'
+          return isFuture && isCorrectDiscipline
+        })
+        .sort((a, b) => {
+          const timeA =
+            a.time || (a.startTime ? new Date(a.startTime) : new Date(0))
+          const timeB =
+            b.time || (b.startTime ? new Date(b.startTime) : new Date(0))
+          return timeA.getTime() - timeB.getTime()
+        })
+
+      if (futureSoccerEvents.length > 0) {
+        const firstFutureEvent = futureSoccerEvents[0]
+        setSelectedEvent(firstFutureEvent)
+      } else {
+        // Fallback: se non ci sono eventi futuri, prova con tutti gli eventi (anche scaduti)
+        const allSoccerEvents = upcomingEvents
+          .filter((e) => e.discipline === 'SOCCER')
+          .sort((a, b) => {
+            const timeA =
+              a.time || (a.startTime ? new Date(a.startTime) : new Date(0))
+            const timeB =
+              b.time || (b.startTime ? new Date(b.startTime) : new Date(0))
+            return timeB.getTime() - timeA.getTime()
+          })
+
+        if (allSoccerEvents.length > 0) {
+          setSelectedEvent(allSoccerEvents[0])
+        } else {
+          setSelectedEvent(undefined)
+        }
+      }
     }
-  }, [upcomingEvents, selectedEvent])
+  }, [upcomingEvents])
+
+  // Controllo automatico per eventi scaduti
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (selectedEvent && upcomingEvents) {
+        const now = new Date()
+        // Per eventi SOCCER, potrebbe avere startTime invece di time
+        const eventTime =
+          selectedEvent.time ||
+          (selectedEvent.startTime ? new Date(selectedEvent.startTime) : null)
+
+        if (eventTime && now >= eventTime) {
+          // Trova SOLO eventi futuri (non scaduti) della disciplina corretta e ORDINALI per tempo
+          const availableEvents = upcomingEvents
+            .filter((e) => {
+              const eTime =
+                e.time || (e.startTime ? new Date(e.startTime) : null)
+              return e.discipline === 'SOCCER' && eTime && new Date() < eTime
+            })
+            .sort((a, b) => {
+              const timeA =
+                a.time || (a.startTime ? new Date(a.startTime) : new Date(0))
+              const timeB =
+                b.time || (b.startTime ? new Date(b.startTime) : new Date(0))
+              return timeA.getTime() - timeB.getTime()
+            })
+
+          const nextEvent = availableEvents[0]
+          if (nextEvent) {
+            setSelectedEvent(nextEvent)
+          } else {
+            setSelectedEvent(undefined)
+          }
+        }
+      }
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [selectedEvent, upcomingEvents])
 
   return (
     <div className="flex h-full flex-row overflow-hidden py-2">
