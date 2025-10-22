@@ -791,10 +791,10 @@ export default function UpcomingRaceCard({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-11 w-11 border-border bg-secondary text-secondary-foreground"
+                className="h-12 w-[144px] border-border bg-secondary text-secondary-foreground text-[15px]"
                 onClick={() => setIsLatecomersDialogOpen(true)}
               >
-                <Clock style={{ scale: 1.5 }} />
+                <span>Latecomers</span>
               </Button>
             )}
           </div>
@@ -841,7 +841,7 @@ export default function UpcomingRaceCard({
                             {racer.performance}%
                             <Progress
                               value={racer.performance}
-                              className="w-48 [&>div]:rounded-r-full [&>div]:bg-accent"
+                              className="w-[189px] [&>div]:rounded-r-full [&>div]:bg-accent"
                               style={{ height: '8px' }}
                             />
                           </div>
