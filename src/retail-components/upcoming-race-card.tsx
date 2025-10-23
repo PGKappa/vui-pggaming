@@ -634,11 +634,11 @@ export default function UpcomingRaceCard({
 
     return (
       <div className="mt-4 w-full">
-        <div className="grid grid-cols-2 gap-0.5 border border-card-foreground">
+        <div className="grid grid-cols-2 gap-0 border border-card-foreground">
           {/* Even/Odd Market */}
           <div>
             <div className="bg-accent text-accent-foreground">
-              <div className="flex h-16 items-center justify-center text-[17px] font-bold pt-0.5">
+              <div className="flex h-16 items-center justify-center text-[17px] font-bold pt-0.5 border-r-[1px] border-slate">
                 {t('even_odd')}
               </div>
             </div>
@@ -666,7 +666,7 @@ export default function UpcomingRaceCard({
                 />
               </div>
 
-              <div className="flex flex-1 items-center justify-between pr-16 pl-16">
+              <div className="flex flex-1 items-center justify-between pr-16 pl-16 border-r-[1px] border-black">
                 <BetEntryToggle
                   marketName="Even/Odd"
                   bet={{
@@ -791,7 +791,7 @@ export default function UpcomingRaceCard({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-12 w-[144px] border-border bg-secondary text-secondary-foreground text-[15px]"
+                className="h-12 w-[120px] border-border bg-secondary text-secondary-foreground text-[15px]"
                 onClick={() => setIsLatecomersDialogOpen(true)}
               >
                 <span>Latecomers</span>
