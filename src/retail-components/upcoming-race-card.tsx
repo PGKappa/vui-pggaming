@@ -348,7 +348,7 @@ export default function UpcomingRaceCard({
 
   const renderTableHeader = () => {
     return (
-      <TableHeader className="h-14 bg-card-header text-[17px] text-card-header-foreground">
+      <TableHeader className="h-14 bg-card-header text-[16px] text-card-header-foreground">
         <TableRow>
           <TableHead className="w-[249px] text-center font-bold">
             {t('starters_list').toUpperCase()}
@@ -634,17 +634,17 @@ export default function UpcomingRaceCard({
 
     return (
       <div className="mt-4 w-full">
-        <div className="grid grid-cols-2 gap-0 border border-card-foreground">
+        <div className="grid grid-cols-2 gap-2 border border-card-foreground border-b-0 border-t-0">
           {/* Even/Odd Market */}
           <div>
             <div className="bg-accent text-accent-foreground">
-              <div className="flex h-16 items-center justify-center text-[17px] font-bold pt-0.5 border-r-[1px] border-slate">
-                {t('even_odd')}
+              <div className="flex h-16 items-center justify-center text-[17px] font-bold pt-0.5 border-slate">
+                {t('EVEN/ODD')}
               </div>
             </div>
 
             <div className="flex h-16">
-              <div className="flex flex-1 items-center justify-between pl-16">
+              <div className="flex flex-1 items-center justify-between pl-16 border-b">
                 <BetEntryToggle
                   marketName="Even/Odd"
                   bet={{
@@ -666,7 +666,7 @@ export default function UpcomingRaceCard({
                 />
               </div>
 
-              <div className="flex flex-1 items-center justify-between pr-16 pl-16 border-r-[1px] border-black">
+              <div className="flex flex-1 items-center justify-between pr-16 pl-16 border-black border-r border-b">
                 <BetEntryToggle
                   marketName="Even/Odd"
                   bet={{
@@ -694,12 +694,12 @@ export default function UpcomingRaceCard({
           <div>
             <div className="bg-accent text-accent-foreground">
               <div className="flex h-16 items-center justify-center text-[17px] font-bold pt-0.5">
-                {t('under_over')} 3.5
+                {t('UNDER/OVER')} 3.5
               </div>
             </div>
 
             <div className="flex h-16">
-              <div className="flex flex-1 items-center justify-between pl-16">
+              <div className="flex flex-1 items-center justify-between pl-16 border-l border-b">
                 <BetEntryToggle
                   marketName="Under/Over"
                   bet={{
@@ -723,7 +723,7 @@ export default function UpcomingRaceCard({
                 />
               </div>
 
-              <div className="flex flex-1 items-center justify-between pl-16 pr-16">
+              <div className="flex flex-1 items-center justify-between pl-16 pr-16 border-b">
                 <BetEntryToggle
                   marketName="Under/Over"
                   bet={{
@@ -762,7 +762,7 @@ export default function UpcomingRaceCard({
               <Button
                 key={key}
                 variant={activeTab === key ? 'marketSelected' : 'market'}
-                className="h-12 w-28 border px-4 text-[18px] pb-0.5 font-semibold"
+                className="h-12 w-28 border px-4 text-[16px] pb-0 font-semibold uppercase"
                 onClick={() => handleTabChange(key as TabType)}
               >
                 {config.name}
@@ -834,7 +834,7 @@ export default function UpcomingRaceCard({
                     <TableCell className="w-[1px] bg-border p-0" />
 
                     {/* Performance */}
-                    <TableCell className="p-3 text-[16px] font-bold">
+                    <TableCell className="p-3 text-[15px] font-bold">
                       <div className="flex items-center justify-center gap-3">
                         <div className="flex space-x-1">
                           <div className="flex flex-col items-center justify-center gap-1">

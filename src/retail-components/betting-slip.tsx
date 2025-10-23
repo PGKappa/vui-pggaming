@@ -587,7 +587,7 @@ export default function BettingSlip({
     >
       <div className="grid grid-cols-2 text-center">
         <div className="col-span-2 flex h-[74.2px] w-full flex-row items-center justify-between bg-accent px-5">
-          <span className="items-start text-[19px] font-semibold text-accent-foreground">
+          <span className="items-start text-[16px] font-semibold text-accent-foreground">
             {t('bet_slip').toUpperCase()} ({betEntries.length})
           </span>
           <Button
@@ -617,7 +617,7 @@ export default function BettingSlip({
           }
         >
           <span
-            className={`text-[16px] ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'font-semibold text-betSlip-header-foreground' : 'text-betSlip-foreground'}`}
+            className={`text-[15px] ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'font-semibold text-betSlip-header-foreground' : 'text-betSlip-foreground'}`}
           >
             {betMode === 'SINGLE'
               ? `${t('single').toUpperCase()}`
@@ -641,7 +641,7 @@ export default function BettingSlip({
           }
         >
           <span
-            className={`text-[16px] ${betMode === 'SYSTEM' ? 'font-semibold text-betSlip-header-foreground' : 'text-betSlip-foreground'}`}
+            className={`text-[15px] ${betMode === 'SYSTEM' ? 'font-semibold text-betSlip-header-foreground' : 'text-betSlip-foreground'}`}
           >
             {t('system').toUpperCase()}
           </span>
@@ -691,10 +691,10 @@ export default function BettingSlip({
 
             {/* TOTALE QUOTA section */}
             <div className="flex flex-row items-center justify-between px-4 py-3 text-foreground">
-              <span className="text-[16px] font-semibold">
-                {t('total_odd').toUpperCase()}
+              <span className="text-[15px] font-semibold">
+                {t('total_odd')}
               </span>
-              <span className="text-[16px] font-bold">
+              <span className="text-[15px] font-bold">
                 {totalOdds.toFixed(2)}
               </span>
             </div>
@@ -707,7 +707,7 @@ export default function BettingSlip({
                   key={amount}
                   variant="outline"
                   size="sm"
-                  className="h-8 bg-muted-foreground text-md"
+                  className="h-8 bg-muted-foreground text-[14px]"
                   onClick={() => setGlobal((prev) => prev + amount)}
                 >
                   € {amount}
@@ -718,8 +718,8 @@ export default function BettingSlip({
             {/* IMPORTO section */}
             <div className="flex flex-row items-center justify-between px-4 py-3">
               <div className="flex items-center gap-2">
-                <span className="text-[16px] font-semibold">
-                  {t('amount').toUpperCase()}
+                <span className="text-[15px] font-semibold">
+                  {t('amount')}
                 </span>
               </div>
               <StakeInputDialog value={global} setValue={setGlobal} />
@@ -729,10 +729,10 @@ export default function BettingSlip({
 
             {/* VINCITA POTENZIALE section */}
             <div className="flex flex-row items-center justify-between px-4 py-4 text-foreground">
-              <span className="text-[16px] font-semibold">
-                {t('potential_win').toUpperCase()}
+              <span className="text-[15px] font-semibold">
+                {t('potential_win')}
               </span>
-              <span className="text-[16px] font-bold">
+              <span className="text-[15px] font-bold">
                 € {potentialWinning.toFixed(2)}
               </span>
             </div>
@@ -957,7 +957,7 @@ export default function BettingSlip({
             (betMode !== 'SYSTEM' && global <= 0) ||
             (betMode === 'SYSTEM' && totalSystemStake <= 0)
           }
-          className="h-12 w-full text-[19px] font-bold"
+          className="h-12 w-full text-[18px] font-bold"
         >
           {isSubmitting ? t('submitting') : t('bet_now').toUpperCase()}
         </Button>

@@ -150,7 +150,7 @@ export default function RacingFastBet({
       <div className="relative flex-1">
         <Search className="absolute left-3 top-1/2 h-6 w-6 -translate-y-1/2 text-background" />
         <Input
-          className="h-10 w-full bg-accent pl-10 text-center text-[19px] font-bold text-accent-foreground"
+          className="h-10 w-full bg-accent pl-10 text-center text-[17px] font-bold text-accent-foreground"
           placeholder="FASTBET"
           value={fastbetInput}
           onChange={(e) => setFastbetInput(e.target.value.toUpperCase())}
@@ -163,7 +163,7 @@ export default function RacingFastBet({
           <Button
             variant="ghost"
             size="icon"
-            className="h-14 w-14 bg-tertiary text-2xl font-bold text-tertiary-foreground hover:bg-tertiary/90"
+            className="h-14 w-14 bg-tertiary text-[17px] font-bold text-tertiary-foreground hover:bg-tertiary/90"
           >
             i
           </Button>
