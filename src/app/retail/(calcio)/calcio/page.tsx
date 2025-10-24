@@ -7,8 +7,13 @@ import SkeletonRoundCard from '@/retail-components/skeleton-round-card'
 import { UpcomingEventsCarousel } from '@/retail-components/upcoming-events-carousel'
 import UpcomingRoundCard from '@/retail-components/upcoming-round-card'
 import { RootContext } from '@/retail-contexts/root-context'
-import { Market, UpcomingEvent, UpcomingRound } from '@/retail-lib/types'
-import { useContext, useEffect, useRef, useState } from 'react'
+import {
+  Market,
+  UpcomingEvent,
+  UpcomingRound,
+  Discipline,
+} from '@/retail-lib/types'
+import { useContext, useEffect, useRef, useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
 export default function Home() {
@@ -30,96 +35,80 @@ export default function Home() {
     markets: Market[]
   }>()
 
-  const [selectedEvent, setSelectedEvent] = useState<UpcomingEvent>()
+  const [selectedEvent, setSelectedEvent] = useState<UpcomingEvent | undefined>(
+    undefined,
+  )
+  const hasAutoSelectedRef = useRef(false)
 
   const [isLeaderboardExpanded, setIsLeaderboardExpanded] = useState(false)
 
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
+  // Memoize filtered and sorted soccer events for performance
+  const soccerEvents = useMemo(() => {
+    if (!upcomingEvents) return []
+    return upcomingEvents
+      .filter((event) => event.discipline === Discipline.SOCCER)
+      .sort((a, b) => {
+        const timeA = new Date(a.time).getTime()
+        const timeB = new Date(b.time).getTime()
+        return timeA - timeB
+      })
+  }, [upcomingEvents])
+
+  const futureSoccerEvents = useMemo(() => {
+    const now = new Date()
+    return soccerEvents.filter((event) => {
+      const eventTime = new Date(event.time)
+      return eventTime > now
+    })
+  }, [soccerEvents])
+
   useEffect(() => {
-    // SEMPRE aggiorna al primo evento FUTURO disponibile quando cambiano gli upcomingEvents
-    if (upcomingEvents && upcomingEvents.length > 0) {
-      const now = new Date()
-
-      const futureSoccerEvents = upcomingEvents
-        .filter((e) => {
-          // Per eventi SOCCER, potrebbe avere startTime invece di time
-          const eventTime =
-            e.time || (e.startTime ? new Date(e.startTime) : null)
-          const isFuture = eventTime ? eventTime > now : false
-          const isCorrectDiscipline = e.discipline === 'SOCCER'
-          return isFuture && isCorrectDiscipline
+    // SEMPRE aggiorna al primo evento FUTURO disponibile usando i memoized events
+    if (futureSoccerEvents.length > 0) {
+      const firstFutureEvent = futureSoccerEvents[0]
+      setSelectedEvent(firstFutureEvent)
+      hasAutoSelectedRef.current = true
+    } else {
+      // Fallback: se non ci sono eventi futuri, prova con tutti gli eventi (anche scaduti)
+      if (soccerEvents.length > 0) {
+        // Ordina per più recenti primi per gli eventi scaduti
+        const sortedPastEvents = [...soccerEvents].sort((a, b) => {
+          const timeA = new Date(a.time).getTime()
+          const timeB = new Date(b.time).getTime()
+          return timeB - timeA
         })
-        .sort((a, b) => {
-          const timeA =
-            a.time || (a.startTime ? new Date(a.startTime) : new Date(0))
-          const timeB =
-            b.time || (b.startTime ? new Date(b.startTime) : new Date(0))
-          return timeA.getTime() - timeB.getTime()
-        })
-
-      if (futureSoccerEvents.length > 0) {
-        const firstFutureEvent = futureSoccerEvents[0]
-        setSelectedEvent(firstFutureEvent)
+        setSelectedEvent(sortedPastEvents[0])
+        hasAutoSelectedRef.current = true
       } else {
-        // Fallback: se non ci sono eventi futuri, prova con tutti gli eventi (anche scaduti)
-        const allSoccerEvents = upcomingEvents
-          .filter((e) => e.discipline === 'SOCCER')
-          .sort((a, b) => {
-            const timeA =
-              a.time || (a.startTime ? new Date(a.startTime) : new Date(0))
-            const timeB =
-              b.time || (b.startTime ? new Date(b.startTime) : new Date(0))
-            return timeB.getTime() - timeA.getTime()
-          })
-
-        if (allSoccerEvents.length > 0) {
-          setSelectedEvent(allSoccerEvents[0])
-        } else {
-          setSelectedEvent(undefined)
-        }
+        setSelectedEvent(undefined)
+        hasAutoSelectedRef.current = false
       }
     }
-  }, [upcomingEvents])
+  }, [futureSoccerEvents, soccerEvents])
 
   // Controllo automatico per eventi scaduti
   useEffect(() => {
     const interval = setInterval(() => {
-      if (selectedEvent && upcomingEvents) {
+      if (selectedEvent) {
         const now = new Date()
-        // Per eventi SOCCER, potrebbe avere startTime invece di time
-        const eventTime =
-          selectedEvent.time ||
-          (selectedEvent.startTime ? new Date(selectedEvent.startTime) : null)
+        const eventTime = new Date(selectedEvent.time)
 
         if (eventTime && now >= eventTime) {
-          // Trova SOLO eventi futuri (non scaduti) della disciplina corretta e ORDINALI per tempo
-          const availableEvents = upcomingEvents
-            .filter((e) => {
-              const eTime =
-                e.time || (e.startTime ? new Date(e.startTime) : null)
-              return e.discipline === 'SOCCER' && eTime && new Date() < eTime
-            })
-            .sort((a, b) => {
-              const timeA =
-                a.time || (a.startTime ? new Date(a.startTime) : new Date(0))
-              const timeB =
-                b.time || (b.startTime ? new Date(b.startTime) : new Date(0))
-              return timeA.getTime() - timeB.getTime()
-            })
-
-          const nextEvent = availableEvents[0]
-          if (nextEvent) {
+          // Usa i futureSoccerEvents già memoized invece di rifiltrare
+          if (futureSoccerEvents.length > 0) {
+            const nextEvent = futureSoccerEvents[0]
             setSelectedEvent(nextEvent)
           } else {
             setSelectedEvent(undefined)
           }
         }
       }
-    }, 1000)
+    }, 5000)
 
     return () => clearInterval(interval)
-  }, [selectedEvent, upcomingEvents])
+  }, [selectedEvent, futureSoccerEvents])
 
   return (
     <div className="flex h-full flex-row overflow-hidden py-2">

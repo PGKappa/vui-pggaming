@@ -6,8 +6,8 @@ import { ScrollArea } from '@/retail-components/ui/scroll-area'
 import { UpcomingEventsCarousel } from '@/retail-components/upcoming-events-carousel'
 import UpcomingRaceCard from '@/retail-components/upcoming-race-card'
 import { RootContext } from '@/retail-contexts/root-context'
-import { UpcomingEvent } from '@/retail-lib/types'
-import { useContext, useEffect, useState } from 'react'
+import { UpcomingEvent, Discipline } from '@/retail-lib/types'
+import { useContext, useEffect, useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
 export default function Home() {
@@ -23,52 +23,58 @@ export default function Home() {
     undefined,
   )
 
+  // Memoize filtered and sorted horses events for performance
+  const horsesEvents = useMemo(() => {
+    if (!upcomingEvents) return []
+    return upcomingEvents
+      .filter((event) => event.discipline === Discipline.HORSES)
+      .sort((a, b) => {
+        const timeA = new Date(a.time).getTime()
+        const timeB = new Date(b.time).getTime()
+        return timeA - timeB
+      })
+  }, [upcomingEvents])
+
+  const futureHorsesEvents = useMemo(() => {
+    const now = new Date()
+    return horsesEvents.filter((event) => {
+      const eventTime = new Date(event.time)
+      return eventTime > now
+    })
+  }, [horsesEvents])
+
   useEffect(() => {
-    // SEMPRE aggiorna al primo evento FUTURO disponibile quando cambiano gli upcomingEvents
-    if (upcomingEvents && upcomingEvents.length > 0) {
-      const now = new Date()
-
-      const futureHorsesEvents = upcomingEvents
-        .filter((e) => {
-          const isFuture = e.time > now
-          const isCorrectDiscipline = e.discipline === 'HORSES'
-          return isFuture && isCorrectDiscipline
+    // SEMPRE aggiorna al primo evento FUTURO disponibile usando i memoized events
+    if (futureHorsesEvents.length > 0) {
+      const firstFutureEvent = futureHorsesEvents[0]
+      setSelectedEvent(firstFutureEvent)
+    } else {
+      // Fallback: se non ci sono eventi futuri, prova con tutti gli eventi (anche scaduti)
+      if (horsesEvents.length > 0) {
+        // Ordina per più recenti primi per gli eventi scaduti
+        const sortedPastEvents = [...horsesEvents].sort((a, b) => {
+          const timeA = new Date(a.time).getTime()
+          const timeB = new Date(b.time).getTime()
+          return timeB - timeA
         })
-        .sort((a, b) => a.time.getTime() - b.time.getTime())
-
-      if (futureHorsesEvents.length > 0) {
-        const firstFutureEvent = futureHorsesEvents[0]
-        setSelectedEvent(firstFutureEvent)
+        setSelectedEvent(sortedPastEvents[0])
       } else {
-        // Fallback: se non ci sono eventi futuri, prova con tutti gli eventi (anche scaduti)
-        const allHorsesEvents = upcomingEvents
-          .filter((e) => e.discipline === 'HORSES')
-          .sort((a, b) => b.time.getTime() - a.time.getTime())
-
-        if (allHorsesEvents.length > 0) {
-          setSelectedEvent(allHorsesEvents[0])
-        } else {
-          setSelectedEvent(undefined)
-        }
+        setSelectedEvent(undefined)
       }
     }
-  }, [upcomingEvents])
+  }, [futureHorsesEvents, horsesEvents])
 
   // Controllo automatico per eventi scaduti
   useEffect(() => {
     const interval = setInterval(() => {
-      if (selectedEvent && upcomingEvents) {
+      if (selectedEvent) {
         const now = new Date()
-        const eventTime = selectedEvent.time
+        const eventTime = new Date(selectedEvent.time)
 
-        if (now >= eventTime) {
-          // Trova SOLO eventi futuri (non scaduti) della disciplina corretta e ORDINALI per tempo
-          const availableEvents = upcomingEvents
-            .filter((e) => e.discipline === 'HORSES' && new Date() < e.time)
-            .sort((a, b) => a.time.getTime() - b.time.getTime())
-
-          const nextEvent = availableEvents[0]
-          if (nextEvent) {
+        if (eventTime && now >= eventTime) {
+          // Usa i futureHorsesEvents già memoized invece di rifiltrare
+          if (futureHorsesEvents.length > 0) {
+            const nextEvent = futureHorsesEvents[0]
             setSelectedEvent(nextEvent)
           } else {
             setSelectedEvent(undefined)
@@ -78,7 +84,7 @@ export default function Home() {
     }, 1000)
 
     return () => clearInterval(interval)
-  }, [selectedEvent, upcomingEvents])
+  }, [selectedEvent, futureHorsesEvents])
 
   return (
     <div className="flex h-full flex-row overflow-hidden">

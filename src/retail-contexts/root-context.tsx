@@ -1030,7 +1030,7 @@ export default function RootContextProvider(props: {
                     detailedResult = await response.json()
                   }
                 } catch (error) {
-                  console.log('❌ Failed to fetch dog details:', error)
+                  console.log('Failed to fetch dog details:', error)
                 }
 
                 return {
@@ -1069,7 +1069,7 @@ export default function RootContextProvider(props: {
                     detailedResult = await response.json()
                   }
                 } catch (error) {
-                  console.log('❌ Failed to fetch horse details:', error)
+                  console.log('Failed to fetch horse details:', error)
                 }
 
                 return {
