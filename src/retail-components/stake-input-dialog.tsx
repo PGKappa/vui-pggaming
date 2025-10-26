@@ -48,7 +48,7 @@ export default function StakeInputDialog(props: {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <div className="flex w-fit items-center border border-border">
+        <div className="flex w-fit items-center border border-border relative left-2">
           <Button
             variant="ghost"
             size="sm"
@@ -65,7 +65,7 @@ export default function StakeInputDialog(props: {
           <Input
             type="number"
             value={value.toFixed(2)}
-            className="bg-background-foreground h-8 w-20 border-x text-center text-[15px]"
+            className="bg-background-foreground h-8 w-[120px] border-x text-center text-[15px]"
             readOnly
           />
           <Button

@@ -601,7 +601,7 @@ export default function BettingSlip({
               alt="Bin"
               width={40}
               height={20}
-              className="size-6 object-contain brightness-0 invert filter"
+              className="h-[22px] w-6 object-contain brightness-0 invert filter"
             />
           </Button>
         </div>
@@ -617,7 +617,7 @@ export default function BettingSlip({
           }
         >
           <span
-            className={`text-[15px] ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'font-semibold text-betSlip-header-foreground' : 'text-betSlip-foreground'}`}
+            className={`text-[15px] pt-0.5 ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'font-semibold text-betSlip-header-foreground' : 'text-betSlip-foreground'}`}
           >
             {betMode === 'SINGLE'
               ? `${t('single').toUpperCase()}`
@@ -641,12 +641,12 @@ export default function BettingSlip({
           }
         >
           <span
-            className={`text-[15px] ${betMode === 'SYSTEM' ? 'font-semibold text-betSlip-header-foreground' : 'text-betSlip-foreground'}`}
+            className={`text-[15px] ${betMode === 'SYSTEM' ? 'font-semibold pt-0.5 text-betSlip-header-foreground' : 'text-betSlip-foreground'}`}
           >
             {t('system').toUpperCase()}
           </span>
           {betMode === 'SYSTEM' && (
-            <div className="absolute bottom-0.5 h-[4px] w-[156px] bg-betSlip-header-foreground"></div>
+            <div className="absolute bottom-0.5 h-[0px] w-[156px] bg-betSlip-header-foreground"></div>
           )}
         </div>
       </div>
@@ -668,7 +668,7 @@ export default function BettingSlip({
           </div>
         ) : (
           <ScrollArea className="h-full">
-            <ul className="flex flex-col gap-1 bg-background">
+            <ul className="flex flex-col gap-2 bg-background">
               {Object.entries(betsByEvent).map(([matchKey, matchBets]) => (
                 <EventBets
                   key={matchKey}
@@ -747,7 +747,7 @@ export default function BettingSlip({
               className="w-full"
             >
               <AccordionItem value="combinations" className="border-none">
-                <AccordionTrigger className="bg-accent px-4 py-1 text-accent-foreground hover:no-underline">
+                <AccordionTrigger className="bg-accent px-4 text-[13px] py-1 text-accent-foreground hover:no-underline">
                   {t('combinations').toUpperCase()}
                 </AccordionTrigger>
                 <AccordionContent className="pb-0">
@@ -759,7 +759,7 @@ export default function BettingSlip({
                         onCheckedChange={handleAllGroupsToggle}
                       />
                       <div className="flex items-center gap-2">
-                        <span className="text-sm">
+                        <span className="text-[13px]">
                           {t('divide').toUpperCase()}
                         </span>
                         <div className="flex w-44 items-center border border-border">
@@ -768,7 +768,7 @@ export default function BettingSlip({
                             size="sm"
                             onClick={handleDistributeStake}
                             disabled={systemDistributeStake <= 0}
-                            className="h-8 w-7 bg-bet p-3 text-[19px] text-bet-foreground"
+                            className="h-8 w-7 bg-bet p-3 text-[9px] text-bet-foreground"
                           >
                             <DivideIcon className="h-4 w-4" />
                           </Button>
@@ -793,7 +793,7 @@ export default function BettingSlip({
                             <CornerDownLeft className="h-4 w-4" />
                           </Button>
                         </div>
-                        <span className="text-sm">
+                        <span className="text-[13px]">
                           {t('add').toUpperCase()}
                         </span>
                       </div>
@@ -825,9 +825,9 @@ export default function BettingSlip({
                                   }
                                   onClick={(e) => e.stopPropagation()}
                                 />
-                                <span className="font-bold">{group.name}</span>
-                                <span className="text-muted-background font-bold">
-                                  ({group.combinations.length})
+                                <span className="font-normal text-[13px]">{group.name.toUpperCase()}</span>
+                                <span className="text-muted-background font-normal mt-[0px] relative right-[5px]">
+                                  (x{group.combinations.length})
                                 </span>
                               </div>
                               <div className="flex items-center gap-4">
@@ -871,10 +871,10 @@ export default function BettingSlip({
                             </div>
                           </AccordionTrigger>
                           <AccordionContent className="px-4">
-                            <div className="grid grid-cols-3 text-sm">
+                            <div className="grid grid-cols-3 text-[13px]">
                               <div className="text-center">
                                 <div className="text-foreground">
-                                  {t('min').toUpperCase()}
+                                  {t('min')}
                                 </div>
                                 <div className="font-semibold">
                                   € {(group.minWin * group.stake).toFixed(2)}
@@ -882,7 +882,7 @@ export default function BettingSlip({
                               </div>
                               <div className="text-center">
                                 <div className="text-foreground">
-                                  {t('max').toUpperCase()}
+                                  {t('max')}
                                 </div>
                                 <div className="font-semibold">
                                   € {(group.maxWin * group.stake).toFixed(2)}
@@ -890,7 +890,7 @@ export default function BettingSlip({
                               </div>
                               <div className="text-center">
                                 <div className="text-foreground">
-                                  {t('total_played').toUpperCase()}
+                                  {t('total_played')}
                                 </div>
                                 <div className="font-semibold">
                                   €{' '}
@@ -913,10 +913,10 @@ export default function BettingSlip({
 
             {/* TOTALE COMBINAZIONI */}
             <div className="flex flex-row items-center justify-between px-4 py-3 text-foreground">
-              <span className="text-[16px] font-semibold">
-                {t('total_combinations').toUpperCase()}
+              <span className="text-[15px] font-semibold">
+                {t('total_combinations')}
               </span>
-              <span className="text-[16px] font-bold">
+              <span className="text-[18px] font-semibold">
                 {totalSystemCombinations}/{totalSystemCombinations}
               </span>
             </div>
@@ -926,8 +926,8 @@ export default function BettingSlip({
             {/* IMPORTO */}
             <div className="flex flex-row items-center justify-between px-4 py-3">
               <div className="flex items-center gap-2">
-                <span className="text-[16px] font-semibold">
-                  {t('amount').toUpperCase()}
+                <span className="text-[15px] font-semibold">
+                  {t('amount')}
                 </span>
               </div>
               <StakeInputDialog value={global} setValue={setGlobal} />
@@ -937,10 +937,10 @@ export default function BettingSlip({
 
             {/* VINCITA POTENZIALE */}
             <div className="flex flex-row items-center justify-between px-4 py-3 text-foreground">
-              <span className="text-[16px] font-semibold">
-                {t('potential_win').toUpperCase()}
+              <span className="text-[15px] font-semibold">
+                {t('potential_win')}
               </span>
-              <span className="text-[16px] font-bold">
+              <span className="text-[18px] font-semibold">
                 € {totalSystemPotentialWin.toFixed(2)}
               </span>
             </div>
@@ -965,7 +965,7 @@ export default function BettingSlip({
 
       {/* FASTBET section */}
       {selectedEvent && (
-        <div className="bg-background">
+        <div className="bg-background w-[388px] ml-1">
           {selectedEvent?.discipline === 'SOCCER' ? (
             <SoccerFastBet selectedEvent={selectedEvent} />
           ) : (

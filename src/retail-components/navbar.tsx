@@ -138,7 +138,7 @@ export default function Navbar() {
 
         {/* Pulsante Info - sempre visibile con dialog diversi per calcio vs racing */}
         <Button
-          className="w-10 h-12"
+          className="w-12 h-12"
           variant="ticketButton"
           size="lg"
           onClick={() => setIsInfoDialogOpen(true)}

@@ -32,7 +32,7 @@ export default function EventBets(props: {
                 checked={eventBets[0].fixed}
                 onCheckedChange={() => toggleEventBetsFixed(eventKey)}
               />
-              <span className="text-[12px]">{t('fixed')}</span>
+              <span className="text-[11px] mt-1 pb-1 relative right-[1px]">{t('fixed')}</span>
             </div>
           </div>
           <Button
@@ -61,7 +61,7 @@ export default function EventBets(props: {
           </span>
 
           <div className="flex items-center gap-2">
-            <span className="text-[15px] font-bold">
+            <span className="text-[15px] font-bold relative left-[1px]">
               {format(eventBets[0].bet.event.startingAt, 'HH:mm')}
             </span>
             <Badge className="bg-accent font-mono text-[15px] mr-[4px] h-[26px] pt-1 w-[61px] pl-[7px]">
@@ -72,11 +72,11 @@ export default function EventBets(props: {
         {eventBets[0].bet.discipline === 'SOCCER' ? (
           <span className="text-[16px]">{eventBets[0].bet.competitors}</span>
         ) : (
-          <span className="text-[14px] pb-[2px] relative bottom-[1px] ml-[4px]">{`Track 6`}</span>
+          <span className="text-[14px] pb-[4px] relative bottom-[1px] ml-[4px]">{`Track 6`}</span>
         )}
       </div>
 
-      <div className="border border-betSlip-foreground bg-primary-foreground pl-2 pr-[1px] border-t-0 pb-[15px]">
+      <div className="border border-betSlip-foreground bg-primary-foreground pl-2 pr-[1px] border-t-0 pb-[15px] -space-y-[6px]">
         {eventBets.map((betEntry) => (
           <div
             key={betEntry.id}
@@ -100,7 +100,7 @@ export default function EventBets(props: {
                 )
               }
             >
-              <CircleXIcon className="mt-[16px]" style={{ scale: 1.4 }} />
+              <CircleXIcon className="mt-[13px]" style={{ scale: 1.4 }} />
             </Button>
           </div>
         ))}
