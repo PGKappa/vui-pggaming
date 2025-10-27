@@ -126,14 +126,14 @@ export default function Navbar() {
 
       <div className="mr-[7px] flex w-full justify-end gap-[8px]">
         <Button
-          className="h-12 w-36"
+          className="h-12 w-[168px]"
           variant="ticketButton"
           size="lg"
           onClick={() => {
             setSearchEventResults(eventResults)
           }}
         >
-          <span className="text-[15px] font-bold">{t('search_results')}</span>
+          <span className="text-[15px] font-semibold">{t('search_results').toUpperCase()}</span>
         </Button>
 
         {/* Pulsante Info - sempre visibile con dialog diversi per calcio vs racing */}

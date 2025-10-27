@@ -791,10 +791,10 @@ export default function UpcomingRaceCard({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-12 w-[120px] border-border bg-secondary text-secondary-foreground text-[15px] pr-[1px] pt-[1px]"
+                className="h-12 w-[137px] border-border bg-secondary text-secondary-foreground text-[15px] pr-[1px] pt-[1px]"
                 onClick={() => setIsLatecomersDialogOpen(true)}
               >
-                <span>Latecomers</span>
+                <span>{('Latecomers').toUpperCase()}</span>
               </Button>
             )}
           </div>

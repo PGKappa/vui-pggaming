@@ -131,7 +131,7 @@ function UpcomingEventItem(props: {
         />
       </div>
       <div className="flex flex-col items-start pr-[1px]">
-        <span className='text-[15] relative top-[4px]'>
+        <span className='text-[15] relative top-[4px] font-semibold'>
           {event.discipline === 'SOCCER'
           ? event.name
           : `${event.name} ${t('racing')}`}

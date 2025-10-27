@@ -601,7 +601,7 @@ export default function BettingSlip({
               alt="Bin"
               width={40}
               height={20}
-              className="h-[22px] w-6 object-contain brightness-0 invert filter"
+              className="h-[20px] w-6 object-contain brightness-0 invert filter"
             />
           </Button>
         </div>
@@ -914,9 +914,9 @@ export default function BettingSlip({
             {/* TOTALE COMBINAZIONI */}
             <div className="flex flex-row items-center justify-between px-4 py-3 text-foreground">
               <span className="text-[15px] font-semibold">
-                {t('total_combinations')}
+                {t('total_combinations').toUpperCase()}
               </span>
-              <span className="text-[18px] font-semibold">
+              <span className="text-[17px] font-semibold">
                 {totalSystemCombinations}/{totalSystemCombinations}
               </span>
             </div>
@@ -927,7 +927,7 @@ export default function BettingSlip({
             <div className="flex flex-row items-center justify-between px-4 py-3">
               <div className="flex items-center gap-2">
                 <span className="text-[15px] font-semibold">
-                  {t('amount')}
+                  {t('amount').toUpperCase()}
                 </span>
               </div>
               <StakeInputDialog value={global} setValue={setGlobal} />
@@ -938,9 +938,9 @@ export default function BettingSlip({
             {/* VINCITA POTENZIALE */}
             <div className="flex flex-row items-center justify-between px-4 py-3 text-foreground">
               <span className="text-[15px] font-semibold">
-                {t('potential_win')}
+                {t('potential_win').toUpperCase()}
               </span>
-              <span className="text-[18px] font-semibold">
+              <span className="text-[17px] font-semibold">
                 € {totalSystemPotentialWin.toFixed(2)}
               </span>
             </div>
