@@ -871,7 +871,7 @@ export default function BettingSlip({
                             </div>
                           </AccordionTrigger>
                           <AccordionContent className="px-4">
-                            <div className="grid grid-cols-3 text-[13px]">
+                            <div className="grid grid-cols-3 text-[3px]">
                               <div className="text-center">
                                 <div className="text-foreground">
                                   {t('min')}

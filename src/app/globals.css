@@ -387,3 +387,6 @@ body > main > div.p-2 > div > div.flex.flex-col > div.flex.h-full.flex-row.gap-2
   font-size: 18px;
 }
 
+body > main > div.p-2 > div > div.h-\[942px\].w-\[410px\].bg-background.text-foreground > div > div.p-0.pt-0.flex.flex-col.bg-background > div:nth-child(2){
+  display: none;
+}
