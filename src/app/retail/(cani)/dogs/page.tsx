@@ -7,6 +7,10 @@ import { UpcomingEventsCarousel } from '@/retail-components/upcoming-events-caro
 import UpcomingRaceCard from '@/retail-components/upcoming-race-card'
 import { RootContext } from '@/retail-contexts/root-context'
 import { UpcomingEvent, Discipline } from '@/retail-lib/types'
+import {
+  getCarouselFilteredEvents,
+  getFutureEventsFromCarousel,
+} from '@/retail-lib/carousel-sync'
 import { useContext, useEffect, useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -23,70 +27,61 @@ export default function Home() {
     undefined,
   )
 
-  // Memoize filtered and sorted dogs events for performance - SAME ORDER AS CAROUSEL
-  const dogsEvents = useMemo(() => {
-    if (!upcomingEvents) return []
-    return upcomingEvents
-      .filter((event) => event.discipline === Discipline.DOGS)
-      .sort((a, b) => {
-        // USA LA STESSA LOGICA DEL CAROSELLO: new Date(a.time).getTime()
-        const timeA = new Date(a.time).getTime()
-        const timeB = new Date(b.time).getTime()
-        return timeA - timeB
-      })
-  }, [upcomingEvents])
+  // SINCRONIZZAZIONE PERFETTA CON CAROSELLO
+  const carouselEvents = useMemo(
+    () => getCarouselFilteredEvents(upcomingEvents, [Discipline.DOGS]),
+    [upcomingEvents],
+  )
 
-  const futureDogsEvents = useMemo(() => {
-    const now = new Date()
-    return dogsEvents.filter((event) => {
-      // USA LA STESSA LOGICA DEL CAROSELLO per il confronto temporale
-      const eventTime = new Date(event.time)
-      return eventTime > now
-    })
-  }, [dogsEvents])
+  const futureEvents = useMemo(
+    () => getFutureEventsFromCarousel(carouselEvents),
+    [carouselEvents],
+  )
 
+  // AUTO-SELEZIONE: Sempre primo evento del carosello
   useEffect(() => {
-    // SEMPRE aggiorna al primo evento FUTURO disponibile usando i memoized events
-    if (futureDogsEvents.length > 0) {
-      const firstFutureEvent = futureDogsEvents[0]
-      setSelectedEvent(firstFutureEvent)
+    if (futureEvents && futureEvents.length > 0 && futureEvents[0]) {
+      setSelectedEvent(futureEvents[0])
+    } else if (carouselEvents && carouselEvents.length > 0) {
+      setSelectedEvent(carouselEvents[0])
     } else {
-      // Fallback: se non ci sono eventi futuri, prova con tutti gli eventi (anche scaduti)
-      if (dogsEvents.length > 0) {
-        // Ordina per più recenti primi per gli eventi scaduti
-        const sortedPastEvents = [...dogsEvents].sort((a, b) => {
-          const timeA = new Date(a.time).getTime()
-          const timeB = new Date(b.time).getTime()
-          return timeB - timeA
-        })
-        setSelectedEvent(sortedPastEvents[0])
-      } else {
-        setSelectedEvent(undefined)
-      }
+      setSelectedEvent(undefined)
     }
-  }, [futureDogsEvents, dogsEvents])
+  }, [futureEvents, carouselEvents])
 
-  // Controllo automatico per eventi scaduti - optimized version
+  // AUTO-AGGIORNAMENTO
   useEffect(() => {
     const interval = setInterval(() => {
       if (selectedEvent) {
         const now = new Date()
-        const eventTime = new Date(selectedEvent.time)
+        const eventTime =
+          selectedEvent.time instanceof Date
+            ? selectedEvent.time
+            : new Date(selectedEvent.time)
 
-        if (eventTime && now >= eventTime) {
-          // Usa i futureDogsEvents già memoized invece di rifiltrare
-          if (futureDogsEvents.length > 0) {
-            const nextEvent = futureDogsEvents[0]
-            setSelectedEvent(nextEvent)
+        if (eventTime <= now) {
+          // Refresh degli eventi
+          const freshFutureEvents = getFutureEventsFromCarousel(
+            getCarouselFilteredEvents(upcomingEvents, [Discipline.DOGS]),
+          )
+
+          if (freshFutureEvents.length > 0) {
+            setSelectedEvent(freshFutureEvents[0])
           } else {
-            setSelectedEvent(undefined)
+            // Nessun evento futuro, prendi il più recente
+            const allEvents = getCarouselFilteredEvents(upcomingEvents, [
+              Discipline.DOGS,
+            ])
+            if (allEvents.length > 0) {
+              setSelectedEvent(allEvents[allEvents.length - 1])
+            }
           }
         }
       }
-    }, 1000)
+    }, 5000)
 
     return () => clearInterval(interval)
-  }, [selectedEvent, futureDogsEvents])
+  }, [selectedEvent, upcomingEvents])
 
   return (
     <div className="flex h-full flex-row overflow-hidden">

@@ -13,6 +13,10 @@ import {
   UpcomingRound,
   Discipline,
 } from '@/retail-lib/types'
+import {
+  getCarouselFilteredEvents,
+  getFutureEventsFromCarousel,
+} from '@/retail-lib/carousel-sync'
 import { useContext, useEffect, useRef, useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -38,77 +42,64 @@ export default function Home() {
   const [selectedEvent, setSelectedEvent] = useState<UpcomingEvent | undefined>(
     undefined,
   )
-  const hasAutoSelectedRef = useRef(false)
 
   const [isLeaderboardExpanded, setIsLeaderboardExpanded] = useState(false)
 
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
-  // Memoize filtered and sorted soccer events for performance
-  const soccerEvents = useMemo(() => {
-    if (!upcomingEvents) return []
-    return upcomingEvents
-      .filter((event) => event.discipline === Discipline.SOCCER)
-      .sort((a, b) => {
-        const timeA = new Date(a.time).getTime()
-        const timeB = new Date(b.time).getTime()
-        return timeA - timeB
-      })
+  // SINCRONIZZAZIONE PERFETTA CON CAROSELLO
+  const carouselEvents = useMemo(() => {
+    return getCarouselFilteredEvents(upcomingEvents, [Discipline.SOCCER])
   }, [upcomingEvents])
 
-  const futureSoccerEvents = useMemo(() => {
-    const now = new Date()
-    return soccerEvents.filter((event) => {
-      const eventTime = new Date(event.time)
-      return eventTime > now
-    })
-  }, [soccerEvents])
+  const futureEvents = useMemo(() => {
+    return getFutureEventsFromCarousel(carouselEvents)
+  }, [carouselEvents])
 
+  // AUTO-SELEZIONE: Sempre primo evento del carosello
   useEffect(() => {
-    // SEMPRE aggiorna al primo evento FUTURO disponibile usando i memoized events
-    if (futureSoccerEvents.length > 0) {
-      const firstFutureEvent = futureSoccerEvents[0]
-      setSelectedEvent(firstFutureEvent)
-      hasAutoSelectedRef.current = true
+    if (futureEvents && futureEvents.length > 0 && futureEvents[0]) {
+      setSelectedEvent(futureEvents[0])
+    } else if (carouselEvents && carouselEvents.length > 0) {
+      setSelectedEvent(carouselEvents[0])
     } else {
-      // Fallback: se non ci sono eventi futuri, prova con tutti gli eventi (anche scaduti)
-      if (soccerEvents.length > 0) {
-        // Ordina per più recenti primi per gli eventi scaduti
-        const sortedPastEvents = [...soccerEvents].sort((a, b) => {
-          const timeA = new Date(a.time).getTime()
-          const timeB = new Date(b.time).getTime()
-          return timeB - timeA
-        })
-        setSelectedEvent(sortedPastEvents[0])
-        hasAutoSelectedRef.current = true
-      } else {
-        setSelectedEvent(undefined)
-        hasAutoSelectedRef.current = false
-      }
+      setSelectedEvent(undefined)
     }
-  }, [futureSoccerEvents, soccerEvents])
+  }, [futureEvents, carouselEvents])
 
-  // Controllo automatico per eventi scaduti
+  // AUTO-AGGIORNAMENTO
   useEffect(() => {
     const interval = setInterval(() => {
       if (selectedEvent) {
         const now = new Date()
-        const eventTime = new Date(selectedEvent.time)
+        const eventTime =
+          selectedEvent.time instanceof Date
+            ? selectedEvent.time
+            : new Date(selectedEvent.time)
 
-        if (eventTime && now >= eventTime) {
-          // Usa i futureSoccerEvents già memoized invece di rifiltrare
-          if (futureSoccerEvents.length > 0) {
-            const nextEvent = futureSoccerEvents[0]
-            setSelectedEvent(nextEvent)
+        if (eventTime <= now) {
+          // Refresh degli eventi
+          const freshFutureEvents = getFutureEventsFromCarousel(
+            getCarouselFilteredEvents(upcomingEvents, [Discipline.SOCCER]),
+          )
+
+          if (freshFutureEvents.length > 0) {
+            setSelectedEvent(freshFutureEvents[0])
           } else {
-            setSelectedEvent(undefined)
+            // Nessun evento futuro, prendi il più recente
+            const allEvents = getCarouselFilteredEvents(upcomingEvents, [
+              Discipline.SOCCER,
+            ])
+            if (allEvents.length > 0) {
+              setSelectedEvent(allEvents[allEvents.length - 1])
+            }
           }
         }
       }
     }, 5000)
 
     return () => clearInterval(interval)
-  }, [selectedEvent, futureSoccerEvents])
+  }, [selectedEvent, upcomingEvents])
 
   return (
     <div className="flex h-full flex-row overflow-hidden py-2">
