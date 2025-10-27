@@ -33,6 +33,7 @@
     "react-day-picker": "8.10.1",
     "react-detect-click-outside": "^1.1.7",
     "react-dom": "^19.0.0",
+    "react-facebook-login": "^4.1.1",
     "react-i18next": "^15.4.1",
     "react-player": "^2.16.0",
     "sonner": "^2.0.1",

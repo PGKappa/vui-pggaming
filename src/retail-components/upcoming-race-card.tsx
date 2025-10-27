@@ -638,7 +638,7 @@ export default function UpcomingRaceCard({
           {/* Even/Odd Market */}
           <div>
             <div className="bg-accent text-accent-foreground">
-              <div className="flex h-16 items-center justify-center text-[17px] font-bold pt-0.5 border-slate">
+              <div className="flex h-16 items-center justify-center text-[16px] font-bold border-slate">
                 {t('EVEN/ODD')}
               </div>
             </div>
@@ -662,7 +662,7 @@ export default function UpcomingRaceCard({
                     track: `Track  6`,
                   }}
                   variant="matchcard"
-                  className="h-[45px] w-full text-[17px] text-black"
+                  className="h-[45px] w-full text-[16px] text-black"
                 />
               </div>
 
@@ -684,7 +684,7 @@ export default function UpcomingRaceCard({
                     track: `Track  6`,
                   }}
                   variant="matchcard"
-                  className="h-[45px] w-full text-[17px] text-black"
+                  className="h-[45px] w-full text-[16px] text-black"
                 />
               </div>
             </div>
@@ -719,7 +719,7 @@ export default function UpcomingRaceCard({
                     track: `Track  6`,
                   }}
                   variant="matchcard"
-                  className="h-[45px] w-full text-[17px] text-black"
+                  className="h-[45px] w-full text-[16px] text-black"
                 />
               </div>
 
@@ -743,7 +743,7 @@ export default function UpcomingRaceCard({
                     track: `Track  6`,
                   }}
                   variant="matchcard"
-                  className="h-[45px] w-full text-[17px] text-black"
+                  className="h-[45px] w-full text-[16px] text-black"
                 />
               </div>
             </div>
@@ -791,7 +791,7 @@ export default function UpcomingRaceCard({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-12 w-[120px] border-border bg-secondary text-secondary-foreground text-[15px]"
+                className="h-12 w-[120px] border-border bg-secondary text-secondary-foreground text-[15px] pr-[1px] pt-[1px]"
                 onClick={() => setIsLatecomersDialogOpen(true)}
               >
                 <span>Latecomers</span>
@@ -813,7 +813,7 @@ export default function UpcomingRaceCard({
                   >
                     {/* Informazioni sul corridore */}
                     <TableCell className="p-2 text-[18px] relative left-1">
-                      <div className="flex items-center gap-[9px]">
+                      <div className="flex items-center gap-[7px]">
                         <div
                           className="flex h-8 w-8 items-center justify-center rounded-md text-[21px] font-bold pt-0.5"
                           style={
@@ -837,11 +837,11 @@ export default function UpcomingRaceCard({
                     <TableCell className="p-3 text-[15px] font-bold">
                       <div className="flex items-center justify-center gap-3">
                         <div className="flex space-x-1">
-                          <div className="flex flex-col items-center justify-center gap-1">
+                          <div className="flex flex-col items-center justify-center gap-2">
                             {racer.performance}%
                             <Progress
                               value={racer.performance}
-                              className="w-[189px] [&>div]:rounded-r-full [&>div]:bg-accent"
+                              className="w-[189px] [&>div]:rounded-r-full [&>div]:bg-accent relative bottom-[3px]"
                               style={{ height: '8px' }}
                             />
                           </div>

@@ -387,20 +387,20 @@ export default function BetCombinationsTable({
   return (
     <Card className="mt-4">
       <CardHeader className="flex h-14 items-center justify-center bg-accent px-3 text-accent-foreground">
-        <CardTitle className="justify-center text-[17px] pt-1 text-white">
+        <CardTitle className="justify-center text-[16px]  text-white">
           {getTitle()}
         </CardTitle>
         <div className="flex gap-2">
           <Button
             variant="navbar"
-            className="h-10 w-40 px-3 text-[16px] font-bold text-white"
+            className="h-10 w-40 px-3 text-[15px] font-bold text-white pt-[1px]"
             onClick={handleSortClick}
           >
             {getSortButtonText()}
           </Button>
           <Button
             variant="navbar"
-            className="h-10 w-40 px-3 text-[16px] font-bold text-white"
+            className="h-10 w-40 px-3 text-[15px] font-bold text-white pt-[1px]"
             onClick={() => {
               if (allBetsSelected) {
                 removeBets(
@@ -420,8 +420,8 @@ export default function BetCombinationsTable({
               : `${t('select_all').toUpperCase()}`}
           </Button>
 
-          <div className="flex h-10 min-w-[60px] items-center justify-center rounded bg-accent-foreground px-3 text-accent">
-            <span className="text-[16px] font-bold">{combinations.length}</span>
+          <div className="flex h-10 min-w-[54px] items-center justify-center rounded-[2px] bg-accent-foreground px-3 text-accent">
+            <span className="text-[15px] font-bold pt-[1px]">{combinations.length}</span>
           </div>
         </div>
       </CardHeader>
