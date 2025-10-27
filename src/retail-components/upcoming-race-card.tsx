@@ -311,6 +311,11 @@ export default function UpcomingRaceCard({
         ? current.filter((id) => id !== competitorId)
         : [...current, competitorId]
 
+      // Se rimuovo checkbox, rimuovo anche la fissa
+      if (isRemoving) {
+        setFixedSelection((fixed) => fixed.filter((id) => id !== competitorId))
+      }
+
       if (newSelection.length > 0) {
         setPosition1Selection([])
         setPosition2Selection([])
@@ -330,11 +335,33 @@ export default function UpcomingRaceCard({
   }
 
   const toggleFixedSelection = (competitorId: number) => {
+    if (!isAnyOrderMode) {
+      if (activeTab === 'couples') {
+        setMarketType('quinella')
+      } else if (activeTab === 'triplets') {
+        setMarketType('boxtrifecta')
+      }
+      setPosition1Selection([])
+      setPosition2Selection([])
+      setPosition3Selection([])
+    }
+
     setFixedSelection((current) => {
       const isRemoving = current.includes(competitorId)
-      return isRemoving
-        ? current.filter((id) => id !== competitorId)
-        : [...current, competitorId]
+
+      if (isRemoving) {
+        // Se rimuovo la fissa, non tocco la checkbox (può rimanere selezionata)
+        return current.filter((id) => id !== competitorId)
+      } else {
+        // Se aggiungo la fissa, seleziono automaticamente anche la checkbox any order
+        setDisorderSelection((disorder) => {
+          if (!disorder.includes(competitorId)) {
+            return [...disorder, competitorId]
+          }
+          return disorder
+        })
+        return [...current, competitorId]
+      }
     })
   }
 
