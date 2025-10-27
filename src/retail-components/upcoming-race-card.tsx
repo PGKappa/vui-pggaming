@@ -46,6 +46,7 @@ export default function UpcomingRaceCard({
   const [position2Selection, setPosition2Selection] = useState<number[]>([])
   const [position3Selection, setPosition3Selection] = useState<number[]>([])
   const [disorderSelection, setDisorderSelection] = useState<number[]>([])
+  const [fixedSelection, setFixedSelection] = useState<number[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isLatecomersDialogOpen, setIsLatecomersDialogOpen] = useState(false)
 
@@ -325,6 +326,16 @@ export default function UpcomingRaceCard({
     setPosition2Selection([])
     setPosition3Selection([])
     setDisorderSelection([])
+    setFixedSelection([])
+  }
+
+  const toggleFixedSelection = (competitorId: number) => {
+    setFixedSelection((current) => {
+      const isRemoving = current.includes(competitorId)
+      return isRemoving
+        ? current.filter((id) => id !== competitorId)
+        : [...current, competitorId]
+    })
   }
 
   const renderTableHeader = () => {
@@ -368,7 +379,7 @@ export default function UpcomingRaceCard({
                 {t('exacta').toUpperCase()}
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
-              <TableHead className="w-[249px] text-center font-bold">
+              <TableHead className="text-center font-bold" colSpan={2}>
                 {t('any_order').toUpperCase()}
               </TableHead>
             </>
@@ -380,7 +391,7 @@ export default function UpcomingRaceCard({
                 {t('trifecta').toUpperCase()}
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
-              <TableHead className="w-[187px] text-center font-bold">
+              <TableHead className="text-center font-bold" colSpan={2}>
                 {t('any_order').toUpperCase()}
               </TableHead>
             </>
@@ -513,6 +524,28 @@ export default function UpcomingRaceCard({
                 className={`flex flex-1 items-center justify-center p-2 ${!isAnyOrderMode ? 'bg-gray-300' : ''}`}
               >
                 <Toggle
+                  pressed={fixedSelection.includes(racer.number)}
+                  onPressedChange={() => toggleFixedSelection(racer.number)}
+                  onClick={(e) => e.stopPropagation()}
+                  className={`h-12 w-24 border-betEntry-border ${
+                    fixedSelection.includes(racer.number) ? 'text-white' : ''
+                  }`}
+                >
+                  <span className="text-[19px]">F</span>
+                </Toggle>
+              </div>
+            </div>
+          </TableCell>
+
+          <TableCell className="p-0">
+            <div
+              className="flex h-full cursor-pointer flex-col text-center"
+              onClick={handleMarketTypeToggle}
+            >
+              <div
+                className={`flex flex-1 items-center justify-center p-2 ${!isAnyOrderMode ? 'bg-gray-300' : ''}`}
+              >
+                <Toggle
                   pressed={disorderSelection.includes(racer.number)}
                   onPressedChange={() => toggleDisorderSelection(racer.number)}
                   onClick={(e) => e.stopPropagation()}
@@ -577,6 +610,28 @@ export default function UpcomingRaceCard({
           </TableCell>
 
           <TableCell className="w-[1px] bg-border p-0" />
+
+          <TableCell className="p-0">
+            <div
+              className="flex h-full cursor-pointer flex-col"
+              onClick={handleMarketTypeToggle}
+            >
+              <div
+                className={`flex flex-1 items-center justify-center p-2 ${!isAnyOrderMode ? 'bg-gray-300' : ''}`}
+              >
+                <Toggle
+                  pressed={fixedSelection.includes(racer.number)}
+                  onPressedChange={() => toggleFixedSelection(racer.number)}
+                  onClick={(e) => e.stopPropagation()}
+                  className={`h-12 w-24 border-betEntry-border ${
+                    fixedSelection.includes(racer.number) ? 'text-white' : ''
+                  }`}
+                >
+                  <span className="text-[19px]">F</span>
+                </Toggle>
+              </div>
+            </div>
+          </TableCell>
 
           <TableCell className="p-0">
             <div
@@ -757,7 +812,8 @@ export default function UpcomingRaceCard({
               (position1Selection.length > 0 ||
                 position2Selection.length > 0 ||
                 position3Selection.length > 0 ||
-                disorderSelection.length > 0) && (
+                disorderSelection.length > 0 ||
+                fixedSelection.length > 0) && (
                 <Button
                   variant="ghost"
                   className="h-11 w-28 bg-secondary px-4 text-[16px] font-bold text-secondary-foreground"
