@@ -298,13 +298,7 @@ export default function UpcomingRaceCard({
     }
 
     setDisorderSelection((current) => {
-      if (!current.includes(competitorId)) {
-        const maxSelections = activeTab === 'couples' ? 2 : 3
-
-        if (current.length >= maxSelections) {
-          return current
-        }
-      }
+      // 🎯 RIMOSSO LIMITATORE - Ora permette selezione illimitata di corridori!
 
       const isRemoving = current.includes(competitorId)
       const newSelection = isRemoving
@@ -956,6 +950,7 @@ export default function UpcomingRaceCard({
           position2Selection={position2Selection}
           position3Selection={position3Selection}
           disorderSelection={disorderSelection}
+          fixedSelection={fixedSelection}
           marketType={marketType}
           onClearSelections={clearSelections}
         />

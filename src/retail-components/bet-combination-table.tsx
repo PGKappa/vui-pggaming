@@ -13,6 +13,7 @@ type BetCombinationsTableProps = {
   position2Selection: number[]
   position3Selection: number[]
   disorderSelection: number[]
+  fixedSelection: number[]
   marketType?: 'exacta' | 'quinella' | 'trifecta' | 'boxtrifecta'
   onClearSelections?: () => void
 }
@@ -23,6 +24,7 @@ export default function BetCombinationsTable({
   position2Selection,
   position3Selection,
   disorderSelection,
+  fixedSelection,
   marketType = 'exacta',
   onClearSelections,
 }: BetCombinationsTableProps) {
@@ -44,10 +46,11 @@ export default function BetCombinationsTable({
     const allCombinations: Bet[] = []
     const raceData = race.data as UpcomingRace
 
-    console.log('Debug BetCombinationsTable:', {
-      marketType,
-      disorderSelection,
-    })
+    // Controlla se una combinazione include almeno una fissa
+    const includesFixedRacer = (racers: number[]): boolean => {
+      if (fixedSelection.length === 0) return true // Nessuna fissa = tutte valide
+      return fixedSelection.some((fixed) => racers.includes(fixed))
+    }
 
     if (marketType === 'exacta') {
       const pos1Options =
@@ -92,31 +95,19 @@ export default function BetCombinationsTable({
             (racer2Str) => {
               const racer2 = parseInt(racer2Str)
               if (racer1 < racer2) {
-                if (disorderSelection.length > 0) {
-                  const combinationRacers = [racer1, racer2]
+                const combinationRacers = [racer1, racer2]
 
-                  if (disorderSelection.length === 1) {
-                    // Un solo corridore selezionato
-                    const hasSelectedRacer = combinationRacers.includes(
-                      disorderSelection[0],
-                    )
-                    if (!hasSelectedRacer) return
-                  } else if (disorderSelection.length === 2) {
-                    // Due corridori selezionati
-                    const exactMatch =
-                      disorderSelection.length === combinationRacers.length &&
-                      disorderSelection.every((selectedRacer) =>
-                        combinationRacers.includes(selectedRacer),
-                      ) &&
-                      combinationRacers.every((racer) =>
-                        disorderSelection.includes(racer),
-                      )
-                    if (!exactMatch) return
-                  } else {
-                    // Più di 2 corridori selezionati: non mostrare nulla (quinella ha solo 2 corridori)
-                    return
-                  }
+                // 🎯 NUOVA LOGICA CON FISSE E SENZA LIMITE
+                if (disorderSelection.length > 0) {
+                  // Se ho selezioni, la combinazione deve includere almeno uno dei selezionati
+                  const hasSelectedRacer = combinationRacers.some((racer) =>
+                    disorderSelection.includes(racer),
+                  )
+                  if (!hasSelectedRacer) return
                 }
+
+                // 🎯 FILTRO FISSE: La combinazione deve includere almeno una fissa
+                if (!includesFixedRacer(combinationRacers)) return
 
                 const odds = raceData.odds.quinella[racer1]?.[racer2]
                 if (odds) {
@@ -213,36 +204,17 @@ export default function BetCombinationsTable({
                   if (!processedCombinations.has(combinationKey)) {
                     processedCombinations.add(combinationKey)
 
+                    // 🎯 NUOVA LOGICA CON FISSE E SENZA LIMITE
                     if (disorderSelection.length > 0) {
-                      if (disorderSelection.length === 1) {
-                        // Un corridore
-                        const hasSelectedRacer = sortedRacers.includes(
-                          disorderSelection[0],
-                        )
-                        if (!hasSelectedRacer) return
-                      } else if (disorderSelection.length === 2) {
-                        // Due corridori
-                        const hasAllSelectedRacers = disorderSelection.every(
-                          (selectedRacer) =>
-                            sortedRacers.includes(selectedRacer),
-                        )
-                        if (!hasAllSelectedRacers) return
-                      } else if (disorderSelection.length === 3) {
-                        // Tre corridori
-                        const exactMatch =
-                          disorderSelection.length === sortedRacers.length &&
-                          disorderSelection.every((selectedRacer) =>
-                            sortedRacers.includes(selectedRacer),
-                          ) &&
-                          sortedRacers.every((racer) =>
-                            disorderSelection.includes(racer),
-                          )
-                        if (!exactMatch) return
-                      } else {
-                        // Più di 3 corridori: non mostrare nulla
-                        return
-                      }
+                      // Se ho selezioni, la combinazione deve includere almeno uno dei selezionati
+                      const hasSelectedRacer = sortedRacers.some((racer) =>
+                        disorderSelection.includes(racer),
+                      )
+                      if (!hasSelectedRacer) return
                     }
+
+                    // 🎯 FILTRO FISSE: La combinazione deve includere almeno una fissa
+                    if (!includesFixedRacer(sortedRacers)) return
 
                     const odds =
                       raceData.odds.boxedtrifecta[racer1]?.[racer2]?.[racer3]
@@ -287,6 +259,7 @@ export default function BetCombinationsTable({
     position2Selection,
     position3Selection,
     disorderSelection,
+    fixedSelection,
     race.data,
     race.discipline,
     race.id,
