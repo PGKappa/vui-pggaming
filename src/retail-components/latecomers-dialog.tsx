@@ -29,7 +29,7 @@ export default function LatecomersDialog({
       return (
         <div key={racerNumber} className="flex items-center gap-2">
           <div
-            className={`flex h-8 w-8 items-center justify-center rounded text-[21px] font-bold ${(() => {
+            className={`flex h-8 w-8 items-center justify-center rounded text-[21px] pt-0.5 font-bold ${(() => {
               const colors = getRacerColors(racerNumber, discipline)
               return `${colors.bg} ${colors.text} ${colors.border}`
             })()}`}
@@ -79,8 +79,8 @@ export default function LatecomersDialog({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-xl bg-accent p-0">
         {/* Header */}
-        <DialogHeader className="flex h-14 flex-row items-center justify-center bg-accent px-4 text-accent-foreground">
-          <DialogTitle className="text-center text-[17px] font-semibold text-white">
+        <DialogHeader className="flex h-[64px] flex-row items-center justify-center bg-accent px-4 text-accent-foreground">
+          <DialogTitle className="text-center text-[17px] font-semibold text-white pt-0.5">
             {t('latecomers')}
           </DialogTitle>
         </DialogHeader>
@@ -89,7 +89,7 @@ export default function LatecomersDialog({
         <div className="p-0">
           {latecomersData.length > 0 ? (
             <Table style={{ borderCollapse: 'collapse' }}>
-              <TableHeader className="h-12 bg-secondary text-secondary-foreground">
+              <TableHeader className="h-[64px] bg-secondary text-secondary-foreground">
                 <TableRow>
                   <TableHead className="w-1/3 border-r border-border text-center text-[16px] font-bold">
                     {t('market')}
@@ -109,7 +109,7 @@ export default function LatecomersDialog({
                       {item.market}
                     </TableCell>
                     <TableCell className="w-1/3 border-r border-border bg-white p-4">
-                      <div className="flex flex-wrap gap-2 text-[16px]">
+                      <div className="flex flex-wrap gap-3 text-[16px] ml-[7px]">
                         {formatRacers(item.racers)}
                       </div>
                     </TableCell>
