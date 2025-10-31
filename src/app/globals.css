@@ -355,3 +355,23 @@
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/* Custom Draggable Styles */
+.draggable-window {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.drag-handle {
+  cursor: move !important;
+}
+
+.drag-handle:hover {
+  background-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+.drag-handle:active {
+  cursor: grabbing !important;
+}
