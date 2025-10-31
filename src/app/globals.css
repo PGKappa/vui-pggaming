@@ -370,23 +370,49 @@ body > main > div.p-2 > div > div.flex.flex-col > div.flex.h-full.flex-row.gap-2
   bottom: 8px;
 }
 
-body > main > div.p-2 > div > div.flex.flex-col > div.flex.h-full.flex-row.gap-2.overflow-hidden.pr-2.pt-2 > div > div > div > div > div > div.text-card-foreground > div.mt-4.w-full > div > div:nth-child(1) > div.flex.h-16 > div:nth-child(1) > button > span:nth-child(1){
-  font-size: 18px;
-}
 
-body > main > div.p-2 > div > div.flex.flex-col > div.flex.h-full.flex-row.gap-2.overflow-hidden.pr-2.pt-2 > div > div > div > div > div > div.text-card-foreground > div.mt-4.w-full > div > div:nth-child(1) > div.flex.h-16 > div.flex.flex-1.items-center.justify-between.pr-16.pl-16 > button > span:nth-child(1){
-  font-size: 18px;
-}
-
-
-body > main > div.p-2 > div > div.flex.flex-col > div.flex.h-full.flex-row.gap-2.overflow-hidden.pr-2.pt-2 > div > div > div > div > div > div.text-card-foreground > div.mt-4.w-full > div > div:nth-child(2) > div.flex.h-16 > div:nth-child(1) > button > span:nth-child(1){
-  font-size: 18px;
-}
-
-body > main > div.p-2 > div > div.flex.flex-col > div.flex.h-full.flex-row.gap-2.overflow-hidden.pr-2.pt-2 > div > div > div > div > div > div.text-card-foreground > div.mt-4.w-full > div > div:nth-child(2) > div.flex.h-16 > div.flex.flex-1.items-center.justify-between.pr-16.pl-16 > button > span:nth-child(1){
-  font-size: 18px;
-}
 
 body > main > div.p-2 > div > div.h-\[942px\].w-\[410px\].bg-background.text-foreground > div > div.p-0.pt-0.flex.flex-col.bg-background > div:nth-child(2){
   display: none;
+}
+
+
+
+
+@layer utilities {
+  /* Scrollbar elegante tipo colonna “Any order” */
+  .scrollbar-hover {
+    @apply overflow-y-auto relative overscroll-contain;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+  }
+
+  .scrollbar-hover::-webkit-scrollbar {
+    width: 6px;
+    opacity: 0;
+    background: transparent;
+    transition: opacity 0.3s ease;
+  }
+
+  .scrollbar-hover::-webkit-scrollbar-thumb {
+    background-color: transparent;
+    border-radius: 10px;
+  }
+
+  .scrollbar-hover:hover::-webkit-scrollbar {
+    opacity: 1;
+  }
+
+  .scrollbar-hover:hover::-webkit-scrollbar-thumb {
+    background-color: #a3a3a3;
+  }
+
+  .scrollbar-hover:hover::-webkit-scrollbar-thumb:hover {
+    background-color: #737373;
+  }
+
+  .scrollbar-hover:hover {
+    scrollbar-color: #a3a3a3 transparent;
+  }
 }

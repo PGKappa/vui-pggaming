@@ -140,23 +140,23 @@ export default function BetEntryToggle(props: {
       )}
     >
       {props.variant === 'matchcard' ? (
-        <>
-          <span>{props.bet.option.decPrice.toFixed(2)}</span>
-          <span className="font-bold">{formattedOutcome}</span>
-        </>
-      ) : props.variant === 'roundcard' ? (
-        <>
-          <span className="font-bold">{formattedOutcome}</span>
-          <span>{props.bet.option.decPrice.toFixed(2)}</span>
-        </>
-      ) : props.variant === 'racecard' ? (
-        props.bet.option.decPrice.toFixed(2)
-      ) : (
-        <>
-          <span className="font-bold text-[16px] top-[5px] relative">{formattedOutcome}</span>
-          <span>{props.bet.option.decPrice.toFixed(2)}</span>
-        </>
-      )}
+  <>
+    <span className="text-[18px]">{props.bet.option.decPrice.toFixed(2)}</span>
+    <span className="font-bold text-[16px]">{formattedOutcome}</span>
+  </>
+) : props.variant === 'roundcard' ? (
+  <>
+    <span className="font-bold">{formattedOutcome}</span>
+    <span>{props.bet.option.decPrice.toFixed(2)}</span>
+  </>
+) : props.variant === 'racecard' ? (
+  props.bet.option.decPrice.toFixed(2)
+) : (
+  <>
+    <span className="font-bold text-[16px] top-[5px] relative">{formattedOutcome}</span>
+    <span>{props.bet.option.decPrice.toFixed(2)}</span>
+  </>
+)}
     </Toggle>
   )
 }

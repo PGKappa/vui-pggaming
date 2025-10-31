@@ -201,24 +201,27 @@ const CarouselPrevious = React.forwardRef<
   const { orientation, scrollPrev, canScrollPrev } = useCarousel()
 
   return (
-    <Button
-      ref={ref}
-      variant={variant}
-      size={size}
-      className={cn(
-        'absolute',
-        orientation === 'horizontal'
-          ? '-left-[65px] top-1/2 -translate-y-1/2 h-[65px] w-[66px] rounded-sm'
-          : '-top-12 left-1/2 -translate-x-1/2 rotate-90',
-        className,
-      )}
-      disabled={!canScrollPrev}
-      onClick={scrollPrev}
-      {...props}
-    >
-      <ArrowLeft style={{ scale: 1.7 }} />
-      <span className="sr-only">Previous slide</span>
-    </Button>
+   <Button
+  ref={ref}
+  variant={variant}
+  size={size}
+  className={cn(
+    'absolute',
+    orientation === 'horizontal'
+      ? '-left-[65px] top-1/2 -translate-y-1/2 h-[65px] w-[66px] rounded-sm bg-[#3A7DCB] hover:bg-[#3A7DCB] disabled:!opacity-100'
+      : '-top-12 left-1/2 -translate-x-1/2 rotate-90',
+    className,
+  )}
+  disabled={!canScrollPrev}
+  onClick={scrollPrev}
+  {...props}
+>
+  <ArrowLeft 
+    style={{ scale: 1.7 }} 
+    className={cn(!canScrollPrev && "!opacity-70")}
+  />
+  <span className="sr-only">Previous slide</span>
+</Button>
   )
 })
 CarouselPrevious.displayName = 'CarouselPrevious'
@@ -230,24 +233,27 @@ const CarouselNext = React.forwardRef<
   const { orientation, scrollNext, canScrollNext } = useCarousel()
 
   return (
-    <Button
-      ref={ref}
-      variant={variant}
-      size={size}
-      className={cn(
-        'absolute',
-        orientation === 'horizontal'
-          ? '-right-[65px] top-1/2 -translate-y-1/2 h-full w-[67px] rounded-sm'
-          : '-bottom-12 left-1/2 -translate-x-1/2 rotate-90',
-        className,
-      )}
-      disabled={!canScrollNext}
-      onClick={scrollNext}
-      {...props}
-    >
-      <ArrowRight className="relative right-[1px]"style={{ scale: 2 }} />
-      <span className="sr-only">Next slide</span>
-    </Button>
+  <Button
+  ref={ref}
+  variant={variant}
+  size={size}
+  className={cn(
+    'absolute',
+    orientation === 'horizontal'
+      ? '-right-[65px] top-1/2 -translate-y-1/2 h-full w-[67px] rounded-sm bg-[#3A7DCB] hover:bg-[#3A7DCB] disabled:!opacity-100'
+      : '-bottom-12 left-1/2 -translate-x-1/2 rotate-90',
+    className,
+  )}
+  disabled={!canScrollNext}
+  onClick={scrollNext}
+  {...props}
+>
+  <ArrowRight className={cn(
+    "relative right-[1px] scale-[1.7]",
+    !canScrollNext && "!opacity-70"
+  )}/>
+  <span className="sr-only">Next slide</span>
+</Button>
   )
 })
 CarouselNext.displayName = 'CarouselNext'
