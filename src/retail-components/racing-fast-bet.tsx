@@ -6,12 +6,10 @@ import {
   parseFastBetInput,
 } from '@/retail-lib/fastbet-parser'
 import { Search } from 'lucide-react'
-import Image from 'next/image'
 import { useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import { Button } from './ui/button'
-import { Dialog, DialogContent, DialogTrigger } from './ui/dialog'
+import DraggableCodeList from './draggable-code-list'
 
 export default function RacingFastBet({
   selectedEvent,
@@ -158,32 +156,7 @@ export default function RacingFastBet({
         />
       </div>
 
-      <Dialog>
-        <DialogTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-14 w-14 bg-tertiary text-2xl font-bold text-tertiary-foreground hover:bg-tertiary/90"
-          >
-            i
-          </Button>
-        </DialogTrigger>
-        <DialogContent className="max-h-[75vh] max-w-[75vw]">
-          <div className="flex flex-col items-center justify-center bg-accent pt-4">
-            <h2 className="h-10 text-[19px] font-bold text-accent-foreground">
-              {t('code_list')}
-            </h2>
-            <Image
-              src="/dogshorses-codes-image.png"
-              alt="Codici scommesse cani e cavalli"
-              width={1920}
-              height={1080}
-              className="h-auto w-full object-contain"
-              priority
-            />
-          </div>
-        </DialogContent>
-      </Dialog>
+      <DraggableCodeList discipline="racing" />
     </div>
   )
 }
