@@ -759,10 +759,10 @@ export default function BettingSlip({
                         onCheckedChange={handleAllGroupsToggle}
                       />
                       <div className="flex items-center gap-2">
-                        <span className="text-[13px] mr-[34px]">
+                        <span className="text-[13px] mr-[12px]">
                           {t('divide').toUpperCase()}
                         </span>
-                        <div className="flex w-[146px] items-center border border-border right-[34px] relative">
+                        <div className="flex w-[193px] items-center border border-border right-[9px] relative">
                           <Button
                             variant="ghost"
                             size="sm"
@@ -793,7 +793,7 @@ export default function BettingSlip({
                             <CornerDownLeft className="h-4 w-4" />
                           </Button>
                         </div>
-                        <span className="text-[13px] relative right-[34px]">
+                        <span className="text-[13px] relative right-[6px]">
                           {t('add').toUpperCase()}
                         </span>
                       </div>
@@ -813,7 +813,7 @@ export default function BettingSlip({
                           className="border-none bg-bet-foreground"
                         >
                           <AccordionTrigger className="bg-background px-4 py-2 hover:no-underline data-[state=open]:bg-muted">
-                            <div className="flex w-full items-center justify-between pr-[51px]">
+                            <div className="flex w-full items-center justify-between pr-[16px]">
                               <div className="flex items-center gap-2">
                                 {/* Checkbox singolo gruppo (Azione 1) */}
                                 <Checkbox
@@ -850,7 +850,7 @@ export default function BettingSlip({
                                   <Input
                                     type="number"
                                     value={group.stake.toFixed(2)}
-                                    className="bg-background-foreground h-8 w-20 text-center"
+                                    className="bg-background-foreground h-8 w-[127px] text-center"
                                     readOnly
                                   />
                                   <Button

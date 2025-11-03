@@ -756,8 +756,8 @@ export default function UpcomingRaceCard({
   return (
     <>
       <Card className="h-full w-full">
-        <CardHeader className="flex h-16 flex-row items-center justify-between px-3">
-          <div className="flex items-center gap-[10px]">
+        <CardHeader className="flex h-16 flex-row items-center justify-between px-[10px]">
+          <div className="flex items-center gap-[8px]">
             {Object.entries(tabConfig).map(([key, config]) => (
               <Button
                 key={key}

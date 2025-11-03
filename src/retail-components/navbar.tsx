@@ -36,7 +36,7 @@ export default function Navbar() {
       className="flex w-full flex-row items-center justify-start bg-accent p-3 h-16"
       suppressHydrationWarning={true}
     >
-      <div className="flex flex-row items-center gap-[8px] pl-[8px]">
+      <div className="flex flex-row items-center gap-[8px] relative right-[2px]">
         <Link
           href={`/retail/dogs-horses${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
@@ -124,7 +124,7 @@ export default function Navbar() {
         </Link>
       </div>
 
-      <div className="mr-[7px] flex w-full justify-end gap-[8px]">
+      <div className="relative left-[2px] flex w-full justify-end gap-[8px]">
         <Button
           className="h-12 w-[168px]"
           variant="ticketButton"

@@ -416,3 +416,30 @@ body > main > div.p-2 > div > div.h-\[942px\].w-\[410px\].bg-background.text-for
     scrollbar-color: #a3a3a3 transparent;
   }
 }
+
+
+
+.disabled\:opacity-50:disabled{
+  opacity: 1 !important;
+}
+
+
+body > main > div.p-2 > div > div.flex.flex-col > div.flex.h-full.flex-row.gap-2.overflow-hidden.pr-2.pt-2 > div > div > div > div > div > div.text-card-foreground > div.relative.w-full.overflow-auto > table > thead > tr > th:nth-child(1){
+  border-right: solid 1px white;
+}
+
+body > main > div.p-2 > div > div.flex.flex-col > div.flex.h-full.flex-row.gap-2.overflow-hidden.pr-2.pt-2 > div > div > div > div > div > div.text-card-foreground > div.relative.w-full.overflow-auto > table > thead > tr > th:nth-child(3){
+  border-right: solid 1px white;
+}
+
+body > main > div.p-2 > div > div.flex.flex-col > div.flex.h-full.flex-row.gap-2.overflow-hidden.pr-2.pt-2 > div > div > div > div > div > div.text-card-foreground > div.relative.w-full.overflow-auto > table > thead > tr > th:nth-child(5){
+  border-right: solid 1px white;
+}
+
+body > main > div.p-2 > div > div.flex.flex-col > div.flex.h-full.flex-row.gap-2.overflow-hidden.pr-2.pt-2 > div > div > div > div > div > div.text-card-foreground > div.relative.w-full.overflow-auto > table > thead > tr > th:nth-child(7){
+  border-right: solid 1px white;
+}
+
+body > main > div.p-2 > div > div.flex.flex-col > div.flex.h-full.flex-row.gap-2.overflow-hidden.pr-2.pt-2 > div > div > div > div > div > div.text-card-foreground > div.relative.w-full.overflow-auto > table > thead > tr > th:nth-child(9){
+  border-right: solid 1px white;
+}
