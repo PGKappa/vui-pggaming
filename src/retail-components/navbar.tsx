@@ -33,17 +33,14 @@ export default function Navbar() {
 
   return (
     <div
-      className="flex w-full flex-row items-center justify-start bg-accent p-3"
+      className="flex w-full flex-row items-center justify-start bg-accent p-3 h-16"
       suppressHydrationWarning={true}
     >
-      <span className="whitespace-nowrap pl-14 text-center text-[16px] font-semibold text-background">
-        {t('select_category')}
-      </span>
-      <div className="flex flex-row items-center gap-4 pl-[90px]">
+      <div className="flex flex-row items-center gap-[8px] relative right-[2px]">
         <Link
           href={`/retail/dogs-horses${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
-            'flex w-28 flex-row items-center justify-between px-4 py-1 text-foreground transition-colors',
+            'flex w-28 flex-row items-center justify-between px-4 py-1 text-foreground transition-colors h-12',
             pathname.includes('/retail/dogs-horses')
               ? 'bg-tertiary'
               : 'bg-secondary',
@@ -68,7 +65,7 @@ export default function Navbar() {
         <Link
           href={`/retail/dogs${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
-            'flex w-24 flex-row items-center justify-center px-4 py-1 text-foreground transition-colors',
+            'flex w-24 flex-row items-center justify-center px-4 py-1 text-foreground transition-colors h-12',
             pathname.includes('/retail/dogs') &&
               !pathname.includes('/retail/dogs-horses')
               ? 'bg-tertiary'
@@ -89,7 +86,7 @@ export default function Navbar() {
         <Link
           href={`/retail/horses${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
-            'flex w-24 flex-row items-center justify-center px-4 py-1 text-foreground transition-colors',
+            'flex w-24 flex-row items-center justify-center px-4 py-1 text-foreground transition-colors h-12',
             pathname.includes('/retail/horses')
               ? 'bg-tertiary'
               : 'bg-secondary',
@@ -109,7 +106,7 @@ export default function Navbar() {
         <Link
           href={`/retail/calcio${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
-            'flex w-24 flex-row items-center justify-center gap-3 px-4 py-1 text-foreground transition-colors',
+            'flex w-24 flex-row items-center justify-center gap-3 px-4 py-1 text-foreground transition-colors h-12',
             pathname.includes('/retail/calcio')
               ? 'bg-tertiary'
               : 'bg-secondary',
@@ -127,20 +124,21 @@ export default function Navbar() {
         </Link>
       </div>
 
-      <div className="mr-2 flex w-full justify-end gap-4">
+      <div className="relative left-[2px] flex w-full justify-end gap-[8px]">
         <Button
+          className="h-12 w-[168px]"
           variant="ticketButton"
           size="lg"
           onClick={() => {
             setSearchEventResults(eventResults)
           }}
         >
-          <span className="text-[16px] font-bold">{t('search_results')}</span>
+          <span className="text-[15px] font-semibold">{t('search_results').toUpperCase()}</span>
         </Button>
 
         {/* Pulsante Info - sempre visibile con dialog diversi per calcio vs racing */}
         <Button
-          className="w-10"
+          className="w-12 h-12"
           variant="ticketButton"
           size="lg"
           onClick={() => setIsInfoDialogOpen(true)}
@@ -171,7 +169,7 @@ export default function Navbar() {
 
       {/* Dialog per le informazioni sul gioco - cambia contenuto per disciplina */}
       <Dialog open={isInfoDialogOpen} onOpenChange={setIsInfoDialogOpen}>
-        <DialogContent className="w-full overflow-hidden bg-accent">
+        <DialogContent className="w-full overflow-hidden bg-accent h-full">
           <DialogHeader className="bg-secondary text-secondary-foreground">
             <DialogTitle>{t('game_rules')}</DialogTitle>
           </DialogHeader>
