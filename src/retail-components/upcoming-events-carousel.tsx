@@ -49,7 +49,7 @@ export function UpcomingEventsCarousel(props: {
 
   return (
     <Carousel className="w-[1370px]">
-      <CarouselContent className="-ml-1">
+      <CarouselContent className="bg-white relative left-[26px]">
         {isLoadingEvents ? (
           // Show skeleton loading
           Array.from({ length: 6 }).map((_, index) => (
@@ -77,8 +77,8 @@ export function UpcomingEventsCarousel(props: {
             )
           })
         ) : (
-          <div className="p-4 text-center text-background">
-            {t('no_upcoming_events')}
+          <div className="p-2 text-center text-background">
+            {('no_upcoming_events')}
           </div>
         )}
       </CarouselContent>
@@ -105,7 +105,7 @@ function UpcomingEventItem(props: {
 
   return (
     <CarouselItem
-      className={`basis-1/7 flex h-[72px] cursor-pointer flex-row items-center justify-center gap-3 px-3 py-2 ${
+      className={`basis-1/7 flex h-[65px] w-[186px] cursor-pointer flex-row items-center justify-center gap-3 px-3 py-2 text-[15px] ${
         event.id === props.selectedEvent?.id &&
         event.discipline === props.selectedEvent?.discipline
           ? 'bg-tertiary text-tertiary-foreground'
@@ -115,7 +115,7 @@ function UpcomingEventItem(props: {
         props.setSelectedEvent(event)
       }}
     >
-      <div className="flex h-full w-12 flex-col items-center justify-center py-0.5 pr-0.5">
+      <div className="flex h-full w-12 flex-col items-center justify-center py-0.5 pr-[1px]">
         <Image
           src={
             event.discipline === 'SOCCER'
@@ -130,16 +130,19 @@ function UpcomingEventItem(props: {
           className="size-11 object-contain"
         />
       </div>
-      <div className="flex flex-col items-start pr-2">
-        {event.discipline === 'SOCCER'
+      <div className="flex flex-col items-start pr-[1px]">
+        <span className='text-[15] relative top-[4px] font-semibold'>
+          {event.discipline === 'SOCCER'
           ? event.name
           : `${event.name} ${t('racing')}`}
-        <span className="text-md font-bold">
+        </span>
+        
+        <span className="text-[14px] font-normal relative bottom-[0px]">
           {event.discipline === 'SOCCER' ? t('round') : t('event')} {event.id}
         </span>
         <div className="flex flex-row gap-2">
-          <span className="text-md font-bold">{event.startTime}</span>
-          <span className="font-mono text-md italic">{timeToEventStart}</span>
+          <span className="font-bold text-[14px] relative bottom-[2px]">{event.startTime}</span>
+          <span className="font-mono text-[14px]  italic pt-[1.9px] relative bottom-[2px]">{timeToEventStart}</span>
         </div>
       </div>
     </CarouselItem>
