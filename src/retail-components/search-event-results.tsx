@@ -414,11 +414,11 @@ export default function SearchEventResults() {
 
   return (
     <div className="flex h-full flex-col gap-1">
-      <div className="flex flex-col items-center bg-accent p-2">
+      <div className="flex flex-col items-center bg-accent p-2 h-16">
         <div className="flex flex-wrap items-center gap-8">
-          <div className="flex flex-row items-center gap-2 bg-badge text-background">
-            <span className="whitespace-nowrap pl-2 text-[16px] font-semibold">
-              {t('discipline')}
+          <div className="flex flex-row items-center gap-2 bg-badge text-background w-[118px] h-[48px]">
+            <span className="whitespace-nowrap pl-2 text-[15px] font-semibold relative left-[9px]">
+              {t('discipline').toUpperCase()}
             </span>
             <Select
               value={selectedDiscipline.toString()}
@@ -430,11 +430,11 @@ export default function SearchEventResults() {
                 )
               }}
             >
-              <SelectTrigger className="w-[130px] bg-background text-[16px] text-foreground">
+              <SelectTrigger className="w-[130px] border-none bg-background text-[15px] text-foreground left-5 relative h-[48px]">
                 <SelectValue placeholder={t('sport')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
-                <SelectItem value="NONE">{t('none')}</SelectItem>
+                <SelectItem value="NONE">{('None')}</SelectItem>
                 {Object.values(Discipline).map((d) => (
                   <SelectItem key={d} value={d}>
                     {d}
@@ -453,15 +453,15 @@ export default function SearchEventResults() {
             />
             <label
               htmlFor="last10"
-              className="px-2 py-1 text-[16px] font-semibold text-background"
+              className="px-2 py-3 left-[18px] relative text-[15px] font-semibold text-background"
             >
               {t('last_10_games')}
             </label>
           </div>
 
-          <div className="flex flex-row items-center gap-2 bg-badge text-background">
-            <span className="whitespace-nowrap pl-2 text-[16px] font-semibold">
-              {t('date')}
+          <div className="flex flex-row items-center gap-2 bg-badge text-background h-[48px] w-[199px] right-[3px] relative">
+            <span className="whitespace-nowrap pl-2 text-[15px] font-semibold relative left-[10px]">
+              {t('date').toUpperCase()}
             </span>
             <Select
               value={selectedDate}
@@ -470,7 +470,7 @@ export default function SearchEventResults() {
               }}
               disabled={lastTenGames}
             >
-              <SelectTrigger className="w-[130px] bg-background text-[16px] text-foreground">
+              <SelectTrigger className="w-[130px] bg-background text-[15px] text-foreground h-[48px] relative left-5 border-none">
                 <SelectValue placeholder={t('date')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
@@ -483,16 +483,16 @@ export default function SearchEventResults() {
             </Select>
           </div>
 
-          <div className="flex flex-row items-center gap-2 bg-badge text-background">
-            <span className="whitespace-nowrap pl-2 text-[16px] font-semibold">
-              {t('time_slot')}
+          <div className="flex flex-row items-center gap-2 bg-badge text-background h-[48px] relative right-[11px]">
+            <span className="whitespace-nowrap pl-2 text-[15px] font-semibold w-[105px] relative left-[10px]">
+              {t('time_slot').toUpperCase()}
             </span>
             <Select
               value={selectedTimeSlot}
               onValueChange={setSelectedTimeSlot}
               disabled={lastTenGames}
             >
-              <SelectTrigger className="w-[150px] bg-background text-[16px] text-foreground">
+              <SelectTrigger className="w-[150px] bg-background text-[15px] text-foreground h-[48px] border-none relative left-1">
                 <SelectValue placeholder={t('time_slot')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
@@ -508,13 +508,13 @@ export default function SearchEventResults() {
 
           <div className="flex flex-row items-center gap-2">
             <Button
-              className="text-bold w-[80px] bg-tertiary text-[16px] text-tertiary-foreground"
+              className="text-bold w-[80px] bg-tertiary text-[15px] text-tertiary-foreground h-[48px] relative right-[15px]"
               disabled={
                 !selectedDate && !selectedDiscipline && !selectedTimeSlot
               }
               onClick={handleReset}
             >
-              {t('reset')}
+              {t('reset').toUpperCase()}
             </Button>
           </div>
         </div>
