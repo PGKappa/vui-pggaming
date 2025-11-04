@@ -443,10 +443,10 @@ export default function UpcomingRaceCard({
                     raceInfo?.odds?.winner?.[racer.number.toString()] || '0',
                   ),
                 },
-                track: getTrackName(6),
+               track: getTrackName(6),
               }}
               variant="racecard"
-              className="h-12 w-24 bg-betEntry text-betEntry-foreground"
+              className="h-12 w-[120px] bg-betEntry text-betEntry-foreground text-[18px]"
             />
           </TableCell>
           <TableCell className="w-[1px] bg-border p-0" />
@@ -471,7 +471,7 @@ export default function UpcomingRaceCard({
                 track: getTrackName(6),
               }}
               variant="racecard"
-              className="h-12 w-24 bg-betEntry text-betEntry-foreground"
+              className="h-12 w-[120px] bg-betEntry text-betEntry-foreground text-[18px]"
             />
           </TableCell>
 
@@ -494,10 +494,10 @@ export default function UpcomingRaceCard({
                     raceInfo?.odds?.show?.[racer.number.toString()] || '0',
                   ),
                 },
-                track: getTrackName(6),
+                 track: getTrackName(6),
               }}
               variant="racecard"
-              className="h-12 w-24 bg-betEntry text-betEntry-foreground"
+              className="h-12 w-[120px] bg-betEntry text-betEntry-foreground text-[18px]"
             />
           </TableCell>
         </>
@@ -691,17 +691,17 @@ export default function UpcomingRaceCard({
 
     return (
       <div className="mt-4 w-full">
-        <div className="grid grid-cols-2 gap-0.5 border border-card-foreground">
+        <div className="grid grid-cols-2 gap-2 border border-card-foreground border-b-0 border-t-0">
           {/* Even/Odd Market */}
           <div>
             <div className="bg-accent text-accent-foreground">
-              <div className="flex h-16 items-center justify-center text-[19px] font-bold">
-                {t('even_odd')}
+              <div className="flex h-16 items-center justify-center text-[16px] font-bold border-slate">
+                {t('even_odd').toUpperCase()}
               </div>
             </div>
 
             <div className="flex h-16">
-              <div className="flex flex-1 items-center justify-between p-2">
+              <div className="flex flex-1 items-center justify-between pl-16 border-b">
                 <BetEntryToggle
                   marketName="Even/Odd"
                   bet={{
@@ -719,11 +719,11 @@ export default function UpcomingRaceCard({
                     track: getTrackName(6),
                   }}
                   variant="matchcard"
-                  className="h-[45px] w-full text-[19px] text-black"
+                  className="h-[45px] w-full text-[16px] text-black"
                 />
               </div>
 
-              <div className="flex flex-1 items-center justify-between p-2">
+              <div className="flex flex-1 items-center justify-between pr-16 pl-16 border-black border-r border-b">
                 <BetEntryToggle
                   marketName="Even/Odd"
                   bet={{
@@ -738,10 +738,10 @@ export default function UpcomingRaceCard({
                       outcome: 'Odd',
                       decPrice: parseFloat(raceInfo.odds.evenodd?.odd || '0'),
                     },
-                    track: getTrackName(6),
+                   track: getTrackName(6),
                   }}
                   variant="matchcard"
-                  className="h-[45px] w-full text-[19px] text-black"
+                  className="h-[45px] w-full text-[16px] text-black"
                 />
               </div>
             </div>
@@ -750,13 +750,13 @@ export default function UpcomingRaceCard({
           {/* Under/Over Market */}
           <div>
             <div className="bg-accent text-accent-foreground">
-              <div className="flex h-16 items-center justify-center text-[19px] font-bold">
-                {t('under_over')} 3.5
+              <div className="flex h-16 items-center justify-center text-[17px] font-bold pt-0.5">
+                {t('under_over').toUpperCase()} 3.5
               </div>
             </div>
 
             <div className="flex h-16">
-              <div className="flex flex-1 items-center justify-between p-2">
+              <div className="flex flex-1 items-center justify-between pl-16 border-l border-b">
                 <BetEntryToggle
                   marketName="Under/Over"
                   bet={{
@@ -776,11 +776,11 @@ export default function UpcomingRaceCard({
                     track: getTrackName(6),
                   }}
                   variant="matchcard"
-                  className="h-[45px] w-full text-[19px] text-black"
+                  className="h-[45px] w-full text-[16px] text-black"
                 />
               </div>
 
-              <div className="flex flex-1 items-center justify-between p-2">
+              <div className="flex flex-1 items-center justify-between pl-16 pr-16 border-b">
                 <BetEntryToggle
                   marketName="Under/Over"
                   bet={{
@@ -800,7 +800,7 @@ export default function UpcomingRaceCard({
                     track: getTrackName(6),
                   }}
                   variant="matchcard"
-                  className="h-[45px] w-full text-[19px] text-black"
+                  className="h-[45px] w-full text-[16px] text-black"
                 />
               </div>
             </div>
@@ -813,13 +813,13 @@ export default function UpcomingRaceCard({
   return (
     <>
       <Card className="h-full w-full">
-        <CardHeader className="flex h-16 flex-row items-center justify-between px-5">
-          <div className="flex items-center gap-2">
+        <CardHeader className="flex h-16 flex-row items-center justify-between px-[10px]">
+          <div className="flex items-center gap-[8px]">
             {Object.entries(tabConfig).map(([key, config]) => (
               <Button
                 key={key}
                 variant={activeTab === key ? 'marketSelected' : 'market'}
-                className="h-12 w-28 border px-4 text-[19px] font-semibold"
+                className="h-12 w-28 border px-4 text-[16px] pb-0 font-semibold uppercase"
                 onClick={() => handleTabChange(key as TabType)}
               >
                 {config.name}
@@ -849,10 +849,10 @@ export default function UpcomingRaceCard({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-11 w-11 border-border bg-secondary text-secondary-foreground"
+                className="h-12 w-[137px] border-border bg-secondary text-secondary-foreground text-[15px] pr-[1px] pt-[1px]"
                 onClick={() => setIsLatecomersDialogOpen(true)}
               >
-                <Clock style={{ scale: 1.5 }} />
+                <span>{('Latecomers').toUpperCase()}</span>
               </Button>
             )}
           </div>
@@ -870,10 +870,10 @@ export default function UpcomingRaceCard({
                     className="border-b border-border text-[19px]"
                   >
                     {/* Informazioni sul corridore */}
-                    <TableCell className="p-2">
-                      <div className="flex items-center gap-3">
+                    <TableCell className="p-2 text-[18px] relative left-1">
+                      <div className="flex items-center gap-[7px]">
                         <div
-                          className="flex h-8 w-8 items-center justify-center rounded-md text-[19px] font-bold"
+                          className="flex h-8 w-8 items-center justify-center rounded-md text-[21px] font-bold pt-0.5"
                           style={
                             getRacerColors(
                               racer.number,
@@ -892,14 +892,14 @@ export default function UpcomingRaceCard({
                     <TableCell className="w-[1px] bg-border p-0" />
 
                     {/* Performance */}
-                    <TableCell className="p-2">
+                    <TableCell className="p-3 text-[15px] font-bold">
                       <div className="flex items-center justify-center gap-3">
                         <div className="flex space-x-1">
-                          <div className="flex flex-col items-center justify-center gap-1">
+                          <div className="flex flex-col items-center justify-center gap-2">
                             {racer.performance}%
                             <Progress
                               value={racer.performance}
-                              className="w-36 [&>div]:rounded-r-full [&>div]:bg-accent"
+                              className="w-[189px] [&>div]:rounded-r-full [&>div]:bg-accent relative bottom-[3px]"
                               style={{ height: '8px' }}
                             />
                           </div>
@@ -911,7 +911,7 @@ export default function UpcomingRaceCard({
 
                     {/* Storico */}
                     <TableCell>
-                      <div className="flex items-center justify-center gap-1">
+                      <div className="flex items-center justify-center gap-2.5">
                         <MedalsHistory history={racer.history} />
                       </div>
                     </TableCell>
