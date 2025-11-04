@@ -32,8 +32,16 @@ export default function DraggableCodeList({
   const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
   const [position, setPosition] = useState({ x: 100, y: 100 })
+  const [size, setSize] = useState({ width: 1200, height: 566 })
   const [isDragging, setIsDragging] = useState(false)
+  const [isResizing, setIsResizing] = useState(false)
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
+  const [resizeStart, setResizeStart] = useState({
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+  })
   const dragRef = useRef<HTMLDivElement>(null)
 
   const config = disciplineConfig[discipline]
@@ -61,23 +69,52 @@ export default function DraggableCodeList({
 
   const handleMouseUp = useCallback(() => {
     setIsDragging(false)
+    setIsResizing(false)
   }, [])
+
+  // Funzioni per resize
+  const handleResizeStart = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setIsResizing(true)
+    setResizeStart({
+      x: e.clientX,
+      y: e.clientY,
+      width: size.width,
+      height: size.height,
+    })
+  }
+
+  const handleResize = useCallback(
+    (e: MouseEvent) => {
+      if (isResizing) {
+        const deltaX = e.clientX - resizeStart.x
+        const deltaY = e.clientY - resizeStart.y
+
+        setSize({
+          width: Math.max(600, resizeStart.width + deltaX),
+          height: Math.max(400, resizeStart.height + deltaY),
+        })
+      }
+    },
+    [isResizing, resizeStart],
+  )
 
   // Event listeners per mouse
   useEffect(() => {
     if (isDragging) {
       document.addEventListener('mousemove', handleMouseMove)
       document.addEventListener('mouseup', handleMouseUp)
-    } else {
-      document.removeEventListener('mousemove', handleMouseMove)
-      document.removeEventListener('mouseup', handleMouseUp)
+    } else if (isResizing) {
+      document.addEventListener('mousemove', handleResize)
+      document.addEventListener('mouseup', handleMouseUp)
     }
 
     return () => {
       document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mousemove', handleResize)
       document.removeEventListener('mouseup', handleMouseUp)
     }
-  }, [isDragging, handleMouseMove, handleMouseUp])
+  }, [isDragging, isResizing, handleMouseMove, handleResize, handleMouseUp])
 
   const handlePrint = () => {
     const printWindow = window.open('', '', 'width=1200,height=800')
@@ -152,15 +189,16 @@ export default function DraggableCodeList({
       {isOpen && (
         <div
           ref={dragRef}
-          className="fixed z-50 w-[90vw] max-w-7xl overflow-hidden border-b border-border bg-background"
+          className="fixed z-50 flex flex-col border border-border bg-background shadow-2xl"
           style={{
             left: `${position.x}px`,
             top: `${position.y}px`,
-            transform: 'none',
+            width: `${size.width}px`,
+            height: `${size.height}px`,
           }}
         >
           <div
-            className="relative flex cursor-move select-none items-center justify-center bg-accent py-4 transition-colors duration-200"
+            className="flex h-14 shrink-0 cursor-move select-none items-center justify-center bg-accent"
             onMouseDown={handleMouseDown}
           >
             <h2 className="text-[19px] font-bold text-accent-foreground">
@@ -195,15 +233,32 @@ export default function DraggableCodeList({
             </div>
           </div>
 
-          <div className="flex flex-col items-center justify-center bg-accent">
+          <div className="relative flex-1 overflow-hidden">
             <Image
               src={config.image}
               alt={config.alt}
               width={1920}
               height={1080}
-              className="h-auto max-h-[75vh] w-full object-contain"
+              className="h-full w-full object-contain"
               priority
             />
+          </div>
+
+          {/* Resize Handle */}
+          <div
+            className="absolute bottom-0 right-0 z-10 h-6 w-6 cursor-nwse-resize bg-accent/50 hover:bg-accent"
+            onMouseDown={handleResizeStart}
+            title="Ridimensiona"
+          >
+            <svg
+              className="h-full w-full p-1 text-accent-foreground"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3"
+            >
+              <path d="M16 20 L20 20 L20 16 M12 20 L20 12" />
+            </svg>
           </div>
         </div>
       )}
