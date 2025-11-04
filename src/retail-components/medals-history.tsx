@@ -22,11 +22,7 @@ export default function MedalsHistory(props: { history: number[] }) {
         return (
           <div
             key={idx}
-<<<<<<< HEAD
-            className="flex h-8 w-8 items-center justify-center text-[20px] text-black"
-=======
             className="flex h-8 w-7 items-center justify-center text-[20px] text-black"
->>>>>>> origin/00-inizio-cassa-retaiò
           >
             X
           </div>
@@ -36,11 +32,7 @@ export default function MedalsHistory(props: { history: number[] }) {
     return (
       <div
         key={idx}
-<<<<<<< HEAD
-        className="relative flex h-8 w-8 items-center justify-center"
-=======
         className="relative flex h-8 w-7 items-center justify-center"
->>>>>>> origin/00-inizio-cassa-retaiò
       >
         <Image
           src={imageSrc}
@@ -49,11 +41,7 @@ export default function MedalsHistory(props: { history: number[] }) {
           height={64}
           className="absolute"
         />
-<<<<<<< HEAD
-        <span className="relative inset-0 pb-[8px] text-[16px] font-bold text-black">
-=======
         <span className="relative inset-0 pb-[7.5px] text-[16px] font-bold text-black">
->>>>>>> origin/00-inizio-cassa-retaiò
           {position}
         </span>
       </div>
