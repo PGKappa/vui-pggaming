@@ -75,7 +75,7 @@ export default function BettingSlip({
   const rootContext = useContext(RootContext)
 
   // Ottieni il simbolo della valuta dall'API cashier
-  const currencySymbol = rootContext?.getCurrencySymbol?.() || '$'
+  const currencySymbol = rootContext?.getCurrencySymbol?.() || '€'
 
   const [accordionOpen, setAccordionOpen] = useState<string>('combinations')
   const [systemGroupsOpen, setSystemGroupsOpen] = useState<string[]>([])
@@ -136,13 +136,13 @@ export default function BettingSlip({
       const initialStakes: Record<string, number> = {}
 
       baseSystemGroups.forEach((group) => {
-        // Per default, tutti i gruppi sono selezionati con importo minimo
-        initialSelections[group.name] = true
-        initialStakes[group.name] = MINIMUM_STAKE
+        // Per default, tutti i gruppi NON sono selezionati
+        initialSelections[group.name] = false
+        initialStakes[group.name] = 0
       })
 
       setSelectedGroups(initialSelections)
-      setAllGroupsSelected(true)
+      setAllGroupsSelected(false)
       setSystemGroupStakes(initialStakes)
     } else {
       // Reset quando non è più SYSTEM mode
@@ -829,6 +829,7 @@ export default function BettingSlip({
                 triggerLabel={t('amount')}
                 showPlusMinus={true}
                 drawerId="global-amount"
+                currencySymbol={currencySymbol}
               />
             </div>
 
@@ -901,6 +902,7 @@ export default function BettingSlip({
                             triggerLabel={t('divide/add_amount')}
                             showPlusMinus={false}
                             drawerId="system-divide-add"
+                            currencySymbol={currencySymbol}
                           />
                           <Button
                             variant="ghost"
@@ -1008,6 +1010,7 @@ export default function BettingSlip({
                                     triggerLabel={group.name}
                                     showPlusMinus={false}
                                     drawerId={`system-group-${group.name}`}
+                                    currencySymbol={currencySymbol}
                                   />
                                   <Button
                                     variant="ghost"
@@ -1153,6 +1156,7 @@ export default function BettingSlip({
                 triggerLabel={t('amount')}
                 showPlusMinus={false}
                 drawerId="system-amount"
+                currencySymbol={currencySymbol}
               />
             </div>
 

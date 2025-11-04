@@ -21,6 +21,7 @@ export default function NumericKeypadDrawer(props: {
   triggerLabel?: string
   showPlusMinus?: boolean
   drawerId?: string
+  currencySymbol?: string
 }) {
   const { t } = useTranslation()
   const { activeDrawerId, setActiveDrawer } = useContext(RootContext)
@@ -147,8 +148,8 @@ export default function NumericKeypadDrawer(props: {
             <MinusIcon className="h-4 w-4" />
           </Button>
           <Input
-            type="number"
-            value={value.toFixed(2)}
+            type="text"
+            value={`${props.currencySymbol || ''} ${value.toFixed(2)}`}
             className={`bg-background-foreground h-8 border-x text-center ${props.inputWidth || 'w-20'}`}
             readOnly
             onClick={openDrawer}
@@ -168,13 +169,15 @@ export default function NumericKeypadDrawer(props: {
       )
     } else {
       return (
-        <Input
-          type="number"
-          value={value.toFixed(2)}
-          className={`bg-background-foreground h-8 text-center ${props.inputWidth || 'w-20'}`}
-          readOnly
-          onClick={openDrawer}
-        />
+        <div className="relative inline-block">
+          <Input
+            type="text"
+            value={`${props.currencySymbol || ''} ${value.toFixed(2)}`}
+            className={`bg-background-foreground h-8 text-center ${props.inputWidth || 'w-20'}`}
+            readOnly
+            onClick={openDrawer}
+          />
+        </div>
       )
     }
   }
