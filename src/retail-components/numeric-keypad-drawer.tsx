@@ -191,10 +191,18 @@ export default function NumericKeypadDrawer(props: {
       <DrawerTrigger asChild>{renderTrigger()}</DrawerTrigger>
 
       <DrawerContent className="ml-auto mr-2 w-[396px]">
-        <DrawerHeader>
+        <DrawerHeader className="relative">
           <DrawerTitle className="pt-1 text-center">
             {props.triggerLabel || t('enter_stake_amount')}
           </DrawerTitle>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={closeDrawer}
+            className="absolute right-2 top-2"
+          >
+            <ChevronDown className="h-5 w-5" style={{ scale: 1.5 }} />
+          </Button>
         </DrawerHeader>
 
         <div className="flex flex-col gap-2 p-3">
@@ -202,7 +210,7 @@ export default function NumericKeypadDrawer(props: {
           <div className="flex items-center gap-3">
             <Input
               value={drawerValue}
-              onChange={() => {}} // Controlled by keypad only
+              onChange={() => {}}
               onKeyDown={handleKeyDown}
               className="h-12 flex-1 border-2 pr-2 text-right text-2xl font-bold"
               autoFocus
@@ -312,16 +320,14 @@ export default function NumericKeypadDrawer(props: {
             <Button
               variant="outline"
               size="lg"
-              className="h-12"
-              onClick={closeDrawer}
-            >
-              <ChevronDown className="h-10 w-10" style={{ scale: 1.5 }} />
-            </Button>
+              className="h-12 opacity-30"
+              disabled
+            ></Button>
           </div>
 
           <Button
             onClick={handleConfirm}
-            className="h-12 w-full bg-accent text-2xl text-white"
+            className="h-12 w-full bg-accent text-2xl text-accent-foreground"
           >
             {t('ok')}
           </Button>
