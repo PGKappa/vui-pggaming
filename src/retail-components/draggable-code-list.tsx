@@ -30,9 +30,10 @@ export default function DraggableCodeList({
   discipline,
 }: DraggableCodeListProps) {
   const { t } = useTranslation()
+  const INITIAL_SIZE = { width: 1200, height: 566 }
   const [isOpen, setIsOpen] = useState(false)
   const [position, setPosition] = useState({ x: 100, y: 100 })
-  const [size, setSize] = useState({ width: 1200, height: 566 })
+  const [size, setSize] = useState(INITIAL_SIZE)
   const [isDragging, setIsDragging] = useState(false)
   const [isResizing, setIsResizing] = useState(false)
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
@@ -46,8 +47,15 @@ export default function DraggableCodeList({
 
   const config = disciplineConfig[discipline]
 
+  // Funzione per chiudere e resettare dimensioni
+  const handleClose = () => {
+    setIsOpen(false)
+    setSize(INITIAL_SIZE)
+  }
+
   // Funzioni di drag
   const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault()
     setIsDragging(true)
     setDragStart({
       x: e.clientX - position.x,
@@ -74,6 +82,7 @@ export default function DraggableCodeList({
 
   // Funzioni per resize
   const handleResizeStart = (e: React.MouseEvent) => {
+    e.preventDefault()
     e.stopPropagation()
     setIsResizing(true)
     setResizeStart({
@@ -90,13 +99,23 @@ export default function DraggableCodeList({
         const deltaX = e.clientX - resizeStart.x
         const deltaY = e.clientY - resizeStart.y
 
+        // Calcola l'aspect ratio originale
+        const aspectRatio = INITIAL_SIZE.width / INITIAL_SIZE.height
+
+        // Usa il delta maggiore tra X e Y per mantenere l'aspect ratio
+        const delta = Math.max(deltaX, deltaY)
+
+        // Calcola nuove dimensioni mantenendo l'aspect ratio
+        const newWidth = Math.max(600, resizeStart.width + delta)
+        const newHeight = Math.max(400, newWidth / aspectRatio)
+
         setSize({
-          width: Math.max(600, resizeStart.width + deltaX),
-          height: Math.max(400, resizeStart.height + deltaY),
+          width: newWidth,
+          height: newHeight,
         })
       }
     },
-    [isResizing, resizeStart],
+    [isResizing, resizeStart, INITIAL_SIZE],
   )
 
   // Event listeners per mouse
@@ -189,7 +208,7 @@ export default function DraggableCodeList({
       {isOpen && (
         <div
           ref={dragRef}
-          className="fixed z-50 flex flex-col border border-border bg-background shadow-2xl"
+          className={`fixed z-50 flex flex-col border border-border bg-background shadow-2xl ${isDragging || isResizing ? 'select-none' : ''}`}
           style={{
             left: `${position.x}px`,
             top: `${position.y}px`,
@@ -221,7 +240,7 @@ export default function DraggableCodeList({
               <Button
                 variant={'ghost'}
                 size="icon"
-                onClick={() => setIsOpen(false)}
+                onClick={handleClose}
                 title="Close"
                 className="hover:bg-accent/20"
               >
