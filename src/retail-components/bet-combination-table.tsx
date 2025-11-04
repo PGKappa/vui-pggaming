@@ -390,7 +390,7 @@ export default function BetCombinationsTable({
         <CardTitle className="justify-center text-[16px]  text-white">
           {getTitle()}
         </CardTitle>
-        <div className="flex gap-2">
+        <div className="flex gap-2 relative left-[4px]">
           <Button
             variant="navbar"
             className="h-10 w-40 px-3 text-[15px] font-bold text-white pt-[1px]"

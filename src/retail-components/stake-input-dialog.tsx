@@ -65,7 +65,7 @@ export default function StakeInputDialog(props: {
           <Input
             type="number"
             value={value.toFixed(2)}
-            className="bg-background-foreground h-8 w-[120px] border-x text-center text-[15px]"
+            className="bg-background-foreground h-8 w-[237px] border-x text-center text-[15px]"
             readOnly
           />
           <Button

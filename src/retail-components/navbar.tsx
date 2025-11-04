@@ -169,7 +169,7 @@ export default function Navbar() {
 
       {/* Dialog per le informazioni sul gioco - cambia contenuto per disciplina */}
       <Dialog open={isInfoDialogOpen} onOpenChange={setIsInfoDialogOpen}>
-        <DialogContent className="w-full overflow-hidden bg-accent">
+        <DialogContent className="w-full overflow-hidden bg-accent h-full">
           <DialogHeader className="bg-secondary text-secondary-foreground">
             <DialogTitle>{t('game_rules')}</DialogTitle>
           </DialogHeader>

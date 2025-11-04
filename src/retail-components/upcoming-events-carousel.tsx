@@ -142,7 +142,7 @@ function UpcomingEventItem(props: {
         </span>
         <div className="flex flex-row gap-2">
           <span className="font-bold text-[14px] relative bottom-[2px]">{event.startTime}</span>
-          <span className="font-mono text-[14px] italic pt-[1.9px] relative bottom-[2px]">{timeToEventStart}</span>
+          <span className="font-mono text-[14px]  italic pt-[1.9px] relative bottom-[2px]">{timeToEventStart}</span>
         </div>
       </div>
     </CarouselItem>
