@@ -35,13 +35,21 @@ const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
+<<<<<<< HEAD
         'fixed left-[50%] top-[50%] z-50 flex w-full translate-x-[-50%] translate-y-[-50%] flex-col justify-between bg-primary-foreground',
+=======
+        'fixed left-[50%] top-[50%] z-50 flex w-[500px] h-[300px] translate-x-[-50%] translate-y-[-50%] flex-col justify-between bg-primary-foreground',
+>>>>>>> origin/00-inizio-cassa-retaiò
         className,
       )}
       {...props}
     >
       {children}
+<<<<<<< HEAD
       <DialogPrimitive.Close className="absolute right-4 top-4">
+=======
+      <DialogPrimitive.Close className="absolute right-4 top-5">
+>>>>>>> origin/00-inizio-cassa-retaiò
         <X className="h-6 w-6 text-primary-foreground" />
       </DialogPrimitive.Close>
     </DialogPrimitive.Content>
@@ -78,7 +86,11 @@ const DialogTitle = React.forwardRef<
   <DialogPrimitive.Title
     ref={ref}
     className={cn(
+<<<<<<< HEAD
       'text-lg font-semibold leading-none tracking-tight text-primary-foreground',
+=======
+      'text-[17px] font-semibold leading-none tracking-tight text-primary-foreground',
+>>>>>>> origin/00-inizio-cassa-retaiò
       className,
     )}
     {...props}
