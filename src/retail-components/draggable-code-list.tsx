@@ -30,10 +30,9 @@ export default function DraggableCodeList({
   discipline,
 }: DraggableCodeListProps) {
   const { t } = useTranslation()
-  const INITIAL_SIZE = { width: 1200, height: 566 }
   const [isOpen, setIsOpen] = useState(false)
   const [position, setPosition] = useState({ x: 100, y: 100 })
-  const [size, setSize] = useState(INITIAL_SIZE)
+  const [size, setSize] = useState({ width: 1200, height: 566 })
   const [isDragging, setIsDragging] = useState(false)
   const [isResizing, setIsResizing] = useState(false)
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
@@ -50,7 +49,7 @@ export default function DraggableCodeList({
   // Funzione per chiudere e resettare dimensioni
   const handleClose = () => {
     setIsOpen(false)
-    setSize(INITIAL_SIZE)
+    setSize({ width: 1200, height: 566 })
   }
 
   // Funzioni di drag
@@ -100,7 +99,7 @@ export default function DraggableCodeList({
         const deltaY = e.clientY - resizeStart.y
 
         // Calcola l'aspect ratio originale
-        const aspectRatio = INITIAL_SIZE.width / INITIAL_SIZE.height
+        const aspectRatio = 1200 / 566
 
         // Usa il delta maggiore tra X e Y per mantenere l'aspect ratio
         const delta = Math.max(deltaX, deltaY)
@@ -115,7 +114,7 @@ export default function DraggableCodeList({
         })
       }
     },
-    [isResizing, resizeStart, INITIAL_SIZE],
+    [isResizing, resizeStart],
   )
 
   // Event listeners per mouse
