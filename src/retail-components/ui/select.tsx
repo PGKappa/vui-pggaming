@@ -26,11 +26,7 @@ const SelectTrigger = React.forwardRef<
   >
     {children}
     <SelectPrimitive.Icon asChild>
-<<<<<<< HEAD
       <ChevronDown className="h-4 w-4 text-foreground" />
-=======
-      <ChevronDown className="h-[19px] w-[19px] text-foreground" />
->>>>>>> origin/00-inizio-cassa-retaiò
     </SelectPrimitive.Icon>
   </SelectPrimitive.Trigger>
 ))
