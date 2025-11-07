@@ -856,7 +856,7 @@ export default function BettingSlip({
               className="w-full"
             >
               <AccordionItem value="combinations" className="border-none">
-                <div className="bg-accent px-4 text-[13px] py-1 text-accent-foreground hover:no-underline h-[30px] !bg-[#16385f]">
+                <div className="bg-accent px-4 text-[13px] py-[0px] text-accent-foreground hover:no-underline h-[30px] !bg-[#16385f]">
                   <span>{t('combinations').toUpperCase()}</span>
                   <button
                     onClick={() => {
@@ -872,7 +872,7 @@ export default function BettingSlip({
                           : 'rotate(0deg)',
                     }}
                   >
-                    <ChevronDown className="h-5 w-5 shrink-0" />
+                    <ChevronDown className=" mr-[243px] relative bottom-1 h-5 w-5 shrink-0" />
                   </button>
                 </div>
                 <AccordionContent className="pb-0">
@@ -957,7 +957,7 @@ export default function BettingSlip({
                                   (x{group.combinations.length})
                                 </span>
                               </div>
-                              <div className="flex items-center gap-4">
+                              <div className="flex items-center gap-1 left-[25px] relative">
                                 <div className="flex items-center gap-1 border">
                                   <Button
                                     variant="ghost"
