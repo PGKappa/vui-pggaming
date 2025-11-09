@@ -446,7 +446,7 @@ export default function UpcomingRaceCard({
                track: getTrackName(6),
               }}
               variant="racecard"
-              className="h-12 w-[120px] bg-betEntry text-betEntry-foreground text-[18px]"
+              className="h-12 w-[120px] bg-betEntry text-betEntry-foreground text-[19px] pt-[3px]"
             />
           </TableCell>
           <TableCell className="w-[1px] bg-border p-0" />
@@ -471,7 +471,7 @@ export default function UpcomingRaceCard({
                 track: getTrackName(6),
               }}
               variant="racecard"
-              className="h-12 w-[120px] bg-betEntry text-betEntry-foreground text-[18px]"
+              className="h-12 w-[120px] bg-betEntry text-betEntry-foreground text-[19px] pt-[3px]"
             />
           </TableCell>
 
@@ -497,7 +497,7 @@ export default function UpcomingRaceCard({
                  track: getTrackName(6),
               }}
               variant="racecard"
-              className="h-12 w-[120px] bg-betEntry text-betEntry-foreground text-[18px]"
+              className="h-12 w-[120px] bg-betEntry text-betEntry-foreground text-[19px] pt-[3px]"
             />
           </TableCell>
         </>
@@ -514,7 +514,7 @@ export default function UpcomingRaceCard({
               pressed={position1Selection.includes(racer.number)}
               onPressedChange={() => togglePosition1Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className="h-12 w-24 border-betEntry-border"
+              className="h-12 w-[116px] border-betEntry-border right-[2px] relative pt-[3px]"
             >
               <span className="text-[19px]">1°</span>
             </Toggle>
@@ -528,7 +528,7 @@ export default function UpcomingRaceCard({
               pressed={position2Selection.includes(racer.number)}
               onPressedChange={() => togglePosition2Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className="h-12 w-24 border-betEntry-border"
+              className="h-12 w-[116px] border-betEntry-border left-[1px] relative pt-[3px]"
             >
               <span className="text-[19px]">2°</span>
             </Toggle>
@@ -548,7 +548,7 @@ export default function UpcomingRaceCard({
                   pressed={fixedSelection.includes(racer.number)}
                   onPressedChange={() => toggleFixedSelection(racer.number)}
                   onClick={(e) => e.stopPropagation()}
-                  className={`h-12 w-24 border-betEntry-border ${
+                  className={`h-12 w-[56px] border-betEntry-border left-[17px] relative pt-[3px] ${
                     fixedSelection.includes(racer.number) ? 'text-white' : ''
                   }`}
                 >
@@ -570,7 +570,7 @@ export default function UpcomingRaceCard({
                   pressed={disorderSelection.includes(racer.number)}
                   onPressedChange={() => toggleDisorderSelection(racer.number)}
                   onClick={(e) => e.stopPropagation()}
-                  className="h-12 w-24 border-betEntry-border"
+                  className="h-12 w-[116px] border-betEntry-border right-[3px] relative pt-[3px]"
                 >
                   {disorderSelection.includes(racer.number) && (
                     <Check
@@ -596,7 +596,7 @@ export default function UpcomingRaceCard({
               pressed={position1Selection.includes(racer.number)}
               onPressedChange={() => togglePosition1Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className="h-12 w-24 border-betEntry-border"
+              className="h-12 w-[116px] border-betEntry-border right-[10px] relative pt-[3px]"
             >
               <span className="text-[19px]">1°</span>
             </Toggle>
@@ -610,7 +610,7 @@ export default function UpcomingRaceCard({
               pressed={position2Selection.includes(racer.number)}
               onPressedChange={() => togglePosition2Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className="h-12 w-24 border-betEntry-border"
+              className="h-12 w-[116px] border-betEntry-border right-[0px] relative pt-[3px]"
             >
               <span className="text-[19px]">2°</span>
             </Toggle>
@@ -624,7 +624,7 @@ export default function UpcomingRaceCard({
               pressed={position3Selection.includes(racer.number)}
               onPressedChange={() => togglePosition3Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className="h-12 w-24 border-betEntry-border"
+              className="h-12 w-[116px] border-betEntry-border left-[11px] relative pt-[3px]"
             >
               <span className="text-[19px]">3°</span>
             </Toggle>
@@ -644,7 +644,7 @@ export default function UpcomingRaceCard({
                   pressed={fixedSelection.includes(racer.number)}
                   onPressedChange={() => toggleFixedSelection(racer.number)}
                   onClick={(e) => e.stopPropagation()}
-                  className={`h-12 w-24 border-betEntry-border ${
+                  className={`h-12 w-[56px] border-betEntry-border left-[7px] relative pt-[3px] ${
                     fixedSelection.includes(racer.number) ? 'text-white' : ''
                   }`}
                 >
@@ -666,7 +666,7 @@ export default function UpcomingRaceCard({
                   pressed={disorderSelection.includes(racer.number)}
                   onPressedChange={() => toggleDisorderSelection(racer.number)}
                   onClick={(e) => e.stopPropagation()}
-                  className="h-12 w-24 border-betEntry-border"
+                  className="h-12 w-[116px] border-betEntry-border right-[3px] relative pt-[3px]"
                 >
                   {disorderSelection.includes(racer.number) && (
                     <Check
@@ -690,7 +690,7 @@ export default function UpcomingRaceCard({
     }
 
     return (
-      <div className="mt-4 w-full">
+      <div className="mt-2 w-full">
         <div className="grid grid-cols-2 gap-2 border border-card-foreground border-b-0 border-t-0">
           {/* Even/Odd Market */}
           <div>
