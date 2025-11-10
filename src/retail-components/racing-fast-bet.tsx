@@ -68,15 +68,38 @@ export default function RacingFastBet({
       let code = ''
       let selections = ''
 
+      // Reject input with dashes - we only want format like W6, BT234, not W-6
+      if (betInput.includes('-')) {
+        toast.error(t('invalid_fastbet_format'))
+        return
+      }
+
       // Check if input contains selections (numbers)
       const hasNumbers = /\d/.test(betInput)
 
       if (hasNumbers) {
         // Extract letters (code) and numbers (selections)
         const letters = betInput.match(/[A-Z]+/g)?.join('') || ''
-        const numbers = betInput.match(/\d+/g)?.join('-') || ''
+        const numbersMatch = betInput.match(/\d/g)
+
+        if (numbersMatch) {
+          // For markets that need multiple selections, split digits
+          const currentMarketCode = letters
+          const currentMarket =
+            markets[currentMarketCode as keyof typeof markets]
+
+          if (currentMarket && currentMarket.selections > 1) {
+            // For multi-selection markets like Exacta, Trifecta, etc.
+            // Split consecutive digits: BT234 -> "2-3-4"
+            selections = numbersMatch.join('-')
+          } else {
+            // For single selection markets like Winner, Place, Show
+            // Keep all digits together: W123 -> "123"
+            selections = numbersMatch.join('')
+          }
+        }
+
         code = letters
-        selections = numbers
       } else {
         // Only code provided
         code = betInput
