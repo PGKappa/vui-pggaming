@@ -856,7 +856,7 @@ export default function BettingSlip({
               className="w-full"
             >
               <AccordionItem value="combinations" className="border-none">
-                <div className="bg-accent px-4 text-[13px] py-[0px] text-accent-foreground hover:no-underline h-[30px] !bg-[#16385f]">
+                <div className="bg-accent px-4 text-[13px] bottom-[4px] relative text-accent-foreground hover:no-underline h-[30px] !bg-[#16385f]">
                   <span>{t('combinations').toUpperCase()}</span>
                   <button
                     onClick={() => {
@@ -899,7 +899,7 @@ export default function BettingSlip({
                           <NumericKeypadDrawer
                             value={systemDistributeStake}
                             setValue={setSystemDistributeStake}
-                            inputWidth="w-20"
+                            inputWidth="w-[146px]"
                             triggerLabel={t('divide/add_amount')}
                             showPlusMinus={false}
                             drawerId="system-divide-add"
@@ -1007,7 +1007,7 @@ export default function BettingSlip({
                                     setValue={(value) =>
                                       handleUpdateGroupStake(group.name, value)
                                     }
-                                    inputWidth="w-20"
+                                    inputWidth="w-[146px] pr-1"
                                     triggerLabel={group.name}
                                     showPlusMinus={false}
                                     drawerId={`system-group-${group.name}`}
