@@ -20,7 +20,7 @@ import {
   TableRow,
 } from './ui/table'
 import { Toggle } from './ui/toggle'
-import { Check, Clock } from 'lucide-react'
+import { Check } from 'lucide-react'
 
 type UpcomingRaceCardProps = {
   race: UpcomingEvent
@@ -443,7 +443,7 @@ export default function UpcomingRaceCard({
                     raceInfo?.odds?.winner?.[racer.number.toString()] || '0',
                   ),
                 },
-               track: getTrackName(6),
+                track: getTrackName(6),
               }}
               variant="racecard"
               className="h-12 w-[120px] bg-betEntry text-betEntry-foreground text-[18px]"
@@ -494,7 +494,7 @@ export default function UpcomingRaceCard({
                     raceInfo?.odds?.show?.[racer.number.toString()] || '0',
                   ),
                 },
-                 track: getTrackName(6),
+                track: getTrackName(6),
               }}
               variant="racecard"
               className="h-12 w-[120px] bg-betEntry text-betEntry-foreground text-[18px]"
@@ -548,9 +548,8 @@ export default function UpcomingRaceCard({
                   pressed={fixedSelection.includes(racer.number)}
                   onPressedChange={() => toggleFixedSelection(racer.number)}
                   onClick={(e) => e.stopPropagation()}
-                  className={`h-12 w-24 border-betEntry-border ${
-                    fixedSelection.includes(racer.number) ? 'text-white' : ''
-                  }`}
+                  className={`h-12 w-24 border-betEntry-border ${fixedSelection.includes(racer.number) ? 'text-white' : ''
+                    }`}
                 >
                   <span className="text-[19px]">F</span>
                 </Toggle>
@@ -644,9 +643,8 @@ export default function UpcomingRaceCard({
                   pressed={fixedSelection.includes(racer.number)}
                   onPressedChange={() => toggleFixedSelection(racer.number)}
                   onClick={(e) => e.stopPropagation()}
-                  className={`h-12 w-24 border-betEntry-border ${
-                    fixedSelection.includes(racer.number) ? 'text-white' : ''
-                  }`}
+                  className={`h-12 w-24 border-betEntry-border ${fixedSelection.includes(racer.number) ? 'text-white' : ''
+                    }`}
                 >
                   <span className="text-[19px]">F</span>
                 </Toggle>
@@ -738,7 +736,7 @@ export default function UpcomingRaceCard({
                       outcome: 'Odd',
                       decPrice: parseFloat(raceInfo.odds.evenodd?.odd || '0'),
                     },
-                   track: getTrackName(6),
+                    track: getTrackName(6),
                   }}
                   variant="matchcard"
                   className="h-[45px] w-full text-[16px] text-black"

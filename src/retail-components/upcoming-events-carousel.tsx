@@ -20,7 +20,7 @@ export function UpcomingEventsCarousel(props: {
 }) {
   const { upcomingEvents, isLoadingEvents } = useContext(RootContext)
 
-  const { t } = useTranslation()
+  //const { t } = useTranslation()
 
   const disciplines = useMemo(() => {
     const path = window.location.pathname
@@ -38,12 +38,12 @@ export function UpcomingEventsCarousel(props: {
   const filteredAndSortedEvents = useMemo(() => {
     return upcomingEvents
       ? upcomingEvents
-          .filter((event) => disciplines.includes(event.discipline))
-          .sort((a, b) => {
-            const timeA = new Date(a.time).getTime()
-            const timeB = new Date(b.time).getTime()
-            return timeA - timeB
-          })
+        .filter((event) => disciplines.includes(event.discipline))
+        .sort((a, b) => {
+          const timeA = new Date(a.time).getTime()
+          const timeB = new Date(b.time).getTime()
+          return timeA - timeB
+        })
       : []
   }, [upcomingEvents, disciplines])
 
@@ -105,12 +105,11 @@ function UpcomingEventItem(props: {
 
   return (
     <CarouselItem
-      className={`basis-1/7 flex h-[65px] w-[186px] cursor-pointer flex-row items-center justify-center gap-3 px-3 py-2 text-[15px] ${
-        event.id === props.selectedEvent?.id &&
-        event.discipline === props.selectedEvent?.discipline
+      className={`basis-1/7 flex h-[65px] w-[186px] cursor-pointer flex-row items-center justify-center gap-3 px-3 py-2 text-[15px] ${event.id === props.selectedEvent?.id &&
+          event.discipline === props.selectedEvent?.discipline
           ? 'bg-tertiary text-tertiary-foreground'
           : 'bg-secondary text-secondary-foreground'
-      }`}
+        }`}
       onClick={() => {
         props.setSelectedEvent(event)
       }}
@@ -133,10 +132,10 @@ function UpcomingEventItem(props: {
       <div className="flex flex-col items-start pr-[1px]">
         <span className='text-[15] relative top-[4px] font-semibold'>
           {event.discipline === 'SOCCER'
-          ? event.name
-          : `${event.name} ${t('racing')}`}
+            ? event.name
+            : `${event.name} ${t('racing')}`}
         </span>
-        
+
         <span className="text-[14px] font-normal relative bottom-[0px]">
           {event.discipline === 'SOCCER' ? t('round') : t('event')} {event.id}
         </span>

@@ -208,11 +208,7 @@ const CarouselPrevious = React.forwardRef<
       className={cn(
         'absolute',
         orientation === 'horizontal'
-<<<<<<< HEAD
           ? '-left-[52px] top-1/2 -translate-y-1/2'
-=======
-          ? '-left-[10px] top-1/2 -translate-y-1/2'
->>>>>>> origin/00-inizio-cassa-retaiò
           : '-top-12 left-1/2 -translate-x-1/2 rotate-90',
         className,
       )}
