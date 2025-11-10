@@ -887,7 +887,7 @@ export default function BettingSlip({
                         <span className="text-[13px] mr-[18px]">
                           {t('divide').toUpperCase()}
                         </span>
-                        <div className="flex w-[193px] items-center border border-border right-[14px] relative">
+                        <div className="flex w-full items-center border border-border right-[14px] relative">
                           <Button
                             variant="ghost"
                             size="sm"
@@ -957,8 +957,8 @@ export default function BettingSlip({
                                   (x{group.combinations.length})
                                 </span>
                               </div>
-                              <div className="flex items-center gap-1 left-[25px] relative">
-                                <div className="flex items-center gap-1 border">
+                              <div className="flex items-center gap-1 left-[22px] relative">
+                                <div className="flex items-center gap-0 border">
                                   <Button
                                     variant="ghost"
                                     size="sm"
@@ -1083,7 +1083,7 @@ export default function BettingSlip({
                                       : 'rotate(0deg)',
                                   }}
                                 >
-                                  <ChevronDown className="h-5 w-5 shrink-0" />
+                                  <ChevronDown className=" left-[4px] relative h-5 w-5 shrink-0" />
                                 </Button>
                               </div>
                             </div>

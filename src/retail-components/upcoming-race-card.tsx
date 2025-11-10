@@ -514,7 +514,7 @@ export default function UpcomingRaceCard({
               pressed={position1Selection.includes(racer.number)}
               onPressedChange={() => togglePosition1Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className="h-12 w-[116px] border-betEntry-border right-[2px] relative pt-[3px]"
+              className="h-12 w-[117px] border-betEntry-border right-[2px] relative pt-[3px]"
             >
               <span className="text-[19px]">1°</span>
             </Toggle>
@@ -528,7 +528,7 @@ export default function UpcomingRaceCard({
               pressed={position2Selection.includes(racer.number)}
               onPressedChange={() => togglePosition2Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className="h-12 w-[116px] border-betEntry-border left-[1px] relative pt-[3px]"
+              className="h-12 w-[118px] border-betEntry-border left-[1px] relative pt-[3px]"
             >
               <span className="text-[19px]">2°</span>
             </Toggle>
@@ -570,7 +570,7 @@ export default function UpcomingRaceCard({
                   pressed={disorderSelection.includes(racer.number)}
                   onPressedChange={() => toggleDisorderSelection(racer.number)}
                   onClick={(e) => e.stopPropagation()}
-                  className="h-12 w-[116px] border-betEntry-border right-[3px] relative pt-[3px]"
+                  className="h-12 w-[117px] border-betEntry-border right-[3px] relative pt-[3px]"
                 >
                   {disorderSelection.includes(racer.number) && (
                     <Check
