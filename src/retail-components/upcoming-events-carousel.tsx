@@ -78,7 +78,7 @@ export function UpcomingEventsCarousel(props: {
           })
         ) : (
           <div className="p-2 text-center text-background">
-            {('no_upcoming_events')}
+            {t('no_upcoming_events')}
           </div>
         )}
       </CarouselContent>
