@@ -247,5 +247,6 @@
   "add": "Añadir",
   "divide/add_amount": "Dividir/Añadir Importe",
   "select_at_least_one_group": "Selecciona al menos un grupo para distribuir el importe",
+  "no_duplicates_added": "No se agregaron apuestas - selecciones ya presentes en el boleto",
   "ok": "OK"
 }

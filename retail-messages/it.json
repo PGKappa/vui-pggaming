@@ -247,5 +247,6 @@
   "add": "Aggiungi",
   "divide/add_amount": "Dividi/Aggiungi Importo",
   "select_at_least_one_group": "Seleziona almeno un gruppo per distribuire l'importo",
+  "no_duplicates_added": "Nessuna scommessa aggiunta - selezioni già presenti nella schedina",
   "ok": "OK"
 }

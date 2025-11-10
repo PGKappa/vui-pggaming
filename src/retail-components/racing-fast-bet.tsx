@@ -64,11 +64,12 @@ export default function RacingFastBet({
     const allMarketNames: string[] = []
 
     // Process each bet input
-    for (const betInput of betInputs) {
+    for (let betIndex = 0; betIndex < betInputs.length; betIndex++) {
+      const betInput = betInputs[betIndex]
       let code = ''
       let selections = ''
 
-      // Reject input with dashes - we only want format like W6, BT234, not W-6
+      // Reject input with dashes
       if (betInput.includes('-')) {
         toast.error(t('invalid_fastbet_format'))
         return
@@ -89,12 +90,21 @@ export default function RacingFastBet({
             markets[currentMarketCode as keyof typeof markets]
 
           if (currentMarket && currentMarket.selections > 1) {
-            // For multi-selection markets like Exacta, Trifecta, etc.
-            // Split consecutive digits: BT234 -> "2-3-4"
-            selections = numbersMatch.join('-')
+            // Check if it's an "any order" market (BT = Boxed Trifecta, Q = Quinella)
+            const isAnyOrderMarket = ['BT', 'Q'].includes(currentMarketCode)
+
+            if (isAnyOrderMarket) {
+              // Normalizzazione immediata - ordina sempre per mercati "any order"
+              const sortedNumbers = numbersMatch.sort(
+                (a, b) => parseInt(a) - parseInt(b),
+              )
+              selections = sortedNumbers.join('-')
+            } else {
+              // Keep original order for "in order" markets like Exacta, Trifecta
+              selections = numbersMatch.join('-')
+            }
           } else {
             // For single selection markets like Winner, Place, Show
-            // Keep all digits together: W123 -> "123"
             selections = numbersMatch.join('')
           }
         }
@@ -149,12 +159,19 @@ export default function RacingFastBet({
       const marketName = markets[parsedCode.code]?.name || 'FastBet'
       allMarketNames.push(marketName)
 
-      addBets(marketName, bets)
-      totalBetsAdded += bets.length
+      // addBets now returns the actual number of bets added (after duplicate filtering)
+      const actualBetsAdded = addBets(marketName, bets)
+      totalBetsAdded += actualBetsAdded
     }
 
-    // Success message showing all bets added
-    toast.success(`${totalBetsAdded} ${t('bets_added')}`)
+    // Show appropriate message based on results
+    if (totalBetsAdded === 0) {
+      // All bets were duplicates or no valid bets were processed
+      toast.info(t('no_duplicates_added'))
+    } else {
+      // Success message showing bets added
+      toast.success(`${totalBetsAdded} ${t('bets_added')}`)
+    }
 
     setFastbetInput('')
   }
