@@ -266,5 +266,6 @@
   "divide": "Divide",
   "add": "Add",
   "divide/add_amount": "Divide/Add Amount",
+  "no_duplicates_added": "No bets added - selections already present in the Bet Slip",
   "ok": "OK"
 }
