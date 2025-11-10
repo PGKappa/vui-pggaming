@@ -856,7 +856,7 @@ export default function BettingSlip({
               className="w-full"
             >
               <AccordionItem value="combinations" className="border-none">
-                <div className="flex items-center justify-between bg-accent px-4 py-1 text-accent-foreground">
+                <div className="bg-accent px-4 text-[13px] py-[0px] text-accent-foreground hover:no-underline h-[30px] !bg-[#16385f]">
                   <span>{t('combinations').toUpperCase()}</span>
                   <button
                     onClick={() => {
@@ -872,12 +872,12 @@ export default function BettingSlip({
                           : 'rotate(0deg)',
                     }}
                   >
-                    <ChevronDown className="h-5 w-5 shrink-0" />
+                    <ChevronDown className=" mr-[243px] relative bottom-1 h-5 w-5 shrink-0" />
                   </button>
                 </div>
                 <AccordionContent className="pb-0">
                   {/* CONTROLLI DISTRIBUZIONE STAKE */}
-                  <div className="space-y-3 px-4 pb-3">
+                  <div className="space-y-3 px-4 pb-2 border-b-1">
                     <div className="flex items-center justify-between gap-2">
                       <Checkbox
                         checked={allGroupsSelected}
@@ -887,7 +887,7 @@ export default function BettingSlip({
                         <span className="text-[13px] mr-[18px]">
                           {t('divide').toUpperCase()}
                         </span>
-                        <div className="flex w-[193px] items-center border border-border right-[14px] relative">
+                        <div className="flex w-full items-center border border-border right-[14px] relative">
                           <Button
                             variant="ghost"
                             size="sm"
@@ -924,7 +924,7 @@ export default function BettingSlip({
                   <Separator />
 
                   {/* ACCORDION GRUPPI con altezza fissa */}
-                  <div className="max-h-[160px] overflow-y-auto">
+                  <div className="max-h-[200px] overflow-y-auto">
                     <Accordion
                       type="multiple"
                       value={systemGroupsOpen}
@@ -940,7 +940,7 @@ export default function BettingSlip({
                           <div
                             className={`px-4 py-2 ${systemGroupsOpen.includes(group.name) ? 'bg-muted' : 'bg-background'}`}
                           >
-                            <div className="flex w-full items-center">
+                            <div className="flex w-full items-center justify-between pr-[16px]">
                               <div className="flex items-center gap-2">
                                 {/* Checkbox singolo gruppo (Azione 1) */}
                                 <Checkbox
@@ -957,8 +957,8 @@ export default function BettingSlip({
                                   (x{group.combinations.length})
                                 </span>
                               </div>
-                              <div className="flex items-center gap-4">
-                                <div className="flex items-center gap-1 border">
+                              <div className="flex items-center gap-1 left-[22px] relative">
+                                <div className="flex items-center gap-0 border">
                                   <Button
                                     variant="ghost"
                                     size="sm"
@@ -1083,14 +1083,14 @@ export default function BettingSlip({
                                       : 'rotate(0deg)',
                                   }}
                                 >
-                                  <ChevronDown className="h-5 w-5 shrink-0" />
+                                  <ChevronDown className=" left-[4px] relative h-5 w-5 shrink-0" />
                                 </Button>
                               </div>
                             </div>
                           </div>
-                          <AccordionContent className="px-4">
-                            <div className="grid grid-cols-3 text-sm">
-                              <div className="text-center">
+                          <AccordionContent className="px-4 border-b">
+                            <div className="grid grid-cols-3 text-[13px]">
+                              <div className="text-center relative right-[30px]">
                                 <div className="text-foreground">
                                   {t('min').toUpperCase()}
                                 </div>
@@ -1099,7 +1099,7 @@ export default function BettingSlip({
                                   {(group.minWin * group.stake).toFixed(2)}
                                 </div>
                               </div>
-                              <div className="text-center">
+                              <div className="text-center relative right-[77px]">
                                 <div className="text-foreground">
                                   {t('max').toUpperCase()}
                                 </div>
@@ -1108,7 +1108,7 @@ export default function BettingSlip({
                                   {(group.maxWin * group.stake).toFixed(2)}
                                 </div>
                               </div>
-                              <div className="text-center">
+                              <div className="text-center relative right-[77px]">
                                 <div className="text-foreground">
                                   {t('total_played').toUpperCase()}
                                 </div>
@@ -1146,7 +1146,7 @@ export default function BettingSlip({
             {/* IMPORTO */}
             <div className="flex flex-row items-center justify-between px-4 py-3">
               <div className="flex items-center gap-2">
-                <span className="text-[16px] font-semibold">
+                <span className="text-[15px] font-semibold">
                   {t('amount').toUpperCase()}
                 </span>
               </div>

@@ -208,7 +208,7 @@ const CarouselPrevious = React.forwardRef<
       className={cn(
         'absolute',
         orientation === 'horizontal'
-          ? '-left-[52px] top-1/2 -translate-y-1/2'
+          ? '-left-[65px] top-1/2 -translate-y-1/2 h-[65px] w-[66px] rounded-sm bg-[#3A7DCB] hover:bg-[#3A7DCB] disabled:!opacity-100'
           : '-top-12 left-1/2 -translate-x-1/2 rotate-90',
         className,
       )}
@@ -216,7 +216,10 @@ const CarouselPrevious = React.forwardRef<
       onClick={scrollPrev}
       {...props}
     >
-      <ArrowLeft style={{ scale: 1.5 }} />
+      <ArrowLeft 
+    style={{ scale: 1.7 }} 
+    className={cn(!canScrollPrev && "!opacity-70 relative left-[2px]")}
+  />
       <span className="sr-only">Previous slide</span>
     </Button>
   )
@@ -237,7 +240,7 @@ const CarouselNext = React.forwardRef<
       className={cn(
         'absolute',
         orientation === 'horizontal'
-          ? '-right-[52px] top-1/2 -translate-y-1/2'
+          ? '-right-[65px] top-1/2 -translate-y-1/2 h-full w-[67px] rounded-sm bg-[#3A7DCB] hover:bg-[#3A7DCB] disabled:!opacity-100'
           : '-bottom-12 left-1/2 -translate-x-1/2 rotate-90',
         className,
       )}
@@ -245,7 +248,10 @@ const CarouselNext = React.forwardRef<
       onClick={scrollNext}
       {...props}
     >
-      <ArrowRight style={{ scale: 1.5 }} />
+       <ArrowRight className={cn(
+    "relative right-[1px] scale-[1.7]",
+    !canScrollNext && "!opacity-70"
+  )}/>
       <span className="sr-only">Next slide</span>
     </Button>
   )
