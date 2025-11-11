@@ -64,9 +64,16 @@ export default function RacingFastBet({
     const allMarketNames: string[] = []
 
     // Process each bet input
-    for (const betInput of betInputs) {
+    for (let betIndex = 0; betIndex < betInputs.length; betIndex++) {
+      const betInput = betInputs[betIndex]
       let code = ''
       let selections = ''
+
+      // Reject input with dashes
+      if (betInput.includes('-')) {
+        toast.error(t('invalid_fastbet_format'))
+        return
+      }
 
       // Check if input contains selections (numbers)
       const hasNumbers = /\d/.test(betInput)
@@ -74,9 +81,35 @@ export default function RacingFastBet({
       if (hasNumbers) {
         // Extract letters (code) and numbers (selections)
         const letters = betInput.match(/[A-Z]+/g)?.join('') || ''
-        const numbers = betInput.match(/\d+/g)?.join('-') || ''
+        const numbersMatch = betInput.match(/\d/g)
+
+        if (numbersMatch) {
+          // For markets that need multiple selections, split digits
+          const currentMarketCode = letters
+          const currentMarket =
+            markets[currentMarketCode as keyof typeof markets]
+
+          if (currentMarket && currentMarket.selections > 1) {
+            // Check if it's an "any order" market (BT = Boxed Trifecta, Q = Quinella)
+            const isAnyOrderMarket = ['BT', 'Q'].includes(currentMarketCode)
+
+            if (isAnyOrderMarket) {
+              // Normalizzazione immediata - ordina sempre per mercati "any order"
+              const sortedNumbers = numbersMatch.sort(
+                (a, b) => parseInt(a) - parseInt(b),
+              )
+              selections = sortedNumbers.join('-')
+            } else {
+              // Keep original order for "in order" markets like Exacta, Trifecta
+              selections = numbersMatch.join('-')
+            }
+          } else {
+            // For single selection markets like Winner, Place, Show
+            selections = numbersMatch.join('')
+          }
+        }
+
         code = letters
-        selections = numbers
       } else {
         // Only code provided
         code = betInput
@@ -126,12 +159,19 @@ export default function RacingFastBet({
       const marketName = markets[parsedCode.code]?.name || 'FastBet'
       allMarketNames.push(marketName)
 
-      addBets(marketName, bets)
-      totalBetsAdded += bets.length
+      // addBets now returns the actual number of bets added (after duplicate filtering)
+      const actualBetsAdded = addBets(marketName, bets)
+      totalBetsAdded += actualBetsAdded
     }
 
-    // Success message showing all bets added
-    toast.success(`${totalBetsAdded} ${t('bets_added')}`)
+    // Show appropriate message based on results
+    if (totalBetsAdded === 0) {
+      // All bets were duplicates or no valid bets were processed
+      toast.info(t('no_duplicates_added'))
+    } else {
+      // Success message showing bets added
+      toast.success(`${totalBetsAdded} ${t('bets_added')}`)
+    }
 
     setFastbetInput('')
   }

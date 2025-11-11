@@ -4,6 +4,7 @@ import { initReactI18next } from 'react-i18next'
 import enTranslations from '../../../../retail-messages/en.json'
 import ruTranslations from '../../../../retail-messages/ru.json'
 import itTranslations from '../../../../retail-messages/it.json'
+import esTranslations from '../../../../retail-messages/es.json'
 
 const resources = {
   en: {
@@ -14,6 +15,9 @@ const resources = {
   },
   it: {
     translation: itTranslations,
+  },
+  es: {
+    translation: esTranslations,
   },
 }
 
