@@ -19,21 +19,18 @@ export default function BetEntryToggle(props: {
 }) {
   const { addBet, removeBet, betEntries } = useContext(BetsContext)
 
-  const isSelected = useMemo(
-    () => {
-      const found = betEntries.find(
-        (entry) =>
-          entry.market === props.marketName &&
-          entry.bet.discipline === props.bet.discipline &&
-          entry.bet.event.number === props.bet.event.number &&
-          entry.bet.competitors === props.bet.competitors &&
-          entry.bet.option.outcome === props.bet.option.outcome,
-      )
-      
-      return !!found
-    },
-    [betEntries, props.marketName, props.bet],
-  )
+  const isSelected = useMemo(() => {
+    const found = betEntries.find(
+      (entry) =>
+        entry.market === props.marketName &&
+        entry.bet.discipline === props.bet.discipline &&
+        entry.bet.event.number === props.bet.event.number &&
+        entry.bet.competitors === props.bet.competitors &&
+        entry.bet.option.outcome === props.bet.option.outcome,
+    )
+
+    return !!found
+  }, [betEntries, props.marketName, props.bet])
 
   const formatOutcome = (outcome: string, marketName: string): string => {
     if (marketName === 'Half Time\/ Full Time') {
@@ -109,7 +106,13 @@ export default function BetEntryToggle(props: {
       pressed={isSelected}
       onPressedChange={() => {
         if (isSelected) {
-          removeBet(props.marketName, props.bet.option, props.bet.competitors)
+          removeBet(
+            props.marketName,
+            props.bet.option,
+            props.bet.competitors,
+            props.bet.event.number,
+            props.bet.discipline,
+          )
         } else {
           addBet(props.marketName, {
             event: {
@@ -132,31 +135,35 @@ export default function BetEntryToggle(props: {
           : props.variant === 'roundcard'
             ? 'flex flex-col justify-between text-[19px]'
             : props.variant === 'racecard'
-              ? 'text-center text-[19px] rounded-sm'
+              ? 'rounded-sm text-center text-[19px]'
               : props.variant === 'racecombination'
-                ? ' h-[51px] flex flex-col text-[18px] pb-[3px]'
+                ? 'flex h-[51px] flex-col pb-[3px] text-[18px]'
                 : '',
         props.className,
       )}
     >
       {props.variant === 'matchcard' ? (
-  <>
-    <span className="text-[18px]">{props.bet.option.decPrice.toFixed(2)}</span>
-    <span className="font-bold text-[16px]">{formattedOutcome}</span>
-  </>
-) : props.variant === 'roundcard' ? (
-  <>
-    <span className="font-bold">{formattedOutcome}</span>
-    <span>{props.bet.option.decPrice.toFixed(2)}</span>
-  </>
-) : props.variant === 'racecard' ? (
-  props.bet.option.decPrice.toFixed(2)
-) : (
-  <>
-    <span className="font-bold text-[16px] top-[5px] relative">{formattedOutcome}</span>
-    <span>{props.bet.option.decPrice.toFixed(2)}</span>
-  </>
-)}
+        <>
+          <span className="text-[18px]">
+            {props.bet.option.decPrice.toFixed(2)}
+          </span>
+          <span className="text-[16px] font-bold">{formattedOutcome}</span>
+        </>
+      ) : props.variant === 'roundcard' ? (
+        <>
+          <span className="font-bold">{formattedOutcome}</span>
+          <span>{props.bet.option.decPrice.toFixed(2)}</span>
+        </>
+      ) : props.variant === 'racecard' ? (
+        props.bet.option.decPrice.toFixed(2)
+      ) : (
+        <>
+          <span className="relative top-[5px] text-[16px] font-bold">
+            {formattedOutcome}
+          </span>
+          <span>{props.bet.option.decPrice.toFixed(2)}</span>
+        </>
+      )}
     </Toggle>
   )
 }
