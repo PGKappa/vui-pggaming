@@ -877,7 +877,7 @@ export default function BettingSlip({
                 </div>
                 <AccordionContent className="pb-0">
                   {/* CONTROLLI DISTRIBUZIONE STAKE */}
-                  <div className="space-y-3 px-4 pb-2 border-b-1">
+                  <div className="space-y-3 px-4 pb-2 border-b">
                     <div className="flex items-center justify-between gap-2">
                       <Checkbox
                         checked={allGroupsSelected}
@@ -899,7 +899,7 @@ export default function BettingSlip({
                           <NumericKeypadDrawer
                             value={systemDistributeStake}
                             setValue={setSystemDistributeStake}
-                            inputWidth="w-[146px]"
+                            inputWidth="w-[147px]"
                             triggerLabel={t('divide/add_amount')}
                             showPlusMinus={false}
                             drawerId="system-divide-add"
@@ -935,7 +935,7 @@ export default function BettingSlip({
                         <AccordionItem
                           key={group.name}
                           value={group.name}
-                          className="border-none bg-bet-foreground"
+                          className="border-b bg-bet-foreground"
                         >
                           <div
                             className={`px-4 py-2 ${systemGroupsOpen.includes(group.name) ? 'bg-muted' : 'bg-background'}`}
@@ -1088,7 +1088,7 @@ export default function BettingSlip({
                               </div>
                             </div>
                           </div>
-                          <AccordionContent className="px-4 border-b">
+                          <AccordionContent className="px-4">
                             <div className="grid grid-cols-3 text-[13px]">
                               <div className="text-center relative right-[30px]">
                                 <div className="text-foreground">
@@ -1132,7 +1132,7 @@ export default function BettingSlip({
             <Separator />
 
             {/* TOTALE COMBINAZIONI */}
-            <div className="flex flex-row items-center justify-between px-4 py-3 text-foreground">
+            <div className="flex flex-row items-center justify-between px-4 py-3 text-foreground border-b">
               <span className="text-[15px] font-semibold">
                 {t('total_combinations').toUpperCase()}
               </span>
@@ -1144,7 +1144,7 @@ export default function BettingSlip({
             <Separator />
 
             {/* IMPORTO */}
-            <div className="flex flex-row items-center justify-between px-4 py-3">
+            <div className="flex flex-row items-center justify-between px-4 py-3 border-b">
               <div className="flex items-center gap-2">
                 <span className="text-[15px] font-semibold">
                   {t('amount').toUpperCase()}

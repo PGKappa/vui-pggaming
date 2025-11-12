@@ -584,7 +584,7 @@ export default function BetCombinationsTable({
   }
 
   return (
-    <Card className="mt-4">
+    <Card className="mt-2">
       <CardHeader className="flex h-14 items-center justify-center bg-accent px-3 text-accent-foreground">
         <CardTitle className="justify-center text-[16px]  text-white">
           {getTitle()}
