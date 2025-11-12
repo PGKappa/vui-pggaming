@@ -24,9 +24,13 @@ export default function NumericKeypadDrawer(props: {
   currencySymbol?: string
 }) {
   const { t } = useTranslation()
-  const { activeDrawerId, setActiveDrawer } = useContext(RootContext)
+  const { activeDrawerId, setActiveDrawer, getCurrencySymbol } =
+    useContext(RootContext)
   const [value, setValue] = useState(props.value)
   const [drawerValue, setDrawerValue] = useState('0.00')
+
+  // Get currency symbol from RootContext or fallback to prop/€
+  const currencySymbol = getCurrencySymbol?.() || props.currencySymbol || '€'
 
   // Genera un ID univoco per questo drawer se non fornito
   const drawerId = useMemo(
@@ -48,6 +52,14 @@ export default function NumericKeypadDrawer(props: {
       setDrawerValue('0.00')
     }
   }, [open])
+
+  const handlePresetValue = (amount: number) => {
+    setDrawerValue((prev) => {
+      const currentValue = parseFloat(prev) || 0
+      const newValue = currentValue + amount
+      return newValue.toFixed(2)
+    })
+  }
 
   const handleNumberClick = (digit: string) => {
     setDrawerValue((prev) => {
@@ -149,7 +161,7 @@ export default function NumericKeypadDrawer(props: {
           </Button>
           <Input
             type="text"
-            value={`${props.currencySymbol || ''} ${value.toFixed(2)}`}
+            value={`${currencySymbol} ${value.toFixed(2)}`}
             className={`bg-background-foreground h-8 border-x text-center ${props.inputWidth || 'w-20'}`}
             readOnly
             onClick={openDrawer}
@@ -172,7 +184,7 @@ export default function NumericKeypadDrawer(props: {
         <div className="relative inline-block">
           <Input
             type="text"
-            value={`${props.currencySymbol || ''} ${value.toFixed(2)}`}
+            value={`${currencySymbol} ${value.toFixed(2)}`}
             className={`bg-background-foreground h-8 text-center ${props.inputWidth || 'w-20'}`}
             readOnly
             onClick={openDrawer}
@@ -221,6 +233,50 @@ export default function NumericKeypadDrawer(props: {
               className="h-12 w-[115.34px] px-1"
             >
               <Delete className="h-5 w-5" style={{ scale: 2 }} />
+            </Button>
+          </div>
+
+          {/* Preset Values */}
+          <div className="grid grid-cols-5 gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-10 text-lg font-bold"
+              onClick={() => handlePresetValue(5)}
+            >
+              {currencySymbol} 5
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-10 text-lg font-bold"
+              onClick={() => handlePresetValue(10)}
+            >
+              {currencySymbol} 10
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-10 text-lg font-bold"
+              onClick={() => handlePresetValue(20)}
+            >
+              {currencySymbol} 20
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-10 text-lg font-bold"
+              onClick={() => handlePresetValue(30)}
+            >
+              {currencySymbol} 30
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-10 text-lg font-bold"
+              onClick={() => handlePresetValue(50)}
+            >
+              {currencySymbol} 50
             </Button>
           </div>
 
@@ -320,9 +376,11 @@ export default function NumericKeypadDrawer(props: {
             <Button
               variant="outline"
               size="lg"
-              className="h-12 opacity-30"
-              disabled
-            ></Button>
+              className="h-12 text-2xl font-bold"
+              onClick={handleClear}
+            >
+              C
+            </Button>
           </div>
 
           <Button

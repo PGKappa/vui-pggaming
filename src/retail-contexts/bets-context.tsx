@@ -27,6 +27,8 @@ export type BetsContextType = {
     marketName: string,
     option: Selection,
     competitors: string,
+    eventNumber?: number,
+    discipline?: string,
   ) => void
   removeEventBets: (eventId: string) => void
   toggleEventBetsFixed: (eventId: string) => void
@@ -232,16 +234,31 @@ export default function BetsContextProvider(props: {
     [betsContext.lastId, checkSystemLimits],
   )
 
-  const removeBet = (marketName: string, option: Selection, teams: string) => {
-    setBetsContext((prev) => ({
-      ...prev,
-      betEntries: prev.betEntries.filter(
-        (betEntry) =>
-          betEntry.market !== marketName ||
-          betEntry.bet.competitors !== teams ||
-          betEntry.bet.option.outcome !== option.outcome,
-      ),
-    }))
+  const removeBet = (
+    marketName: string,
+    option: Selection,
+    teams: string,
+    eventNumber?: number,
+    discipline?: string,
+  ) => {
+    setBetsContext((prev) => {
+      const filtered = prev.betEntries.filter((betEntry) => {
+        // Rimuovi SOLO se TUTTI i parametri corrispondono (incluso evento e disciplina)
+        const shouldRemove =
+          betEntry.market === marketName &&
+          betEntry.bet.competitors === teams &&
+          betEntry.bet.option.outcome === option.outcome &&
+          (eventNumber ? betEntry.bet.event.number === eventNumber : true) &&
+          (discipline ? betEntry.bet.discipline === discipline : true)
+
+        return !shouldRemove
+      })
+
+      return {
+        ...prev,
+        betEntries: filtered,
+      }
+    })
   }
 
   const removeEventBets = (eventId: string) => {
