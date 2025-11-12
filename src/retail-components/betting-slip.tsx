@@ -884,10 +884,10 @@ export default function BettingSlip({
                         onCheckedChange={handleAllGroupsToggle}
                       />
                       <div className="flex items-center gap-2 h-[33px]">
-                        <span className="text-[13px] mr-[18px]">
+                        <span className="text-[13px] mr-[3px]">
                           {t('divide').toUpperCase()}
                         </span>
-                        <div className="flex w-full items-center border border-border right-[14px] relative">
+                        <div className="flex w-full items-center border border-border right-[3px] relative">
                           <Button
                             variant="ghost"
                             size="sm"
@@ -914,7 +914,7 @@ export default function BettingSlip({
                             <CornerDownLeft className="h-4 w-4" />
                           </Button>
                         </div>
-                        <span className="text-[13px] relative right-[10px]">
+                        <span className="text-[13px] relative right-[4px]">
                           {t('add').toUpperCase()}
                         </span>
                       </div>
@@ -1007,7 +1007,7 @@ export default function BettingSlip({
                                     setValue={(value) =>
                                       handleUpdateGroupStake(group.name, value)
                                     }
-                                    inputWidth="w-[146px] pr-1"
+                                    inputWidth="w-[147px] pr-2"
                                     triggerLabel={group.name}
                                     showPlusMinus={false}
                                     drawerId={`system-group-${group.name}`}
@@ -1193,8 +1193,8 @@ export default function BettingSlip({
 
       {/* FASTBET section */}
       {selectedEvent && (
-        <div className='bg-white mt-2'>
-          <div className="bg-background w-[388px] ml-1">
+        <div className='bg-white mt-2 border-b'>
+          <div className="bg-background w-[388px] ml-1 mb-2">
           {selectedEvent?.discipline === 'SOCCER' ? (
             <SoccerFastBet selectedEvent={selectedEvent} />
           ) : (
