@@ -320,9 +320,11 @@ export default function NumericKeypadDrawer(props: {
             <Button
               variant="outline"
               size="lg"
-              className="h-12 opacity-30"
-              disabled
-            ></Button>
+              className="h-12 text-2xl font-bold"
+              onClick={handleClear}
+            >
+              C
+            </Button>
           </div>
 
           <Button
