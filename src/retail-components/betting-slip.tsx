@@ -193,7 +193,6 @@ export default function BettingSlip({
     }
     if (systemGroups.length === 0) return
 
-    // Opera solo sui gruppi selezionati
     const selectedGroupsList = systemGroups.filter(
       (group) => selectedGroups[group.name],
     )
@@ -202,64 +201,84 @@ export default function BettingSlip({
       return
     }
 
-    // NUOVA LOGICA: Calcola il totale delle combinazioni dei gruppi selezionati
     const totalCombinations = selectedGroupsList.reduce(
       (sum, group) => sum + group.combinations.length,
       0,
     )
 
-    if (totalCombinations === 0) return
+    const minIncrement = 0.05 // Min stake increment
+    const target = systemDistributeStake
 
-    // Importo per gruppo = Importo totale ÷ Numero totale combinazioni
-    const baseStakePerGroup = systemDistributeStake / totalCombinations
+    const baseStake =
+      Math.floor(target / totalCombinations / minIncrement) * minIncrement
+    const totalBaseUsed = baseStake * totalCombinations
+    let remaining = target - totalBaseUsed
 
-    // Arrotonda a step di 0,05$
-    const roundToFiveCents = (value: number) => {
-      return Math.round(value * 20) / 20 // Arrotonda a multipli di 0,05
+    // Inizializza tutti con base stake
+    const stakes: Record<string, number> = {}
+    for (const group of selectedGroupsList) {
+      stakes[group.name] = baseStake
     }
 
-    const newStakes: Record<string, number> = {}
-    const newSelections: Record<string, boolean> = {}
+    const groupsByPriority = [...selectedGroupsList].sort(
+      (a, b) => a.combinations.length - b.combinations.length,
+    )
 
-    // Ordina i gruppi per size crescente
-    const sortedGroups = [...selectedGroupsList].sort((a, b) => a.size - b.size)
+    // PRIMO GIRO: Prova a dare il massimo possibile a ciascun gruppo
+    for (const group of groupsByPriority) {
+      if (remaining <= 0) break
 
-    // Calcola gli stake per tutti i gruppi tranne l'ultimo (quello con size più alto)
-    let totalUsed = 0
-    sortedGroups.forEach((group, index) => {
-      if (index < sortedGroups.length - 1) {
-        // Per tutti i gruppi tranne l'ultimo, usa l'importo arrotondato
-        const stakePerCombination = roundToFiveCents(baseStakePerGroup)
-        newStakes[group.name] = stakePerCombination
-        totalUsed += stakePerCombination * group.combinations.length
+      // Calcola quanto stake aggiuntivo questo gruppo può prendere
+      const additionalStakePerCombination =
+        remaining / group.combinations.length
+
+      // Arrotonda DOWN al minIncrement più vicino
+      const roundedAdditional =
+        Math.floor(additionalStakePerCombination / minIncrement) * minIncrement
+
+      if (roundedAdditional >= minIncrement) {
+        const totalCost = roundedAdditional * group.combinations.length
+        stakes[group.name] += roundedAdditional
+        remaining -= totalCost
+        // Fix floating point errors
+        remaining = Math.round(remaining / minIncrement) * minIncrement
       }
+    }
+
+    // SECONDO GIRO: Se rimane ancora qualcosa, riprova tutti i gruppi
+    if (remaining >= minIncrement) {
+      for (const group of groupsByPriority) {
+        if (remaining < minIncrement) break
+
+        const additionalStakePerCombination =
+          remaining / group.combinations.length
+
+        const roundedAdditional =
+          Math.floor(additionalStakePerCombination / minIncrement) *
+          minIncrement
+
+        if (roundedAdditional >= minIncrement) {
+          const totalCost = roundedAdditional * group.combinations.length
+          stakes[group.name] += roundedAdditional
+          remaining -= totalCost
+          // Fix floating point errors
+          remaining = Math.round(remaining / minIncrement) * minIncrement
+        }
+      }
+    }
+
+    // Applica i risultati
+    const newSelections: Record<string, boolean> = {}
+    for (const group of selectedGroupsList) {
       newSelections[group.name] = true
-    })
+    }
 
-    // Per l'ultimo gruppo, calcola esattamente l'importo che serve per raggiungere systemDistributeStake
-    const lastGroup = sortedGroups[sortedGroups.length - 1] // size più alto
-    const remainingAmount = systemDistributeStake - totalUsed
-    const lastGroupStakePerCombination =
-      remainingAmount / lastGroup.combinations.length
+    setSystemGroupStakes((prev) => ({ ...prev, ...stakes }))
+    setSelectedGroups((prev) => ({ ...prev, ...newSelections }))
 
-    // NON arrotondare l'ultimo gruppo, usare il valore esatto per raggiungere il totale
-    newStakes[lastGroup.name] = Math.max(0.01, lastGroupStakePerCombination)
-
-    setSystemGroupStakes((prev) => ({
-      ...prev,
-      ...newStakes,
-    }))
-
-    setSelectedGroups((prev) => ({
-      ...prev,
-      ...newSelections,
-    }))
-
-    // Aggiorna checkbox "tutti"
     setTimeout(() => {
-      const updatedSelections = { ...selectedGroups, ...newSelections }
       const allSelected = systemGroups.every(
-        (group) => updatedSelections[group.name] && newStakes[group.name] > 0,
+        (group) => newSelections[group.name] && stakes[group.name] > 0,
       )
       setAllGroupsSelected(allSelected)
     }, 0)
@@ -811,7 +830,7 @@ export default function BettingSlip({
                   className="h-8 bg-muted-foreground text-[14px]"
                   onClick={() => setGlobal((prev) => prev + amount)}
                 >
-                    {currencySymbol} {amount}
+                  {currencySymbol} {amount}
                 </Button>
               ))}
             </div>
@@ -856,7 +875,7 @@ export default function BettingSlip({
               className="w-full"
             >
               <AccordionItem value="combinations" className="border-none">
-                <div className="bg-accent px-4 text-[13px] bottom-[4px] relative text-accent-foreground hover:no-underline h-[30px] !bg-[#16385f]">
+                <div className="relative bottom-[4px] h-[30px] !bg-[#16385f] bg-accent px-4 text-[13px] text-accent-foreground hover:no-underline">
                   <span>{t('combinations').toUpperCase()}</span>
                   <button
                     onClick={() => {
@@ -872,22 +891,22 @@ export default function BettingSlip({
                           : 'rotate(0deg)',
                     }}
                   >
-                    <ChevronDown className=" mr-[243px] relative bottom-1 h-5 w-5 shrink-0" />
+                    <ChevronDown className="relative bottom-1 mr-[243px] h-5 w-5 shrink-0" />
                   </button>
                 </div>
                 <AccordionContent className="pb-0">
                   {/* CONTROLLI DISTRIBUZIONE STAKE */}
-                  <div className="space-y-3 px-4 pb-2 border-b-1">
+                  <div className="border-b-1 space-y-3 px-4 pb-2">
                     <div className="flex items-center justify-between gap-2">
                       <Checkbox
                         checked={allGroupsSelected}
                         onCheckedChange={handleAllGroupsToggle}
                       />
-                      <div className="flex items-center gap-2 h-[33px]">
-                        <span className="text-[13px] mr-[18px]">
+                      <div className="flex h-[33px] items-center gap-2">
+                        <span className="mr-[18px] text-[13px]">
                           {t('divide').toUpperCase()}
                         </span>
-                        <div className="flex w-full items-center border border-border right-[14px] relative">
+                        <div className="relative right-[14px] flex w-full items-center border border-border">
                           <Button
                             variant="ghost"
                             size="sm"
@@ -914,7 +933,7 @@ export default function BettingSlip({
                             <CornerDownLeft className="h-4 w-4" />
                           </Button>
                         </div>
-                        <span className="text-[13px] relative right-[10px]">
+                        <span className="relative right-[10px] text-[13px]">
                           {t('add').toUpperCase()}
                         </span>
                       </div>
@@ -952,12 +971,14 @@ export default function BettingSlip({
                                     )
                                   }
                                 />
-                            <span className="font-normal text-[13px]">{group.name.toUpperCase()}</span>
-                                <span className="text-muted-background font-normal mt-[0px] relative right-[5px]">
+                                <span className="text-[13px] font-normal">
+                                  {group.name.toUpperCase()}
+                                </span>
+                                <span className="text-muted-background relative right-[5px] mt-[0px] font-normal">
                                   (x{group.combinations.length})
                                 </span>
                               </div>
-                              <div className="flex items-center gap-1 left-[22px] relative">
+                              <div className="relative left-[22px] flex items-center gap-1">
                                 <div className="flex items-center gap-0 border">
                                   <Button
                                     variant="ghost"
@@ -1083,14 +1104,14 @@ export default function BettingSlip({
                                       : 'rotate(0deg)',
                                   }}
                                 >
-                                  <ChevronDown className=" left-[4px] relative h-5 w-5 shrink-0" />
+                                  <ChevronDown className="relative left-[4px] h-5 w-5 shrink-0" />
                                 </Button>
                               </div>
                             </div>
                           </div>
-                          <AccordionContent className="px-4 border-b">
+                          <AccordionContent className="border-b px-4">
                             <div className="grid grid-cols-3 text-[13px]">
-                              <div className="text-center relative right-[30px]">
+                              <div className="relative right-[30px] text-center">
                                 <div className="text-foreground">
                                   {t('min').toUpperCase()}
                                 </div>
@@ -1099,7 +1120,7 @@ export default function BettingSlip({
                                   {(group.minWin * group.stake).toFixed(2)}
                                 </div>
                               </div>
-                              <div className="text-center relative right-[77px]">
+                              <div className="relative right-[77px] text-center">
                                 <div className="text-foreground">
                                   {t('max').toUpperCase()}
                                 </div>
@@ -1108,7 +1129,7 @@ export default function BettingSlip({
                                   {(group.maxWin * group.stake).toFixed(2)}
                                 </div>
                               </div>
-                              <div className="text-center relative right-[77px]">
+                              <div className="relative right-[77px] text-center">
                                 <div className="text-foreground">
                                   {t('total_played').toUpperCase()}
                                 </div>
@@ -1164,19 +1185,19 @@ export default function BettingSlip({
             <Separator />
 
             {/* VINCITA POTENZIALE */}
-            <div className="flex flex-row items-center justify-between px-4 py-3 text-foreground border-b">
+            <div className="flex flex-row items-center justify-between border-b px-4 py-3 text-foreground">
               <span className="text-[15px] font-semibold">
                 {t('potential_win').toUpperCase()}
               </span>
               <span className="text-[17px] font-semibold">
-                  {currencySymbol}  {totalSystemPotentialWin.toFixed(2)}
+                {currencySymbol} {totalSystemPotentialWin.toFixed(2)}
               </span>
             </div>
           </>
         )}
       </CardFooter>
 
-      <div className="px-1 py-2 border-b">
+      <div className="border-b px-1 py-2">
         <Button
           variant="betNow"
           onClick={handleBetNow}
@@ -1193,16 +1214,15 @@ export default function BettingSlip({
 
       {/* FASTBET section */}
       {selectedEvent && (
-        <div className='bg-white mt-2'>
-          <div className="bg-background w-[388px] ml-1">
-          {selectedEvent?.discipline === 'SOCCER' ? (
-            <SoccerFastBet selectedEvent={selectedEvent} />
-          ) : (
-            <RacingFastBet selectedEvent={selectedEvent} />
-          )}
+        <div className="mt-2 bg-white">
+          <div className="ml-1 w-[388px] bg-background">
+            {selectedEvent?.discipline === 'SOCCER' ? (
+              <SoccerFastBet selectedEvent={selectedEvent} />
+            ) : (
+              <RacingFastBet selectedEvent={selectedEvent} />
+            )}
+          </div>
         </div>
-        </div>
-        
       )}
     </Card>
   )
