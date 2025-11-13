@@ -706,8 +706,8 @@ export default function BettingSlip({
       data-testid="betting-slip"
     >
       <div className="grid grid-cols-2 text-center">
-        <div className="col-span-2 flex h-[74.2px] w-full flex-row items-center justify-between bg-accent px-5">
-          <span className="items-start text-[16px] font-semibold text-accent-foreground">
+        <div className="col-span-2 flex h-[69px] w-full flex-row items-center justify-between bg-accent px-5 relative top-[5px]">
+          <span className="items-start text-[15px] font-semibold text-accent-foreground pb-1 pl-[135px]">
             {t('bet_slip').toUpperCase()} ({betEntries.length})
           </span>
           <Button
@@ -721,13 +721,13 @@ export default function BettingSlip({
               alt="Bin"
               width={40}
               height={20}
-              className="h-[20px] w-6 object-contain brightness-0 invert filter"
+              className="h-[20px] w-6 object-contain brightness-0 invert filter bottom-1 relative"
             />
           </Button>
         </div>
 
         <div
-          className={`relative flex h-16 w-full flex-col items-center justify-center ${
+          className={`relative flex h-[45px] w-full flex-col items-center justify-center${
             isSystemToggleEnabled ? 'cursor-pointer' : ''
           } ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'bg-betSlip' : 'bg-gray-100'}`}
           onClick={
@@ -737,7 +737,7 @@ export default function BettingSlip({
           }
         >
           <span
-            className={`pt-0.5 text-[15px] ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'font-semibold text-betSlip-header-foreground' : 'text-betSlip-foreground'}`}
+            className={`text-[14px]   ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'font-semibold text-betSlip-header-foreground' : 'text-betSlip-foreground'}`}
           >
             {betMode === 'SINGLE'
               ? `${t('single').toUpperCase()}`
@@ -761,7 +761,7 @@ export default function BettingSlip({
           }
         >
           <span
-            className={`text-[15px] ${betMode === 'SYSTEM' ? 'pt-0.5 font-semibold text-betSlip-header-foreground' : 'text-betSlip-foreground'}`}
+            className={`text-[14px]   ${betMode === 'SYSTEM' ? 'font-semibold pt-0.5 text-betSlip-header-foreground' : 'text-betSlip-foreground'}`}
           >
             {t('system').toUpperCase()}
           </span>
@@ -774,13 +774,13 @@ export default function BettingSlip({
       <CardContent className="h-full overflow-hidden bg-muted-foreground p-2 text-betSlip-foreground">
         {betEntries.length === 0 ? (
           <div className="relative flex h-full items-start justify-center pt-2">
-            <span className="text-[16px] font-medium leading-none">
+            <span className="text-[15px] font-medium leading-none">
               {t('no_selection')}
             </span>
             <Button
               variant="betNow"
               size="icon-sm"
-              className="absolute right-0 top-0 font-bold"
+              className="absolute right-0 top-1 font-bold"
               onClick={restoreLastSubmittedTicket}
             >
               <RotateCcwIcon />
