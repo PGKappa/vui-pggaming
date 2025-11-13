@@ -872,7 +872,7 @@ export default function BettingSlip({
                           : 'rotate(0deg)',
                     }}
                   >
-                    <ChevronDown className="1h-5 w-5 shrink-0" />
+                    <ChevronDown className=" w-5 shrink-0 pb-1.5" />
                   </button>
                 </div>
                 <AccordionContent className="pb-0">
@@ -883,8 +883,8 @@ export default function BettingSlip({
                         checked={allGroupsSelected}
                         onCheckedChange={handleAllGroupsToggle}
                       />
-                      <div className="flex items-center gap-2 h-[33px]">
-                        <span className="text-[13px] mr-[3px]">
+                      <div className="flex items-center gap-2 h-[33px] mr-1">
+                        <span className="text-[12px] mr-[3px]">
                           {t('divide').toUpperCase()}
                         </span>
                         <div className="flex w-full items-center border border-border right-[3px] relative">
@@ -914,7 +914,7 @@ export default function BettingSlip({
                             <CornerDownLeft className="h-4 w-4" />
                           </Button>
                         </div>
-                        <span className="text-[13px] relative right-[4px]">
+                        <span className="text-[12px] relative right-[4px]">
                           {t('add').toUpperCase()}
                         </span>
                       </div>
@@ -938,7 +938,7 @@ export default function BettingSlip({
                           className="border-b bg-bet-foreground"
                         >
                           <div
-                            className={`px-4 py-2 ${systemGroupsOpen.includes(group.name) ? 'bg-muted' : 'bg-background'}`}
+                            className={`px-4 py-2 border-b ${systemGroupsOpen.includes(group.name) ? 'bg' : 'bg-background'}`}
                           >
                             <div className="flex w-full items-center justify-between pr-[16px]">
                               <div className="flex items-center gap-2">
@@ -958,7 +958,7 @@ export default function BettingSlip({
                                 </span>
                               </div>
                               <div className="flex items-center gap-1 left-[22px] relative">
-                                <div className="flex items-center gap-0 border">
+                                <div className="flex items-center gap-0 border right-[2px] relative">
                                   <Button
                                     variant="ghost"
                                     size="sm"
@@ -1089,7 +1089,7 @@ export default function BettingSlip({
                             </div>
                           </div>
                           <AccordionContent className="px-4">
-                            <div className="grid grid-cols-3 text-[13px]">
+                            <div className="grid grid-cols-3 text-[13px] top-1.5 relative ">
                               <div className="text-center relative right-[30px]">
                                 <div className="text-foreground">
                                   {t('min').toUpperCase()}
