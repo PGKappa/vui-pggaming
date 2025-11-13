@@ -1,4 +1,3 @@
-import { Input } from '@/retail-components/ui/input'
 import { BetsContext } from '@/retail-contexts/bets-context'
 import { RootContext } from '@/retail-contexts/root-context'
 import {
@@ -10,6 +9,7 @@ import { useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import DraggableCodeList from './draggable-code-list'
+import AlphanumericKeypadDrawer from './alphanumeric-keypad-drawer'
 
 export default function RacingFastBet({
   selectedEvent,
@@ -176,25 +176,15 @@ export default function RacingFastBet({
     setFastbetInput('')
   }
 
-  const submitOnEnter = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault()
-      handleSubmit()
-    }
-  }
-
   return (
     <div className="flex h-14 w-full items-center gap-2 bg-accent">
-      <div className="relative flex-1">
-        <Search className="absolute left-3 top-1/2 h-6 w-6 -translate-y-1/2 text-background" />
-        <Input
-          className="h-10 w-full bg-accent pl-10 text-center text-[19px] font-bold text-accent-foreground"
-          placeholder="FASTBET"
-          value={fastbetInput}
-          onChange={(e) => setFastbetInput(e.target.value.toUpperCase())}
-          onKeyDown={submitOnEnter}
-        />
-      </div>
+      <AlphanumericKeypadDrawer
+        value={fastbetInput}
+        setValue={setFastbetInput}
+        onSubmit={handleSubmit}
+        placeholder="FASTBET"
+        drawerId="racing-fastbet"
+      />
 
       <DraggableCodeList discipline="racing" />
     </div>
