@@ -492,11 +492,11 @@ export default function SearchEventResults() {
               onValueChange={setSelectedTimeSlot}
               disabled={lastTenGames}
             >
-              <SelectTrigger className="w-[150px] bg-background text-[15px] text-foreground h-[48px] border-none relative left-1">
+              <SelectTrigger className="w-[120px] bg-background text-[15px] text-foreground h-[48px] border-none relative left-1">
                 <SelectValue placeholder={t('time_slot')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
-                <SelectItem value="ALL">{t('all')}</SelectItem>
+                <SelectItem value="ALL">{('All')}</SelectItem>
                 {timeSlots.map((slot) => (
                   <SelectItem key={slot} value={slot}>
                     {slot}
