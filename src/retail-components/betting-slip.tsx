@@ -193,7 +193,6 @@ export default function BettingSlip({
     }
     if (systemGroups.length === 0) return
 
-    // Opera solo sui gruppi selezionati
     const selectedGroupsList = systemGroups.filter(
       (group) => selectedGroups[group.name],
     )
@@ -202,89 +201,84 @@ export default function BettingSlip({
       return
     }
 
-    // Calcola il totale delle combinazioni dei gruppi selezionati
     const totalCombinations = selectedGroupsList.reduce(
       (sum, group) => sum + group.combinations.length,
       0,
     )
 
-    if (totalCombinations === 0) return
+    const minIncrement = 0.05 // Min stake increment
+    const target = systemDistributeStake
 
-    // Base stake per combinazione arrotondato DOWN a multipli del min increment API
-    const minIncrement = rootContext?.getMinStakeIncrement?.() || 0.05
-    const baseStakePerCombination = systemDistributeStake / totalCombinations
-    const roundedBaseStake =
-      Math.floor(baseStakePerCombination / minIncrement) * minIncrement // Arrotonda DOWN a multipli del min increment
+    const baseStake =
+      Math.floor(target / totalCombinations / minIncrement) * minIncrement
+    const totalBaseUsed = baseStake * totalCombinations
+    let remaining = target - totalBaseUsed
 
-    // Calcola l'importo distribuito con il base stake
-    let totalDistributedWithBaseStake = 0
+    // Inizializza tutti con base stake
+    const stakes: Record<string, number> = {}
     for (const group of selectedGroupsList) {
-      totalDistributedWithBaseStake +=
-        roundedBaseStake * group.combinations.length
+      stakes[group.name] = baseStake
     }
 
-    // Ordina i gruppi per size crescente (priorità al gruppo con MENO combinazioni = size più alto)
-    const sortedGroups = [...selectedGroupsList].sort((a, b) => a.size - b.size)
-    const highestPriorityGroup = sortedGroups[sortedGroups.length - 1] // Gruppo con size più alto (meno combinazioni)
+    const groupsByPriority = [...selectedGroupsList].sort(
+      (a, b) => a.combinations.length - b.combinations.length,
+    )
 
-    const newStakes: Record<string, number> = {}
-    const newSelections: Record<string, boolean> = {}
-    let actualTotalUsed = 0
+    // PRIMO GIRO: Prova a dare il massimo possibile a ciascun gruppo
+    for (const group of groupsByPriority) {
+      if (remaining <= 0) break
 
-    // Distribuzione per ogni gruppo
-    for (const group of selectedGroupsList) {
-      let stakePerCombination = roundedBaseStake
+      // Calcola quanto stake aggiuntivo questo gruppo può prendere
+      const additionalStakePerCombination =
+        remaining / group.combinations.length
 
-      // Il gruppo prioritario cerca di coprire il gap rimanente
-      if (group === highestPriorityGroup) {
-        // Calcola quanto rimane da distribuire per arrivare il più vicino possibile al target
-        const otherGroupsTotalCost =
-          totalDistributedWithBaseStake -
-          roundedBaseStake * group.combinations.length
-        const remainingBudget = systemDistributeStake - otherGroupsTotalCost
-        const maxStakePerCombination =
-          remainingBudget / group.combinations.length
+      // Arrotonda DOWN al minIncrement più vicino
+      const roundedAdditional =
+        Math.floor(additionalStakePerCombination / minIncrement) * minIncrement
 
-        // Arrotonda DOWN al min increment più vicino
-        const adjustedStake =
-          Math.floor(maxStakePerCombination / minIncrement) * minIncrement
+      if (roundedAdditional >= minIncrement) {
+        const totalCost = roundedAdditional * group.combinations.length
+        stakes[group.name] += roundedAdditional
+        remaining -= totalCost
+        // Fix floating point errors
+        remaining = Math.round(remaining / minIncrement) * minIncrement
+      }
+    }
 
-        // Usa il valore adjustedStake se è >= del base stake e se il totale non supera il limite
-        if (adjustedStake >= roundedBaseStake) {
-          const wouldBeTotal =
-            otherGroupsTotalCost + adjustedStake * group.combinations.length
-          if (wouldBeTotal <= systemDistributeStake) {
-            stakePerCombination = adjustedStake
-          }
+    // SECONDO GIRO: Se rimane ancora qualcosa, riprova tutti i gruppi
+    if (remaining >= minIncrement) {
+      for (const group of groupsByPriority) {
+        if (remaining < minIncrement) break
+
+        const additionalStakePerCombination =
+          remaining / group.combinations.length
+
+        const roundedAdditional =
+          Math.floor(additionalStakePerCombination / minIncrement) *
+          minIncrement
+
+        if (roundedAdditional >= minIncrement) {
+          const totalCost = roundedAdditional * group.combinations.length
+          stakes[group.name] += roundedAdditional
+          remaining -= totalCost
+          // Fix floating point errors
+          remaining = Math.round(remaining / minIncrement) * minIncrement
         }
       }
+    }
 
-      newStakes[group.name] = stakePerCombination
+    // Applica i risultati
+    const newSelections: Record<string, boolean> = {}
+    for (const group of selectedGroupsList) {
       newSelections[group.name] = true
-      actualTotalUsed += stakePerCombination * group.combinations.length
     }
 
-    // Auto-aggiorna systemDistributeStake al valore effettivo
-    const actualTotal = actualTotalUsed
-    if (actualTotal !== systemDistributeStake) {
-      setSystemDistributeStake(actualTotal)
-    }
+    setSystemGroupStakes((prev) => ({ ...prev, ...stakes }))
+    setSelectedGroups((prev) => ({ ...prev, ...newSelections }))
 
-    setSystemGroupStakes((prev) => ({
-      ...prev,
-      ...newStakes,
-    }))
-
-    setSelectedGroups((prev) => ({
-      ...prev,
-      ...newSelections,
-    }))
-
-    // Aggiorna checkbox "tutti"
     setTimeout(() => {
-      const updatedSelections = { ...selectedGroups, ...newSelections }
       const allSelected = systemGroups.every(
-        (group) => updatedSelections[group.name] && newStakes[group.name] > 0,
+        (group) => newSelections[group.name] && stakes[group.name] > 0,
       )
       setAllGroupsSelected(allSelected)
     }, 0)
