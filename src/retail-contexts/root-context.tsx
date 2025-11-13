@@ -40,6 +40,7 @@ export type RootContextType = {
   isLoadingEvents: boolean
   getCurrencySymbol?: () => string
   getCurrencyCode?: () => string
+  getMinStakeIncrement?: () => number
   getChannels?: () => any[]
   getTrackName?: (channel?: number) => string
   getTranslation?: (key: string, fallback?: string) => string
@@ -725,11 +726,34 @@ export default function RootContextProvider(props: {
             return typeof value === 'string' ? value : fallback || key
           }
 
+          const getMinStakeIncrement = () => {
+            // TODO: Decommentare quando l'API sarà aggiornata
+            // Prende il min_stake_increment_step dal cashier data
+            /*
+            const minStakeIncrementStep = cashierData.intl?.min_stake_increment_step
+            
+            if (typeof minStakeIncrementStep === 'string') {
+              const parsed = parseFloat(minStakeIncrementStep)
+              if (!isNaN(parsed) && parsed > 0) {
+                return parsed
+              }
+            }
+            
+            if (typeof minStakeIncrementStep === 'number' && minStakeIncrementStep > 0) {
+              return minStakeIncrementStep
+            }
+            */
+
+            // Per ora usa 0.05 fisso (da rimuovere quando API sarà pronta)
+            return 0.05
+          }
+
           const contextData = {
             userData,
             cashierData,
             getCurrencySymbol,
             getCurrencyCode,
+            getMinStakeIncrement,
             getChannels,
             getTrackName,
             getTranslation,
