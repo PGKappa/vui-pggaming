@@ -28,6 +28,8 @@ export default function NumericKeypadDrawer(props: {
     useContext(RootContext)
   const [value, setValue] = useState(props.value)
   const [drawerValue, setDrawerValue] = useState('0.00')
+  const [shouldReplaceOnNextDigit, setShouldReplaceOnNextDigit] =
+    useState(false)
 
   // Get currency symbol from RootContext or fallback to prop/€
   const currencySymbol = getCurrencySymbol?.() || props.currencySymbol || '€'
@@ -50,6 +52,7 @@ export default function NumericKeypadDrawer(props: {
   useEffect(() => {
     if (open) {
       setDrawerValue('0.00')
+      setShouldReplaceOnNextDigit(false)
     }
   }, [open])
 
@@ -59,10 +62,18 @@ export default function NumericKeypadDrawer(props: {
       const newValue = currentValue + amount
       return newValue.toFixed(2)
     })
+    // Dopo aver cliccato un preset, il prossimo digit dovrebbe sostituire
+    setShouldReplaceOnNextDigit(true)
   }
 
   const handleNumberClick = (digit: string) => {
     setDrawerValue((prev) => {
+      // Se abbiamo appena cliccato un preset, resetta e inizia da capo
+      if (shouldReplaceOnNextDigit) {
+        setShouldReplaceOnNextDigit(false)
+        return digit === '0' ? '0' : digit
+      }
+
       if (prev === '0.00') {
         return digit === '0' ? '0.00' : digit
       }
@@ -82,6 +93,12 @@ export default function NumericKeypadDrawer(props: {
 
   const handleDecimalClick = () => {
     setDrawerValue((prev) => {
+      // Se abbiamo appena cliccato un preset, resetta e inizia da "0."
+      if (shouldReplaceOnNextDigit) {
+        setShouldReplaceOnNextDigit(false)
+        return '0.'
+      }
+
       if (!prev.includes('.')) {
         return prev + '.'
       }
@@ -90,6 +107,7 @@ export default function NumericKeypadDrawer(props: {
   }
 
   const handleDelete = () => {
+    setShouldReplaceOnNextDigit(false)
     setDrawerValue((prev) => {
       if (prev.length <= 1) {
         return '0.00'
@@ -100,6 +118,7 @@ export default function NumericKeypadDrawer(props: {
   }
 
   const handleClear = () => {
+    setShouldReplaceOnNextDigit(false)
     setDrawerValue('0.00')
   }
 
