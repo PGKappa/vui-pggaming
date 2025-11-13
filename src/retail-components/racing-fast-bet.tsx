@@ -4,7 +4,6 @@ import {
   createBetFromFastCode,
   parseFastBetInput,
 } from '@/retail-lib/fastbet-parser'
-import { Search } from 'lucide-react'
 import { useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'

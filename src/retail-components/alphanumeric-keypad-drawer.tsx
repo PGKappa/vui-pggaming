@@ -60,19 +60,26 @@ export default function AlphanumericKeypadDrawer(props: {
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    e.preventDefault()
     const key = e.key.toUpperCase()
+
+    if (key === 'ENTER') {
+      e.preventDefault()
+      handleSubmit()
+      return
+    }
+
+    e.preventDefault()
 
     if ((key >= '0' && key <= '9') || (key >= 'A' && key <= 'Z')) {
       handleCharacterClick(key)
     } else if (key === '-' || key === '/') {
       handleCharacterClick(key)
+    } else if (key === ' ') {
+      handleCharacterClick(' ')
     } else if (key === 'BACKSPACE') {
       handleDelete()
     } else if (key === 'DELETE') {
       handleClear()
-    } else if (key === 'ENTER') {
-      handleSubmit()
     } else if (key === 'ESCAPE') {
       closeDrawer()
     }
@@ -100,6 +107,7 @@ export default function AlphanumericKeypadDrawer(props: {
     >
       <DrawerTrigger asChild>
         <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 z-10 h-6 w-6 -translate-y-1/2 text-background" />
           <Input
             type="text"
             value={value}
@@ -122,7 +130,7 @@ export default function AlphanumericKeypadDrawer(props: {
             onClick={closeDrawer}
             className="absolute right-2 top-2"
           >
-            <ChevronDown className="h-5 w-5" style={{ scale: 1.5 }} />
+            <ChevronDown className="h-5 w-5" style={{ scale: 2 }} />
           </Button>
         </DrawerHeader>
 
@@ -164,7 +172,7 @@ export default function AlphanumericKeypadDrawer(props: {
               className="h-12 text-lg font-bold"
               onClick={handleClear}
             >
-              Clear
+              {t('clear')}
             </Button>
           </div>
 
@@ -235,19 +243,21 @@ export default function AlphanumericKeypadDrawer(props: {
               className="col-span-2 h-12 bg-accent text-xl font-bold text-accent-foreground hover:bg-accent/90"
               onClick={handleSubmit}
             >
-              Enter
+              {t('enter')}
             </Button>
           </div>
 
-          {/* Enter Button */}
-          <Button
-            variant="outline"
-            size="lg"
-            className="h-12 w-32 items-center justify-center text-xl font-bold"
-            onClick={() => handleCharacterClick(' ')}
-          >
-            Space
-          </Button>
+          {/* Space Bar - Centered */}
+          <div className="flex justify-center">
+            <Button
+              variant="outline"
+              size="lg"
+              className="h-12 w-[600px] text-xl font-bold"
+              onClick={() => handleCharacterClick(' ')}
+            >
+              Space
+            </Button>
+          </div>
         </div>
       </DrawerContent>
     </Drawer>
