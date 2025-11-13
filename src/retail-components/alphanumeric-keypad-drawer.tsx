@@ -141,7 +141,7 @@ export default function AlphanumericKeypadDrawer(props: {
               value={value}
               onChange={() => {}}
               onKeyDown={handleKeyDown}
-              className="h-12 flex-1 border pr-2 text-center text-2xl font-bold uppercase"
+              className="h-12 flex-1 border pr-2 text-right text-2xl font-bold uppercase"
               autoFocus
             />
             <Button
