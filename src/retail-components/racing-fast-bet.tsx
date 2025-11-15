@@ -1,15 +1,14 @@
-import { Input } from '@/retail-components/ui/input'
 import { BetsContext } from '@/retail-contexts/bets-context'
 import { RootContext } from '@/retail-contexts/root-context'
 import {
   createBetFromFastCode,
   parseFastBetInput,
 } from '@/retail-lib/fastbet-parser'
-import { Search } from 'lucide-react'
 import { useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import DraggableCodeList from './draggable-code-list'
+import AlphanumericKeypadDrawer from './alphanumeric-keypad-drawer'
 
 export default function RacingFastBet({
   selectedEvent,
@@ -64,9 +63,16 @@ export default function RacingFastBet({
     const allMarketNames: string[] = []
 
     // Process each bet input
-    for (const betInput of betInputs) {
+    for (let betIndex = 0; betIndex < betInputs.length; betIndex++) {
+      const betInput = betInputs[betIndex]
       let code = ''
       let selections = ''
+
+      // Reject input with dashes
+      if (betInput.includes('-')) {
+        toast.error(t('invalid_fastbet_format'))
+        return
+      }
 
       // Check if input contains selections (numbers)
       const hasNumbers = /\d/.test(betInput)
@@ -74,9 +80,35 @@ export default function RacingFastBet({
       if (hasNumbers) {
         // Extract letters (code) and numbers (selections)
         const letters = betInput.match(/[A-Z]+/g)?.join('') || ''
-        const numbers = betInput.match(/\d+/g)?.join('-') || ''
+        const numbersMatch = betInput.match(/\d/g)
+
+        if (numbersMatch) {
+          // For markets that need multiple selections, split digits
+          const currentMarketCode = letters
+          const currentMarket =
+            markets[currentMarketCode as keyof typeof markets]
+
+          if (currentMarket && currentMarket.selections > 1) {
+            // Check if it's an "any order" market (BT = Boxed Trifecta, Q = Quinella)
+            const isAnyOrderMarket = ['BT', 'Q'].includes(currentMarketCode)
+
+            if (isAnyOrderMarket) {
+              // Normalizzazione immediata - ordina sempre per mercati "any order"
+              const sortedNumbers = numbersMatch.sort(
+                (a, b) => parseInt(a) - parseInt(b),
+              )
+              selections = sortedNumbers.join('-')
+            } else {
+              // Keep original order for "in order" markets like Exacta, Trifecta
+              selections = numbersMatch.join('-')
+            }
+          } else {
+            // For single selection markets like Winner, Place, Show
+            selections = numbersMatch.join('')
+          }
+        }
+
         code = letters
-        selections = numbers
       } else {
         // Only code provided
         code = betInput
@@ -126,35 +158,32 @@ export default function RacingFastBet({
       const marketName = markets[parsedCode.code]?.name || 'FastBet'
       allMarketNames.push(marketName)
 
-      addBets(marketName, bets)
-      totalBetsAdded += bets.length
+      // addBets now returns the actual number of bets added (after duplicate filtering)
+      const actualBetsAdded = addBets(marketName, bets)
+      totalBetsAdded += actualBetsAdded
     }
 
-    // Success message showing all bets added
-    toast.success(`${totalBetsAdded} ${t('bets_added')}`)
+    // Show appropriate message based on results
+    if (totalBetsAdded === 0) {
+      // All bets were duplicates or no valid bets were processed
+      toast.info(t('no_duplicates_added'))
+    } else {
+      // Success message showing bets added
+      toast.success(`${totalBetsAdded} ${t('bets_added')}`)
+    }
 
     setFastbetInput('')
   }
 
-  const submitOnEnter = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault()
-      handleSubmit()
-    }
-  }
-
   return (
     <div className="flex h-14 w-full items-center gap-2 bg-accent">
-      <div className="relative flex-1">
-        <Search className="absolute left-3 top-1/2 h-6 w-6 -translate-y-1/2 text-background" />
-        <Input
-          className="h-10 w-full bg-accent pl-10 text-center text-[19px] font-bold text-accent-foreground"
-          placeholder="FASTBET"
-          value={fastbetInput}
-          onChange={(e) => setFastbetInput(e.target.value.toUpperCase())}
-          onKeyDown={submitOnEnter}
-        />
-      </div>
+      <AlphanumericKeypadDrawer
+        value={fastbetInput}
+        setValue={setFastbetInput}
+        onSubmit={handleSubmit}
+        placeholder="FASTBET"
+        drawerId="racing-fastbet"
+      />
 
       <DraggableCodeList discipline="racing" />
     </div>

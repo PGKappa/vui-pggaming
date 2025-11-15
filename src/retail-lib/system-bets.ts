@@ -8,7 +8,8 @@ export function getCombinations(
 ): BetEntry[][] {
   const result: BetEntry[][] = []
 
-  const eventKey = (e: BetEntry) => e.bet.event.number.toString()
+  // Include disciplina + numero evento per distinguere eventi con stesso numero ma discipline diverse
+  const eventKey = (e: BetEntry) => `${e.bet.discipline}-${e.bet.event.number}`
 
   const fixedGroups: Record<string, BetEntry[]> = {}
   fixed.forEach((f) => {
@@ -117,7 +118,8 @@ export function generateSystemGroups(entries: BetEntry[]): SystemGroup[] {
 
   const eventsSet = new Set<string>()
   entries.forEach((entry) => {
-    const eventKey = entry.bet.event.number.toString()
+    // Usa la stessa logica di getCombinations per essere coerente
+    const eventKey = `${entry.bet.discipline}-${entry.bet.event.number}`
     eventsSet.add(eventKey)
   })
   const eventsNumber = eventsSet.size

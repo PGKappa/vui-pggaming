@@ -113,5 +113,6 @@
   "market": "Market",
   "result": "Result",
   "delay": "Delay",
-  "no_latecomers": "No latecomers data available"
+  "no_latecomers": "No latecomers data available",
+  "no_duplicates_added": "No bets added - selections already present in bet slip"
 }

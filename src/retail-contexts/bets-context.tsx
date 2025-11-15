@@ -27,12 +27,14 @@ export type BetsContextType = {
     marketName: string,
     option: Selection,
     competitors: string,
+    eventNumber?: number,
+    discipline?: string,
   ) => void
   removeEventBets: (eventId: string) => void
   toggleEventBetsFixed: (eventId: string) => void
   removeAllBets: () => void
   restoreLastSubmittedTicket: () => void
-  addBets: (market: string, bet: Bet[]) => void
+  addBets: (market: string, bet: Bet[]) => number
   removeBets: (
     market: string,
     betIds: { option: Selection; competitors: string }[],
@@ -54,7 +56,7 @@ const defaultBetsContext: BetsContextType = {
   toggleEventBetsFixed: () => {},
   removeAllBets: () => {},
   restoreLastSubmittedTicket: () => {},
-  addBets: () => {},
+  addBets: () => 0,
   removeBets: () => {},
   addBetsWithMarket: () => {},
 }
@@ -232,16 +234,31 @@ export default function BetsContextProvider(props: {
     [betsContext.lastId, checkSystemLimits],
   )
 
-  const removeBet = (marketName: string, option: Selection, teams: string) => {
-    setBetsContext((prev) => ({
-      ...prev,
-      betEntries: prev.betEntries.filter(
-        (betEntry) =>
-          betEntry.market !== marketName ||
-          betEntry.bet.competitors !== teams ||
-          betEntry.bet.option.outcome !== option.outcome,
-      ),
-    }))
+  const removeBet = (
+    marketName: string,
+    option: Selection,
+    teams: string,
+    eventNumber?: number,
+    discipline?: string,
+  ) => {
+    setBetsContext((prev) => {
+      const filtered = prev.betEntries.filter((betEntry) => {
+        // Rimuovi SOLO se TUTTI i parametri corrispondono (incluso evento e disciplina)
+        const shouldRemove =
+          betEntry.market === marketName &&
+          betEntry.bet.competitors === teams &&
+          betEntry.bet.option.outcome === option.outcome &&
+          (eventNumber ? betEntry.bet.event.number === eventNumber : true) &&
+          (discipline ? betEntry.bet.discipline === discipline : true)
+
+        return !shouldRemove
+      })
+
+      return {
+        ...prev,
+        betEntries: filtered,
+      }
+    })
   }
 
   const removeEventBets = (eventId: string) => {
@@ -293,14 +310,36 @@ export default function BetsContextProvider(props: {
 
   const addBets = useCallback(
     (market: string, bets: Bet[]) => {
-      const newEntries = bets.map((bet, index) => ({
+      // Check for duplicates before adding
+      const filteredBets: Bet[] = []
+
+      for (const bet of bets) {
+        // Create a unique identifier for this bet using the correct Bet structure
+        const betIdentifier = `${bet.event.number}-${bet.discipline}-${bet.competitors}-${bet.option.outcome}-${bet.option.decPrice}`
+
+        // Check if this bet already exists in current entries
+        const existsInCurrent = betsContext.betEntries.some((entry) => {
+          const existingId = `${entry.bet.event.number}-${entry.bet.discipline}-${entry.bet.competitors}-${entry.bet.option.outcome}-${entry.bet.option.decPrice}`
+          return existingId === betIdentifier
+        })
+
+        if (!existsInCurrent) {
+          filteredBets.push(bet)
+        }
+      }
+
+      if (filteredBets.length === 0) {
+        return 0
+      }
+
+      const newEntries = filteredBets.map((bet, index) => ({
         id: betsContext.lastId + index + 1,
         bet,
         market,
       }))
 
       if (!checkSystemLimits(newEntries)) {
-        return
+        return 0
       }
 
       setBetsContext((prev) => {
@@ -310,8 +349,10 @@ export default function BetsContextProvider(props: {
           lastId: prev.lastId + newEntries.length,
         }
       })
+
+      return filteredBets.length
     },
-    [betsContext.lastId, checkSystemLimits],
+    [betsContext.lastId, betsContext.betEntries, checkSystemLimits],
   )
 
   const addBetsWithMarket = useCallback(

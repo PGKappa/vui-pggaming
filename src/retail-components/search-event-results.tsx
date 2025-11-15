@@ -416,8 +416,8 @@ export default function SearchEventResults() {
     <div className="flex h-full flex-col gap-1">
       <div className="flex flex-col items-center bg-accent p-2 h-16">
         <div className="flex flex-wrap items-center gap-8">
-          <div className="flex flex-row items-center gap-2 bg-badge text-background w-[118px] h-[48px]">
-            <span className="whitespace-nowrap pl-2 text-[15px] font-semibold relative left-[9px]">
+          <div className="flex flex-row items-center gap-2 bg-badge text-background w-[195px] h-[48px]">
+            <span className="whitespace-nowrap pl-2 text-[15px] font-semibold relative left-[9px] w-[89px]">
               {t('discipline').toUpperCase()}
             </span>
             <Select
@@ -430,7 +430,7 @@ export default function SearchEventResults() {
                 )
               }}
             >
-              <SelectTrigger className="w-[130px] border-none bg-background text-[15px] text-foreground left-5 relative h-[48px]">
+              <SelectTrigger className="w-[131px] border-none bg-background text-[15px] text-foreground left-5 relative h-[48px]">
                 <SelectValue placeholder={t('sport')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
@@ -492,11 +492,11 @@ export default function SearchEventResults() {
               onValueChange={setSelectedTimeSlot}
               disabled={lastTenGames}
             >
-              <SelectTrigger className="w-[150px] bg-background text-[15px] text-foreground h-[48px] border-none relative left-1">
+              <SelectTrigger className="w-[120px] bg-background text-[15px] text-foreground h-[48px] border-none relative left-1">
                 <SelectValue placeholder={t('time_slot')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
-                <SelectItem value="ALL">{t('all')}</SelectItem>
+                <SelectItem value="ALL">{('All')}</SelectItem>
                 {timeSlots.map((slot) => (
                   <SelectItem key={slot} value={slot}>
                     {slot}

@@ -232,8 +232,8 @@
   "event_number_required": "Numero evento richiesto",
   "markets_not_found": "Mercati non trovati:",
   "selection_required": "Selezione richiesta",
-  "enter_fastbet_code": "Inserisci codice FASTBET",
-  "invalid_fastbet_format": "Formato FASTBET non valido",
+  "enter_fastbet_code": "Inserisci codice fastbet",
+  "invalid_fastbet_format": "Formato fastbet non valido",
   "invalid_format_use_dash": "Formato non valido. Usa il trattino (-) per separare numero evento e mercati",
   "no_markets_provided": "Nessun mercato fornito",
   "selections_required_for_market": "Selezioni richieste per il mercato {{market}}",
@@ -247,5 +247,6 @@
   "add": "Aggiungi",
   "divide/add_amount": "Dividi/Aggiungi Importo",
   "select_at_least_one_group": "Seleziona almeno un gruppo per distribuire l'importo",
+  "no_duplicates_added": "Nessuna scommessa aggiunta - selezioni già presenti nella schedina",
   "ok": "OK"
 }
