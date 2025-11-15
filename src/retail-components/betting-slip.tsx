@@ -727,7 +727,7 @@ export default function BettingSlip({
         </div>
 
         <div
-          className={`relative flex h-[45px] w-[202px] flex-col items-center justify-center${
+          className={`relative flex h-[45px] w-[205px] flex-col items-center justify-center${
             isSystemToggleEnabled ? 'cursor-pointer' : ''
           } ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'bg-betSlip' : 'bg-gray-100'}`}
           onClick={
@@ -891,7 +891,7 @@ export default function BettingSlip({
                           : 'rotate(0deg)',
                     }}
                   >
-                    <ChevronDown className=" w-5 shrink-0 pb-1.5" />
+                    <ChevronDown className=" w-5 shrink-0" />
                   </button>
                 </div>
                 <AccordionContent className="pb-0">
@@ -1095,7 +1095,7 @@ export default function BettingSlip({
                                       ])
                                     }
                                   }}
-                                  className="transition-transform duration-200"
+                                  className="transition-transform duration-200 relative right-0.5"
                                   style={{
                                     transform: systemGroupsOpen.includes(
                                       group.name,
@@ -1104,7 +1104,7 @@ export default function BettingSlip({
                                       : 'rotate(0deg)',
                                   }}
                                 >
-                                  <ChevronDown className="relative left-[4px] h-5 w-5 shrink-0" />
+                                  <ChevronDown className=" h-5 w-5 shrink-0" />
                                 </Button>
                               </div>
                             </div>
