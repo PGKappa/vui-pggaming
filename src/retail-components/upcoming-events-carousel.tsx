@@ -105,7 +105,7 @@ function UpcomingEventItem(props: {
 
   return (
     <CarouselItem
-      className={`basis-1/7 flex h-[65px] w-[186px] cursor-pointer flex-row items-center justify-center gap-3 px-3 py-2 text-[15px] ${event.id === props.selectedEvent?.id &&
+      className={`basis-1/7 flex h-[65px] w-[186px] cursor-pointer flex-row items-center  justify-center gap-3 px-3 py-2 text-[15px] ${event.id === props.selectedEvent?.id &&
         event.discipline === props.selectedEvent?.discipline
         ? 'bg-tertiary text-tertiary-foreground'
         : 'bg-secondary text-secondary-foreground'
@@ -140,8 +140,9 @@ function UpcomingEventItem(props: {
           {event.discipline === 'SOCCER' ? t('round') : t('event')} {event.id}
         </span>
         <div className="flex flex-row gap-2">
-          <span className="font-bold text-[14px] relative bottom-[2px]">{event.startTime}</span>
-          <span className="font-mono text-[14px]  italic pt-[1.9px] relative bottom-[2px]">{timeToEventStart}</span>
+          <span className="font-semibold text-[14px] relative bottom-[2px]">{event.startTime}</span>
+          <span className="text-[14px] font-semibold pt-[0px] relative bottom-[2px] text-[#99a6b1]">{timeToEventStart}</span>
+          
         </div>
       </div>
     </CarouselItem>
