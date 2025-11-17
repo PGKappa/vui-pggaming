@@ -15,7 +15,7 @@ import {
   UpcomingRound,
   User,
 } from '@/virtual-lib/types'
-import { BASE_API_URL } from '@/virtual-lib/utils'
+import { BASE_API_URL, fetchCashierInit } from '@/virtual-lib/utils'
 import { createContext, useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -29,6 +29,7 @@ const debugLog = (section: string, message: string, data?: any) => {
 
 export type RootContextType = {
   userData?: User
+  cashierData?: any
   apiRequest?: <T>(
     input: string | URL | globalThis.Request,
     init?: RequestInit,
@@ -42,6 +43,12 @@ export type RootContextType = {
   eventResults?: EventResult[]
   betsHistory: Ticket[]
   matchResult?: MatchResult[]
+  getCurrencySymbol?: () => string
+  getCurrencyCode?: () => string
+  getMinStakeIncrement?: () => number
+  getChannels?: () => any[]
+  getTrackName?: (channel?: number) => string
+  getTranslation?: (key: string, fallback?: string) => string
 }
 
 const defaultRootContext: RootContextType = {
@@ -201,6 +208,71 @@ export default function RootContextProvider(props: {
     [initCode],
   )
 
+  const getCurrencySymbol = useCallback((): string => {
+    return rootContext.cashierData?.configs?.currency_symbol || '$'
+  }, [rootContext.cashierData])
+
+  const getCurrencyCode = useCallback((): string => {
+    return rootContext.cashierData?.configs?.currency_code || 'USD'
+  }, [rootContext.cashierData])
+
+  const getChannels = useCallback(
+    (type: 'calcio' | 'dogs' | 'horses' = 'calcio') => {
+      const cashierData = rootContext.cashierData
+      if (!cashierData) return []
+
+      const channels: {
+        id?: number
+        name?: string
+        description?: string
+      }[] = []
+
+      const magChannels = cashierData.configs?.mag_channels
+
+      if (type === 'calcio' && magChannels?.VFL?.length) {
+        channels.push(...magChannels.VFL)
+      } else if (type === 'dogs' && magChannels?.VDR?.length) {
+        channels.push(...magChannels.VDR)
+      } else if (type === 'horses' && magChannels?.VHR?.length) {
+        channels.push(...magChannels.VHR)
+      }
+
+      return channels
+    },
+    [rootContext.cashierData],
+  )
+
+  const getTrackName = useCallback(
+    (channel?: number): string => {
+      const cashierData = rootContext.cashierData
+      if (!cashierData || !channel) return ''
+
+      const magTracks = cashierData.configs?.mag_tracks
+      const track = magTracks?.find((t) => t.id === channel)
+      return track?.name || ''
+    },
+    [rootContext.cashierData],
+  )
+
+  // Helper per chiamate API PGVirtual
+  const pgVirtualFetch = useCallback(
+    (endpoint: string, options?: RequestInit) => {
+      return fetch(`https://apidev.pgvirtual.eu${endpoint}`, {
+        ...options,
+        headers: {
+          accept: 'application/json',
+          'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
+          authorization: `Bearer ${initCode}`,
+          operator: 'sc',
+          ...options?.headers,
+        },
+        mode: 'cors',
+        credentials: 'include',
+      })
+    },
+    [initCode],
+  )
+
   useEffect(() => {
     const initCode = getInitCodeFromUrl()
 
@@ -266,25 +338,20 @@ export default function RootContextProvider(props: {
 
     const fetchUserData = async (retryCount = 0, maxRetries = 3) => {
       try {
-        const response = await fetch(
-          `${BASE_API_URL}/football/validate/?init_code=${initCode}`,
-          {
-            method: 'GET',
-            mode: 'cors',
-          },
-        )
+        const cashierData = await fetchCashierInit(initCode)
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`)
-        }
+        if (cashierData?.ret_code === 1024) {
+          const userData: UserApiResponse = {
+            status: '1024',
+            lang: cashierData.intl?.lang || 'en-US',
+            ...cashierData.configs,
+          }
 
-        const userData = (await response.json()) as UserApiResponse
-
-        if (userData?.status === '1024') {
           i18n.changeLanguage(userData.lang.substring(0, 2))
           setRootContext((prev) => ({
             ...prev,
             userData,
+            cashierData,
           }))
           toast.success('User data fetched successfully!')
           setIsLoading(false)
@@ -307,6 +374,7 @@ export default function RootContextProvider(props: {
           setRootContext((prev) => ({
             ...prev,
             userData: undefined,
+            cashierData: undefined,
           }))
           setIsLoading(false)
         }
@@ -377,375 +445,158 @@ export default function RootContextProvider(props: {
     }
 
     const fetchUpcomingHorseEvents = async () => {
-      const response = await fetch(
-        'https://apidev.pgvirtual.eu/api/event/list',
-        {
-          headers: {
-            accept: 'application/json',
-            'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
-            authorization: `Bearer ${initCode}`,
-            operator: 'sc',
-            priority: 'u=1, i',
-            'sec-ch-ua':
-              '"Not;A=Brand";v="99", "Google Chrome";v="139", "Chromium";v="139"',
-            'sec-ch-ua-mobile': '?1',
-            'sec-ch-ua-platform': '"Android"',
-            'sec-fetch-dest': 'empty',
-            'sec-fetch-mode': 'cors',
-            'sec-fetch-site': 'same-site',
-          },
-          referrer: 'https://test.pgvirtual.eu/',
-          body: null,
-          method: 'GET',
-          mode: 'cors',
-          credentials: 'include',
-        },
-      )
+      try {
+        const response = await pgVirtualFetch('/api/event/list')
 
-      debugLog('FETCH', `Response status: ${response.status}`)
+        if (!response.ok) {
+          throw new Error(`Failed to fetch horse events: ${response.status}`)
+        }
 
-      if (!response.ok) {
-        throw new Error(`Failed to fetch horse events: ${response.status}`)
-      }
+        const horseEvents = await response.json()
+        const horseChannel = horseEvents.channels?.[1]
 
-      const horseEvents = await response.json()
+        if (!horseChannel?.next_events) {
+          debugLog('ERROR', 'Invalid horse channel data')
+          return
+        }
 
-      debugLog('API-RESPONSE - HORSES', 'Full API Response:', horseEvents)
-      debugLog(
-        'API-RESPONSE',
-        `Channels found: ${horseEvents.channels?.length || 0}`,
-      )
+        const upcomingHorseEvents: UpcomingEvent[] =
+          horseChannel.next_events.map(
+            (event: any, index: number): UpcomingEvent => {
+              const startTime = new Date(event.time)
+              const [hours, minutes] = event.start_time.split(':')
+              startTime.setHours(parseInt(hours, 10), parseInt(minutes, 10))
 
-      const horseChannel = horseEvents.channels?.[1]
-
-      /* console.log('🐎 Events API Response:', horseEvents) */
-
-      const upcomingHorseEvents: UpcomingEvent[] = horseChannel.next_events.map(
-        (
-          event: {
-            int_event_id: string
-            ext_pal_id: string
-            start_time: string
-            time: string
-          },
-          index: number,
-        ): UpcomingEvent => {
-          const startTime = new Date(event.time)
-          const hours = event.start_time.split(':')[0]
-          const minutes = event.start_time.split(':')[1]
-          startTime.setHours(parseInt(hours, 10))
-          startTime.setMinutes(parseInt(minutes, 10))
-
-          return {
-            id: parseInt(event.int_event_id),
-            extId: event.ext_pal_id,
-            duration: horseEvents.channels[1].duration[index],
-            discipline: Discipline.HORSES,
-            name: `Horse Race `,
-            startTime: event.start_time,
-            time: startTime,
-          }
-        },
-      )
-
-      // Chiamate API parallele per ottenere i dettagli di ogni evento
-      const horseEventResults: EventResult[] = await Promise.all(
-        horseChannel.prev_events.map(
-          async (event: {
-            arrival: {
-              name: string
-              number: number
-            }[]
-            int_event_id: string
-            ext_pal_id: string
-            start_time: string
-            time: string
-          }) => {
-            let startTime: Date
-            try {
-              startTime = new Date(event.time)
-
-              if (isNaN(startTime.getTime()) && event.start_time) {
-                startTime = new Date()
-                const [hours, minutes] = event.start_time.split(':')
-                if (hours && minutes) {
-                  startTime.setHours(parseInt(hours, 10))
-                  startTime.setMinutes(parseInt(minutes, 10))
-                  startTime.setSeconds(0)
-                  startTime.setMilliseconds(0)
-                }
+              return {
+                id: parseInt(event.int_event_id),
+                extId: event.ext_pal_id,
+                duration: horseChannel.duration?.[index],
+                discipline: Discipline.HORSES,
+                name: 'Horse Race',
+                startTime: event.start_time,
+                time: startTime,
               }
+            },
+          )
 
-              if (isNaN(startTime.getTime())) {
-                startTime = new Date()
-              }
-            } catch {
-              startTime = new Date()
-            }
+        const horseEventResults: EventResult[] = await Promise.all(
+          (horseChannel.prev_events || []).map(async (event: any) => {
+            const startTime = new Date(event.time)
 
-            // Chiama l'API per ottenere i dettagli completi dell'evento
             let detailedResult = null
             try {
-              const response = await fetch(
-                `https://apidev.pgvirtual.eu/api/event/results/${event.ext_pal_id}/${event.int_event_id}`,
-                {
-                  headers: {
-                    accept: 'application/json',
-                    'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
-                    authorization: `Bearer ${initCode}`,
-                    operator: 'sc',
-                    priority: 'u=1, i',
-                    'sec-ch-ua':
-                      '"Not;A=Brand";v="99", "Google Chrome";v="139", "Chromium";v="139"',
-                    'sec-ch-ua-mobile': '?1',
-                    'sec-ch-ua-platform': '"Android"',
-                    'sec-fetch-dest': 'empty',
-                    'sec-fetch-mode': 'cors',
-                    'sec-fetch-site': 'same-site',
-                  },
-                  referrer: 'https://test.pgvirtual.eu/',
-                  body: null,
-                  method: 'GET',
-                  mode: 'cors',
-                  credentials: 'include',
-                },
+              const res = await pgVirtualFetch(
+                `/api/event/results/${event.ext_pal_id}/${event.int_event_id}`,
               )
-
-              if (response.ok) {
-                detailedResult = await response.json()
-              }
+              if (res.ok) detailedResult = await res.json()
             } catch (error) {
-              console.warn('Failed to fetch detailed horse result:', error)
+              console.warn('Failed to fetch detailed result:', error)
             }
 
             return {
               id: event.int_event_id,
               extId: event.ext_pal_id,
-              name: ` Horse Race ${event.int_event_id}`,
+              name: `Horse Race ${event.int_event_id}`,
               startTime,
               time: event.time,
               discipline: Discipline.HORSES,
               result: {
-                podium: event.arrival.map((horse, index) => ({
+                podium: event.arrival.map((horse: any, index: number) => ({
                   name: horse.name,
                   number: horse.number,
                   position: index + 1,
                 })),
-                odds: (detailedResult as any)?.odds || {
-                  winner: {},
-                  placed: {},
-                  show: {},
-                  exacta: {},
-                  quinella: {},
-                  trifecta: {},
-                  boxedtrifecta: {},
-                  evenodd: {},
-                  underover: {},
-                },
+                odds: (detailedResult as any)?.odds || {},
               } as RaceResult,
             } as EventResult
-          },
-        ),
-      )
+          }),
+        )
 
-      setRootContext((prev) => ({
-        ...prev,
-        upcomingEvents: [
-          ...(prev.upcomingEvents?.filter(
-            (event) => event.discipline !== Discipline.HORSES,
-          ) || []),
-          ...upcomingHorseEvents,
-        ],
-        eventResults: [
-          ...(prev.eventResults || []).filter(
-            (e) => e.discipline !== Discipline.HORSES,
-          ),
-          ...horseEventResults,
-        ],
-      }))
+        setRootContext((prev) => ({
+          ...prev,
+          upcomingEvents: [
+            ...(prev.upcomingEvents?.filter(
+              (event) => event.discipline !== Discipline.HORSES,
+            ) || []),
+            ...upcomingHorseEvents,
+          ],
+          eventResults: [
+            ...(prev.eventResults?.filter(
+              (e) => e.discipline !== Discipline.HORSES,
+            ) || []),
+            ...horseEventResults,
+          ],
+        }))
+      } catch (error) {
+        console.error('Horse events fetch error:', error)
+      }
     }
 
     const fetchUpcomingDogEvents = async () => {
       try {
-        const response = await fetch(
-          'https://apidev.pgvirtual.eu/api/event/list',
-          {
-            headers: {
-              accept: 'application/json',
-              'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
-              authorization: `Bearer ${initCode}`,
-              operator: 'sc',
-              priority: 'u=1, i',
-              'sec-ch-ua':
-                '"Not;A=Brand";v="99", "Google Chrome";v="139", "Chromium";v="139"',
-              'sec-ch-ua-mobile': '?1',
-              'sec-ch-ua-platform': '"Android"',
-              'sec-fetch-dest': 'empty',
-              'sec-fetch-mode': 'cors',
-              'sec-fetch-site': 'same-site',
-            },
-            referrer: 'https://test.pgvirtual.eu/',
-            body: null,
-            method: 'GET',
-            mode: 'cors',
-            credentials: 'include',
-          },
-        )
-
-        debugLog('FETCH', `Response status: ${response.status}`)
+        const response = await pgVirtualFetch('/api/event/list')
 
         if (!response.ok) {
           throw new Error(`Failed to fetch dog events: ${response.status}`)
         }
 
         const dogEvents = await response.json()
-
-        debugLog('API-RESPONSE - DOGS', 'Full API Response:', dogEvents)
-        debugLog(
-          'API-RESPONSE',
-          `Channels found: ${dogEvents.channels?.length || 0}`,
-        )
-
         const dogChannel = dogEvents.channels?.[0]
 
-        // Controllo di sicurezza per evitare errori
-        if (
-          !dogChannel ||
-          !dogChannel.next_events ||
-          !Array.isArray(dogChannel.next_events)
-        ) {
-          debugLog('ERROR', 'Invalid dog channel data structure:', dogChannel)
+        if (!dogChannel?.next_events) {
+          debugLog('ERROR', 'Invalid dog channel data')
           return
         }
 
-        /* console.log('Events API Response:', dogEvents) */
-
         const upcomingDogEvents: UpcomingEvent[] = dogChannel.next_events.map(
-          (
-            event: {
-              int_event_id: string
-              ext_pal_id: string
-              start_time: string
-              time: string
-            },
-            index: number,
-          ): UpcomingEvent => {
+          (event: any, index: number): UpcomingEvent => {
             const startTime = new Date(event.time)
-            const hours = event.start_time.split(':')[0]
-            const minutes = event.start_time.split(':')[1]
-            startTime.setHours(parseInt(hours, 10))
-            startTime.setMinutes(parseInt(minutes, 10))
+            const [hours, minutes] = event.start_time.split(':')
+            startTime.setHours(parseInt(hours, 10), parseInt(minutes, 10))
 
             return {
               id: parseInt(event.int_event_id),
               extId: event.ext_pal_id,
-              duration: dogEvents.channels?.[0]?.duration?.[index],
+              duration: dogChannel.duration?.[index],
               discipline: Discipline.DOGS,
-              name: `Dog Race `,
+              name: 'Dog Race',
               startTime: event.start_time,
               time: startTime,
             }
           },
         )
 
-        // Chiamate API parallele per ottenere i dettagli di ogni evento
         const dogEventResults: EventResult[] = await Promise.all(
-          dogChannel.prev_events.map(
-            async (event: {
-              arrival: {
-                name: string
-                number: number
-              }[]
-              int_event_id: string
-              ext_pal_id: string
-              start_time: string
-              time: string
-            }) => {
-              let startTime: Date
-              try {
-                startTime = new Date(event.time)
+          (dogChannel.prev_events || []).map(async (event: any) => {
+            const startTime = new Date(event.time)
 
-                if (isNaN(startTime.getTime()) && event.start_time) {
-                  startTime = new Date()
-                  const [hours, minutes] = event.start_time.split(':')
-                  if (hours && minutes) {
-                    startTime.setHours(parseInt(hours, 10))
-                    startTime.setMinutes(parseInt(minutes, 10))
-                    startTime.setSeconds(0)
-                    startTime.setMilliseconds(0)
-                  }
-                }
+            let detailedResult = null
+            try {
+              const res = await pgVirtualFetch(
+                `/api/event/results/${event.ext_pal_id}/${event.int_event_id}`,
+              )
+              if (res.ok) detailedResult = await res.json()
+            } catch (error) {
+              console.warn('Failed to fetch detailed result:', error)
+            }
 
-                if (isNaN(startTime.getTime())) {
-                  startTime = new Date()
-                }
-              } catch {
-                startTime = new Date()
-              }
-
-              // Chiama l'API per ottenere i dettagli completi dell'evento
-              let detailedResult = null
-              try {
-                const response = await fetch(
-                  `https://apidev.pgvirtual.eu/api/event/results/${event.ext_pal_id}/${event.int_event_id}`,
-                  {
-                    headers: {
-                      accept: 'application/json',
-                      'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
-                      authorization: `Bearer ${initCode}`,
-                      operator: 'sc',
-                      priority: 'u=1, i',
-                      'sec-ch-ua':
-                        '"Not;A=Brand";v="99", "Google Chrome";v="139", "Chromium";v="139"',
-                      'sec-ch-ua-mobile': '?1',
-                      'sec-ch-ua-platform': '"Android"',
-                      'sec-fetch-dest': 'empty',
-                      'sec-fetch-mode': 'cors',
-                      'sec-fetch-site': 'same-site',
-                    },
-                    referrer: 'https://test.pgvirtual.eu/',
-                    body: null,
-                    method: 'GET',
-                    mode: 'cors',
-                    credentials: 'include',
-                  },
-                )
-
-                if (response.ok) {
-                  detailedResult = await response.json()
-                }
-              } catch (error) {
-                console.warn('Failed to fetch detailed dog result:', error)
-              }
-
-              return {
-                id: event.int_event_id,
-                extId: event.ext_pal_id,
-                name: ` Dog Race ${event.int_event_id}`,
-                startTime,
-                time: event.time,
-                discipline: Discipline.DOGS,
-                result: {
-                  podium: event.arrival.map((dog, index) => ({
-                    name: dog.name,
-                    number: dog.number,
-                    position: index + 1,
-                  })),
-                  odds: (detailedResult as any)?.odds || {
-                    winner: {},
-                    placed: {},
-                    show: {},
-                    exacta: {},
-                    quinella: {},
-                    trifecta: {},
-                    boxedtrifecta: {},
-                    evenodd: {},
-                    underover: {},
-                  },
-                } as RaceResult,
-              } as EventResult
-            },
-          ),
+            return {
+              id: event.int_event_id,
+              extId: event.ext_pal_id,
+              name: `Dog Race ${event.int_event_id}`,
+              startTime,
+              time: event.time,
+              discipline: Discipline.DOGS,
+              result: {
+                podium: event.arrival.map((dog: any, index: number) => ({
+                  name: dog.name,
+                  number: dog.number,
+                  position: index + 1,
+                })),
+                odds: (detailedResult as any)?.odds || {},
+              } as RaceResult,
+            } as EventResult
+          }),
         )
 
         setRootContext((prev) => ({
@@ -757,14 +608,13 @@ export default function RootContextProvider(props: {
             ...upcomingDogEvents,
           ],
           eventResults: [
-            ...(prev.eventResults || []).filter(
+            ...(prev.eventResults?.filter(
               (e) => e.discipline !== Discipline.DOGS,
-            ),
+            ) || []),
             ...dogEventResults,
           ],
         }))
       } catch (error) {
-        debugLog('ERROR', 'Failed to fetch dog events:', error)
         console.error('Dog events fetch error:', error)
       }
     }
@@ -772,24 +622,24 @@ export default function RootContextProvider(props: {
     fetchUpcomingRounds()
     fetchUpcomingHorseEvents()
     fetchUpcomingDogEvents()
-  }, [initCode, apiRequest])
+  }, [initCode, apiRequest, pgVirtualFetch])
 
   // Cleanup periodico degli eventi passati
   useEffect(() => {
     const cleanupExpiredEvents = () => {
       const now = new Date()
-      
+
       setRootContext((prev) => ({
         ...prev,
-        upcomingEvents: prev.upcomingEvents?.filter(
-          (event) => new Date(event.time) > now
-        ) || [],
+        upcomingEvents:
+          prev.upcomingEvents?.filter((event) => new Date(event.time) > now) ||
+          [],
       }))
     }
 
     // Esegui cleanup ogni 30 secondi
     const cleanupInterval = setInterval(cleanupExpiredEvents, 30000)
-    
+
     // Cleanup iniziale
     cleanupExpiredEvents()
 
@@ -823,7 +673,15 @@ export default function RootContextProvider(props: {
   }
 
   return (
-    <RootContext.Provider value={rootContext}>
+    <RootContext.Provider
+      value={{
+        ...rootContext,
+        getCurrencySymbol,
+        getCurrencyCode,
+        getChannels,
+        getTrackName,
+      }}
+    >
       {props.children}
     </RootContext.Provider>
   )
