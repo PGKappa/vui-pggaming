@@ -209,11 +209,31 @@ export default function RootContextProvider(props: {
   )
 
   const getCurrencySymbol = useCallback((): string => {
-    return rootContext.cashierData?.configs?.currency_symbol || '$'
+    const cashierData = rootContext.cashierData
+    if (!cashierData) return '$'
+
+    // Prima prova a usare il simbolo dall'API cashier (come retail)
+    const apiSymbol = cashierData.dict?.misc?.currency?.symbol
+    if (apiSymbol) {
+      return apiSymbol
+    }
+
+    // Fallback: usa il mapping basato sul currency code
+    const currencyCode = cashierData.intl?.currency || 'USD'
+    const currencyMap: Record<string, string> = {
+      USD: '$',
+      EUR: '€',
+      GBP: '£',
+      JPY: '¥',
+      CHF: 'CHF',
+      CAD: 'C$',
+      AUD: 'A$',
+    }
+    return currencyMap[currencyCode] || '$'
   }, [rootContext.cashierData])
 
   const getCurrencyCode = useCallback((): string => {
-    return rootContext.cashierData?.configs?.currency_code || 'USD'
+    return rootContext.cashierData?.intl?.currency || 'USD'
   }, [rootContext.cashierData])
 
   const getChannels = useCallback(
@@ -250,6 +270,22 @@ export default function RootContextProvider(props: {
       const magTracks = cashierData.configs?.mag_tracks
       const track = magTracks?.find((t) => t.id === channel)
       return track?.name || ''
+    },
+    [rootContext.cashierData],
+  )
+
+  const getTranslation = useCallback(
+    (key: string, fallback?: string): string => {
+      const cashierData = rootContext.cashierData
+      if (!cashierData) return fallback || key
+
+      const keys = key.split('.')
+      let value: any = cashierData.dict
+      for (const k of keys) {
+        value = value?.[k]
+        if (value === undefined) break
+      }
+      return typeof value === 'string' ? value : fallback || key
     },
     [rootContext.cashierData],
   )
@@ -341,10 +377,16 @@ export default function RootContextProvider(props: {
         const cashierData = await fetchCashierInit(initCode)
 
         if (cashierData?.ret_code === 1024) {
+          // Estrai i dati "utente" dai configs e intl (allineato con retail)
           const userData: UserApiResponse = {
             status: '1024',
-            lang: cashierData.intl?.lang || 'en-US',
-            ...cashierData.configs,
+            description: cashierData.description || 'Success',
+            playerId: `${cashierData.configs?.user_type || 'user'}-${cashierData.configs?.terminals?.[0] || 'unknown'}`,
+            currency: cashierData.intl?.currency || 'EUR',
+            lang:
+              cashierData.dictInfo?.lang || cashierData.intl?.lang || 'en-US',
+            level: 1,
+            group: [cashierData.configs?.ui_type || 'web'],
           }
 
           i18n.changeLanguage(userData.lang.substring(0, 2))
@@ -680,6 +722,7 @@ export default function RootContextProvider(props: {
         getCurrencyCode,
         getChannels,
         getTrackName,
+        getTranslation,
       }}
     >
       {props.children}
