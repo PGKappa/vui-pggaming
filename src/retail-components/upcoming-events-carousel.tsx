@@ -107,7 +107,7 @@ function UpcomingEventItem(props: {
     <CarouselItem
       className={`basis-1/7 flex h-[65px] w-[186px] cursor-pointer flex-row items-center  justify-center gap-3 px-3 py-2 text-[15px] ${event.id === props.selectedEvent?.id &&
         event.discipline === props.selectedEvent?.discipline
-        ? 'bg-tertiary text-tertiary-foreground'
+        ? 'bg-[hsl(211deg_65%_37%_/_.9)] text-tertiary-foreground'
         : 'bg-secondary text-secondary-foreground'
         }`}
       onClick={() => {
