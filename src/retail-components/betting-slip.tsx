@@ -727,7 +727,7 @@ export default function BettingSlip({
         </div>
 
         <div
-          className={`relative flex h-[45px] w-[202px] flex-col items-center justify-center${
+          className={`relative flex h-[45px] w-[205px] flex-col items-center justify-center${
             isSystemToggleEnabled ? 'cursor-pointer' : ''
           } ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'bg-betSlip' : 'bg-gray-100'}`}
           onClick={
@@ -883,7 +883,7 @@ export default function BettingSlip({
                         accordionOpen === 'combinations' ? '' : 'combinations',
                       )
                     }}
-                    className="transition-transform duration-200"
+                    className="transition-transform duration-200 relative left-[243px] top-[3px]"
                     style={{
                       transform:
                         accordionOpen === 'combinations'
@@ -891,7 +891,7 @@ export default function BettingSlip({
                           : 'rotate(0deg)',
                     }}
                   >
-                    <ChevronDown className=" w-5 shrink-0 pb-1.5" />
+                    <ChevronDown className=" w-5 shrink-0" />
                   </button>
                 </div>
                 <AccordionContent className="pb-0">
@@ -1095,7 +1095,7 @@ export default function BettingSlip({
                                       ])
                                     }
                                   }}
-                                  className="transition-transform duration-200"
+                                  className="transition-transform duration-200 relative right-0.5"
                                   style={{
                                     transform: systemGroupsOpen.includes(
                                       group.name,
@@ -1104,32 +1104,32 @@ export default function BettingSlip({
                                       : 'rotate(0deg)',
                                   }}
                                 >
-                                  <ChevronDown className="relative left-[4px] h-5 w-5 shrink-0" />
+                                  <ChevronDown className=" h-5 w-5 shrink-0" />
                                 </Button>
                               </div>
                             </div>
                           </div>
                           <AccordionContent className="px-4">
                             <div className="grid grid-cols-3 text-[13px] top-1.5 relative ">
-                              <div className="text-center relative right-[30px]">
+                              <div className="text-center relative right-[4px]">
                                 <div className="text-foreground">
-                                  {t('min').toUpperCase()}
+                                  {t('min win').toUpperCase()}
                                 </div>
                                 <div className="font-semibold">
                                   {currencySymbol}{' '}
                                   {(group.minWin * group.stake).toFixed(2)}
                                 </div>
                               </div>
-                              <div className="relative right-[77px] text-center">
+                              <div className="relative right-[24px] text-center">
                                 <div className="text-foreground">
-                                  {t('max').toUpperCase()}
+                                  {t('max win').toUpperCase()}
                                 </div>
                                 <div className="font-semibold">
                                   {currencySymbol}{' '}
                                   {(group.maxWin * group.stake).toFixed(2)}
                                 </div>
                               </div>
-                              <div className="relative right-[77px] text-center">
+                              <div className="relative right-[25px] text-center">
                                 <div className="text-foreground">
                                   {t('total_played').toUpperCase()}
                                 </div>
@@ -1174,7 +1174,7 @@ export default function BettingSlip({
               <NumericKeypadDrawer
                 value={global}
                 setValue={handleDirectAmountInput}
-                inputWidth="w-[280px] border"
+                inputWidth="w-[280px] border text-[15px]"
                 triggerLabel={t('amount')}
                 showPlusMinus={false}
                 drawerId="system-amount"
