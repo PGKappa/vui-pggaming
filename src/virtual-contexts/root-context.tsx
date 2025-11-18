@@ -165,6 +165,137 @@ export default function RootContextProvider(props: {
   const [isLoading, setIsLoading] = useState(true)
   const processedRoundIdRef = useRef<number | undefined>(undefined)
 
+  // Cache keys for localStorage
+  const CACHE_KEYS = {
+    DOGS_EVENTS: 'virtual_dogs_events_cache',
+    HORSES_EVENTS: 'virtual_horses_events_cache',
+    SOCCER_EVENTS: 'virtual_soccer_events_cache',
+    DOGS_RESULTS: 'virtual_dogs_results_cache',
+    HORSES_RESULTS: 'virtual_horses_results_cache',
+    SOCCER_RESULTS: 'virtual_soccer_results_cache',
+    LAST_DOGS_FETCH_TIME: 'virtual_dogs_last_fetch',
+    LAST_HORSES_FETCH_TIME: 'virtual_horses_last_fetch',
+    LAST_SOCCER_FETCH_TIME: 'virtual_soccer_last_fetch',
+  }
+
+  const CACHE_DURATION = 5 * 60 * 1000 // 5 minuti per eventi
+
+  const saveToCache = useCallback((key: string, data: any) => {
+    try {
+      localStorage.setItem(
+        key,
+        JSON.stringify({
+          data,
+          timestamp: Date.now(),
+        }),
+      )
+    } catch {}
+  }, [])
+
+  const loadFromCache = useCallback(
+    (key: string): any | null => {
+      try {
+        const cached = localStorage.getItem(key)
+        if (!cached) {
+          return null
+        }
+
+        const parsed = JSON.parse(cached)
+        const now = Date.now()
+        const age = now - parsed.timestamp
+
+        if (age > CACHE_DURATION) {
+          localStorage.removeItem(key)
+          return null
+        }
+
+        return parsed.data
+      } catch {
+        localStorage.removeItem(key)
+        return null
+      }
+    },
+    [CACHE_DURATION],
+  )
+
+  const isCacheValid = useCallback(
+    (key: string): boolean => {
+      const lastFetch = localStorage.getItem(key)
+      if (!lastFetch) return false
+
+      const age = Date.now() - parseInt(lastFetch)
+      return age < CACHE_DURATION
+    },
+    [CACHE_DURATION],
+  )
+
+  const loadCachedRacingEvents = useCallback(() => {
+    const cachedDogsEvents = loadFromCache(CACHE_KEYS.DOGS_EVENTS)
+    const cachedHorsesEvents = loadFromCache(CACHE_KEYS.HORSES_EVENTS)
+    const cachedDogsResults = loadFromCache(CACHE_KEYS.DOGS_RESULTS)
+    const cachedHorsesResults = loadFromCache(CACHE_KEYS.HORSES_RESULTS)
+
+    if (
+      cachedDogsEvents ||
+      cachedHorsesEvents ||
+      cachedDogsResults ||
+      cachedHorsesResults
+    ) {
+      setRootContext((prev) => ({
+        ...prev,
+        upcomingEvents: [
+          ...(prev.upcomingEvents?.filter(
+            (event) =>
+              event.discipline !== Discipline.DOGS &&
+              event.discipline !== Discipline.HORSES,
+          ) || []),
+          ...(cachedDogsEvents || []),
+          ...(cachedHorsesEvents || []),
+        ],
+        eventResults: [
+          ...(prev.eventResults?.filter(
+            (result) =>
+              result.discipline !== Discipline.DOGS &&
+              result.discipline !== Discipline.HORSES,
+          ) || []),
+          ...((cachedDogsResults as EventResult[])?.map((r) => ({
+            ...r,
+            startTime: new Date(r.startTime),
+          })) || []),
+          ...((cachedHorsesResults as EventResult[])?.map((r) => ({
+            ...r,
+            startTime: new Date(r.startTime),
+          })) || []),
+        ],
+      }))
+
+      return true
+    }
+
+    return false
+  }, [
+    loadFromCache,
+    CACHE_KEYS.DOGS_EVENTS,
+    CACHE_KEYS.HORSES_EVENTS,
+    CACHE_KEYS.DOGS_RESULTS,
+    CACHE_KEYS.HORSES_RESULTS,
+  ])
+
+  const loadCachedSoccerEvents = useCallback(() => {
+    const cachedSoccerEvents = loadFromCache(CACHE_KEYS.SOCCER_EVENTS)
+
+    if (cachedSoccerEvents) {
+      setRootContext((prev) => ({
+        ...prev,
+        upcomingRounds: cachedSoccerEvents,
+      }))
+
+      return true
+    }
+
+    return false
+  }, [loadFromCache, CACHE_KEYS.SOCCER_EVENTS])
+
   type UserApiResponse = {
     status: string
     description: string
@@ -430,6 +561,11 @@ export default function RootContextProvider(props: {
     if (!initCode) return
 
     const fetchUpcomingRounds = async () => {
+      // Controlla cache prima di fare la chiamata
+      if (isCacheValid(CACHE_KEYS.LAST_SOCCER_FETCH_TIME)) {
+        return
+      }
+
       const response = await apiRequest<{
         schedules: {
           schedule: UpcomingRound[]
@@ -484,9 +620,21 @@ export default function RootContextProvider(props: {
         ...prev,
         upcomingRounds: rounds,
       }))
+
+      // Salva in cache
+      saveToCache(CACHE_KEYS.SOCCER_EVENTS, rounds)
+      localStorage.setItem(
+        CACHE_KEYS.LAST_SOCCER_FETCH_TIME,
+        Date.now().toString(),
+      )
     }
 
     const fetchUpcomingHorseEvents = async () => {
+      // Controlla cache prima di fare la chiamata
+      if (isCacheValid(CACHE_KEYS.LAST_HORSES_FETCH_TIME)) {
+        return
+      }
+
       try {
         const response = await pgVirtualFetch('/api/event/list')
 
@@ -569,12 +717,25 @@ export default function RootContextProvider(props: {
             ...horseEventResults,
           ],
         }))
+
+        // Salva in cache
+        saveToCache(CACHE_KEYS.HORSES_EVENTS, upcomingHorseEvents)
+        saveToCache(CACHE_KEYS.HORSES_RESULTS, horseEventResults)
+        localStorage.setItem(
+          CACHE_KEYS.LAST_HORSES_FETCH_TIME,
+          Date.now().toString(),
+        )
       } catch (error) {
         console.error('Horse events fetch error:', error)
       }
     }
 
     const fetchUpcomingDogEvents = async () => {
+      // Controlla cache prima di fare la chiamata
+      if (isCacheValid(CACHE_KEYS.LAST_DOGS_FETCH_TIME)) {
+        return
+      }
+
       try {
         const response = await pgVirtualFetch('/api/event/list')
 
@@ -656,15 +817,44 @@ export default function RootContextProvider(props: {
             ...dogEventResults,
           ],
         }))
+
+        // Salva in cache
+        saveToCache(CACHE_KEYS.DOGS_EVENTS, upcomingDogEvents)
+        saveToCache(CACHE_KEYS.DOGS_RESULTS, dogEventResults)
+        localStorage.setItem(
+          CACHE_KEYS.LAST_DOGS_FETCH_TIME,
+          Date.now().toString(),
+        )
       } catch (error) {
         console.error('Dog events fetch error:', error)
       }
     }
 
+    // Carica dati dalla cache all'avvio (se disponibili)
+    loadCachedSoccerEvents()
+    loadCachedRacingEvents()
+
+    // Poi fa le chiamate API (che verranno saltate se cache è valida)
     fetchUpcomingRounds()
     fetchUpcomingHorseEvents()
     fetchUpcomingDogEvents()
-  }, [initCode, apiRequest, pgVirtualFetch])
+  }, [
+    initCode,
+    apiRequest,
+    pgVirtualFetch,
+    isCacheValid,
+    saveToCache,
+    loadCachedSoccerEvents,
+    loadCachedRacingEvents,
+    CACHE_KEYS.LAST_SOCCER_FETCH_TIME,
+    CACHE_KEYS.LAST_HORSES_FETCH_TIME,
+    CACHE_KEYS.LAST_DOGS_FETCH_TIME,
+    CACHE_KEYS.SOCCER_EVENTS,
+    CACHE_KEYS.HORSES_EVENTS,
+    CACHE_KEYS.HORSES_RESULTS,
+    CACHE_KEYS.DOGS_EVENTS,
+    CACHE_KEYS.DOGS_RESULTS,
+  ])
 
   // Cleanup periodico degli eventi passati
   useEffect(() => {
