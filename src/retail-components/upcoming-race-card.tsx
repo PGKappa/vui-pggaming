@@ -624,7 +624,7 @@ export default function UpcomingRaceCard({
               pressed={position3Selection.includes(racer.number)}
               onPressedChange={() => togglePosition3Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className="h-12 w-[116px] border-betEntry-border pt-[3px] right-[11px] relative"
+              className="h-12 w-[116px] border-betEntry-border pt-[3px] right-[12px] relative"
             >
               <span className="text-[19px]">3°</span>
             </Toggle>
@@ -632,7 +632,7 @@ export default function UpcomingRaceCard({
 
           <TableCell className="w-[1px] bg-border p-0" />
 
-          <TableCell className="p-0">
+          <TableCell className="p-0 pr-[4px]">
             <div
               className="flex h-full cursor-pointer flex-col"
               onClick={handleMarketTypeToggle}
@@ -666,7 +666,7 @@ export default function UpcomingRaceCard({
                   pressed={disorderSelection.includes(racer.number)}
                   onPressedChange={() => toggleDisorderSelection(racer.number)}
                   onClick={(e) => e.stopPropagation()}
-                  className="h-12 w-[116px] border-betEntry-border relative left-[4px] pt-[3px]"
+                  className="h-12 w-[116px] border-betEntry-border relative left-[3px] pt-[3px]"
                 >
                   {disorderSelection.includes(racer.number) && (
                     <Check
