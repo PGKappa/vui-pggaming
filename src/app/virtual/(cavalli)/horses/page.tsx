@@ -33,6 +33,35 @@ export default function Home() {
     }
   }, [horseEvents, selectedEvent])
 
+  // Auto-refresh: seleziona automaticamente il prossimo evento quando quello corrente scade
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (selectedEvent) {
+        const now = new Date()
+        const eventTime = selectedEvent.time instanceof Date 
+          ? selectedEvent.time 
+          : new Date(selectedEvent.time)
+        
+        if (eventTime <= now) {
+          // Filtra gli eventi futuri
+          const futureEvents = horseEvents.filter((e) => {
+            const time = e.time instanceof Date ? e.time : new Date(e.time)
+            return time > now
+          })
+
+          // Seleziona il primo evento futuro, o l'ultimo disponibile se non ce ne sono
+          if (futureEvents.length > 0) {
+            setSelectedEvent(futureEvents[0])
+          } else if (horseEvents.length > 0) {
+            setSelectedEvent(horseEvents[horseEvents.length - 1])
+          }
+        }
+      }
+    }, 5000)
+
+    return () => clearInterval(interval)
+  }, [selectedEvent, horseEvents])
+
   return (
     <>
       <div className="container mb-10 mt-1 grid grid-cols-1 justify-center gap-3 bg-columnL-background text-columnL-foreground lg:mb-4 lg:grid-cols-4">

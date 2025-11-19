@@ -31,6 +31,38 @@ export default function Home() {
     }
   }, [dogEvents, selectedEvent])
 
+  // AUTO-AGGIORNAMENTO: seleziona automaticamente il prossimo evento quando quello corrente scade
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (selectedEvent) {
+        const now = new Date()
+        const eventTime =
+          selectedEvent.time instanceof Date
+            ? selectedEvent.time
+            : new Date(selectedEvent.time)
+
+        if (eventTime <= now) {
+          // Filtra eventi futuri
+          const futureEvents = dogEvents.filter((e) => {
+            const eTime = e.time instanceof Date ? e.time : new Date(e.time)
+            return eTime > now
+          })
+
+          if (futureEvents.length > 0) {
+            setSelectedEvent(futureEvents[0])
+          } else {
+            // Nessun evento futuro, prendi il più recente
+            if (dogEvents.length > 0) {
+              setSelectedEvent(dogEvents[dogEvents.length - 1])
+            }
+          }
+        }
+      }
+    }, 5000)
+
+    return () => clearInterval(interval)
+  }, [selectedEvent, dogEvents])
+
   return (
     <>
       <div className="container mb-10 mt-1 grid grid-cols-1 justify-center gap-3 bg-columnL-background text-columnL-foreground lg:mb-4 lg:grid-cols-4">
