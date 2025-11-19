@@ -21,13 +21,14 @@ function NavbarContent() {
   }
 
   return (
-    <nav className="flex w-full flex-row gap-1 bg-primary-foreground p-0.5 text-black">
+    <nav className="flex w-full flex-row bg-primary-foreground p-0.5 text-black">
       <Link
         href={`/virtual/dogs${queryString}`}
         className={cn(
           'flex w-full flex-row items-center justify-center gap-2 px-2 py-2',
-          isActive('/virtual/dogs') &&
-            'bg-accent text-accent-foreground hover:bg-accent/90',
+          isActive('/virtual/dogs')
+            ? 'bg-accent text-accent-foreground hover:bg-accent/90'
+            : 'hover:bg-accent/90',
         )}
         prefetch={false}
       >
@@ -46,8 +47,9 @@ function NavbarContent() {
         href={`/virtual/horses${queryString}`}
         className={cn(
           'flex w-full flex-row items-center justify-center gap-2 px-2 py-2',
-          isActive('/virtual/horses') &&
-            'bg-accent text-accent-foreground hover:bg-accent/90',
+          isActive('/virtual/horses')
+            ? 'bg-accent text-accent-foreground hover:bg-accent/90'
+            : 'hover:bg-accent/90',
         )}
         prefetch={false}
       >
