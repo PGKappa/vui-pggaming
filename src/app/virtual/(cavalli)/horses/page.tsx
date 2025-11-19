@@ -38,10 +38,11 @@ export default function Home() {
     const interval = setInterval(() => {
       if (selectedEvent) {
         const now = new Date()
-        const eventTime = selectedEvent.time instanceof Date 
-          ? selectedEvent.time 
-          : new Date(selectedEvent.time)
-        
+        const eventTime =
+          selectedEvent.time instanceof Date
+            ? selectedEvent.time
+            : new Date(selectedEvent.time)
+
         if (eventTime <= now) {
           // Filtra gli eventi futuri
           const futureEvents = horseEvents.filter((e) => {
