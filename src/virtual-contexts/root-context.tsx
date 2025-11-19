@@ -28,6 +28,7 @@ const debugLog = (section: string, message: string, data?: any) => {
 }
 
 export type RootContextType = {
+  initCode?: string
   userData?: User
   cashierData?: any
   apiRequest?: <T>(
