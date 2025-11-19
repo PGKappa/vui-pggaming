@@ -185,10 +185,14 @@ export default function LiveMatchInfo() {
 
   if (!nextEventStartTime) return null
 
-  const formattedTime = nextEventStartTime.toLocaleTimeString('it-IT', {
-    hour: '2-digit',
-    minute: '2-digit',
-  })
+  // Formatta il tempo come HH:MM
+  const formattedTime =
+    nextEventStartTime instanceof Date
+      ? nextEventStartTime.toLocaleTimeString('it-IT', {
+          hour: '2-digit',
+          minute: '2-digit',
+        })
+      : nextEventStartTime
 
   return (
     <>
