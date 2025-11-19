@@ -46,7 +46,7 @@ export type RootContextType = {
   getCurrencySymbol?: () => string
   getCurrencyCode?: () => string
   getMinStakeIncrement?: () => number
-  getChannels?: () => any[]
+  getChannels?: (type?: 'calcio' | 'dogs' | 'horses') => any[]
   getTrackName?: (channel?: number) => string
   getTranslation?: (key: string, fallback?: string) => string
 }
@@ -163,6 +163,7 @@ export default function RootContextProvider(props: {
     useState<RootContextType>(defaultRootContext)
   const { i18n } = useTranslation()
   const [isLoading, setIsLoading] = useState(true)
+  const [isCashierReady, setIsCashierReady] = useState(false)
   const processedRoundIdRef = useRef<number | undefined>(undefined)
 
   // Cache keys for localStorage
@@ -176,9 +177,12 @@ export default function RootContextProvider(props: {
     LAST_DOGS_FETCH_TIME: 'virtual_dogs_last_fetch',
     LAST_HORSES_FETCH_TIME: 'virtual_horses_last_fetch',
     LAST_SOCCER_FETCH_TIME: 'virtual_soccer_last_fetch',
+    CASHIER_DATA: 'virtual_cashier_data_cache',
+    LAST_CASHIER_FETCH_TIME: 'virtual_cashier_last_fetch',
   }
 
   const CACHE_DURATION = 5 * 60 * 1000 // 5 minuti per eventi
+  const CASHIER_CACHE_DURATION = 30 * 60 * 1000 // 30 minuti per cashier
 
   const saveToCache = useCallback((key: string, data: any) => {
     try {
@@ -191,6 +195,71 @@ export default function RootContextProvider(props: {
       )
     } catch {}
   }, [])
+
+  // Funzioni specifiche per il caching cashier
+  const saveCashierToCache = useCallback(
+    (initCode: string, cashierData: any, contextData: any) => {
+      if (typeof window === 'undefined') return
+
+      try {
+        const cacheData = {
+          initCode,
+          cashierData,
+          contextData,
+          timestamp: Date.now(),
+        }
+        localStorage.setItem(CACHE_KEYS.CASHIER_DATA, JSON.stringify(cacheData))
+        localStorage.setItem(
+          CACHE_KEYS.LAST_CASHIER_FETCH_TIME,
+          Date.now().toString(),
+        )
+      } catch (error) {
+        console.warn('Failed to cache cashier data:', error)
+      }
+    },
+    [CACHE_KEYS.CASHIER_DATA, CACHE_KEYS.LAST_CASHIER_FETCH_TIME],
+  )
+
+  const loadCashierFromCache = useCallback(
+    (initCode: string) => {
+      if (typeof window === 'undefined') return null
+
+      try {
+        const cached = localStorage.getItem(CACHE_KEYS.CASHIER_DATA)
+        if (!cached) return null
+
+        const parsed = JSON.parse(cached)
+        const now = Date.now()
+        const age = now - parsed.timestamp
+
+        // Verifica se il cache è ancora valido e per lo stesso initCode
+        if (age > CASHIER_CACHE_DURATION || parsed.initCode !== initCode) {
+          localStorage.removeItem(CACHE_KEYS.CASHIER_DATA)
+          localStorage.removeItem(CACHE_KEYS.LAST_CASHIER_FETCH_TIME)
+          return null
+        }
+
+        // Verifica che i dati essenziali siano presenti
+        if (!parsed.contextData || !parsed.contextData.userData) {
+          localStorage.removeItem(CACHE_KEYS.CASHIER_DATA)
+          localStorage.removeItem(CACHE_KEYS.LAST_CASHIER_FETCH_TIME)
+          return null
+        }
+
+        return parsed.contextData
+      } catch (error) {
+        console.warn('Failed to load cashier cache:', error)
+        localStorage.removeItem(CACHE_KEYS.CASHIER_DATA)
+        localStorage.removeItem(CACHE_KEYS.LAST_CASHIER_FETCH_TIME)
+        return null
+      }
+    },
+    [
+      CACHE_KEYS.CASHIER_DATA,
+      CACHE_KEYS.LAST_CASHIER_FETCH_TIME,
+      CASHIER_CACHE_DURATION,
+    ],
+  )
 
   const loadFromCache = useCallback(
     (key: string): any | null => {
@@ -339,88 +408,6 @@ export default function RootContextProvider(props: {
     [initCode],
   )
 
-  const getCurrencySymbol = useCallback((): string => {
-    const cashierData = rootContext.cashierData
-    if (!cashierData) return '$'
-
-    // Prima prova a usare il simbolo dall'API cashier (come retail)
-    const apiSymbol = cashierData.dict?.misc?.currency?.symbol
-    if (apiSymbol) {
-      return apiSymbol
-    }
-
-    // Fallback: usa il mapping basato sul currency code
-    const currencyCode = cashierData.intl?.currency || 'USD'
-    const currencyMap: Record<string, string> = {
-      USD: '$',
-      EUR: '€',
-      GBP: '£',
-      JPY: '¥',
-      CHF: 'CHF',
-      CAD: 'C$',
-      AUD: 'A$',
-    }
-    return currencyMap[currencyCode] || '$'
-  }, [rootContext.cashierData])
-
-  const getCurrencyCode = useCallback((): string => {
-    return rootContext.cashierData?.intl?.currency || 'USD'
-  }, [rootContext.cashierData])
-
-  const getChannels = useCallback(
-    (type: 'calcio' | 'dogs' | 'horses' = 'calcio') => {
-      const cashierData = rootContext.cashierData
-      if (!cashierData) return []
-
-      const channels: {
-        id?: number
-        name?: string
-        description?: string
-      }[] = []
-
-      const magChannels = cashierData.configs?.mag_channels
-
-      if (type === 'calcio' && magChannels?.VFL?.length) {
-        channels.push(...magChannels.VFL)
-      } else if (type === 'dogs' && magChannels?.VDR?.length) {
-        channels.push(...magChannels.VDR)
-      } else if (type === 'horses' && magChannels?.VHR?.length) {
-        channels.push(...magChannels.VHR)
-      }
-
-      return channels
-    },
-    [rootContext.cashierData],
-  )
-
-  const getTrackName = useCallback(
-    (channel?: number): string => {
-      const cashierData = rootContext.cashierData
-      if (!cashierData || !channel) return ''
-
-      const magTracks = cashierData.configs?.mag_tracks
-      const track = magTracks?.find((t) => t.id === channel)
-      return track?.name || ''
-    },
-    [rootContext.cashierData],
-  )
-
-  const getTranslation = useCallback(
-    (key: string, fallback?: string): string => {
-      const cashierData = rootContext.cashierData
-      if (!cashierData) return fallback || key
-
-      const keys = key.split('.')
-      let value: any = cashierData.dict
-      for (const k of keys) {
-        value = value?.[k]
-        if (value === undefined) break
-      }
-      return typeof value === 'string' ? value : fallback || key
-    },
-    [rootContext.cashierData],
-  )
-
   // Helper per chiamate API PGVirtual
   const pgVirtualFetch = useCallback(
     (endpoint: string, options?: RequestInit) => {
@@ -447,12 +434,14 @@ export default function RootContextProvider(props: {
       const storedInitCode = localStorage.getItem('initCode')
       if (storedInitCode && storedInitCode !== initCode) {
         localStorage.removeItem('betsContext')
+        setIsCashierReady(false)
       }
 
       localStorage.setItem('initCode', initCode)
     } else {
       localStorage.removeItem('initCode')
       setIsLoading(false)
+      setIsCashierReady(false)
     }
 
     setInitCode(initCode)
@@ -504,6 +493,95 @@ export default function RootContextProvider(props: {
     if (!initCode) return
 
     const fetchUserData = async (retryCount = 0, maxRetries = 3) => {
+      // Prova a caricare dalla cache prima di chiamare l'API
+      const cachedContext = loadCashierFromCache(initCode)
+      if (cachedContext) {
+        debugLog('CACHE', 'Loaded cashier data from cache', cachedContext)
+
+        // Ricrea le funzioni helper usando il cashierData dalla cache
+        const cashierData = cachedContext.cashierData
+
+        const getCurrencyCode = () => cashierData.intl?.currency || 'EUR'
+
+        const getCurrencySymbol = () => {
+          const apiSymbol = cashierData.dict?.misc?.currency?.symbol
+          if (apiSymbol) return apiSymbol
+
+          const currencyCode = cashierData.intl?.currency || 'USD'
+          const currencyMap: Record<string, string> = {
+            USD: '$',
+            EUR: '€',
+            GBP: '£',
+            JPY: '¥',
+            CHF: 'CHF',
+            CAD: 'C$',
+            AUD: 'A$',
+          }
+          return currencyMap[currencyCode] || '$'
+        }
+
+        const getChannels = (type: 'calcio' | 'dogs' | 'horses' = 'calcio') => {
+          const channels: {
+            id?: number
+            name?: string
+            description?: string
+          }[] = []
+
+          const magChannels = cashierData.configs?.mag_channels
+
+          if (type === 'calcio' && magChannels?.VFL?.length) {
+            channels.push(...magChannels.VFL)
+          } else if (type === 'dogs' && magChannels?.VDR?.length) {
+            channels.push(...magChannels.VDR)
+          } else if (type === 'horses' && magChannels?.VHR?.length) {
+            channels.push(...magChannels.VHR)
+          }
+
+          return channels
+        }
+
+        const getTrackName = (channel?: number): string => {
+          if (!channel) return ''
+          const magTracks = cashierData.configs?.mag_tracks
+          const track = magTracks?.find((t) => t.id === channel)
+          return track?.name || ''
+        }
+
+        const getTranslation = (key: string, fallback?: string): string => {
+          const keys = key.split('.')
+          let value: any = cashierData.dict
+          for (const k of keys) {
+            value = value?.[k]
+            if (value === undefined) break
+          }
+          return typeof value === 'string' ? value : fallback || key
+        }
+
+        const getMinStakeIncrement = () => {
+          const increment = cashierData.configs?.min_stake_increment
+          return increment !== undefined ? increment : 0.05
+        }
+
+        // Applica i dati dalla cache con le funzioni ricreate
+        i18n.changeLanguage(cachedContext.userData.lang.substring(0, 2))
+        setRootContext((prev) => ({
+          ...prev,
+          userData: cachedContext.userData,
+          cashierData: cachedContext.cashierData,
+          getCurrencySymbol,
+          getCurrencyCode,
+          getMinStakeIncrement,
+          getChannels,
+          getTrackName,
+          getTranslation,
+        }))
+
+        toast.success('Cashier data loaded from cache!')
+        setIsLoading(false)
+        setIsCashierReady(true)
+        return
+      }
+
       try {
         const cashierData = await fetchCashierInit(initCode)
 
@@ -520,14 +598,98 @@ export default function RootContextProvider(props: {
             group: [cashierData.configs?.ui_type || 'web'],
           }
 
+          // Crea funzioni helper per accedere ai dati cashier
+          const getCurrencyCode = () => cashierData.intl?.currency || 'EUR'
+
+          const getCurrencySymbol = () => {
+            // Prima prova a usare il simbolo dall'API cashier
+            const apiSymbol = cashierData.dict?.misc?.currency?.symbol
+            if (apiSymbol) {
+              return apiSymbol
+            }
+
+            // Fallback: usa il mapping basato sul currency code
+            const currencyCode = cashierData.intl?.currency || 'USD'
+            const currencyMap: Record<string, string> = {
+              USD: '$',
+              EUR: '€',
+              GBP: '£',
+              JPY: '¥',
+              CHF: 'CHF',
+              CAD: 'C$',
+              AUD: 'A$',
+            }
+            return currencyMap[currencyCode] || '$'
+          }
+
+          const getChannels = (
+            type: 'calcio' | 'dogs' | 'horses' = 'calcio',
+          ) => {
+            const channels: {
+              id?: number
+              name?: string
+              description?: string
+            }[] = []
+
+            const magChannels = cashierData.configs?.mag_channels
+
+            if (type === 'calcio' && magChannels?.VFL?.length) {
+              channels.push(...magChannels.VFL)
+            } else if (type === 'dogs' && magChannels?.VDR?.length) {
+              channels.push(...magChannels.VDR)
+            } else if (type === 'horses' && magChannels?.VHR?.length) {
+              channels.push(...magChannels.VHR)
+            }
+
+            return channels
+          }
+
+          const getTrackName = (channel?: number): string => {
+            if (!channel) return ''
+
+            const magTracks = cashierData.configs?.mag_tracks
+            const track = magTracks?.find((t) => t.id === channel)
+            return track?.name || ''
+          }
+
+          const getTranslation = (key: string, fallback?: string): string => {
+            const keys = key.split('.')
+            let value: any = cashierData.dict
+            for (const k of keys) {
+              value = value?.[k]
+              if (value === undefined) break
+            }
+            return typeof value === 'string' ? value : fallback || key
+          }
+
+          const getMinStakeIncrement = () => {
+            const increment = cashierData.configs?.min_stake_increment
+            return increment !== undefined ? increment : 0.05
+          }
+
+          const contextData = {
+            userData,
+            cashierData,
+            getCurrencySymbol,
+            getCurrencyCode,
+            getMinStakeIncrement,
+            getChannels,
+            getTrackName,
+            getTranslation,
+          }
+
           i18n.changeLanguage(userData.lang.substring(0, 2))
           setRootContext((prev) => ({
             ...prev,
-            userData,
-            cashierData,
+            ...contextData,
           }))
+
+          // Salva i dati cashier in cache
+          saveCashierToCache(initCode, cashierData, contextData)
+
           toast.success('User data fetched successfully!')
           setIsLoading(false)
+          setIsCashierReady(true)
         } else {
           setInitCode(undefined)
           throw new Error('Could not fetch User Data!')
@@ -555,10 +717,11 @@ export default function RootContextProvider(props: {
     }
 
     fetchUserData()
-  }, [i18n, initCode])
+  }, [i18n, initCode, loadCashierFromCache, saveCashierToCache])
 
   useEffect(() => {
-    if (!initCode) return
+    // Aspetta che sia initCode che cashier siano pronti prima di caricare gli eventi
+    if (!initCode || !isCashierReady) return
 
     const fetchUpcomingRounds = async () => {
       // Controlla cache prima di fare la chiamata
@@ -840,6 +1003,7 @@ export default function RootContextProvider(props: {
     fetchUpcomingDogEvents()
   }, [
     initCode,
+    isCashierReady,
     apiRequest,
     pgVirtualFetch,
     isCacheValid,
@@ -908,11 +1072,6 @@ export default function RootContextProvider(props: {
     <RootContext.Provider
       value={{
         ...rootContext,
-        getCurrencySymbol,
-        getCurrencyCode,
-        getChannels,
-        getTrackName,
-        getTranslation,
       }}
     >
       {props.children}
