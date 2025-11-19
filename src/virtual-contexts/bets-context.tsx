@@ -6,6 +6,15 @@ import { toast } from 'sonner'
 
 export type BetMode = 'SINGLE' | 'MULTIPLE' | 'SYSTEM'
 
+const getEventStatus = (event: any): 'active' | 'expired' => {
+  if (!event?.startingAt) return 'active'
+
+  const now = new Date()
+  const eventTime = new Date(event.startingAt)
+
+  return now >= eventTime ? 'expired' : 'active'
+}
+
 export type BetsContextType = {
   betEntries: BetEntry[]
   betsByEvent: { [key: string]: BetEntry[] }
@@ -136,6 +145,30 @@ export default function BetsContextProvider(props: {
       return 'SYSTEM'
     return 'MULTIPLE'
   }, [betsContext.betEntries, betsContext.betsByEvent])
+
+  // Cleanup automatico di scommesse scadute ogni 5 secondi
+  useEffect(() => {
+    const cleanupExpiredBets = () => {
+      const activeBets = betsContext.betEntries.filter((entry) => {
+        return getEventStatus(entry.bet.event) === 'active'
+      })
+
+      if (activeBets.length !== betsContext.betEntries.length) {
+        const removedCount = betsContext.betEntries.length - activeBets.length
+        setBetsContext((prev) => ({
+          ...prev,
+          betEntries: activeBets,
+          betsByEvent: getBetsByEvent(activeBets),
+        }))
+        toast.info(
+          `Removed ${removedCount} expired bet${removedCount > 1 ? 's' : ''}`,
+        )
+      }
+    }
+
+    const interval = setInterval(cleanupExpiredBets, 1000)
+    return () => clearInterval(interval)
+  }, [betsContext.betEntries])
 
   // Controlli limiti per sistema
   const checkSystemLimits = useCallback(
