@@ -104,6 +104,7 @@ export default function EventBets(props: {
                   betEntry.market,
                   betEntry.bet.option,
                   betEntry.bet.competitors,
+                  betEntry.bet.discipline,
                 )
               }
             >

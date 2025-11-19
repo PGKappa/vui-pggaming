@@ -15,7 +15,12 @@ export type BetsContextType = {
   systemToggleMode: 'multiple' | 'system'
   setSystemToggleMode: (mode: 'multiple' | 'system') => void
   addBet: (market: string, bet: Bet) => void
-  removeBet: (marketName: string, option: Selection, teams: string) => void
+  removeBet: (
+    marketName: string,
+    option: Selection,
+    teams: string,
+    discipline: string,
+  ) => void
   removeEventBets: (eventId: string) => void
   toggleEventBetsFixed: (eventId: string) => void
   removeAllBets: () => void
@@ -47,11 +52,11 @@ const defaultBetsContext: BetsContextType = {
 
 export const BetsContext = createContext<BetsContextType>(defaultBetsContext)
 
-// Raggruppa le scommesse per evento
+// Raggruppa le scommesse per evento e disciplina
 function getBetsByEvent(betEntries: BetEntry[]): { [key: string]: BetEntry[] } {
   return betEntries.reduce(
     (groupedBets: { [key: string]: BetEntry[] }, betEntry) => {
-      const key = betEntry.bet.event.number.toString()
+      const key = `${betEntry.bet.discipline}_${betEntry.bet.event.number}`
       if (!groupedBets[key]) {
         groupedBets[key] = []
       }
@@ -183,36 +188,47 @@ export default function BetsContextProvider(props: {
   )
 
   // Rimuovi scommessa
-  const removeBet = (marketName: string, option: Selection, teams: string) => {
+  const removeBet = (
+    marketName: string,
+    option: Selection,
+    teams: string,
+    discipline: string,
+  ) => {
     setBetsContext((prev) => ({
       ...prev,
       betEntries: prev.betEntries.filter(
         (betEntry) =>
           betEntry.market !== marketName ||
           betEntry.bet.competitors !== teams ||
-          betEntry.bet.option.outcome !== option.outcome,
+          betEntry.bet.option.outcome !== option.outcome ||
+          betEntry.bet.discipline !== discipline,
       ),
     }))
   }
 
-  // Rimuovi scommesse di un evento
-  const removeEventBets = (eventId: string) => {
-    const eventNumber = parseInt(eventId)
+  // Rimuovi scommesse di un evento (eventKey = "DISCIPLINE_NUMBER")
+  const removeEventBets = (eventKey: string) => {
+    const [discipline, eventNumber] = eventKey.split('_')
     setBetsContext((prev) => ({
       ...prev,
       betEntries: prev.betEntries.filter(
-        (betEntry) => betEntry.bet.event.number !== eventNumber,
+        (betEntry) =>
+          betEntry.bet.event.number !== parseInt(eventNumber) ||
+          betEntry.bet.discipline !== discipline,
       ),
     }))
   }
 
-  // Toggle fixed per evento
-  const toggleEventBetsFixed = (eventId: string) => {
-    const eventNumber = parseInt(eventId)
+  // Toggle fixed per evento (eventKey = "DISCIPLINE_NUMBER")
+  const toggleEventBetsFixed = (eventKey: string) => {
+    const [discipline, eventNumber] = eventKey.split('_')
     setBetsContext((prev) => ({
       ...prev,
       betEntries: prev.betEntries.map((betEntry) => {
-        if (betEntry.bet.event.number === eventNumber) {
+        if (
+          betEntry.bet.event.number === parseInt(eventNumber) &&
+          betEntry.bet.discipline === discipline
+        ) {
           return { ...betEntry, fixed: !betEntry.fixed }
         }
         return betEntry
