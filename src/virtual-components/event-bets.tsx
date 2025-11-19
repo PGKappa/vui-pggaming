@@ -61,8 +61,8 @@ export default function EventBets(props: {
             <Image
               src="/bin.svg"
               alt="Bin"
-              width={40}
-              height={20}
+              width={15}
+              height={15}
               className="size-5 object-contain brightness-0 group-hover:brightness-0 group-hover:invert"
             />
           </Button>
