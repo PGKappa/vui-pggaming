@@ -75,13 +75,14 @@ function NavbarContent() {
         prefetch={false}
       >
         <Image
-          src="/soccer.svg"
+          src="/calciatore_blu.png"
           alt="Calcio"
-          width={60}
-          height={36}
-          className="h-6 w-auto"
+          width={42}
+          height={42}
+          className="h-6 w-fit"
+          style={{ scale: 1.3 }}
         />
-        <span className="text-xs font-medium">{t('football')}</span>
+        <span className="pl-2 text-xs font-medium">{t('football')}</span>
       </Link>
     </nav>
   )
