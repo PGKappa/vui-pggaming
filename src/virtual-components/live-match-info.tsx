@@ -58,7 +58,7 @@ export default function LiveMatchInfo() {
 
         const nextEvent = disciplineEvents?.[0] // Prende il primo evento futuro
         if (nextEvent) {
-          setNextEventStartTime(nextEvent.time)
+          setNextEventStartTime(new Date(nextEvent.time))
           return
         }
       }
@@ -186,13 +186,10 @@ export default function LiveMatchInfo() {
   if (!nextEventStartTime) return null
 
   // Formatta il tempo come HH:MM
-  const formattedTime =
-    nextEventStartTime instanceof Date
-      ? nextEventStartTime.toLocaleTimeString('it-IT', {
-          hour: '2-digit',
-          minute: '2-digit',
-        })
-      : nextEventStartTime
+  const formattedTime = nextEventStartTime.toLocaleTimeString('it-IT', {
+    hour: '2-digit',
+    minute: '2-digit',
+  })
 
   return (
     <>
