@@ -79,7 +79,7 @@ export default function LatecomersDialog({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-xl bg-accent p-0">
         {/* Header */}
-        <DialogHeader className="flex h-[64px] flex-row items-center justify-center bg-accent px-4 text-accent-foreground">
+        <DialogHeader className="flex h-[64px] flex-row items-center justify-center bg-accent px-4 text-accent-foreground border-b border-b-grey">
           <DialogTitle className="text-center text-[17px] font-semibold text-white pt-0.5">
             {t('latecomers')}
           </DialogTitle>
@@ -109,7 +109,7 @@ export default function LatecomersDialog({
                       {item.market}
                     </TableCell>
                     <TableCell className="w-1/3 border-r border-border bg-white p-4">
-                      <div className="flex flex-wrap gap-3 text-[16px] ml-[7px]">
+                      <div className="flex flex-wrap gap-4 text-[16px] ml-[15px]">
                         {formatRacers(item.racers)}
                       </div>
                     </TableCell>

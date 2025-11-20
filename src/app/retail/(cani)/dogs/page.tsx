@@ -86,7 +86,7 @@ export default function Home() {
   return (
     <div className="flex h-full flex-row overflow-hidden relative bottom-[5px]">
       <div className="flex flex-col">
-        <div className="flex h-[80px] w-[1500px] flex-row items-center justify-center bg-accent pr-2 bg-white">
+        <div className="flex h-[80px] w-[1508px] flex-row items-center justify-center bg-accent pr-2 bg-white">
           <UpcomingEventsCarousel
             selectedEvent={selectedEvent}
             setSelectedEvent={(event) => {
