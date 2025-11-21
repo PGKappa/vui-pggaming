@@ -1073,6 +1073,7 @@ export default function RootContextProvider(props: {
     <RootContext.Provider
       value={{
         ...rootContext,
+        initCode,
       }}
     >
       {props.children}

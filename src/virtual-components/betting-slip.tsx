@@ -10,7 +10,7 @@ import { generateSystemGroups } from '@/virtual-lib/system-bets'
 import { BetEntry, Discipline, SubmittedTicket } from '@/virtual-lib/types'
 import { createPGVirtualAPICall } from '@/virtual-lib/utils'
 import { CircleXIcon, RotateCcwIcon } from 'lucide-react'
-import { useContext, useMemo, useState } from 'react'
+import { useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import BetsHistoryDialog from './bets-history-dialog'
@@ -58,6 +58,13 @@ export default function BettingSlip() {
   >({})
 
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [printFunctionName, setPrintFunctionName] = useState('Bubble')
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const funcName = params.get('print_function') || 'Bubble'
+    setPrintFunctionName(funcName)
+  }, [])
 
   // Determina la modalità effettiva basata sul toggle
   const effectiveMode = useMemo(() => {
@@ -318,6 +325,9 @@ export default function BettingSlip() {
         rootContext.initCode || '',
         {
           method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
           body: JSON.stringify(ticketData),
         },
       )
@@ -328,8 +338,28 @@ export default function BettingSlip() {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
 
+      const result = await response.json()
+      console.log('Ticket submitted successfully:', result)
+
       // Successo
       toast.success(t('bet_submitted_successfully'))
+
+      // Invia postMessage al parent con i dati del ticket
+      try {
+        const postMessageData = {
+          source: 'v-ui',
+          func: printFunctionName,
+          command: 'sell',
+          content: {
+            ticket: result.ticket || result.data?.ticket || {},
+            print: result.print || result.data?.print || '',
+          },
+        }
+        console.log('Sending postMessage:', postMessageData)
+        window.parent.postMessage(postMessageData, '*')
+      } catch (err) {
+        console.error('PostMessage error:', err)
+      }
 
       // Salva per storico
       const newTicket: SubmittedTicket = {
