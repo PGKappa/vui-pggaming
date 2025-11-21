@@ -114,5 +114,11 @@
   "result": "Result",
   "delay": "Delay",
   "no_latecomers": "No latecomers data available",
-  "no_duplicates_added": "No bets added - selections already present in bet slip"
+  "no_duplicates_added": "No bets added - selections already present in bet slip",
+  "no_bet_selected": "No bet selected",
+  "enter_valid_amount": "Please enter a valid amount",
+  "enter_system_amount": "Please enter a valid system amount",
+  "bet_submitted_successfully": "Bet submitted successfully",
+  "bet_submission_error": "Error submitting bet",
+  "submitting": "Submitting..."
 }

@@ -5,10 +5,14 @@ import { Card, CardContent, CardFooter } from '@/virtual-components/ui/card'
 import { Input } from '@/virtual-components/ui/input'
 import { Separator } from '@/virtual-components/ui/separator'
 import { BetsContext } from '@/virtual-contexts/bets-context'
+import { RootContext } from '@/virtual-contexts/root-context'
 import { generateSystemGroups } from '@/virtual-lib/system-bets'
+import { BetEntry, Discipline, SubmittedTicket } from '@/virtual-lib/types'
+import { createPGVirtualAPICall } from '@/virtual-lib/utils'
 import { CircleXIcon, RotateCcwIcon } from 'lucide-react'
 import { useContext, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 import BetsHistoryDialog from './bets-history-dialog'
 import EventBets from './event-bets'
 import { ScrollArea } from './ui/scroll-area'
@@ -35,6 +39,11 @@ export default function BettingSlip() {
     restoreLastSubmittedTicket,
   } = useContext(BetsContext)
 
+  const rootContext = useContext(RootContext)
+
+  // Ottieni simbolo valuta dal context
+  const currencySymbol = rootContext?.getCurrencySymbol?.() || '€'
+
   const totalOdds = betEntries.reduce(
     (total, betEntry) => total * betEntry.bet.option.decPrice,
     betEntries.length > 0 ? 1 : 0,
@@ -47,6 +56,8 @@ export default function BettingSlip() {
   const [systemGroupStakes, setSystemGroupStakes] = useState<
     Record<string, number>
   >({})
+
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   // Determina la modalità effettiva basata sul toggle
   const effectiveMode = useMemo(() => {
@@ -108,16 +119,247 @@ export default function BettingSlip() {
     return { totalStake, minWin, maxWin, totalOdds }
   }, [systemGroups])
 
-  const handleSubmitTicket = () => {
-    if (effectiveMode === 'SYSTEM') {
-      console.log('Submitting system ticket with stakes:', systemGroupStakes)
-    } else {
-      console.log('Submitting ticket with amount:', global)
+  // Funzione per calcolare il type basato sulle discipline nel ticket
+  const getTicketType = (entries: BetEntry[]): string => {
+    const disciplines = new Set(entries.map((entry) => entry.bet.discipline))
+
+    if (disciplines.has(Discipline.FOOTBALL)) {
+      return 'football'
     }
 
-    removeAllBets()
-    setGlobal(0)
-    setSystemGroupStakes({})
+    const hasDogs = disciplines.has(Discipline.DOGS)
+    const hasHorses = disciplines.has(Discipline.HORSES)
+
+    if (hasDogs) {
+      return 'dogs'
+    } else if (hasHorses) {
+      return 'horses'
+    }
+
+    return 'football' // fallback
+  }
+
+  // Funzione per calcolare il mode basato sul tipo di scommessa
+  const getTicketMode = (
+    mode: 'SINGLE' | 'MULTIPLE' | 'SYSTEM',
+    entries: BetEntry[],
+  ): string => {
+    if (mode === 'SYSTEM') {
+      return 'system'
+    } else if (mode === 'MULTIPLE' && entries.length > 1) {
+      return 'multiple'
+    } else {
+      return 'single'
+    }
+  }
+
+  // Mappa i nomi dei mercati (tradotti) ai nomi API
+  const getAPIMarketName = (marketName: string): string => {
+    const normalized = marketName.toLowerCase().trim()
+
+    const API_MARKET_NAMES: Record<string, string> = {
+      // Nomi in inglese
+      winner: 'winner',
+      placed: 'placed',
+      show: 'show',
+      exacta: 'exacta',
+      quinella: 'quinella',
+      trifecta: 'trifecta',
+      'boxed trifecta': 'boxedtrifecta',
+      'box trifecta': 'boxedtrifecta',
+      'even/odd': 'evenodd',
+      'under/over': 'underover',
+
+      // Nomi italiani/tradotti
+      vincente: 'winner',
+      'piazzato su 2': 'placed',
+      'piazzato su 3': 'show',
+      accoppiata: 'exacta',
+      trio: 'trifecta',
+      'trio girare': 'boxedtrifecta',
+      'pari/dispari': 'evenodd',
+
+      // FastBet codes tradotti
+      place: 'placed',
+      couples: 'exacta',
+      triplets: 'trifecta',
+      even_odd: 'evenodd',
+      under_over: 'underover',
+    }
+
+    return API_MARKET_NAMES[normalized] || normalized
+  }
+
+  const handleSubmitTicket = async () => {
+    if (betEntries.length === 0) {
+      toast.error(t('no_bet_selected'))
+      return
+    }
+
+    if (effectiveMode !== 'SYSTEM' && global <= 0) {
+      toast.error(t('enter_valid_amount'))
+      return
+    }
+
+    if (effectiveMode === 'SYSTEM') {
+      const totalSystemStake = systemGroups.reduce(
+        (sum, group) => sum + group.stake,
+        0,
+      )
+      if (totalSystemStake <= 0) {
+        toast.error(t('enter_system_amount'))
+        return
+      }
+    }
+
+    setIsSubmitting(true)
+
+    try {
+      // Usa direttamente betsByEvent che già raggruppa per DISCIPLINE_NUMBER
+      const groupedByEvent = betsByEvent
+
+      // Crea le selections nel formato richiesto dall'API
+      const selections = Object.entries(groupedByEvent).map(
+        ([eventKey, entries]) => {
+          // Estrai eventId dalla chiave (DISCIPLINE_NUMBER)
+          const eventId = eventKey.includes('_')
+            ? eventKey.split('_')[1]
+            : eventKey
+
+          // Raggruppa per market all'interno dell'evento
+          const marketGroups = entries.reduce(
+            (acc, entry) => {
+              const apiMarketName = getAPIMarketName(entry.market)
+              if (!acc[apiMarketName]) {
+                acc[apiMarketName] = []
+              }
+              acc[apiMarketName].push({
+                description: entry.bet.option.outcome,
+                odds: entry.bet.option.decPrice.toString(),
+                status: 1,
+              })
+              return acc
+            },
+            {} as Record<string, any[]>,
+          )
+
+          // Converti i market groups in formato API
+          const markets = Object.entries(marketGroups).map(
+            ([marketName, selections]) => ({
+              description: marketName,
+              selections: selections,
+            }),
+          )
+
+          // Determina gameId e channelId basato sulla disciplina
+          const firstEntry = entries[0]
+          const gameId =
+            firstEntry.bet.discipline === Discipline.HORSES
+              ? 'horses6'
+              : firstEntry.bet.discipline === Discipline.DOGS
+                ? 'dogs6'
+                : 'soccer'
+          const channelId =
+            firstEntry.bet.discipline === Discipline.HORSES
+              ? 3
+              : firstEntry.bet.discipline === Discipline.DOGS
+                ? 4
+                : 1
+
+          // Prendi palimpsestId dall'evento
+          const eventAny = firstEntry.bet.event as any
+          const palimpsestId =
+            eventAny.palimpsestId ||
+            eventAny.extId ||
+            (firstEntry.bet.discipline === Discipline.HORSES
+              ? '1000003504'
+              : '1000003502')
+
+          return {
+            gameId: gameId,
+            channelId: channelId,
+            palimpsestId: palimpsestId,
+            eventId: eventId,
+            isBanker: false,
+            markets: markets,
+          }
+        },
+      )
+
+      // Calcola i valori per il payload
+      const ticketType = getTicketType(betEntries)
+      const ticketMode = getTicketMode(effectiveMode, betEntries)
+
+      // Prepara il payload nel formato esatto dell'API
+      const ticketData = {
+        placeBet: {
+          currency: rootContext?.getCurrencyCode?.() || 'USD',
+          type: ticketType,
+          mode: ticketMode,
+          ...(effectiveMode === 'SYSTEM'
+            ? {
+                system: Object.fromEntries(
+                  systemGroups
+                    .filter((group) => group.stake > 0)
+                    .map((group) => [group.size.toString(), group.stake]),
+                ),
+              }
+            : {
+                system: {
+                  '1': effectiveMode === 'SINGLE' ? global : global,
+                },
+              }),
+          selections: selections,
+        },
+      }
+
+      const response = await createPGVirtualAPICall(
+        '/api/ticket/add',
+        rootContext.initCode || '',
+        {
+          method: 'POST',
+          body: JSON.stringify(ticketData),
+        },
+      )
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error('API Error:', response.status, errorText)
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      // Successo
+      toast.success(t('bet_submitted_successfully'))
+
+      // Salva per storico
+      const newTicket: SubmittedTicket = {
+        date: new Date(),
+        amount:
+          effectiveMode === 'SYSTEM'
+            ? systemGroups.reduce((sum, group) => sum + group.stake, 0)
+            : global,
+        winning:
+          effectiveMode === 'SYSTEM'
+            ? systemGroups.reduce(
+                (sum, group) => sum + group.maxWin * group.stake,
+                0,
+              )
+            : potentialWinning,
+        betEntries: betEntries,
+      }
+
+      localStorage.setItem('lastSubmittedTicket', JSON.stringify(newTicket))
+
+      // Svuota la betting slip
+      removeAllBets()
+      setGlobal(0)
+      setSystemGroupStakes({})
+    } catch (error) {
+      console.error('Error submitting ticket:', error)
+      toast.error(t('bet_submission_error'))
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const updateSystemGroupStake = (groupName: string, value: number) => {
@@ -284,7 +526,9 @@ export default function BettingSlip() {
               <div className="space-y-1">
                 <div className="flex items-center justify-between gap-20 py-1 text-sm font-semibold">
                   <span>{t('total')}</span>
-                  <span>€ {global.toFixed(2)}</span>
+                  <span>
+                    {currencySymbol} {global.toFixed(2)}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between py-1 text-sm">
                   <span>{t('total_odd')}</span>
@@ -292,7 +536,9 @@ export default function BettingSlip() {
                 </div>
                 <div className="flex items-center justify-between py-1 text-sm font-bold">
                   <span>{t('potential_win')}</span>
-                  <span>€ {potentialWinning.toFixed(2)}</span>
+                  <span>
+                    {currencySymbol} {potentialWinning.toFixed(2)}
+                  </span>
                 </div>
               </div>
             </div>
@@ -393,7 +639,7 @@ export default function BettingSlip() {
                       {t('total')}
                     </TableCell>
                     <TableCell className="pr-5 text-right">
-                      € {systemTotals.totalStake.toFixed(2)}
+                      {currencySymbol} {systemTotals.totalStake.toFixed(2)}
                     </TableCell>
                   </TableRow>
                   <TableRow className="hover:bg-muted/50">
@@ -401,7 +647,7 @@ export default function BettingSlip() {
                       {t('min_win')}
                     </TableCell>
                     <TableCell className="pr-5 text-right">
-                      € {systemTotals.minWin.toFixed(2)}
+                      {currencySymbol} {systemTotals.minWin.toFixed(2)}
                     </TableCell>
                   </TableRow>
                   <TableRow className="hover:bg-muted/50">
@@ -409,7 +655,7 @@ export default function BettingSlip() {
                       {t('max_win')}
                     </TableCell>
                     <TableCell className="pr-5 text-right">
-                      € {systemTotals.maxWin.toFixed(2)}
+                      {currencySymbol} {systemTotals.maxWin.toFixed(2)}
                     </TableCell>
                   </TableRow>
                 </TableFooter>
@@ -428,12 +674,12 @@ export default function BettingSlip() {
 
       <Button
         variant="betNow"
-        disabled={betEntries.length === 0}
+        disabled={betEntries.length === 0 || isSubmitting}
         size="lg"
         className="m-1 w-full rounded-none text-[16px] font-bold"
         onClick={handleSubmitTicket}
       >
-        {t('bet_now')}
+        {isSubmitting ? t('submitting') || 'Submitting...' : t('bet_now')}
       </Button>
     </Card>
   )
