@@ -1,5 +1,12 @@
 'use client'
 
+// Declare window.Bubble type
+declare global {
+  interface Window {
+    Bubble?: (command: string, content: any) => void
+  }
+}
+
 import { Button } from '@/retail-components/ui/button'
 import { Card, CardContent, CardFooter } from '@/retail-components/ui/card'
 import { ScrollArea } from '@/retail-components/ui/scroll-area'
@@ -121,6 +128,17 @@ export default function BettingSlip({
   }, [baseSystemGroups, systemGroupStakes])
 
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // Get print function name from URL parameter (default: 'Bubble')
+  const [printFunctionName, setPrintFunctionName] = useState('Bubble')
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      const funcName = params.get('print_function') || 'Bubble'
+      setPrintFunctionName(funcName)
+    }
+  }, [])
 
   // Reset toggle when it's no longer enabled
   useEffect(() => {
@@ -664,10 +682,47 @@ export default function BettingSlip({
       }
 
       const result = await response.json()
-      console.log('Ticket submitted successfully:', result)
 
-      // Successo
-      toast.success(t('bet_submitted_successfully'))
+      // Check ret_code per successo (1024 = success)
+      const retCode = parseInt(result.ret_code) || 0
+
+      if (retCode === 1024) {
+        // Successo - gestisci stampa
+        if (result.print) {
+          try {
+            // Opzione 1: Funzione window.Bubble (se esiste)
+            if (typeof window.Bubble === 'function') {
+              window.Bubble('sell', result.print)
+            }
+          } catch {
+            // Silently fail
+          }
+
+          // Opzione 2: PostMessage al parent (sempre, come fallback)
+          try {
+            window.parent.postMessage(
+              {
+                source: 'v-ui',
+                func: printFunctionName,
+                command: 'sell',
+                content: {
+                  ticket: result.ticket,
+                  print: result.print,
+                },
+              },
+              '*',
+            )
+          } catch {
+            // Silently fail
+          }
+        }
+
+        toast.success(t('bet_submitted_successfully'))
+      } else {
+        toast.error(result.description || t('bet_submission_error'))
+        setIsSubmitting(false)
+        return
+      }
 
       // Salva per storico
       const newTicket: SubmittedTicket = {
