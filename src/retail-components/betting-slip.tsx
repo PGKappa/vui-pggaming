@@ -812,7 +812,7 @@ export default function BettingSlip({
             <div className="bg-accent py-3 relative"></div>
 
             {/* TOTALE QUOTA section */}
-            <div className="flex flex-row items-center justify-between px-4 py-3 text-foreground relative top-[11px]">
+            <div className="flex flex-row items-center justify-between px-4 pt-1  text-foreground relative top-[19px]">
               <span className="text-[15px] font-semibold relative bottom-[3px]">
                 {t('total_odd').toUpperCase()}
               </span>
@@ -823,7 +823,7 @@ export default function BettingSlip({
             <Separator />
 
             {/* Quick stake buttons */}
-            <div className="grid grid-cols-5 gap-2 p-2 relative top-[6px]">
+            <div className="grid grid-cols-5 gap-2 p-2 relative top-[27px]">
               {[5, 10, 20, 30, 50].map((amount) => (
                 <Button
                   key={amount}
@@ -838,7 +838,7 @@ export default function BettingSlip({
             </div>
 
             {/* IMPORTO section */}
-            <div className="flex flex-row items-center justify-between px-4 py-[18px] relative top-[12px]">
+            <div className="flex flex-row items-center justify-between px-4 py-[18px] relative top-[26px]">
               <div className="flex items-center gap-2 ">
                 <span className="text-[15px] font-semibold pt-[1px]">
                   {t('amount').toUpperCase()}
@@ -858,7 +858,7 @@ export default function BettingSlip({
             <Separator />
 
             {/* VINCITA POTENZIALE section */}
-            <div className="flex flex-row items-center justify-between px-4 py-[12px] text-foreground pt-0 relative top-[20px] pb-[9px]">
+            <div className="flex flex-row items-center justify-between px-4 py-[12px] text-foreground pt-0 relative top-[27px] pb-[9px]">
               <span className="text-[18px] font-semibold relative bottom-[1px]">
                 {t('potential_win').toUpperCase()}
               </span>
@@ -1158,7 +1158,7 @@ export default function BettingSlip({
             <Separator />
                       
             {/* TOTALE COMBINAZIONI */}
-            <div className="flex w-[396px] flex-row items-center justify-between px-4 py-3 pt-2 text-foreground relative top-[12px]">
+            <div className="flex w-[396px] flex-row items-center justify-between px-4 pb-0 text-foreground relative top-[28px]">
               <span className="text-[15px] font-semibold">
                 {t('total_combinations').toUpperCase()}
               </span>
@@ -1170,7 +1170,7 @@ export default function BettingSlip({
             <Separator />
 
             {/* IMPORTO */}
-            <div className="flex w-[396px] flex-row items-center justify-between px-4 py-3 relative top-[6px]">
+            <div className="flex w-[396px] flex-row items-center justify-between px-4 py-3 relative top-[35px]">
               <div className="flex items-center gap-2">
                 <span className="text-[15px] font-semibold">
                   {t('amount').toUpperCase()}
@@ -1190,8 +1190,8 @@ export default function BettingSlip({
             <Separator />
 
             {/* VINCITA POTENZIALE */}
-            <div className="flex w-[396px] flex-row items-center justify-between px-4 py-3 text-foreground relative top-[1px]">
-              <span className="text-[15px] font-semibold ">
+            <div className="flex w-[396px] flex-row items-center justify-between px-4 py-3 text-foreground relative top-[29px]">
+              <span className="text-[18px] font-semibold ">
                 {t('potential_win').toUpperCase()}
               </span>
               <span className="text-[17px] font-semibold">
