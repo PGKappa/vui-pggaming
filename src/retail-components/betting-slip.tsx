@@ -730,7 +730,7 @@ export default function BettingSlip({
           <div
             className={`relative flex w-full flex-col items-center justify-center ${
               isSystemToggleEnabled ? 'cursor-pointer' : ''
-            } ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'bg-betSlip-header' : 'bg-gray-100'}`}
+            } ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'bg-gray-100' : 'bg-betSlip-header'}`}
             onClick={
               isSystemToggleEnabled
                 ? () => setSystemToggleMode('MULTIPLE')
@@ -738,7 +738,7 @@ export default function BettingSlip({
             }
           >
             <span
-              className={`text-[14px] ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'font-semibold text-betSlip-header-foreground' : 'text-betSlip-foreground'}`}
+              className={`text-[14px] ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'font-semibold text-betSlip-foreground' : 'text-betSlip-header-foreground '}`}
             >
               {betMode === 'SINGLE'
                 ? `${t('single').toUpperCase()}`
@@ -754,7 +754,7 @@ export default function BettingSlip({
           <div
             className={`relative flex w-full flex-col items-center justify-center ${
               isSystemToggleEnabled ? 'cursor-pointer' : ''
-            } ${betMode === 'SYSTEM' ? 'bg-betSlip-header' : 'bg-gray-100'}`}
+            } ${betMode === 'SYSTEM' ? 'bg-gray-100' : ' bg-betSlip-header'}`}
             onClick={
               isSystemToggleEnabled
                 ? () => setSystemToggleMode('SYSTEM')
@@ -762,7 +762,7 @@ export default function BettingSlip({
             }
           >
             <span
-              className={`text-[14px] ${betMode === 'SYSTEM' ? 'pt-0.5 font-semibold text-betSlip-header-foreground' : 'text-betSlip-foreground'}`}
+              className={`text-[14px] ${betMode === 'SYSTEM' ? 'pt-0.5 font-semibold text-betSlip-foreground' : 'text-betSlip-header-foreground '}`}
             >
               {t('system').toUpperCase()}
             </span>
@@ -773,7 +773,7 @@ export default function BettingSlip({
         </div>
       </div>
 
-      <CardContent className="h-full w-[396px] overflow-hidden bg-muted-foreground p-2 text-betSlip-foreground">
+      <CardContent className="h-full w-[396px] overflow-hidden bg-white p-2 text-betSlip-foreground">
         {betEntries.length === 0 ? (
           <div className="relative flex h-full items-start justify-center pt-2">
             <span className="text-[15px] font-medium leading-none">
