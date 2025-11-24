@@ -65,10 +65,10 @@ export default function EventBets(props: {
           </span>
 
           <div className="flex items-center gap-2">
-            <span className="text-[15px] font-bold relative left-[1px]">
+            <span className="text-[15px] top-[1px] font-bold relative left-[0px]">
               {format(eventBets[0].bet.event.startingAt, 'HH:mm')}
             </span>
-            <Badge className="bg-accent font-mono text-[15px] mr-[4px] h-[26px] w-[61px] justify-center pt-1 text-[#99a6b1]">
+            <Badge className="bg-accent  w-[61px]  pt-[1px] text-[15px] mr-[4px] h-[25px] justify-center items-center   text-[#99a6b1]">
               {timeToMatchStart}
             </Badge>
           </div>

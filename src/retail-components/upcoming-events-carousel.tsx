@@ -141,7 +141,7 @@ function UpcomingEventItem(props: {
         </span>
         <div className="flex flex-row gap-2">
           <span className="font-semibold text-[14px] relative bottom-[2px]">{event.startTime}</span>
-          <span className="text-[14px] font-semibold pt-[0px] relative bottom-[2px] text-[#99a6b1]">{timeToEventStart}</span>
+          <span className="text-[14px] font-semibold  absolute pl-[45px] py-0 bottom-[3px] text-[#99a6b1]">{timeToEventStart}</span>
           
         </div>
       </div>
