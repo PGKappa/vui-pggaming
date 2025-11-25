@@ -9,7 +9,7 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import { useContext } from 'react'
 import { useTranslation } from 'react-i18next'
 import '../../globals.css'
-import './i18n'
+import '../../../virtual-lib/i18n'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
