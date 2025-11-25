@@ -165,7 +165,7 @@ export default function NumericKeypadDrawer(props: {
   const renderTrigger = () => {
     if (props.showPlusMinus) {
       return (
-        <div className="flex w-fit items-center border border-border">
+        <div className="flex w-fit items-center border border-border relative left-2">
           <Button
             variant="ghost"
             size="sm"
