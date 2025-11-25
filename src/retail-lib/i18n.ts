@@ -1,10 +1,10 @@
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
 
-import enTranslations from '../../../../retail-messages/en.json'
-import esTranslations from '../../../../retail-messages/es.json'
-import itTranslations from '../../../../retail-messages/it.json'
-import ruTranslations from '../../../../retail-messages/ru.json'
+import enTranslations from '../../retail-messages/en.json'
+import esTranslations from '../../retail-messages/es.json'
+import itTranslations from '../../retail-messages/it.json'
+import ruTranslations from '../../retail-messages/ru.json'
 
 const resources = {
   en: {
@@ -23,14 +23,14 @@ const resources = {
 
 i18n.use(initReactI18next).init({
   resources,
-  lng: 'en', 
+  lng: 'en',
   fallbackLng: 'en',
-  debug: false, 
+  debug: false,
   interpolation: {
     escapeValue: false,
   },
   react: {
-    useSuspense: false, 
+    useSuspense: false,
   },
 })
 

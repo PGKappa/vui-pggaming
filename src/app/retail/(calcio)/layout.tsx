@@ -10,7 +10,7 @@ import { Inter } from 'next/font/google'
 import { useContext } from 'react'
 import { useTranslation } from 'react-i18next'
 import '../../globals.css'
-import './i18n'
+import '../../../retail-lib/i18n'
 
 const inter = Inter({
   variable: '--font-inter',

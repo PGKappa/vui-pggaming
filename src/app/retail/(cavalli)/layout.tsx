@@ -9,7 +9,7 @@ import { Inter } from 'next/font/google'
 import { useContext } from 'react'
 import { useTranslation } from 'react-i18next'
 import '../../globals.css'
-import './i18n'
+import '../../../retail-lib/i18n'
 /* import ResolutionGate from '@/retail-components/resolution-gate' */
 
 const inter = Inter({
