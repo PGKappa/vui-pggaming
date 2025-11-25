@@ -632,7 +632,7 @@ export default function UpcomingRaceCard({
 
           <TableCell className="w-[1px] bg-border p-0" />
 
-          <TableCell className="p-0 pr-[4px]">
+          <TableCell className="p-0">
             <div
               className="flex h-full cursor-pointer flex-col"
               onClick={handleMarketTypeToggle}
@@ -691,17 +691,17 @@ export default function UpcomingRaceCard({
 
     return (
       <div className="mt-2 w-full">
-        <div className="grid grid-cols-2 gap-2 border border-card-foreground border-b-0 border-t-0">
+        <div className="grid grid-cols-2 gap-0 border-card-foreground border-b-0 border-t-0">
           {/* Even/Odd Market */}
           <div>
             <div className="bg-accent text-accent-foreground">
-              <div className="border-slate flex h-16 items-center justify-center text-[16px] font-bold">
+              <div className="border-slate flex h-16 items-center justify-center text-[16px] font-bold border-r">
                 {t('even_odd').toUpperCase()}
               </div>
             </div>
 
             <div className="flex h-16">
-              <div className="flex flex-1 items-center justify-between border-b pl-16">
+              <div className="flex flex-1 items-center justify-between border-b pl-16 ">
                 <BetEntryToggle
                   marketName="Even/Odd"
                   bet={{
@@ -723,7 +723,7 @@ export default function UpcomingRaceCard({
                 />
               </div>
 
-              <div className="flex flex-1 items-center justify-between border-b border-r border-black pl-16 pr-16">
+              <div className="flex flex-1 items-center justify-between border-b  border-black pl-16 pr-16 border-r">
                 <BetEntryToggle
                   marketName="Even/Odd"
                   bet={{
@@ -756,7 +756,7 @@ export default function UpcomingRaceCard({
             </div>
 
             <div className="flex h-16">
-              <div className="flex flex-1 items-center justify-between border-b border-l pl-16">
+              <div className="flex flex-1 items-center justify-between border-b  pl-16">
                 <BetEntryToggle
                   marketName="Under/Over"
                   bet={{
@@ -780,7 +780,7 @@ export default function UpcomingRaceCard({
                 />
               </div>
 
-              <div className="flex flex-1 items-center justify-between border-b pl-16 pr-16">
+              <div className="flex flex-1 items-center justify-between border-b  pl-16 pr-16">
                 <BetEntryToggle
                   marketName="Under/Over"
                   bet={{

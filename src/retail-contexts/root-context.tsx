@@ -349,7 +349,6 @@ export default function RootContextProvider(props: {
   const [initCode, setInitCode] = useState<string | undefined>(undefined)
   const [rootContext, setRootContext] =
     useState<RootContextType>(defaultRootContext)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { i18n } = useTranslation()
   const [isLoading, setIsLoading] = useState(true)
   const [isLoadingEvents, setIsLoadingEvents] = useState(false)
@@ -357,6 +356,21 @@ export default function RootContextProvider(props: {
   const [activeDrawerId, setActiveDrawerId] = useState<string | undefined>(
     undefined,
   )
+
+  // Aggiorna la lingua quando userData cambia
+  useEffect(() => {
+    if (rootContext.userData?.lang) {
+      const langCode = rootContext.userData.lang
+      if (i18n.language !== langCode) {
+        console.log(
+          `🌐 Changing language from "${i18n.language}" to "${langCode}"`,
+        )
+        i18n.changeLanguage(langCode).then(() => {
+          console.log(`✅ Language changed successfully to "${langCode}"`)
+        })
+      }
+    }
+  }, [rootContext.userData?.lang, i18n])
 
   // Funzione per gestire l'apertura di un drawer numerico
   const setActiveDrawer = useCallback((drawerId?: string) => {
