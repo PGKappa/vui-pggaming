@@ -362,7 +362,12 @@ export default function RootContextProvider(props: {
     if (rootContext.userData?.lang) {
       const langCode = rootContext.userData.lang
       if (i18n.language !== langCode) {
-        i18n.changeLanguage(langCode)
+        console.log(
+          `🌐 Changing language from "${i18n.language}" to "${langCode}"`,
+        )
+        i18n.changeLanguage(langCode).then(() => {
+          console.log(`✅ Language changed successfully to "${langCode}"`)
+        })
       }
     }
   }, [rootContext.userData?.lang, i18n])
