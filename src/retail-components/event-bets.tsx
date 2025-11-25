@@ -50,13 +50,13 @@ export default function EventBets(props: {
               alt="Bin"
               width={40}
               height={20}
-              className="size-4 object-contain ml-[6px] mb-[4px]"
+              className="mb-[4px] ml-[6px] size-4 object-contain"
             />
           </Button>
         </div>
 
         <div className="flex items-center justify-between">
-          <span className="text-[15px] ml-[4px] font-semibold">
+          <span className="ml-[4px] text-[15px] font-semibold">
             {eventBets[0].bet.discipline === 'SOCCER'
               ? t('football')
               : eventBets[0].bet.discipline === 'DOGS'
@@ -65,10 +65,10 @@ export default function EventBets(props: {
           </span>
 
           <div className="flex items-center gap-2">
-            <span className="text-[15px] top-[1px] font-bold relative left-[0px]">
+            <span className="relative left-[1px] text-[15px] font-bold tabular-nums">
               {format(eventBets[0].bet.event.startingAt, 'HH:mm')}
             </span>
-            <Badge className="bg-accent  w-[61px]  pt-[1px] text-[15px] mr-[4px] h-[25px] justify-center items-center   text-[#99a6b1]">
+            <Badge className="mr-[4px] h-[26px] w-[61px] justify-center bg-accent pt-1 text-[15px] tabular-nums text-[#99a6b1]">
               {timeToMatchStart}
             </Badge>
           </div>
