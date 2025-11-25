@@ -36,7 +36,7 @@ export default function EventBets(props: {
                 checked={eventBets[0].fixed}
                 onCheckedChange={() => toggleEventBetsFixed(eventKey)}
               />
-              <span className="text-[11px] mt-1 pb-1 relative right-[1px]">{t('fixed')}</span>
+              <span className="text-[11px] mt-1 pb-1 relative right-[1px] font-semibold">{t('fixed')}</span>
             </div>
           </div>
           <Button
