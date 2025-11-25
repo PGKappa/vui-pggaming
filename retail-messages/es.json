@@ -99,7 +99,7 @@
   "select_all": "Seleccionar Todo",
   "deselect_all": "Deseleccionar Todo",
   "even_odd": "Par/Impar",
-  "under_over": "Menos/Más",Selecciona los parámetros para iniciar la búsqueda
+  "under_over": "Menos/Más",
   "exacta": "Exacta",
   "trifecta": "Trifecta",
   "boxed_trifecta": "Trifecta Combinada",
@@ -110,14 +110,14 @@
   "load_failed": "Carga fallida",
   "no_combinations": "Sin combinaciones",
   "no_combinations_available": "No hay combinaciones disponibles",
-  "select_positions": "Seleccionar posiciones",Plaza (Top 3)
+  "select_positions": "Seleccionar posiciones",
   "fastbet": "Apuesta Rápida",
   "code_list": "Lista de Códigos",
   "code": "Código",
   "selection": "Selección",
   "enter_stake_amount": "Introducir Importe de Apuesta",
   "clear": "Limpiar",
-  "clear_all": "Limpiar Todo",Total de la página
+  "clear_all": "Limpiar Todo",
   "done": "Hecho",
   "terminal": "Terminal",
   "all": "TODO",
@@ -192,7 +192,7 @@
   "even": "Par",
   "odd": "Impar",
   "event_completed_detailed_results": "Evento completado - resultados detallados disponibles solo para carreras de caballos y galgos",
-  "result_final_1": "Resultado Final 1\n1 [Equipo Local]",Exacta
+  "result_final_1": "Resultado Final 1\n1 [Equipo Local]",
   "result_final_x": "Resultado Final X\nX",
   "result_final_2": "Resultado Final 2\n2 [Equipo Visitante]",
   "double_chance_1x": "Doble Oportunidad 1X\n1X",
