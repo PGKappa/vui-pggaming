@@ -9,7 +9,14 @@ import { RootContext } from '@/virtual-contexts/root-context'
 import { generateSystemGroups } from '@/virtual-lib/system-bets'
 import { BetEntry, Discipline, SubmittedTicket } from '@/virtual-lib/types'
 import { createPGVirtualAPICall } from '@/virtual-lib/utils'
-import { CircleXIcon, RotateCcwIcon } from 'lucide-react'
+import {
+  CircleXIcon,
+  CornerDownLeft,
+  DivideIcon,
+  MinusIcon,
+  PlusIcon,
+  RotateCcwIcon,
+} from 'lucide-react'
 import { useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -17,14 +24,12 @@ import BetsHistoryDialog from './bets-history-dialog'
 import EventBets from './event-bets'
 import { ScrollArea } from './ui/scroll-area'
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableFooter,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from './ui/table'
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from './ui/accordion'
+import { Checkbox } from './ui/checkbox'
 
 export type BetMode = 'SINGLE' | 'MULTIPLE' | 'SYSTEM'
 
@@ -59,6 +64,15 @@ export default function BettingSlip() {
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [printFunctionName, setPrintFunctionName] = useState('Bubble')
+
+  // Stati per accordion e checkbox
+  const [accordionOpen, setAccordionOpen] = useState<string>('combinations')
+  const [systemGroupsOpen, setSystemGroupsOpen] = useState<string[]>([])
+  const [selectedGroups, setSelectedGroups] = useState<Record<string, boolean>>(
+    {},
+  )
+  const [allGroupsSelected, setAllGroupsSelected] = useState(false)
+  const [systemDistributeStake, setSystemDistributeStake] = useState(0)
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -399,6 +413,77 @@ export default function BettingSlip() {
     }))
   }
 
+  // Funzione per dividere lo stake tra i gruppi selezionati
+  const handleDistributeStake = () => {
+    if (systemDistributeStake <= 0) {
+      toast.error(t('enter_valid_amount'))
+      return
+    }
+
+    const selectedGroupsList = systemGroups.filter(
+      (group) => selectedGroups[group.name],
+    )
+    if (selectedGroupsList.length === 0) {
+      toast.error(t('select_at_least_one_group'))
+      return
+    }
+
+    const totalCombinations = selectedGroupsList.reduce(
+      (sum, group) => sum + group.combinations.length,
+      0,
+    )
+
+    const stakePerCombination = systemDistributeStake / totalCombinations
+    const newStakes: Record<string, number> = {}
+
+    for (const group of selectedGroupsList) {
+      newStakes[group.name] = stakePerCombination
+    }
+
+    setSystemGroupStakes((prev) => ({ ...prev, ...newStakes }))
+  }
+
+  // Funzione per aggiungere stake a tutti i gruppi selezionati
+  const handleAddStakeToAll = () => {
+    if (systemDistributeStake <= 0) {
+      toast.error(t('enter_valid_amount'))
+      return
+    }
+
+    const newStakes = { ...systemGroupStakes }
+    Object.keys(selectedGroups).forEach((groupName) => {
+      if (selectedGroups[groupName]) {
+        newStakes[groupName] = systemDistributeStake
+      }
+    })
+
+    setSystemGroupStakes(newStakes)
+  }
+
+  // Gestione checkbox "tutti"
+  const handleAllGroupsToggle = (checked: boolean) => {
+    setAllGroupsSelected(checked)
+    const newSelections: Record<string, boolean> = {}
+    systemGroups.forEach((group) => {
+      newSelections[group.name] = checked
+    })
+    setSelectedGroups(newSelections)
+  }
+
+  // Gestione singolo checkbox gruppo
+  const handleGroupToggle = (groupName: string, checked: boolean) => {
+    setSelectedGroups((prev) => ({
+      ...prev,
+      [groupName]: checked,
+    }))
+
+    // Aggiorna "tutti" se necessario
+    const allSelected = systemGroups.every((group) =>
+      group.name === groupName ? checked : selectedGroups[group.name],
+    )
+    setAllGroupsSelected(allSelected)
+  }
+
   // Controlla se siamo in modalità SYSTEM obbligatoria (almeno un evento con 2+ bet)
   const isSystemMandatory = useMemo(() => {
     const eventGroups = Object.values(betsByEvent)
@@ -574,122 +659,233 @@ export default function BettingSlip() {
             </div>
           </>
         ) : (
-          // SYSTEM - Tabella gruppi con input per ogni gruppo
+          // SYSTEM - Accordion con gruppi
           <div className="flex h-full w-full flex-col">
-            <div className="w-full flex-1 overflow-auto">
-              <Table className="w-full">
-                <TableHeader className="sticky top-0 bg-accent text-accent-foreground">
-                  <TableRow className="border-border hover:bg-accent">
-                    <TableHead className="py-2 text-left text-[12px] font-bold tracking-wide">
-                      {t('group')}
-                    </TableHead>
-                    <TableHead className="py-2 text-center text-[12px] font-bold tracking-wide">
-                      {t('comb')}
-                    </TableHead>
-                    <TableHead className="py-2 text-center text-[12px] font-bold tracking-wide">
-                      {t('min')}.€
-                    </TableHead>
-                    <TableHead className="py-2 text-center text-[12px] font-bold tracking-wide">
-                      {t('max')}.€
-                    </TableHead>
-                    <TableHead className="py-2 text-center text-[12px] font-bold tracking-wide">
-                      {t('stake')}
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {systemGroups.map((group) => (
-                    <TableRow
-                      key={group.name}
-                      className="border-border bg-primary-foreground text-[13px] hover:bg-muted/50"
-                    >
-                      <TableCell className="py-2 text-[12px] font-semibold">
-                        {group.name}
-                      </TableCell>
-                      <TableCell className="py-2 text-center text-[12px]">
-                        {group.combinations.length}
-                      </TableCell>
-                      <TableCell className="py-2 text-center text-[12px]">
-                        {(group.minWin * group.stake).toFixed(2)}
-                      </TableCell>
-                      <TableCell className="py-2 text-center text-[12px] font-bold">
-                        {(group.maxWin * group.stake).toFixed(2)}
-                      </TableCell>
-                      <TableCell className="py-2">
-                        <div className="flex w-full items-center justify-center">
-                          <div className="flex items-center overflow-hidden rounded-none border border-border">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-6 w-6 rounded-none bg-betSlip p-0 text-[10px] font-bold hover:bg-accent/80"
-                              onClick={() =>
-                                updateSystemGroupStake(
-                                  group.name,
-                                  Math.max(group.stake - 0.5, 0),
-                                )
-                              }
-                            >
-                              -
-                            </Button>
-                            <Input
-                              type="number"
-                              value={group.stake}
-                              onChange={(e) =>
-                                updateSystemGroupStake(
-                                  group.name,
-                                  parseFloat(e.target.value) || 0,
-                                )
-                              }
-                              className="h-6 w-12 rounded-none border-0 border-x bg-primary-foreground text-center text-[10px] focus:ring-0 focus:ring-offset-0"
-                              min="0"
-                              step="0.5"
-                            />
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-6 w-6 rounded-none bg-betSlip p-0 text-[10px] font-bold hover:bg-accent/80"
-                              onClick={() =>
-                                updateSystemGroupStake(
-                                  group.name,
-                                  group.stake + 0.5,
-                                )
-                              }
-                            >
-                              +
-                            </Button>
-                          </div>
+            {/* Accordion principale COMBINATIONS */}
+            <Accordion
+              type="single"
+              collapsible
+              value={accordionOpen}
+              onValueChange={setAccordionOpen}
+              className="w-full"
+            >
+              <AccordionItem value="combinations" className="gap-0 border-none">
+                <AccordionTrigger className="bg-betSlip-header px-3 py-2 text-[14px] font-bold text-betSlip-header-foreground hover:no-underline">
+                  <div className="flex w-full items-center justify-between pr-2">
+                    <span>{t('combinations').toUpperCase()}</span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="pb-0">
+                  <div className="space-y-3 border-b px-3 pb-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <Checkbox
+                        id="all-groups"
+                        checked={allGroupsSelected}
+                        onCheckedChange={handleAllGroupsToggle}
+                      />
+                      <div className="mr-1.5 flex h-[33px] items-center gap-2">
+                        <span>{t('divide').toUpperCase()}</span>
+                        <div className="relative flex w-full items-center border border-border">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-7 rounded-none bg-accent px-3 text-white"
+                            onClick={handleDistributeStake}
+                          >
+                            <DivideIcon className="h-4 w-4" />
+                          </Button>
+                          <Input
+                            type="number"
+                            value={systemDistributeStake}
+                            onChange={(e) =>
+                              setSystemDistributeStake(
+                                parseFloat(e.target.value) || 0,
+                              )
+                            }
+                            className="h-8 w-32 flex-1 rounded-none bg-white text-center text-[13px]"
+                          />
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-7 rounded-none bg-accent px-3 text-white"
+                            onClick={handleAddStakeToAll}
+                          >
+                            <CornerDownLeft className="h-4 w-4" />
+                          </Button>
                         </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-                <TableFooter className="sticky bottom-0 bg-muted/50 text-[13px] font-semibold">
-                  <TableRow className="hover:bg-muted/50">
-                    <TableCell colSpan={4} className="text-left">
-                      {t('total')}
-                    </TableCell>
-                    <TableCell className="pr-5 text-right">
-                      {currencySymbol} {systemTotals.totalStake.toFixed(2)}
-                    </TableCell>
-                  </TableRow>
-                  <TableRow className="hover:bg-muted/50">
-                    <TableCell colSpan={4} className="text-left">
-                      {t('min_win')}
-                    </TableCell>
-                    <TableCell className="pr-5 text-right">
-                      {currencySymbol} {systemTotals.minWin.toFixed(2)}
-                    </TableCell>
-                  </TableRow>
-                  <TableRow className="hover:bg-muted/50">
-                    <TableCell colSpan={4} className="text-left">
-                      {t('max_win')}
-                    </TableCell>
-                    <TableCell className="pr-5 text-right">
-                      {currencySymbol} {systemTotals.maxWin.toFixed(2)}
-                    </TableCell>
-                  </TableRow>
-                </TableFooter>
-              </Table>
+                        <span>{t('add').toUpperCase()}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Sub-accordion per ogni gruppo */}
+                  <Accordion
+                    type="multiple"
+                    value={systemGroupsOpen}
+                    onValueChange={setSystemGroupsOpen}
+                    className="w-full"
+                  >
+                    {systemGroups.map((group) => (
+                      <AccordionItem
+                        key={group.name}
+                        value={group.name}
+                        className="bg-white"
+                      >
+                        <AccordionTrigger className="bg-betSlip-header px-3 py-2 hover:no-underline">
+                          <div className="flex w-full items-center justify-between pr-2">
+                            <div className="flex items-center gap-2">
+                              <Checkbox
+                                id={`group-${group.name}`}
+                                checked={selectedGroups[group.name] || false}
+                                onCheckedChange={(checked) =>
+                                  handleGroupToggle(
+                                    group.name,
+                                    checked as boolean,
+                                  )
+                                }
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                              <span className="text-[13px] font-semibold">
+                                {group.name.toUpperCase()} (
+                                {group.combinations.length})
+                              </span>
+                            </div>
+                            <span className="relative flex items-center">
+                              <div className="flex items-center gap-0 border">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 w-7 rounded-none bg-accent px-3 text-white"
+                                  onClick={() =>
+                                    updateSystemGroupStake(
+                                      group.name,
+                                      Math.max(group.stake - 0.05, 0),
+                                    )
+                                  }
+                                >
+                                  <MinusIcon className="h-4 w-4" />
+                                </Button>
+                                <Input
+                                  type="number"
+                                  value={group.stake}
+                                  onChange={(e) =>
+                                    updateSystemGroupStake(
+                                      group.name,
+                                      parseFloat(e.target.value) || 0,
+                                    )
+                                  }
+                                  className="h-8 w-32 flex-1 rounded-none bg-white text-center text-[13px]"
+                                  step="0.5"
+                                  min="0"
+                                />
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 w-7 rounded-none bg-accent px-3 text-white"
+                                  onClick={() =>
+                                    updateSystemGroupStake(
+                                      group.name,
+                                      group.stake + 0.05,
+                                    )
+                                  }
+                                >
+                                  <PlusIcon className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </span>
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent className="border-b bg-white px-4">
+                          {/* Input stake per questo gruppo */}
+                          <div className="relative top-1.5 grid grid-cols-3">
+                            <div className="relative left-[1px] text-center">
+                              <div className="text-[11px] text-primary">
+                                {t('min win').toUpperCase()}
+                              </div>
+                              <div className="relative top-[1px] text-[13px] font-semibold">
+                                {currencySymbol}{' '}
+                                {(group.minWin * group.stake).toFixed(2)}
+                              </div>
+                            </div>
+                            <div className="relative right-[16px] text-center text-[11px]">
+                              <div className="text-primary">
+                                {t('max win').toUpperCase()}
+                              </div>
+                              <div className="relative top-[1px] text-[13px] font-semibold">
+                                {currencySymbol}{' '}
+                                {(group.maxWin * group.stake).toFixed(2)}
+                              </div>
+                            </div>
+                            <div className="relative right-[18px] text-center text-[11px]">
+                              <div className="text-primary">
+                                {t('total_played').toUpperCase()}
+                              </div>
+                              <div className="relative top-[1px] text-[13px] font-semibold">
+                                {currencySymbol}{' '}
+                                {(
+                                  group.stake * group.combinations.length
+                                ).toFixed(2)}
+                              </div>
+                            </div>
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+
+            {/* COMBINACIONES TOTALES */}
+            <div className="flex items-center justify-between px-3 py-2">
+              <span className="text-[13px] font-bold">
+                {t('total_combinations')}
+              </span>
+              <span className="text-[13px] font-bold">
+                {systemGroups.reduce(
+                  (sum, g) => sum + (g.stake > 0 ? g.combinations.length : 0),
+                  0,
+                )}
+                /
+                {systemGroups.reduce(
+                  (sum, g) => sum + g.combinations.length,
+                  0,
+                )}
+              </span>
+            </div>
+
+            {/* IMPORTE */}
+            <div className="flex flex-row items-center justify-between px-3">
+              <span className="text-[13px] font-semibold">
+                {t('amount').toUpperCase()}
+              </span>
+              <div className="flex items-center bg-white">
+                <Input
+                  type="number"
+                  value={systemDistributeStake}
+                  onChange={(e) =>
+                    setSystemDistributeStake(parseFloat(e.target.value) || 0)
+                  }
+                  className="h-8 w-[240px] flex-1 rounded-none border bg-white text-center text-[13px]"
+                />
+              </div>
+            </div>
+
+            {/* GANANCIA POTENCIAL */}
+            <div className="flex flex-row items-center justify-between px-3 pt-2">
+              <span className="text-[13px] font-semibold">
+                {t('potential_win').toUpperCase()}
+              </span>
+              <div className="flex items-center bg-white">
+                <Input
+                  type="number"
+                  value={systemDistributeStake}
+                  onChange={(e) =>
+                    setSystemDistributeStake(parseFloat(e.target.value) || 0)
+                  }
+                  className="h-8 w-[240px] flex-1 rounded-none border bg-white text-center text-[13px]"
+                />
+              </div>
             </div>
           </div>
         )}
