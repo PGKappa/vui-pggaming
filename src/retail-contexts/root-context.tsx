@@ -16,6 +16,7 @@ import {
   createPGVirtualAPICall,
   SOCCER_API_URL,
   fetchCashierInit,
+  API_URLS,
 } from '@/retail-lib/utils'
 import { createContext, useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -328,6 +329,9 @@ export const RootContext = createContext<RootContextType>(defaultRootContext)
 function getAreaFromUrl(): Discipline[] {
   if (typeof window === 'undefined') return []
 
+  if (window.location.pathname.includes('dogs8')) {
+    return [Discipline.DOGS8]
+  }
   if (window.location.pathname.includes('dogs-horses')) {
     return [Discipline.DOGS, Discipline.HORSES]
   }
@@ -380,12 +384,15 @@ export default function RootContextProvider(props: {
   // Cache keys for localStorage
   const CACHE_KEYS = {
     DOGS_EVENTS: 'dogs_events_cache',
+    DOGS8_EVENTS: 'dogs8_events_cache',
     HORSES_EVENTS: 'horses_events_cache',
     SOCCER_EVENTS: 'soccer_events_cache',
     DOGS_RESULTS: 'dogs_results_cache',
+    DOGS8_RESULTS: 'dogs8_results_cache',
     HORSES_RESULTS: 'horses_results_cache',
     SOCCER_RESULTS: 'soccer_results_cache',
     LAST_RACING_FETCH_TIME: 'racing_events_last_fetch',
+    LAST_DOGS8_FETCH_TIME: 'dogs8_events_last_fetch',
     LAST_SOCCER_FETCH_TIME: 'soccer_events_last_fetch',
     CASHIER_DATA: 'cashier_data_cache',
     LAST_CASHIER_FETCH_TIME: 'cashier_last_fetch',
@@ -555,6 +562,36 @@ export default function RootContextProvider(props: {
     CACHE_KEYS.DOGS_RESULTS,
     CACHE_KEYS.HORSES_RESULTS,
   ])
+
+  const loadCachedDogs8Events = useCallback(() => {
+    const cachedDogs8Events = loadFromCache(CACHE_KEYS.DOGS8_EVENTS)
+    const cachedDogs8Results = loadFromCache(CACHE_KEYS.DOGS8_RESULTS)
+
+    if (cachedDogs8Events || cachedDogs8Results) {
+      setRootContext((prev) => ({
+        ...prev,
+        upcomingEvents: [
+          ...(prev.upcomingEvents?.filter(
+            (event) => event.discipline !== Discipline.DOGS8,
+          ) || []),
+          ...(cachedDogs8Events || []),
+        ],
+        eventResults: [
+          ...(prev.eventResults?.filter(
+            (result) => result.discipline !== Discipline.DOGS8,
+          ) || []),
+          ...((cachedDogs8Results as EventResult[])?.map((r) => ({
+            ...r,
+            startTime: new Date(r.startTime),
+          })) || []),
+        ],
+      }))
+
+      return true
+    }
+
+    return false
+  }, [loadFromCache, CACHE_KEYS.DOGS8_EVENTS, CACHE_KEYS.DOGS8_RESULTS])
 
   const loadCachedSoccerEvents = useCallback(() => {
     const cachedSoccerEvents = loadFromCache(CACHE_KEYS.SOCCER_EVENTS)
@@ -1162,6 +1199,110 @@ export default function RootContextProvider(props: {
       }
     }
 
+    const fetchDogs8Events = async () => {
+      if (isCacheValid(CACHE_KEYS.LAST_DOGS8_FETCH_TIME)) {
+        return
+      }
+
+      try {
+        const response = await createPGVirtualAPICall(
+          API_URLS.DOGS8_INFO,
+          initCode,
+        )
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch dogs8 events')
+        }
+
+        const dogs8Data = await response.json()
+
+        // Parse upcoming events from dogs8 channel (channel 2)
+        const dogs8Channel = dogs8Data.channels?.[2]
+        const upcomingDogs8Events: UpcomingEvent[] =
+          dogs8Channel?.next_events?.map(
+            (event: any, index: number): UpcomingEvent => {
+              const startTime = new Date(event.time)
+              const [hours, minutes] = event.start_time.split(':')
+              startTime.setHours(parseInt(hours, 10))
+              startTime.setMinutes(parseInt(minutes, 10))
+              return {
+                id: parseInt(event.int_event_id),
+                extId: event.ext_pal_id,
+                duration: dogs8Channel?.duration?.[index] || 3,
+                name: 'Dog 8',
+                startTime: event.start_time,
+                time: startTime,
+                discipline: Discipline.DOGS8,
+              }
+            },
+          ) || []
+
+        // Parse previous results
+        const dogs8EventResults: EventResult[] = dogs8Channel?.prev_events
+          ? await Promise.all(
+              dogs8Channel.prev_events.map(async (event: any) => {
+                let detailedResult = null
+                try {
+                  const response = await createPGVirtualAPICall(
+                    `/api/event/results/${event.ext_pal_id}/${event.int_event_id}`,
+                    initCode,
+                  )
+
+                  if (response.ok) {
+                    detailedResult = await response.json()
+                  }
+                } catch (error) {
+                  console.log('Failed to fetch dogs8 details:', error)
+                }
+
+                return {
+                  id: event.int_event_id,
+                  extId: event.ext_pal_id,
+                  name: `Dog 8 Race ${event.int_event_id}`,
+                  startTime: new Date(event.time),
+                  time: event.time,
+                  discipline: Discipline.DOGS8,
+                  result: detailedResult || {
+                    podium:
+                      event.arrival?.map((dog: any, index: number) => ({
+                        name: dog.name,
+                        number: dog.number,
+                        position: index + 1,
+                      })) || [],
+                    odds: {},
+                  },
+                }
+              }),
+            )
+          : []
+
+        setRootContext((prev) => ({
+          ...prev,
+          upcomingEvents: [
+            ...(prev.upcomingEvents?.filter(
+              (event) => event.discipline !== Discipline.DOGS8,
+            ) || []),
+            ...upcomingDogs8Events,
+          ],
+          eventResults: [
+            ...(prev.eventResults?.filter(
+              (result) => result.discipline !== Discipline.DOGS8,
+            ) || []),
+            ...dogs8EventResults,
+          ],
+        }))
+
+        saveToCache(CACHE_KEYS.DOGS8_EVENTS, upcomingDogs8Events)
+        saveToCache(CACHE_KEYS.DOGS8_RESULTS, dogs8EventResults)
+        localStorage.setItem(
+          CACHE_KEYS.LAST_DOGS8_FETCH_TIME,
+          Date.now().toString(),
+        )
+      } catch {
+        toast.error('Error fetching dogs8 events')
+      }
+    }
+
     setIsLoadingEvents(true)
 
     const fetchAllEvents = async () => {
@@ -1177,6 +1318,8 @@ export default function RootContextProvider(props: {
           areas.includes(Discipline.HORSES)
         ) {
           loadCachedRacingEvents()
+        } else if (areas.includes(Discipline.DOGS8)) {
+          loadCachedDogs8Events()
         } else if (areas.includes(Discipline.SOCCER)) {
           loadCachedSoccerEvents()
         }
@@ -1192,6 +1335,9 @@ export default function RootContextProvider(props: {
             case Discipline.HORSES:
               await fetchRacingEvents()
               return
+            case Discipline.DOGS8:
+              await fetchDogs8Events()
+              return
           }
         }
 
@@ -1206,6 +1352,10 @@ export default function RootContextProvider(props: {
           areas.includes(Discipline.HORSES)
         ) {
           promises.push(fetchRacingEvents())
+        }
+
+        if (areas.includes(Discipline.DOGS8)) {
+          promises.push(fetchDogs8Events())
         }
 
         await Promise.all(promises)

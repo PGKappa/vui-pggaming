@@ -158,6 +158,7 @@ export type UpcomingRound = {
 
 export enum Discipline {
   DOGS = 'DOGS',
+  DOGS8 = 'DOGS8',
   HORSES = 'HORSES',
   SOCCER = 'SOCCER',
 }
