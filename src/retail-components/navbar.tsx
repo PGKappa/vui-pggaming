@@ -25,6 +25,9 @@ export default function Navbar() {
     if (pathname.includes('/calcio')) {
       // Link per il calcio
       return 'https://d190050z3qr0m1.cloudfront.net/public/Soccer_Gaming_manual_en.html'
+    } else if (pathname.includes('/dogs8')) {
+      // Link per dogs8 (stesso dei cani normali)
+      return 'https://d190050z3qr0m1.cloudfront.net/public/RD-RH_Gaming_manual_en.html'
     } else {
       // Per cani e cavalli
       return 'https://d190050z3qr0m1.cloudfront.net/public/RD-RH_Gaming_manual_en.html'
@@ -33,14 +36,14 @@ export default function Navbar() {
 
   return (
     <div
-      className="flex w-full flex-row items-center justify-start bg-accent p-3 h-16"
+      className="flex h-16 w-full flex-row items-center justify-start bg-accent p-3"
       suppressHydrationWarning={true}
     >
-      <div className="flex flex-row items-center gap-[8px] relative right-[2px]">
+      <div className="relative right-[2px] flex flex-row items-center gap-[8px]">
         <Link
           href={`/retail/dogs-horses${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
-            'flex w-28 flex-row items-center justify-between px-4 py-1 text-foreground transition-colors h-12',
+            'flex h-12 w-28 flex-row items-center justify-between px-4 py-1 text-foreground transition-colors',
             pathname.includes('/retail/dogs-horses')
               ? 'bg-tertiary'
               : 'bg-secondary',
@@ -65,7 +68,7 @@ export default function Navbar() {
         <Link
           href={`/retail/dogs${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
-            'flex w-24 flex-row items-center justify-center px-4 py-1 text-foreground transition-colors h-12',
+            'flex h-12 w-24 flex-row items-center justify-center px-4 py-1 text-foreground transition-colors',
             pathname.includes('/retail/dogs') &&
               !pathname.includes('/retail/dogs-horses')
               ? 'bg-tertiary'
@@ -84,9 +87,28 @@ export default function Navbar() {
         </Link>
 
         <Link
+          href={`/retail/dogs8${initCode ? `?init_code=${initCode}` : ''}`}
+          className={cn(
+            'relative flex h-12 w-24 flex-row items-center justify-center px-4 py-1 text-foreground transition-colors',
+            pathname.includes('/retail/dogs8') ? 'bg-tertiary' : 'bg-secondary',
+          )}
+        >
+          <Image
+            src="/dog.png"
+            alt="Dogs 8"
+            width={40}
+            height={20}
+            className="size-8 object-contain"
+          />
+          <span className="absolute bottom-1 right-2 rounded px-1 text-[10px] font-bold text-primary-foreground">
+            8
+          </span>
+        </Link>
+
+        <Link
           href={`/retail/horses${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
-            'flex w-24 flex-row items-center justify-center px-4 py-1 text-foreground transition-colors h-12',
+            'flex h-12 w-24 flex-row items-center justify-center px-4 py-1 text-foreground transition-colors',
             pathname.includes('/retail/horses')
               ? 'bg-tertiary'
               : 'bg-secondary',
@@ -106,7 +128,7 @@ export default function Navbar() {
         <Link
           href={`/retail/calcio${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
-            'flex w-24 flex-row items-center justify-center gap-3 px-4 py-1 text-foreground transition-colors h-12',
+            'flex h-12 w-24 flex-row items-center justify-center gap-3 px-4 py-1 text-foreground transition-colors',
             pathname.includes('/retail/calcio')
               ? 'bg-tertiary'
               : 'bg-secondary',
@@ -133,12 +155,14 @@ export default function Navbar() {
             setSearchEventResults(eventResults)
           }}
         >
-          <span className="text-[15px] font-semibold">{t('search_results').toUpperCase()}</span>
+          <span className="text-[15px] font-semibold">
+            {t('search_results').toUpperCase()}
+          </span>
         </Button>
 
         {/* Pulsante Info - sempre visibile con dialog diversi per calcio vs racing */}
         <Button
-          className="w-12 h-12"
+          className="h-12 w-12"
           variant="ticketButton"
           size="lg"
           onClick={() => setIsInfoDialogOpen(true)}
@@ -169,7 +193,7 @@ export default function Navbar() {
 
       {/* Dialog per le informazioni sul gioco - cambia contenuto per disciplina */}
       <Dialog open={isInfoDialogOpen} onOpenChange={setIsInfoDialogOpen}>
-        <DialogContent className="w-full overflow-hidden bg-accent h-full">
+        <DialogContent className="h-full w-full overflow-hidden bg-accent">
           <DialogHeader className="bg-secondary text-secondary-foreground">
             <DialogTitle>{t('game_rules')}</DialogTitle>
           </DialogHeader>
