@@ -7,11 +7,13 @@ export function cn(...inputs: ClassValue[]) {
 
 // API URLs - direttamente nel codice per evitare problemi con env online
 export const API_URLS = {
-  PGVIRTUAL: 'https://apisuprema.pgvirtual.eu',
-  CASHIER_INIT: 'https://apisuprema.pgvirtual.eu/api/init/cashier',
+  PGVIRTUAL: 'https://apidev.pgvirtual.eu',
+  CASHIER_INIT: 'https://apidev.pgvirtual.eu/api/init/cashier',
   SOCCER: 'https://cvgl.it/football/incoming.php',
   // Base per altre chiamate se necessario
   BASE: 'https://pg-gaming.stg.startegois.com/proxy',
+  // Endpoint specifico per dogs8
+  DOGS8_INFO: '/api/event/info/1000003817/331',
 } as const
 
 // Backwards compatibility
