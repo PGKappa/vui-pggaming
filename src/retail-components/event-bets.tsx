@@ -28,15 +28,15 @@ export default function EventBets(props: {
 
   return (
     <li>
-      <div className="flex flex-col gap-0 border border-betSlip-foreground p-1">
+      <div className="flex flex-col gap-0 border border-betSlip-foreground p-1 h-[91px]">
         <div className="flex flex-row justify-between">
           <div className={betMode === 'SYSTEM' ? 'visible' : 'invisible'}>
-            <div className="flex flex-row items-center gap-2 pl-1">
+            <div className="flex flex-row items-center gap-2 pl-1 relative bottom-[1px]">
               <Checkbox
                 checked={eventBets[0].fixed}
                 onCheckedChange={() => toggleEventBetsFixed(eventKey)}
               />
-              <span className="text-[11px] mt-1 pb-1 relative right-[1px] font-semibold">{t('fixed')}</span>
+              <span className="text-[12px] mt-[5px] pb-1 relative right-[1px] font-semibold">{t('fixed')}</span>
             </div>
           </div>
           <Button
@@ -50,13 +50,13 @@ export default function EventBets(props: {
               alt="Bin"
               width={40}
               height={20}
-              className="mb-[4px] ml-[6px] size-4 object-contain"
+              className="mb-[4px] ml-[6px] size-[17px] object-contain"
             />
           </Button>
         </div>
 
-        <div className="flex items-center justify-between">
-          <span className="ml-[4px] text-[15px] font-semibold">
+        <div className="flex items-center justify-between mt-[1px] relative bottom-0">
+          <span className="ml-[3px] top-[1px] relative text-[15px] font-semibold">
             {eventBets[0].bet.discipline === 'SOCCER'
               ? t('football')
               : eventBets[0].bet.discipline === 'DOGS'
@@ -65,10 +65,10 @@ export default function EventBets(props: {
           </span>
 
           <div className="flex items-center gap-2">
-            <span className="relative left-[1px] text-[15px] font-bold tabular-nums">
+            <span className="relative left-[1px] top-[1px] text-[15px] font-bold tabular-nums">
               {format(eventBets[0].bet.event.startingAt, 'HH:mm')}
             </span>
-            <Badge className="mr-[4px] h-[26px] w-[61px] justify-center bg-accent items-center text-[15px] tabular-nums text-[#99a6b1]">
+            <Badge className="mr-[4px] h-[27px] w-[61px] justify-center bg-accent items-center text-[14px] tabular-nums text-[#99a6b1]">
               {timeToMatchStart}
             </Badge>
           </div>
@@ -76,7 +76,7 @@ export default function EventBets(props: {
         {eventBets[0].bet.discipline === 'SOCCER' ? (
           <span className="text-[16px]">{eventBets[0].bet.competitors}</span>
         ) : (
-          <span className="text-[14px] pb-[4px] relative bottom-[1px] ml-[4px] uppercase">
+          <span className="text-[14px] pb-[4px] ml-[3px] uppercase relative bottom-[1px]">
              {eventBets[0].bet.track || getTrackName(6)}
           </span>
         )}
@@ -88,7 +88,7 @@ export default function EventBets(props: {
             key={betEntry.id}
             className="flex items-center justify-between text-sm"
           >
-            <span className="text-[13px] mt-[1px] ">{betEntry.market}</span>
+            <span className="text-[13px] mt-[1px] mr-[1px] ">{betEntry.market}</span>
             <span className="text-[13px] font-normal mt-[2px]">
               {betEntry.bet.option.outcome}
             </span>

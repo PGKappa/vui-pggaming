@@ -416,10 +416,8 @@ export default function SearchEventResults() {
     <div className="flex h-full flex-col gap-1">
       <div className="flex flex-col items-center bg-accent p-2 h-16">
         <div className="flex flex-wrap items-center gap-8">
-          <div className="flex flex-row items-center gap-2 bg-badge text-background w-[126px] h-[48px] mr-28">
-            <span className="whitespace-nowrap pl-2 text-[15px] font-semibold relative left-[14px] w-[89px]">
-              {t('discipline').toUpperCase()}
-            </span>
+          <div className="flex flex-row items-center gap-2 bg-badge text-background w-[0px] h-[48px] mr-28">
+            
             <Select
               value={selectedDiscipline.toString()}
               onValueChange={(value) => {
@@ -430,7 +428,7 @@ export default function SearchEventResults() {
                 )
               }}
             >
-              <SelectTrigger className="min-w-[126px] border-none bg-background ml-[9px] text-[15px] text-foreground left-5 relative h-[48px] pl-[18px] pr-[5px]">
+              <SelectTrigger className="min-w-[186px] border-none bg-background ml-[-70px] text-[15px] text-foreground left-5 relative h-[48px] pl-[18px] pr-[5px]">
                 <SelectValue placeholder={t('sport')}/>
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
@@ -453,16 +451,14 @@ export default function SearchEventResults() {
             />
             <label
               htmlFor="last10"
-              className="px-2 py-3 left-[18px] relative text-[15px] font-semibold text-background"
+              className="px-2 py-3 right-[1px] relative text-[15px] font-semibold text-background"
             >
               {t('last_10_games')}
             </label>
           </div>
 
-          <div className="flex flex-row items-center gap-2 bg-badge text-background h-[48px] w-[126px] right-[3px] relative">
-            <span className="whitespace-nowrap pl-2 text-[15px] font-semibold relative left-[35px]">
-              {t('date').toUpperCase()}
-            </span>
+          <div className="flex flex-row items-center gap-2 bg-badge text-background h-[48px] w-[0px] right-[3px] relative">
+            
             <Select
               value={selectedDate}
               onValueChange={(value) => {
@@ -470,7 +466,7 @@ export default function SearchEventResults() {
               }}
               disabled={lastTenGames}
             >
-              <SelectTrigger className="min-w-[126px] ml-[51px] bg-background text-[14px] text-foreground h-[48px] relative left-5 border-none pl-[17px] pr-[5px]">
+              <SelectTrigger className="min-w-[186px] ml-[-34px] bg-background text-[14px] text-foreground h-[48px] relative left-5 border-none pl-[17px] pr-[5px]">
                 <SelectValue placeholder={t('date')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
@@ -483,16 +479,14 @@ export default function SearchEventResults() {
             </Select>
           </div>
 
-          <div className="w-[126px] flex flex-row items-center gap-2 bg-badge text-background h-[48px] relative right-[11px] ml-[129px]">
-            <span className="whitespace-nowrap pl-2 text-[15px] font-semibold w-[105px] relative left-[10px]">
-              {t('time_slot').toUpperCase()}
-            </span>
+          <div className="w-[0px] flex flex-row items-center gap-2 bg-badge text-background h-[48px] relative right-[11px] ml-[129px]">
+            
             <Select
               value={selectedTimeSlot}
               onValueChange={setSelectedTimeSlot}
               disabled={lastTenGames}
             >
-              <SelectTrigger className="min-w-[126px] bg-background text-[15px] ml-[27px] text-foreground h-[48px] border-none relative left-1 pl-[18px] pr-[15px]">
+              <SelectTrigger className="min-w-[186px] bg-background text-[15px] ml-[27px] text-foreground h-[48px] border-none relative left-1 pl-[18px] pr-[15px]">
                 <SelectValue placeholder={t('time_slot')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
@@ -508,7 +502,7 @@ export default function SearchEventResults() {
 
           <div className="flex flex-row items-center gap-2">
             <Button
-              className="text-bold w-[82px] bg-tertiary text-[15px] text-tertiary-foreground h-[48px] relative left-[100px]"
+              className="text-bold w-[186px] bg-tertiary text-[15px] text-tertiary-foreground h-[48px] relative left-[186px]"
               disabled={
                 !selectedDate && !selectedDiscipline && !selectedTimeSlot
               }
@@ -543,7 +537,7 @@ export default function SearchEventResults() {
                           className="gap-0"
                         >
                           <AccordionTrigger className="bg-accent p-2 text-base text-accent-foreground [&[data-state=open]>svg]:-rotate-90">
-                            <div className="flex w-[600px] flex-row justify-between gap-2">
+                            <div className="flex w-[600px] flex-row justify-between gap-2 text-black">
                               <div className="flex flex-row gap-2">
                                 <span className="font-bold">
                                   {formatSafeDate(eventResult.startTime)}{' '}
