@@ -83,8 +83,26 @@ export default function SearchEventResults() {
     }
 
     if (lastTenGames) {
+      // For racing disciplines, check if we have results for any racing discipline
+      const isRacingDiscipline =
+        selectedDiscipline === Discipline.DOGS ||
+        selectedDiscipline === Discipline.HORSES ||
+        selectedDiscipline === Discipline.DOGS8
+
       const existingResults = (rootContext.eventResults || []).filter(
-        (result) => result.discipline === selectedDiscipline,
+        (result) => {
+          if (isRacingDiscipline) {
+            // Show all racing results
+            return (
+              result.discipline === Discipline.DOGS ||
+              result.discipline === Discipline.HORSES ||
+              result.discipline === Discipline.DOGS8
+            )
+          } else {
+            // Filter normally for non-racing
+            return result.discipline === selectedDiscipline
+          }
+        },
       )
 
       if (existingResults.length > 0) {
@@ -93,11 +111,14 @@ export default function SearchEventResults() {
 
       if (
         selectedDiscipline === Discipline.HORSES ||
-        selectedDiscipline === Discipline.DOGS
+        selectedDiscipline === Discipline.DOGS ||
+        selectedDiscipline === Discipline.DOGS8
       ) {
         const fetchRacingResults = async () => {
           setIsLoading(true)
           try {
+            console.log('🔍 Selected discipline:', selectedDiscipline)
+
             const response = await createPGVirtualAPICall(
               '/api/event/list',
               rootContext.initCode || '',
@@ -108,35 +129,71 @@ export default function SearchEventResults() {
             }
 
             const racingEvents = await response.json()
+            console.log('📡 Racing events response:', racingEvents)
 
-            // Extract results based on selected discipline
-            const channelIndex = selectedDiscipline === Discipline.DOGS ? 0 : 1
-            const channel = racingEvents.channels?.[channelIndex]
+            // Always fetch from all racing channels (DOGS, HORSES, DOGS8)
+            const channelConfigs: Array<{
+              index: number
+              discipline: Discipline
+              name: string
+            }> = [
+              { index: 0, discipline: Discipline.DOGS, name: 'Dog' },
+              { index: 1, discipline: Discipline.HORSES, name: 'Horse' },
+              { index: 2, discipline: Discipline.DOGS8, name: 'Dog 8' },
+            ]
 
-            if (channel?.prev_events) {
-              const results: EventResult[] = await Promise.all(
-                channel.prev_events.map(async (event: any) => ({
-                  id: event.int_event_id,
-                  extId: event.ext_pal_id,
-                  name: `${selectedDiscipline === Discipline.DOGS ? 'Dog' : 'Horse'} Race ${event.int_event_id}`,
-                  startTime: new Date(event.time),
-                  discipline: selectedDiscipline,
-                  result: {
-                    podium:
-                      event.arrival?.map((competitor: any, index: number) => ({
-                        name: competitor.name,
-                        number: competitor.number,
-                        position: index + 1,
-                      })) || [],
-                    odds: {},
-                  },
-                })),
+            const allResults: EventResult[] = []
+
+            for (const config of channelConfigs) {
+              const channel = racingEvents.channels?.[config.index]
+              console.log(
+                `📊 Channel ${config.index} (${config.name}):`,
+                channel?.prev_events?.length || 0,
+                'events',
               )
 
-              setFetchedResults(results)
+              if (channel?.prev_events) {
+                const results: EventResult[] = await Promise.all(
+                  channel.prev_events.map(async (event: any) => ({
+                    id: event.int_event_id,
+                    extId: event.ext_pal_id,
+                    name: `${config.name} Race ${event.int_event_id}`,
+                    startTime: new Date(event.time),
+                    discipline: config.discipline,
+                    result: {
+                      podium:
+                        event.arrival?.map(
+                          (competitor: any, index: number) => ({
+                            name: competitor.name,
+                            number: competitor.number,
+                            position: index + 1,
+                          }),
+                        ) || [],
+                      odds: {},
+                    },
+                  })),
+                )
+                console.log(
+                  `✅ Added ${results.length} results from ${config.name}`,
+                )
+                allResults.push(...results)
+              }
             }
+
+            console.log('📦 Total results collected:', allResults.length)
+            console.log('📋 Results by discipline:', {
+              DOGS: allResults.filter((r) => r.discipline === Discipline.DOGS)
+                .length,
+              HORSES: allResults.filter(
+                (r) => r.discipline === Discipline.HORSES,
+              ).length,
+              DOGS8: allResults.filter((r) => r.discipline === Discipline.DOGS8)
+                .length,
+            })
+
+            setFetchedResults(allResults)
           } catch (error) {
-            console.error('Failed to fetch racing results:', error)
+            console.error('❌ Failed to fetch racing results:', error)
             setFetchedResults([])
           } finally {
             setIsLoading(false)
@@ -164,7 +221,9 @@ export default function SearchEventResults() {
             ? 'horses6'
             : discipline === Discipline.DOGS
               ? 'dogs6'
-              : `${discipline.toLowerCase()}6`
+              : discipline === Discipline.DOGS8
+                ? 'dogs8'
+                : `${discipline.toLowerCase()}6`
 
         const requestBody = {
           gameIds: [gameIds],
@@ -196,7 +255,8 @@ export default function SearchEventResults() {
 
         if (
           discipline === Discipline.HORSES ||
-          discipline === Discipline.DOGS
+          discipline === Discipline.DOGS ||
+          discipline === Discipline.DOGS8
         ) {
           results = await Promise.all(
             data.items.map(async (result: any) => {
@@ -356,8 +416,28 @@ export default function SearchEventResults() {
     const resultsToFilter = fetchedResults
 
     const filteredResults = resultsToFilter.filter((result) => {
-      if (result.discipline !== selectedDiscipline) {
-        return false
+      // For racing disciplines, show all racing results (DOGS, HORSES, DOGS8)
+      // instead of filtering by selected discipline
+      const isRacingDiscipline =
+        selectedDiscipline === Discipline.DOGS ||
+        selectedDiscipline === Discipline.HORSES ||
+        selectedDiscipline === Discipline.DOGS8
+
+      const isResultRacing =
+        result.discipline === Discipline.DOGS ||
+        result.discipline === Discipline.HORSES ||
+        result.discipline === Discipline.DOGS8
+
+      if (isRacingDiscipline) {
+        // If we selected a racing discipline, show all racing results
+        if (!isResultRacing) {
+          return false
+        }
+      } else {
+        // For non-racing disciplines (like SOCCER), filter normally
+        if (result.discipline !== selectedDiscipline) {
+          return false
+        }
       }
 
       if (selectedTimeSlot !== 'ALL') {
@@ -414,10 +494,10 @@ export default function SearchEventResults() {
 
   return (
     <div className="flex h-full flex-col gap-1">
-      <div className="flex flex-col items-center bg-accent p-2 h-16">
+      <div className="flex h-16 flex-col items-center bg-accent p-2">
         <div className="flex flex-wrap items-center gap-8">
-          <div className="flex flex-row items-center gap-2 bg-badge text-background w-[126px] h-[48px] mr-28">
-            <span className="whitespace-nowrap pl-2 text-[15px] font-semibold relative left-[14px] w-[89px]">
+          <div className="mr-28 flex h-[48px] w-[126px] flex-row items-center gap-2 bg-badge text-background">
+            <span className="relative left-[14px] w-[89px] whitespace-nowrap pl-2 text-[15px] font-semibold">
               {t('discipline').toUpperCase()}
             </span>
             <Select
@@ -430,11 +510,11 @@ export default function SearchEventResults() {
                 )
               }}
             >
-              <SelectTrigger className="min-w-[126px] border-none bg-background ml-[9px] text-[15px] text-foreground left-5 relative h-[48px] pl-[18px] pr-[5px]">
-                <SelectValue placeholder={t('sport')}/>
+              <SelectTrigger className="relative left-5 ml-[9px] h-[48px] min-w-[126px] border-none bg-background pl-[18px] pr-[5px] text-[15px] text-foreground">
+                <SelectValue placeholder={t('sport')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
-                <SelectItem value="NONE">{('None')}</SelectItem>
+                <SelectItem value="NONE">{'None'}</SelectItem>
                 {Object.values(Discipline).map((d) => (
                   <SelectItem key={d} value={d}>
                     {d}
@@ -453,14 +533,14 @@ export default function SearchEventResults() {
             />
             <label
               htmlFor="last10"
-              className="px-2 py-3 left-[18px] relative text-[15px] font-semibold text-background"
+              className="relative left-[18px] px-2 py-3 text-[15px] font-semibold text-background"
             >
               {t('last_10_games')}
             </label>
           </div>
 
-          <div className="flex flex-row items-center gap-2 bg-badge text-background h-[48px] w-[126px] right-[3px] relative">
-            <span className="whitespace-nowrap pl-2 text-[15px] font-semibold relative left-[35px]">
+          <div className="relative right-[3px] flex h-[48px] w-[126px] flex-row items-center gap-2 bg-badge text-background">
+            <span className="relative left-[35px] whitespace-nowrap pl-2 text-[15px] font-semibold">
               {t('date').toUpperCase()}
             </span>
             <Select
@@ -470,7 +550,7 @@ export default function SearchEventResults() {
               }}
               disabled={lastTenGames}
             >
-              <SelectTrigger className="min-w-[126px] ml-[51px] bg-background text-[14px] text-foreground h-[48px] relative left-5 border-none pl-[17px] pr-[5px]">
+              <SelectTrigger className="relative left-5 ml-[51px] h-[48px] min-w-[126px] border-none bg-background pl-[17px] pr-[5px] text-[14px] text-foreground">
                 <SelectValue placeholder={t('date')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
@@ -483,8 +563,8 @@ export default function SearchEventResults() {
             </Select>
           </div>
 
-          <div className="w-[126px] flex flex-row items-center gap-2 bg-badge text-background h-[48px] relative right-[11px] ml-[129px]">
-            <span className="whitespace-nowrap pl-2 text-[15px] font-semibold w-[105px] relative left-[10px]">
+          <div className="relative right-[11px] ml-[129px] flex h-[48px] w-[126px] flex-row items-center gap-2 bg-badge text-background">
+            <span className="relative left-[10px] w-[105px] whitespace-nowrap pl-2 text-[15px] font-semibold">
               {t('time_slot').toUpperCase()}
             </span>
             <Select
@@ -492,11 +572,11 @@ export default function SearchEventResults() {
               onValueChange={setSelectedTimeSlot}
               disabled={lastTenGames}
             >
-              <SelectTrigger className="min-w-[126px] bg-background text-[15px] ml-[27px] text-foreground h-[48px] border-none relative left-1 pl-[18px] pr-[15px]">
+              <SelectTrigger className="relative left-1 ml-[27px] h-[48px] min-w-[126px] border-none bg-background pl-[18px] pr-[15px] text-[15px] text-foreground">
                 <SelectValue placeholder={t('time_slot')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
-                <SelectItem value="ALL">{('All')}</SelectItem>
+                <SelectItem value="ALL">{'All'}</SelectItem>
                 {timeSlots.map((slot) => (
                   <SelectItem key={slot} value={slot}>
                     {slot}
@@ -508,7 +588,7 @@ export default function SearchEventResults() {
 
           <div className="flex flex-row items-center gap-2">
             <Button
-              className="text-bold w-[82px] bg-tertiary text-[15px] text-tertiary-foreground h-[48px] relative left-[100px]"
+              className="text-bold relative left-[100px] h-[48px] w-[82px] bg-tertiary text-[15px] text-tertiary-foreground"
               disabled={
                 !selectedDate && !selectedDiscipline && !selectedTimeSlot
               }
@@ -614,7 +694,8 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
 
   if (
     (eventResult.discipline === Discipline.HORSES ||
-      eventResult.discipline === Discipline.DOGS) &&
+      eventResult.discipline === Discipline.DOGS ||
+      eventResult.discipline === Discipline.DOGS8) &&
     detailedResult
   ) {
     if (
@@ -705,7 +786,11 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
     if (detailedResult.odds) {
       const raceResult = detailedResult as RaceResult
       const disciplineName =
-        eventResult.discipline === Discipline.HORSES ? 'Horse' : 'Dog'
+        eventResult.discipline === Discipline.HORSES
+          ? 'Horse'
+          : eventResult.discipline === Discipline.DOGS8
+            ? 'Dog 8'
+            : 'Dog'
 
       const formatSafeDate = (date: any): string => {
         try {
