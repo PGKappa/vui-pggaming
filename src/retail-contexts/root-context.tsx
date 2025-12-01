@@ -1216,6 +1216,10 @@ export default function RootContextProvider(props: {
 
         const dogs8Data = await response.json()
 
+        console.log('🐕 DOGS8 API Response:', dogs8Data)
+        console.log('🐕 Channels:', dogs8Data.channels)
+        console.log('🐕 Channel 2:', dogs8Data.channels?.[2])
+
         // Parse upcoming events from dogs8 channel (channel 2)
         const dogs8Channel = dogs8Data.channels?.[2]
         const upcomingDogs8Events: UpcomingEvent[] =
