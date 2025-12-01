@@ -700,6 +700,38 @@ export default function BettingSlip({
 
           // Opzione 2: PostMessage al parent (sempre, come fallback)
           try {
+            // Prepare system groups info if in SYSTEM mode
+            const systemGroupsInfo =
+              betMode === 'SYSTEM'
+                ? systemGroups
+                    .filter((group) => group.stake > 0)
+                    .map((group) => ({
+                      name: group.name,
+                      size: group.size,
+                      stake: group.stake,
+                      maxWin: group.maxWin,
+                      totalCombinations: group.combinations.length,
+                      combinations: group.combinations.map((combo) => {
+                        // Calculate odds for this combination
+                        const comboOdds = combo.reduce(
+                          (total, entry) => total * entry.bet.option.decPrice,
+                          1,
+                        )
+                        const comboPotentialWin = comboOdds * group.stake
+
+                        return {
+                          odds: comboOdds,
+                          potentialWin: comboPotentialWin,
+                          entries: combo.map((entry) => ({
+                            eventName: entry.bet.event.name || '',
+                            selection: entry.bet.option.outcome,
+                            odds: entry.bet.option.decPrice,
+                          })),
+                        }
+                      }),
+                    }))
+                : undefined
+
             window.parent.postMessage(
               {
                 source: 'v-ui',
@@ -709,6 +741,8 @@ export default function BettingSlip({
                   ticket: result.ticket,
                   print: result.print,
                   language: rootContext?.userData?.lang || 'en',
+                  betMode: betMode,
+                  ...(systemGroupsInfo && { systemGroups: systemGroupsInfo }),
                 },
               },
               '*',
