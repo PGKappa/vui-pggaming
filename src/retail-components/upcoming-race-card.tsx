@@ -159,7 +159,11 @@ export default function UpcomingRaceCard({
 
   // Helper per determinare se mostrare il pulsante info (solo per cani e cavalli)
   const shouldShowInfoButton = () => {
-    return race.discipline === 'DOGS' || race.discipline === 'HORSES'
+    return (
+      race.discipline === 'DOGS' ||
+      race.discipline === 'DOGS8' ||
+      race.discipline === 'HORSES'
+    )
   }
 
   useEffect(() => {
@@ -961,7 +965,7 @@ export default function UpcomingRaceCard({
         isOpen={isLatecomersDialogOpen}
         onOpenChange={setIsLatecomersDialogOpen}
         raceInfo={raceInfo}
-        discipline={race.discipline as 'DOGS' | 'HORSES'}
+        discipline={race.discipline as 'DOGS' | 'DOGS8' | 'HORSES'}
       />
     </>
   )

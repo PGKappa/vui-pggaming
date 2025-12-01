@@ -15,7 +15,7 @@ type LatecomersDialogProps = {
   isOpen: boolean
   onOpenChange: (open: boolean) => void
   raceInfo: UpcomingRace | undefined
-  discipline: 'DOGS' | 'HORSES'
+  discipline: 'DOGS' | 'DOGS8' | 'HORSES'
 }
 
 export default function LatecomersDialog({
@@ -29,7 +29,7 @@ export default function LatecomersDialog({
       return (
         <div key={racerNumber} className="flex items-center gap-2">
           <div
-            className={`flex h-8 w-8 items-center justify-center rounded text-[21px] pt-0.5 font-bold ${(() => {
+            className={`flex h-8 w-8 items-center justify-center rounded pt-0.5 text-[21px] font-bold ${(() => {
               const colors = getRacerColors(racerNumber, discipline)
               return `${colors.bg} ${colors.text} ${colors.border}`
             })()}`}
@@ -79,8 +79,8 @@ export default function LatecomersDialog({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-xl bg-accent p-0">
         {/* Header */}
-        <DialogHeader className="flex h-[64px] flex-row items-center justify-center bg-accent px-4 text-accent-foreground border-b border-b-grey">
-          <DialogTitle className="text-center text-[17px] font-semibold text-white pt-0.5">
+        <DialogHeader className="border-b-grey flex h-[64px] flex-row items-center justify-center border-b bg-accent px-4 text-accent-foreground">
+          <DialogTitle className="pt-0.5 text-center text-[17px] font-semibold text-white">
             {t('latecomers')}
           </DialogTitle>
         </DialogHeader>
@@ -109,7 +109,7 @@ export default function LatecomersDialog({
                       {item.market}
                     </TableCell>
                     <TableCell className="w-1/3 border-r border-border bg-white p-4">
-                      <div className="flex flex-wrap gap-4 text-[16px] ml-[15px]">
+                      <div className="ml-[15px] flex flex-wrap gap-4 text-[16px]">
                         {formatRacers(item.racers)}
                       </div>
                     </TableCell>
