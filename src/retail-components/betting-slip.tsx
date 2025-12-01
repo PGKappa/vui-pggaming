@@ -732,21 +732,20 @@ export default function BettingSlip({
                     }))
                 : undefined
 
-            window.parent.postMessage(
-              {
-                source: 'v-ui',
-                func: printFunctionName,
-                command: 'sell',
-                content: {
-                  ticket: result.ticket,
-                  print: result.print,
-                  language: rootContext?.userData?.lang || 'en',
-                  betMode: betMode,
-                  ...(systemGroupsInfo && { systemGroups: systemGroupsInfo }),
-                },
+            const postMessagePayload = {
+              source: 'v-ui',
+              func: printFunctionName,
+              command: 'sell',
+              content: {
+                ticket: result.ticket,
+                print: result.print,
+                language: rootContext?.userData?.lang || 'en',
+                betMode: betMode,
+                ...(systemGroupsInfo && { systemGroups: systemGroupsInfo }),
               },
-              '*',
-            )
+            }
+
+            window.parent.postMessage(postMessagePayload, '*')
           } catch {
             // Silently fail
           }
