@@ -63,7 +63,9 @@ export default function EventBets(props: {
               ? t('football')
               : eventBets[0].bet.discipline === 'DOGS'
                 ? t('dog') + ' ' + t('racing')
-                : t('horse') + ' ' + t('racing')}
+                : eventBets[0].bet.discipline === 'DOGS8'
+                  ? t('dog') + ' 8 ' + t('racing')
+                  : t('horse') + ' ' + t('racing')}
           </span>
 
           <div className="flex items-center gap-2">

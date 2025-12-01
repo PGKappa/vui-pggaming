@@ -179,9 +179,12 @@ export default function BettingSlip({
     }
 
     const hasDogs = disciplines.has(Discipline.DOGS)
+    const hasDogs8 = disciplines.has(Discipline.DOGS8)
     const hasHorses = disciplines.has(Discipline.HORSES)
 
-    if (hasDogs && hasHorses) {
+    if (hasDogs8) {
+      return 'dogs8'
+    } else if (hasDogs && hasHorses) {
       return 'dogs-horses'
     } else if (hasDogs) {
       return 'dogs'
@@ -606,13 +609,17 @@ export default function BettingSlip({
               ? 'horses6'
               : firstEntry.bet.discipline === 'DOGS'
                 ? 'dogs6'
-                : 'soccer'
+                : firstEntry.bet.discipline === 'DOGS8'
+                  ? 'dogs8'
+                  : 'soccer'
           const channelId =
             firstEntry.bet.discipline === 'HORSES'
               ? 3
               : firstEntry.bet.discipline === 'DOGS'
                 ? 4
-                : 1
+                : firstEntry.bet.discipline === 'DOGS8'
+                  ? 2
+                  : 1
 
           // DINAMICO: Prendi palimpsestId dall'evento se disponibile
           const eventAny = firstEntry.bet.event as any
@@ -623,7 +630,9 @@ export default function BettingSlip({
             selectedEvent?.palimpsestId ||
             (firstEntry.bet.discipline === 'HORSES'
               ? '1000003504'
-              : '1000003502')
+              : firstEntry.bet.discipline === 'DOGS8'
+                ? '1000003817'
+                : '1000003502')
 
           return {
             gameId: gameId,
