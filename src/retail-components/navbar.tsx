@@ -20,6 +20,13 @@ export default function Navbar() {
   const { eventResults, setSearchEventResults } = useContext(RootContext)
   const [isInfoDialogOpen, setIsInfoDialogOpen] = useState(false)
 
+  // Path flags to avoid substring collisions (e.g. '/retail/dogs' vs '/retail/dogs8')
+  const pathnameSafe = pathname || ''
+  const isDogsHorsesActive = pathnameSafe.includes('/retail/dogs-horses')
+  const isDogs8Active = pathnameSafe.includes('/retail/dogs8')
+  const isDogsActive = /^\/retail\/dogs(\/|$)/.test(pathnameSafe)
+  const isHorsesActive = pathnameSafe.includes('/retail/horses')
+
   // Helper per determinare il link info basato sulla pagina
   const getInfoLink = () => {
     if (pathname.includes('/calcio')) {
@@ -44,9 +51,7 @@ export default function Navbar() {
           href={`/retail/dogs-horses${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
             'flex h-12 w-28 flex-row items-center justify-between px-4 py-1 text-foreground transition-colors',
-            pathname.includes('/retail/dogs-horses')
-              ? 'bg-tertiary'
-              : 'bg-secondary',
+            isDogsHorsesActive ? 'bg-tertiary' : 'bg-secondary',
           )}
         >
           <Image
@@ -69,8 +74,7 @@ export default function Navbar() {
           href={`/retail/dogs${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
             'flex h-12 w-24 flex-row items-center justify-center px-4 py-1 text-foreground transition-colors',
-            pathname.includes('/retail/dogs') &&
-              !pathname.includes('/retail/dogs-horses')
+            isDogsActive && !isDogsHorsesActive && !isDogs8Active
               ? 'bg-tertiary'
               : 'bg-secondary',
           )}
@@ -90,7 +94,7 @@ export default function Navbar() {
           href={`/retail/dogs8${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
             'relative flex h-12 w-24 flex-row items-center justify-center px-4 py-1 text-foreground transition-colors',
-            pathname.includes('/retail/dogs8') ? 'bg-tertiary' : 'bg-secondary',
+            isDogs8Active ? 'bg-tertiary' : 'bg-secondary',
           )}
         >
           <Image
@@ -109,9 +113,7 @@ export default function Navbar() {
           href={`/retail/horses${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
             'flex h-12 w-24 flex-row items-center justify-center px-4 py-1 text-foreground transition-colors',
-            pathname.includes('/retail/horses')
-              ? 'bg-tertiary'
-              : 'bg-secondary',
+            isHorsesActive ? 'bg-tertiary' : 'bg-secondary',
           )}
         >
           <Image
