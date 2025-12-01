@@ -1,0 +1,125 @@
+'use client'
+import BettingSlip from '@/retail-components/betting-slip'
+import SearchEventResults from '@/retail-components/search-event-results'
+import SkeletonRaceCard from '@/retail-components/skeleton-race-card'
+import { ScrollArea } from '@/retail-components/ui/scroll-area'
+import { UpcomingEventsCarousel } from '@/retail-components/upcoming-events-carousel'
+import UpcomingRaceCard from '@/retail-components/upcoming-race-card'
+import { RootContext } from '@/retail-contexts/root-context'
+import { UpcomingEvent, Discipline } from '@/retail-lib/types'
+import {
+  getCarouselFilteredEvents,
+  getFutureEventsFromCarousel,
+} from '@/retail-lib/carousel-sync'
+import { useContext, useEffect, useState, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
+
+export default function Dogs8Page() {
+  const { t } = useTranslation()
+  const {
+    upcomingEvents,
+    searchEventResults,
+    setSearchEventResults,
+    isLoadingEvents,
+  } = useContext(RootContext)
+
+  const [selectedEvent, setSelectedEvent] = useState<UpcomingEvent | undefined>(
+    undefined,
+  )
+
+  // SINCRONIZZAZIONE PERFETTA CON CAROSELLO - DOGS8
+  const carouselEvents = useMemo(
+    () => getCarouselFilteredEvents(upcomingEvents, [Discipline.DOGS8]),
+    [upcomingEvents],
+  )
+
+  const futureEvents = useMemo(
+    () => getFutureEventsFromCarousel(carouselEvents),
+    [carouselEvents],
+  )
+
+  // AUTO-SELEZIONE: Sempre primo evento del carosello
+  useEffect(() => {
+    if (futureEvents && futureEvents.length > 0 && futureEvents[0]) {
+      setSelectedEvent(futureEvents[0])
+    } else if (carouselEvents && carouselEvents.length > 0) {
+      setSelectedEvent(carouselEvents[0])
+    } else {
+      setSelectedEvent(undefined)
+    }
+  }, [futureEvents, carouselEvents])
+
+  // AUTO-AGGIORNAMENTO
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (selectedEvent) {
+        const now = new Date()
+        const eventTime =
+          selectedEvent.time instanceof Date
+            ? selectedEvent.time
+            : new Date(selectedEvent.time)
+
+        if (eventTime <= now) {
+          // Refresh degli eventi
+          const freshFutureEvents = getFutureEventsFromCarousel(
+            getCarouselFilteredEvents(upcomingEvents, [Discipline.DOGS8]),
+          )
+
+          if (freshFutureEvents.length > 0) {
+            setSelectedEvent(freshFutureEvents[0])
+          } else {
+            // Nessun evento futuro, prendi il più recente
+            const allEvents = getCarouselFilteredEvents(upcomingEvents, [
+              Discipline.DOGS8,
+            ])
+            if (allEvents.length > 0) {
+              setSelectedEvent(allEvents[allEvents.length - 1])
+            }
+          }
+        }
+      }
+    }, 5000)
+
+    return () => clearInterval(interval)
+  }, [selectedEvent, upcomingEvents])
+
+  return (
+    <div className="relative bottom-[5px] flex h-full flex-row overflow-hidden">
+      <div className="flex flex-col">
+        <div className="flex h-[80px] w-[1508px] flex-row items-center justify-center bg-accent bg-white pr-2">
+          <UpcomingEventsCarousel
+            selectedEvent={selectedEvent}
+            setSelectedEvent={(event) => {
+              setSelectedEvent(event)
+              setSearchEventResults(undefined)
+            }}
+          />
+        </div>
+
+        {/* Main content area */}
+        <div className="flex h-full flex-row gap-2 overflow-hidden bg-muted-foreground pr-2 pt-[4px]">
+          <div className="flex h-[942px] w-[1500px] flex-col gap-2 overflow-y-auto">
+            <ScrollArea className="h-full w-full">
+              {!!searchEventResults ? (
+                <SearchEventResults />
+              ) : isLoadingEvents ? (
+                <SkeletonRaceCard />
+              ) : selectedEvent ? (
+                <UpcomingRaceCard race={selectedEvent} />
+              ) : (
+                <div className="flex h-full items-center justify-center">
+                  {t('no_event_selected')}
+                </div>
+              )}
+            </ScrollArea>
+          </div>
+        </div>
+      </div>
+
+      {/* RIGHT COLUMN - Betting slip */}
+      <div className="h-[942px] w-[410px] bg-background text-foreground">
+        <BettingSlip selectedEvent={selectedEvent} />
+      </div>
+    </div>
+  )
+}
