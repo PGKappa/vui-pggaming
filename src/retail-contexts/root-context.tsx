@@ -16,7 +16,6 @@ import {
   createPGVirtualAPICall,
   SOCCER_API_URL,
   fetchCashierInit,
-  API_URLS,
 } from '@/retail-lib/utils'
 import { createContext, useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -1206,7 +1205,7 @@ export default function RootContextProvider(props: {
 
       try {
         const response = await createPGVirtualAPICall(
-          API_URLS.DOGS8_INFO,
+          '/api/event/list',
           initCode,
         )
 
