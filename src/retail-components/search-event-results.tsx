@@ -414,7 +414,7 @@ export default function SearchEventResults() {
 
   return (
     <div className="flex h-full flex-col gap-1">
-      <div className="flex flex-col items-center bg-accent p-2 h-16">
+      <div className="flex flex-col items-center bg-accent p-2 h-16 pr-[161px]">
         <div className="flex flex-wrap items-center gap-8">
           <div className="flex flex-row items-center gap-2 bg-badge text-background w-[0px] h-[48px] mr-28">
             
@@ -442,7 +442,7 @@ export default function SearchEventResults() {
             </Select>
           </div>
 
-          <div className="flex flex-row items-center">
+          <div className="flex flex-row items-center relative left-1">
             <Checkbox
               id="last10"
               className="h-6 w-6 bg-background text-foreground"
@@ -451,13 +451,13 @@ export default function SearchEventResults() {
             />
             <label
               htmlFor="last10"
-              className="px-2 py-3 right-[1px] relative text-[15px] font-semibold text-background"
+              className="px-2 py-3  relative text-[15px] font-semibold text-background"
             >
               {t('last_10_games')}
             </label>
           </div>
 
-          <div className="flex flex-row items-center gap-2 bg-badge text-background h-[48px] w-[0px] right-[3px] relative">
+          <div className="flex flex-row items-center gap-2 bg-badge text-background h-[48px] w-[0px] right-[4px] relative">
             
             <Select
               value={selectedDate}
@@ -486,7 +486,7 @@ export default function SearchEventResults() {
               onValueChange={setSelectedTimeSlot}
               disabled={lastTenGames}
             >
-              <SelectTrigger className="min-w-[186px] bg-background text-[15px] ml-[27px] text-foreground h-[48px] border-none relative left-1 pl-[18px] pr-[15px]">
+              <SelectTrigger className="min-w-[186px] bg-background text-[15px] ml-[27px] text-foreground h-[48px] border-none relative left-[9px] pl-[18px] pr-[15px]">
                 <SelectValue placeholder={t('time_slot')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
@@ -502,7 +502,7 @@ export default function SearchEventResults() {
 
           <div className="flex flex-row items-center gap-2">
             <Button
-              className="text-bold w-[186px] bg-tertiary text-[15px] text-tertiary-foreground h-[48px] relative left-[186px]"
+              className="text-bold w-[186px] bg-tertiary text-[15px] text-tertiary-foreground h-[48px] relative left-[203px]"
               disabled={
                 !selectedDate && !selectedDiscipline && !selectedTimeSlot
               }
@@ -1182,8 +1182,11 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                   {raceResult.odds.evenodd.even && (
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
-                        {t('even')}: {raceResult.odds.evenodd.even}
+                        {t('even')}: 
+                      </div> <div>
+                        {raceResult.odds.evenodd.even}
                       </div>
+                      
                     </div>
                   )}
                   {raceResult.odds.evenodd.odd && (
