@@ -1318,11 +1318,22 @@ export default function RootContextProvider(props: {
 
         if (
           areas.includes(Discipline.DOGS) ||
-          areas.includes(Discipline.HORSES)
+          areas.includes(Discipline.HORSES) ||
+          areas.includes(Discipline.DOGS8)
         ) {
-          loadCachedRacingEvents()
-        } else if (areas.includes(Discipline.DOGS8)) {
-          loadCachedDogs8Events()
+          // Load both caches if we have both types of racing
+          if (
+            areas.includes(Discipline.DOGS8) &&
+            (areas.includes(Discipline.DOGS) ||
+              areas.includes(Discipline.HORSES))
+          ) {
+            loadCachedRacingEvents()
+            loadCachedDogs8Events()
+          } else if (areas.includes(Discipline.DOGS8)) {
+            loadCachedDogs8Events()
+          } else {
+            loadCachedRacingEvents()
+          }
         } else if (areas.includes(Discipline.SOCCER)) {
           loadCachedSoccerEvents()
         }
