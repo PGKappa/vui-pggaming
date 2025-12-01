@@ -50,7 +50,7 @@ export default function Navbar() {
         <Link
           href={`/retail/dogs-horses${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
-            'flex h-12 w-28 flex-row items-center justify-between px-4 py-1 text-foreground transition-colors',
+            'relative flex h-12 w-28 flex-row items-center justify-between px-4 py-1 text-foreground transition-colors',
             isDogsHorsesActive ? 'bg-tertiary' : 'bg-secondary',
           )}
         >
@@ -68,12 +68,15 @@ export default function Navbar() {
             height={20}
             className="size-8 object-contain"
           />
+          <span className="absolute bottom-1 right-1 rounded px-1 text-[10px] font-bold text-primary-foreground">
+            6
+          </span>
         </Link>
 
         <Link
           href={`/retail/dogs${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
-            'flex h-12 w-24 flex-row items-center justify-center px-4 py-1 text-foreground transition-colors',
+            'relative flex h-12 w-24 flex-row items-center justify-center px-4 py-1 text-foreground transition-colors',
             isDogsActive && !isDogsHorsesActive && !isDogs8Active
               ? 'bg-tertiary'
               : 'bg-secondary',
@@ -86,6 +89,9 @@ export default function Navbar() {
             height={20}
             className="size-8 object-contain"
           />
+          <span className="absolute bottom-1 right-2 rounded px-1 text-[10px] font-bold text-primary-foreground">
+            6
+          </span>
           {/* 
           <span className="text-[16px] font-bold">{t('ch1')}</span> */}
         </Link>
@@ -112,7 +118,7 @@ export default function Navbar() {
         <Link
           href={`/retail/horses${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
-            'flex h-12 w-24 flex-row items-center justify-center px-4 py-1 text-foreground transition-colors',
+            'relative flex h-12 w-24 flex-row items-center justify-center px-4 py-1 text-foreground transition-colors',
             isHorsesActive ? 'bg-tertiary' : 'bg-secondary',
           )}
         >
@@ -123,6 +129,9 @@ export default function Navbar() {
             height={20}
             className="size-8 object-contain"
           />
+          <span className="absolute bottom-1 right-2 rounded px-1 text-[10px] font-bold text-primary-foreground">
+            6
+          </span>
           {/* 
           <span className="text-[16px] font-bold">{t('ch3')}</span> */}
         </Link>
