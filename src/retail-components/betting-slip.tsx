@@ -708,6 +708,7 @@ export default function BettingSlip({
                 content: {
                   ticket: result.ticket,
                   print: result.print,
+                  language: rootContext?.userData?.lang || 'en',
                 },
               },
               '*',
