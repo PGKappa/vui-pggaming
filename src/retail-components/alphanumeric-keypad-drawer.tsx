@@ -107,11 +107,11 @@ export default function AlphanumericKeypadDrawer(props: {
     >
       <DrawerTrigger asChild>
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 z-10 h-6 w-6 -translate-y-1/2 text-background" />
+          <Search className="absolute left-3 top-1/2 z-10 h-6 w-6 -translate-y-1/2 text-black" />
           <Input
             type="text"
             value={value}
-            className="h-10 w-full bg-accent pl-10 text-center text-[19px] font-bold text-accent-foreground"
+            className="h-10 w-full bg-white pl-10 text-center text-[16px] font-normal text-black placeholder:text-black"
             placeholder={props.placeholder || 'FASTBET'}
             readOnly
             onClick={openDrawer}
