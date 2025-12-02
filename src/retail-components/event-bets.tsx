@@ -20,23 +20,22 @@ export default function EventBets(props: {
   const { betMode, eventKey, eventBets } = props
   const { removeBet, removeEventBets, toggleEventBetsFixed } =
     useContext(BetsContext)
-  const rootContext = useContext(RootContext)
-  const getTrackName =
-    rootContext?.getTrackName || ((channel?: number) => `Track ${channel || 6}`)
 
   const timeToMatchStart = useTimeLeft(eventBets[0].bet.event.startingAt)
 
   return (
     <li>
-      <div className="flex flex-col gap-0 border border-betSlip-foreground p-1 h-[91px]">
+      <div className="flex h-[91px] flex-col gap-0 border border-betSlip-foreground p-1">
         <div className="flex flex-row justify-between">
           <div className={betMode === 'SYSTEM' ? 'visible' : 'invisible'}>
-            <div className="flex flex-row items-center gap-2 pl-1 relative bottom-[1px]">
+            <div className="relative bottom-[1px] flex flex-row items-center gap-2 pl-1">
               <Checkbox
                 checked={eventBets[0].fixed}
                 onCheckedChange={() => toggleEventBetsFixed(eventKey)}
               />
-              <span className="text-[12px] mt-[5px] pb-1 relative right-[1px] font-semibold">{t('fixed')}</span>
+              <span className="relative right-[1px] mt-[5px] pb-1 text-[12px] font-semibold">
+                {t('fixed')}
+              </span>
             </div>
           </div>
           <Button
@@ -55,8 +54,8 @@ export default function EventBets(props: {
           </Button>
         </div>
 
-        <div className="flex items-center justify-between mt-[1px] relative bottom-0">
-          <span className="ml-[3px] top-[1px] relative text-[15px] font-semibold">
+        <div className="relative bottom-0 mt-[1px] flex items-center justify-between">
+          <span className="relative top-[1px] ml-[3px] text-[15px] font-semibold">
             {eventBets[0].bet.discipline === 'SOCCER'
               ? t('football')
               : eventBets[0].bet.discipline === 'DOGS'
@@ -68,7 +67,7 @@ export default function EventBets(props: {
             <span className="relative left-[1px] top-[1px] text-[15px] font-bold tabular-nums">
               {format(eventBets[0].bet.event.startingAt, 'HH:mm')}
             </span>
-            <Badge className="mr-[4px] h-[27px] w-[61px] justify-center bg-accent items-center text-[14px] tabular-nums text-[#99a6b1]">
+            <Badge className="mr-[4px] h-[27px] w-[61px] items-center justify-center bg-accent text-[14px] tabular-nums text-[#99a6b1]">
               {timeToMatchStart}
             </Badge>
           </div>
@@ -76,23 +75,25 @@ export default function EventBets(props: {
         {eventBets[0].bet.discipline === 'SOCCER' ? (
           <span className="text-[16px]">{eventBets[0].bet.competitors}</span>
         ) : (
-          <span className="text-[14px] pb-[4px] ml-[3px] uppercase relative bottom-[1px]">
-             {eventBets[0].bet.track || getTrackName(6)}
+          <span className="relative bottom-[1px] ml-[3px] pb-[4px] text-[14px] uppercase">
+            {t('track_6')}
           </span>
         )}
       </div>
 
-      <div className="border border-betSlip-foreground bg-primary-foreground pl-2 pr-[1px] border-t-0 pb-[1px] -space-y-[6px]">
+      <div className="-space-y-[6px] border border-t-0 border-betSlip-foreground bg-primary-foreground pb-[1px] pl-2 pr-[1px]">
         {eventBets.map((betEntry) => (
           <div
             key={betEntry.id}
             className="flex items-center justify-between text-sm"
           >
-            <span className="text-[13px] mt-[1px] mr-[1px] ">{betEntry.market}</span>
-            <span className="text-[13px] font-normal mt-[2px]">
+            <span className="mr-[1px] mt-[1px] text-[13px]">
+              {betEntry.market}
+            </span>
+            <span className="mt-[2px] text-[13px] font-normal">
               {betEntry.bet.option.outcome}
             </span>
-            <span className="text-[13px] mt-[2px]">
+            <span className="mt-[2px] text-[13px]">
               {betEntry.bet.option.decPrice.toFixed(2)}
             </span>
             <Button
@@ -106,7 +107,7 @@ export default function EventBets(props: {
                 )
               }
             >
-              <CircleXIcon className="mt-[1px] scale-[1.4] h-[17px]"/>
+              <CircleXIcon className="mt-[1px] h-[17px] scale-[1.4]" />
             </Button>
           </div>
         ))}
