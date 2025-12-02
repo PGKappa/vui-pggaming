@@ -20,9 +20,6 @@ export default function EventBets(props: {
   const { betMode, eventKey, eventBets } = props
   const { removeBet, removeEventBets, toggleEventBetsFixed } =
     useContext(BetsContext)
-  const rootContext = useContext(RootContext)
-  const getTrackName =
-    rootContext?.getTrackName || ((channel?: number) => `Track ${channel || 6}`)
 
   const timeToMatchStart = useTimeLeft(eventBets[0].bet.event.startingAt)
 
@@ -77,7 +74,7 @@ export default function EventBets(props: {
           <span className="text-[16px]">{eventBets[0].bet.competitors}</span>
         ) : (
           <span className="text-[14px] pb-[4px] ml-[3px] uppercase relative bottom-[1px]">
-             {eventBets[0].bet.track || getTrackName(6)}
+             {t('track_6')}
           </span>
         )}
       </div>
