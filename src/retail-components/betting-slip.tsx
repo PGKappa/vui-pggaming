@@ -763,7 +763,6 @@ export default function BettingSlip({
                     eventName: getTranslatedEventName(entry.bet.discipline),
                     eventStartTime: entry.bet.event.startingAt,
                     discipline: entry.bet.discipline,
-                    competitorName: entry.bet.competitors || '',
                     channelId: channelId,
                     trackName: trackName,
                     markets: [],
@@ -771,6 +770,7 @@ export default function BettingSlip({
                 }
                 groups[eventId].markets.push({
                   market: entry.market,
+                  competitorName: entry.bet.competitors || '',
                   selection: entry.bet.option.outcome,
                   odds: entry.bet.option.decPrice,
                 })
@@ -783,11 +783,11 @@ export default function BettingSlip({
                   eventName: string
                   eventStartTime: Date
                   discipline: string
-                  competitorName: string
                   channelId: number
                   trackName: string
                   markets: Array<{
                     market: string
+                    competitorName: string
                     selection: string
                     odds: number
                   }>
