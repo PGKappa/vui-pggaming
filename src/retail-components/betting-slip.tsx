@@ -724,6 +724,7 @@ export default function BettingSlip({
                           potentialWin: comboPotentialWin,
                           entries: combo.map((entry) => ({
                             eventName: entry.bet.event.name || '',
+                            competitorName: entry.bet.competitors || '',
                             selection: entry.bet.option.outcome,
                             odds: entry.bet.option.decPrice,
                           })),
