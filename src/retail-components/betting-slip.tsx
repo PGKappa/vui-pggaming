@@ -700,6 +700,18 @@ export default function BettingSlip({
 
           // Opzione 2: PostMessage al parent (sempre, come fallback)
           try {
+            // Prepare bet details for all modes
+            const betsInfo = betEntries.map((entry) => ({
+              eventId: entry.bet.event.number,
+              eventName: entry.bet.event.name || '',
+              discipline: entry.bet.discipline,
+              market: entry.market,
+              competitorName: entry.bet.competitors || '',
+              selection: entry.bet.option.outcome,
+              odds: entry.bet.option.decPrice,
+              track: entry.bet.track,
+            }))
+
             // Prepare system groups info if in SYSTEM mode
             const systemGroupsInfo =
               betMode === 'SYSTEM'
@@ -709,6 +721,7 @@ export default function BettingSlip({
                       name: group.name,
                       size: group.size,
                       stake: group.stake,
+                      minWin: group.minWin,
                       maxWin: group.maxWin,
                       totalCombinations: group.combinations.length,
                       combinations: group.combinations.map((combo) => {
@@ -742,9 +755,22 @@ export default function BettingSlip({
                 print: result.print,
                 language: rootContext?.userData?.lang || 'en',
                 betMode: betMode,
+                bets: betsInfo,
+                ...(betMode === 'SINGLE' || betMode === 'MULTIPLE'
+                  ? {
+                      totalOdds: totalOdds,
+                      stake: global,
+                      potentialWin: potentialWinning,
+                    }
+                  : {}),
                 ...(systemGroupsInfo && { systemGroups: systemGroupsInfo }),
               },
             }
+
+            console.log(
+              '📤 PostMessage JSON:',
+              JSON.stringify(postMessagePayload, null, 2),
+            )
 
             window.parent.postMessage(postMessagePayload, '*')
           } catch {
