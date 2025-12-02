@@ -528,7 +528,7 @@ export default function UpcomingRaceCard({
               pressed={position2Selection.includes(racer.number)}
               onPressedChange={() => togglePosition2Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className="h-12 w-[118px] border-betEntry-border left-[1px] relative pt-[3px]"
+              className="h-12 w-[118px] border-betEntry-border left-[2px] relative pt-[3px]"
             >
               <span className="text-[19px]">2°</span>
             </Toggle>
@@ -570,7 +570,7 @@ export default function UpcomingRaceCard({
                   pressed={disorderSelection.includes(racer.number)}
                   onPressedChange={() => toggleDisorderSelection(racer.number)}
                   onClick={(e) => e.stopPropagation()}
-                  className="h-12 w-[117px] border-betEntry-border right-[3px] relative pt-[3px]"
+                  className="h-12 w-[117px] border-betEntry-border right-[4px] relative pt-[3px]"
                 >
                   {disorderSelection.includes(racer.number) && (
                     <Check
@@ -638,13 +638,13 @@ export default function UpcomingRaceCard({
               onClick={handleMarketTypeToggle}
             >
               <div
-                className={`flex flex-1 items-center justify-center py-2 ${!isAnyOrderMode ? 'bg-gray-300' : ''}`}
+                className={`flex flex-1 items-center justify-center py-2 pl-[2px] ${!isAnyOrderMode ? 'bg-gray-300' : ''}`}
               >
                 <Toggle
                   pressed={fixedSelection.includes(racer.number)}
                   onPressedChange={() => toggleFixedSelection(racer.number)}
                   onClick={(e) => e.stopPropagation()}
-                  className={`h-12 w-[56px] border-betEntry-border relative left-[19px] pt-[3px] ${
+                  className={`h-12 w-[56px] border-betEntry-border relative left-[17px] pt-[3px] ${
                     fixedSelection.includes(racer.number) ? 'text-white' : ''
                   }`}
                 >
@@ -825,6 +825,7 @@ export default function UpcomingRaceCard({
                 {config.name}
               </Button>
             ))}
+            <span className='text-[15px] relative left-[922px]'>ID 241</span>
           </div>
 
           <div className="flex items-center gap-2">

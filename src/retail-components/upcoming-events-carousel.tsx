@@ -130,21 +130,22 @@ function UpcomingEventItem(props: {
         />
       </div>
       <div className="flex flex-col items-start pr-[1px]">
-        <span className='text-[15] relative top-[4px] font-semibold'>
+        <span className='text-[14px] relative top-[3px] font-semibold'>
           {event.discipline === 'SOCCER'
             ? event.name
             : `${event.name} ${t('racing')}`}
         </span>
 
-        <span className="text-[14px] font-normal relative bottom-[0px]">
+        <span className="text-[13px] font-semibold relative top-[1px]">
           {event.discipline === 'SOCCER' ? t('round') : t('event')} {event.id}
         </span>
         <div className="flex flex-row gap-2">
           <span className="font-semibold text-[14px] relative bottom-[2px]">{event.startTime}</span>
-          <span className="text-[14px] font-semibold  absolute pl-[45px] py-0 bottom-[3px] text-[#99a6b1]">{timeToEventStart}</span>
+          <span className="text-[14px] font-semibold  absolute pl-[45px] py-0 bottom-[4px] text-[#99a6b1]">{timeToEventStart}</span>
           
         </div>
       </div>
     </CarouselItem>
   )
 }
+

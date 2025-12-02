@@ -586,10 +586,10 @@ export default function BetCombinationsTable({
   return (
     <Card className="mt-2">
       <CardHeader className="flex h-14 items-center justify-center bg-accent px-3 text-accent-foreground">
-        <CardTitle className="justify-center text-[16px]  text-white">
+        <CardTitle className="ml-[388px] text-[16px] text-white">
           {getTitle()}
         </CardTitle>
-        <div className="flex gap-2 relative left-[4px]">
+        <div className="flex gap-2 relative left-[3px]">
           <Button
             variant="navbar"
             className="h-10 w-40 px-3 text-[15px] font-bold text-white pt-[1px]"
@@ -619,8 +619,8 @@ export default function BetCombinationsTable({
               : `${t('select_all').toUpperCase()}`}
           </Button>
 
-          <div className="flex h-10 min-w-[54px] items-center justify-center rounded-[2px] bg-accent-foreground px-3 text-accent">
-            <span className="text-[15px] font-bold pt-[1px]">{combinations.length}</span>
+          <div className="flex h-10 min-w-[55px] items-center justify-center rounded-[2px] bg-accent-foreground px-3 text-accent">
+            <span className="text-[16px] font-bold pt-[1px]">{combinations.length}</span>
           </div>
         </div>
       </CardHeader>
