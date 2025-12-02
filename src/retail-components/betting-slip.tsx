@@ -718,17 +718,57 @@ export default function BettingSlip({
               }
             }
 
+            // Helper to get channelId based on discipline
+            const getChannelId = (discipline: string) => {
+              switch (discipline) {
+                case 'DOGS':
+                  return 4
+                case 'HORSES':
+                  return 3
+                case 'DOGS8':
+                  return 2
+                case 'SOCCER':
+                  return 1
+                default:
+                  return 0
+              }
+            }
+
+            // Helper to get track number (6 or 8 runners) based on discipline
+            const getTrackNumber = (discipline: string) => {
+              switch (discipline) {
+                case 'DOGS':
+                case 'HORSES':
+                  return 6
+                default:
+                  return 6
+              }
+            }
+
+            // Helper to build trackName with translation
+            const buildTrackName = (discipline: string) => {
+              const trackNumber = getTrackNumber(discipline)
+              return t(`track_${trackNumber}`)
+            }
+
             // Prepare bet details for all modes
-            const betsInfo = betEntries.map((entry) => ({
-              eventId: entry.bet.event.number,
-              eventName: getTranslatedEventName(entry.bet.discipline),
-              discipline: entry.bet.discipline,
-              market: entry.market,
-              competitorName: entry.bet.competitors || '',
-              selection: entry.bet.option.outcome,
-              odds: entry.bet.option.decPrice,
-              track: entry.bet.track || '',
-            }))
+            const betsInfo = betEntries.map((entry) => {
+              const channelId = getChannelId(entry.bet.discipline)
+              const trackName = buildTrackName(entry.bet.discipline)
+
+              return {
+                eventId: entry.bet.event.number,
+                eventName: getTranslatedEventName(entry.bet.discipline),
+                eventStartTime: entry.bet.event.startingAt,
+                discipline: entry.bet.discipline,
+                market: entry.market,
+                competitorName: entry.bet.competitors || '',
+                selection: entry.bet.option.outcome,
+                odds: entry.bet.option.decPrice,
+                channelId: channelId,
+                trackName: trackName,
+              }
+            })
 
             // Prepare system groups info if in SYSTEM mode
             const systemGroupsInfo =
