@@ -700,8 +700,8 @@ export default function UpcomingRaceCard({
               </div>
             </div>
 
-            <div className="flex h-16">
-              <div className="flex flex-1 items-center justify-between border-b pl-16 ">
+            <div className="flex h-[66px]">
+              <div className="flex flex-1 items-center justify-between border-b pl-16 text-[1px] ">
                 <BetEntryToggle
                   marketName="Even/Odd"
                   bet={{
@@ -719,7 +719,7 @@ export default function UpcomingRaceCard({
                     track: getTrackName(6),
                   }}
                   variant="matchcard"
-                  className="h-[45px] w-full text-[16px] text-black"
+                  className="h-[49px] w-full text-[16px] text-black"
                 />
               </div>
 
@@ -741,7 +741,7 @@ export default function UpcomingRaceCard({
                     track: getTrackName(6),
                   }}
                   variant="matchcard"
-                  className="h-[45px] w-full text-[16px] text-black"
+                  className="h-[49px] w-full text-[16px] text-black"
                 />
               </div>
             </div>
@@ -755,7 +755,7 @@ export default function UpcomingRaceCard({
               </div>
             </div>
 
-            <div className="flex h-16">
+            <div className="flex h-[66px]">
               <div className="flex flex-1 items-center justify-between border-b  pl-16">
                 <BetEntryToggle
                   marketName="Under/Over"
@@ -776,7 +776,7 @@ export default function UpcomingRaceCard({
                     track: getTrackName(6),
                   }}
                   variant="matchcard"
-                  className="h-[45px] w-full text-[16px] text-black"
+                  className="h-[49px] w-full text-[16px] text-black"
                 />
               </div>
 
@@ -800,7 +800,7 @@ export default function UpcomingRaceCard({
                     track: getTrackName(6),
                   }}
                   variant="matchcard"
-                  className="h-[45px] w-full text-[16px] text-black"
+                  className="h-[49px] w-full text-[16px] text-black"
                 />
               </div>
             </div>
@@ -854,6 +854,7 @@ export default function UpcomingRaceCard({
               >
                 <span>{'Latecomers'.toUpperCase()}</span>
               </Button>
+              
             )}
           </div>
         </CardHeader>
@@ -873,7 +874,7 @@ export default function UpcomingRaceCard({
                     <TableCell className="relative left-1 p-2 text-[18px]">
                       <div className="flex items-center gap-[7px]">
                         <div
-                          className="flex h-8 w-8 items-center justify-center rounded-md pt-0.5 text-[21px] font-bold"
+                          className="flex h-[33px] w-[33px] items-center justify-center rounded-md pt-0 text-[21px] font-bold"
                           style={
                             getRacerColors(
                               racer.number,
@@ -884,7 +885,7 @@ export default function UpcomingRaceCard({
                           {racer.number}
                         </div>
                         <div>
-                          <div className="font-semibold">{racer.name}</div>
+                          <div className="font-semibold text-[17px] pt-0.5 pl-1">{racer.name}</div>
                         </div>
                       </div>
                     </TableCell>

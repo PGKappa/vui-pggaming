@@ -136,7 +136,7 @@ function UpcomingEventItem(props: {
             : `${event.name} ${t('racing')}`}
         </span>
 
-        <span className="text-[13px] font-semibold relative top-[1px]">
+        <span className="text-[13px] font-normal relative top-[1px]">
           {event.discipline === 'SOCCER' ? t('round') : t('event')} {event.id}
         </span>
         <div className="flex flex-row gap-2">
