@@ -651,7 +651,10 @@ export default function BettingSlip({
                 system: Object.fromEntries(
                   systemGroups
                     .filter((group) => group.stake > 0)
-                    .map((group) => [group.size.toString(), group.stake]),
+                    .map((group) => [
+                      group.size.toString(),
+                      group.stake * group.combinations.length,
+                    ]),
                 ),
               }
             : {
