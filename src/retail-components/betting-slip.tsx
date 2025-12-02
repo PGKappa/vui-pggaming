@@ -751,24 +751,51 @@ export default function BettingSlip({
               return t(`track_${trackNumber}`)
             }
 
-            // Prepare bet details for all modes
-            const betsInfo = betEntries.map((entry) => {
-              const channelId = getChannelId(entry.bet.discipline)
-              const trackName = buildTrackName(entry.bet.discipline)
+            // Prepare bet details for all modes - group by event
+            const eventGroups = betEntries.reduce(
+              (groups, entry) => {
+                const eventId = entry.bet.event.number
+                if (!groups[eventId]) {
+                  const channelId = getChannelId(entry.bet.discipline)
+                  const trackName = buildTrackName(entry.bet.discipline)
+                  groups[eventId] = {
+                    eventId: eventId,
+                    eventName: getTranslatedEventName(entry.bet.discipline),
+                    eventStartTime: entry.bet.event.startingAt,
+                    discipline: entry.bet.discipline,
+                    competitorName: entry.bet.competitors || '',
+                    channelId: channelId,
+                    trackName: trackName,
+                    markets: [],
+                  }
+                }
+                groups[eventId].markets.push({
+                  market: entry.market,
+                  selection: entry.bet.option.outcome,
+                  odds: entry.bet.option.decPrice,
+                })
+                return groups
+              },
+              {} as Record<
+                number,
+                {
+                  eventId: number
+                  eventName: string
+                  eventStartTime: Date
+                  discipline: string
+                  competitorName: string
+                  channelId: number
+                  trackName: string
+                  markets: Array<{
+                    market: string
+                    selection: string
+                    odds: number
+                  }>
+                }
+              >,
+            )
 
-              return {
-                eventId: entry.bet.event.number,
-                eventName: getTranslatedEventName(entry.bet.discipline),
-                eventStartTime: entry.bet.event.startingAt,
-                discipline: entry.bet.discipline,
-                market: entry.market,
-                competitorName: entry.bet.competitors || '',
-                selection: entry.bet.option.outcome,
-                odds: entry.bet.option.decPrice,
-                channelId: channelId,
-                trackName: trackName,
-              }
-            })
+            const betsInfo = Object.values(eventGroups)
 
             // Prepare system groups info if in SYSTEM mode
             const systemGroupsInfo =
