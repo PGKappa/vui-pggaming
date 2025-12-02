@@ -171,7 +171,7 @@ export default function Navbar() {
       <Dialog open={isInfoDialogOpen} onOpenChange={setIsInfoDialogOpen}>
         <DialogContent className="w-full overflow-hidden bg-accent h-full">
           <DialogHeader className="bg-secondary text-secondary-foreground">
-            <DialogTitle>{t('game_rules')}</DialogTitle>
+            <DialogTitle>{t('game_rules').toUpperCase()}</DialogTitle>
           </DialogHeader>
           <div className="h-[1020px] w-full">
             <iframe

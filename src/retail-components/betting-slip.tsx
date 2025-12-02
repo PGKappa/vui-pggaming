@@ -757,7 +757,7 @@ export default function BettingSlip({
 
   return (
     <Card
-      className="flex h-full w-full flex-col overflow-hidden bg-primary-foreground text-betSlip-foreground"
+      className="flex h-full w-full flex-col overflow-hidden bg-primary-foreground text-betSlip-foreground "
       data-testid="betting-slip"
     >
       <div className="grid grid-cols-2 text-center">
@@ -785,7 +785,7 @@ export default function BettingSlip({
           <div
             className={`relative flex w-full flex-col items-center justify-center ${
               isSystemToggleEnabled ? 'cursor-pointer' : ''
-            } ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'bg-gray-100' : 'bg-betSlip-header'}`}
+            } ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'bg-white' : 'bg-betSlip-header'}`}
             onClick={
               isSystemToggleEnabled
                 ? () => setSystemToggleMode('MULTIPLE')
@@ -809,7 +809,7 @@ export default function BettingSlip({
           <div
             className={`relative flex w-full flex-col items-center justify-center ${
               isSystemToggleEnabled ? 'cursor-pointer' : ''
-            } ${betMode === 'SYSTEM' ? 'bg-gray-100' : ' bg-betSlip-header'}`}
+            } ${betMode === 'SYSTEM' ? 'bg-white' : ' bg-betSlip-header'}`}
             onClick={
               isSystemToggleEnabled
                 ? () => setSystemToggleMode('SYSTEM')
@@ -831,7 +831,7 @@ export default function BettingSlip({
       <CardContent className="h-full w-[396px] overflow-hidden bg-white p-2 text-betSlip-foreground">
         {betEntries.length === 0 ? (
           <div className="relative flex h-full items-start justify-center pt-2">
-            <span className="text-[15px] font-medium leading-none">
+            <span className="text-[15px] font-normal  leading-none">
               {t('no_selection')}
             </span>
             <Button
