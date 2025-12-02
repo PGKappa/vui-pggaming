@@ -825,7 +825,6 @@ export default function UpcomingRaceCard({
                 {config.name}
               </Button>
             ))}
-            <span className='text-[15px] relative left-[922px]'>ID 241</span>
           </div>
 
           <div className="flex items-center gap-2">
