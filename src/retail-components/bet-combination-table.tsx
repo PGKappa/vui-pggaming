@@ -536,13 +536,13 @@ export default function BetCombinationsTable({
   const getMarketName = () => {
     switch (marketType) {
       case 'exacta':
-        return `${t('exacta')}`
+        return 'Exacta'
       case 'quinella':
-        return `${t('quinella')}`
+        return 'Quinella'
       case 'trifecta':
-        return `${t('trifecta')}`
+        return 'Trifecta'
       case 'boxtrifecta':
-        return `${t('boxed_trifecta')}`
+        return 'Boxed Trifecta'
       default:
         return ''
     }
@@ -621,7 +621,7 @@ export default function BetCombinationsTable({
         <CardTitle className="ml-[388px] text-[16px] text-white">
           {getTitle()}
         </CardTitle>
-        <div className="flex gap-2 relative left-[3px]">
+        <div className="relative left-[3px] flex gap-2">
           <Button
             variant="navbar"
             className="h-10 w-40 px-3 pt-[1px] text-[15px] font-bold text-white"
@@ -652,7 +652,9 @@ export default function BetCombinationsTable({
           </Button>
 
           <div className="flex h-10 min-w-[55px] items-center justify-center rounded-[2px] bg-accent-foreground px-3 text-accent">
-            <span className="text-[16px] font-bold pt-[1px]">{combinations.length}</span>
+            <span className="pt-[1px] text-[16px] font-bold">
+              {combinations.length}
+            </span>
           </div>
         </div>
       </CardHeader>
