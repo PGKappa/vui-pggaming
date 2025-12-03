@@ -1203,10 +1203,10 @@ export default function BettingSlip({
                               </div>
                             </div>
                           </div>
-                          <AccordionContent className="px-4 border-b">
+                          <AccordionContent className="px-4 border-b h-[48px]">
                             <div className="relative top-1.5 grid grid-cols-3 text-[13px]">
-                              <div className="relative left-[4px] text-center">
-                                <div className="text-foreground text-[12px] capitalize font-semibold">
+                              <div className="relative left-[4px] text-center  bottom-[4px]">
+                                <div className="text-foreground text-[12px] capitalize font-semibold ">
                                   {t('min win')}
                                 </div>
                                 <div className="font-normal text-[13px] relative top-[1px]">
@@ -1214,7 +1214,7 @@ export default function BettingSlip({
                                   {(group.minWin * group.stake).toFixed(2)}
                                 </div>
                               </div>
-                              <div className="relative right-[12px] text-center text-[12px] font-semibold">
+                              <div className="relative right-[12px] text-center text-[12px] font-semibold  bottom-[4px]">
                                 <div className="text-foreground capitalize">
                                   {t('max win')}
                                 </div>
@@ -1223,7 +1223,7 @@ export default function BettingSlip({
                                   {(group.maxWin * group.stake).toFixed(2)}
                                 </div>
                               </div>
-                              <div className="relative right-[16px] text-center text-[12px] font-semibold">
+                              <div className="relative right-[16px] text-center text-[12px] font-semibold  bottom-[4px]">
                                 <div className="text-foreground capitalize">
                                   {t('total_played')}
                                 </div>
@@ -1269,7 +1269,7 @@ export default function BettingSlip({
               <NumericKeypadDrawer
                 value={global}
                 setValue={handleDirectAmountInput}
-                inputWidth="w-[280px] border text-[16px]"
+                inputWidth="w-[284px] border text-[16px] relative left-[4px]"
                 triggerLabel={t('amount')}
                 showPlusMinus={false}
                 drawerId="system-amount"
