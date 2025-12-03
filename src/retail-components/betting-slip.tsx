@@ -707,10 +707,9 @@ export default function BettingSlip({
             const getTranslatedEventName = (discipline: string) => {
               switch (discipline) {
                 case 'DOGS':
-                case 'DOGS8':
-                  return t('dog')
+                  return `${t('dog')} ${t('racing')}`
                 case 'HORSES':
-                  return t('horse')
+                  return `${t('horse')} ${t('racing')}`
                 case 'SOCCER':
                   return t('football')
                 default:
