@@ -707,14 +707,40 @@ export default function BettingSlip({
             const getTranslatedEventName = (discipline: string) => {
               switch (discipline) {
                 case 'DOGS':
-                case 'DOGS8':
-                  return t('dog')
+                  return `${t('dog')} ${t('racing')}`
                 case 'HORSES':
-                  return t('horse')
+                  return `${t('horse')} ${t('racing')}`
                 case 'SOCCER':
                   return t('football')
                 default:
                   return ''
+              }
+            }
+
+            // Helper to translate market names
+            const getTranslatedMarket = (market: string) => {
+              const marketLower = market.toLowerCase()
+              switch (marketLower) {
+                case 'winner':
+                  return t('winner')
+                case 'placed':
+                  return t('place_2')
+                case 'show':
+                  return t('show_3')
+                case 'exacta':
+                  return t('exacta')
+                case 'quinella':
+                  return t('quinella')
+                case 'trifecta':
+                  return t('trifecta')
+                case 'boxed trifecta':
+                  return t('boxed_trifecta')
+                case 'even/odd':
+                  return t('even_odd')
+                case 'under/over':
+                  return t('under_over')
+                default:
+                  return market
               }
             }
 
@@ -769,7 +795,7 @@ export default function BettingSlip({
                   }
                 }
                 groups[eventId].markets.push({
-                  market: entry.market,
+                  market: getTranslatedMarket(entry.market),
                   competitorName: entry.bet.competitors || '',
                   selection: entry.bet.option.outcome,
                   odds: entry.bet.option.decPrice,

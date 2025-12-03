@@ -23,6 +23,33 @@ export default function EventBets(props: {
 
   const timeToMatchStart = useTimeLeft(eventBets[0].bet.event.startingAt)
 
+  // Helper to translate market names
+  const getTranslatedMarket = (market: string) => {
+    const marketLower = market.toLowerCase()
+    switch (marketLower) {
+      case 'winner':
+        return t('winner')
+      case 'placed':
+        return t('place_2')
+      case 'show':
+        return t('show_3')
+      case 'exacta':
+        return t('exacta')
+      case 'quinella':
+        return t('quinella')
+      case 'trifecta':
+        return t('trifecta')
+      case 'boxed trifecta':
+        return t('boxed_trifecta')
+      case 'even/odd':
+        return t('even_odd')
+      case 'under/over':
+        return t('under_over')
+      default:
+        return market
+    }
+  }
+
   return (
     <li>
       <div className="flex h-[91px] flex-col gap-0 border border-betSlip-foreground p-1">
@@ -88,7 +115,7 @@ export default function EventBets(props: {
             className="flex items-center justify-between text-sm"
           >
             <span className="mr-[1px] mt-[1px] text-[13px]">
-              {betEntry.market}
+              {getTranslatedMarket(betEntry.market)}
             </span>
             <span className="mt-[2px] text-[13px] font-normal">
               {betEntry.bet.option.outcome}
