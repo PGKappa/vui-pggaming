@@ -144,8 +144,8 @@ export default function BetEntryToggle(props: {
     >
       {props.variant === 'matchcard' ? (
         <>
-          <span className="text-[16px] font-semibold uppercase">{formattedOutcome}</span>
-          <span className="text-[19px] pt-0.5 pl-[1px] font-semibold">
+          <span className="text-[17px] pt-[3px] font-semibold ">{formattedOutcome}</span>
+          <span className="text-[18px]  pl-[1px] font-semibold">
             {props.bet.option.decPrice.toFixed(2)}
           </span>
         </>

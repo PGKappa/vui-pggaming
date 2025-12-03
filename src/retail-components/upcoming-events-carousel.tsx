@@ -131,13 +131,13 @@ function UpcomingEventItem(props: {
         />
       </div>
       <div className="flex flex-col items-start pr-[1px]">
-        <span className="relative top-[3px] text-[14px] font-semibold">
+        <span className="relative top-[3px] text-[14px] font-semibold uppercase">
           {event.discipline === 'SOCCER'
             ? event.name
             : `${event.name} ${t('racing')}`}
         </span>
 
-        <span className="relative top-[1px] text-[13px] font-normal">
+        <span className="relative top-[1px] text-[13px] font-normal uppercase">
           {event.discipline === 'SOCCER'
             ? `${t('round')} ${event.id}`
             : `Track ${(event.data as any)?.channel || 6}`}

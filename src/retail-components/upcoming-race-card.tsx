@@ -446,7 +446,7 @@ export default function UpcomingRaceCard({
                 track: getTrackName(6),
               }}
               variant="racecard"
-              className="h-12 w-[120px] bg-betEntry pt-[3px] text-[19px] text-betEntry-foreground"
+              className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] text-betEntry-foreground"
             />
           </TableCell>
           <TableCell className="w-[1px] bg-border p-0" />
@@ -471,7 +471,7 @@ export default function UpcomingRaceCard({
                 track: getTrackName(6),
               }}
               variant="racecard"
-              className="h-12 w-[120px] bg-betEntry pt-[3px] text-[19px] text-betEntry-foreground"
+              className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] text-betEntry-foreground"
             />
           </TableCell>
 
@@ -497,7 +497,7 @@ export default function UpcomingRaceCard({
                 track: getTrackName(6),
               }}
               variant="racecard"
-              className="h-12 w-[120px] bg-betEntry pt-[3px] text-[19px] text-betEntry-foreground"
+              className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] text-betEntry-foreground"
             />
           </TableCell>
         </>
@@ -829,8 +829,8 @@ export default function UpcomingRaceCard({
 
           <div className="flex items-center gap-2">
             {/* Testo Evento */}
-            <span className="bg-tertiary p-3 text-[15px] font-semibold text-tertiary-foreground">
-              {t('event')} {race.id}
+            <span className="p-[15px] text-[15px] font-semibold text-tertiary-foreground">
+              {('ID')} {race.id}
             </span>
 
             {/* Pulsante Clear */}
@@ -878,7 +878,7 @@ export default function UpcomingRaceCard({
                     <TableCell className="relative left-1 p-2 text-[18px]">
                       <div className="flex items-center gap-[7px]">
                         <div
-                          className="flex h-[33px] w-[33px] items-center justify-center rounded-md pt-0 text-[21px] font-bold"
+                          className="flex h-[33px] w-[33px] items-center justify-center rounded-md pt-[2px] text-[21px] font-bold"
                           style={
                             getRacerColors(
                               racer.number,

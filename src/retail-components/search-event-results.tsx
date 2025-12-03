@@ -539,9 +539,12 @@ export default function SearchEventResults() {
                           <AccordionTrigger className="bg-accent p-0 text-base text-accent-foreground [&[data-state=open]>svg]:-rotate-90">
                             <div className="flex w-[600px] flex-row justify-between gap-2 text-black">
                               <div className="flex flex-row gap-2">
-                                <span className="font-normal text-[15px]">
+                                <span className="font-semibold text-[15px]">
                                   {(eventResult.name).toUpperCase()} {' - '}
-                                  {formatSafeDate(eventResult.startTime)}{' '}
+                                  
+                                </span>
+                                <span className='font-normal relative bottom-[0px] right-[4px] text-[15px]'>
+                                  {formatSafeDate(eventResult.startTime)}
                                 </span>
                                 {eventResult.discipline ===
                                   Discipline.SOCCER && (
