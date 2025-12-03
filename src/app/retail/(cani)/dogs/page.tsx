@@ -86,7 +86,7 @@ export default function Home() {
   return (
     <div className="flex h-full flex-row overflow-hidden relative bottom-[5px]">
       <div className="flex flex-col">
-        <div className="flex h-[80px] w-[1508px] flex-row items-center justify-center bg-accent pr-2 bg-white">
+        <div className="flex h-[80px] w-[1508px] flex-row items-center justify-center bg-accent pb-[1px] pr-2 bg-white">
           <UpcomingEventsCarousel
             selectedEvent={selectedEvent}
             setSelectedEvent={(event) => {
@@ -97,7 +97,7 @@ export default function Home() {
         </div>
 
         {/* Main content area */}
-        <div className="flex h-full flex-row gap-2 overflow-hidden pr-2 pt-[4px] bg-muted-foreground">
+        <div className="flex h-full flex-row gap-2 overflow-hidden pr-2 pt-[2px] bg-muted-foreground">
           <div className="flex h-[942px] w-[1500px] flex-col gap-2 overflow-y-auto">
             <ScrollArea className="h-full w-full">
               {!!searchEventResults ? (

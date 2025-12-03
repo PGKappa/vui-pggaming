@@ -23,7 +23,7 @@ const resources = {
 
 i18n.use(initReactI18next).init({
   resources,
-  lng: 'en',
+  lng: process.env.NEXT_PUBLIC_FORCE_LANG || 'en',
   fallbackLng: 'en',
   debug: false,
   interpolation: {

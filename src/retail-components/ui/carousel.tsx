@@ -161,7 +161,7 @@ const CarouselContent = React.forwardRef<
       <div
         ref={ref}
         className={cn(
-          'flex gap-2',
+          'flex gap-2 h-[63px]',
           orientation === 'horizontal' ? '-ml-4' : '-mt-4 flex-col',
           className,
         )}
@@ -208,7 +208,7 @@ const CarouselPrevious = React.forwardRef<
       className={cn(
         'absolute',
         orientation === 'horizontal'
-          ? '-left-[65px] top-1/2 -translate-y-1/2 h-[65px] w-[66px] rounded-sm bg-[#3A7DCB] hover:bg-[#3A7DCB] disabled:!opacity-100'
+          ? '-left-[65px] top-1/2 -translate-y-1/2 h-[63px] w-[66px] rounded-sm bg-[#3A7DCB] hover:bg-[#3A7DCB] disabled:!opacity-100'
           : '-top-12 left-1/2 -translate-x-1/2 rotate-90',
         className,
       )}

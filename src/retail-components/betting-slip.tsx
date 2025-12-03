@@ -795,7 +795,7 @@ export default function BettingSlip({
       data-testid="betting-slip"
     >
       <div className="grid grid-cols-2 text-center">
-        <div className="relative top-[5px] col-span-2 flex h-[69px] w-[396px] flex-row items-center justify-between bg-accent px-5">
+        <div className="relative top-[5px] col-span-2 flex h-[68px] w-[396px] flex-row items-center justify-between bg-accent px-5">
           <span className="items-start pb-1 pl-[135px] text-[15px] font-semibold text-accent-foreground">
             {t('bet_slip').toUpperCase()} ({betEntries.length})
           </span>
@@ -936,7 +936,7 @@ export default function BettingSlip({
               <NumericKeypadDrawer
                 value={global}
                 setValue={setGlobal}
-                inputWidth="w-[230px] text-[16px]"
+                inputWidth="w-[226px] text-[16px]"
                 triggerLabel={t('amount')}
                 showPlusMinus={true}
                 drawerId="global-amount"
@@ -1050,9 +1050,9 @@ export default function BettingSlip({
                           className=" bg-bet-foreground"
                         >
                           <div
-                            className={` h-[59px] relative px-4 py-2 border-b ${systemGroupsOpen.includes(group.name) ? 'bg' : 'bg-background'}`}
+                            className={` h-[51px] relative px-4 py-2 border-b ${systemGroupsOpen.includes(group.name) ? 'bg' : 'bg-background'}`}
                           >
-                            <div className="flex w-full items-center justify-between">
+                            <div className="flex w-full items-center justify-between relative bottom-1">
                               <div className="flex items-center gap-2">
                                 {/* Checkbox singolo gruppo (Azione 1) */}
                                 <Checkbox
