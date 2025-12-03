@@ -576,7 +576,16 @@ export default function BettingSlip({
                 acc[apiMarketName] = []
               }
               // Rimuovi " any" dall'outcome per i mercati boxed (quinella, boxedtrifecta)
-              const cleanOutcome = entry.bet.option.outcome.replace(/ any$/, '')
+              let cleanOutcome = entry.bet.option.outcome.replace(/ any$/, '')
+
+              // Normalizza outcome per Even/Odd e Under/Over in lowercase
+              if (
+                apiMarketName === 'evenodd' ||
+                apiMarketName === 'underover'
+              ) {
+                cleanOutcome = cleanOutcome.toLowerCase()
+              }
+
               acc[apiMarketName].push({
                 description: cleanOutcome,
                 odds: entry.bet.option.decPrice.toString(),
