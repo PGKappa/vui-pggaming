@@ -534,12 +534,12 @@ export default function BettingSlip({
         {} as Record<string, typeof betEntries>,
       )
 
-      // Mappa i nomi dei mercati (sia tradotti che in inglese) ai nomi API
+      // Mappa i nomi dei mercati ai nomi API (normalizza spazi e case)
       const getAPIMarketName = (marketName: string): string => {
         const normalized = marketName.toLowerCase().trim()
 
         const API_MARKET_NAMES: Record<string, string> = {
-          // Nomi in inglese
+          // Normalizza variazioni in inglese
           winner: 'winner',
           placed: 'placed',
           show: 'show',
@@ -548,19 +548,13 @@ export default function BettingSlip({
           trifecta: 'trifecta',
           'boxed trifecta': 'boxedtrifecta',
           'box trifecta': 'boxedtrifecta',
+          boxedtrifecta: 'boxedtrifecta',
           'even/odd': 'evenodd',
+          evenodd: 'evenodd',
           'under/over': 'underover',
+          underover: 'underover',
 
-          // Nomi italiani/tradotti
-          vincente: 'winner',
-          'piazzato su 2': 'placed',
-          'piazzato su 3': 'show',
-          accoppiata: 'exacta',
-          trio: 'trifecta',
-          'trio girare': 'boxedtrifecta',
-          'pari/dispari': 'evenodd',
-
-          // FastBet codes tradotti
+          // FastBet codes
           place: 'placed',
           couples: 'exacta',
           triplets: 'trifecta',
@@ -581,8 +575,19 @@ export default function BettingSlip({
               if (!acc[apiMarketName]) {
                 acc[apiMarketName] = []
               }
+              // Rimuovi " any" dall'outcome per i mercati boxed (quinella, boxedtrifecta)
+              let cleanOutcome = entry.bet.option.outcome.replace(/ any$/, '')
+
+              // Normalizza outcome per Even/Odd e Under/Over in lowercase
+              if (
+                apiMarketName === 'evenodd' ||
+                apiMarketName === 'underover'
+              ) {
+                cleanOutcome = cleanOutcome.toLowerCase()
+              }
+
               acc[apiMarketName].push({
-                description: entry.bet.option.outcome,
+                description: cleanOutcome,
                 odds: entry.bet.option.decPrice.toString(),
                 status: 1,
               })
