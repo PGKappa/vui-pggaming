@@ -1036,7 +1036,7 @@ export default function BettingSlip({
                   <Separator />
 
                   {/* ACCORDION GRUPPI con ScrollArea */}
-                  <ScrollArea className="h-[157px]">
+                  <ScrollArea className="max-h-[157px]">
                     <Accordion
                       type="multiple"
                       value={systemGroupsOpen}
