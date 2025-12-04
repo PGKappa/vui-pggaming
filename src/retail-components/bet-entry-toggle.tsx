@@ -88,9 +88,9 @@ export default function BetEntryToggle(props: {
     }
 
     if (outcome.toLowerCase().includes('under') || outcome === 'U') {
-      return `UN ${value}`
+      return `Under ${value}`
     } else if (outcome.toLowerCase().includes('over') || outcome === 'O') {
-      return `OV ${value}`
+      return `Over ${value}`
     }
 
     return outcome
@@ -144,7 +144,7 @@ export default function BetEntryToggle(props: {
     >
       {props.variant === 'matchcard' ? (
         <>
-          <span className="text-[17px] pl-[1px] pt-[3px] font-semibold ">{formattedOutcome}</span>
+          <span className="text-[17px] pl-[1px] pt-[3px] font-semibold">{formattedOutcome}</span>
           <span className="text-[18px]  pr-[1px] font-semibold">
             {props.bet.option.decPrice.toFixed(2)}
           </span>

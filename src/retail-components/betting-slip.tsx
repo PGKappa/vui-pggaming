@@ -989,8 +989,8 @@ export default function BettingSlip({
                 </div>
                 <AccordionContent className="pb-0">
                   {/* CONTROLLI DISTRIBUZIONE STAKE */}
-                  <div className="space-y-3 border-b px-4 pb-2 h-[50px]">
-                    <div className="flex items-center justify-between gap-2 relative top-[4px]">
+                  <div className="space-y-3 border-b px-4 pb-2 h-[42px]">
+                    <div className="flex items-center justify-between gap-2">
                       <Checkbox
                         checked={allGroupsSelected}
                         onCheckedChange={handleAllGroupsToggle}
