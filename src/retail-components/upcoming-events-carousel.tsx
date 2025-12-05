@@ -48,8 +48,14 @@ export function UpcomingEventsCarousel(props: {
   }, [upcomingEvents, disciplines])
 
   return (
-    <Carousel className="w-[1370px]">
-      <CarouselContent className="relative left-[26px] bg-white">
+    <Carousel
+      className="w-[1430px]"
+      opts={{
+        align: 'start',
+        skipSnaps: false,
+      }}
+    >
+      <CarouselContent className="bg-white">
         {isLoadingEvents ? (
           // Show skeleton loading
           Array.from({ length: 6 }).map((_, index) => (
