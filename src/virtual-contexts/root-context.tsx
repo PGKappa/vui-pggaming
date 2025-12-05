@@ -1002,6 +1002,20 @@ export default function RootContextProvider(props: {
     fetchUpcomingRounds()
     fetchUpcomingHorseEvents()
     fetchUpcomingDogEvents()
+
+    // Refresh automatico ogni 5 minuti
+    const refreshInterval = setInterval(
+      () => {
+        fetchUpcomingRounds()
+        fetchUpcomingHorseEvents()
+        fetchUpcomingDogEvents()
+      },
+      5 * 60 * 1000, // 5 minuti
+    )
+
+    return () => {
+      clearInterval(refreshInterval)
+    }
   }, [
     initCode,
     isCashierReady,
