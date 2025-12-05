@@ -1036,7 +1036,7 @@ export default function BettingSlip({
                   <Separator />
 
                   {/* ACCORDION GRUPPI con ScrollArea */}
-                  <div className="scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400 hover:scrollbar-thumb-gray-500 max-h-[157px] overflow-y-auto">
+                  <ScrollArea className="max-h-[157px] overflow-y-auto">
                     <Accordion
                       type="multiple"
                       value={systemGroupsOpen}
@@ -1239,7 +1239,7 @@ export default function BettingSlip({
                         </AccordionItem>
                       ))}
                     </Accordion>
-                  </div>
+                  </ScrollArea>
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
