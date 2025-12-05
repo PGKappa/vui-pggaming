@@ -878,7 +878,7 @@ export default function UpcomingRaceCard({
                     <TableCell className="relative left-1 p-2 text-[18px]">
                       <div className="flex items-center gap-[7px]">
                         <div
-                          className="flex h-[33px] w-[33px] items-center justify-center rounded-md pt-[1.5px] text-[21px] font-bold"
+                          className="flex h-[33px] w-[33px] items-center justify-center rounded-md text-[21px] font-semibold"
                           style={
                             getRacerColors(
                               racer.number,
