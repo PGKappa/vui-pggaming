@@ -703,7 +703,7 @@ export default function UpcomingRaceCard({
             <div className="flex h-[66px]">
               <div className="flex flex-1 items-center justify-between border-b pl-16 text-[1px]">
                 <BetEntryToggle
-                  marketName="Even/Odd"
+                  marketName={t('even_odd')}
                   bet={{
                     discipline: race.discipline,
                     event: {
@@ -711,9 +711,9 @@ export default function UpcomingRaceCard({
                       number: race.id,
                       startingAt: race.time,
                     },
-                    competitors: 'Even',
+                    competitors: t('Even'),
                     option: {
-                      outcome: 'Even',
+                      outcome: t('Even'),
                       decPrice: parseFloat(raceInfo.odds.evenodd?.even || '0'),
                     },
                     track: getTrackName(6),
@@ -725,7 +725,7 @@ export default function UpcomingRaceCard({
 
               <div className="flex flex-1 items-center justify-between border-b border-r border-black pl-16 pr-16">
                 <BetEntryToggle
-                  marketName="Even/Odd"
+                  marketName={t('even_odd')}
                   bet={{
                     discipline: race.discipline,
                     event: {
@@ -733,9 +733,9 @@ export default function UpcomingRaceCard({
                       number: race.id,
                       startingAt: race.time,
                     },
-                    competitors: 'Odd',
+                    competitors: t('Odd'),
                     option: {
-                      outcome: 'Odd',
+                      outcome: t('Odd'),
                       decPrice: parseFloat(raceInfo.odds.evenodd?.odd || '0'),
                     },
                     track: getTrackName(6),
@@ -758,7 +758,7 @@ export default function UpcomingRaceCard({
             <div className="flex h-[66px]">
               <div className="flex flex-1 items-center justify-between border-b pl-16">
                 <BetEntryToggle
-                  marketName="Under/Over"
+                  marketName={t('under_over')}
                   bet={{
                     discipline: race.discipline,
                     event: {
@@ -766,9 +766,9 @@ export default function UpcomingRaceCard({
                       number: race.id,
                       startingAt: race.time,
                     },
-                    competitors: 'Under',
+                    competitors: t('Under'),
                     option: {
-                      outcome: 'Under',
+                      outcome: t('Under'),
                       decPrice: parseFloat(
                         raceInfo.odds.underover?.under || '0',
                       ),
@@ -782,7 +782,7 @@ export default function UpcomingRaceCard({
 
               <div className="flex flex-1 items-center justify-between border-b pl-16 pr-16">
                 <BetEntryToggle
-                  marketName="Under/Over"
+                  marketName={t('under_over')}
                   bet={{
                     discipline: race.discipline,
                     event: {
@@ -790,9 +790,9 @@ export default function UpcomingRaceCard({
                       number: race.id,
                       startingAt: race.time,
                     },
-                    competitors: 'Over',
+                    competitors: t('Over'),
                     option: {
-                      outcome: 'Over',
+                      outcome: t('Over'),
                       decPrice: parseFloat(
                         raceInfo.odds.underover?.over || '0',
                       ),
