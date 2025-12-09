@@ -539,12 +539,12 @@ export default function SearchEventResults() {
                           className="gap-0"
                         >
                           <AccordionTrigger className="bg-accent p-0 text-base text-accent-foreground [&[data-state=open]>svg]:-rotate-90 mt-2">
-                            <div className="flex w-[600px] flex-row justify-between gap-2 text-white bg-accent relative bottom-2">
+                            <div className="flex w-[600px] flex-row justify-between gap-2 text-white relative bottom-2">
                               <div className="flex flex-row gap-2">
-                                <span className="text-[15px] font-semibold">
+                                <span className="text-[15px] font-semibold relative top-[8px]">
                                   {eventResult.name.toUpperCase()} {' - '}
                                 </span>
-                                <span className="relative bottom-[0px] right-[4px] text-[15px] font-normal">
+                                <span className="relative top-[8px] right-[4px] text-[15px] font-normal">
                                   {formatSafeDate(eventResult.startTime)}
                                 </span>
                                 {eventResult.discipline ===

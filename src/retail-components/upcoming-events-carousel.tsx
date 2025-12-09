@@ -111,7 +111,7 @@ function UpcomingEventItem(props: {
 
   return (
     <CarouselItem
-      className={`flex h-[65px] w-[186px] basis-1/6 cursor-pointer flex-row items-center justify-center gap-3 px-3 py-2 text-[15px] ${
+      className={`flex h-[65px] w-[186px] basis-1/6 cursor-pointer flex-row items-center justify-center gap-3 px-3 py-2 text-[15px] border-r ${
         event.id === props.selectedEvent?.id &&
         event.discipline === props.selectedEvent?.discipline
           ? 'bg-[hsl(211deg_65%_37%_/_.9)] text-tertiary-foreground'
@@ -137,22 +137,22 @@ function UpcomingEventItem(props: {
         />
       </div>
       <div className="flex flex-col items-start pr-[1px]">
-        <span className="relative top-[2px] whitespace-nowrap text-[14px] font-semibold uppercase">
+        <span className="relative top-[1px] whitespace-nowrap text-[14px] font-semibold uppercase">
           {event.discipline === 'SOCCER'
             ? event.name
             : `${event.discipline === 'HORSES' ? t('horses') : t('dogs')} ${t('racing')}`}
         </span>
 
-        <span className="relative whitespace-nowrap text-[13px] font-normal uppercase">
+        <span className="relative whitespace-nowrap text-[13px] font-normal uppercase bottom-[1px]">
           {event.discipline === 'SOCCER'
             ? `${t('round')} ${event.id}`
             : `${t('track')} ${(event.data as any)?.channel || 6}`}
         </span>
         <div className="flex flex-row gap-2">
-          <span className="relative bottom-[2px] text-[14px] font-semibold">
+          <span className="relative bottom-[3px] text-[14px] font-semibold">
             {event.startTime}
           </span>
-          <span className="absolute bottom-[2px] py-0 pl-[44px] text-[14px] font-semibold text-[#99a6b1]">
+          <span className="absolute bottom-[3px] py-0 pl-[44px] text-[14px] font-semibold text-[#99a6b1]">
             {timeToEventStart}
           </span>
         </div>
