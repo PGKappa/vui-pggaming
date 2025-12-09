@@ -691,13 +691,7 @@ export default function RootContextProvider(props: {
           const getCurrencyCode = () => cashierData.intl?.currency || 'EUR'
 
           const getCurrencySymbol = () => {
-            // Prima prova a usare il simbolo dall'API cashier
-            const apiSymbol = cashierData.dict?.misc?.currency?.symbol
-            if (apiSymbol) {
-              return apiSymbol
-            }
-
-            // Fallback: usa il mapping basato sul currency code
+            // Usa sempre il mapping basato sul currency code da intl.currency
             const currencyCode = cashierData.intl?.currency || 'EUR'
             const currencyMap: Record<string, string> = {
               USD: '$',
@@ -708,8 +702,7 @@ export default function RootContextProvider(props: {
               CAD: 'C$',
               AUD: 'A$',
             }
-            const fallbackSymbol = currencyMap[currencyCode] || '$'
-            return fallbackSymbol
+            return currencyMap[currencyCode] || '€'
           }
 
           const getChannels = () => cashierData.channels || []
