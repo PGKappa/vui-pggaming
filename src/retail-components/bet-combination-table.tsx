@@ -558,11 +558,11 @@ export default function BetCombinationsTable({
   const getSortButtonText = () => {
     switch (sortMode) {
       case 'default':
-        return `${t('sort_by_odds')} #`.toUpperCase()
+        return `${t('sort_by_odds')}`.toUpperCase()
       case 'asc':
-        return `${t('sort_by_odds')} ↑`.toUpperCase()
+        return `${t('sort_by_odds')}`.toUpperCase()
       case 'desc':
-        return `${t('sort_by_odds')} ↓`.toUpperCase()
+        return `${t('sort_by_odds')}`.toUpperCase()
       default:
         return t('sort_by_odds').toUpperCase()
     }
