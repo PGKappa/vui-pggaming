@@ -929,10 +929,10 @@ export default function UpcomingRaceCard({
                   </TableRow>
                 ))
               ) : (
-                <TableRow>
+                <TableRow className="border-none">
                   <TableCell
                     colSpan={12}
-                    className="py-6 text-center text-[19px]"
+                    className="border-none py-6 text-center text-[19px]"
                   >
                     {isLoading
                       ? `${t('loading')}...`
