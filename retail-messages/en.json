@@ -121,6 +121,8 @@
   "code": "Code",
   "selection": "Selection",
   "enter_stake_amount": "Enter Stake Amount",
+  "enter": "Enter",
+  "space": "Space",
   "clear": "Clear",
   "clear_all": "Clear All",
   "done": "Done",

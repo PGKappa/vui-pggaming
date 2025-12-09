@@ -165,7 +165,7 @@ export default function NumericKeypadDrawer(props: {
   const renderTrigger = () => {
     if (props.showPlusMinus) {
       return (
-        <div className="flex w-fit items-center border border-border relative left-1">
+        <div className="relative left-1 flex w-fit items-center border border-border">
           <Button
             variant="ghost"
             size="sm"
@@ -222,8 +222,8 @@ export default function NumericKeypadDrawer(props: {
       <DrawerTrigger asChild>{renderTrigger()}</DrawerTrigger>
 
       <DrawerContent className="ml-auto mr-2 w-[396px]">
-        <DrawerHeader className="relative">
-          <DrawerTitle className="pt-1 text-center">
+        <DrawerHeader className="relative bg-accent text-accent-foreground">
+          <DrawerTitle className="pt-1 text-center text-accent-foreground">
             {props.triggerLabel || t('enter_stake_amount')}
           </DrawerTitle>
           <Button
