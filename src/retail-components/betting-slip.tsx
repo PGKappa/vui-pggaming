@@ -937,7 +937,7 @@ export default function BettingSlip({
                 value={global}
                 setValue={setGlobal}
                 inputWidth="w-[226px] text-[16px]"
-                triggerLabel={t('amount')}
+                triggerLabel={t('amount').toUpperCase()}
                 showPlusMinus={true}
                 drawerId="global-amount"
                 currencySymbol={currencySymbol}
