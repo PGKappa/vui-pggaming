@@ -17,6 +17,7 @@ import {
   SOCCER_API_URL,
   fetchCashierInit,
 } from '@/retail-lib/utils'
+import { t } from 'i18next'
 import { createContext, useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -712,14 +713,14 @@ export default function RootContextProvider(props: {
 
             if (channel !== undefined && channels[channel]) {
               const trackName =
-                channels[channel].track_name || `Track ${channel + 1}`
+                channels[channel].track_name || `${t('track')} ${channel + 1}`
               return trackName
             }
             // Fallback per il channel di default (6 diventa indice 5)
             const defaultChannel = channel ? channel - 1 : 5
             const fallbackTrackName =
               channels[defaultChannel]?.track_name ||
-              `Track ${defaultChannel + 1}`
+              `${t('track')} ${defaultChannel + 1}`
             return fallbackTrackName
           }
 
