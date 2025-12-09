@@ -750,7 +750,7 @@ export default function UpcomingRaceCard({
           {/* Under/Over Market */}
           <div>
             <div className="bg-accent text-accent-foreground">
-              <div className="flex h-16 items-center justify-center  text-[16px] font-bold">
+              <div className="flex h-16 items-center justify-center text-[16px] font-bold">
                 {t('under_over').toUpperCase()} 3.5
               </div>
             </div>
@@ -830,7 +830,7 @@ export default function UpcomingRaceCard({
           <div className="flex items-center gap-2">
             {/* Testo Evento */}
             <span className="p-[15px] text-[15px] font-semibold text-tertiary-foreground">
-              {('ID')} {race.id}
+              {'ID'} {race.id}
             </span>
 
             {/* Pulsante Clear */}
@@ -857,7 +857,7 @@ export default function UpcomingRaceCard({
                 className="h-12 w-[137px] border-border bg-secondary pr-[1px] pt-[1px] text-[15px] text-secondary-foreground"
                 onClick={() => setIsLatecomersDialogOpen(true)}
               >
-                <span>{'Latecomers'.toUpperCase()}</span>
+                <span>{t('latecomers').toUpperCase()}</span>
               </Button>
             )}
           </div>
