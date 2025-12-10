@@ -474,6 +474,18 @@ export default function BettingSlip({
       }, 0)
   }, [systemGroups, selectedGroups])
 
+  // Calcola altezza dinamica dello ScrollArea in base al numero di gruppi
+  const scrollAreaHeight = useMemo(() => {
+    const numGroups = systemGroups.length
+    const groupHeight = 59 // h-[59px] per ogni gruppo header
+
+    // Mostra massimo 3 gruppi, minimo 1
+    const groupsToShow = Math.min(Math.max(numGroups, 1), 3)
+    const calculatedHeight = groupHeight * groupsToShow
+
+    return calculatedHeight
+  }, [systemGroups.length])
+
   // Sincronizza automaticamente global con il totale effettivo quando cambiano i gruppi
   useEffect(() => {
     if (betMode === 'SYSTEM') {
@@ -1038,7 +1050,10 @@ export default function BettingSlip({
                   <Separator />
 
                   {/* ACCORDION GRUPPI con ScrollArea */}
-                  <ScrollArea className="h-[200px]">
+                  <ScrollArea
+                    className="overflow-hidden"
+                    style={{ height: `${scrollAreaHeight}px` }}
+                  >
                     <Accordion
                       type="multiple"
                       value={systemGroupsOpen}
