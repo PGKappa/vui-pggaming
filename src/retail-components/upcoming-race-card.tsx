@@ -813,7 +813,7 @@ export default function UpcomingRaceCard({
   return (
     <>
       <Card className="h-full w-full">
-        <CardHeader className="flex h-16 flex-row items-center justify-between px-[10px]">
+        <CardHeader className="flex h-16 flex-row items-center justify-between px-[12px]">
           <div className="flex items-center gap-[8px]">
             {Object.entries(tabConfig).map(([key, config]) => (
               <Button
@@ -829,7 +829,7 @@ export default function UpcomingRaceCard({
 
           <div className="flex items-center gap-2">
             {/* Testo Evento */}
-            <span className="p-[15px] text-[15px] font-semibold text-tertiary-foreground">
+            <span className="p-[10px] text-[15px] font-semibold text-tertiary-foreground">
               {'ID'} {race.id}
             </span>
 
