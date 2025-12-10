@@ -4,6 +4,7 @@ import * as React from 'react'
 import useEmblaCarousel, {
   type UseEmblaCarouselType,
 } from 'embla-carousel-react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 import { cn } from '@/retail-lib/utils'
 import { Button } from '@/retail-components/ui/button'
@@ -215,12 +216,10 @@ const CarouselPrevious = React.forwardRef<
       onClick={scrollPrev}
       {...props}
     >
-      <span
-        style={{ fontSize: '2rem' }}
+      <ChevronLeft
+        style={{ scale: 1.7 }}
         className={cn(!canScrollPrev && '!opacity-70')}
-      >
-        &lt;
-      </span>
+      />
       <span className="sr-only">Previous slide</span>
     </Button>
   )
@@ -249,12 +248,10 @@ const CarouselNext = React.forwardRef<
       onClick={scrollNext}
       {...props}
     >
-      <span
-        style={{ fontSize: '2rem' }}
+      <ChevronRight
+        style={{ scale: 1.7 }}
         className={cn(!canScrollNext && '!opacity-70')}
-      >
-        &gt;
-      </span>
+      />
       <span className="sr-only">Next slide</span>
     </Button>
   )
