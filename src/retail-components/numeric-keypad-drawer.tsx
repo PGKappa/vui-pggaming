@@ -173,7 +173,7 @@ export default function NumericKeypadDrawer(props: {
             disabled={value <= 0}
             onClick={(e) => {
               e.stopPropagation()
-              handlePlusMinus(-0.5)
+              handlePlusMinus(-50)
             }}
           >
             <MinusIcon className="h-4 w-4" />
@@ -191,7 +191,7 @@ export default function NumericKeypadDrawer(props: {
             className="h-8 w-7 bg-bet p-3 text-[19px] text-bet-foreground"
             onClick={(e) => {
               e.stopPropagation()
-              handlePlusMinus(0.5)
+              handlePlusMinus(50)
             }}
           >
             <PlusIcon className="h-4 w-4" />

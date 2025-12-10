@@ -224,7 +224,7 @@ export default function BettingSlip({
       0,
     )
 
-    const minIncrement = 0.05 // Min stake increment
+    const minIncrement = 50 * 100 // Min stake increment (50.00 in cents)
     const target = systemDistributeStake
 
     const baseStake =
@@ -394,7 +394,7 @@ export default function BettingSlip({
   }
 
   // Importo minimo per combinazione
-  const MINIMUM_STAKE = 0.05
+  const MINIMUM_STAKE = 50 // 50 pesos colombiani (COP)
 
   // Funzioni per gestire i checkbox
   const handleAllGroupsToggle = (checked: boolean) => {
@@ -1095,7 +1095,7 @@ export default function BettingSlip({
                                     size="sm"
                                     onClick={(e) => {
                                       e.stopPropagation()
-                                      const newValue = group.stake - 0.05
+                                      const newValue = group.stake - 50
                                       const finalValue = Math.max(0, newValue)
 
                                       // Aggiorna il valore
@@ -1149,7 +1149,7 @@ export default function BettingSlip({
                                     size="sm"
                                     onClick={(e) => {
                                       e.stopPropagation()
-                                      const newValue = group.stake + 0.05
+                                      const newValue = group.stake + 50
 
                                       // Aggiorna il valore
                                       handleUpdateGroupStake(
