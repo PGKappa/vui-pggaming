@@ -427,7 +427,7 @@ export default function SearchEventResults() {
                 )
               }}
             >
-              <SelectTrigger className="relative left-5 ml-[-70px] h-[48px] min-w-[186px] border-none bg-background pl-[18px] pr-[5px] text-[15px] text-foreground">
+              <SelectTrigger className="relative left-5 ml-[-70px] h-[48px] min-w-[186px] border-none bg-background pl-[16px] pr-[5px] text-[15px] text-foreground">
                 <SelectValue placeholder={t('sport')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
@@ -466,7 +466,7 @@ export default function SearchEventResults() {
               }}
               disabled={lastTenGames}
             >
-              <SelectTrigger className="relative left-5 ml-[-34px] h-[48px] min-w-[186px] border-none bg-background pl-[19px] pr-[5px] text-[14px] text-foreground">
+              <SelectTrigger className="relative left-[19px] ml-[-34px] h-[48px] min-w-[186px] border-none bg-background pl-[17px] pr-[5px] text-[14px] text-foreground">
                 <SelectValue placeholder={t('date')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
@@ -486,7 +486,7 @@ export default function SearchEventResults() {
               onValueChange={setSelectedTimeSlot}
               disabled={lastTenGames}
             >
-              <SelectTrigger className="relative left-[8px] ml-[27px] h-[48px] min-w-[186px] border-none bg-background pl-[18px] pr-[15px] text-[15px] text-foreground">
+              <SelectTrigger className="relative left-[8px] ml-[27px] h-[48px] min-w-[186px] border-none bg-background pl-[17px] pr-[5px] text-[15px] text-foreground">
                 <SelectValue placeholder={t('time_slot')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
