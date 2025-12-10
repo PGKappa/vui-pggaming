@@ -184,7 +184,7 @@ const CarouselItem = React.forwardRef<
       role="group"
       aria-roledescription="slide"
       className={cn(
-        'h-16 min-w-0 shrink-0 grow-0 basis-full bg-navbarButton text-foreground',
+        'h-16  shrink-0 grow-0 basis-full bg-navbarButton text-foreground',
         orientation === 'horizontal' ? '' : 'pt-4',
         className,
       )}
@@ -208,7 +208,7 @@ const CarouselPrevious = React.forwardRef<
       className={cn(
         'absolute',
         orientation === 'horizontal'
-          ? '-left-[32px] top-1/2 h-[63px] w-[30px] -translate-y-1/2 rounded-sm bg-[#3A7DCB] hover:bg-[#3A7DCB] disabled:!opacity-100'
+          ? '-left-[32px] top-1/2 h-[63px] w-[32px] -translate-y-1/2 rounded-[1px] bg-[#3A7DCB] hover:bg-[#3A7DCB] disabled:!opacity-100'
           : '-top-12 left-1/2 -translate-x-1/2 rotate-90',
         className,
       )}
@@ -240,7 +240,7 @@ const CarouselNext = React.forwardRef<
       className={cn(
         'absolute',
         orientation === 'horizontal'
-          ? '-right-[32px] top-1/2 h-full w-[30px] -translate-y-1/2 rounded-sm bg-[#3A7DCB] hover:bg-[#3A7DCB] disabled:!opacity-100'
+          ? '-right-[32px] top-1/2 h-full w-[32px] -translate-y-1/2 rounded-[1px] bg-[#3A7DCB] hover:bg-[#3A7DCB] disabled:!opacity-100'
           : '-bottom-12 left-1/2 -translate-x-1/2 rotate-90',
         className,
       )}

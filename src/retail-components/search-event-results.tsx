@@ -529,7 +529,7 @@ export default function SearchEventResults() {
             (() => {
               return (
                 <ScrollArea className="pb-20">
-                  <Accordion type="multiple" className="space-y-4 ">
+                  <Accordion type="multiple" className="space-y-2 ">
                     {filteredEventResults.map((eventResult, index) => {
                       const uniqueKey = `${eventResult.discipline}-${eventResult.id}-${eventResult.extId || index}`
                       return (
@@ -538,7 +538,7 @@ export default function SearchEventResults() {
                           value={uniqueKey}
                           className="gap-0"
                         >
-                          <AccordionTrigger className="bg-accent p-0 text-base text-accent-foreground [&[data-state=open]>svg]:-rotate-90 mt-2">
+                          <AccordionTrigger className="bg-accent p-0 pl-2 text-base text-accent-foreground [&[data-state=open]>svg]:-rotate-90">
                             <div className="flex w-[600px] flex-row justify-between gap-2 text-white relative bottom-2">
                               <div className="flex flex-row gap-2">
                                 <span className="text-[15px] font-semibold relative top-[8px]">
