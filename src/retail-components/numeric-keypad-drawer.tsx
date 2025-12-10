@@ -261,41 +261,41 @@ export default function NumericKeypadDrawer(props: {
               variant="outline"
               size="sm"
               className="h-10 text-lg font-bold"
-              onClick={() => handlePresetValue(5)}
+              onClick={() => handlePresetValue(1000)}
             >
-              {currencySymbol} 5
+              {/* {currencySymbol} */} 1000
             </Button>
             <Button
               variant="outline"
               size="sm"
               className="h-10 text-lg font-bold"
-              onClick={() => handlePresetValue(10)}
+              onClick={() => handlePresetValue(2000)}
             >
-              {currencySymbol} 10
+              {/* {currencySymbol} */} 2000
             </Button>
             <Button
               variant="outline"
               size="sm"
               className="h-10 text-lg font-bold"
-              onClick={() => handlePresetValue(20)}
+              onClick={() => handlePresetValue(3000)}
             >
-              {currencySymbol} 20
+              {/* {currencySymbol} */} 3000
             </Button>
             <Button
               variant="outline"
               size="sm"
               className="h-10 text-lg font-bold"
-              onClick={() => handlePresetValue(30)}
+              onClick={() => handlePresetValue(5000)}
             >
-              {currencySymbol} 30
+              {/* {currencySymbol} */} 5000
             </Button>
             <Button
               variant="outline"
               size="sm"
               className="h-10 text-lg font-bold"
-              onClick={() => handlePresetValue(50)}
+              onClick={() => handlePresetValue(10000)}
             >
-              {currencySymbol} 50
+              {/* {currencySymbol} */} 10000
             </Button>
           </div>
 

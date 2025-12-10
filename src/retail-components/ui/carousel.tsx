@@ -4,7 +4,6 @@ import * as React from 'react'
 import useEmblaCarousel, {
   type UseEmblaCarouselType,
 } from 'embla-carousel-react'
-import { ArrowLeft, ArrowRight } from 'lucide-react'
 
 import { cn } from '@/retail-lib/utils'
 import { Button } from '@/retail-components/ui/button'
@@ -216,10 +215,12 @@ const CarouselPrevious = React.forwardRef<
       onClick={scrollPrev}
       {...props}
     >
-      <ArrowLeft
-        style={{ scale: 1.7 }}
-        className={cn(!canScrollPrev && 'relative left-[2px] !opacity-70')}
-      />
+      <span
+        style={{ fontSize: '2rem' }}
+        className={cn(!canScrollPrev && '!opacity-70')}
+      >
+        &lt;
+      </span>
       <span className="sr-only">Previous slide</span>
     </Button>
   )
@@ -238,7 +239,7 @@ const CarouselNext = React.forwardRef<
       variant={variant}
       size={size}
       className={cn(
-        'absolute',
+        'absolute flex items-center justify-center',
         orientation === 'horizontal'
           ? '-right-[32px] top-1/2 h-full w-[32px] -translate-y-1/2 rounded-[1px] bg-[#3A7DCB] hover:bg-[#3A7DCB] disabled:!opacity-100'
           : '-bottom-12 left-1/2 -translate-x-1/2 rotate-90',
@@ -248,12 +249,12 @@ const CarouselNext = React.forwardRef<
       onClick={scrollNext}
       {...props}
     >
-      <ArrowRight
-        className={cn(
-          'relative right-[1px] scale-[1.7]',
-          !canScrollNext && '!opacity-70',
-        )}
-      />
+      <span
+        style={{ fontSize: '2rem' }}
+        className={cn(!canScrollNext && '!opacity-70')}
+      >
+        &gt;
+      </span>
       <span className="sr-only">Next slide</span>
     </Button>
   )

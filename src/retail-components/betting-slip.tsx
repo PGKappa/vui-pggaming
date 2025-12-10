@@ -913,7 +913,8 @@ export default function BettingSlip({
 
             {/* Quick stake buttons */}
             <div className="relative top-[19px] grid grid-cols-5 gap-2 p-2">
-              {[5, 10, 20, 30, 50].map((amount) => (
+              {/* {[5, 10, 20, 30, 50].map((amount) => ( */}
+              {[1000, 2000, 3000, 5000, 10000].map((amount) => (
                 <Button
                   key={amount}
                   variant="outline"
@@ -921,7 +922,8 @@ export default function BettingSlip({
                   className="h-8 bg-muted-foreground text-[14px]"
                   onClick={() => setGlobal((prev) => prev + amount)}
                 >
-                  {currencySymbol} {amount}
+                  {/* {currencySymbol}  */}
+                  {amount}
                 </Button>
               ))}
             </div>
