@@ -819,7 +819,7 @@ export default function UpcomingRaceCard({
               <Button
                 key={key}
                 variant={activeTab === key ? 'marketSelected' : 'market'}
-                className="h-12 w-28 border px-4 pb-0 text-[16px] font-semibold uppercase"
+                className="h-12 w-[121px] border px-[18px] pb-0 text-[16px] font-semibold uppercase"
                 onClick={() => handleTabChange(key as TabType)}
               >
                 {config.name}
@@ -854,7 +854,7 @@ export default function UpcomingRaceCard({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-12 w-[137px] border-border bg-secondary pr-[1px] pt-[1px] text-[15px] text-secondary-foreground"
+                className="h-12 w-fit border-border bg-secondary px-[18px] pb-[1px] text-[15px] text-secondary-foreground"
                 onClick={() => setIsLatecomersDialogOpen(true)}
               >
                 <span>{t('latecomers').toUpperCase()}</span>

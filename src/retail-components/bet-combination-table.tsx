@@ -586,20 +586,20 @@ export default function BetCombinationsTable({
   return (
     <Card className="mt-2">
       <CardHeader className="flex h-14 items-center justify-center bg-accent px-3 text-accent-foreground">
-        <CardTitle className="ml-[388px] text-[16px] text-white">
+        <CardTitle className="items-center ml-[476px] text-[16px] text-white">
           {getTitle()}
         </CardTitle>
         <div className="flex gap-2 relative left-[3px]">
           <Button
             variant="navbar"
-            className="h-10 w-40 px-3 text-[15px] font-bold text-white pt-[1px]"
+            className="h-10 w-fit px-[18px] text-[15px]  rounded-[1px] font-bold text-white pt-[1px]"
             onClick={handleSortClick}
           >
             {getSortButtonText()}
           </Button>
           <Button
             variant="navbar"
-            className="h-10 w-40 px-3 text-[15px] font-bold text-white pt-[1px]"
+            className="h-10 w-fit px-[18px] text-[15px] rounded-[1px] font-bold text-white pt-[1px]"
             onClick={() => {
               if (allBetsSelected) {
                 removeBets(
@@ -619,7 +619,7 @@ export default function BetCombinationsTable({
               : `${t('select_all').toUpperCase()}`}
           </Button>
 
-          <div className="flex h-10 min-w-[55px] items-center justify-center rounded-[2px] bg-secondary px-3 text-accent-foreground">
+          <div className="flex h-10 min-w-fit items-center justify-center rounded-[1px] bg-secondary px-[18px] text-accent-foreground">
             <span className="text-[16px] font-bold pt-[1px]">{combinations.length}</span>
           </div>
         </div>

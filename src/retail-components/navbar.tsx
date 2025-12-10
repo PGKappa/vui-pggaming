@@ -126,7 +126,7 @@ export default function Navbar() {
 
       <div className="relative left-[2px] flex w-full justify-end gap-[8px]">
         <Button
-          className="h-12 w-[168px]"
+          className="h-12 w-fit p-[18px]"
           variant="ticketButton"
           size="lg"
           onClick={() => {
@@ -138,12 +138,12 @@ export default function Navbar() {
 
         {/* Pulsante Info - sempre visibile con dialog diversi per calcio vs racing */}
         <Button
-          className="w-12 h-12"
+          className="w-12 h-12 text-[18px]"
           variant="ticketButton"
           size="lg"
           onClick={() => setIsInfoDialogOpen(true)}
         >
-          <Info style={{ scale: 1.5 }} />
+          i
         </Button>
 
         {/* <Link
