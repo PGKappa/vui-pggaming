@@ -474,6 +474,18 @@ export default function BettingSlip({
       }, 0)
   }, [systemGroups, selectedGroups])
 
+  // Calcola altezza dinamica dello ScrollArea in base al numero di gruppi
+  const scrollAreaHeight = useMemo(() => {
+    const numGroups = systemGroups.length
+    const groupHeight = 59 // h-[59px] per ogni gruppo header
+
+    // Mostra massimo 3 gruppi, minimo 1
+    const groupsToShow = Math.min(Math.max(numGroups, 1), 3)
+    const calculatedHeight = groupHeight * groupsToShow
+
+    return calculatedHeight
+  }, [systemGroups.length])
+
   // Sincronizza automaticamente global con il totale effettivo quando cambiano i gruppi
   useEffect(() => {
     if (betMode === 'SYSTEM') {
@@ -991,8 +1003,8 @@ export default function BettingSlip({
                 </div>
                 <AccordionContent className="pb-0">
                   {/* CONTROLLI DISTRIBUZIONE STAKE */}
-                  <div className="h-[42px] space-y-3 border-b px-4 pb-2">
-                    <div className="flex items-center justify-between gap-2">
+                  <div className="h-[50px] space-y-3 border-b px-4 pb-2">
+                    <div className="relative top-[4px] flex items-center justify-between gap-2">
                       <Checkbox
                         checked={allGroupsSelected}
                         onCheckedChange={handleAllGroupsToggle}
@@ -1038,7 +1050,10 @@ export default function BettingSlip({
                   <Separator />
 
                   {/* ACCORDION GRUPPI con ScrollArea */}
-                  <ScrollArea className="max-h-[157px] overflow-y-auto">
+                  <ScrollArea
+                    className="overflow-hidden"
+                    style={{ height: `${scrollAreaHeight}px` }}
+                  >
                     <Accordion
                       type="multiple"
                       value={systemGroupsOpen}
@@ -1052,9 +1067,9 @@ export default function BettingSlip({
                           className="bg-bet-foreground"
                         >
                           <div
-                            className={`relative h-[51px] border-b px-4 py-2 ${systemGroupsOpen.includes(group.name) ? 'bg' : 'bg-background'}`}
+                            className={`relative h-[59px] border-b px-4 py-2 ${systemGroupsOpen.includes(group.name) ? 'bg' : 'bg-background'}`}
                           >
-                            <div className="relative bottom-1 flex w-full items-center justify-between">
+                            <div className="flex w-full items-center justify-between">
                               <div className="flex items-center gap-2">
                                 {/* Checkbox singolo gruppo (Azione 1) */}
                                 <Checkbox
@@ -1205,9 +1220,9 @@ export default function BettingSlip({
                               </div>
                             </div>
                           </div>
-                          <AccordionContent className="h-[48px] border-b px-4">
+                          <AccordionContent className="border-b px-4">
                             <div className="relative top-1.5 grid grid-cols-3 text-[13px]">
-                              <div className="relative bottom-[4px] left-[4px] text-center">
+                              <div className="relative left-[4px] text-center">
                                 <div className="text-[12px] font-semibold capitalize text-foreground">
                                   {t('min win')}
                                 </div>
@@ -1216,7 +1231,7 @@ export default function BettingSlip({
                                   {(group.minWin * group.stake).toFixed(2)}
                                 </div>
                               </div>
-                              <div className="relative bottom-[4px] right-[12px] text-center text-[12px] font-semibold">
+                              <div className="relative right-[12px] text-center text-[12px] font-semibold">
                                 <div className="capitalize text-foreground">
                                   {t('max win')}
                                 </div>
@@ -1225,7 +1240,7 @@ export default function BettingSlip({
                                   {(group.maxWin * group.stake).toFixed(2)}
                                 </div>
                               </div>
-                              <div className="relative bottom-[4px] right-[16px] text-center text-[12px] font-semibold">
+                              <div className="relative right-[16px] text-center text-[12px] font-semibold">
                                 <div className="capitalize text-foreground">
                                   {t('total_played')}
                                 </div>
