@@ -37,12 +37,6 @@ export function getTimeDistanceFromNow(targetTime: Date) {
   return `${minutes}:${seconds}`
 }
 
-/**
- * Converte una stringa data/ora dal timezone dell'API al timezone locale del browser
- * @param dateString - La stringa data ricevuta dall'API (es. "2025-12-11T15:00:00" o "2025-12-11 15:00:00")
- * @param apiTimezone - Il timezone dell'API (es. "America/Bogota", "Europe/Rome")
- * @returns Date object nel timezone locale del browser
- */
 export function parseAPIDate(
   dateString: string | Date | number,
   apiTimezone: string,
@@ -152,25 +146,6 @@ export function parseAPIDate(
     const fallbackDate = new Date(dateString.replace(' ', 'T'))
     return isNaN(fallbackDate.getTime()) ? new Date() : fallbackDate
   }
-}
-
-/**
- * Formatta una data nel timezone specificato
- * @param date - Date object da formattare
- * @param timezone - Timezone target (es. "America/Bogota")
- * @param locale - Locale per la formattazione (default: 'it-IT')
- * @returns Stringa formattata
- */
-export function formatDateInTimezone(
-  date: Date,
-  timezone: string,
-  locale: string = 'it-IT',
-  options?: Intl.DateTimeFormatOptions,
-): string {
-  return date.toLocaleString(locale, {
-    timeZone: timezone,
-    ...options,
-  })
 }
 
 // Helper per chiamate API PGVirtual pulite
