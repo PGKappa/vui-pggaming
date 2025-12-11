@@ -1,5 +1,4 @@
 import { BetsContext } from '@/retail-contexts/bets-context'
-import { RootContext } from '@/retail-contexts/root-context'
 import { BetEntry } from '@/retail-lib/types'
 import useTimeLeft from '@/retail-lib/use-time-left'
 import { format } from 'date-fns'
@@ -103,7 +102,7 @@ export default function EventBets(props: {
           <span className="text-[16px]">{eventBets[0].bet.competitors}</span>
         ) : (
           <span className="relative bottom-[1px] ml-[3px] pb-[4px] text-[14px] uppercase">
-            {eventBets[0].bet.track || getTrackName(6)}
+            {eventBets[0].bet.track ||  t('track_6')}
           </span>
         )}
       </div>
