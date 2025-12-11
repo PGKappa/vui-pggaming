@@ -6,6 +6,15 @@ import { toast } from 'sonner'
 
 export type BetMode = 'SINGLE' | 'MULTIPLE' | 'SYSTEM'
 
+const getEventStatus = (event: any): 'active' | 'expired' => {
+  if (!event?.startingAt) return 'active'
+
+  const now = new Date()
+  const eventTime = new Date(event.startingAt)
+
+  return now >= eventTime ? 'expired' : 'active'
+}
+
 export type BetsContextType = {
   betEntries: BetEntry[]
   betsByEvent: { [key: string]: BetEntry[] }
@@ -15,7 +24,12 @@ export type BetsContextType = {
   systemToggleMode: 'multiple' | 'system'
   setSystemToggleMode: (mode: 'multiple' | 'system') => void
   addBet: (market: string, bet: Bet) => void
-  removeBet: (marketName: string, option: Selection, teams: string) => void
+  removeBet: (
+    marketName: string,
+    option: Selection,
+    teams: string,
+    discipline: string,
+  ) => void
   removeEventBets: (eventId: string) => void
   toggleEventBetsFixed: (eventId: string) => void
   removeAllBets: () => void
@@ -47,11 +61,11 @@ const defaultBetsContext: BetsContextType = {
 
 export const BetsContext = createContext<BetsContextType>(defaultBetsContext)
 
-// Raggruppa le scommesse per evento
+// Raggruppa le scommesse per evento e disciplina
 function getBetsByEvent(betEntries: BetEntry[]): { [key: string]: BetEntry[] } {
   return betEntries.reduce(
     (groupedBets: { [key: string]: BetEntry[] }, betEntry) => {
-      const key = betEntry.bet.event.number.toString()
+      const key = `${betEntry.bet.discipline}_${betEntry.bet.event.number}`
       if (!groupedBets[key]) {
         groupedBets[key] = []
       }
@@ -132,6 +146,30 @@ export default function BetsContextProvider(props: {
     return 'MULTIPLE'
   }, [betsContext.betEntries, betsContext.betsByEvent])
 
+  // Cleanup automatico di scommesse scadute ogni 5 secondi
+  useEffect(() => {
+    const cleanupExpiredBets = () => {
+      const activeBets = betsContext.betEntries.filter((entry) => {
+        return getEventStatus(entry.bet.event) === 'active'
+      })
+
+      if (activeBets.length !== betsContext.betEntries.length) {
+        const removedCount = betsContext.betEntries.length - activeBets.length
+        setBetsContext((prev) => ({
+          ...prev,
+          betEntries: activeBets,
+          betsByEvent: getBetsByEvent(activeBets),
+        }))
+        toast.info(
+          `Removed ${removedCount} expired bet${removedCount > 1 ? 's' : ''}`,
+        )
+      }
+    }
+
+    const interval = setInterval(cleanupExpiredBets, 1000)
+    return () => clearInterval(interval)
+  }, [betsContext.betEntries])
+
   // Controlli limiti per sistema
   const checkSystemLimits = useCallback(
     (newEntries: BetEntry[]): boolean => {
@@ -183,36 +221,47 @@ export default function BetsContextProvider(props: {
   )
 
   // Rimuovi scommessa
-  const removeBet = (marketName: string, option: Selection, teams: string) => {
+  const removeBet = (
+    marketName: string,
+    option: Selection,
+    teams: string,
+    discipline: string,
+  ) => {
     setBetsContext((prev) => ({
       ...prev,
       betEntries: prev.betEntries.filter(
         (betEntry) =>
           betEntry.market !== marketName ||
           betEntry.bet.competitors !== teams ||
-          betEntry.bet.option.outcome !== option.outcome,
+          betEntry.bet.option.outcome !== option.outcome ||
+          betEntry.bet.discipline !== discipline,
       ),
     }))
   }
 
-  // Rimuovi scommesse di un evento
-  const removeEventBets = (eventId: string) => {
-    const eventNumber = parseInt(eventId)
+  // Rimuovi scommesse di un evento (eventKey = "DISCIPLINE_NUMBER")
+  const removeEventBets = (eventKey: string) => {
+    const [discipline, eventNumber] = eventKey.split('_')
     setBetsContext((prev) => ({
       ...prev,
       betEntries: prev.betEntries.filter(
-        (betEntry) => betEntry.bet.event.number !== eventNumber,
+        (betEntry) =>
+          betEntry.bet.event.number !== parseInt(eventNumber) ||
+          betEntry.bet.discipline !== discipline,
       ),
     }))
   }
 
-  // Toggle fixed per evento
-  const toggleEventBetsFixed = (eventId: string) => {
-    const eventNumber = parseInt(eventId)
+  // Toggle fixed per evento (eventKey = "DISCIPLINE_NUMBER")
+  const toggleEventBetsFixed = (eventKey: string) => {
+    const [discipline, eventNumber] = eventKey.split('_')
     setBetsContext((prev) => ({
       ...prev,
       betEntries: prev.betEntries.map((betEntry) => {
-        if (betEntry.bet.event.number === eventNumber) {
+        if (
+          betEntry.bet.event.number === parseInt(eventNumber) &&
+          betEntry.bet.discipline === discipline
+        ) {
           return { ...betEntry, fixed: !betEntry.fixed }
         }
         return betEntry

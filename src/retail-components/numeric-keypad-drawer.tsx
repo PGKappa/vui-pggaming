@@ -165,7 +165,7 @@ export default function NumericKeypadDrawer(props: {
   const renderTrigger = () => {
     if (props.showPlusMinus) {
       return (
-        <div className="flex w-fit items-center border border-border relative left-2">
+        <div className="relative left-1 flex w-fit items-center border border-border">
           <Button
             variant="ghost"
             size="sm"
@@ -173,7 +173,7 @@ export default function NumericKeypadDrawer(props: {
             disabled={value <= 0}
             onClick={(e) => {
               e.stopPropagation()
-              handlePlusMinus(-0.5)
+              handlePlusMinus(-50)
             }}
           >
             <MinusIcon className="h-4 w-4" />
@@ -191,7 +191,7 @@ export default function NumericKeypadDrawer(props: {
             className="h-8 w-7 bg-bet p-3 text-[19px] text-bet-foreground"
             onClick={(e) => {
               e.stopPropagation()
-              handlePlusMinus(0.5)
+              handlePlusMinus(50)
             }}
           >
             <PlusIcon className="h-4 w-4" />
@@ -222,8 +222,8 @@ export default function NumericKeypadDrawer(props: {
       <DrawerTrigger asChild>{renderTrigger()}</DrawerTrigger>
 
       <DrawerContent className="ml-auto mr-2 w-[396px]">
-        <DrawerHeader className="relative">
-          <DrawerTitle className="pt-1 text-center">
+        <DrawerHeader className="relative bg-accent text-accent-foreground">
+          <DrawerTitle className="pt-1 text-center text-accent-foreground">
             {props.triggerLabel || t('enter_stake_amount')}
           </DrawerTitle>
           <Button
@@ -261,41 +261,41 @@ export default function NumericKeypadDrawer(props: {
               variant="outline"
               size="sm"
               className="h-10 text-lg font-bold"
-              onClick={() => handlePresetValue(5)}
+              onClick={() => handlePresetValue(1000)}
             >
-              {currencySymbol} 5
+              {/* {currencySymbol} */} 1000
             </Button>
             <Button
               variant="outline"
               size="sm"
               className="h-10 text-lg font-bold"
-              onClick={() => handlePresetValue(10)}
+              onClick={() => handlePresetValue(2000)}
             >
-              {currencySymbol} 10
+              {/* {currencySymbol} */} 2000
             </Button>
             <Button
               variant="outline"
               size="sm"
               className="h-10 text-lg font-bold"
-              onClick={() => handlePresetValue(20)}
+              onClick={() => handlePresetValue(3000)}
             >
-              {currencySymbol} 20
+              {/* {currencySymbol} */} 3000
             </Button>
             <Button
               variant="outline"
               size="sm"
               className="h-10 text-lg font-bold"
-              onClick={() => handlePresetValue(30)}
+              onClick={() => handlePresetValue(5000)}
             >
-              {currencySymbol} 30
+              {/* {currencySymbol} */} 5000
             </Button>
             <Button
               variant="outline"
               size="sm"
               className="h-10 text-lg font-bold"
-              onClick={() => handlePresetValue(50)}
+              onClick={() => handlePresetValue(10000)}
             >
-              {currencySymbol} 50
+              {/* {currencySymbol} */} 10000
             </Button>
           </div>
 

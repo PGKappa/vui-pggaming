@@ -50,7 +50,7 @@ export default function SearchEventResults() {
   const [selectedDiscipline, setSelectedDiscipline] = useState<
     Discipline | 'NONE'
   >('NONE')
-  const [selectedDate, setSelectedDate] = useState<string>(dates[0])
+  const [selectedDate, setSelectedDate] = useState<string>('ALL')
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>('ALL')
   const [lastTenGames, setLastTenGames] = useState<boolean>(true)
   const [fetchedResults, setFetchedResults] = useState<EventResult[]>([])
@@ -414,10 +414,9 @@ export default function SearchEventResults() {
 
   return (
     <div className="flex h-full flex-col gap-1">
-      <div className="flex flex-col items-center bg-accent p-2 h-16 pr-[161px]">
+      <div className="flex h-16 flex-col items-center bg-accent p-2 pr-[161px]">
         <div className="flex flex-wrap items-center gap-8">
-          <div className="flex flex-row items-center gap-2 bg-badge text-background w-[0px] h-[48px] mr-28">
-            
+          <div className="mr-28 flex h-[48px] w-[0px] flex-row items-center gap-2 bg-badge text-background">
             <Select
               value={selectedDiscipline.toString()}
               onValueChange={(value) => {
@@ -428,21 +427,31 @@ export default function SearchEventResults() {
                 )
               }}
             >
-              <SelectTrigger className="min-w-[186px] border-none bg-background ml-[-70px] text-[15px] text-foreground left-5 relative h-[48px] pl-[18px] pr-[5px]">
-                <SelectValue placeholder={t('sport')}/>
+              <SelectTrigger className="relative left-5 ml-[-70px] h-[48px] min-w-[186px] border-none bg-background pl-[16px] pr-[5px] text-[15px] text-foreground">
+                <SelectValue placeholder={t('sport')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
-                <SelectItem value="NONE">{('None')}</SelectItem>
-                {Object.values(Discipline).map((d) => (
-                  <SelectItem key={d} value={d}>
-                    {d}
-                  </SelectItem>
-                ))}
+                <SelectItem value="NONE">
+                  {t('discipline').toUpperCase()}
+                </SelectItem>
+                {Object.values(Discipline).map((d) => {
+                  const translationKey =
+                    d === 'DOGS'
+                      ? 'dogs'
+                      : d === 'HORSES'
+                        ? 'horses'
+                        : 'football'
+                  return (
+                    <SelectItem key={d} value={d}>
+                      {t(translationKey).toUpperCase()}
+                    </SelectItem>
+                  )
+                })}
               </SelectContent>
             </Select>
           </div>
 
-          <div className="flex flex-row items-center relative left-1">
+          <div className="relative left-1 flex flex-row items-center">
             <Checkbox
               id="last10"
               className="h-6 w-6 bg-background text-foreground"
@@ -451,14 +460,13 @@ export default function SearchEventResults() {
             />
             <label
               htmlFor="last10"
-              className="px-2 py-3  relative text-[15px] font-semibold text-background"
+              className="relative right-[1px] px-2 py-3 text-[14px] font-semibold text-background"
             >
               {t('last_10_games')}
             </label>
           </div>
 
-          <div className="flex flex-row items-center gap-2 bg-badge text-background h-[48px] w-[0px] right-[4px] relative">
-            
+          <div className="relative right-[4px] flex h-[48px] w-[0px] flex-row items-center gap-2 bg-badge text-background">
             <Select
               value={selectedDate}
               onValueChange={(value) => {
@@ -466,10 +474,11 @@ export default function SearchEventResults() {
               }}
               disabled={lastTenGames}
             >
-              <SelectTrigger className="min-w-[186px] ml-[-34px] bg-background text-[14px] text-foreground h-[48px] relative left-5 border-none pl-[17px] pr-[5px]">
+              <SelectTrigger className="relative left-[19px] ml-[-34px] h-[48px] min-w-[186px] border-none bg-background pl-[17px] pr-[5px] text-[14px] text-foreground">
                 <SelectValue placeholder={t('date')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
+                <SelectItem value="ALL">{t('date').toUpperCase()}</SelectItem>
                 {dates.map((date) => (
                   <SelectItem key={date} value={date}>
                     {date}
@@ -479,18 +488,19 @@ export default function SearchEventResults() {
             </Select>
           </div>
 
-          <div className="w-[0px] flex flex-row items-center gap-2 bg-badge text-background h-[48px] relative right-[11px] ml-[129px]">
-            
+          <div className="relative right-[11px] ml-[129px] flex h-[48px] w-[0px] flex-row items-center gap-2 bg-badge text-background">
             <Select
               value={selectedTimeSlot}
               onValueChange={setSelectedTimeSlot}
               disabled={lastTenGames}
             >
-              <SelectTrigger className="min-w-[186px] bg-background text-[15px] ml-[27px] text-foreground h-[48px] border-none relative left-[9px] pl-[18px] pr-[15px]">
+              <SelectTrigger className="relative left-[8px] ml-[27px] h-[48px] min-w-[186px] border-none bg-background pl-[17px] pr-[5px] text-[15px] text-foreground">
                 <SelectValue placeholder={t('time_slot')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
-                <SelectItem value="ALL">{('All')}</SelectItem>
+                <SelectItem value="ALL">
+                  {t('time_slot').toUpperCase()}
+                </SelectItem>
                 {timeSlots.map((slot) => (
                   <SelectItem key={slot} value={slot}>
                     {slot}
@@ -502,7 +512,7 @@ export default function SearchEventResults() {
 
           <div className="flex flex-row items-center gap-2">
             <Button
-              className="text-bold w-[186px] bg-tertiary text-[15px] text-tertiary-foreground h-[48px] relative left-[203px]"
+              className="text-bold relative left-[202px] h-[48px] w-[186px] bg-tertiary text-[15px] text-tertiary-foreground"
               disabled={
                 !selectedDate && !selectedDiscipline && !selectedTimeSlot
               }
@@ -527,7 +537,7 @@ export default function SearchEventResults() {
             (() => {
               return (
                 <ScrollArea className="pb-20">
-                  <Accordion type="multiple" className="space-y-4">
+                  <Accordion type="multiple" className="space-y-2 ">
                     {filteredEventResults.map((eventResult, index) => {
                       const uniqueKey = `${eventResult.discipline}-${eventResult.id}-${eventResult.extId || index}`
                       return (
@@ -536,22 +546,20 @@ export default function SearchEventResults() {
                           value={uniqueKey}
                           className="gap-0"
                         >
-                          <AccordionTrigger className="bg-accent p-2 text-base text-accent-foreground [&[data-state=open]>svg]:-rotate-90">
-                            <div className="flex w-[600px] flex-row justify-between gap-2 text-black">
+                          <AccordionTrigger className="bg-accent p-0 pl-2 text-base text-accent-foreground [&[data-state=open]>svg]:-rotate-90">
+                            <div className="flex w-[600px] flex-row justify-between gap-2 text-white relative bottom-2">
                               <div className="flex flex-row gap-2">
-                                <span className="font-bold">
-                                  {formatSafeDate(eventResult.startTime)}{' '}
-                                  {eventResult.name}
-                                  {' / '}
+                                <span className="text-[15px] font-semibold relative top-[8px]">
+                                  {eventResult.name.toUpperCase()} {' - '}
+                                </span>
+                                <span className="relative top-[8px] right-[4px] text-[15px] font-normal">
+                                  {formatSafeDate(eventResult.startTime)}
                                 </span>
                                 {eventResult.discipline ===
                                   Discipline.SOCCER && (
                                   <span>Soccer Match</span>
                                 )}
                               </div>
-                              <span className="font-bold">
-                                {t('completed').toUpperCase()}
-                              </span>
                             </div>
                           </AccordionTrigger>
                           <AccordionContent>
@@ -698,25 +706,6 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
 
     if (detailedResult.odds) {
       const raceResult = detailedResult as RaceResult
-      const disciplineName =
-        eventResult.discipline === Discipline.HORSES ? 'Horse' : 'Dog'
-
-      const formatSafeDate = (date: any): string => {
-        try {
-          if (date instanceof Date && !isNaN(date.getTime())) {
-            return format(date, 'dd-MM-yyyy HH:mm')
-          }
-
-          const parsedDate = new Date(date)
-          if (!isNaN(parsedDate.getTime())) {
-            return format(parsedDate, 'dd-MM-yyyy HH:mm')
-          }
-
-          return t('invalid_date')
-        } catch {
-          return t('invalid_date')
-        }
-      }
 
       const extractExacta = (exacta: any) => {
         const results: Array<{ combination: string; odds: string }> = []
@@ -818,9 +807,9 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
           {detailedResult.arrival &&
             Array.isArray(detailedResult.arrival) &&
             detailedResult.arrival.length > 0 && (
-              <div className="border">
-                <div className="bg-accent py-2 text-center">
-                  <div className="text-[16px] font-bold uppercase text-accent-foreground">
+              <div className="border-b">
+                <div className="h-[45px] bg-accent py-2 text-center">
+                  <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">
                     {t('arrival_order').toUpperCase()}
                   </div>
                 </div>
@@ -860,13 +849,13 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                               height={48}
                               className="absolute"
                             />
-                            <div className="relative pb-2 text-[20px] font-bold">
+                            <div className="relative pb-[11px] text-[23px] font-bold">
                               {medalNumber}
                             </div>
                           </div>
 
                           <div
-                            className="flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold"
+                            className="flex h-[33px] w-[33px] items-center justify-center rounded-md pt-[1px] text-[21px] font-semibold"
                             style={
                               getRacerColors(
                                 competitor.number,
@@ -877,7 +866,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                             {competitor.number}
                           </div>
 
-                          <div className="min-w-0 pr-10 text-[16px] font-semibold">
+                          <div className="relative right-[1px] min-w-0 pr-10 text-[18px] font-semibold">
                             {competitor.name}
                           </div>
                         </div>
@@ -887,12 +876,12 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
               </div>
             )}
 
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-3">
             {/* WINNER */}
             {raceResult.odds.winner && (
-              <div className="border">
-                <div className="bg-accent py-2 text-center">
-                  <div className="text-[16px] font-bold uppercase text-accent-foreground">
+              <div className="border-b border-t">
+                <div className="h-[45px] bg-accent py-2 text-center">
+                  <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">
                     {t('winner').toUpperCase()}
                   </div>
                 </div>
@@ -905,7 +894,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                       >
                         <span className="flex items-center gap-2">
                           <div
-                            className="flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold"
+                            className="flex h-[33px] w-[33px] items-center justify-center rounded-md text-[21px] font-semibold"
                             style={
                               getRacerColors(
                                 parseInt(number),
@@ -915,7 +904,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                           >
                             {number}
                           </div>
-                          <span className="text-[16px] font-semibold">
+                          <span className="text-[18px] font-semibold">
                             {odds}
                           </span>
                         </span>
@@ -928,9 +917,9 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
 
             {/* PLACED */}
             {raceResult.odds.placed && (
-              <div className="border">
-                <div className="bg-accent py-2 text-center">
-                  <div className="text-[16px] font-bold uppercase text-accent-foreground">
+              <div className="border-b border-l border-t">
+                <div className="h-[45px] bg-accent py-2 text-center">
+                  <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">
                     {t('place_2').toUpperCase()}
                   </div>
                 </div>
@@ -943,7 +932,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                       >
                         <span className="flex items-center gap-2">
                           <div
-                            className="flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold"
+                            className="flex h-[33px] w-[33px] items-center justify-center rounded-md text-[21px] font-semibold"
                             style={
                               getRacerColors(
                                 parseInt(number),
@@ -953,7 +942,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                           >
                             {number}
                           </div>
-                          <span className="text-[16px] font-semibold">
+                          <span className="text-[18px] font-semibold">
                             {odds}
                           </span>
                         </span>
@@ -966,9 +955,9 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
 
             {/* SHOW */}
             {raceResult.odds.show && (
-              <div className="border">
-                <div className="bg-accent py-2 text-center">
-                  <div className="text-[16px] font-bold uppercase text-accent-foreground">
+              <div className="border-b border-l border-t">
+                <div className="h-[45px] bg-accent py-2 text-center">
+                  <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">
                     {t('show_3').toUpperCase()}
                   </div>
                 </div>
@@ -981,7 +970,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                       >
                         <span className="flex items-center gap-2">
                           <div
-                            className="flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold"
+                            className="flex h-[33px] w-[33px] items-center justify-center rounded-md text-[21px] font-semibold"
                             style={
                               getRacerColors(
                                 parseInt(number),
@@ -991,7 +980,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                           >
                             {number}
                           </div>
-                          <span className="text-[16px] font-semibold">
+                          <span className="text-[18px] font-semibold">
                             {odds}
                           </span>
                         </span>
@@ -1003,12 +992,12 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
             )}
           </div>
 
-          <div className="grid grid-cols-4 gap-1">
+          <div className="grid grid-cols-4">
             {/* EXACTA */}
             {raceResult.odds.exacta && (
-              <div className="border">
-                <div className="bg-accent py-2 text-center">
-                  <div className="text-[16px] font-bold uppercase text-accent-foreground">
+              <div className="border-b border-t">
+                <div className="h-[45px] bg-accent py-2 text-center">
+                  <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">
                     {t('exacta').toUpperCase()}
                   </div>
                 </div>
@@ -1023,7 +1012,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                           {combination.split('-').map((num, idx) => (
                             <div
                               key={idx}
-                              className="flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold"
+                              className="flex h-[33px] w-[33px] items-center justify-center rounded-md text-[21px] font-semibold"
                               style={
                                 getRacerColors(
                                   parseInt(num),
@@ -1035,7 +1024,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                             </div>
                           ))}
                         </span>
-                        <span className="text-[16px] font-semibold">
+                        <span className="text-[18px] font-semibold">
                           {odds}
                         </span>
                       </div>
@@ -1047,9 +1036,9 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
 
             {/* QUINELLA */}
             {raceResult.odds.quinella && (
-              <div className="border">
-                <div className="bg-accent py-2 text-center">
-                  <div className="text-[16px] font-bold uppercase text-accent-foreground">
+              <div className="border-b border-l border-t">
+                <div className="h-[45px] bg-accent py-2 text-center">
+                  <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">
                     {t('quinella').toUpperCase()}
                   </div>
                 </div>
@@ -1064,7 +1053,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                           {combination.split('-').map((num, idx) => (
                             <div
                               key={idx}
-                              className="flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold"
+                              className="flex h-[33px] w-[33px] items-center justify-center rounded-md text-[21px] font-semibold"
                               style={
                                 getRacerColors(
                                   parseInt(num),
@@ -1076,7 +1065,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                             </div>
                           ))}
                         </span>
-                        <span className="text-[16px] font-semibold">
+                        <span className="text-[18px] font-semibold">
                           {odds}
                         </span>
                       </div>
@@ -1088,9 +1077,9 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
 
             {/* TRIFECTA */}
             {raceResult.odds.trifecta && (
-              <div className="border">
-                <div className="bg-accent py-2 text-center">
-                  <div className="text-[16px] font-bold uppercase text-accent-foreground">
+              <div className="border-b border-l border-t">
+                <div className="h-[45px] bg-accent py-2 text-center">
+                  <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">
                     {t('trifecta').toUpperCase()}
                   </div>
                 </div>
@@ -1105,7 +1094,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                           {combination.split('-').map((num, idx) => (
                             <div
                               key={idx}
-                              className="flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold"
+                              className="flex h-[33px] w-[33px] items-center justify-center rounded-md text-[21px] font-semibold"
                               style={
                                 getRacerColors(
                                   parseInt(num),
@@ -1117,7 +1106,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                             </div>
                           ))}
                         </span>
-                        <span className="text-[16px] font-semibold">
+                        <span className="text-[18px] font-semibold">
                           {odds}
                         </span>
                       </div>
@@ -1129,9 +1118,9 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
 
             {/* BOX TRIFECTA */}
             {raceResult.odds.boxedtrifecta && (
-              <div className="border">
-                <div className="bg-accent py-2 text-center">
-                  <div className="text-[16px] font-bold uppercase text-accent-foreground">
+              <div className="border-b border-l border-t">
+                <div className="h-[45px] bg-accent py-2 text-center">
+                  <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">
                     {t('boxed_trifecta').toUpperCase()}
                   </div>
                 </div>
@@ -1146,7 +1135,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                           {combination.split('-').map((num, idx) => (
                             <div
                               key={idx}
-                              className="flex h-8 w-8 items-center justify-center rounded-md text-[16px] font-bold"
+                              className="flex h-[33px] w-[33px] items-center justify-center rounded-md text-[21px] font-semibold"
                               style={
                                 getRacerColors(
                                   parseInt(num),
@@ -1158,7 +1147,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                             </div>
                           ))}
                         </span>
-                        <span className="text-[16px] font-semibold">
+                        <span className="text-[18px] font-semibold">
                           {odds}
                         </span>
                       </div>
@@ -1169,12 +1158,12 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-1">
+          <div className="grid grid-cols-2">
             {/* EVEN/ODD */}
             {raceResult.odds.evenodd && (
-              <div className="border">
-                <div className="bg-accent py-2 text-center">
-                  <div className="text-[16px] font-bold uppercase text-accent-foreground">
+              <div className="border-b border-t">
+                <div className="h-[45px] bg-accent py-2 text-center">
+                  <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">
                     {t('even_odd').toUpperCase()}
                   </div>
                 </div>
@@ -1182,17 +1171,21 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                   {raceResult.odds.evenodd.even && (
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
-                        {t('even')}: 
-                      </div> <div>
-                        {raceResult.odds.evenodd.even}
+                        <span className="mr-[644px]">
+                          {t('even').toUpperCase()}
+                        </span>{' '}
+                        <span>{raceResult.odds.evenodd.even}</span>
                       </div>
-                      
+                      <div></div>
                     </div>
                   )}
                   {raceResult.odds.evenodd.odd && (
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
-                        {t('odd')}: {raceResult.odds.evenodd.odd}
+                        <span className="mr-[643px]">
+                          {t('odd').toUpperCase()}
+                        </span>{' '}
+                        <span>{raceResult.odds.evenodd.odd}</span>
                       </div>
                     </div>
                   )}
@@ -1202,9 +1195,9 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
 
             {/* UNDER/OVER */}
             {raceResult.odds.underover && (
-              <div className="border">
-                <div className="bg-accent py-2 text-center">
-                  <div className="text-[16px] font-bold uppercase text-accent-foreground">
+              <div className="border-b border-l border-t">
+                <div className="h-[45px] bg-accent py-2 text-center">
+                  <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">
                     {t('under_over')} 3.5
                   </div>
                 </div>
@@ -1212,14 +1205,20 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                   {raceResult.odds.underover.under && (
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
-                        {t('under')}: {raceResult.odds.underover.under}
+                        <span className="mr-[621px]">
+                          {t('under').toUpperCase()}
+                        </span>{' '}
+                        <span>{raceResult.odds.underover.under}</span>
                       </div>
                     </div>
                   )}
                   {raceResult.odds.underover.over && (
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
-                        {t('over')}: {raceResult.odds.underover.over}
+                        <span className="mr-[644px]">
+                          {t('over').toUpperCase()}
+                        </span>{' '}
+                        <span>{raceResult.odds.underover.over}</span>
                       </div>
                     </div>
                   )}
@@ -1244,29 +1243,6 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                 </div>
               </div>
             )}
-
-            {/* TRACK INFO */}
-            <div className="border">
-              <div className="bg-accent py-2 text-center">
-                <div className="text-[16px] font-bold uppercase text-accent-foreground">
-                  {disciplineName} RACING
-                </div>
-              </div>
-              <div className="space-y-1 p-3">
-                <div className="text-[16px]">
-                  <span className="font-semibold">{t('track')}:</span>{' '}
-                  {t('track')} {eventResult.extId}
-                </div>
-                <div className="text-[16px]">
-                  <span className="font-semibold">{t('event')}:</span>{' '}
-                  {eventResult.id}
-                </div>
-                <div className="text-[16px]">
-                  <span className="font-semibold">{t('start_time')}:</span>{' '}
-                  {formatSafeDate(eventResult.startTime)}
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       )
