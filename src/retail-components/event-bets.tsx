@@ -50,6 +50,10 @@ export default function EventBets(props: {
     }
   }
 
+  function getTrackName(arg0: number): import("react").ReactNode | Iterable<import("react").ReactNode> {
+    throw new Error('Function not implemented.')
+  }
+
   return (
     <li>
       <div className="flex h-[91px] flex-col gap-0 border border-betSlip-foreground p-1">
