@@ -142,7 +142,7 @@ function UpcomingEventItem(props: {
           ? event.name
           : `${event.discipline === 'HORSES' ? t('horses') : t('dogs')} ${t('racing')}`}
       </span>
-      <span className="relative whitespace-nowrap text-[13px] font-normal uppercase bottom-[1px]">
+      <span className="relative whitespace-nowrap text-[13px] font-normal uppercase bottom-[2px]">
         {event.discipline === 'SOCCER'
           ? `${t('round')} ${event.id}`
           : `${t('track')} ${(event.data as any)?.channel || 6}`}
