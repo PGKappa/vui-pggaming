@@ -120,8 +120,8 @@ export default function AlphanumericKeypadDrawer(props: {
       </DrawerTrigger>
 
       <DrawerContent className="ml-2 w-[1500px]">
-        <DrawerHeader className="relative">
-          <DrawerTitle className="pt-1 text-center">
+        <DrawerHeader className="relative bg-accent text-accent-foreground">
+          <DrawerTitle className="pt-1 text-center text-accent-foreground">
             {props.placeholder || 'FASTBET'}
           </DrawerTitle>
           <Button
@@ -255,7 +255,7 @@ export default function AlphanumericKeypadDrawer(props: {
               className="h-12 w-[600px] text-xl font-bold"
               onClick={() => handleCharacterClick(' ')}
             >
-              Space
+              {t('space')}
             </Button>
           </div>
         </div>

@@ -17,6 +17,7 @@ import {
   SOCCER_API_URL,
   fetchCashierInit,
 } from '@/retail-lib/utils'
+import { t } from 'i18next'
 import { createContext, useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -691,13 +692,7 @@ export default function RootContextProvider(props: {
           const getCurrencyCode = () => cashierData.intl?.currency || 'EUR'
 
           const getCurrencySymbol = () => {
-            // Prima prova a usare il simbolo dall'API cashier
-            const apiSymbol = cashierData.dict?.misc?.currency?.symbol
-            if (apiSymbol) {
-              return apiSymbol
-            }
-
-            // Fallback: usa il mapping basato sul currency code
+            // Usa sempre il mapping basato sul currency code da intl.currency
             const currencyCode = cashierData.intl?.currency || 'EUR'
             const currencyMap: Record<string, string> = {
               USD: '$',
@@ -708,8 +703,7 @@ export default function RootContextProvider(props: {
               CAD: 'C$',
               AUD: 'A$',
             }
-            const fallbackSymbol = currencyMap[currencyCode] || '$'
-            return fallbackSymbol
+            return currencyMap[currencyCode] || '€'
           }
 
           const getChannels = () => cashierData.channels || []
@@ -719,14 +713,14 @@ export default function RootContextProvider(props: {
 
             if (channel !== undefined && channels[channel]) {
               const trackName =
-                channels[channel].track_name || `Track ${channel + 1}`
+                channels[channel].track_name || `${t('track')} ${channel + 1}`
               return trackName
             }
             // Fallback per il channel di default (6 diventa indice 5)
             const defaultChannel = channel ? channel - 1 : 5
             const fallbackTrackName =
               channels[defaultChannel]?.track_name ||
-              `Track ${defaultChannel + 1}`
+              `${t('track')} ${defaultChannel + 1}`
             return fallbackTrackName
           }
 

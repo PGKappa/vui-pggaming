@@ -4,7 +4,7 @@ import * as React from 'react'
 import useEmblaCarousel, {
   type UseEmblaCarouselType,
 } from 'embla-carousel-react'
-import { ArrowLeft, ArrowRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 import { cn } from '@/retail-lib/utils'
 import { Button } from '@/retail-components/ui/button'
@@ -161,8 +161,8 @@ const CarouselContent = React.forwardRef<
       <div
         ref={ref}
         className={cn(
-          'flex gap-2',
-          orientation === 'horizontal' ? '-ml-4' : '-mt-4 flex-col',
+          'flex h-[63px] gap-0',
+          orientation === 'horizontal' ? '' : '-mt-4 flex-col',
           className,
         )}
         {...props}
@@ -184,7 +184,7 @@ const CarouselItem = React.forwardRef<
       role="group"
       aria-roledescription="slide"
       className={cn(
-        'h-16 min-w-0 shrink-0 grow-0 basis-full bg-navbarButton text-foreground',
+        'h-16  shrink-0 grow-0 basis-full bg-navbarButton text-foreground',
         orientation === 'horizontal' ? '' : 'pt-4',
         className,
       )}
@@ -208,7 +208,7 @@ const CarouselPrevious = React.forwardRef<
       className={cn(
         'absolute',
         orientation === 'horizontal'
-          ? '-left-[65px] top-1/2 -translate-y-1/2 h-[65px] w-[66px] rounded-sm bg-[#3A7DCB] hover:bg-[#3A7DCB] disabled:!opacity-100'
+          ? '-left-[35px] top-1/2 h-[63px] w-[35px] -translate-y-1/2 rounded-[1px] bg-[#3A7DCB] hover:bg-[#3A7DCB] disabled:!opacity-100'
           : '-top-12 left-1/2 -translate-x-1/2 rotate-90',
         className,
       )}
@@ -216,10 +216,10 @@ const CarouselPrevious = React.forwardRef<
       onClick={scrollPrev}
       {...props}
     >
-      <ArrowLeft 
-    style={{ scale: 1.7 }} 
-    className={cn(!canScrollPrev && "!opacity-70 relative left-[2px]")}
-  />
+      <ChevronLeft
+        style={{ scale: 1.7 }}
+        className={cn(!canScrollPrev && '!opacity-70')}
+      />
       <span className="sr-only">Previous slide</span>
     </Button>
   )
@@ -238,9 +238,9 @@ const CarouselNext = React.forwardRef<
       variant={variant}
       size={size}
       className={cn(
-        'absolute',
+        'absolute flex items-center justify-center',
         orientation === 'horizontal'
-          ? '-right-[65px] top-1/2 -translate-y-1/2 h-full w-[67px] rounded-sm bg-[#3A7DCB] hover:bg-[#3A7DCB] disabled:!opacity-100'
+          ? '-right-[35px] top-1/2 h-full w-[35px] -translate-y-1/2 rounded-[1px] bg-[#3A7DCB] hover:bg-[#3A7DCB] disabled:!opacity-100'
           : '-bottom-12 left-1/2 -translate-x-1/2 rotate-90',
         className,
       )}
@@ -248,10 +248,10 @@ const CarouselNext = React.forwardRef<
       onClick={scrollNext}
       {...props}
     >
-       <ArrowRight className={cn(
-    "relative right-[1px] scale-[1.7]",
-    !canScrollNext && "!opacity-70"
-  )}/>
+      <ChevronRight
+        style={{ scale: 1.7 }}
+        className={cn(!canScrollNext && '!opacity-70')}
+      />
       <span className="sr-only">Next slide</span>
     </Button>
   )

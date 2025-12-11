@@ -224,7 +224,7 @@ export default function BettingSlip({
       0,
     )
 
-    const minIncrement = 0.05 // Min stake increment
+    const minIncrement = 50 * 100 // Min stake increment (50.00 in cents)
     const target = systemDistributeStake
 
     const baseStake =
@@ -394,7 +394,7 @@ export default function BettingSlip({
   }
 
   // Importo minimo per combinazione
-  const MINIMUM_STAKE = 0.05
+  const MINIMUM_STAKE = 50 // 50 pesos colombiani (COP)
 
   // Funzioni per gestire i checkbox
   const handleAllGroupsToggle = (checked: boolean) => {
@@ -473,6 +473,18 @@ export default function BettingSlip({
         return sum + group.maxWin * group.stake
       }, 0)
   }, [systemGroups, selectedGroups])
+
+  // Calcola altezza dinamica dello ScrollArea in base al numero di gruppi
+  const scrollAreaHeight = useMemo(() => {
+    const numGroups = systemGroups.length
+    const groupHeight = 59 // h-[59px] per ogni gruppo header
+
+    // Mostra massimo 3 gruppi, minimo 1
+    const groupsToShow = Math.min(Math.max(numGroups, 1), 3)
+    const calculatedHeight = groupHeight * groupsToShow
+
+    return calculatedHeight
+  }, [systemGroups.length])
 
   // Sincronizza automaticamente global con il totale effettivo quando cambiano i gruppi
   useEffect(() => {
@@ -938,7 +950,7 @@ export default function BettingSlip({
       data-testid="betting-slip"
     >
       <div className="grid grid-cols-2 text-center">
-        <div className="relative top-[5px] col-span-2 flex h-[69px] w-[396px] flex-row items-center justify-between bg-accent px-5">
+        <div className="relative top-[5px] col-span-2 flex h-[68px] w-[396px] flex-row items-center justify-between bg-accent px-5">
           <span className="items-start pb-1 pl-[135px] text-[15px] font-semibold text-accent-foreground">
             {t('bet_slip').toUpperCase()} ({betEntries.length})
           </span>
@@ -1056,7 +1068,8 @@ export default function BettingSlip({
 
             {/* Quick stake buttons */}
             <div className="relative top-[19px] grid grid-cols-5 gap-2 p-2">
-              {[5, 10, 20, 30, 50].map((amount) => (
+              {/* {[5, 10, 20, 30, 50].map((amount) => ( */}
+              {[1000, 2000, 3000, 5000, 10000].map((amount) => (
                 <Button
                   key={amount}
                   variant="outline"
@@ -1064,7 +1077,8 @@ export default function BettingSlip({
                   className="h-8 bg-muted-foreground text-[14px]"
                   onClick={() => setGlobal((prev) => prev + amount)}
                 >
-                  {currencySymbol} {amount}
+                  {/* {currencySymbol}  */}
+                  {amount}
                 </Button>
               ))}
             </div>
@@ -1079,8 +1093,8 @@ export default function BettingSlip({
               <NumericKeypadDrawer
                 value={global}
                 setValue={setGlobal}
-                inputWidth="w-[230px] text-[16px]"
-                triggerLabel={t('amount')}
+                inputWidth="w-[226px] text-[16px]"
+                triggerLabel={t('amount').toUpperCase()}
                 showPlusMinus={true}
                 drawerId="global-amount"
                 currencySymbol={currencySymbol}
@@ -1179,7 +1193,10 @@ export default function BettingSlip({
                   <Separator />
 
                   {/* ACCORDION GRUPPI con ScrollArea */}
-                  <ScrollArea className="h-[200px]">
+                  <ScrollArea
+                    className="overflow-hidden"
+                    style={{ height: `${scrollAreaHeight}px` }}
+                  >
                     <Accordion
                       type="multiple"
                       value={systemGroupsOpen}
@@ -1221,7 +1238,7 @@ export default function BettingSlip({
                                     size="sm"
                                     onClick={(e) => {
                                       e.stopPropagation()
-                                      const newValue = group.stake - 0.05
+                                      const newValue = group.stake - 50
                                       const finalValue = Math.max(0, newValue)
 
                                       // Aggiorna il valore
@@ -1275,7 +1292,7 @@ export default function BettingSlip({
                                     size="sm"
                                     onClick={(e) => {
                                       e.stopPropagation()
-                                      const newValue = group.stake + 0.05
+                                      const newValue = group.stake + 50
 
                                       // Aggiorna il valore
                                       handleUpdateGroupStake(
@@ -1411,7 +1428,7 @@ export default function BettingSlip({
               <NumericKeypadDrawer
                 value={global}
                 setValue={handleDirectAmountInput}
-                inputWidth="w-[280px] border text-[16px]"
+                inputWidth="w-[284px] border text-[16px] relative left-[4px]"
                 triggerLabel={t('amount')}
                 showPlusMinus={false}
                 drawerId="system-amount"

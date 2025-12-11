@@ -377,3 +377,7 @@
 }
 
 
+.carousel-item:last-child {
+  border-right-width: 8px;
+  border-right-color: hsl(var(--background));
+}

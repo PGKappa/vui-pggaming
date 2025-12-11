@@ -103,41 +103,76 @@ export default function EventBets(props: {
           <span className="text-[16px]">{eventBets[0].bet.competitors}</span>
         ) : (
           <span className="relative bottom-[1px] ml-[3px] pb-[4px] text-[14px] uppercase">
-            {t('track_6')}
+            {eventBets[0].bet.track || getTrackName(6)}
           </span>
         )}
       </div>
 
       <div className="-space-y-[6px] border border-t-0 border-betSlip-foreground bg-primary-foreground pb-[1px] pl-2 pr-[1px]">
-        {eventBets.map((betEntry) => (
-          <div
-            key={betEntry.id}
-            className="flex items-center justify-between text-sm"
-          >
-            <span className="mr-[1px] mt-[1px] text-[13px]">
-              {getTranslatedMarket(betEntry.market)}
-            </span>
-            <span className="mt-[2px] text-[13px] font-normal">
-              {betEntry.bet.option.outcome}
-            </span>
-            <span className="mt-[2px] text-[13px]">
-              {betEntry.bet.option.decPrice.toFixed(2)}
-            </span>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() =>
-                removeBet(
-                  betEntry.market,
-                  betEntry.bet.option,
-                  betEntry.bet.competitors,
-                )
-              }
+        {eventBets.map((betEntry) => {
+          // Per i mercati principali (Winner, Placed, Show), mostra numero + nome corridore
+          const isMainMarket = ['Winner', 'Placed', 'Show'].includes(
+            betEntry.market,
+          )
+
+          // Traduci anche Even, Odd, Under, Over
+          const isTranslatableOutcome = [
+            'Even',
+            'Odd',
+            'Under',
+            'Over',
+          ].includes(betEntry.bet.option.outcome)
+
+          let outcomeDisplay = betEntry.bet.option.outcome
+
+          if (isMainMarket && betEntry.bet.competitors) {
+            outcomeDisplay = `${betEntry.bet.option.outcome} ${betEntry.bet.competitors}`
+          } else if (isTranslatableOutcome) {
+            outcomeDisplay = t(
+              betEntry.bet.option.outcome,
+              betEntry.bet.option.outcome,
+            )
+          } else if (betEntry.bet.option.outcome.includes(' any')) {
+            // Traduci le combinazioni con 'any' (es. "1-2 any" -> "1-2 cualquier")
+            outcomeDisplay = betEntry.bet.option.outcome.replace(
+              ' any',
+              ` ${t('any')}`,
+            )
+          }
+
+          // Traduci il nome del mercato
+          const translatedMarket = t(betEntry.market, betEntry.market)
+
+          return (
+            <div
+              key={betEntry.id}
+              className="flex items-center justify-between text-sm"
             >
-              <CircleXIcon className="mt-[1px] h-[17px] scale-[1.4]" />
-            </Button>
-          </div>
-        ))}
+              <span className="mr-[1px] mt-[1px] text-[13px]">
+                {translatedMarket}
+              </span>
+              <span className="mt-[2px] text-[13px] font-normal">
+                {outcomeDisplay}
+              </span>
+              <span className="mt-[2px] text-[13px]">
+                {betEntry.bet.option.decPrice.toFixed(2)}
+              </span>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() =>
+                  removeBet(
+                    betEntry.market,
+                    betEntry.bet.option,
+                    betEntry.bet.competitors,
+                  )
+                }
+              >
+                <CircleXIcon className="mt-[1px] h-[17px] scale-[1.4]" />
+              </Button>
+            </div>
+          )
+        })}
       </div>
     </li>
   )

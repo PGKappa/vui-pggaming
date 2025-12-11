@@ -436,7 +436,7 @@ export default function UpcomingRaceCard({
                   number: race.id,
                   startingAt: race.time,
                 },
-                competitors: `${racer.number} - ${racer.name}`,
+                competitors: racer.name,
                 option: {
                   outcome: racer.number.toString(),
                   decPrice: parseFloat(
@@ -446,7 +446,7 @@ export default function UpcomingRaceCard({
                 track: getTrackName(6),
               }}
               variant="racecard"
-              className="h-12 w-[120px] bg-betEntry pt-[3px] text-[19px] text-betEntry-foreground"
+              className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] text-betEntry-foreground"
             />
           </TableCell>
           <TableCell className="w-[1px] bg-border p-0" />
@@ -461,7 +461,7 @@ export default function UpcomingRaceCard({
                   number: race.id,
                   startingAt: race.time,
                 },
-                competitors: `${racer.number} - ${racer.name}`,
+                competitors: racer.name,
                 option: {
                   outcome: racer.number.toString(),
                   decPrice: parseFloat(
@@ -471,7 +471,7 @@ export default function UpcomingRaceCard({
                 track: getTrackName(6),
               }}
               variant="racecard"
-              className="h-12 w-[120px] bg-betEntry pt-[3px] text-[19px] text-betEntry-foreground"
+              className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] text-betEntry-foreground"
             />
           </TableCell>
 
@@ -487,7 +487,7 @@ export default function UpcomingRaceCard({
                   number: race.id,
                   startingAt: race.time,
                 },
-                competitors: `${racer.number} - ${racer.name}`,
+                competitors: racer.name,
                 option: {
                   outcome: racer.number.toString(),
                   decPrice: parseFloat(
@@ -497,7 +497,7 @@ export default function UpcomingRaceCard({
                 track: getTrackName(6),
               }}
               variant="racecard"
-              className="h-12 w-[120px] bg-betEntry pt-[3px] text-[19px] text-betEntry-foreground"
+              className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] text-betEntry-foreground"
             />
           </TableCell>
         </>
@@ -528,7 +528,7 @@ export default function UpcomingRaceCard({
               pressed={position2Selection.includes(racer.number)}
               onPressedChange={() => togglePosition2Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className="h-12 w-[118px] border-betEntry-border left-[2px] relative pt-[3px]"
+              className="relative left-[2px] h-12 w-[118px] border-betEntry-border pt-[3px]"
             >
               <span className="text-[19px]">2°</span>
             </Toggle>
@@ -570,7 +570,7 @@ export default function UpcomingRaceCard({
                   pressed={disorderSelection.includes(racer.number)}
                   onPressedChange={() => toggleDisorderSelection(racer.number)}
                   onClick={(e) => e.stopPropagation()}
-                  className="h-12 w-[117px] border-betEntry-border right-[4px] relative pt-[3px]"
+                  className="relative right-[4px] h-12 w-[117px] border-betEntry-border pt-[3px]"
                 >
                   {disorderSelection.includes(racer.number) && (
                     <Check
@@ -644,7 +644,7 @@ export default function UpcomingRaceCard({
                   pressed={fixedSelection.includes(racer.number)}
                   onPressedChange={() => toggleFixedSelection(racer.number)}
                   onClick={(e) => e.stopPropagation()}
-                  className={`h-12 w-[56px] border-betEntry-border relative left-[17px] pt-[3px] ${
+                  className={`relative left-[17px] h-12 w-[56px] border-betEntry-border pt-[3px] ${
                     fixedSelection.includes(racer.number) ? 'text-white' : ''
                   }`}
                 >
@@ -691,19 +691,19 @@ export default function UpcomingRaceCard({
 
     return (
       <div className="mt-2 w-full">
-        <div className="grid grid-cols-2 gap-0 border-card-foreground border-b-0 border-t-0">
+        <div className="grid grid-cols-2 gap-0 border-b-0 border-t-0 border-card-foreground">
           {/* Even/Odd Market */}
           <div>
             <div className="bg-accent text-accent-foreground">
-              <div className="border-slate flex h-16 items-center justify-center text-[16px] font-bold border-r">
+              <div className="border-slate flex h-[64px] items-center justify-center border-r text-[16px] font-bold">
                 {t('even_odd').toUpperCase()}
               </div>
             </div>
 
-            <div className="flex h-16">
-              <div className="flex flex-1 items-center justify-between border-b pl-16 ">
+            <div className="flex h-[66px]">
+              <div className="flex flex-1 items-center justify-between border-b pl-16 text-[1px]">
                 <BetEntryToggle
-                  marketName="Even/Odd"
+                  marketName={t('even_odd')}
                   bet={{
                     discipline: race.discipline,
                     event: {
@@ -711,21 +711,21 @@ export default function UpcomingRaceCard({
                       number: race.id,
                       startingAt: race.time,
                     },
-                    competitors: 'Even',
+                    competitors: t('Even'),
                     option: {
-                      outcome: 'Even',
+                      outcome: t('Even'),
                       decPrice: parseFloat(raceInfo.odds.evenodd?.even || '0'),
                     },
                     track: getTrackName(6),
                   }}
                   variant="matchcard"
-                  className="h-[45px] w-full text-[16px] text-black"
+                  className="h-[49px] w-full text-[16px] text-black"
                 />
               </div>
 
-              <div className="flex flex-1 items-center justify-between border-b  border-black pl-16 pr-16 border-r">
+              <div className="flex flex-1 items-center justify-between border-b border-r border-black pl-16 pr-16">
                 <BetEntryToggle
-                  marketName="Even/Odd"
+                  marketName={t('even_odd')}
                   bet={{
                     discipline: race.discipline,
                     event: {
@@ -733,15 +733,15 @@ export default function UpcomingRaceCard({
                       number: race.id,
                       startingAt: race.time,
                     },
-                    competitors: 'Odd',
+                    competitors: t('Odd'),
                     option: {
-                      outcome: 'Odd',
+                      outcome: t('Odd'),
                       decPrice: parseFloat(raceInfo.odds.evenodd?.odd || '0'),
                     },
                     track: getTrackName(6),
                   }}
                   variant="matchcard"
-                  className="h-[45px] w-full text-[16px] text-black"
+                  className="h-[49px] w-full text-[16px] text-black"
                 />
               </div>
             </div>
@@ -750,15 +750,15 @@ export default function UpcomingRaceCard({
           {/* Under/Over Market */}
           <div>
             <div className="bg-accent text-accent-foreground">
-              <div className="flex h-16 items-center justify-center pt-0.5 text-[17px] font-bold">
+              <div className="flex h-16 items-center justify-center text-[16px] font-bold">
                 {t('under_over').toUpperCase()} 3.5
               </div>
             </div>
 
-            <div className="flex h-16">
-              <div className="flex flex-1 items-center justify-between border-b  pl-16">
+            <div className="flex h-[66px]">
+              <div className="flex flex-1 items-center justify-between border-b pl-16">
                 <BetEntryToggle
-                  marketName="Under/Over"
+                  marketName={t('under_over')}
                   bet={{
                     discipline: race.discipline,
                     event: {
@@ -766,9 +766,9 @@ export default function UpcomingRaceCard({
                       number: race.id,
                       startingAt: race.time,
                     },
-                    competitors: 'Under',
+                    competitors: t('Under'),
                     option: {
-                      outcome: 'Under',
+                      outcome: t('Under'),
                       decPrice: parseFloat(
                         raceInfo.odds.underover?.under || '0',
                       ),
@@ -776,13 +776,13 @@ export default function UpcomingRaceCard({
                     track: getTrackName(6),
                   }}
                   variant="matchcard"
-                  className="h-[45px] w-full text-[16px] text-black"
+                  className="h-[49px] w-full text-[16px] text-black"
                 />
               </div>
 
-              <div className="flex flex-1 items-center justify-between border-b  pl-16 pr-16">
+              <div className="flex flex-1 items-center justify-between border-b pl-16 pr-16">
                 <BetEntryToggle
-                  marketName="Under/Over"
+                  marketName={t('under_over')}
                   bet={{
                     discipline: race.discipline,
                     event: {
@@ -790,9 +790,9 @@ export default function UpcomingRaceCard({
                       number: race.id,
                       startingAt: race.time,
                     },
-                    competitors: 'Over',
+                    competitors: t('Over'),
                     option: {
-                      outcome: 'Over',
+                      outcome: t('Over'),
                       decPrice: parseFloat(
                         raceInfo.odds.underover?.over || '0',
                       ),
@@ -800,7 +800,7 @@ export default function UpcomingRaceCard({
                     track: getTrackName(6),
                   }}
                   variant="matchcard"
-                  className="h-[45px] w-full text-[16px] text-black"
+                  className="h-[49px] w-full text-[16px] text-black"
                 />
               </div>
             </div>
@@ -813,13 +813,13 @@ export default function UpcomingRaceCard({
   return (
     <>
       <Card className="h-full w-full">
-        <CardHeader className="flex h-16 flex-row items-center justify-between px-[10px]">
+        <CardHeader className="flex h-16 flex-row items-center justify-between px-[12px]">
           <div className="flex items-center gap-[8px]">
             {Object.entries(tabConfig).map(([key, config]) => (
               <Button
                 key={key}
                 variant={activeTab === key ? 'marketSelected' : 'market'}
-                className="h-12 w-28 border px-4 pb-0 text-[16px] font-semibold uppercase"
+                className="h-12 w-[121px] border px-[18px] pb-0 text-[16px] font-semibold uppercase"
                 onClick={() => handleTabChange(key as TabType)}
               >
                 {config.name}
@@ -828,6 +828,11 @@ export default function UpcomingRaceCard({
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Testo Evento */}
+            <span className="p-[10px] text-[15px] font-semibold text-tertiary-foreground">
+              {'ID'} {race.id}
+            </span>
+
             {/* Pulsante Clear */}
             {(activeTab === 'couples' || activeTab === 'triplets') &&
               (position1Selection.length > 0 ||
@@ -849,10 +854,10 @@ export default function UpcomingRaceCard({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-12 w-[137px] border-border bg-secondary pr-[1px] pt-[1px] text-[15px] text-secondary-foreground"
+                className="h-12 w-fit border-border bg-secondary px-[18px] pb-[1px] text-[15px] text-secondary-foreground"
                 onClick={() => setIsLatecomersDialogOpen(true)}
               >
-                <span>{'Latecomers'.toUpperCase()}</span>
+                <span>{t('latecomers').toUpperCase()}</span>
               </Button>
             )}
           </div>
@@ -873,7 +878,7 @@ export default function UpcomingRaceCard({
                     <TableCell className="relative left-1 p-2 text-[18px]">
                       <div className="flex items-center gap-[7px]">
                         <div
-                          className="flex h-8 w-8 items-center justify-center rounded-md pt-0.5 text-[21px] font-bold"
+                          className="flex h-[33px] w-[33px] items-center justify-center rounded-md text-[21px] font-semibold"
                           style={
                             getRacerColors(
                               racer.number,
@@ -884,7 +889,9 @@ export default function UpcomingRaceCard({
                           {racer.number}
                         </div>
                         <div>
-                          <div className="font-semibold">{racer.name}</div>
+                          <div className="pl-1 pt-0.5 text-[17px] font-semibold">
+                            {racer.name}
+                          </div>
                         </div>
                       </div>
                     </TableCell>
@@ -922,10 +929,10 @@ export default function UpcomingRaceCard({
                   </TableRow>
                 ))
               ) : (
-                <TableRow>
+                <TableRow className="border-none">
                   <TableCell
                     colSpan={12}
-                    className="py-6 text-center text-[19px]"
+                    className="border-none py-6 text-center text-[19px]"
                   >
                     {isLoading
                       ? `${t('loading')}...`
