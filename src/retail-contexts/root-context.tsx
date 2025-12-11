@@ -42,6 +42,7 @@ export type RootContextType = {
   getCurrencySymbol?: () => string
   getCurrencyCode?: () => string
   getMinStakeIncrement?: () => number
+  getStakeButtons?: () => number[]
   getChannels?: () => any[]
   getTrackName?: (channel?: number) => string
   getTranslation?: (key: string, fallback?: string) => string
@@ -702,6 +703,7 @@ export default function RootContextProvider(props: {
               CHF: 'CHF',
               CAD: 'C$',
               AUD: 'A$',
+              COP: '$', // Peso Colombiano
             }
             return currencyMap[currencyCode] || '€'
           }
@@ -735,9 +737,7 @@ export default function RootContextProvider(props: {
           }
 
           const getMinStakeIncrement = () => {
-            // TODO: Decommentare quando l'API sarà aggiornata
             // Prende il min_stake_increment_step dal cashier data
-            /*
             const minStakeIncrementStep = cashierData.intl?.min_stake_increment_step
             
             if (typeof minStakeIncrementStep === 'string') {
@@ -750,10 +750,21 @@ export default function RootContextProvider(props: {
             if (typeof minStakeIncrementStep === 'number' && minStakeIncrementStep > 0) {
               return minStakeIncrementStep
             }
-            */
 
-            // Per ora usa 0.05 fisso (da rimuovere quando API sarà pronta)
-            return 0.05
+            // Fallback
+            return 50
+          }
+
+          const getStakeButtons = (): number[] => {
+            // Prende i stake_buttons dal cashier data
+            const stakeButtons = cashierData.intl?.stake_buttons
+            
+            if (Array.isArray(stakeButtons) && stakeButtons.length > 0) {
+              return stakeButtons
+            }
+            
+            // Fallback ai valori di default
+            return [1000, 2000, 3000, 5000, 10000]
           }
 
           const contextData = {
@@ -762,6 +773,7 @@ export default function RootContextProvider(props: {
             getCurrencySymbol,
             getCurrencyCode,
             getMinStakeIncrement,
+            getStakeButtons,
             getChannels,
             getTrackName,
             getTranslation,
@@ -814,6 +826,7 @@ export default function RootContextProvider(props: {
             cashierData: null,
             getCurrencySymbol: () => '$',
             getCurrencyCode: () => 'USD',
+            getStakeButtons: () => [1000, 2000, 3000, 5000, 10000],
             getChannels: () => [],
             getTrackName: (channel?: number) => `Track ${channel || 6}`,
             getTranslation: (key: string, fallback?: string) => fallback || key,

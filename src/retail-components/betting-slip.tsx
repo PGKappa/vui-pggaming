@@ -84,6 +84,11 @@ export default function BettingSlip({
   // Ottieni il simbolo della valuta dall'API cashier
   const currencySymbol = rootContext?.getCurrencySymbol?.() || '€'
 
+  // Ottieni i valori dei pulsanti stake dall'API
+  const stakeButtons = rootContext?.getStakeButtons?.() || [
+    1000, 2000, 3000, 5000, 10000,
+  ]
+
   const [accordionOpen, setAccordionOpen] = useState<string>('combinations')
   const [systemGroupsOpen, setSystemGroupsOpen] = useState<string[]>([])
 
@@ -925,8 +930,7 @@ export default function BettingSlip({
 
             {/* Quick stake buttons */}
             <div className="relative top-[19px] grid grid-cols-5 gap-2 p-2">
-              {/* {[5, 10, 20, 30, 50].map((amount) => ( */}
-              {[1000, 2000, 3000, 5000, 10000].map((amount) => (
+              {stakeButtons.map((amount) => (
                 <Button
                   key={amount}
                   variant="outline"
@@ -934,7 +938,6 @@ export default function BettingSlip({
                   className="h-8 bg-muted-foreground text-[14px]"
                   onClick={() => setGlobal((prev) => prev + amount)}
                 >
-                  {/* {currencySymbol}  */}
                   {amount}
                 </Button>
               ))}
