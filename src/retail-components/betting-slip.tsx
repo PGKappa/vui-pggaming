@@ -89,6 +89,12 @@ export default function BettingSlip({
     1000, 2000, 3000, 5000, 10000,
   ]
 
+  // Ottieni i limiti di stake e vincita dall'API
+  const minStake = rootContext?.getMinStake?.() || 50
+  const minBet = rootContext?.getMinBet?.() || 0
+  const maxWin = rootContext?.getMaxWin?.() || 1000000000
+  const minStakeIncrement = rootContext?.getMinStakeIncrement?.() || 50
+
   const [accordionOpen, setAccordionOpen] = useState<string>('combinations')
   const [systemGroupsOpen, setSystemGroupsOpen] = useState<string[]>([])
 
@@ -214,6 +220,16 @@ export default function BettingSlip({
       toast.error(t('enter_valid_amount'))
       return
     }
+
+    // Validazione min_stake
+    if (systemDistributeStake < minStake) {
+      toast.error(
+        t('min_stake_error', { min: minStake }) ||
+          `Minimum stake is ${currencySymbol} ${minStake.toFixed(2)}`,
+      )
+      return
+    }
+
     if (systemGroups.length === 0) return
 
     const selectedGroupsList = systemGroups.filter(
@@ -313,6 +329,15 @@ export default function BettingSlip({
       return
     }
 
+    // Validazione min_stake
+    if (systemDistributeStake < minStake) {
+      toast.error(
+        t('min_stake_error', { min: minStake }) ||
+          `Minimum stake is ${currencySymbol} ${minStake.toFixed(2)}`,
+      )
+      return
+    }
+
     // Controlla se almeno un gruppo è selezionato
     const hasSelectedGroups = systemGroups.some(
       (group) => selectedGroups[group.name],
@@ -349,6 +374,15 @@ export default function BettingSlip({
 
   const handleUpdateGroupStake = (groupName: string, value: number) => {
     const finalValue = Math.max(0, value)
+
+    // Validazione: se il valore è maggiore di 0 ma minore di minStake, mostra errore
+    if (finalValue > 0 && finalValue < minStake) {
+      toast.error(
+        t('min_stake_error', { min: minStake }) ||
+          `Minimum stake is ${currencySymbol} ${minStake.toFixed(2)}`,
+      )
+      return
+    }
 
     setSystemGroupStakes((prev) => ({
       ...prev,
@@ -398,9 +432,6 @@ export default function BettingSlip({
     setGlobal(value)
   }
 
-  // Importo minimo per combinazione
-  const MINIMUM_STAKE = 50 // 50 pesos colombiani (COP)
-
   // Funzioni per gestire i checkbox
   const handleAllGroupsToggle = (checked: boolean) => {
     setAllGroupsSelected(checked)
@@ -411,7 +442,7 @@ export default function BettingSlip({
       newSelectedGroups[group.name] = checked
 
       if (checked) {
-        newStakes[group.name] = MINIMUM_STAKE
+        newStakes[group.name] = minStake
       } else {
         newStakes[group.name] = 0
       }
@@ -433,7 +464,7 @@ export default function BettingSlip({
     if (checked) {
       setSystemGroupStakes((prev) => ({
         ...prev,
-        [groupName]: MINIMUM_STAKE,
+        [groupName]: minStake,
       }))
     } else {
       setSystemGroupStakes((prev) => ({
@@ -524,6 +555,33 @@ export default function BettingSlip({
       return
     }
 
+    // Validazione min_stake per single/multiple
+    if (betMode !== 'SYSTEM' && global < minStake) {
+      toast.error(
+        t('min_stake_error', { min: minStake }) ||
+          `Minimum stake is ${currencySymbol} ${minStake.toFixed(2)}`,
+      )
+      return
+    }
+
+    // Validazione min_bet per il totale del ticket
+    if (betMode !== 'SYSTEM' && minBet > 0 && global < minBet) {
+      toast.error(
+        t('min_bet_error', { min: minBet }) ||
+          `Minimum ticket amount is ${currencySymbol} ${minBet.toFixed(2)}`,
+      )
+      return
+    }
+
+    // Validazione max_win per single/multiple
+    if (betMode !== 'SYSTEM' && potentialWinning > maxWin) {
+      toast.error(
+        t('max_win_error', { max: maxWin }) ||
+          `Maximum potential win is ${currencySymbol} ${maxWin.toFixed(2)}`,
+      )
+      return
+    }
+
     if (betMode === 'SYSTEM') {
       const totalSystemStake = systemGroups.reduce(
         (sum, group) => sum + group.stake,
@@ -531,6 +589,39 @@ export default function BettingSlip({
       )
       if (totalSystemStake <= 0) {
         toast.error(t('enter_system_amount'))
+        return
+      }
+
+      // Validazione min_stake per ogni gruppo sistema
+      const invalidGroups = systemGroups.filter(
+        (group) =>
+          selectedGroups[group.name] &&
+          group.stake > 0 &&
+          group.stake < minStake,
+      )
+      if (invalidGroups.length > 0) {
+        toast.error(
+          t('min_stake_error', { min: minStake }) ||
+            `Minimum stake per combination is ${currencySymbol} ${minStake.toFixed(2)}`,
+        )
+        return
+      }
+
+      // Validazione min_bet per il totale del ticket sistema
+      if (minBet > 0 && totalSystemStake < minBet) {
+        toast.error(
+          t('min_bet_error', { min: minBet }) ||
+            `Minimum ticket amount is ${currencySymbol} ${minBet.toFixed(2)}`,
+        )
+        return
+      }
+
+      // Validazione max_win per sistema
+      if (totalSystemPotentialWin > maxWin) {
+        toast.error(
+          t('max_win_error', { max: maxWin }) ||
+            `Maximum potential win is ${currencySymbol} ${maxWin.toFixed(2)}`,
+        )
         return
       }
     }
@@ -1098,7 +1189,8 @@ export default function BettingSlip({
                                     size="sm"
                                     onClick={(e) => {
                                       e.stopPropagation()
-                                      const newValue = group.stake - 50
+                                      const newValue =
+                                        group.stake - minStakeIncrement
                                       const finalValue = Math.max(0, newValue)
 
                                       // Aggiorna il valore
@@ -1152,7 +1244,8 @@ export default function BettingSlip({
                                     size="sm"
                                     onClick={(e) => {
                                       e.stopPropagation()
-                                      const newValue = group.stake + 50
+                                      const newValue =
+                                        group.stake + minStakeIncrement
 
                                       // Aggiorna il valore
                                       handleUpdateGroupStake(

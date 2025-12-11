@@ -289,5 +289,8 @@
   "no_odds_found": "No se encontraron cuotas para este código",
   "bets_added": "Apuesta(s) añadida(s)",
   "cannot_bet_expired_events": "No se puede apostar en eventos finalizados",
-  "no_events_available": "No hay eventos disponibles"
+  "no_events_available": "No hay eventos disponibles",
+  "min_stake_error": "El importe mínimo de apuesta es {{min}}",
+  "max_win_error": "La ganancia máxima permitida es {{max}}",
+  "min_bet_error": "El importe mínimo del ticket es {{min}}"
 }

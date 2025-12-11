@@ -43,6 +43,9 @@ export type RootContextType = {
   getCurrencyCode?: () => string
   getMinStakeIncrement?: () => number
   getStakeButtons?: () => number[]
+  getMinStake?: () => number
+  getMinBet?: () => number
+  getMaxWin?: () => number
   getChannels?: () => any[]
   getTrackName?: (channel?: number) => string
   getTranslation?: (key: string, fallback?: string) => string
@@ -738,16 +741,20 @@ export default function RootContextProvider(props: {
 
           const getMinStakeIncrement = () => {
             // Prende il min_stake_increment_step dal cashier data
-            const minStakeIncrementStep = cashierData.intl?.min_stake_increment_step
-            
+            const minStakeIncrementStep =
+              cashierData.intl?.min_stake_increment_step
+
             if (typeof minStakeIncrementStep === 'string') {
               const parsed = parseFloat(minStakeIncrementStep)
               if (!isNaN(parsed) && parsed > 0) {
                 return parsed
               }
             }
-            
-            if (typeof minStakeIncrementStep === 'number' && minStakeIncrementStep > 0) {
+
+            if (
+              typeof minStakeIncrementStep === 'number' &&
+              minStakeIncrementStep > 0
+            ) {
               return minStakeIncrementStep
             }
 
@@ -758,13 +765,70 @@ export default function RootContextProvider(props: {
           const getStakeButtons = (): number[] => {
             // Prende i stake_buttons dal cashier data
             const stakeButtons = cashierData.intl?.stake_buttons
-            
+
             if (Array.isArray(stakeButtons) && stakeButtons.length > 0) {
               return stakeButtons
             }
-            
+
             // Fallback ai valori di default
             return [1000, 2000, 3000, 5000, 10000]
+          }
+
+          const getMinStake = (): number => {
+            // Prende il min_stake dal cashier data
+            const minStake = cashierData.intl?.min_stake
+
+            if (typeof minStake === 'string') {
+              const parsed = parseFloat(minStake)
+              if (!isNaN(parsed) && parsed > 0) {
+                return parsed
+              }
+            }
+
+            if (typeof minStake === 'number' && minStake > 0) {
+              return minStake
+            }
+
+            // Fallback
+            return 50
+          }
+
+          const getMinBet = (): number => {
+            // Prende il min_bet dal cashier data
+            const minBet = cashierData.intl?.min_bet
+
+            if (typeof minBet === 'string') {
+              const parsed = parseFloat(minBet)
+              if (!isNaN(parsed) && parsed >= 0) {
+                return parsed
+              }
+            }
+
+            if (typeof minBet === 'number' && minBet >= 0) {
+              return minBet
+            }
+
+            // Fallback
+            return 0
+          }
+
+          const getMaxWin = (): number => {
+            // Prende il max_win dal cashier data
+            const maxWin = cashierData.intl?.max_win
+
+            if (typeof maxWin === 'string') {
+              const parsed = parseFloat(maxWin)
+              if (!isNaN(parsed) && parsed > 0) {
+                return parsed
+              }
+            }
+
+            if (typeof maxWin === 'number' && maxWin > 0) {
+              return maxWin
+            }
+
+            // Fallback a 1 miliardo
+            return 1000000000
           }
 
           const contextData = {
@@ -774,6 +838,9 @@ export default function RootContextProvider(props: {
             getCurrencyCode,
             getMinStakeIncrement,
             getStakeButtons,
+            getMinStake,
+            getMinBet,
+            getMaxWin,
             getChannels,
             getTrackName,
             getTranslation,
@@ -827,6 +894,9 @@ export default function RootContextProvider(props: {
             getCurrencySymbol: () => '$',
             getCurrencyCode: () => 'USD',
             getStakeButtons: () => [1000, 2000, 3000, 5000, 10000],
+            getMinStake: () => 50,
+            getMinBet: () => 0,
+            getMaxWin: () => 1000000000,
             getChannels: () => [],
             getTrackName: (channel?: number) => `Track ${channel || 6}`,
             getTranslation: (key: string, fallback?: string) => fallback || key,
