@@ -51,7 +51,7 @@ export default function EventBets(props: {
 
   return (
     <li>
-      <div className="flex h-[88px] flex-col gap-0 border border-betSlip-foreground p-1">
+      <div className="flex h-[90px] flex-col gap-0 border border-betSlip-foreground p-1">
         <div className="flex flex-row justify-between">
           <div className={betMode === 'SYSTEM' ? 'visible' : 'invisible'}>
             <div className="relative bottom-[1px] flex flex-row items-center gap-2 pl-1">
