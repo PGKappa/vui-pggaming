@@ -46,6 +46,22 @@ export default function BetCombinationsTable({
     const allCombinations: Bet[] = []
     const raceData = race.data as UpcomingRace
 
+    // Helper to get racer name from number
+    const getRacerName = (racerNumber: number | string): string => {
+      const racer = raceData.racers.find(
+        (r) => r.number === Number(racerNumber),
+      )
+      return racer?.name || racerNumber.toString()
+    }
+
+    // Helper to convert number key like "1-2-3" to names like "Black-White-Red"
+    const getCombinationNames = (numberKey: string): string => {
+      return numberKey
+        .split('-')
+        .map((num) => getRacerName(num))
+        .join('-')
+    }
+
     // Controlla se una combinazione include almeno una fissa
     const includesFixedRacer = (racers: number[]): boolean => {
       if (fixedSelection.length === 0) return true // Nessuna fissa = tutte valide
@@ -70,6 +86,9 @@ export default function BetCombinationsTable({
           if (racer1 === racer2) return
           const odds = raceData.odds.exacta[racer1]?.[racer2]
           if (odds) {
+            const racer1Name = getRacerName(racer1)
+            const racer2Name = getRacerName(racer2)
+
             allCombinations.push({
               discipline: race.discipline,
               event: {
@@ -77,7 +96,7 @@ export default function BetCombinationsTable({
                 number: race.id,
                 startingAt: race.time,
               },
-              competitors: `${racer1}-${racer2}`,
+              competitors: `${racer1Name}-${racer2Name}`,
               option: {
                 outcome: `${racer1}-${racer2}`,
                 decPrice: parseFloat(odds),
@@ -108,6 +127,9 @@ export default function BetCombinationsTable({
 
                     const odds = raceData.odds.quinella[racer1]?.[racer2]
                     if (odds) {
+                      const racer1Name = getRacerName(racer1)
+                      const racer2Name = getRacerName(racer2)
+
                       allCombinations.push({
                         discipline: race.discipline,
                         event: {
@@ -115,7 +137,7 @@ export default function BetCombinationsTable({
                           number: race.id,
                           startingAt: race.time,
                         },
-                        competitors: `${racer1}-${racer2} any Order`,
+                        competitors: `${racer1Name}-${racer2Name} any Order`,
                         option: {
                           outcome: `${racer1}-${racer2} any`,
                           decPrice: parseFloat(odds),
@@ -144,6 +166,9 @@ export default function BetCombinationsTable({
 
                 const odds = raceData.odds.quinella[racer1]?.[racer2]
                 if (odds) {
+                  const racer1Name = getRacerName(racer1)
+                  const racer2Name = getRacerName(racer2)
+
                   allCombinations.push({
                     discipline: race.discipline,
                     event: {
@@ -151,7 +176,7 @@ export default function BetCombinationsTable({
                       number: race.id,
                       startingAt: race.time,
                     },
-                    competitors: `${racer1}-${racer2} any Order`,
+                    competitors: `${racer1Name}-${racer2Name} any Order`,
                     option: {
                       outcome: `${racer1}-${racer2} any`,
                       decPrice: parseFloat(odds),
@@ -176,6 +201,9 @@ export default function BetCombinationsTable({
 
                   const odds = raceData.odds.quinella[racer1]?.[racer2]
                   if (odds) {
+                    const racer1Name = getRacerName(racer1)
+                    const racer2Name = getRacerName(racer2)
+
                     allCombinations.push({
                       discipline: race.discipline,
                       event: {
@@ -183,7 +211,7 @@ export default function BetCombinationsTable({
                         number: race.id,
                         startingAt: race.time,
                       },
-                      competitors: `${racer1}-${racer2} any Order`,
+                      competitors: `${racer1Name}-${racer2Name} any Order`,
                       option: {
                         outcome: `${racer1}-${racer2} any`,
                         decPrice: parseFloat(odds),
@@ -226,6 +254,10 @@ export default function BetCombinationsTable({
             if (racer1 === racer3 || racer2 === racer3) return
             const odds = raceData.odds.trifecta[racer1]?.[racer2]?.[racer3]
             if (odds) {
+              const racer1Name = getRacerName(racer1)
+              const racer2Name = getRacerName(racer2)
+              const racer3Name = getRacerName(racer3)
+
               allCombinations.push({
                 discipline: race.discipline,
                 event: {
@@ -233,7 +265,7 @@ export default function BetCombinationsTable({
                   number: race.id,
                   startingAt: race.time,
                 },
-                competitors: `${racer1}-${racer2}-${racer3}`,
+                competitors: `${racer1Name}-${racer2Name}-${racer3Name}`,
                 option: {
                   outcome: `${racer1}-${racer2}-${racer3}`,
                   decPrice: parseFloat(odds),
@@ -391,7 +423,7 @@ export default function BetCombinationsTable({
                         number: race.id,
                         startingAt: race.time,
                       },
-                      competitors: `${combinationKey} any Order`,
+                      competitors: `${getCombinationNames(combinationKey)} any Order`,
                       option: {
                         outcome: `${combinationKey} any`,
                         decPrice: parseFloat(odds),
@@ -441,7 +473,7 @@ export default function BetCombinationsTable({
                             number: race.id,
                             startingAt: race.time,
                           },
-                          competitors: `${combinationKey} any Order`,
+                          competitors: `${getCombinationNames(combinationKey)} any Order`,
                           option: {
                             outcome: `${combinationKey} any`,
                             decPrice: parseFloat(odds),
@@ -504,13 +536,13 @@ export default function BetCombinationsTable({
   const getMarketName = () => {
     switch (marketType) {
       case 'exacta':
-        return `${t('exacta')}`
+        return 'Exacta'
       case 'quinella':
-        return `${t('quinella')}`
+        return 'Quinella'
       case 'trifecta':
-        return `${t('trifecta')}`
+        return 'Trifecta'
       case 'boxtrifecta':
-        return `${t('boxed_trifecta')}`
+        return 'Boxed Trifecta'
       default:
         return ''
     }

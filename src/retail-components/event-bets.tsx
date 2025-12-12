@@ -1,5 +1,4 @@
 import { BetsContext } from '@/retail-contexts/bets-context'
-import { RootContext } from '@/retail-contexts/root-context'
 import { BetEntry } from '@/retail-lib/types'
 import useTimeLeft from '@/retail-lib/use-time-left'
 import { format } from 'date-fns'
@@ -20,11 +19,35 @@ export default function EventBets(props: {
   const { betMode, eventKey, eventBets } = props
   const { removeBet, removeEventBets, toggleEventBetsFixed } =
     useContext(BetsContext)
-  const rootContext = useContext(RootContext)
-  const getTrackName =
-    rootContext?.getTrackName || ((channel?: number) => `Track ${channel || 6}`)
 
   const timeToMatchStart = useTimeLeft(eventBets[0].bet.event.startingAt)
+
+  // Helper to translate market names
+  const getTranslatedMarket = (market: string) => {
+    const marketLower = market.toLowerCase()
+    switch (marketLower) {
+      case 'winner':
+        return t('winner')
+      case 'placed':
+        return t('place_2')
+      case 'show':
+        return t('show_3')
+      case 'exacta':
+        return t('exacta')
+      case 'quinella':
+        return t('quinella')
+      case 'trifecta':
+        return t('trifecta')
+      case 'boxed trifecta':
+        return t('boxed_trifecta')
+      case 'even/odd':
+        return t('even_odd')
+      case 'under/over':
+        return t('under_over')
+      default:
+        return market
+    }
+  }
 
   return (
     <li>
@@ -79,7 +102,7 @@ export default function EventBets(props: {
           <span className="text-[16px]">{eventBets[0].bet.competitors}</span>
         ) : (
           <span className="relative bottom-[1px] ml-[3px] pb-[4px] text-[14px] uppercase">
-            {eventBets[0].bet.track || getTrackName(6)}
+            {eventBets[0].bet.track ||  t('track_6')}
           </span>
         )}
       </div>

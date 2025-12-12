@@ -5,7 +5,59 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export const BASE_API_URL = process.env.NEXT_PUBLIC_BASE_API_URL
+// API URLs per Virtual
+export const API_URLS = {
+  PGVIRTUAL: 'https://apidev.pgvirtual.eu',
+  CASHIER_INIT: 'https://apidev.pgvirtual.eu/api/init/cashier',
+  BASE: process.env.NEXT_PUBLIC_BASE_API_URL || 'https://retail.virtualsport.shop/proxy',
+} as const
+
+// Backwards compatibility
+export const BASE_API_URL = API_URLS.BASE
+export const CASHIER_API_URL = API_URLS.CASHIER_INIT
+export const PGVIRTUAL_API_URL = API_URLS.PGVIRTUAL
+
+// Helper per chiamate API PGVirtual per Virtual
+export function createPGVirtualAPICall(
+  endpoint: string,
+  initCode: string,
+  options?: RequestInit,
+) {
+  return fetch(`${PGVIRTUAL_API_URL}${endpoint}`, {
+    ...options,
+    headers: {
+      accept: 'application/json',
+      'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
+      authorization: `Bearer ${initCode}`,
+      operator: 'bingoal',
+      ...options?.headers,
+    },
+    mode: 'cors',
+    credentials: 'include',
+  })
+}
+
+// Helper per l'inizializzazione cashier 
+export async function fetchCashierInit(initCode: string): Promise<any> {
+  const response = await fetch(API_URLS.CASHIER_INIT, {
+    method: 'POST',
+    headers: {
+      accept: 'application/json',
+      authorization: `Bearer ${initCode}`,
+      operator: 'bingoal',
+    },
+    mode: 'cors',
+    credentials: 'include',
+  })
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}))
+    console.error('Cashier API error:', response.status, errorData)
+    throw new Error(`Cashier API error: ${response.status}`)
+  }
+
+  return response.json()
+}
 
 export function getTimeDistanceFromNow(targetTime: Date) {
   const diff = targetTime.getTime() - Date.now()

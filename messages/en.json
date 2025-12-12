@@ -118,4 +118,10 @@
   "min_stake_error": "Minimum stake is {{min}}",
   "max_win_error": "Maximum potential win is {{max}}",
   "min_bet_error": "Minimum ticket amount is {{min}}"
+  "no_bet_selected": "No bet selected",
+  "enter_valid_amount": "Please enter a valid amount",
+  "enter_system_amount": "Please enter a valid system amount",
+  "bet_submitted_successfully": "Bet submitted successfully",
+  "bet_submission_error": "Error submitting bet",
+  "submitting": "Submitting..."
 }
