@@ -51,7 +51,7 @@ export default function EventBets(props: {
 
   return (
     <li>
-      <div className="flex h-[91px] flex-col gap-0 border border-betSlip-foreground p-1">
+      <div className="flex h-[88px] flex-col gap-0 border border-betSlip-foreground p-1">
         <div className="flex flex-row justify-between">
           <div className={betMode === 'SYSTEM' ? 'visible' : 'invisible'}>
             <div className="relative bottom-[1px] flex flex-row items-center gap-2 pl-1">
@@ -81,7 +81,7 @@ export default function EventBets(props: {
         </div>
 
         <div className="relative bottom-0 mt-[1px] flex items-center justify-between">
-          <span className="relative top-[1px] ml-[3px] text-[15px] font-semibold">
+          <span className="relative  ml-[3px] text-[15px] font-semibold">
             {eventBets[0].bet.discipline === 'SOCCER'
               ? t('football')
               : eventBets[0].bet.discipline === 'DOGS'
@@ -90,7 +90,7 @@ export default function EventBets(props: {
           </span>
 
           <div className="flex items-center gap-2">
-            <span className="relative left-[1px] top-[1px] text-[15px] font-bold tabular-nums">
+            <span className="relative left-[1px]  text-[15px] font-bold tabular-nums">
               {format(eventBets[0].bet.event.startingAt, 'HH:mm')}
             </span>
             <Badge className="mr-[4px] h-[27px] w-[61px] items-center justify-center bg-accent text-[14px] tabular-nums text-[#99a6b1]">
