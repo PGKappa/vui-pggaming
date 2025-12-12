@@ -24,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select'
+import { ChevronDown } from 'lucide-react'
 
 const dates = Array.from({ length: 10 }, (_, index) => {
   const date = new Date()
@@ -548,7 +549,7 @@ export default function SearchEventResults() {
                         >
                           <AccordionTrigger className="bg-accent border-b-0 p-0 pl-2 text-base text-accent-foreground [&[data-state=open]>svg]:-rotate-90">
                             <div className="flex w-[600px] flex-row justify-between gap-2 text-white relative top-1.5 h-[45px] mb-[7px]">
-                              <div className="flex flex-row gap-2">
+                              <div className="flex flex-row gap-2 ml-3">
                                 <span className="text-[15px] font-semibold relative top-[8px] left-[3px]">
                                   {eventResult.name.toUpperCase()} {' - '}
                                 </span>
@@ -560,7 +561,9 @@ export default function SearchEventResults() {
                                   <span>Soccer Match</span>
                                 )}
                               </div>
+                             
                             </div>
+                             <ChevronDown className="h-[25px] w-[25px] shrink-0 transition-transform duration-200 text-background mr-2" />
                           </AccordionTrigger>
                           <AccordionContent>
                             <EventResultDetails eventResult={eventResult} />
@@ -808,7 +811,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
             Array.isArray(detailedResult.arrival) &&
             detailedResult.arrival.length > 0 && (
               <div className="border-b mb-[-8px]">
-                <div className="h-[45px] bg-accent py-2 text-center">
+                <div className="h-[45px] bg-accent py-2 text-center mt-[7px]">
                   <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">
                     {t('arrival_order').toUpperCase()}
                   </div>
@@ -1171,7 +1174,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                   {raceResult.odds.evenodd.even && (
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
-                        <span className="mr-[639px]">
+                        <span className="mr-[604px]">
                           {t('even').toUpperCase()}
                         </span>{' '}
                         <span>{raceResult.odds.evenodd.even}</span>
@@ -1182,7 +1185,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                   {raceResult.odds.evenodd.odd && (
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
-                        <span className="mr-[639px]">
+                        <span className="mr-[604px]">
                           {t('odd').toUpperCase()}
                         </span>{' '}
                         <span>{raceResult.odds.evenodd.odd}</span>
@@ -1205,7 +1208,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                   {raceResult.odds.underover.under && (
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
-                        <span className="mr-[621px]">
+                        <span className="mr-[627px]">
                           {t('under').toUpperCase()}
                         </span>{' '}
                         <span>{raceResult.odds.underover.under}</span>
@@ -1215,7 +1218,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                   {raceResult.odds.underover.over && (
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
-                        <span className="mr-[653px]">
+                        <span className="mr-[627px]">
                           {t('over').toUpperCase()}
                         </span>{' '}
                         <span>{raceResult.odds.underover.over}</span>

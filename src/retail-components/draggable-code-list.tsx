@@ -216,7 +216,7 @@ export default function DraggableCodeList({
       <Button
         variant="ghost"
         size="icon"
-        className="h-12 w-12 bg-tertiary text-[18px] font-normal text-tertiary-foreground hover:bg-tertiary/70"
+        className="h-12 w-12 bg-bet text-[18px] font-normal text-tertiary-foreground hover:opacity-90"
         onClick={() => setIsOpen(!isOpen)}
       >
         i
