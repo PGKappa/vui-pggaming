@@ -388,7 +388,7 @@ export default function UpcomingRaceCard({
                 {t('place_2').toUpperCase()}
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
-              <TableHead className="w-[249px] text-center font-bold">
+              <TableHead className="w-[249px] text-center font-bold ">
                 {t('show_3').toUpperCase()}
               </TableHead>
             </>
