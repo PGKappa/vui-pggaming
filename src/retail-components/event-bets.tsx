@@ -101,7 +101,7 @@ export default function EventBets(props: {
         {eventBets[0].bet.discipline === 'SOCCER' ? (
           <span className="text-[16px]">{eventBets[0].bet.competitors}</span>
         ) : (
-          <span className="relative bottom-[1px] ml-[3px] pb-[4px] text-[14px] uppercase">
+          <span className="relative bottom-[1px] ml-[3px] pb-[4px] text-[13px] uppercase">
             {eventBets[0].bet.track ||  t('track_6')}
           </span>
         )}
@@ -143,33 +143,34 @@ export default function EventBets(props: {
           const translatedMarket = t(betEntry.market, betEntry.market)
 
           return (
-            <div
-              key={betEntry.id}
-              className="flex items-center justify-between text-sm"
-            >
-              <span className="mr-[1px] mt-[1px] text-[13px]">
-                {translatedMarket}
-              </span>
-              <span className="mt-[2px] text-[13px] font-normal">
-                {outcomeDisplay}
-              </span>
-              <span className="mt-[2px] text-[13px]">
-                {betEntry.bet.option.decPrice.toFixed(2)}
-              </span>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() =>
-                  removeBet(
-                    betEntry.market,
-                    betEntry.bet.option,
-                    betEntry.bet.competitors,
-                  )
-                }
-              >
-                <CircleXIcon className="mt-[1px] h-[17px] scale-[1.4]" />
-              </Button>
-            </div>
+            <div 
+  key={betEntry.id}
+  className="flex items-center text-sm pr-[8px]"
+>
+  <span className="mr-[1px] text-[13px] w-[126px]">
+    {translatedMarket}
+  </span>
+  <span className="ml-[0px] text-[13px] font-normal w-[109px]">
+    {outcomeDisplay}
+  </span>
+  <span className="text-[13px] w-[101px] break-all leading-tight">
+  {betEntry.bet.option.decPrice.toFixed(2)}
+</span>
+  <Button
+    variant="ghost"
+    size="icon"
+    className="w-[24px] h-[40px] flex-shrink-0 translate-x-[3px]"
+    onClick={() => {
+      removeBet(
+        betEntry.market,
+        betEntry.bet.option,
+        betEntry.bet.competitors,
+      )
+    }}
+  >
+    <CircleXIcon className="mt-[1px] h-[17px] scale-[1.4]" />
+  </Button>
+</div>
           )
         })}
       </div>
