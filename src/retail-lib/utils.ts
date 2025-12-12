@@ -37,6 +37,117 @@ export function getTimeDistanceFromNow(targetTime: Date) {
   return `${minutes}:${seconds}`
 }
 
+export function parseAPIDate(
+  dateString: string | Date | number,
+  apiTimezone: string,
+): Date {
+  // Se è già un Date object valido, restituiscilo direttamente
+  if (dateString instanceof Date) {
+    return isNaN(dateString.getTime()) ? new Date() : dateString
+  }
+
+  // Se è un numero (timestamp in millisecondi), convertilo
+  if (typeof dateString === 'number') {
+    const date = new Date(dateString)
+    return isNaN(date.getTime()) ? new Date() : date
+  }
+
+  // Se la stringa è vuota o invalida, restituisci la data corrente
+  if (!dateString || typeof dateString !== 'string') {
+    console.warn('Invalid dateString passed to parseAPIDate:', dateString)
+    return new Date()
+  }
+
+  try {
+    // Normalizza la stringa: sostituisci spazio con T per formato ISO
+    let normalizedString = dateString.trim().replace(' ', 'T')
+
+    // Se non ha la parte time, aggiungi mezzanotte
+    if (!normalizedString.includes('T')) {
+      normalizedString += 'T00:00:00'
+    }
+
+    // Se contiene già timezone info (Z o +/-offset), usala direttamente
+    if (
+      normalizedString.includes('Z') ||
+      /[+-]\d{2}:\d{2}$/.test(normalizedString)
+    ) {
+      const date = new Date(normalizedString)
+      if (!isNaN(date.getTime())) {
+        return date
+      }
+    }
+
+    // 1. Prendi la data senza timezone (sarà interpretata come locale dal browser)
+    const naiveDate = new Date(normalizedString)
+
+    if (isNaN(naiveDate.getTime())) {
+      console.warn('Failed to parse date:', dateString)
+      return new Date()
+    }
+
+    // 2. Calcola l'offset del timezone dell'API in minuti
+    // Creiamo una data di riferimento e vediamo come viene formattata nel timezone API vs UTC
+    const year = naiveDate.getFullYear()
+    const month = String(naiveDate.getMonth() + 1).padStart(2, '0')
+    const day = String(naiveDate.getDate()).padStart(2, '0')
+    const hours = String(naiveDate.getHours()).padStart(2, '0')
+    const minutes = String(naiveDate.getMinutes()).padStart(2, '0')
+    const seconds = String(naiveDate.getSeconds()).padStart(2, '0')
+
+    const dateStringFormatted = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`
+
+    // Crea la stessa data interpretata come UTC
+    const utcDate = new Date(dateStringFormatted + 'Z')
+
+    // Ottieni l'offset del timezone dell'API rispetto a UTC
+    // Calcoliamo quante ore di differenza ci sono
+    const apiDateStr = new Date(utcDate).toLocaleString('en-US', {
+      timeZone: apiTimezone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    })
+
+    const utcDateStr = new Date(utcDate).toLocaleString('en-US', {
+      timeZone: 'UTC',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    })
+
+    // Parse these formatted strings back to dates to get the offset
+    const apiMs = new Date(apiDateStr).getTime()
+    const utcMs = new Date(utcDateStr).getTime()
+    const offsetMs = utcMs - apiMs
+
+    // La data originale nel timezone dell'API corrisponde a questa data UTC
+    const correctDate = new Date(utcDate.getTime() - offsetMs)
+
+    return isNaN(correctDate.getTime()) ? naiveDate : correctDate
+  } catch (error) {
+    console.error(
+      'Error parsing date with timezone:',
+      error,
+      'dateString:',
+      dateString,
+      'timezone:',
+      apiTimezone,
+    )
+    // Fallback: prova parse semplice
+    const fallbackDate = new Date(dateString.replace(' ', 'T'))
+    return isNaN(fallbackDate.getTime()) ? new Date() : fallbackDate
+  }
+}
+
 // Helper per chiamate API PGVirtual pulite
 export function createPGVirtualAPICall(
   endpoint: string,
