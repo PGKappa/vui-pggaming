@@ -93,7 +93,7 @@ export default function EventBets(props: {
             <span className="relative left-[1px]  text-[15px] font-bold tabular-nums">
               {format(eventBets[0].bet.event.startingAt, 'HH:mm')}
             </span>
-            <Badge className="mr-[4px] h-[27px] w-[61px] items-center justify-center bg-accent text-[14px] tabular-nums text-[#99a6b1]">
+            <Badge className="mr-[4px] h-[27px] w-[61px] items-center justify-center bg-secondary text-[14px] tabular-nums text-betSlip-header">
               {timeToMatchStart}
             </Badge>
           </div>
@@ -153,7 +153,7 @@ export default function EventBets(props: {
   <span className="ml-[0px] text-[13px] font-normal w-[109px]">
     {outcomeDisplay}
   </span>
-  <span className="text-[13px] w-[101px] break-all leading-tight">
+  <span className="text-[13px] w-[101px] break-all leading-tight grid justify-end relative right-[3px] font-semibold">
   {betEntry.bet.option.decPrice.toFixed(2)}
 </span>
   <Button

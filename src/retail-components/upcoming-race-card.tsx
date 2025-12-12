@@ -446,7 +446,7 @@ export default function UpcomingRaceCard({
                 track: getTrackName(6),
               }}
               variant="racecard"
-              className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] text-betEntry-foreground"
+              className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] text-betEntry-foreground hover:opacity-85"
             />
           </TableCell>
           <TableCell className="w-[1px] bg-border p-0" />
@@ -471,7 +471,7 @@ export default function UpcomingRaceCard({
                 track: getTrackName(6),
               }}
               variant="racecard"
-              className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] text-betEntry-foreground"
+              className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] text-betEntry-foreground hover:opacity-85"
             />
           </TableCell>
 
@@ -497,7 +497,7 @@ export default function UpcomingRaceCard({
                 track: getTrackName(6),
               }}
               variant="racecard"
-              className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] text-betEntry-foreground"
+              className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] text-betEntry-foreground hover:opacity-85"
             />
           </TableCell>
         </>
@@ -819,7 +819,7 @@ export default function UpcomingRaceCard({
               <Button
                 key={key}
                 variant={activeTab === key ? 'marketSelected' : 'market'}
-                className="h-12 w-[121px] border px-[18px] pb-0 text-[16px] font-semibold uppercase"
+                className="h-12 w-[140px] border pb-0 text-[16px] font-semibold uppercase px-[18px] hover:opacity-90"
                 onClick={() => handleTabChange(key as TabType)}
               >
                 {config.name}
@@ -854,7 +854,7 @@ export default function UpcomingRaceCard({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-12 w-fit border-border bg-secondary px-[18px] pb-[1px] text-[15px] text-secondary-foreground"
+                className="h-12 w-fit border-border bg-secondary px-[18px] pb-[1px] text-[15px] text-secondary-foreground hover:opacity-90"
                 onClick={() => setIsLatecomersDialogOpen(true)}
               >
                 <span>{t('latecomers').toUpperCase()}</span>
@@ -906,7 +906,7 @@ export default function UpcomingRaceCard({
                             {racer.performance}%
                             <Progress
                               value={racer.performance}
-                              className="relative bottom-[3px] w-[189px] [&>div]:rounded-r-full [&>div]:bg-accent"
+                              className="relative bottom-[3px] w-[189px] [&>div]:rounded-r-full [&>div]:bg-bet"
                               style={{ height: '8px' }}
                             />
                           </div>

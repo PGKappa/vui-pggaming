@@ -39,7 +39,7 @@ export default function Navbar() {
         <Link
           href={`/retail/dogs-horses${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
-            'flex w-28 flex-row items-center justify-between px-4 py-1 text-foreground transition-colors h-12',
+            'flex w-28 flex-row items-center justify-between px-4 py-1 text-foreground transition-colors h-12 hover:opacity-90',
             pathname.includes('/retail/dogs-horses')
               ? 'bg-tertiary'
               : 'bg-secondary',
@@ -64,7 +64,7 @@ export default function Navbar() {
         <Link
           href={`/retail/dogs${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
-            'flex w-24 flex-row items-center justify-center px-4 py-1 text-foreground transition-colors h-12',
+            'flex w-24 flex-row items-center justify-center px-4 py-1 text-foreground transition-colors h-12 hover:opacity-90',
             pathname.includes('/retail/dogs') &&
               !pathname.includes('/retail/dogs-horses')
               ? 'bg-tertiary'
@@ -85,7 +85,7 @@ export default function Navbar() {
         <Link
           href={`/retail/horses${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
-            'flex w-24 flex-row items-center justify-center px-4 py-1 text-foreground transition-colors h-12',
+            'flex w-24 flex-row items-center justify-center px-4 py-1 text-foreground transition-colors h-12 hover:*opacity-90',
             pathname.includes('/retail/horses')
               ? 'bg-tertiary'
               : 'bg-secondary',
@@ -125,7 +125,7 @@ export default function Navbar() {
 
       <div className="relative  flex w-full justify-end gap-[8px]">
         <Button
-          className="h-12 w-fit p-[18px]"
+          className="h-12 w-fit p-[18px] hover:opacity-95"
           variant="ticketButton"
           size="lg"
           onClick={() => {
@@ -137,7 +137,7 @@ export default function Navbar() {
 
         {/* Pulsante Info - sempre visibile con dialog diversi per calcio vs racing */}
         <Button
-          className="w-12 h-12 text-[18px]"
+          className="w-12 h-12 text-[18px] hover:opacity-95"
           variant="ticketButton"
           size="lg"
           onClick={() => setIsInfoDialogOpen(true)}

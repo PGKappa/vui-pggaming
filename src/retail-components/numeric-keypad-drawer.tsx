@@ -173,7 +173,7 @@ export default function NumericKeypadDrawer(props: {
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 w-7 bg-bet p-3 text-[19px] text-bet-foreground"
+            className="h-8 w-7 bg-bet p-3 text-[19px] text-bet-foreground hover:opacity-90"
             disabled={value <= 0}
             onClick={(e) => {
               e.stopPropagation()
@@ -192,7 +192,7 @@ export default function NumericKeypadDrawer(props: {
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 w-7 bg-bet p-3 text-[19px] text-bet-foreground"
+            className="h-8 w-7 bg-bet p-3 text-[19px] text-bet-foreground hover:opacity-90"
             onClick={(e) => {
               e.stopPropagation()
               handlePlusMinus(incrementValue)
@@ -225,16 +225,16 @@ export default function NumericKeypadDrawer(props: {
     >
       <DrawerTrigger asChild>{renderTrigger()}</DrawerTrigger>
 
-      <DrawerContent className="ml-auto mr-2 w-[396px]">
-        <DrawerHeader className="relative bg-accent text-accent-foreground">
-          <DrawerTitle className="pt-1 text-center text-accent-foreground">
+      <DrawerContent className="ml-auto mr-2 w-[396px] border-t-0">
+        <DrawerHeader className="relative bg-secondary text-accent-foreground h-[57px]">
+          <DrawerTitle className="pt-1.5 text-center text-accent-foreground">
             {props.triggerLabel || t('enter_stake_amount')}
           </DrawerTitle>
           <Button
             variant="ghost"
             size="icon"
             onClick={closeDrawer}
-            className="absolute right-2 top-2"
+            className="absolute right-2 top-2.5"
           >
             <ChevronDown className="h-5 w-5" style={{ scale: 1.5 }} />
           </Button>
@@ -408,7 +408,7 @@ export default function NumericKeypadDrawer(props: {
 
           <Button
             onClick={handleConfirm}
-            className="h-12 w-full bg-accent text-2xl text-accent-foreground"
+            className="h-12 w-full bg-tertiary text-2xl text-accent-foreground hover:opacity-90"
           >
             {t('ok')}
           </Button>
