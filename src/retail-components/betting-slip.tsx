@@ -531,6 +531,12 @@ export default function BettingSlip({
   }, [actualTotalStake, betMode])
 
   const handleBetNow = async () => {
+    // Check if initCode is available (user is authenticated)
+    if (!rootContext.initCode) {
+      toast.error(t('login_required'))
+      return
+    }
+
     if (betEntries.length === 0) {
       toast.error(t('no_bet_selected'))
       return
