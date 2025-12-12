@@ -1172,6 +1172,10 @@ export default function RootContextProvider(props: {
                 }
 
                 const apiTimezone = rootContext.getTimezone?.() || 'Europe/Rome'
+                const trackValue =
+                  (detailedResult as any)?.track_name ||
+                  (event as any).track_name ||
+                  (event as any).track
                 return {
                   id: event.int_event_id,
                   extId: event.ext_pal_id,
@@ -1179,6 +1183,7 @@ export default function RootContextProvider(props: {
                   startTime: parseAPIDate(event.time, apiTimezone),
                   time: event.time,
                   discipline: Discipline.DOGS,
+                  track: trackValue,
                   result: detailedResult || {
                     podium:
                       event.arrival?.map((dog: any, index: number) => ({
@@ -1212,6 +1217,10 @@ export default function RootContextProvider(props: {
                 }
 
                 const apiTimezone = rootContext.getTimezone?.() || 'Europe/Rome'
+                const trackValue =
+                  (detailedResult as any)?.track_name ||
+                  (event as any).track_name ||
+                  (event as any).track
                 return {
                   id: event.int_event_id,
                   extId: event.ext_pal_id,
@@ -1219,6 +1228,7 @@ export default function RootContextProvider(props: {
                   startTime: parseAPIDate(event.time, apiTimezone),
                   time: event.time,
                   discipline: Discipline.HORSES,
+                  track: trackValue,
                   result: detailedResult || {
                     podium:
                       event.arrival?.map((horse: any, index: number) => ({
