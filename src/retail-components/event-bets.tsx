@@ -131,12 +131,6 @@ export default function EventBets(props: {
               betEntry.bet.option.outcome,
               betEntry.bet.option.outcome,
             )
-          } else if (betEntry.bet.option.outcome.includes(' any')) {
-            // Traduci le combinazioni con 'any' (es. "1-2 any" -> "1-2 cualquier")
-            outcomeDisplay = betEntry.bet.option.outcome.replace(
-              ' any',
-              ` ${t('any')}`,
-            )
           }
 
           // Traduci il nome del mercato
