@@ -813,7 +813,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                     {t('arrival_order').toUpperCase()}
                   </div>
                 </div>
-                <div className="flex items-center justify-center gap-8 p-4 h-[79px]">
+                <div className="flex items-center justify-center gap-[147px] p-4 h-[79px] mr-[40px]">
                   {detailedResult.arrival
                     .slice(0, 3)
                     .map((competitor, index) => {
@@ -838,7 +838,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                       return (
                         <div
                           key={competitor.number || index}
-                          className="flex items-center gap-2"
+                          className="flex items-center gap-3"
                         >
                           {/* Medaglia con numero */}
                           <div className="relative flex h-11 w-11 items-center justify-center">
@@ -855,7 +855,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                           </div>
 
                           <div
-                            className="flex h-[33px] w-[33px] items-center justify-center rounded-md pt-[1px] text-[21px] font-semibold"
+                            className="flex h-[33px] w-[33px] items-center justify-center rounded-md  text-[21px] font-semibold"
                             style={
                               getRacerColors(
                                 competitor.number,
@@ -866,7 +866,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                             {competitor.number}
                           </div>
 
-                          <div className="relative right-[1px] min-w-0 pr-10 text-[17px] font-semibold pt-[1px]">
+                          <div className="relative right-[1px] pr-10 text-[17px] font-semibold pt-[1px] max-w-0">
                             {competitor.name}
                           </div>
                         </div>
@@ -885,14 +885,14 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                     {t('winner').toUpperCase()}
                   </div>
                 </div>
-                <div className="space-y-2 p-3">
+                <div className="space-y-3 p-3">
                   {Object.entries(raceResult.odds.winner).map(
                     ([number, odds]) => (
                       <div
                         key={number}
                         className="flex items-center justify-between"
                       >
-                        <span className="flex items-center gap-2">
+                        <span className="flex items-center gap-3 ml-3">
                           <div
                             className="flex h-[33px] w-[33px] items-center justify-center rounded-md text-[21px] font-semibold"
                             style={
@@ -923,14 +923,14 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                     {t('place_2').toUpperCase()}
                   </div>
                 </div>
-                <div className="space-y-2 p-3">
+                <div className="space-y-3 p-3">
                   {Object.entries(raceResult.odds.placed).map(
                     ([number, odds]) => (
                       <div
                         key={number}
                         className="flex items-center justify-between"
                       >
-                        <span className="flex items-center gap-2">
+                        <span className="flex items-center gap-3 ml-3">
                           <div
                             className="flex h-[33px] w-[33px] items-center justify-center rounded-md text-[21px] font-semibold"
                             style={
@@ -961,14 +961,14 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                     {t('show_3').toUpperCase()}
                   </div>
                 </div>
-                <div className="space-y-2 p-3">
+                <div className="space-y-3 p-3">
                   {Object.entries(raceResult.odds.show).map(
                     ([number, odds]) => (
                       <div
                         key={number}
                         className="flex items-center justify-between"
                       >
-                        <span className="flex items-center gap-2">
+                        <span className="flex items-center gap-3 ml-3">
                           <div
                             className="flex h-[33px] w-[33px] items-center justify-center rounded-md text-[21px] font-semibold"
                             style={
@@ -1008,7 +1008,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                         key={combination}
                         className="flex items-center justify-between"
                       >
-                        <span className="flex items-center gap-1">
+                        <span className="flex items-center gap-3 ml-3">
                           {combination.split('-').map((num, idx) => (
                             <div
                               key={idx}
@@ -1024,7 +1024,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                             </div>
                           ))}
                         </span>
-                        <span className="text-[17px] font-semibold">
+                        <span className="text-[17px] font-semibold mr-3">
                           {odds}
                         </span>
                       </div>
@@ -1049,7 +1049,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                         key={combination}
                         className="flex items-center justify-between"
                       >
-                        <span className="flex items-center gap-1">
+                        <span className="flex items-center gap-3 ml-3">
                           {combination.split('-').map((num, idx) => (
                             <div
                               key={idx}
@@ -1065,7 +1065,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                             </div>
                           ))}
                         </span>
-                        <span className="text-[17px] font-semibold">
+                        <span className="text-[17px] font-semibold mr-3">
                           {odds}
                         </span>
                       </div>
@@ -1090,7 +1090,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                         key={combination}
                         className="flex items-center justify-between"
                       >
-                        <span className="flex items-center gap-1">
+                        <span className="flex items-center gap-3 ml-3">
                           {combination.split('-').map((num, idx) => (
                             <div
                               key={idx}
@@ -1106,7 +1106,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                             </div>
                           ))}
                         </span>
-                        <span className="text-[17px] font-semibold">
+                        <span className="text-[17px] font-semibold mr-3">
                           {odds}
                         </span>
                       </div>
@@ -1131,7 +1131,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                         key={combination}
                         className="flex items-center justify-between"
                       >
-                        <span className="flex items-center justify-center gap-1">
+                        <span className="flex items-center justify-center gap-3 ml-3">
                           {combination.split('-').map((num, idx) => (
                             <div
                               key={idx}
@@ -1147,7 +1147,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                             </div>
                           ))}
                         </span>
-                        <span className="text-[17px] font-semibold">
+                        <span className="text-[17px] font-semibold mr-3">
                           {odds}
                         </span>
                       </div>
@@ -1171,7 +1171,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                   {raceResult.odds.evenodd.even && (
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
-                        <span className="mr-[644px]">
+                        <span className="mr-[639px]">
                           {t('even').toUpperCase()}
                         </span>{' '}
                         <span>{raceResult.odds.evenodd.even}</span>
@@ -1182,7 +1182,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                   {raceResult.odds.evenodd.odd && (
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
-                        <span className="mr-[640px]">
+                        <span className="mr-[639px]">
                           {t('odd').toUpperCase()}
                         </span>{' '}
                         <span>{raceResult.odds.evenodd.odd}</span>

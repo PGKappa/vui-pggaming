@@ -51,7 +51,7 @@ export default function EventBets(props: {
 
   return (
     <li>
-      <div className="flex h-[91px] flex-col gap-0 border border-betSlip-foreground p-1">
+      <div className="flex h-[88px] flex-col gap-0 border border-betSlip-foreground p-1">
         <div className="flex flex-row justify-between">
           <div className={betMode === 'SYSTEM' ? 'visible' : 'invisible'}>
             <div className="relative bottom-[1px] flex flex-row items-center gap-2 pl-1">
@@ -81,7 +81,7 @@ export default function EventBets(props: {
         </div>
 
         <div className="relative bottom-0 mt-[1px] flex items-center justify-between">
-          <span className="relative top-[1px] ml-[3px] text-[15px] font-semibold">
+          <span className="relative  ml-[3px] text-[15px] font-semibold">
             {eventBets[0].bet.discipline === 'SOCCER'
               ? t('football')
               : eventBets[0].bet.discipline === 'DOGS'
@@ -90,7 +90,7 @@ export default function EventBets(props: {
           </span>
 
           <div className="flex items-center gap-2">
-            <span className="relative left-[1px] top-[1px] text-[15px] font-bold tabular-nums">
+            <span className="relative left-[1px]  text-[15px] font-bold tabular-nums">
               {format(eventBets[0].bet.event.startingAt, 'HH:mm')}
             </span>
             <Badge className="mr-[4px] h-[27px] w-[61px] items-center justify-center bg-accent text-[14px] tabular-nums text-[#99a6b1]">
@@ -101,7 +101,7 @@ export default function EventBets(props: {
         {eventBets[0].bet.discipline === 'SOCCER' ? (
           <span className="text-[16px]">{eventBets[0].bet.competitors}</span>
         ) : (
-          <span className="relative bottom-[1px] ml-[3px] pb-[4px] text-[14px] uppercase">
+          <span className="relative bottom-[1px] ml-[3px] pb-[4px] text-[13px] uppercase">
             {eventBets[0].bet.track ||  t('track_6')}
           </span>
         )}
@@ -143,33 +143,34 @@ export default function EventBets(props: {
           const translatedMarket = t(betEntry.market, betEntry.market)
 
           return (
-            <div
-              key={betEntry.id}
-              className="flex items-center justify-between text-sm"
-            >
-              <span className="mr-[1px] mt-[1px] text-[13px]">
-                {translatedMarket}
-              </span>
-              <span className="mt-[2px] text-[13px] font-normal">
-                {outcomeDisplay}
-              </span>
-              <span className="mt-[2px] text-[13px]">
-                {betEntry.bet.option.decPrice.toFixed(2)}
-              </span>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() =>
-                  removeBet(
-                    betEntry.market,
-                    betEntry.bet.option,
-                    betEntry.bet.competitors,
-                  )
-                }
-              >
-                <CircleXIcon className="mt-[1px] h-[17px] scale-[1.4]" />
-              </Button>
-            </div>
+            <div 
+  key={betEntry.id}
+  className="flex items-center text-sm pr-[8px]"
+>
+  <span className="mr-[1px] text-[13px] w-[126px]">
+    {translatedMarket}
+  </span>
+  <span className="ml-[0px] text-[13px] font-normal w-[109px]">
+    {outcomeDisplay}
+  </span>
+  <span className="text-[13px] w-[101px] break-all leading-tight">
+  {betEntry.bet.option.decPrice.toFixed(2)}
+</span>
+  <Button
+    variant="ghost"
+    size="icon"
+    className="w-[24px] h-[40px] flex-shrink-0 translate-x-[3px]"
+    onClick={() => {
+      removeBet(
+        betEntry.market,
+        betEntry.bet.option,
+        betEntry.bet.competitors,
+      )
+    }}
+  >
+    <CircleXIcon className="mt-[1px] h-[17px] scale-[1.4]" />
+  </Button>
+</div>
           )
         })}
       </div>
