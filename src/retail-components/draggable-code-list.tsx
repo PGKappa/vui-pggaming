@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect, useCallback, useContext } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from '@/retail-components/ui/button'
 import { X, Printer } from 'lucide-react'
 import Image from 'next/image'
+import { RootContext } from '@/retail-contexts/root-context'
 
 type Discipline = 'soccer' | 'racing'
 
@@ -13,23 +14,38 @@ interface DraggableCodeListProps {
   onCodeClick?: (code: string) => void
 }
 
-const disciplineConfig = {
-  soccer: {
-    image: '/soccer-codes-image.png',
-    alt: 'Codici scommesse calcio',
-    title: 'Soccer Code List',
-  },
-  racing: {
+// Configurazione immagini basata su disciplina e lingua
+const getImageConfig = (discipline: Discipline, language: string) => {
+  if (discipline === 'soccer') {
+    return {
+      image: '/soccer-codes-image.png',
+      alt: 'Soccer betting codes',
+      title: 'Soccer Code List',
+    }
+  }
+
+  // Racing: cambia immagine in base alla lingua
+  if (language === 'es') {
+    return {
+      image: '/galgoscaballos-codes-image.png',
+      alt: 'Códigos de apuestas galgos y caballos',
+      title: 'Racing Code List',
+    }
+  }
+
+  // Default inglese per racing
+  return {
     image: '/dogshorses-codes-image.png',
-    alt: 'Codici scommesse cani e cavalli',
+    alt: 'Dogs and horses betting codes',
     title: 'Racing Code List',
-  },
+  }
 }
 
 export default function DraggableCodeList({
   discipline,
 }: DraggableCodeListProps) {
   const { t } = useTranslation()
+  const rootContext = useContext(RootContext)
   const [isOpen, setIsOpen] = useState(false)
   const [position, setPosition] = useState({ x: 100, y: 100 })
   const [size, setSize] = useState({ width: 1200, height: 566 })
@@ -44,7 +60,9 @@ export default function DraggableCodeList({
   })
   const dragRef = useRef<HTMLDivElement>(null)
 
-  const config = disciplineConfig[discipline]
+  // Ottieni la lingua dall'API e configura l'immagine corretta
+  const currentLanguage = rootContext?.userData?.lang || 'en'
+  const config = getImageConfig(discipline, currentLanguage)
 
   // Funzione per chiudere e resettare dimensioni
   const handleClose = () => {
@@ -198,7 +216,7 @@ export default function DraggableCodeList({
       <Button
         variant="ghost"
         size="icon"
-        className="h-14 w-14 bg-tertiary text-2xl font-bold text-tertiary-foreground hover:bg-tertiary/70"
+        className="h-12 w-12 bg-tertiary text-[18px] font-normal text-tertiary-foreground hover:bg-tertiary/70"
         onClick={() => setIsOpen(!isOpen)}
       >
         i

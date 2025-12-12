@@ -3,6 +3,7 @@ import { RootContext } from '@/retail-contexts/root-context'
 import {
   createBetFromFastCode,
   parseFastBetInput,
+  normalizeMarketCode,
 } from '@/retail-lib/fastbet-parser'
 import { useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -17,6 +18,7 @@ export default function RacingFastBet({
 }) {
   const { t } = useTranslation()
 
+  // Sempre usa codici inglesi internamente per coerenza
   const markets = {
     W: { name: 'Winner', selections: 1 },
     P: { name: 'Placed', selections: 1 },
@@ -35,6 +37,9 @@ export default function RacingFastBet({
 
   const { addBets } = useContext(BetsContext)
   const rootContext = useContext(RootContext)
+
+  // Ottieni la lingua corrente
+  const currentLanguage = rootContext?.userData?.lang || 'en'
 
   const handleSubmit = async () => {
     if (!fastbetInput.trim()) {
@@ -83,14 +88,13 @@ export default function RacingFastBet({
         const numbersMatch = betInput.match(/\d/g)
 
         if (numbersMatch) {
-          // For markets that need multiple selections, split digits
-          const currentMarketCode = letters
-          const currentMarket =
-            markets[currentMarketCode as keyof typeof markets]
+          // Normalizza il codice alla versione inglese per il processing
+          const normalizedCode = normalizeMarketCode(letters, currentLanguage)
+          const currentMarket = markets[normalizedCode as keyof typeof markets]
 
           if (currentMarket && currentMarket.selections > 1) {
             // Check if it's an "any order" market (BT = Boxed Trifecta, Q = Quinella)
-            const isAnyOrderMarket = ['BT', 'Q'].includes(currentMarketCode)
+            const isAnyOrderMarket = ['BT', 'Q'].includes(normalizedCode)
 
             if (isAnyOrderMarket) {
               // Normalizzazione immediata - ordina sempre per mercati "any order"
@@ -114,7 +118,7 @@ export default function RacingFastBet({
         code = betInput
       }
 
-      const parsedCode = parseFastBetInput(code, selections)
+      const parsedCode = parseFastBetInput(code, selections, currentLanguage)
 
       if (!parsedCode) {
         toast.error(t('invalid_fastbet_format'))
@@ -148,6 +152,7 @@ export default function RacingFastBet({
         parsedCode,
         selectedEvent,
         rootContext.initCode || '',
+        rootContext.getTrackName,
       )
 
       if (!bets || bets.length === 0) {
@@ -176,7 +181,7 @@ export default function RacingFastBet({
   }
 
   return (
-    <div className="flex h-14 w-full items-center gap-2 bg-accent">
+    <div className="relative top-[3px] flex h-12 w-full items-center gap-2 bg-white">
       <AlphanumericKeypadDrawer
         value={fastbetInput}
         setValue={setFastbetInput}

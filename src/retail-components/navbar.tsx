@@ -2,7 +2,6 @@
 
 import { RootContext } from '@/retail-contexts/root-context'
 import { cn } from '@/retail-lib/utils'
-import { Info } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
@@ -36,7 +35,7 @@ export default function Navbar() {
       className="flex w-full flex-row items-center justify-start bg-accent p-3 h-16"
       suppressHydrationWarning={true}
     >
-      <div className="flex flex-row items-center gap-[8px] relative right-[2px]">
+      <div className="flex flex-row items-center gap-[8px] relative left-[0px]">
         <Link
           href={`/retail/dogs-horses${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
@@ -124,9 +123,9 @@ export default function Navbar() {
         </Link>
       </div>
 
-      <div className="relative left-[2px] flex w-full justify-end gap-[8px]">
+      <div className="relative  flex w-full justify-end gap-[8px]">
         <Button
-          className="h-12 w-[168px]"
+          className="h-12 w-fit p-[18px]"
           variant="ticketButton"
           size="lg"
           onClick={() => {
@@ -138,12 +137,12 @@ export default function Navbar() {
 
         {/* Pulsante Info - sempre visibile con dialog diversi per calcio vs racing */}
         <Button
-          className="w-12 h-12"
+          className="w-12 h-12 text-[18px]"
           variant="ticketButton"
           size="lg"
           onClick={() => setIsInfoDialogOpen(true)}
         >
-          <Info style={{ scale: 1.5 }} />
+          i
         </Button>
 
         {/* <Link
@@ -171,7 +170,7 @@ export default function Navbar() {
       <Dialog open={isInfoDialogOpen} onOpenChange={setIsInfoDialogOpen}>
         <DialogContent className="w-full overflow-hidden bg-accent h-full">
           <DialogHeader className="bg-secondary text-secondary-foreground">
-            <DialogTitle>{t('game_rules')}</DialogTitle>
+            <DialogTitle>{t('game_rules').toUpperCase()}</DialogTitle>
           </DialogHeader>
           <div className="h-[1020px] w-full">
             <iframe

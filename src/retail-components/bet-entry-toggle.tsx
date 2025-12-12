@@ -3,6 +3,7 @@ import { Bet } from '@/retail-lib/types'
 import { useContext, useMemo } from 'react'
 import { Toggle } from './ui/toggle'
 import { cn } from '@/retail-lib/utils'
+import { useTranslation } from 'react-i18next'
 
 type BetEntryToggleVariants =
   | 'roundcard'
@@ -18,6 +19,7 @@ export default function BetEntryToggle(props: {
   onToggle?: (isPressed: boolean) => void
 }) {
   const { addBet, removeBet, betEntries } = useContext(BetsContext)
+  const { t } = useTranslation()
 
   const isSelected = useMemo(() => {
     const found = betEntries.find(
@@ -33,6 +35,11 @@ export default function BetEntryToggle(props: {
   }, [betEntries, props.marketName, props.bet])
 
   const formatOutcome = (outcome: string, marketName: string): string => {
+    // Traduci "any" nelle combinazioni
+    if (outcome.includes(' any')) {
+      outcome = outcome.replace(' any', ` ${t('any')}`)
+    }
+
     if (marketName === 'Half Time\/ Full Time') {
       if (outcome.length === 2) {
         return `${outcome[0]}/${outcome[1]}`
@@ -88,9 +95,9 @@ export default function BetEntryToggle(props: {
     }
 
     if (outcome.toLowerCase().includes('under') || outcome === 'U') {
-      return `UN ${value}`
+      return `Under ${value}`
     } else if (outcome.toLowerCase().includes('over') || outcome === 'O') {
-      return `OV ${value}`
+      return `Over ${value}`
     }
 
     return outcome
@@ -144,10 +151,12 @@ export default function BetEntryToggle(props: {
     >
       {props.variant === 'matchcard' ? (
         <>
-          <span className="text-[18px]">
+          <span className="pl-[1px] pt-[3px] text-[17px] font-semibold">
+            {formattedOutcome}
+          </span>
+          <span className="pr-[1px] text-[18px] font-semibold">
             {props.bet.option.decPrice.toFixed(2)}
           </span>
-          <span className="text-[16px] font-bold">{formattedOutcome}</span>
         </>
       ) : props.variant === 'roundcard' ? (
         <>

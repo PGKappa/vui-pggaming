@@ -107,11 +107,11 @@ export default function AlphanumericKeypadDrawer(props: {
     >
       <DrawerTrigger asChild>
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 z-10 h-6 w-6 -translate-y-1/2 text-background" />
+          <Search className="absolute left-3 top-1/2 z-10 h-6 w-6 -translate-y-1/2 text-black" />
           <Input
             type="text"
             value={value}
-            className="h-10 w-full bg-accent pl-10 text-center text-[19px] font-bold text-accent-foreground"
+            className="h-10 w-full bg-white pl-10 text-center text-[16px] font-normal text-black placeholder:text-black"
             placeholder={props.placeholder || 'FASTBET'}
             readOnly
             onClick={openDrawer}
@@ -120,8 +120,8 @@ export default function AlphanumericKeypadDrawer(props: {
       </DrawerTrigger>
 
       <DrawerContent className="ml-2 w-[1500px]">
-        <DrawerHeader className="relative">
-          <DrawerTitle className="pt-1 text-center">
+        <DrawerHeader className="relative bg-accent text-accent-foreground">
+          <DrawerTitle className="pt-1 text-center text-accent-foreground">
             {props.placeholder || 'FASTBET'}
           </DrawerTitle>
           <Button
@@ -255,7 +255,7 @@ export default function AlphanumericKeypadDrawer(props: {
               className="h-12 w-[600px] text-xl font-bold"
               onClick={() => handleCharacterClick(' ')}
             >
-              Space
+              {t('space')}
             </Button>
           </div>
         </div>

@@ -1,9 +1,0 @@
-Abbiamo pubblicato un push da controllare 
-le seguenti modifiche  sono da verificare:
-      modificato:             src/retail-components/ui/accordion.tsx
-        modificato:             src/retail-components/ui/carousel.tsx
-        modificato:             src/retail-components/ui/checkbox.tsx
-        modificato:             src/retail-components/ui/dialog.tsx
-        modificato:             src/retail-components/ui/select.tsx
-        modificato:             src/virtual-components/ui/carousel.tsx
-

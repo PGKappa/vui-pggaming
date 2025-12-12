@@ -46,6 +46,22 @@ export default function BetCombinationsTable({
     const allCombinations: Bet[] = []
     const raceData = race.data as UpcomingRace
 
+    // Helper to get racer name from number
+    const getRacerName = (racerNumber: number | string): string => {
+      const racer = raceData.racers.find(
+        (r) => r.number === Number(racerNumber),
+      )
+      return racer?.name || racerNumber.toString()
+    }
+
+    // Helper to convert number key like "1-2-3" to names like "Black-White-Red"
+    const getCombinationNames = (numberKey: string): string => {
+      return numberKey
+        .split('-')
+        .map((num) => getRacerName(num))
+        .join('-')
+    }
+
     // Controlla se una combinazione include almeno una fissa
     const includesFixedRacer = (racers: number[]): boolean => {
       if (fixedSelection.length === 0) return true // Nessuna fissa = tutte valide
@@ -70,6 +86,9 @@ export default function BetCombinationsTable({
           if (racer1 === racer2) return
           const odds = raceData.odds.exacta[racer1]?.[racer2]
           if (odds) {
+            const racer1Name = getRacerName(racer1)
+            const racer2Name = getRacerName(racer2)
+
             allCombinations.push({
               discipline: race.discipline,
               event: {
@@ -77,7 +96,7 @@ export default function BetCombinationsTable({
                 number: race.id,
                 startingAt: race.time,
               },
-              competitors: `${racer1}-${racer2}`,
+              competitors: `${racer1Name}-${racer2Name}`,
               option: {
                 outcome: `${racer1}-${racer2}`,
                 decPrice: parseFloat(odds),
@@ -108,6 +127,9 @@ export default function BetCombinationsTable({
 
                     const odds = raceData.odds.quinella[racer1]?.[racer2]
                     if (odds) {
+                      const racer1Name = getRacerName(racer1)
+                      const racer2Name = getRacerName(racer2)
+
                       allCombinations.push({
                         discipline: race.discipline,
                         event: {
@@ -115,7 +137,7 @@ export default function BetCombinationsTable({
                           number: race.id,
                           startingAt: race.time,
                         },
-                        competitors: `${racer1}-${racer2} any Order`,
+                        competitors: `${racer1Name}-${racer2Name} any Order`,
                         option: {
                           outcome: `${racer1}-${racer2} any`,
                           decPrice: parseFloat(odds),
@@ -144,6 +166,9 @@ export default function BetCombinationsTable({
 
                 const odds = raceData.odds.quinella[racer1]?.[racer2]
                 if (odds) {
+                  const racer1Name = getRacerName(racer1)
+                  const racer2Name = getRacerName(racer2)
+
                   allCombinations.push({
                     discipline: race.discipline,
                     event: {
@@ -151,7 +176,7 @@ export default function BetCombinationsTable({
                       number: race.id,
                       startingAt: race.time,
                     },
-                    competitors: `${racer1}-${racer2} any Order`,
+                    competitors: `${racer1Name}-${racer2Name} any Order`,
                     option: {
                       outcome: `${racer1}-${racer2} any`,
                       decPrice: parseFloat(odds),
@@ -176,6 +201,9 @@ export default function BetCombinationsTable({
 
                   const odds = raceData.odds.quinella[racer1]?.[racer2]
                   if (odds) {
+                    const racer1Name = getRacerName(racer1)
+                    const racer2Name = getRacerName(racer2)
+
                     allCombinations.push({
                       discipline: race.discipline,
                       event: {
@@ -183,7 +211,7 @@ export default function BetCombinationsTable({
                         number: race.id,
                         startingAt: race.time,
                       },
-                      competitors: `${racer1}-${racer2} any Order`,
+                      competitors: `${racer1Name}-${racer2Name} any Order`,
                       option: {
                         outcome: `${racer1}-${racer2} any`,
                         decPrice: parseFloat(odds),
@@ -226,6 +254,10 @@ export default function BetCombinationsTable({
             if (racer1 === racer3 || racer2 === racer3) return
             const odds = raceData.odds.trifecta[racer1]?.[racer2]?.[racer3]
             if (odds) {
+              const racer1Name = getRacerName(racer1)
+              const racer2Name = getRacerName(racer2)
+              const racer3Name = getRacerName(racer3)
+
               allCombinations.push({
                 discipline: race.discipline,
                 event: {
@@ -233,7 +265,7 @@ export default function BetCombinationsTable({
                   number: race.id,
                   startingAt: race.time,
                 },
-                competitors: `${racer1}-${racer2}-${racer3}`,
+                competitors: `${racer1Name}-${racer2Name}-${racer3Name}`,
                 option: {
                   outcome: `${racer1}-${racer2}-${racer3}`,
                   decPrice: parseFloat(odds),
@@ -391,7 +423,7 @@ export default function BetCombinationsTable({
                         number: race.id,
                         startingAt: race.time,
                       },
-                      competitors: `${combinationKey} any Order`,
+                      competitors: `${getCombinationNames(combinationKey)} any Order`,
                       option: {
                         outcome: `${combinationKey} any`,
                         decPrice: parseFloat(odds),
@@ -441,7 +473,7 @@ export default function BetCombinationsTable({
                             number: race.id,
                             startingAt: race.time,
                           },
-                          competitors: `${combinationKey} any Order`,
+                          competitors: `${getCombinationNames(combinationKey)} any Order`,
                           option: {
                             outcome: `${combinationKey} any`,
                             decPrice: parseFloat(odds),
@@ -504,13 +536,13 @@ export default function BetCombinationsTable({
   const getMarketName = () => {
     switch (marketType) {
       case 'exacta':
-        return `${t('exacta')}`
+        return 'Exacta'
       case 'quinella':
-        return `${t('quinella')}`
+        return 'Quinella'
       case 'trifecta':
-        return `${t('trifecta')}`
+        return 'Trifecta'
       case 'boxtrifecta':
-        return `${t('boxed_trifecta')}`
+        return 'Boxed Trifecta'
       default:
         return ''
     }
@@ -558,11 +590,11 @@ export default function BetCombinationsTable({
   const getSortButtonText = () => {
     switch (sortMode) {
       case 'default':
-        return `${t('sort_by_odds')} #`.toUpperCase()
+        return `${t('sort_by_odds')}`.toUpperCase()
       case 'asc':
-        return `${t('sort_by_odds')} ↑`.toUpperCase()
+        return `${t('sort_by_odds')}`.toUpperCase()
       case 'desc':
-        return `${t('sort_by_odds')} ↓`.toUpperCase()
+        return `${t('sort_by_odds')}`.toUpperCase()
       default:
         return t('sort_by_odds').toUpperCase()
     }
@@ -586,20 +618,20 @@ export default function BetCombinationsTable({
   return (
     <Card className="mt-2">
       <CardHeader className="flex h-14 items-center justify-center bg-accent px-3 text-accent-foreground">
-        <CardTitle className="justify-center text-[16px]  text-white">
+        <CardTitle className="items-center ml-[476px] text-[16px] text-white">
           {getTitle()}
         </CardTitle>
-        <div className="flex gap-2 relative left-[4px]">
+        <div className="flex gap-2 relative">
           <Button
             variant="navbar"
-            className="h-10 w-40 px-3 text-[15px] font-bold text-white pt-[1px]"
+            className="h-10 w-fit px-[18px] text-[15px]  rounded-[1px] font-bold text-white pt-[1px]"
             onClick={handleSortClick}
           >
             {getSortButtonText()}
           </Button>
           <Button
             variant="navbar"
-            className="h-10 w-40 px-3 text-[15px] font-bold text-white pt-[1px]"
+            className="h-10 w-fit px-[18px] text-[15px] rounded-[1px] font-bold text-white pt-[1px]"
             onClick={() => {
               if (allBetsSelected) {
                 removeBets(
@@ -619,8 +651,8 @@ export default function BetCombinationsTable({
               : `${t('select_all').toUpperCase()}`}
           </Button>
 
-          <div className="flex h-10 min-w-[54px] items-center justify-center rounded-[2px] bg-accent-foreground px-3 text-accent">
-            <span className="text-[15px] font-bold pt-[1px]">{combinations.length}</span>
+          <div className="flex h-10 min-w-fit items-center justify-center rounded-[1px] bg-secondary px-[18px] text-accent-foreground">
+            <span className="text-[16px] font-bold pt-[1px]">{combinations.length}</span>
           </div>
         </div>
       </CardHeader>

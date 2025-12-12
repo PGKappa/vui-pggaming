@@ -6,14 +6,75 @@ export type FastBetCode = {
   selections?: number[]
 }
 
+// Mappatura codici FastBet per lingua
+export function normalizeMarketCode(
+  code: string,
+  language: string = 'en',
+): string {
+  const upperCode = code.toUpperCase()
+
+  // Mappatura Spagnolo -> Inglese
+  const spanishToEnglish: Record<string, string> = {
+    G: 'W', // Ganador -> Winner
+    '2P': 'P', // Plaza (Top 2) -> Placed
+    '3P': 'S', // Plaza (Top 3) -> Show
+    PA: 'EV', // Par -> Even
+    IM: 'OD', // Impar -> Odd
+    ME: 'U', // Menos -> Under
+    MA: 'O', // Más -> Over
+    E: 'E', // Exacta
+    Q: 'Q', // Quinella
+    T: 'T', // Trifecta
+    BT: 'BT', // Boxed Trifecta
+  }
+
+  // Se la lingua è spagnola, normalizza
+  if (language === 'es') {
+    return spanishToEnglish[upperCode] || upperCode
+  }
+
+  // Altrimenti ritorna il codice originale
+  return upperCode
+}
+
+// Mappatura inversa: Inglese -> Lingua specifica (per display)
+export function getLocalizedMarketCode(
+  code: string,
+  language: string = 'en',
+): string {
+  const upperCode = code.toUpperCase()
+
+  if (language === 'es') {
+    const englishToSpanish: Record<string, string> = {
+      W: 'G',
+      P: '2P',
+      S: '3P',
+      EV: 'PA',
+      OD: 'IM',
+      U: 'ME',
+      O: 'MA',
+      E: 'E',
+      Q: 'Q',
+      T: 'T',
+      BT: 'BT',
+    }
+    return englishToSpanish[upperCode] || upperCode
+  }
+
+  return upperCode
+}
+
 export function parseFastBetInput(
   codeInput: string,
   selectionInput: string,
+  language: string = 'en',
 ): FastBetCode | null {
-  const code = codeInput.trim().toUpperCase()
+  const inputCode = codeInput.trim().toUpperCase()
+  // Normalizza il codice alla versione inglese
+  const code = normalizeMarketCode(inputCode, language)
   const selection = selectionInput.trim()
 
-  // Codici FastBet che richiedono selezioni
+  // Codici FastBet che richiedono selezioni (sempre in inglese internamente)
   const racingCodesWithSelection = ['W', 'P', 'S', 'E', 'Q', 'T', 'BT']
   // Codici FastBet senza selezioni
   const racingCodesWithoutSelection = ['EV', 'OD', 'U', 'O']
@@ -75,6 +136,7 @@ export async function createBetFromFastCode(
   fastCode: FastBetCode,
   currentEvent: UpcomingEvent,
   initCode: string,
+  getTrackName?: (channel?: number) => string,
 ): Promise<Bet[] | null> {
   if (!currentEvent) {
     return null
@@ -92,8 +154,11 @@ export async function createBetFromFastCode(
     return null
   }
 
-  const trackName =
-    raceData.track?.name || `Track ${raceData.current?.channel || '6'}`
+  // Usa getTrackName se disponibile, altrimenti usa il nome dall'API o fallback
+  const channel = raceData.current?.channel
+  const trackName = getTrackName
+    ? getTrackName(channel)
+    : raceData.track?.name || `Track ${channel || '6'}`
 
   const bets: Bet[] = []
 
