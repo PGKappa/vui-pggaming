@@ -59,30 +59,81 @@ export default function AlphanumericKeypadDrawer(props: {
     props.setValue('')
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    const key = e.key.toUpperCase()
+  const processKey = (rawKey: string, prevent: () => void) => {
+    const key = rawKey.toUpperCase()
 
     if (key === 'ENTER') {
-      e.preventDefault()
+      prevent()
       handleSubmit()
       return
     }
 
-    e.preventDefault()
+    const unsupportedKeys = new Set([
+      'SHIFT',
+      'CONTROL',
+      'ALT',
+      'META',
+      'CAPSLOCK',
+      'TAB',
+      'ARROWLEFT',
+      'ARROWRIGHT',
+      'ARROWUP',
+      'ARROWDOWN',
+      'HOME',
+      'END',
+      'PAGEUP',
+      'PAGEDOWN',
+      'INSERT',
+      'NUMLOCK',
+      'SCROLLLOCK',
+      'PRINTSCREEN',
+      'PAUSE',
+      'CONTEXTMENU',
+      // Function keys
+      'F1',
+      'F2',
+      'F3',
+      'F4',
+      'F5',
+      'F6',
+      'F7',
+      'F8',
+      'F9',
+      'F10',
+      'F11',
+      'F12',
+    ])
+    if (unsupportedKeys.has(key)) {
+      prevent()
+      return
+    }
 
-    if ((key >= '0' && key <= '9') || (key >= 'A' && key <= 'Z')) {
-      handleCharacterClick(key)
-    } else if (key === '-' || key === '/') {
-      handleCharacterClick(key)
-    } else if (key === ' ') {
-      handleCharacterClick(' ')
-    } else if (key === 'BACKSPACE') {
+    prevent()
+
+    // Only allow single-character inputs
+    if (key.length === 1) {
+      if ((key >= '0' && key <= '9') || (key >= 'A' && key <= 'Z')) {
+        handleCharacterClick(key)
+        return
+      }
+      if (key === '-' || key === '/' || key === ' ') {
+        handleCharacterClick(key)
+        return
+      }
+    }
+
+    if (key === 'BACKSPACE') {
       handleDelete()
     } else if (key === 'DELETE') {
-      handleClear()
+      // Map physical Delete to single-character delete (same as trash icon)
+      handleDelete()
     } else if (key === 'ESCAPE') {
       closeDrawer()
     }
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    processKey(e.key, () => e.preventDefault())
   }
 
   const handleSubmit = () => {
@@ -98,6 +149,18 @@ export default function AlphanumericKeypadDrawer(props: {
   const closeDrawer = () => {
     setActiveDrawer(undefined)
   }
+
+  // Capture physical keyboard while drawer is open
+  useEffect(() => {
+    if (!open) return
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      processKey(event.key, () => event.preventDefault())
+    }
+
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [open, value])
 
   return (
     <Drawer
@@ -141,6 +204,7 @@ export default function AlphanumericKeypadDrawer(props: {
               value={value}
               onChange={() => {}}
               onKeyDown={handleKeyDown}
+              readOnly
               className="h-12 flex-1 border pr-2 text-right text-2xl font-bold uppercase"
               autoFocus
             />
