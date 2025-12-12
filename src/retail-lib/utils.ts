@@ -37,6 +37,55 @@ export function getTimeDistanceFromNow(targetTime: Date) {
   return `${minutes}:${seconds}`
 }
 
+export function parseAPIDate(dateString: string | Date | number): Date {
+  // Se è già un Date object valido, restituiscilo direttamente
+  if (dateString instanceof Date) {
+    return isNaN(dateString.getTime()) ? new Date() : dateString
+  }
+
+  // Se è un numero (timestamp in millisecondi), convertilo
+  if (typeof dateString === 'number') {
+    const date = new Date(dateString)
+    return isNaN(date.getTime()) ? new Date() : date
+  }
+
+  // Se la stringa è vuota o invalida, restituisci la data corrente
+  if (!dateString || typeof dateString !== 'string') {
+    console.warn('Invalid dateString passed to parseAPIDate:', dateString)
+    return new Date()
+  }
+
+  try {
+    // Normalizza la stringa: sostituisci spazio con T per formato ISO
+    let normalizedString = dateString.trim().replace(' ', 'T')
+
+    // Se non ha la parte time, aggiungi mezzanotte
+    if (!normalizedString.includes('T')) {
+      normalizedString += 'T00:00:00'
+    }
+
+    // IMPORTANTE: Il backend invia orari nel timezone apiTimezone (es. Europe/Rome)
+    // ma li formatta con Z alla fine (come se fossero UTC)
+    // Quindi dobbiamo rimuovere la Z e interpretarli come orari locali del browser
+    if (normalizedString.endsWith('Z')) {
+      normalizedString = normalizedString.slice(0, -1)
+    }
+
+    // Parse la stringa come orario locale del browser
+    const date = new Date(normalizedString)
+
+    if (!isNaN(date.getTime())) {
+      return date
+    }
+
+    console.warn('Failed to parse date:', dateString)
+    return new Date()
+  } catch (error) {
+    console.error('Error parsing date:', error, 'dateString:', dateString)
+    return new Date()
+  }
+}
+
 // Helper per chiamate API PGVirtual pulite
 export function createPGVirtualAPICall(
   endpoint: string,

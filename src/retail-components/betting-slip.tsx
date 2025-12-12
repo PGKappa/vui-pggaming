@@ -531,6 +531,12 @@ export default function BettingSlip({
   }, [actualTotalStake, betMode])
 
   const handleBetNow = async () => {
+    // Check if initCode is available (user is authenticated)
+    if (!rootContext.initCode) {
+      toast.error(t('login_required'))
+      return
+    }
+
     if (betEntries.length === 0) {
       toast.error(t('no_bet_selected'))
       return
@@ -629,19 +635,6 @@ export default function BettingSlip({
     setIsSubmitting(true)
 
     try {
-      // Raggruppa le scommesse per evento
-      const groupedByEvent = betEntries.reduce(
-        (acc, entry) => {
-          const eventId = entry.bet.event.number.toString()
-          if (!acc[eventId]) {
-            acc[eventId] = []
-          }
-          acc[eventId].push(entry)
-          return acc
-        },
-        {} as Record<string, typeof betEntries>,
-      )
-
       // Mappa i nomi dei mercati (sia tradotti che in inglese) ai nomi API
       const getAPIMarketName = (marketName: string): string => {
         const normalized = marketName.toLowerCase().trim()
@@ -679,59 +672,38 @@ export default function BettingSlip({
         return API_MARKET_NAMES[normalized] || normalized
       }
 
-      // Crea le selections nel formato richiesto dall'API
-      const selections = Object.entries(groupedByEvent).map(
-        ([eventId, entries]) => {
-          // Raggruppa per market all'interno dell'evento
-          const marketGroups = entries.reduce(
-            (acc, entry) => {
-              const apiMarketName = getAPIMarketName(entry.market)
-              if (!acc[apiMarketName]) {
-                acc[apiMarketName] = []
-              }
-              acc[apiMarketName].push({
-                description: entry.bet.option.outcome,
-                odds: entry.bet.option.decPrice.toString(),
-                status: 1,
-              })
-              return acc
-            },
-            {} as Record<string, any[]>,
-          )
+      // Per le scommesse SYSTEM, ogni selezione deve essere un elemento separato
+      // Per SINGLE/MULTIPLE, possiamo raggruppare per evento
+      let selections: any[]
 
-          // Converti i market groups in formato API
-          const markets = Object.entries(marketGroups).map(
-            ([marketName, selections]) => ({
-              description: marketName,
-              selections: selections,
-            }),
-          )
+      if (betMode === 'SYSTEM') {
+        // Per SYSTEM: 1 elemento per ogni selezione individuale
+        selections = betEntries.map((entry) => {
+          const eventId = entry.bet.event.number.toString()
+          const apiMarketName = getAPIMarketName(entry.market)
 
           // Determina gameId e channelId basato sulla disciplina
-          const firstEntry = entries[0]
           const gameId =
-            firstEntry.bet.discipline === 'HORSES'
+            entry.bet.discipline === 'HORSES'
               ? 'horses6'
-              : firstEntry.bet.discipline === 'DOGS'
+              : entry.bet.discipline === 'DOGS'
                 ? 'dogs6'
                 : 'soccer'
           const channelId =
-            firstEntry.bet.discipline === 'HORSES'
+            entry.bet.discipline === 'HORSES'
               ? 3
-              : firstEntry.bet.discipline === 'DOGS'
+              : entry.bet.discipline === 'DOGS'
                 ? 4
                 : 1
 
           // DINAMICO: Prendi palimpsestId dall'evento se disponibile
-          const eventAny = firstEntry.bet.event as any
+          const eventAny = entry.bet.event as any
           const palimpsestId =
             eventAny.palimpsestId ||
             eventAny.extId ||
             selectedEvent?.extId ||
             selectedEvent?.palimpsestId ||
-            (firstEntry.bet.discipline === 'HORSES'
-              ? '1000003504'
-              : '1000003502')
+            (entry.bet.discipline === 'HORSES' ? '1000003504' : '1000003502')
 
           return {
             gameId: gameId,
@@ -739,10 +711,98 @@ export default function BettingSlip({
             palimpsestId: palimpsestId,
             eventId: eventId,
             isBanker: false,
-            markets: markets,
+            markets: [
+              {
+                description: apiMarketName,
+                selections: [
+                  {
+                    description: entry.bet.option.outcome,
+                    odds: entry.bet.option.decPrice.toString(),
+                    status: 1,
+                  },
+                ],
+              },
+            ],
           }
-        },
-      )
+        })
+      } else {
+        // Per SINGLE/MULTIPLE: raggruppa le scommesse per evento
+        const groupedByEvent = betEntries.reduce(
+          (acc, entry) => {
+            const eventId = entry.bet.event.number.toString()
+            if (!acc[eventId]) {
+              acc[eventId] = []
+            }
+            acc[eventId].push(entry)
+            return acc
+          },
+          {} as Record<string, typeof betEntries>,
+        )
+
+        selections = Object.entries(groupedByEvent).map(
+          ([eventId, entries]) => {
+            // Raggruppa per market all'interno dell'evento
+            const marketGroups = entries.reduce(
+              (acc, entry) => {
+                const apiMarketName = getAPIMarketName(entry.market)
+                if (!acc[apiMarketName]) {
+                  acc[apiMarketName] = []
+                }
+                acc[apiMarketName].push({
+                  description: entry.bet.option.outcome,
+                  odds: entry.bet.option.decPrice.toString(),
+                  status: 1,
+                })
+                return acc
+              },
+              {} as Record<string, any[]>,
+            )
+
+            // Converti i market groups in formato API
+            const markets = Object.entries(marketGroups).map(
+              ([marketName, selections]) => ({
+                description: marketName,
+                selections: selections,
+              }),
+            )
+
+            // Determina gameId e channelId basato sulla disciplina
+            const firstEntry = entries[0]
+            const gameId =
+              firstEntry.bet.discipline === 'HORSES'
+                ? 'horses6'
+                : firstEntry.bet.discipline === 'DOGS'
+                  ? 'dogs6'
+                  : 'soccer'
+            const channelId =
+              firstEntry.bet.discipline === 'HORSES'
+                ? 3
+                : firstEntry.bet.discipline === 'DOGS'
+                  ? 4
+                  : 1
+
+            // DINAMICO: Prendi palimpsestId dall'evento se disponibile
+            const eventAny = firstEntry.bet.event as any
+            const palimpsestId =
+              eventAny.palimpsestId ||
+              eventAny.extId ||
+              selectedEvent?.extId ||
+              selectedEvent?.palimpsestId ||
+              (firstEntry.bet.discipline === 'HORSES'
+                ? '1000003504'
+                : '1000003502')
+
+            return {
+              gameId: gameId,
+              channelId: channelId,
+              palimpsestId: palimpsestId,
+              eventId: eventId,
+              isBanker: false,
+              markets: markets,
+            }
+          },
+        )
+      }
 
       // Calcola i valori per il payload
       const ticketType = getTicketType(betEntries)
