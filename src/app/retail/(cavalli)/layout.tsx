@@ -33,7 +33,7 @@ function AppContent({ children }: { children: React.ReactNode }) {
         <RootContextProvider>
           {/* <div className="h-[60px]"></div> */}
           <Navbar />
-          <div className="p-2">
+          <div className="p-2 bg-muted-foreground">
             <BetsContextProvider>{children}</BetsContextProvider>
           </div>
         </RootContextProvider>

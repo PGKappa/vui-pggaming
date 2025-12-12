@@ -695,7 +695,7 @@ export default function UpcomingRaceCard({
           {/* Even/Odd Market */}
           <div>
             <div className="bg-accent text-accent-foreground">
-              <div className="border-slate flex h-[64px] items-center justify-center border-r text-[16px] font-bold">
+              <div className="border-slate flex h-[64px] items-center justify-center  text-[16px] font-bold border-r">
                 {t('even_odd').toUpperCase()}
               </div>
             </div>
@@ -813,7 +813,7 @@ export default function UpcomingRaceCard({
   return (
     <>
       <Card className="h-full w-full">
-        <CardHeader className="flex h-16 flex-row items-center justify-between px-[12px]">
+        <CardHeader className="flex h-[73px] flex-row items-center justify-between px-[12px]">
           <div className="flex items-center gap-[8px]">
             {Object.entries(tabConfig).map(([key, config]) => (
               <Button

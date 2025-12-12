@@ -35,7 +35,7 @@ export default function TicketCheckPage() {
       <Button
         variant="navbar"
         onClick={() => router.back()}
-        className="absolute right-4 top-4"
+        className="absolute right-4 top-4 "
       >
         <XIcon className="h-6 w-6" />
       </Button>

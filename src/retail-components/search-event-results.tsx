@@ -524,7 +524,7 @@ export default function SearchEventResults() {
         </div>
       </div>
 
-      <div className="h-full overflow-auto pb-2">
+      <div className="h-full overflow-auto pb-2 top-1 relative">
         {selectedDiscipline !== 'NONE' ? (
           isLoading || (lastTenGames && rootContext.isLoadingEvents) ? (
             <div className="flex h-full flex-col items-center justify-center pt-4">
@@ -546,10 +546,10 @@ export default function SearchEventResults() {
                           value={uniqueKey}
                           className="gap-0"
                         >
-                          <AccordionTrigger className="bg-accent p-0 pl-2 text-base text-accent-foreground [&[data-state=open]>svg]:-rotate-90">
-                            <div className="flex w-[600px] flex-row justify-between gap-2 text-white relative bottom-2">
+                          <AccordionTrigger className="bg-accent border-b-0 p-0 pl-2 text-base text-accent-foreground [&[data-state=open]>svg]:-rotate-90">
+                            <div className="flex w-[600px] flex-row justify-between gap-2 text-white relative top-1.5 h-[45px] mb-[7px]">
                               <div className="flex flex-row gap-2">
-                                <span className="text-[15px] font-semibold relative top-[8px]">
+                                <span className="text-[15px] font-semibold relative top-[8px] left-[3px]">
                                   {eventResult.name.toUpperCase()} {' - '}
                                 </span>
                                 <span className="relative top-[8px] right-[4px] text-[15px] font-normal">
@@ -807,13 +807,13 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
           {detailedResult.arrival &&
             Array.isArray(detailedResult.arrival) &&
             detailedResult.arrival.length > 0 && (
-              <div className="border-b">
+              <div className="border-b mb-[-8px]">
                 <div className="h-[45px] bg-accent py-2 text-center">
                   <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">
                     {t('arrival_order').toUpperCase()}
                   </div>
                 </div>
-                <div className="flex items-center justify-center gap-8 p-4">
+                <div className="flex items-center justify-center gap-8 p-4 h-[79px]">
                   {detailedResult.arrival
                     .slice(0, 3)
                     .map((competitor, index) => {
@@ -866,7 +866,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                             {competitor.number}
                           </div>
 
-                          <div className="relative right-[1px] min-w-0 pr-10 text-[18px] font-semibold">
+                          <div className="relative right-[1px] min-w-0 pr-10 text-[17px] font-semibold pt-[1px]">
                             {competitor.name}
                           </div>
                         </div>
@@ -904,7 +904,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                           >
                             {number}
                           </div>
-                          <span className="text-[18px] font-semibold">
+                          <span className="text-[17px] font-semibold">
                             {odds}
                           </span>
                         </span>
@@ -942,7 +942,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                           >
                             {number}
                           </div>
-                          <span className="text-[18px] font-semibold">
+                          <span className="text-[17px] font-semibold">
                             {odds}
                           </span>
                         </span>
@@ -980,7 +980,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                           >
                             {number}
                           </div>
-                          <span className="text-[18px] font-semibold">
+                          <span className="text-[17px] font-semibold">
                             {odds}
                           </span>
                         </span>
@@ -995,7 +995,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
           <div className="grid grid-cols-4">
             {/* EXACTA */}
             {raceResult.odds.exacta && (
-              <div className="border-b border-t">
+              <div className="border-b border-t relative bottom-2">
                 <div className="h-[45px] bg-accent py-2 text-center">
                   <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">
                     {t('exacta').toUpperCase()}
@@ -1024,7 +1024,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                             </div>
                           ))}
                         </span>
-                        <span className="text-[18px] font-semibold">
+                        <span className="text-[17px] font-semibold">
                           {odds}
                         </span>
                       </div>
@@ -1036,7 +1036,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
 
             {/* QUINELLA */}
             {raceResult.odds.quinella && (
-              <div className="border-b border-l border-t">
+              <div className="border-b border-l border-t relative bottom-2">
                 <div className="h-[45px] bg-accent py-2 text-center">
                   <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">
                     {t('quinella').toUpperCase()}
@@ -1065,7 +1065,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                             </div>
                           ))}
                         </span>
-                        <span className="text-[18px] font-semibold">
+                        <span className="text-[17px] font-semibold">
                           {odds}
                         </span>
                       </div>
@@ -1077,7 +1077,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
 
             {/* TRIFECTA */}
             {raceResult.odds.trifecta && (
-              <div className="border-b border-l border-t">
+              <div className="border-b border-l border-t relative bottom-2">
                 <div className="h-[45px] bg-accent py-2 text-center">
                   <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">
                     {t('trifecta').toUpperCase()}
@@ -1106,7 +1106,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                             </div>
                           ))}
                         </span>
-                        <span className="text-[18px] font-semibold">
+                        <span className="text-[17px] font-semibold">
                           {odds}
                         </span>
                       </div>
@@ -1118,7 +1118,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
 
             {/* BOX TRIFECTA */}
             {raceResult.odds.boxedtrifecta && (
-              <div className="border-b border-l border-t">
+              <div className="border-b border-l border-t relative bottom-2">
                 <div className="h-[45px] bg-accent py-2 text-center">
                   <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">
                     {t('boxed_trifecta').toUpperCase()}
@@ -1147,7 +1147,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                             </div>
                           ))}
                         </span>
-                        <span className="text-[18px] font-semibold">
+                        <span className="text-[17px] font-semibold">
                           {odds}
                         </span>
                       </div>
@@ -1161,7 +1161,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
           <div className="grid grid-cols-2">
             {/* EVEN/ODD */}
             {raceResult.odds.evenodd && (
-              <div className="border-b border-t">
+              <div className="border-b border-t relative bottom-4">
                 <div className="h-[45px] bg-accent py-2 text-center">
                   <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">
                     {t('even_odd').toUpperCase()}
@@ -1182,7 +1182,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                   {raceResult.odds.evenodd.odd && (
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
-                        <span className="mr-[643px]">
+                        <span className="mr-[640px]">
                           {t('odd').toUpperCase()}
                         </span>{' '}
                         <span>{raceResult.odds.evenodd.odd}</span>
@@ -1195,7 +1195,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
 
             {/* UNDER/OVER */}
             {raceResult.odds.underover && (
-              <div className="border-b border-l border-t">
+              <div className="border-b border-l border-t relative bottom-4">
                 <div className="h-[45px] bg-accent py-2 text-center">
                   <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">
                     {t('under_over')} 3.5
@@ -1215,7 +1215,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                   {raceResult.odds.underover.over && (
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
-                        <span className="mr-[644px]">
+                        <span className="mr-[653px]">
                           {t('over').toUpperCase()}
                         </span>{' '}
                         <span>{raceResult.odds.underover.over}</span>
