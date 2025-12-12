@@ -22,9 +22,10 @@ export default function NumericKeypadDrawer(props: {
   showPlusMinus?: boolean
   drawerId?: string
   currencySymbol?: string
+  incrementValue?: number
 }) {
   const { t } = useTranslation()
-  const { activeDrawerId, setActiveDrawer, getCurrencySymbol } =
+  const { activeDrawerId, setActiveDrawer, getCurrencySymbol, getMinStakeIncrement } =
     useContext(RootContext)
   const [value, setValue] = useState(props.value)
   const [drawerValue, setDrawerValue] = useState('0.00')
@@ -33,6 +34,9 @@ export default function NumericKeypadDrawer(props: {
 
   // Get currency symbol from RootContext or fallback to prop/€
   const currencySymbol = getCurrencySymbol?.() || props.currencySymbol || '€'
+  
+  // Get increment value from prop or context
+  const incrementValue = props.incrementValue ?? getMinStakeIncrement?.() ?? 50
 
   // Genera un ID univoco per questo drawer se non fornito
   const drawerId = useMemo(
@@ -173,7 +177,7 @@ export default function NumericKeypadDrawer(props: {
             disabled={value <= 0}
             onClick={(e) => {
               e.stopPropagation()
-              handlePlusMinus(-50)
+              handlePlusMinus(-incrementValue)
             }}
           >
             <MinusIcon className="h-4 w-4" />
@@ -191,7 +195,7 @@ export default function NumericKeypadDrawer(props: {
             className="h-8 w-7 bg-bet p-3 text-[19px] text-bet-foreground"
             onClick={(e) => {
               e.stopPropagation()
-              handlePlusMinus(50)
+              handlePlusMinus(incrementValue)
             }}
           >
             <PlusIcon className="h-4 w-4" />

@@ -39,7 +39,6 @@ const getInitialLanguage = () => {
 
 i18n.use(initReactI18next).init({
   resources,
-  lng: getInitialLanguage(),
   fallbackLng: 'en',
   debug: false,
   interpolation: {

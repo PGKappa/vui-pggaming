@@ -2,7 +2,6 @@
 
 import { RootContext } from '@/retail-contexts/root-context'
 import { cn } from '@/retail-lib/utils'
-import { Info } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'

@@ -16,6 +16,7 @@ import {
   createPGVirtualAPICall,
   SOCCER_API_URL,
   fetchCashierInit,
+  parseAPIDate,
 } from '@/retail-lib/utils'
 import { t } from 'i18next'
 import { createContext, useCallback, useEffect, useState } from 'react'
@@ -42,6 +43,11 @@ export type RootContextType = {
   getCurrencySymbol?: () => string
   getCurrencyCode?: () => string
   getMinStakeIncrement?: () => number
+  getStakeButtons?: () => number[]
+  getMinStake?: () => number
+  getMinBet?: () => number
+  getMaxWin?: () => number
+  getTimezone?: () => string
   getChannels?: () => any[]
   getTrackName?: (channel?: number) => string
   getTranslation?: (key: string, fallback?: string) => string
@@ -515,6 +521,10 @@ export default function RootContextProvider(props: {
     const cachedDogsResults = loadFromCache(CACHE_KEYS.DOGS_RESULTS)
     const cachedHorsesResults = loadFromCache(CACHE_KEYS.HORSES_RESULTS)
 
+    // Prendi il timezone dalla cache o usa fallback
+    const cachedTimezone =
+      localStorage.getItem('cashier_timezone') || 'Europe/Rome'
+
     if (
       cachedDogsEvents ||
       cachedHorsesEvents ||
@@ -536,11 +546,11 @@ export default function RootContextProvider(props: {
           ) || []),
           ...((cachedDogsResults as EventResult[])?.map((r) => ({
             ...r,
-            startTime: new Date(r.startTime),
+            startTime: parseAPIDate(r.startTime.toString(), cachedTimezone),
           })) || []),
           ...((cachedHorsesResults as EventResult[])?.map((r) => ({
             ...r,
-            startTime: new Date(r.startTime),
+            startTime: parseAPIDate(r.startTime.toString(), cachedTimezone),
           })) || []),
         ],
       }))
@@ -560,6 +570,11 @@ export default function RootContextProvider(props: {
   const loadCachedSoccerEvents = useCallback(() => {
     const cachedSoccerEvents = loadFromCache(CACHE_KEYS.SOCCER_EVENTS)
     const cachedSoccerResults = loadFromCache(CACHE_KEYS.SOCCER_RESULTS)
+
+    // Prendi il timezone dalla cache o usa fallback
+    const cachedTimezone =
+      localStorage.getItem('cashier_timezone') || 'Europe/Rome'
+
     if (cachedSoccerEvents || cachedSoccerResults) {
       setRootContext((prev) => ({
         ...prev,
@@ -575,7 +590,7 @@ export default function RootContextProvider(props: {
           ) || []),
           ...((cachedSoccerResults as EventResult[])?.map((r) => ({
             ...r,
-            startTime: new Date(r.startTime),
+            startTime: parseAPIDate(r.startTime.toString(), cachedTimezone),
           })) || []),
         ],
       }))
@@ -702,6 +717,7 @@ export default function RootContextProvider(props: {
               CHF: 'CHF',
               CAD: 'C$',
               AUD: 'A$',
+              COP: '$', // Peso Colombiano
             }
             return currencyMap[currencyCode] || '€'
           }
@@ -735,26 +751,107 @@ export default function RootContextProvider(props: {
           }
 
           const getMinStakeIncrement = () => {
-            // TODO: Decommentare quando l'API sarà aggiornata
             // Prende il min_stake_increment_step dal cashier data
-            /*
-            const minStakeIncrementStep = cashierData.intl?.min_stake_increment_step
-            
+            const minStakeIncrementStep =
+              cashierData.intl?.min_stake_increment_step
+
             if (typeof minStakeIncrementStep === 'string') {
               const parsed = parseFloat(minStakeIncrementStep)
               if (!isNaN(parsed) && parsed > 0) {
                 return parsed
               }
             }
-            
-            if (typeof minStakeIncrementStep === 'number' && minStakeIncrementStep > 0) {
+
+            if (
+              typeof minStakeIncrementStep === 'number' &&
+              minStakeIncrementStep > 0
+            ) {
               return minStakeIncrementStep
             }
-            */
 
-            // Per ora usa 0.05 fisso (da rimuovere quando API sarà pronta)
-            return 0.05
+            // Fallback
+            return 50
           }
+
+          const getStakeButtons = (): number[] => {
+            // Prende i stake_buttons dal cashier data
+            const stakeButtons = cashierData.intl?.stake_buttons
+
+            if (Array.isArray(stakeButtons) && stakeButtons.length > 0) {
+              return stakeButtons
+            }
+
+            // Fallback ai valori di default
+            return [1000, 2000, 3000, 5000, 10000]
+          }
+
+          const getMinStake = (): number => {
+            // Prende il min_stake dal cashier data
+            const minStake = cashierData.intl?.min_stake
+
+            if (typeof minStake === 'string') {
+              const parsed = parseFloat(minStake)
+              if (!isNaN(parsed) && parsed > 0) {
+                return parsed
+              }
+            }
+
+            if (typeof minStake === 'number' && minStake > 0) {
+              return minStake
+            }
+
+            // Fallback
+            return 50
+          }
+
+          const getMinBet = (): number => {
+            // Prende il min_bet dal cashier data
+            const minBet = cashierData.intl?.min_bet
+
+            if (typeof minBet === 'string') {
+              const parsed = parseFloat(minBet)
+              if (!isNaN(parsed) && parsed >= 0) {
+                return parsed
+              }
+            }
+
+            if (typeof minBet === 'number' && minBet >= 0) {
+              return minBet
+            }
+
+            // Fallback
+            return 0
+          }
+
+          const getMaxWin = (): number => {
+            // Prende il max_win dal cashier data
+            const maxWin = cashierData.intl?.max_win
+
+            if (typeof maxWin === 'string') {
+              const parsed = parseFloat(maxWin)
+              if (!isNaN(parsed) && parsed > 0) {
+                return parsed
+              }
+            }
+
+            if (typeof maxWin === 'number' && maxWin > 0) {
+              return maxWin
+            }
+
+            // Fallback a 1 miliardo
+            return 1000000000
+          }
+
+          const getTimezone = (): string => {
+            // Prende il timezone dal cashier data
+            return cashierData.intl?.timezone || 'Europe/Rome'
+          }
+
+          // Salva il timezone in localStorage per uso nelle funzioni cache
+          localStorage.setItem(
+            'cashier_timezone',
+            cashierData.intl?.timezone || 'Europe/Rome',
+          )
 
           const contextData = {
             userData,
@@ -762,6 +859,11 @@ export default function RootContextProvider(props: {
             getCurrencySymbol,
             getCurrencyCode,
             getMinStakeIncrement,
+            getStakeButtons,
+            getMinStake,
+            getMinBet,
+            getMaxWin,
+            getTimezone,
             getChannels,
             getTrackName,
             getTranslation,
@@ -814,6 +916,10 @@ export default function RootContextProvider(props: {
             cashierData: null,
             getCurrencySymbol: () => '$',
             getCurrencyCode: () => 'USD',
+            getStakeButtons: () => [1000, 2000, 3000, 5000, 10000],
+            getMinStake: () => 50,
+            getMinBet: () => 0,
+            getMaxWin: () => 1000000000,
             getChannels: () => [],
             getTrackName: (channel?: number) => `Track ${channel || 6}`,
             getTranslation: (key: string, fallback?: string) => fallback || key,
@@ -949,23 +1055,27 @@ export default function RootContextProvider(props: {
           }
         },
       )
-      const upcomingSoccerEvents = rounds.map((round) => ({
-        id: round.scheduleId,
-        name: round.scheduleName,
-        startTime: new Date(round.mag_event[0].startTime).toLocaleTimeString(
-          'it-IT',
-          {
+      const apiTimezone = rootContext.getTimezone?.() || 'Europe/Rome'
+      const upcomingSoccerEvents = rounds.map((round) => {
+        const eventDate = parseAPIDate(
+          round.mag_event[0].startTime,
+          apiTimezone,
+        )
+        return {
+          id: round.scheduleId,
+          name: round.scheduleName,
+          startTime: eventDate.toLocaleTimeString('it-IT', {
             hour: '2-digit',
             minute: '2-digit',
-          },
-        ),
-        time: new Date(round.mag_event[0].startTime),
-        duration: 3,
-        discipline: Discipline.SOCCER,
-        ext_pal_id:
-          round.mag_event[0].eventIdentity?.parentGroupIdSpecified || '',
-        data: round,
-      }))
+          }),
+          time: eventDate,
+          duration: 3,
+          discipline: Discipline.SOCCER,
+          ext_pal_id:
+            round.mag_event[0].eventIdentity?.parentGroupIdSpecified || '',
+          data: round,
+        }
+      })
       setRootContext((prev) => ({
         ...prev,
         upcomingEvents: [
@@ -1011,10 +1121,8 @@ export default function RootContextProvider(props: {
         const upcomingDogEvents: UpcomingEvent[] =
           dogChannel?.next_events?.map(
             (event: any, index: number): UpcomingEvent => {
-              const startTime = new Date(event.time)
-              const [hours, minutes] = event.start_time.split(':')
-              startTime.setHours(parseInt(hours, 10))
-              startTime.setMinutes(parseInt(minutes, 10))
+              const apiTimezone = rootContext.getTimezone?.() || 'Europe/Rome'
+              const startTime = parseAPIDate(event.time, apiTimezone)
               return {
                 id: parseInt(event.int_event_id),
                 extId: event.ext_pal_id,
@@ -1031,10 +1139,8 @@ export default function RootContextProvider(props: {
         const upcomingHorseEvents: UpcomingEvent[] =
           horseChannel?.next_events?.map(
             (event: any, index: number): UpcomingEvent => {
-              const startTime = new Date(event.time)
-              const [hours, minutes] = event.start_time.split(':')
-              startTime.setHours(parseInt(hours, 10))
-              startTime.setMinutes(parseInt(minutes, 10))
+              const apiTimezone = rootContext.getTimezone?.() || 'Europe/Rome'
+              const startTime = parseAPIDate(event.time, apiTimezone)
               return {
                 id: parseInt(event.int_event_id),
                 extId: event.ext_pal_id,
@@ -1065,11 +1171,12 @@ export default function RootContextProvider(props: {
                   console.log('Failed to fetch dog details:', error)
                 }
 
+                const apiTimezone = rootContext.getTimezone?.() || 'Europe/Rome'
                 return {
                   id: event.int_event_id,
                   extId: event.ext_pal_id,
                   name: `Dog Race ${event.int_event_id}`,
-                  startTime: new Date(event.time),
+                  startTime: parseAPIDate(event.time, apiTimezone),
                   time: event.time,
                   discipline: Discipline.DOGS,
                   result: detailedResult || {
@@ -1104,11 +1211,12 @@ export default function RootContextProvider(props: {
                   console.log('Failed to fetch horse details:', error)
                 }
 
+                const apiTimezone = rootContext.getTimezone?.() || 'Europe/Rome'
                 return {
                   id: event.int_event_id,
                   extId: event.ext_pal_id,
                   name: `Horse Race ${event.int_event_id}`,
-                  startTime: new Date(event.time),
+                  startTime: parseAPIDate(event.time, apiTimezone),
                   time: event.time,
                   discipline: Discipline.HORSES,
                   result: detailedResult || {
