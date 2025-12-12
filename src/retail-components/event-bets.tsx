@@ -81,16 +81,16 @@ export default function EventBets(props: {
         </div>
 
         <div className="relative bottom-0 mt-[1px] flex items-center justify-between">
-          <span className="relative  ml-[3px] text-[15px] font-semibold">
+          <span className="relative ml-[3px] text-[15px] font-semibold">
             {eventBets[0].bet.discipline === 'SOCCER'
               ? t('football')
               : eventBets[0].bet.discipline === 'DOGS'
-                ? t('dog').toUpperCase() + ' ' + t('racing').toUpperCase()
-                : t('horse').toUpperCase() + ' ' + t('racing').toUpperCase()}
+                ? t('dog_races_label')
+                : t('horse_races_label')}
           </span>
 
           <div className="flex items-center gap-2">
-            <span className="relative left-[1px]  text-[15px] font-bold tabular-nums">
+            <span className="relative left-[1px] text-[15px] font-bold tabular-nums">
               {format(eventBets[0].bet.event.startingAt, 'HH:mm')}
             </span>
             <Badge className="mr-[4px] h-[27px] w-[61px] items-center justify-center bg-accent text-[14px] tabular-nums text-[#99a6b1]">
@@ -102,7 +102,7 @@ export default function EventBets(props: {
           <span className="text-[16px]">{eventBets[0].bet.competitors}</span>
         ) : (
           <span className="relative bottom-[1px] ml-[3px] pb-[4px] text-[13px] uppercase">
-            {eventBets[0].bet.track ||  t('track_6')}
+            {eventBets[0].bet.track || t('track_6')}
           </span>
         )}
       </div>
@@ -131,46 +131,40 @@ export default function EventBets(props: {
               betEntry.bet.option.outcome,
               betEntry.bet.option.outcome,
             )
-          } else if (betEntry.bet.option.outcome.includes(' any')) {
-            // Traduci le combinazioni con 'any' (es. "1-2 any" -> "1-2 cualquier")
-            outcomeDisplay = betEntry.bet.option.outcome.replace(
-              ' any',
-              ` ${t('any')}`,
-            )
           }
 
           // Traduci il nome del mercato
           const translatedMarket = t(betEntry.market, betEntry.market)
 
           return (
-            <div 
-  key={betEntry.id}
-  className="flex items-center text-sm pr-[8px]"
->
-  <span className="mr-[1px] text-[13px] w-[126px]">
-    {translatedMarket}
-  </span>
-  <span className="ml-[0px] text-[13px] font-normal w-[109px]">
-    {outcomeDisplay}
-  </span>
-  <span className="text-[13px] w-[101px] break-all leading-tight">
-  {betEntry.bet.option.decPrice.toFixed(2)}
-</span>
-  <Button
-    variant="ghost"
-    size="icon"
-    className="w-[24px] h-[40px] flex-shrink-0 translate-x-[3px]"
-    onClick={() => {
-      removeBet(
-        betEntry.market,
-        betEntry.bet.option,
-        betEntry.bet.competitors,
-      )
-    }}
-  >
-    <CircleXIcon className="mt-[1px] h-[17px] scale-[1.4]" />
-  </Button>
-</div>
+            <div
+              key={betEntry.id}
+              className="flex items-center pr-[8px] text-sm"
+            >
+              <span className="mr-[1px] w-[126px] text-[13px]">
+                {translatedMarket}
+              </span>
+              <span className="ml-[0px] w-[109px] text-[13px] font-normal">
+                {outcomeDisplay}
+              </span>
+              <span className="w-[101px] break-all text-[13px] leading-tight">
+                {betEntry.bet.option.decPrice.toFixed(2)}
+              </span>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-[40px] w-[24px] flex-shrink-0 translate-x-[3px]"
+                onClick={() => {
+                  removeBet(
+                    betEntry.market,
+                    betEntry.bet.option,
+                    betEntry.bet.competitors,
+                  )
+                }}
+              >
+                <CircleXIcon className="mt-[1px] h-[17px] scale-[1.4]" />
+              </Button>
+            </div>
           )
         })}
       </div>
