@@ -226,7 +226,7 @@ export default function NumericKeypadDrawer(props: {
       <DrawerTrigger asChild>{renderTrigger()}</DrawerTrigger>
 
       <DrawerContent className="ml-auto mr-2 w-[396px] border-t-0">
-        <DrawerHeader className="relative bg-secondary text-accent-foreground h-[57px]">
+        <DrawerHeader className="relative bg-accent text-accent-foreground h-[57px]">
           <DrawerTitle className="pt-1.5 text-center text-accent-foreground">
             {props.triggerLabel || t('enter_stake_amount')}
           </DrawerTitle>
@@ -408,7 +408,7 @@ export default function NumericKeypadDrawer(props: {
 
           <Button
             onClick={handleConfirm}
-            className="h-12 w-full bg-tertiary text-2xl text-accent-foreground hover:opacity-90"
+            className="h-12 w-full bg-accent text-2xl text-accent-foreground hover:opacity-90"
           >
             {t('ok')}
           </Button>
