@@ -61,8 +61,8 @@ export default function EventBets(props: {
             <Image
               src="/bin.svg"
               alt="Bin"
-              width={40}
-              height={20}
+              width={15}
+              height={15}
               className="size-5 object-contain brightness-0 group-hover:brightness-0 group-hover:invert"
             />
           </Button>
@@ -104,6 +104,7 @@ export default function EventBets(props: {
                   betEntry.market,
                   betEntry.bet.option,
                   betEntry.bet.competitors,
+                  betEntry.bet.discipline,
                 )
               }
             >

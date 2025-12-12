@@ -21,6 +21,22 @@ const resources = {
   },
 }
 
+// Prova a recuperare la lingua dal localStorage o usa 'es' come default
+const getInitialLanguage = () => {
+  try {
+    const cached = localStorage.getItem('rootContext')
+    if (cached) {
+      const data = JSON.parse(cached)
+      if (data.userData?.lang) {
+        return data.userData.lang
+      }
+    }
+  } catch (e) {
+    // Ignora errori di parsing
+  }
+  return 'es' // Default a spagnolo invece di inglese
+}
+
 i18n.use(initReactI18next).init({
   resources,
   fallbackLng: 'en',

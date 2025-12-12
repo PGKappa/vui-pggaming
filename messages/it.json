@@ -46,5 +46,18 @@
   "latest_results": "Ultimi Risultati",
   "time": "Ora",
   "pal_event": "Pal. - Evento",
-  "arrival_order": "Ordine di Arrivo"
+  "arrival_order": "Ordine di Arrivo",
+  "no_bet_selected": "Nessuna scommessa selezionata",
+  "enter_valid_amount": "Inserisci un importo valido",
+  "enter_system_amount": "Inserisci un importo sistema valido",
+  "bet_submitted_successfully": "Scommessa inviata con successo",
+  "bet_submission_error": "Errore nell'invio della scommessa",
+  "submitting": "Invio in corso...",
+  "group": "Gruppo",
+  "comb": "Comb",
+  "min": "Min",
+  "max": "Max",
+  "stake": "Puntata",
+  "min_win": "Vincita Min",
+  "max_win": "Vincita Max"
 }

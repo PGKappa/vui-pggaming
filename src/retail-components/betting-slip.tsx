@@ -642,12 +642,12 @@ export default function BettingSlip({
         {} as Record<string, typeof betEntries>,
       )
 
-      // Mappa i nomi dei mercati (sia tradotti che in inglese) ai nomi API
+      // Mappa i nomi dei mercati ai nomi API (normalizza spazi e case)
       const getAPIMarketName = (marketName: string): string => {
         const normalized = marketName.toLowerCase().trim()
 
         const API_MARKET_NAMES: Record<string, string> = {
-          // Nomi in inglese
+          // Normalizza variazioni in inglese
           winner: 'winner',
           placed: 'placed',
           show: 'show',
@@ -656,19 +656,13 @@ export default function BettingSlip({
           trifecta: 'trifecta',
           'boxed trifecta': 'boxedtrifecta',
           'box trifecta': 'boxedtrifecta',
+          boxedtrifecta: 'boxedtrifecta',
           'even/odd': 'evenodd',
+          evenodd: 'evenodd',
           'under/over': 'underover',
+          underover: 'underover',
 
-          // Nomi italiani/tradotti
-          vincente: 'winner',
-          'piazzato su 2': 'placed',
-          'piazzato su 3': 'show',
-          accoppiata: 'exacta',
-          trio: 'trifecta',
-          'trio girare': 'boxedtrifecta',
-          'pari/dispari': 'evenodd',
-
-          // FastBet codes tradotti
+          // FastBet codes
           place: 'placed',
           couples: 'exacta',
           triplets: 'trifecta',
@@ -689,8 +683,19 @@ export default function BettingSlip({
               if (!acc[apiMarketName]) {
                 acc[apiMarketName] = []
               }
+              // Rimuovi " any" dall'outcome per i mercati boxed (quinella, boxedtrifecta)
+              let cleanOutcome = entry.bet.option.outcome.replace(/ any$/, '')
+
+              // Normalizza outcome per Even/Odd e Under/Over in lowercase
+              if (
+                apiMarketName === 'evenodd' ||
+                apiMarketName === 'underover'
+              ) {
+                cleanOutcome = cleanOutcome.toLowerCase()
+              }
+
               acc[apiMarketName].push({
-                description: entry.bet.option.outcome,
+                description: cleanOutcome,
                 odds: entry.bet.option.decPrice.toString(),
                 status: 1,
               })
@@ -759,7 +764,10 @@ export default function BettingSlip({
                 system: Object.fromEntries(
                   systemGroups
                     .filter((group) => group.stake > 0)
-                    .map((group) => [group.size.toString(), group.stake]),
+                    .map((group) => [
+                      group.size.toString(),
+                      group.stake * group.combinations.length,
+                    ]),
                 ),
               }
             : {
@@ -808,6 +816,126 @@ export default function BettingSlip({
 
           // Opzione 2: PostMessage al parent (sempre, come fallback)
           try {
+            // Helper to get translated event name based on discipline
+            const getTranslatedEventName = (discipline: string) => {
+              switch (discipline) {
+                case 'DOGS':
+                  return `${t('dog')} ${t('racing')}`
+                case 'HORSES':
+                  return `${t('horse')} ${t('racing')}`
+                case 'SOCCER':
+                  return t('football')
+                default:
+                  return ''
+              }
+            }
+
+            // Helper to translate market names
+            const getTranslatedMarket = (market: string) => {
+              const marketLower = market.toLowerCase()
+              switch (marketLower) {
+                case 'winner':
+                  return t('winner')
+                case 'placed':
+                  return t('place_2')
+                case 'show':
+                  return t('show_3')
+                case 'exacta':
+                  return t('exacta')
+                case 'quinella':
+                  return t('quinella')
+                case 'trifecta':
+                  return t('trifecta')
+                case 'boxed trifecta':
+                  return t('boxed_trifecta')
+                case 'even/odd':
+                  return t('even_odd')
+                case 'under/over':
+                  return t('under_over')
+                default:
+                  return market
+              }
+            }
+
+            // Helper to get channelId based on discipline
+            const getChannelId = (discipline: string) => {
+              switch (discipline) {
+                case 'DOGS':
+                  return 4
+                case 'HORSES':
+                  return 3
+                case 'DOGS8':
+                  return 2
+                case 'SOCCER':
+                  return 1
+                default:
+                  return 0
+              }
+            }
+
+            // Helper to get track number (6 or 8 runners) based on discipline
+            const getTrackNumber = (discipline: string) => {
+              switch (discipline) {
+                case 'DOGS':
+                case 'HORSES':
+                  return 6
+                default:
+                  return 6
+              }
+            }
+
+            // Helper to build trackName with translation
+            const buildTrackName = (discipline: string) => {
+              const trackNumber = getTrackNumber(discipline)
+              return t(`track_${trackNumber}`)
+            }
+
+            // Prepare bet details for all modes - group by event
+            const eventGroups = betEntries.reduce(
+              (groups, entry) => {
+                const eventId = entry.bet.event.number
+                if (!groups[eventId]) {
+                  const channelId = getChannelId(entry.bet.discipline)
+                  const trackName = buildTrackName(entry.bet.discipline)
+                  groups[eventId] = {
+                    eventId: eventId,
+                    eventName: getTranslatedEventName(entry.bet.discipline),
+                    eventStartTime: entry.bet.event.startingAt,
+                    discipline: entry.bet.discipline,
+                    channelId: channelId,
+                    trackName: trackName,
+                    markets: [],
+                  }
+                }
+                groups[eventId].markets.push({
+                  market: getTranslatedMarket(entry.market),
+                  competitorName: entry.bet.competitors || '',
+                  selection: entry.bet.option.outcome,
+                  odds: entry.bet.option.decPrice,
+                })
+                return groups
+              },
+              {} as Record<
+                number,
+                {
+                  eventId: number
+                  eventName: string
+                  eventStartTime: Date
+                  discipline: string
+                  channelId: number
+                  trackName: string
+                  markets: Array<{
+                    market: string
+                    competitorName: string
+                    selection: string
+                    odds: number
+                  }>
+                }
+              >,
+            )
+
+            const betsInfo = Object.values(eventGroups)
+
             // Prepare system groups info if in SYSTEM mode
             const systemGroupsInfo =
               betMode === 'SYSTEM'
@@ -817,6 +945,7 @@ export default function BettingSlip({
                       name: group.name,
                       size: group.size,
                       stake: group.stake,
+                      minWin: group.minWin,
                       maxWin: group.maxWin,
                       totalCombinations: group.combinations.length,
                       combinations: group.combinations.map((combo) => {
@@ -832,6 +961,7 @@ export default function BettingSlip({
                           potentialWin: comboPotentialWin,
                           entries: combo.map((entry) => ({
                             eventName: entry.bet.event.name || '',
+                            competitorName: entry.bet.competitors || '',
                             selection: entry.bet.option.outcome,
                             odds: entry.bet.option.decPrice,
                           })),
@@ -849,9 +979,22 @@ export default function BettingSlip({
                 print: result.print,
                 language: rootContext?.userData?.lang || 'en',
                 betMode: betMode,
+                bets: betsInfo,
+                ...(betMode === 'SINGLE' || betMode === 'MULTIPLE'
+                  ? {
+                      totalOdds: totalOdds,
+                      stake: global,
+                      potentialWin: potentialWinning,
+                    }
+                  : {}),
                 ...(systemGroupsInfo && { systemGroups: systemGroupsInfo }),
               },
             }
+
+            console.log(
+              '📤 PostMessage JSON:',
+              JSON.stringify(postMessagePayload, null, 2),
+            )
 
             window.parent.postMessage(postMessagePayload, '*')
           } catch {
