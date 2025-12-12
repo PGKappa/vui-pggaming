@@ -598,6 +598,7 @@ export default function SearchEventResults() {
                                   {formatSafeDate(eventResult.startTime)}
                                 </span>
                               </div>
+                             
                             </div>
                             <div className="pointer-events-auto">
                               <ChevronDown className="mr-2 h-[25px] w-[25px] shrink-0 cursor-pointer text-background transition-transform duration-200" />
@@ -848,8 +849,8 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
           {detailedResult.arrival &&
             Array.isArray(detailedResult.arrival) &&
             detailedResult.arrival.length > 0 && (
-              <div className="mb-[-8px] border-b">
-                <div className="mt-[7px] h-[45px] bg-accent py-2 text-center">
+              <div className="border-b mb-[-8px]">
+                <div className="h-[45px] bg-accent py-2 text-center mt-[7px]">
                   <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">
                     {t('arrival_order').toUpperCase()}
                   </div>
