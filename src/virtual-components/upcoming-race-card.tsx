@@ -875,7 +875,7 @@ export default function UpcomingRaceCard({
                     </div>
                   ))
                 ) : (
-                  <div className="col-span-full py-6 text-center text-sm">
+                  <div className="col-span-full border-0 py-6 text-center text-sm">
                     {isLoading
                       ? `${t('loading')}...`
                       : raceInfo
