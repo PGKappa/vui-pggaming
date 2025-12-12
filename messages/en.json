@@ -114,5 +114,8 @@
   "result": "Result",
   "delay": "Delay",
   "no_latecomers": "No latecomers data available",
-  "no_duplicates_added": "No bets added - selections already present in bet slip"
+  "no_duplicates_added": "No bets added - selections already present in bet slip",
+  "min_stake_error": "Minimum stake is {{min}}",
+  "max_win_error": "Maximum potential win is {{max}}",
+  "min_bet_error": "Minimum ticket amount is {{min}}"
 }
