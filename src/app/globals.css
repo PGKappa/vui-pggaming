@@ -267,22 +267,22 @@
 
     --card: 0 0% 100%;
     --card-foreground: 0 0% 0%;
-    --card-header: 353, 100%, 25%;
+    --card-header: 212 63% 23%;
     --card-header-foreground: 0 0% 100%;
 
     --primary: 0 0% 0%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 353, 100%, 32%;
+    --secondary: 211 64% 26%;
     --secondary-foreground: 0 0% 90%;
 
-    --tertiary: 353, 100%, 36%;
+    --tertiary: 212 58% 51%;
     --tertiary-foreground: 0 0% 100%;
 
-    --muted: 353, 100%, 25%;
+    --muted: 0 0% 74%;
     --muted-foreground: 220 12% 95%;
 
-    --accent: 353, 100%, 25%;
+    --accent: 212 62% 23%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 62% 30%;
@@ -380,4 +380,65 @@
 .carousel-item:last-child {
   border-right-width: 8px;
   border-right-color: hsl(var(--background));
+}
+
+
+ul.flex > li:nth-child(2) > div:nth-child(2){
+  height: 77px;
+}
+
+ul.flex > li:nth-child(2) > div:nth-child(2) > div:nth-child(2){
+  position: relative;
+  bottom: 1px;
+}
+
+ul.flex > li:nth-child(2) > div:nth-child(2) > div:nth-child(1){
+  position: relative;
+  top: 1px;
+}
+
+
+ul.flex > li:nth-child(1) > div:nth-child(2){
+  height: 77px;
+}
+
+ul.flex > li:nth-child(1) > div:nth-child(2) > div:nth-child(2){
+  position: relative;
+  bottom: 1px;
+}
+
+ul.flex > li:nth-child(1) > div:nth-child(2) > div:nth-child(1){
+  position: relative;
+  top: 1px;
+}
+
+
+#radix-\:r6\:{
+  border-width: 0px;
+}
+
+div.bg-bet-foreground:nth-child(1) > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > button:nth-child(2) > svg:nth-child(1){
+  width: 20px;
+  height: 20px;
+  position: relative;
+  left: 4px;
+}
+
+
+div.gap-1:nth-child(2) > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > button:nth-child(2) > svg:nth-child(1){
+  width: 20px;
+  height: 20px;
+  position: relative;
+  left: 4px;
+}
+
+
+.left-\[243px\] > svg:nth-child(1){
+  width: 20px;
+  position: relative;
+  left: 5px;
+}
+
+#radix-\:r3\:{
+  border: none;
 }

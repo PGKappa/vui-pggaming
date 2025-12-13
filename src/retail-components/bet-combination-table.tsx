@@ -137,9 +137,9 @@ export default function BetCombinationsTable({
                           number: race.id,
                           startingAt: race.time,
                         },
-                        competitors: `${racer1Name}-${racer2Name} any Order`,
+                        competitors: `${racer1Name}-${racer2Name}`,
                         option: {
-                          outcome: `${racer1}-${racer2} any`,
+                          outcome: `${racer1}-${racer2}`,
                           decPrice: parseFloat(odds),
                         },
                         track: getTrackName(6),
@@ -176,9 +176,9 @@ export default function BetCombinationsTable({
                       number: race.id,
                       startingAt: race.time,
                     },
-                    competitors: `${racer1Name}-${racer2Name} any Order`,
+                    competitors: `${racer1Name}-${racer2Name}`,
                     option: {
-                      outcome: `${racer1}-${racer2} any`,
+                      outcome: `${racer1}-${racer2}`,
                       decPrice: parseFloat(odds),
                     },
                     track: getTrackName(6),
@@ -211,9 +211,9 @@ export default function BetCombinationsTable({
                         number: race.id,
                         startingAt: race.time,
                       },
-                      competitors: `${racer1Name}-${racer2Name} any Order`,
+                      competitors: `${racer1Name}-${racer2Name}`,
                       option: {
-                        outcome: `${racer1}-${racer2} any`,
+                        outcome: `${racer1}-${racer2}`,
                         decPrice: parseFloat(odds),
                       },
                       track: getTrackName(6),
@@ -324,9 +324,9 @@ export default function BetCombinationsTable({
                               number: race.id,
                               startingAt: race.time,
                             },
-                            competitors: `${combinationKey} any Order`,
+                            competitors: `${getCombinationNames(combinationKey)}`,
                             option: {
-                              outcome: `${combinationKey} any`,
+                              outcome: `${combinationKey}`,
                               decPrice: parseFloat(odds),
                             },
                             track: getTrackName(6),
@@ -384,9 +384,9 @@ export default function BetCombinationsTable({
                               number: race.id,
                               startingAt: race.time,
                             },
-                            competitors: `${combinationKey} any Order`,
+                            competitors: `${getCombinationNames(combinationKey)}`,
                             option: {
-                              outcome: `${combinationKey} any`,
+                              outcome: `${combinationKey}`,
                               decPrice: parseFloat(odds),
                             },
                             track: getTrackName(6),
@@ -423,9 +423,9 @@ export default function BetCombinationsTable({
                         number: race.id,
                         startingAt: race.time,
                       },
-                      competitors: `${getCombinationNames(combinationKey)} any Order`,
+                      competitors: `${getCombinationNames(combinationKey)}`,
                       option: {
-                        outcome: `${combinationKey} any`,
+                        outcome: `${combinationKey}`,
                         decPrice: parseFloat(odds),
                       },
                       track: getTrackName(6),
@@ -473,9 +473,9 @@ export default function BetCombinationsTable({
                             number: race.id,
                             startingAt: race.time,
                           },
-                          competitors: `${getCombinationNames(combinationKey)} any Order`,
+                          competitors: `${getCombinationNames(combinationKey)}`,
                           option: {
-                            outcome: `${combinationKey} any`,
+                            outcome: `${combinationKey}`,
                             decPrice: parseFloat(odds),
                           },
                           track: getTrackName(6),
@@ -618,20 +618,20 @@ export default function BetCombinationsTable({
   return (
     <Card className="mt-2">
       <CardHeader className="flex h-14 items-center justify-center bg-accent px-3 text-accent-foreground">
-        <CardTitle className="items-center ml-[476px] text-[16px] text-white">
+        <CardTitle className="ml-[476px] items-center text-[16px] text-white">
           {getTitle()}
         </CardTitle>
-        <div className="flex gap-2 relative">
+        <div className="relative flex gap-2">
           <Button
             variant="navbar"
-            className="h-10 w-fit px-[18px] text-[15px]  rounded-[1px] font-bold text-white pt-[1px]"
+            className="h-10 w-fit rounded-[1px] px-[18px] pt-[1px] text-[15px] font-bold text-white"
             onClick={handleSortClick}
           >
             {getSortButtonText()}
           </Button>
           <Button
             variant="navbar"
-            className="h-10 w-fit px-[18px] text-[15px] rounded-[1px] font-bold text-white pt-[1px]"
+            className="h-10 w-fit rounded-[1px] px-[18px] pt-[1px] text-[15px] font-bold text-white"
             onClick={() => {
               if (allBetsSelected) {
                 removeBets(
@@ -652,7 +652,9 @@ export default function BetCombinationsTable({
           </Button>
 
           <div className="flex h-10 min-w-fit items-center justify-center rounded-[1px] bg-secondary px-[18px] text-accent-foreground">
-            <span className="text-[16px] font-bold pt-[1px]">{combinations.length}</span>
+            <span className="pt-[1px] text-[16px] font-bold">
+              {combinations.length}
+            </span>
           </div>
         </div>
       </CardHeader>

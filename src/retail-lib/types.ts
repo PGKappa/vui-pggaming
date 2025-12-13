@@ -168,6 +168,7 @@ export type EventResult = {
   name: string
   startTime: Date
   discipline: Discipline
+  track?: string
   result?: MatchResult | RaceResult
 }
 
