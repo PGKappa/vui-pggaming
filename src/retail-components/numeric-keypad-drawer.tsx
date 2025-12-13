@@ -225,29 +225,29 @@ export default function NumericKeypadDrawer(props: {
     >
       <DrawerTrigger asChild>{renderTrigger()}</DrawerTrigger>
 
-      <DrawerContent className="ml-auto mr-2 w-[396px] border-t-0">
-        <DrawerHeader className="relative bg-accent text-accent-foreground h-[57px]">
-          <DrawerTitle className="pt-1.5 text-center text-accent-foreground">
+      <DrawerContent className="ml-auto mr-2 w-[396px] border-t-0 h-[481px]">
+        <DrawerHeader className="relative bg-accent text-accent-foreground h-[45px]">
+          <DrawerTitle className="relative bottom-[1px] text-center text-accent-foreground">
             {props.triggerLabel || t('enter_stake_amount')}
           </DrawerTitle>
           <Button
             variant="ghost"
             size="icon"
             onClick={closeDrawer}
-            className="absolute right-2 top-2.5"
+            className="absolute right-2 top-1"
           >
             <ChevronDown className="h-5 w-5" style={{ scale: 1.5 }} />
           </Button>
         </DrawerHeader>
 
-        <div className="flex flex-col gap-2 p-3">
+        <div className="flex flex-col gap-3 p-3">
           {/* Display Value */}
           <div className="flex items-center gap-3">
             <Input
               value={drawerValue}
               onChange={() => {}}
               onKeyDown={handleKeyDown}
-              className="h-12 flex-1 border-2 pr-2 text-right text-2xl font-bold"
+              className="h-12 flex-1 border-[1px] pr-2 text-right text-[22px] font-bold"
               autoFocus
             />
             <Button
@@ -264,7 +264,7 @@ export default function NumericKeypadDrawer(props: {
             <Button
               variant="outline"
               size="sm"
-              className="h-10 text-lg font-bold"
+              className="h-10 text-[16px] font-semibold"
               onClick={() => handlePresetValue(1000)}
             >
               {/* {currencySymbol} */} 1000
@@ -272,7 +272,7 @@ export default function NumericKeypadDrawer(props: {
             <Button
               variant="outline"
               size="sm"
-              className="h-10 text-lg font-bold"
+              className="h-10 text-[16px] font-semibold"
               onClick={() => handlePresetValue(2000)}
             >
               {/* {currencySymbol} */} 2000
@@ -280,7 +280,7 @@ export default function NumericKeypadDrawer(props: {
             <Button
               variant="outline"
               size="sm"
-              className="h-10 text-lg font-bold"
+              className="h-10 text-[16px] font-semibold"
               onClick={() => handlePresetValue(3000)}
             >
               {/* {currencySymbol} */} 3000
@@ -288,7 +288,7 @@ export default function NumericKeypadDrawer(props: {
             <Button
               variant="outline"
               size="sm"
-              className="h-10 text-lg font-bold"
+              className="h-10 text-[16px] font-semibold"
               onClick={() => handlePresetValue(5000)}
             >
               {/* {currencySymbol} */} 5000
@@ -296,7 +296,7 @@ export default function NumericKeypadDrawer(props: {
             <Button
               variant="outline"
               size="sm"
-              className="h-10 text-lg font-bold"
+              className="h-10 text-[16px] font-semibold"
               onClick={() => handlePresetValue(10000)}
             >
               {/* {currencySymbol} */} 10000
@@ -308,7 +308,7 @@ export default function NumericKeypadDrawer(props: {
             <Button
               variant="outline"
               size="lg"
-              className="h-12 text-2xl font-bold"
+              className="h-12 text-[20px] font-semibold"
               onClick={() => handleNumberClick('1')}
             >
               1
@@ -316,7 +316,7 @@ export default function NumericKeypadDrawer(props: {
             <Button
               variant="outline"
               size="lg"
-              className="h-12 text-2xl font-bold"
+              className="h-12 text-[20px] font-semibold"
               onClick={() => handleNumberClick('2')}
             >
               2
@@ -324,7 +324,7 @@ export default function NumericKeypadDrawer(props: {
             <Button
               variant="outline"
               size="lg"
-              className="h-12 text-2xl font-bold"
+              className="h-12 text-[20px] font-semibold"
               onClick={() => handleNumberClick('3')}
             >
               3
@@ -333,7 +333,7 @@ export default function NumericKeypadDrawer(props: {
             <Button
               variant="outline"
               size="lg"
-              className="h-12 text-2xl font-bold"
+              className="h-12 text-[20px] font-semibold"
               onClick={() => handleNumberClick('4')}
             >
               4
@@ -341,7 +341,7 @@ export default function NumericKeypadDrawer(props: {
             <Button
               variant="outline"
               size="lg"
-              className="h-12 text-2xl font-bold"
+              className="h-12 text-[20px] font-semibold"
               onClick={() => handleNumberClick('5')}
             >
               5
@@ -349,7 +349,7 @@ export default function NumericKeypadDrawer(props: {
             <Button
               variant="outline"
               size="lg"
-              className="h-12 text-2xl font-bold"
+              className="h-12 text-[20px] font-semibold"
               onClick={() => handleNumberClick('6')}
             >
               6
@@ -358,7 +358,7 @@ export default function NumericKeypadDrawer(props: {
             <Button
               variant="outline"
               size="lg"
-              className="h-12 text-2xl font-bold"
+              className="h-12 text-[20px] font-semibold"
               onClick={() => handleNumberClick('7')}
             >
               7
@@ -366,7 +366,7 @@ export default function NumericKeypadDrawer(props: {
             <Button
               variant="outline"
               size="lg"
-              className="h-12 text-2xl font-bold"
+              className="h-12 text-[20px] font-semibold"
               onClick={() => handleNumberClick('8')}
             >
               8
@@ -374,7 +374,7 @@ export default function NumericKeypadDrawer(props: {
             <Button
               variant="outline"
               size="lg"
-              className="h-12 text-2xl font-bold"
+              className="h-12 text-[20px] font-semibold"
               onClick={() => handleNumberClick('9')}
             >
               9
@@ -383,7 +383,7 @@ export default function NumericKeypadDrawer(props: {
             <Button
               variant="outline"
               size="lg"
-              className="h-12 text-2xl font-bold"
+              className="h-12 text-[20px] font-semibold"
               onClick={handleDecimalClick}
             >
               .
@@ -391,7 +391,7 @@ export default function NumericKeypadDrawer(props: {
             <Button
               variant="outline"
               size="lg"
-              className="h-12 text-2xl font-bold"
+              className="h-12 text-[20px] font-semibold"
               onClick={() => handleNumberClick('0')}
             >
               0
@@ -399,7 +399,7 @@ export default function NumericKeypadDrawer(props: {
             <Button
               variant="outline"
               size="lg"
-              className="h-12 text-2xl font-bold"
+              className="h-12 text-[20px] font-semibold"
               onClick={handleClear}
             >
               C
@@ -408,7 +408,7 @@ export default function NumericKeypadDrawer(props: {
 
           <Button
             onClick={handleConfirm}
-            className="h-12 w-full bg-accent text-2xl text-accent-foreground hover:opacity-90"
+            className="h-12 w-full bg-[#3A7DCB] text-[18px] text-accent-foreground hover:opacity-90"
           >
             {t('ok')}
           </Button>

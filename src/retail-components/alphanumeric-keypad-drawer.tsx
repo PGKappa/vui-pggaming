@@ -197,7 +197,7 @@ export default function AlphanumericKeypadDrawer(props: {
           </Button>
         </DrawerHeader>
 
-        <div className="flex flex-col gap-3 p-4">
+        <div className="flex flex-col gap-3 p-3">
           {/* Display Value */}
           <div className="flex items-center gap-2">
             <Input
@@ -224,7 +224,7 @@ export default function AlphanumericKeypadDrawer(props: {
                 key={num}
                 variant="outline"
                 size="lg"
-                className="h-12 text-xl font-bold"
+                className="h-12 text-xl font-semibold"
                 onClick={() => handleCharacterClick(num)}
               >
                 {num}
@@ -233,7 +233,7 @@ export default function AlphanumericKeypadDrawer(props: {
             <Button
               variant="outline"
               size="lg"
-              className="h-12 text-lg font-bold"
+              className="h-12 text-[18px] font-semibold"
               onClick={handleClear}
             >
               {t('clear')}
@@ -247,7 +247,7 @@ export default function AlphanumericKeypadDrawer(props: {
                 key={char}
                 variant="outline"
                 size="lg"
-                className="h-12 text-xl font-bold"
+                className="h-12 text-xl font-semibold"
                 onClick={() => handleCharacterClick(char)}
               >
                 {char}
@@ -256,7 +256,7 @@ export default function AlphanumericKeypadDrawer(props: {
             <Button
               variant="outline"
               size="lg"
-              className="h-12 text-xl font-bold"
+              className="h-12 text-xl font-semibold"
               onClick={() => handleCharacterClick('/')}
             >
               /
@@ -271,7 +271,7 @@ export default function AlphanumericKeypadDrawer(props: {
                 key={char}
                 variant="outline"
                 size="lg"
-                className="h-12 text-xl font-bold"
+                className="h-12 text-xl font-semibold"
                 onClick={() => handleCharacterClick(char)}
               >
                 {char}
@@ -280,7 +280,7 @@ export default function AlphanumericKeypadDrawer(props: {
             <Button
               variant="outline"
               size="lg"
-              className="h-12 text-xl font-bold"
+              className="h-12 text-xl font-semibold"
               onClick={() => handleCharacterClick('-')}
             >
               -
@@ -295,7 +295,7 @@ export default function AlphanumericKeypadDrawer(props: {
                 key={char}
                 variant="outline"
                 size="lg"
-                className="h-12 text-xl font-bold"
+                className="h-12 text-xl font-semibold"
                 onClick={() => handleCharacterClick(char)}
               >
                 {char}
@@ -304,7 +304,7 @@ export default function AlphanumericKeypadDrawer(props: {
             <Button
               variant="outline"
               size="lg"
-              className="col-span-2 h-12 bg-tertiary text-xl font-bold text-accent-foreground hover:opacity-90"
+              className="col-span-2 h-12 bg-tertiary text-[18px] font-semibold text-accent-foreground hover:opacity-90"
               onClick={handleSubmit}
             >
               {t('enter')}
@@ -316,7 +316,7 @@ export default function AlphanumericKeypadDrawer(props: {
             <Button
               variant="outline"
               size="lg"
-              className="h-12 w-[600px] text-xl font-bold"
+              className="h-12 w-[600px] text-[18px] font-semibold"
               onClick={() => handleCharacterClick(' ')}
             >
               {t('space')}

@@ -381,3 +381,64 @@
   border-right-width: 8px;
   border-right-color: hsl(var(--background));
 }
+
+
+ul.flex > li:nth-child(2) > div:nth-child(2){
+  height: 77px;
+}
+
+ul.flex > li:nth-child(2) > div:nth-child(2) > div:nth-child(2){
+  position: relative;
+  bottom: 1px;
+}
+
+ul.flex > li:nth-child(2) > div:nth-child(2) > div:nth-child(1){
+  position: relative;
+  top: 1px;
+}
+
+
+ul.flex > li:nth-child(1) > div:nth-child(2){
+  height: 77px;
+}
+
+ul.flex > li:nth-child(1) > div:nth-child(2) > div:nth-child(2){
+  position: relative;
+  bottom: 1px;
+}
+
+ul.flex > li:nth-child(1) > div:nth-child(2) > div:nth-child(1){
+  position: relative;
+  top: 1px;
+}
+
+
+#radix-\:r6\:{
+  border-width: 0px;
+}
+
+div.bg-bet-foreground:nth-child(1) > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > button:nth-child(2) > svg:nth-child(1){
+  width: 20px;
+  height: 20px;
+  position: relative;
+  left: 4px;
+}
+
+
+div.gap-1:nth-child(2) > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > button:nth-child(2) > svg:nth-child(1){
+  width: 20px;
+  height: 20px;
+  position: relative;
+  left: 4px;
+}
+
+
+.left-\[243px\] > svg:nth-child(1){
+  width: 20px;
+  position: relative;
+  left: 5px;
+}
+
+#radix-\:r3\:{
+  border: none;
+}
