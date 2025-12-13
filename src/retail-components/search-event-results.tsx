@@ -844,7 +844,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
       }
 
       return (
-        <div className="space-y-4">
+        <div className="space-y-4 mb-[-48px]">
           {/* ARRIVAL ORDER - Mostra SEMPRE se presente */}
           {detailedResult.arrival &&
             Array.isArray(detailedResult.arrival) &&
