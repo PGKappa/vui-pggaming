@@ -225,7 +225,7 @@ export default function NumericKeypadDrawer(props: {
     >
       <DrawerTrigger asChild>{renderTrigger()}</DrawerTrigger>
 
-      <DrawerContent className="ml-auto mr-2 w-[396px] border-t-0 h-[481px]">
+      <DrawerContent className="ml-auto mr-2 w-[396px] border-0 h-[469px]">
         <DrawerHeader className="relative bg-accent text-accent-foreground h-[45px]">
           <DrawerTitle className="relative bottom-[1px] text-center text-accent-foreground">
             {props.triggerLabel || t('enter_stake_amount')}

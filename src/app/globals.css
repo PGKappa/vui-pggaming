@@ -442,3 +442,8 @@ div.gap-1:nth-child(2) > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) 
 #radix-\:r3\:{
   border: none;
 }
+
+
+.h-9 > svg:nth-child(1){
+  scale: 1.3;
+}

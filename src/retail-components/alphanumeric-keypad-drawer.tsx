@@ -182,7 +182,7 @@ export default function AlphanumericKeypadDrawer(props: {
         </div>
       </DrawerTrigger>
 
-      <DrawerContent className="ml-2 w-[1500px]">
+      <DrawerContent className="ml-2 w-[1500px] border-0">
         <DrawerHeader className="relative bg-secondary text-accent-foreground">
           <DrawerTitle className="pt-1 text-center text-accent-foreground">
             {props.placeholder || 'FASTBET'}
@@ -193,7 +193,7 @@ export default function AlphanumericKeypadDrawer(props: {
             onClick={closeDrawer}
             className="absolute right-2 top-2"
           >
-            <ChevronDown className="h-5 w-5" style={{ scale: 2 }} />
+            <ChevronDown className="h-5 w-5 relative bottom-1" style={{ scale: 1.7 }} />
           </Button>
         </DrawerHeader>
 
@@ -205,7 +205,7 @@ export default function AlphanumericKeypadDrawer(props: {
               onChange={() => {}}
               onKeyDown={handleKeyDown}
               readOnly
-              className="h-12 flex-1 border pr-2 text-right text-2xl font-bold uppercase"
+              className="h-12 flex-1 border pr-2 text-left text-2xl pl-[17px] font-bold uppercase"
               autoFocus
             />
             <Button

@@ -1052,7 +1052,7 @@ export default function BettingSlip({
       data-testid="betting-slip"
     >
       <div className="grid grid-cols-2 text-center">
-        <div className="relative top-[5px] col-span-2 flex h-[68px] w-[396px] flex-row items-center justify-between bg-accent px-5">
+        <div className="relative top-[5px] col-span-2 flex h-[69px] w-[396px] flex-row items-center justify-between bg-accent px-5">
           <span className="items-start pb-1 pl-[135px] text-[15px] font-semibold text-accent-foreground">
             {t('bet_slip').toUpperCase()} ({betEntries.length})
           </span>
@@ -1158,7 +1158,7 @@ export default function BettingSlip({
             <div className="relative bg-accent py-3 h-[30px]"></div>
 
             {/* TOTALE QUOTA section */}
-            <div className="relative top-[13px] flex flex-row items-center justify-between px-4 pt-[9px] text-foreground">
+            <div className="relative top-[12px] flex flex-row items-center justify-between px-4 pt-[9px] text-foreground">
               <span className="relative bottom-[3px] text-[15px] font-semibold">
                 {t('total_odd').toUpperCase()}
               </span>
@@ -1233,7 +1233,7 @@ export default function BettingSlip({
                         accordionOpen === 'combinations' ? '' : 'combinations',
                       )
                     }}
-                    className="relative left-[243px] top-[3px] transition-transform duration-200"
+                    className="relative left-[238px] top-[3px] transition-transform duration-200"
                     style={{
                       transform:
                         accordionOpen === 'combinations'
@@ -1246,13 +1246,13 @@ export default function BettingSlip({
                 </div>
                 <AccordionContent className="pb-0">
                   {/* CONTROLLI DISTRIBUZIONE STAKE */}
-                  <div className="h-[50px] space-y-3 border-b px-4 pb-2">
-                    <div className="relative top-[4px] flex items-center justify-between gap-2">
+                  <div className="h-[50px] border-b px-4 pb-2">
+                    <div className="relative top-[3px] flex items-center justify-between gap-2">
                       <Checkbox
                         checked={allGroupsSelected}
                         onCheckedChange={handleAllGroupsToggle}
                       />
-                      <div className="relative bottom-[1px] mr-[3px] flex h-[33px] items-center gap-2">
+                      <div className="relative top-[1px] mr-[3px] flex h-[33px] items-center gap-2">
                         <span className="mr-[4px] text-[12px] font-semibold">
                           {t('divide').toUpperCase()}
                         </span>
@@ -1268,7 +1268,7 @@ export default function BettingSlip({
                           <NumericKeypadDrawer
                             value={systemDistributeStake}
                             setValue={setSystemDistributeStake}
-                            inputWidth="w-[147px] pr-2 text-[13px]"
+                            inputWidth="w-[147px] pr-2 text-[13px] "
                             triggerLabel={t('divide/add_amount')}
                             showPlusMinus={false}
                             drawerId="system-divide-add"
@@ -1310,7 +1310,7 @@ export default function BettingSlip({
                           className="bg-bet-foreground"
                         >
                           <div
-                            className={`relative h-[59px] border-b px-4 py-2 ${systemGroupsOpen.includes(group.name) ? 'bg' : 'bg-background'}`}
+                            className={`relative h-[59px] border-b px-4 py-[7px] ${systemGroupsOpen.includes(group.name) ? 'bg' : 'bg-background'}`}
                           >
                             <div className="flex w-full items-center justify-between">
                               <div className="flex items-center gap-2">
@@ -1465,31 +1465,31 @@ export default function BettingSlip({
                               </div>
                             </div>
                           </div>
-                          <AccordionContent className="border-b px-4">
+                          <AccordionContent className="border-b px-4 h-[55px]">
                             <div className="relative top-1.5 grid grid-cols-3 text-[13px]">
                               <div className="relative left-[4px] text-center">
-                                <div className="text-[12px] font-semibold capitalize text-foreground">
-                                  {t('min win')}
+                                <div className="text-[12px] font-semibold capitalize text-foreground relative bottom-[2px]">
+                                  {t('min')} {t('win')}
                                 </div>
-                                <div className="relative top-[1px] text-[13px] font-normal">
+                                <div className="relative top-[0px] text-[13px] font-normal">
                                   {currencySymbol}{' '}
                                   {(group.minWin * group.stake).toFixed(2)}
                                 </div>
                               </div>
                               <div className="relative right-[12px] text-center text-[12px] font-semibold">
-                                <div className="capitalize text-foreground">
-                                  {t('max win')}
+                                <div className="capitalize text-foreground relative bottom-[2px]">
+                                  {t('max')} {t('win')}
                                 </div>
-                                <div className="relative top-[1px] text-[13px] font-normal">
+                                <div className="relative top-[0px] text-[13px] font-normal">
                                   {currencySymbol}{' '}
                                   {(group.maxWin * group.stake).toFixed(2)}
                                 </div>
                               </div>
                               <div className="relative right-[16px] text-center text-[12px] font-semibold">
-                                <div className="capitalize text-foreground">
+                                <div className="capitalize text-foreground relative bottom-[2px]">
                                   {t('total_played')}
                                 </div>
-                                <div className="relative top-[1px] text-[13px] font-normal">
+                                <div className="relative top-[0px] text-[13px] font-normal">
                                   {currencySymbol}{' '}
                                   {(
                                     group.stake * group.combinations.length
@@ -1509,7 +1509,7 @@ export default function BettingSlip({
             <Separator />
 
             {/* TOTALE COMBINAZIONI */}
-            <div className="flex w-[396px] flex-row items-center justify-between px-4 py-[27px] pb-[15px] text-foreground">
+            <div className="flex w-[396px] flex-row items-center justify-between px-4 py-[27px] pb-[15px] text-foreground relative bottom-[1px]">
               <span className="text-[15px] font-semibold">
                 {t('total_combinations').toUpperCase()}
               </span>
