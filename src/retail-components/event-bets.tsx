@@ -107,7 +107,7 @@ export default function EventBets(props: {
         )}
       </div>
 
-      <div className="-space-y-[6px] border border-t-0 border-betSlip-foreground bg-primary-foreground pb-[1px] pl-2 pr-[1px]">
+      <div className="pt-[1px] -space-y-[8px] border border-t-0 border-betSlip-foreground bg-primary-foreground pb-[3px] pl-2 pr-[1px]">
         {eventBets.map((betEntry) => {
           // Per i mercati principali (Winner, Placed, Show), mostra numero + nome corridore
           const isMainMarket = ['Winner', 'Placed', 'Show'].includes(
