@@ -122,7 +122,7 @@ function UpcomingEventItem(props: {
       }}
     >
       
-      <div className="flex flex-col items-start pr-[4px]">
+      <div className="flex flex-col items-start">
         <span className="relative top-[1px] whitespace-nowrap text-[14px] font-semibold uppercase">
           {event.discipline === 'SOCCER'
             ? event.name
