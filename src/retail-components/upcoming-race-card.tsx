@@ -388,7 +388,7 @@ export default function UpcomingRaceCard({
                 {t('place_2').toUpperCase()}
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
-              <TableHead className="w-[249px] text-center font-bold ">
+              <TableHead className="w-[249px] text-center font-bold">
                 {t('show_3').toUpperCase()}
               </TableHead>
             </>
@@ -401,7 +401,7 @@ export default function UpcomingRaceCard({
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
               <TableHead className="text-center font-bold" colSpan={2}>
-                {t('any_order').toUpperCase()}
+                {t('quinella').toUpperCase()}
               </TableHead>
             </>
           )}
@@ -413,7 +413,7 @@ export default function UpcomingRaceCard({
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
               <TableHead className="text-center font-bold" colSpan={2}>
-                {t('any_order').toUpperCase()}
+                {t('boxed_trifecta').toUpperCase()}
               </TableHead>
             </>
           )}
@@ -446,7 +446,7 @@ export default function UpcomingRaceCard({
                 track: getTrackName(6),
               }}
               variant="racecard"
-              className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] text-betEntry-foreground"
+              className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] text-betEntry-foreground hover:opacity-85"
             />
           </TableCell>
           <TableCell className="w-[1px] bg-border p-0" />
@@ -471,7 +471,7 @@ export default function UpcomingRaceCard({
                 track: getTrackName(6),
               }}
               variant="racecard"
-              className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] text-betEntry-foreground"
+              className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] text-betEntry-foreground hover:opacity-85"
             />
           </TableCell>
 
@@ -497,7 +497,7 @@ export default function UpcomingRaceCard({
                 track: getTrackName(6),
               }}
               variant="racecard"
-              className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] text-betEntry-foreground"
+              className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] text-betEntry-foreground hover:opacity-85"
             />
           </TableCell>
         </>
@@ -695,7 +695,7 @@ export default function UpcomingRaceCard({
           {/* Even/Odd Market */}
           <div>
             <div className="bg-accent text-accent-foreground">
-              <div className="border-slate flex h-[64px] items-center justify-center  text-[16px] font-bold border-r">
+              <div className="border-slate flex h-[64px] items-center justify-center border-r text-[16px] font-bold">
                 {t('even_odd').toUpperCase()}
               </div>
             </div>
@@ -819,7 +819,7 @@ export default function UpcomingRaceCard({
               <Button
                 key={key}
                 variant={activeTab === key ? 'marketSelected' : 'market'}
-                className="h-12 w-[121px] border px-[18px] pb-0 text-[16px] font-semibold uppercase"
+                className="h-12 w-[140px] border pb-0 text-[16px] font-semibold uppercase px-[18px] hover:opacity-90"
                 onClick={() => handleTabChange(key as TabType)}
               >
                 {config.name}
@@ -854,7 +854,7 @@ export default function UpcomingRaceCard({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-12 w-fit border-border bg-secondary px-[18px] pb-[1px] text-[15px] text-secondary-foreground"
+                className="h-12 w-fit border-border bg-secondary px-[18px] pb-[1px] text-[15px] text-secondary-foreground hover:opacity-90"
                 onClick={() => setIsLatecomersDialogOpen(true)}
               >
                 <span>{t('latecomers').toUpperCase()}</span>

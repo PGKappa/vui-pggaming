@@ -24,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select'
+import { ChevronDown } from 'lucide-react'
 
 const dates = Array.from({ length: 10 }, (_, index) => {
   const date = new Date()
@@ -88,6 +89,12 @@ export default function SearchEventResults() {
       )
 
       if (existingResults.length > 0) {
+        // Assicura che tutti i risultati abbiano un track (default '6' se non presente)
+        const resultsWithTrack = existingResults.map((r) => ({
+          ...r,
+          track: r.track || '6',
+        }))
+        setFetchedResults(resultsWithTrack)
         return
       }
 
@@ -121,6 +128,7 @@ export default function SearchEventResults() {
                   name: `${selectedDiscipline === Discipline.DOGS ? 'Dog' : 'Horse'} Race ${event.int_event_id}`,
                   startTime: new Date(event.time),
                   discipline: selectedDiscipline,
+                  track: event.track_name || event.track || '6',
                   result: {
                     podium:
                       event.arrival?.map((competitor: any, index: number) => ({
@@ -135,8 +143,7 @@ export default function SearchEventResults() {
 
               setFetchedResults(results)
             }
-          } catch (error) {
-            console.error('Failed to fetch racing results:', error)
+          } catch {
             setFetchedResults([])
           } finally {
             setIsLoading(false)
@@ -235,6 +242,9 @@ export default function SearchEventResults() {
                 }
               }
 
+              const trackValue =
+                detailedResult?.track_name || result.track_name || result.track
+
               return {
                 id: result.int_event_id,
                 extId: result.ext_pal_id,
@@ -244,6 +254,7 @@ export default function SearchEventResults() {
                   `${discipline} Race ${result.int_event_id}`,
                 startTime,
                 discipline: discipline,
+                track: trackValue,
                 result: raceResult,
               } as EventResult
             }),
@@ -456,7 +467,9 @@ export default function SearchEventResults() {
               id="last10"
               className="h-6 w-6 bg-background text-foreground"
               checked={lastTenGames}
-              onCheckedChange={(value) => setLastTenGames(!!value)}
+              onCheckedChange={(value) => {
+                setLastTenGames(!!value)
+              }}
             />
             <label
               htmlFor="last10"
@@ -524,7 +537,7 @@ export default function SearchEventResults() {
         </div>
       </div>
 
-      <div className="h-full overflow-auto pb-2 top-1 relative">
+      <div className="relative top-1 h-full overflow-auto pb-2">
         {selectedDiscipline !== 'NONE' ? (
           isLoading || (lastTenGames && rootContext.isLoadingEvents) ? (
             <div className="flex h-full flex-col items-center justify-center pt-4">
@@ -537,7 +550,7 @@ export default function SearchEventResults() {
             (() => {
               return (
                 <ScrollArea className="pb-20">
-                  <Accordion type="multiple" className="space-y-2 ">
+                  <Accordion type="multiple" className="space-y-2">
                     {filteredEventResults.map((eventResult, index) => {
                       const uniqueKey = `${eventResult.discipline}-${eventResult.id}-${eventResult.extId || index}`
                       return (
@@ -546,20 +559,49 @@ export default function SearchEventResults() {
                           value={uniqueKey}
                           className="gap-0"
                         >
-                          <AccordionTrigger className="bg-accent border-b-0 p-0 pl-2 text-base text-accent-foreground [&[data-state=open]>svg]:-rotate-90">
-                            <div className="flex w-[600px] flex-row justify-between gap-2 text-white relative top-1.5 h-[45px] mb-[7px]">
-                              <div className="flex flex-row gap-2">
-                                <span className="text-[15px] font-semibold relative top-[8px] left-[3px]">
-                                  {eventResult.name.toUpperCase()} {' - '}
+                          <AccordionTrigger className="pointer-events-none border-b-0 bg-accent p-0 pl-2 text-base text-accent-foreground hover:no-underline [&[data-state=open]>svg]:-rotate-90">
+                            <div className="relative top-1.5 mb-[7px] flex h-[45px] w-full flex-row items-center justify-between gap-4 px-2 text-white">
+                              <div className="flex flex-row items-center gap-4 text-sm font-semibold">
+                                {/* Discipline Name */}
+                                <span className="whitespace-nowrap">
+                                  {eventResult.discipline === 'DOGS'
+                                    ? t('dog_races_label')
+                                    : eventResult.discipline === 'HORSES'
+                                      ? t('horse_races_label')
+                                      : eventResult.discipline}
                                 </span>
-                                <span className="relative top-[8px] right-[4px] text-[15px] font-normal">
+
+                                {/* Track */}
+                                {(eventResult.track || '6') && (
+                                  <span className="whitespace-nowrap border-l border-l-white pl-4">
+                                    {(() => {
+                                      // Se track è un numero (6 o 8), usa la translation key
+                                      const trackNum = parseInt(
+                                        eventResult.track || '6',
+                                      )
+                                      if (!isNaN(trackNum)) {
+                                        return t(`track_${trackNum}`)
+                                      }
+                                      // Altrimenti mostra il valore diretto (track_name)
+                                      return eventResult.track || '6'
+                                    })()}
+                                  </span>
+                                )}
+
+                                {/* Event ID */}
+                                <span className="whitespace-nowrap border-l border-l-white pl-4">
+                                  #{eventResult.id}
+                                </span>
+
+                                {/* Date and Time */}
+                                <span className="whitespace-nowrap border-l border-l-white pl-4">
                                   {formatSafeDate(eventResult.startTime)}
                                 </span>
-                                {eventResult.discipline ===
-                                  Discipline.SOCCER && (
-                                  <span>Soccer Match</span>
-                                )}
                               </div>
+                             
+                            </div>
+                            <div className="pointer-events-auto">
+                              <ChevronDown className="mr-2 h-[25px] w-[25px] shrink-0 cursor-pointer text-background transition-transform duration-200" />
                             </div>
                           </AccordionTrigger>
                           <AccordionContent>
@@ -802,18 +844,18 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
       }
 
       return (
-        <div className="space-y-4">
+        <div className="space-y-4 mb-[-48px]">
           {/* ARRIVAL ORDER - Mostra SEMPRE se presente */}
           {detailedResult.arrival &&
             Array.isArray(detailedResult.arrival) &&
             detailedResult.arrival.length > 0 && (
               <div className="border-b mb-[-8px]">
-                <div className="h-[45px] bg-accent py-2 text-center">
+                <div className="h-[45px] bg-accent py-2 text-center mt-[7px]">
                   <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">
                     {t('arrival_order').toUpperCase()}
                   </div>
                 </div>
-                <div className="flex items-center justify-center gap-[147px] p-4 h-[79px] mr-[40px]">
+                <div className="mr-[40px] flex h-[79px] items-center justify-center gap-[147px] p-4">
                   {detailedResult.arrival
                     .slice(0, 3)
                     .map((competitor, index) => {
@@ -855,7 +897,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                           </div>
 
                           <div
-                            className="flex h-[33px] w-[33px] items-center justify-center rounded-md  text-[21px] font-semibold"
+                            className="flex h-[33px] w-[33px] items-center justify-center rounded-md text-[21px] font-semibold"
                             style={
                               getRacerColors(
                                 competitor.number,
@@ -866,7 +908,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                             {competitor.number}
                           </div>
 
-                          <div className="relative right-[1px] pr-10 text-[17px] font-semibold pt-[1px] max-w-0">
+                          <div className="relative right-[1px] max-w-0 pr-10 pt-[1px] text-[17px] font-semibold">
                             {competitor.name}
                           </div>
                         </div>
@@ -892,7 +934,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                         key={number}
                         className="flex items-center justify-between"
                       >
-                        <span className="flex items-center gap-3 ml-3">
+                        <span className="ml-3 flex items-center gap-3">
                           <div
                             className="flex h-[33px] w-[33px] items-center justify-center rounded-md text-[21px] font-semibold"
                             style={
@@ -930,7 +972,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                         key={number}
                         className="flex items-center justify-between"
                       >
-                        <span className="flex items-center gap-3 ml-3">
+                        <span className="ml-3 flex items-center gap-3">
                           <div
                             className="flex h-[33px] w-[33px] items-center justify-center rounded-md text-[21px] font-semibold"
                             style={
@@ -968,7 +1010,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                         key={number}
                         className="flex items-center justify-between"
                       >
-                        <span className="flex items-center gap-3 ml-3">
+                        <span className="ml-3 flex items-center gap-3">
                           <div
                             className="flex h-[33px] w-[33px] items-center justify-center rounded-md text-[21px] font-semibold"
                             style={
@@ -995,7 +1037,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
           <div className="grid grid-cols-4">
             {/* EXACTA */}
             {raceResult.odds.exacta && (
-              <div className="border-b border-t relative bottom-2">
+              <div className="relative bottom-2 border-b border-t">
                 <div className="h-[45px] bg-accent py-2 text-center">
                   <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">
                     {t('exacta').toUpperCase()}
@@ -1008,7 +1050,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                         key={combination}
                         className="flex items-center justify-between"
                       >
-                        <span className="flex items-center gap-3 ml-3">
+                        <span className="ml-3 flex items-center gap-3">
                           {combination.split('-').map((num, idx) => (
                             <div
                               key={idx}
@@ -1024,7 +1066,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                             </div>
                           ))}
                         </span>
-                        <span className="text-[17px] font-semibold mr-3">
+                        <span className="mr-3 text-[17px] font-semibold">
                           {odds}
                         </span>
                       </div>
@@ -1036,7 +1078,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
 
             {/* QUINELLA */}
             {raceResult.odds.quinella && (
-              <div className="border-b border-l border-t relative bottom-2">
+              <div className="relative bottom-2 border-b border-l border-t">
                 <div className="h-[45px] bg-accent py-2 text-center">
                   <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">
                     {t('quinella').toUpperCase()}
@@ -1049,7 +1091,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                         key={combination}
                         className="flex items-center justify-between"
                       >
-                        <span className="flex items-center gap-3 ml-3">
+                        <span className="ml-3 flex items-center gap-3">
                           {combination.split('-').map((num, idx) => (
                             <div
                               key={idx}
@@ -1065,7 +1107,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                             </div>
                           ))}
                         </span>
-                        <span className="text-[17px] font-semibold mr-3">
+                        <span className="mr-3 text-[17px] font-semibold">
                           {odds}
                         </span>
                       </div>
@@ -1077,7 +1119,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
 
             {/* TRIFECTA */}
             {raceResult.odds.trifecta && (
-              <div className="border-b border-l border-t relative bottom-2">
+              <div className="relative bottom-2 border-b border-l border-t">
                 <div className="h-[45px] bg-accent py-2 text-center">
                   <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">
                     {t('trifecta').toUpperCase()}
@@ -1090,7 +1132,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                         key={combination}
                         className="flex items-center justify-between"
                       >
-                        <span className="flex items-center gap-3 ml-3">
+                        <span className="ml-3 flex items-center gap-3">
                           {combination.split('-').map((num, idx) => (
                             <div
                               key={idx}
@@ -1106,7 +1148,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                             </div>
                           ))}
                         </span>
-                        <span className="text-[17px] font-semibold mr-3">
+                        <span className="mr-3 text-[17px] font-semibold">
                           {odds}
                         </span>
                       </div>
@@ -1118,7 +1160,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
 
             {/* BOX TRIFECTA */}
             {raceResult.odds.boxedtrifecta && (
-              <div className="border-b border-l border-t relative bottom-2">
+              <div className="relative bottom-2 border-b border-l border-t">
                 <div className="h-[45px] bg-accent py-2 text-center">
                   <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">
                     {t('boxed_trifecta').toUpperCase()}
@@ -1131,7 +1173,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                         key={combination}
                         className="flex items-center justify-between"
                       >
-                        <span className="flex items-center justify-center gap-3 ml-3">
+                        <span className="ml-3 flex items-center justify-center gap-3">
                           {combination.split('-').map((num, idx) => (
                             <div
                               key={idx}
@@ -1147,7 +1189,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                             </div>
                           ))}
                         </span>
-                        <span className="text-[17px] font-semibold mr-3">
+                        <span className="mr-3 text-[17px] font-semibold">
                           {odds}
                         </span>
                       </div>
@@ -1161,7 +1203,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
           <div className="grid grid-cols-2">
             {/* EVEN/ODD */}
             {raceResult.odds.evenodd && (
-              <div className="border-b border-t relative bottom-4">
+              <div className="relative bottom-4 border-b border-t">
                 <div className="h-[45px] bg-accent py-2 text-center">
                   <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">
                     {t('even_odd').toUpperCase()}
@@ -1171,7 +1213,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                   {raceResult.odds.evenodd.even && (
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
-                        <span className="mr-[639px]">
+                        <span className="mr-[604px]">
                           {t('even').toUpperCase()}
                         </span>{' '}
                         <span>{raceResult.odds.evenodd.even}</span>
@@ -1182,7 +1224,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                   {raceResult.odds.evenodd.odd && (
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
-                        <span className="mr-[639px]">
+                        <span className="mr-[604px]">
                           {t('odd').toUpperCase()}
                         </span>{' '}
                         <span>{raceResult.odds.evenodd.odd}</span>
@@ -1195,7 +1237,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
 
             {/* UNDER/OVER */}
             {raceResult.odds.underover && (
-              <div className="border-b border-l border-t relative bottom-4">
+              <div className="relative bottom-4 border-b border-l border-t">
                 <div className="h-[45px] bg-accent py-2 text-center">
                   <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">
                     {t('under_over')} 3.5
@@ -1205,7 +1247,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                   {raceResult.odds.underover.under && (
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
-                        <span className="mr-[621px]">
+                        <span className="mr-[627px]">
                           {t('under').toUpperCase()}
                         </span>{' '}
                         <span>{raceResult.odds.underover.under}</span>
@@ -1215,7 +1257,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                   {raceResult.odds.underover.over && (
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
-                        <span className="mr-[653px]">
+                        <span className="mr-[627px]">
                           {t('over').toUpperCase()}
                         </span>{' '}
                         <span>{raceResult.odds.underover.over}</span>

@@ -35,11 +35,6 @@ export default function BetEntryToggle(props: {
   }, [betEntries, props.marketName, props.bet])
 
   const formatOutcome = (outcome: string, marketName: string): string => {
-    // Traduci "any" nelle combinazioni
-    if (outcome.includes(' any')) {
-      outcome = outcome.replace(' any', ` ${t('any')}`)
-    }
-
     if (marketName === 'Half Time\/ Full Time') {
       if (outcome.length === 2) {
         return `${outcome[0]}/${outcome[1]}`
@@ -152,7 +147,7 @@ export default function BetEntryToggle(props: {
       {props.variant === 'matchcard' ? (
         <>
           <span className="pl-[1px] pt-[3px] text-[17px] font-semibold">
-            {formattedOutcome}
+            {(formattedOutcome)}
           </span>
           <span className="pr-[1px] text-[18px] font-semibold">
             {props.bet.option.decPrice.toFixed(2)}

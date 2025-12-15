@@ -23,6 +23,8 @@ const resources = {
 
 // Prova a recuperare la lingua dal localStorage o usa 'es' come default
 const getInitialLanguage = () => {
+  if (typeof window === 'undefined') return 'es'
+
   try {
     const cached = localStorage.getItem('rootContext')
     if (cached) {
@@ -39,6 +41,7 @@ const getInitialLanguage = () => {
 
 i18n.use(initReactI18next).init({
   resources,
+  lng: getInitialLanguage(),
   fallbackLng: 'en',
   debug: false,
   interpolation: {

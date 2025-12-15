@@ -64,7 +64,7 @@ function NavbarContent() {
         <span className="text-xs font-medium">{t('horses')}</span>
       </Link>
 
-      <Link
+   {/**   <Link
         href={`/virtual/calcio${queryString}`}
         className={cn(
           'flex w-full flex-row items-center justify-center px-2 py-2',
@@ -84,6 +84,7 @@ function NavbarContent() {
         />
         <span className="pl-2 text-xs font-medium">{t('football')}</span>
       </Link>
+      */} 
     </nav>
   )
 }

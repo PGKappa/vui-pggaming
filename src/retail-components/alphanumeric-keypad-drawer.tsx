@@ -59,30 +59,81 @@ export default function AlphanumericKeypadDrawer(props: {
     props.setValue('')
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    const key = e.key.toUpperCase()
+  const processKey = (rawKey: string, prevent: () => void) => {
+    const key = rawKey.toUpperCase()
 
     if (key === 'ENTER') {
-      e.preventDefault()
+      prevent()
       handleSubmit()
       return
     }
 
-    e.preventDefault()
+    const unsupportedKeys = new Set([
+      'SHIFT',
+      'CONTROL',
+      'ALT',
+      'META',
+      'CAPSLOCK',
+      'TAB',
+      'ARROWLEFT',
+      'ARROWRIGHT',
+      'ARROWUP',
+      'ARROWDOWN',
+      'HOME',
+      'END',
+      'PAGEUP',
+      'PAGEDOWN',
+      'INSERT',
+      'NUMLOCK',
+      'SCROLLLOCK',
+      'PRINTSCREEN',
+      'PAUSE',
+      'CONTEXTMENU',
+      // Function keys
+      'F1',
+      'F2',
+      'F3',
+      'F4',
+      'F5',
+      'F6',
+      'F7',
+      'F8',
+      'F9',
+      'F10',
+      'F11',
+      'F12',
+    ])
+    if (unsupportedKeys.has(key)) {
+      prevent()
+      return
+    }
 
-    if ((key >= '0' && key <= '9') || (key >= 'A' && key <= 'Z')) {
-      handleCharacterClick(key)
-    } else if (key === '-' || key === '/') {
-      handleCharacterClick(key)
-    } else if (key === ' ') {
-      handleCharacterClick(' ')
-    } else if (key === 'BACKSPACE') {
+    prevent()
+
+    // Only allow single-character inputs
+    if (key.length === 1) {
+      if ((key >= '0' && key <= '9') || (key >= 'A' && key <= 'Z')) {
+        handleCharacterClick(key)
+        return
+      }
+      if (key === '-' || key === '/' || key === ' ') {
+        handleCharacterClick(key)
+        return
+      }
+    }
+
+    if (key === 'BACKSPACE') {
       handleDelete()
     } else if (key === 'DELETE') {
-      handleClear()
+      // Map physical Delete to single-character delete (same as trash icon)
+      handleDelete()
     } else if (key === 'ESCAPE') {
       closeDrawer()
     }
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    processKey(e.key, () => e.preventDefault())
   }
 
   const handleSubmit = () => {
@@ -98,6 +149,18 @@ export default function AlphanumericKeypadDrawer(props: {
   const closeDrawer = () => {
     setActiveDrawer(undefined)
   }
+
+  // Capture physical keyboard while drawer is open
+  useEffect(() => {
+    if (!open) return
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      processKey(event.key, () => event.preventDefault())
+    }
+
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [open, value])
 
   return (
     <Drawer
@@ -119,8 +182,8 @@ export default function AlphanumericKeypadDrawer(props: {
         </div>
       </DrawerTrigger>
 
-      <DrawerContent className="ml-2 w-[1500px]">
-        <DrawerHeader className="relative bg-accent text-accent-foreground">
+      <DrawerContent className="ml-2 w-[1500px] border-0">
+        <DrawerHeader className="relative bg-secondary text-accent-foreground">
           <DrawerTitle className="pt-1 text-center text-accent-foreground">
             {props.placeholder || 'FASTBET'}
           </DrawerTitle>
@@ -130,18 +193,19 @@ export default function AlphanumericKeypadDrawer(props: {
             onClick={closeDrawer}
             className="absolute right-2 top-2"
           >
-            <ChevronDown className="h-5 w-5" style={{ scale: 2 }} />
+            <ChevronDown className="h-5 w-5 relative bottom-1" style={{ scale: 1.7 }} />
           </Button>
         </DrawerHeader>
 
-        <div className="flex flex-col gap-3 p-4">
+        <div className="flex flex-col gap-3 p-3">
           {/* Display Value */}
           <div className="flex items-center gap-2">
             <Input
               value={value}
               onChange={() => {}}
               onKeyDown={handleKeyDown}
-              className="h-12 flex-1 border pr-2 text-right text-2xl font-bold uppercase"
+              readOnly
+              className="h-12 flex-1 border pr-2 text-left text-2xl pl-[17px] font-bold uppercase"
               autoFocus
             />
             <Button
@@ -160,7 +224,7 @@ export default function AlphanumericKeypadDrawer(props: {
                 key={num}
                 variant="outline"
                 size="lg"
-                className="h-12 text-xl font-bold"
+                className="h-12 text-xl font-semibold"
                 onClick={() => handleCharacterClick(num)}
               >
                 {num}
@@ -169,7 +233,7 @@ export default function AlphanumericKeypadDrawer(props: {
             <Button
               variant="outline"
               size="lg"
-              className="h-12 text-lg font-bold"
+              className="h-12 text-[18px] font-semibold"
               onClick={handleClear}
             >
               {t('clear')}
@@ -183,7 +247,7 @@ export default function AlphanumericKeypadDrawer(props: {
                 key={char}
                 variant="outline"
                 size="lg"
-                className="h-12 text-xl font-bold"
+                className="h-12 text-xl font-semibold"
                 onClick={() => handleCharacterClick(char)}
               >
                 {char}
@@ -192,7 +256,7 @@ export default function AlphanumericKeypadDrawer(props: {
             <Button
               variant="outline"
               size="lg"
-              className="h-12 text-xl font-bold"
+              className="h-12 text-xl font-semibold"
               onClick={() => handleCharacterClick('/')}
             >
               /
@@ -207,7 +271,7 @@ export default function AlphanumericKeypadDrawer(props: {
                 key={char}
                 variant="outline"
                 size="lg"
-                className="h-12 text-xl font-bold"
+                className="h-12 text-xl font-semibold"
                 onClick={() => handleCharacterClick(char)}
               >
                 {char}
@@ -216,7 +280,7 @@ export default function AlphanumericKeypadDrawer(props: {
             <Button
               variant="outline"
               size="lg"
-              className="h-12 text-xl font-bold"
+              className="h-12 text-xl font-semibold"
               onClick={() => handleCharacterClick('-')}
             >
               -
@@ -231,7 +295,7 @@ export default function AlphanumericKeypadDrawer(props: {
                 key={char}
                 variant="outline"
                 size="lg"
-                className="h-12 text-xl font-bold"
+                className="h-12 text-xl font-semibold"
                 onClick={() => handleCharacterClick(char)}
               >
                 {char}
@@ -240,7 +304,7 @@ export default function AlphanumericKeypadDrawer(props: {
             <Button
               variant="outline"
               size="lg"
-              className="col-span-2 h-12 bg-accent text-xl font-bold text-accent-foreground hover:bg-accent/90"
+              className="col-span-2 h-12 bg-tertiary text-[18px] font-semibold text-accent-foreground hover:opacity-90"
               onClick={handleSubmit}
             >
               {t('enter')}
@@ -252,7 +316,7 @@ export default function AlphanumericKeypadDrawer(props: {
             <Button
               variant="outline"
               size="lg"
-              className="h-12 w-[600px] text-xl font-bold"
+              className="h-12 w-[600px] text-[18px] font-semibold"
               onClick={() => handleCharacterClick(' ')}
             >
               {t('space')}

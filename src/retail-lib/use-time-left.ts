@@ -5,8 +5,18 @@ export default function useTimeLeft(targetTime: Date | string): string {
 
   useEffect(() => {
     const calculateTimeLeft = () => {
-      const target =
-        targetTime instanceof Date ? targetTime : new Date(targetTime)
+      // Se targetTime è già un Date object valido, usalo direttamente
+      let target: Date
+      if (targetTime instanceof Date && !isNaN(targetTime.getTime())) {
+        target = targetTime
+      } else {
+        // Altrimenti convertilo da stringa
+        // Trim spazi bianchi e NON forzare UTC
+        const timeStr = (
+          typeof targetTime === 'string' ? targetTime : ''
+        ).trim()
+        target = new Date(timeStr)
+      }
 
       // Controlla se la data è valida
       if (isNaN(target.getTime())) {
