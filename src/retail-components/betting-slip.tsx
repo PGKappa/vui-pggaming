@@ -1312,7 +1312,7 @@ export default function BettingSlip({
                           <div
                             className={`relative h-[59px] border-b px-4 py-[7px] ${systemGroupsOpen.includes(group.name) ? 'bg' : 'bg-background'}`}
                           >
-                            <div className="flex w-full items-center justify-between mt-[1px]">
+                            <div className="flex w-full items-center justify-between mt-[3px]">
                               <div className="flex items-center gap-2">
                                 {/* Checkbox singolo gruppo (Azione 1) */}
                                 <Checkbox
@@ -1332,7 +1332,7 @@ export default function BettingSlip({
                                 </span>
                               </div>
                               <div className="relative flex items-center">
-                                <div className="mt-[2px] flex items-center gap-0 border">
+                                <div className="mt-[2px] flex items-center gap-0 border mr-[12px]">
                                   <Button
                                     variant="ghost"
                                     size="sm"
@@ -1382,7 +1382,7 @@ export default function BettingSlip({
                                     setValue={(value) =>
                                       handleUpdateGroupStake(group.name, value)
                                     }
-                                    inputWidth="w-[147px] pr-2 text-[13px]"
+                                    inputWidth="w-[148px] pr-2 text-[13px]"
                                     triggerLabel={group.name}
                                     showPlusMinus={false}
                                     drawerId={`system-group-${group.name}`}
