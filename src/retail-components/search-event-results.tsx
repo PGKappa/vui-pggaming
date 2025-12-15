@@ -24,7 +24,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select'
-import { ChevronDown } from 'lucide-react'
 
 const dates = Array.from({ length: 10 }, (_, index) => {
   const date = new Date()
@@ -56,6 +55,7 @@ export default function SearchEventResults() {
   const [lastTenGames, setLastTenGames] = useState<boolean>(true)
   const [fetchedResults, setFetchedResults] = useState<EventResult[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [openResults, setOpenResults] = useState<string[]>([])
 
   const fetchDetailedEventResult = useCallback(
     async (extId: string, eventId: string) => {
@@ -550,7 +550,12 @@ export default function SearchEventResults() {
             (() => {
               return (
                 <ScrollArea className="pb-20">
-                  <Accordion type="multiple" className="space-y-2">
+                  <Accordion
+                    type="multiple"
+                    className="space-y-2"
+                    value={openResults}
+                    onValueChange={setOpenResults}
+                  >
                     {filteredEventResults.map((eventResult, index) => {
                       const uniqueKey = `${eventResult.discipline}-${eventResult.id}-${eventResult.extId || index}`
                       return (
@@ -560,8 +565,8 @@ export default function SearchEventResults() {
                           className="gap-0"
                         >
                           <AccordionTrigger className="pointer-events-none border-b-0 bg-accent p-0 pl-2 text-base text-accent-foreground hover:no-underline [&[data-state=open]>svg]:-rotate-90">
-                            <div className="relative top-1.5 mb-[7px] flex h-[45px] w-full flex-row items-center justify-between gap-4 px-2 text-white">
-                              <div className="flex flex-row items-center gap-4 text-sm font-semibold">
+                            <div className="relative top-1.5 mb-[7px] flex h-[46px] w-full flex-row items-center justify-between gap-4 pl-[9px] text-white">
+                              <div className="flex flex-row items-center gap-4 text-[15px] font-semibold pb-[5px]">
                                 {/* Discipline Name */}
                                 <span className="whitespace-nowrap">
                                   {eventResult.discipline === 'DOGS'
@@ -598,10 +603,26 @@ export default function SearchEventResults() {
                                   {formatSafeDate(eventResult.startTime)}
                                 </span>
                               </div>
-                             
                             </div>
-                            <div className="pointer-events-auto">
-                              <ChevronDown className="mr-2 h-[25px] w-[25px] shrink-0 cursor-pointer text-background transition-transform duration-200" />
+                            <div className="pointer-events-auto flex items-center justify-center">
+                              <svg
+                                width="25"
+                                height="25"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                className="mr-[13px] h-[25px] w-[25px] shrink-0 cursor-pointer text-background transition-transform duration-200"
+                                style={{
+                                  animation: openResults.includes(uniqueKey)
+                                    ? 'chevron-rotate-open 0.2s ease-out forwards'
+                                    : 'chevron-rotate-close 0.2s ease-out forwards',
+                                }}
+                              >
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                              </svg>
                             </div>
                           </AccordionTrigger>
                           <AccordionContent>
@@ -844,13 +865,13 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
       }
 
       return (
-        <div className="space-y-4 mb-[-48px]">
+        <div className="mb-[-48px] space-y-4">
           {/* ARRIVAL ORDER - Mostra SEMPRE se presente */}
           {detailedResult.arrival &&
             Array.isArray(detailedResult.arrival) &&
             detailedResult.arrival.length > 0 && (
-              <div className="border-b mb-[-8px]">
-                <div className="h-[45px] bg-accent py-2 text-center mt-[7px]">
+              <div className="mb-[-8px] border-b">
+                <div className="mt-[7px] h-[45px] bg-accent py-2 text-center">
                   <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">
                     {t('arrival_order').toUpperCase()}
                   </div>
@@ -1213,7 +1234,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                   {raceResult.odds.evenodd.even && (
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
-                        <span className="mr-[604px]">
+                        <span className="mr-[635px]">
                           {t('even').toUpperCase()}
                         </span>{' '}
                         <span>{raceResult.odds.evenodd.even}</span>
@@ -1224,7 +1245,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                   {raceResult.odds.evenodd.odd && (
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
-                        <span className="mr-[604px]">
+                        <span className="mr-[630px]">
                           {t('odd').toUpperCase()}
                         </span>{' '}
                         <span>{raceResult.odds.evenodd.odd}</span>
@@ -1247,7 +1268,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                   {raceResult.odds.underover.under && (
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
-                        <span className="mr-[627px]">
+                        <span className="mr-[621px]">
                           {t('under').toUpperCase()}
                         </span>{' '}
                         <span>{raceResult.odds.underover.under}</span>
