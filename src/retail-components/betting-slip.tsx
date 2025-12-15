@@ -1247,7 +1247,7 @@ export default function BettingSlip({
                 <AccordionContent className="pb-0">
                   {/* CONTROLLI DISTRIBUZIONE STAKE */}
                   <div className="h-[50px] border-b px-4 pb-2">
-                    <div className="relative top-[3px] flex items-center justify-between gap-2">
+                    <div className="relative top-[2px] flex items-center justify-between gap-2">
                       <Checkbox
                         checked={allGroupsSelected}
                         onCheckedChange={handleAllGroupsToggle}
@@ -1312,7 +1312,7 @@ export default function BettingSlip({
                           <div
                             className={`relative h-[59px] border-b px-4 py-[7px] ${systemGroupsOpen.includes(group.name) ? 'bg' : 'bg-background'}`}
                           >
-                            <div className="flex w-full items-center justify-between">
+                            <div className="flex w-full items-center justify-between mt-[1px]">
                               <div className="flex items-center gap-2">
                                 {/* Checkbox singolo gruppo (Azione 1) */}
                                 <Checkbox
