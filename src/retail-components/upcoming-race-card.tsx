@@ -906,7 +906,7 @@ export default function UpcomingRaceCard({
                             {racer.performance}%
                             <Progress
                               value={racer.performance}
-                              className="relative bottom-[3px] w-[189px] [&>div]:rounded-r-full [&>div]:bg-accent"
+                              className="relative bottom-[3px] w-[189px] [&>div]:rounded-r-full [&>div]:bg-bet"
                               style={{ height: '8px' }}
                             />
                           </div>
