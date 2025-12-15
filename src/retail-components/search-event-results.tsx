@@ -24,7 +24,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select'
-import { ChevronDown } from 'lucide-react'
 
 const dates = Array.from({ length: 10 }, (_, index) => {
   const date = new Date()
