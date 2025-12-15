@@ -11,9 +11,11 @@ export default function useTimeLeft(targetTime: Date | string): string {
         target = targetTime
       } else {
         // Altrimenti convertilo da stringa
-        // JavaScript interpreta le stringhe con Z come UTC
-        // e converte automaticamente al timezone locale del browser
-        target = new Date(targetTime)
+        // Trim spazi bianchi e NON forzare UTC
+        const timeStr = (
+          typeof targetTime === 'string' ? targetTime : ''
+        ).trim()
+        target = new Date(timeStr)
       }
 
       // Controlla se la data è valida

@@ -51,7 +51,7 @@ export default function EventBets(props: {
 
   return (
     <li>
-      <div className="flex h-[88px] flex-col gap-0 border border-betSlip-foreground p-1">
+      <div className="flex h-[90px] flex-col gap-0 border border-betSlip-foreground p-1">
         <div className="flex flex-row justify-between">
           <div className={betMode === 'SYSTEM' ? 'visible' : 'invisible'}>
             <div className="relative bottom-[1px] flex flex-row items-center gap-2 pl-1">
@@ -81,19 +81,19 @@ export default function EventBets(props: {
         </div>
 
         <div className="relative bottom-0 mt-[1px] flex items-center justify-between">
-          <span className="relative  ml-[3px] text-[15px] font-semibold">
+          <span className="relative ml-[3px] text-[15px] font-semibold">
             {eventBets[0].bet.discipline === 'SOCCER'
               ? t('football')
               : eventBets[0].bet.discipline === 'DOGS'
-                ? t('dog').toUpperCase() + ' ' + t('racing').toUpperCase()
-                : t('horse').toUpperCase() + ' ' + t('racing').toUpperCase()}
+                ? t('dog_races_label')
+                : t('horse_races_label')}
           </span>
 
           <div className="flex items-center gap-2">
-            <span className="relative left-[1px]  text-[15px] font-bold tabular-nums">
+            <span className="relative left-[1px] text-[15px] font-bold tabular-nums">
               {format(eventBets[0].bet.event.startingAt, 'HH:mm')}
             </span>
-            <Badge className="mr-[4px] h-[27px] w-[61px] items-center justify-center bg-secondary text-[14px] tabular-nums text-betSlip-header">
+            <Badge className="mr-[4px] h-[27px] w-[61px] items-center justify-center bg-accent text-[14px] tabular-nums text-[#99a6b1]">
               {timeToMatchStart}
             </Badge>
           </div>
@@ -102,12 +102,12 @@ export default function EventBets(props: {
           <span className="text-[16px]">{eventBets[0].bet.competitors}</span>
         ) : (
           <span className="relative bottom-[1px] ml-[3px] pb-[4px] text-[13px] uppercase">
-            {eventBets[0].bet.track ||  t('track_6')}
+            {eventBets[0].bet.track || t('track_6')}
           </span>
         )}
       </div>
 
-      <div className="-space-y-[6px] border border-t-0 border-betSlip-foreground bg-primary-foreground pb-[1px] pl-2 pr-[1px]">
+      <div className="pt-[1px] -space-y-[8px] border border-t-0 border-betSlip-foreground bg-primary-foreground pb-[3px] pl-2 pr-[1px]">
         {eventBets.map((betEntry) => {
           // Per i mercati principali (Winner, Placed, Show), mostra numero + nome corridore
           const isMainMarket = ['Winner', 'Placed', 'Show'].includes(
@@ -130,12 +130,6 @@ export default function EventBets(props: {
             outcomeDisplay = t(
               betEntry.bet.option.outcome,
               betEntry.bet.option.outcome,
-            )
-          } else if (betEntry.bet.option.outcome.includes(' any')) {
-            // Traduci le combinazioni con 'any' (es. "1-2 any" -> "1-2 cualquier")
-            outcomeDisplay = betEntry.bet.option.outcome.replace(
-              ' any',
-              ` ${t('any')}`,
             )
           }
 

@@ -35,7 +35,7 @@ export default function Navbar() {
       className="flex w-full flex-row items-center justify-start bg-accent p-3 h-16"
       suppressHydrationWarning={true}
     >
-      <div className="flex flex-row items-center gap-[8px] relative left-[0px]">
+      <div className="flex flex-row items-center gap-[8px] relative left-[8px]">
         <Link
           href={`/retail/dogs-horses${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
@@ -102,7 +102,7 @@ export default function Navbar() {
           <span className="text-[16px] font-bold">{t('ch3')}</span> */}
         </Link>
 
-        <Link
+      {/**  <Link
           href={`/retail/calcio${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
             'flex w-24 flex-row items-center justify-center gap-3 px-4 py-1 text-foreground transition-colors h-12',
@@ -120,10 +120,10 @@ export default function Navbar() {
           />
           {/* 
           <span className="text-[16px] font-bold">{t('ch4')}</span> */}
-        </Link>
+     {/*   </Link> */} 
       </div>
 
-      <div className="relative  flex w-full justify-end gap-[8px]">
+      <div className="relative  flex w-full justify-end gap-[8px] right-2">
         <Button
           className="h-12 w-fit p-[18px] hover:opacity-95"
           variant="ticketButton"

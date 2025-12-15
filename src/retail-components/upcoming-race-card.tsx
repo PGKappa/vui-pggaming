@@ -388,7 +388,7 @@ export default function UpcomingRaceCard({
                 {t('place_2').toUpperCase()}
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
-              <TableHead className="w-[249px] text-center font-bold ">
+              <TableHead className="w-[249px] text-center font-bold">
                 {t('show_3').toUpperCase()}
               </TableHead>
             </>
@@ -401,7 +401,7 @@ export default function UpcomingRaceCard({
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
               <TableHead className="text-center font-bold" colSpan={2}>
-                {t('any_order').toUpperCase()}
+                {t('quinella').toUpperCase()}
               </TableHead>
             </>
           )}
@@ -413,7 +413,7 @@ export default function UpcomingRaceCard({
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
               <TableHead className="text-center font-bold" colSpan={2}>
-                {t('any_order').toUpperCase()}
+                {t('boxed_trifecta').toUpperCase()}
               </TableHead>
             </>
           )}
@@ -695,7 +695,7 @@ export default function UpcomingRaceCard({
           {/* Even/Odd Market */}
           <div>
             <div className="bg-accent text-accent-foreground">
-              <div className="border-slate flex h-[64px] items-center justify-center  text-[16px] font-bold border-r">
+              <div className="border-slate flex h-[64px] items-center justify-center border-r text-[16px] font-bold">
                 {t('even_odd').toUpperCase()}
               </div>
             </div>
@@ -906,7 +906,7 @@ export default function UpcomingRaceCard({
                             {racer.performance}%
                             <Progress
                               value={racer.performance}
-                              className="relative bottom-[3px] w-[189px] [&>div]:rounded-r-full [&>div]:bg-bet"
+                              className="relative bottom-[3px] w-[189px] [&>div]:rounded-r-full [&>div]:bg-accent"
                               style={{ height: '8px' }}
                             />
                           </div>
