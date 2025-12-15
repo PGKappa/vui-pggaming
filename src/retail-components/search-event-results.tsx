@@ -561,7 +561,7 @@ export default function SearchEventResults() {
                         >
                           <AccordionTrigger className="pointer-events-none border-b-0 bg-accent p-0 pl-2 text-base text-accent-foreground hover:no-underline [&[data-state=open]>svg]:-rotate-90">
                             <div className="relative top-1.5 mb-[7px] flex h-[45px] w-full flex-row items-center justify-between gap-4 px-2 text-white">
-                              <div className="flex flex-row items-center gap-4 text-sm font-semibold">
+                              <div className="flex flex-row items-center gap-4 text-[15px] font-semibold pb-1">
                                 {/* Discipline Name */}
                                 <span className="whitespace-nowrap">
                                   {eventResult.discipline === 'DOGS'
