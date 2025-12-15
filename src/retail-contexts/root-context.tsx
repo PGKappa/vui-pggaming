@@ -1121,8 +1121,25 @@ export default function RootContextProvider(props: {
         const upcomingDogEvents: UpcomingEvent[] =
           dogChannel?.next_events?.map(
             (event: any, index: number): UpcomingEvent => {
-              const apiTimezone = rootContext.getTimezone?.() || 'Europe/Rome'
-              const startTime = parseAPIDate(event.time, apiTimezone)
+              let startTime: Date
+
+              if (event.since && typeof event.since === 'number') {
+                // Usa "since" (secondi da ora) per calcolare il timestamp esatto
+                startTime = new Date(Date.now() + event.since * 1000)
+              } else if (
+                event.start_time &&
+                typeof event.start_time === 'string'
+              ) {
+                // Fallback: usa start_time (formato "HH:MM")
+                const [hours, minutes] = event.start_time.split(':')
+                startTime = new Date()
+                startTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
+              } else {
+                // Ultimo fallback: usa event.time
+                const apiTimezone = rootContext.getTimezone?.() || 'Europe/Rome'
+                startTime = parseAPIDate(event.time, apiTimezone)
+              }
+
               return {
                 id: parseInt(event.int_event_id),
                 extId: event.ext_pal_id,
@@ -1139,8 +1156,22 @@ export default function RootContextProvider(props: {
         const upcomingHorseEvents: UpcomingEvent[] =
           horseChannel?.next_events?.map(
             (event: any, index: number): UpcomingEvent => {
-              const apiTimezone = rootContext.getTimezone?.() || 'Europe/Rome'
-              const startTime = parseAPIDate(event.time, apiTimezone)
+              let startTime: Date
+
+              if (event.since && typeof event.since === 'number') {
+                startTime = new Date(Date.now() + event.since * 1000)
+              } else if (
+                event.start_time &&
+                typeof event.start_time === 'string'
+              ) {
+                const [hours, minutes] = event.start_time.split(':')
+                startTime = new Date()
+                startTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
+              } else {
+                const apiTimezone = rootContext.getTimezone?.() || 'Europe/Rome'
+                startTime = parseAPIDate(event.time, apiTimezone)
+              }
+
               return {
                 id: parseInt(event.int_event_id),
                 extId: event.ext_pal_id,
