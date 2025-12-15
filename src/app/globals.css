@@ -384,11 +384,11 @@
 
 
 
-#radix-\:r6\:{
+#radix-\:r6\: {
   border-width: 0px;
 }
 
-div.bg-bet-foreground:nth-child(1) > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > button:nth-child(2) > svg:nth-child(1){
+div.bg-bet-foreground:nth-child(1)>div:nth-child(1)>div:nth-child(1)>div:nth-child(2)>button:nth-child(2)>svg:nth-child(1) {
   width: 20px;
   height: 20px;
   position: relative;
@@ -396,7 +396,7 @@ div.bg-bet-foreground:nth-child(1) > div:nth-child(1) > div:nth-child(1) > div:n
 }
 
 
-div.gap-1:nth-child(2) > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > button:nth-child(2) > svg:nth-child(1){
+div.gap-1:nth-child(2)>div:nth-child(1)>div:nth-child(1)>div:nth-child(2)>button:nth-child(2)>svg:nth-child(1) {
   width: 20px;
   height: 20px;
   position: relative;
@@ -404,17 +404,38 @@ div.gap-1:nth-child(2) > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) 
 }
 
 
-.left-\[243px\] > svg:nth-child(1){
+.left-\[243px\]>svg:nth-child(1) {
   width: 20px;
   position: relative;
   left: 5px;
 }
 
-#radix-\:r3\:{
+#radix-\:r3\: {
   border: none;
 }
 
 
-.h-9 > svg:nth-child(1){
+.h-9>svg:nth-child(1) {
   scale: 1.3;
+}
+
+/* Chevron rotation animations - SVG-based */
+@keyframes chevron-rotate-open {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(180deg);
+  }
+}
+
+@keyframes chevron-rotate-close {
+  from {
+    transform: rotate(180deg);
+  }
+
+  to {
+    transform: rotate(0deg);
+  }
 }

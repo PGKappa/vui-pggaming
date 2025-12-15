@@ -56,6 +56,7 @@ export default function SearchEventResults() {
   const [lastTenGames, setLastTenGames] = useState<boolean>(true)
   const [fetchedResults, setFetchedResults] = useState<EventResult[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [openResults, setOpenResults] = useState<string[]>([])
 
   const fetchDetailedEventResult = useCallback(
     async (extId: string, eventId: string) => {
@@ -550,7 +551,12 @@ export default function SearchEventResults() {
             (() => {
               return (
                 <ScrollArea className="pb-20">
-                  <Accordion type="multiple" className="space-y-2">
+                  <Accordion
+                    type="multiple"
+                    className="space-y-2"
+                    value={openResults}
+                    onValueChange={setOpenResults}
+                  >
                     {filteredEventResults.map((eventResult, index) => {
                       const uniqueKey = `${eventResult.discipline}-${eventResult.id}-${eventResult.extId || index}`
                       return (
@@ -598,10 +604,26 @@ export default function SearchEventResults() {
                                   {formatSafeDate(eventResult.startTime)}
                                 </span>
                               </div>
-                             
                             </div>
-                            <div className="pointer-events-auto">
-                              <ChevronDown className="mr-2 h-[25px] w-[25px] shrink-0 cursor-pointer text-background transition-transform duration-200" />
+                            <div className="pointer-events-auto flex items-center justify-center">
+                              <svg
+                                width="25"
+                                height="25"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                className="mr-2 shrink-0 cursor-pointer text-background transition-transform duration-200"
+                                style={{
+                                  animation: openResults.includes(uniqueKey)
+                                    ? 'chevron-rotate-open 0.2s ease-out forwards'
+                                    : 'chevron-rotate-close 0.2s ease-out forwards',
+                                }}
+                              >
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                              </svg>
                             </div>
                           </AccordionTrigger>
                           <AccordionContent>
@@ -844,13 +866,13 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
       }
 
       return (
-        <div className="space-y-4 mb-[-48px]">
+        <div className="mb-[-48px] space-y-4">
           {/* ARRIVAL ORDER - Mostra SEMPRE se presente */}
           {detailedResult.arrival &&
             Array.isArray(detailedResult.arrival) &&
             detailedResult.arrival.length > 0 && (
-              <div className="border-b mb-[-8px]">
-                <div className="h-[45px] bg-accent py-2 text-center mt-[7px]">
+              <div className="mb-[-8px] border-b">
+                <div className="mt-[7px] h-[45px] bg-accent py-2 text-center">
                   <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">
                     {t('arrival_order').toUpperCase()}
                   </div>
