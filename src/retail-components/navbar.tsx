@@ -41,7 +41,7 @@ export default function Navbar() {
           className={cn(
             'flex w-28 flex-row items-center justify-between px-4 py-1 text-foreground transition-colors h-12 hover:opacity-90',
             pathname.includes('/retail/dogs-horses')
-              ? 'bg-tertiary'
+              ? 'bg-bet'
               : 'bg-secondary',
           )}
         >
@@ -68,7 +68,7 @@ export default function Navbar() {
             pathname.includes('/retail/dogs') &&
               !pathname.includes('/retail/dogs-horses')
               ? 'bg-bet'
-              : 'bg-bet',
+              : 'bg-secondary',
           )}
         >
           <Image
