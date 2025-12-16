@@ -624,7 +624,7 @@ export default function BetCombinationsTable({
         <div className="relative flex gap-2">
           <Button
             variant="navbar"
-            className="h-10 w-fit rounded-[1px] px-[18px] pt-[1px] text-[15px] font-bold text-white"
+            className="h-10 w-fit rounded-[1px] px-[18px] pt-[1px] text-[15px] font-bold text-white hover:"
             onClick={handleSortClick}
           >
             {getSortButtonText()}

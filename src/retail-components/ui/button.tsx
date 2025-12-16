@@ -20,7 +20,7 @@ const buttonVariants = cva(
         navbarSelected:
           'bg-navbarButton-selected text-navbarButton-selected-foreground',
         market: 'bg-secondary text-accent-foreground',
-        marketSelected: 'bg-tertiary text-tertiary-foreground',
+        marketSelected: 'bg-bet text-tertiary-foreground',
         history: 'bg-accent text-accent-foreground',
         ticketButton: 'bg-navbarButton text-black font-bold',
         ticketFilter: 'bg-background text-foreground',

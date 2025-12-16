@@ -114,14 +114,14 @@ function UpcomingEventItem(props: {
       className={`flex h-[65px] max-w-[237px] basis-1/6 cursor-pointer flex-row items-center justify-center gap-3 border-l-8 border-l-background px-3 py-2 text-[15px] last:min-w-[245px] last:border-r-8 last:border-r-background ${
         event.id === props.selectedEvent?.id &&
         event.discipline === props.selectedEvent?.discipline
-          ? 'bg-tertiary text-tertiary-foreground'
+          ? 'bg-bet text-tertiary-foreground'
           : 'bg-secondary text-secondary-foreground'
       }`}
       onClick={() => {
         props.setSelectedEvent(event)
       }}
     >
-      <div className="flex h-full w-12 flex-col items-center justify-center py-0.5 pl-[1px]">
+      
       <Image
         src={
           event.discipline === 'SOCCER'
@@ -135,7 +135,7 @@ function UpcomingEventItem(props: {
         height={20}
         className="size-11 object-contain"
       />
-    </div>
+      
       
       <div className="flex flex-col items-start">
         <span className="relative top-[1px] whitespace-nowrap text-[14px] font-semibold uppercase">
@@ -154,9 +154,12 @@ function UpcomingEventItem(props: {
           <span className="relative bottom-[3px] text-[14px] font-semibold">
             {event.startTime}
           </span>
-          <span className="absolute bottom-[3px] py-0 pl-[44px] text-[14px] font-semibold text-betSlip-header">
+          
+            <span className="text-[14px] font-semibold bottom-[3px] relative">
             {timeToEventStart}
-          </span>
+            </span>
+          
+          
         </div>
       </div>
     </CarouselItem>

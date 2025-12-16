@@ -83,10 +83,10 @@ export default function EventBets(props: {
         <div className="relative bottom-0 mt-[1px] flex items-center justify-between">
           <span className="relative ml-[3px] text-[15px] font-semibold">
             {eventBets[0].bet.discipline === 'SOCCER'
-              ? t('football')
+              ? t('football').toUpperCase()
               : eventBets[0].bet.discipline === 'DOGS'
-                ? t('dog_races_label')
-                : t('horse_races_label')}
+                ? t('dog_races_label').toUpperCase()
+                : t('horse_races_label').toUpperCase()}
           </span>
 
           <div className="flex items-center gap-2">

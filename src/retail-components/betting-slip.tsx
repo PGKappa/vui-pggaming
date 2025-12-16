@@ -1052,7 +1052,7 @@ export default function BettingSlip({
       data-testid="betting-slip"
     >
       <div className="grid grid-cols-2 text-center">
-        <div className="relative top-[5px] col-span-2 flex h-[69px] w-[396px] flex-row items-center justify-between bg-secondary px-5">
+        <div className="relative top-[5px] col-span-2 flex h-[69px] w-[396px] flex-row items-center justify-between bg-accent px-5">
           <span className="items-start pb-1 pl-[135px] text-[15px] font-semibold text-accent-foreground">
             {t('bet_slip').toUpperCase()} ({betEntries.length})
           </span>
@@ -1074,9 +1074,9 @@ export default function BettingSlip({
 
         <div className="flex h-[45px] w-[396px] flex-row">
           <div
-            className={`relative flex w-full flex-col items-center justify-center ${
+            className={`relative flex w-full flex-col items-center justify-center${
               isSystemToggleEnabled ? 'cursor-pointer' : ''
-            } ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'bg-white' : 'bg-betSlip-header'}`}
+            } ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'bg-white' : 'bg-navbarButton'}`}
             onClick={
               isSystemToggleEnabled
                 ? () => setSystemToggleMode('MULTIPLE')
@@ -1084,7 +1084,7 @@ export default function BettingSlip({
             }
           >
             <span
-              className={`text-[14px] ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'font-semibold text-betSlip-foreground' : 'text-betSlip-header-foreground'}`}
+              className={`text-[14px] ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'font-semibold text-betSlip-foreground' : 'text-black'}`}
             >
               {betMode === 'SINGLE'
                 ? `${t('single').toUpperCase()}`
@@ -1093,14 +1093,14 @@ export default function BettingSlip({
 
             {betMode === 'SINGLE' ||
               (betMode === 'MULTIPLE' && (
-                <div className="absolute bottom-0.5 h-[0px] w-[156px] bg-betSlip-header-foreground"></div>
+                <div className="absolute bottom-0.5 h-[0px] w-[156px] bg-navbarButton text-black"></div>
               ))}
           </div>
 
           <div
             className={`relative flex w-full flex-col items-center justify-center ${
               isSystemToggleEnabled ? 'cursor-pointer' : ''
-            } ${betMode === 'SYSTEM' ? 'bg-white' : 'bg-betSlip-header'}`}
+            } ${betMode === 'SYSTEM' ? 'bg-white' : 'bg-navbarButton text-black'}`}
             onClick={
               isSystemToggleEnabled
                 ? () => setSystemToggleMode('SYSTEM')
@@ -1108,12 +1108,12 @@ export default function BettingSlip({
             }
           >
             <span
-              className={`text-[14px] ${betMode === 'SYSTEM' ? 'pt-0.5 font-semibold text-betSlip-foreground' : 'text-betSlip-header-foreground'}`}
+              className={`text-[14px] ${betMode === 'SYSTEM' ? 'pt-0.5 font-semibold text-betSlip-foreground' : 'text-black'}`}
             >
               {t('system').toUpperCase()}
             </span>
             {betMode === 'SYSTEM' && (
-              <div className="absolute bottom-0.5 h-[0px] w-[156px] bg-betSlip-header-foreground"></div>
+              <div className="absolute bottom-0.5 h-[0px] w-[156px] bg-navbarButton text-black"></div>
             )}
           </div>
         </div>
@@ -1155,7 +1155,7 @@ export default function BettingSlip({
       <CardFooter className="relative bottom-[26px] flex flex-col bg-background">
         {betMode !== 'SYSTEM' ? (
           <>
-            <div className="relative h-[30px] bg-secondary py-3"></div>
+            <div className="relative h-[30px] bg-accent py-3"></div>
 
             {/* TOTALE QUOTA section */}
             <div className="relative top-[12px] flex flex-row items-center justify-between px-4 pt-[9px] text-foreground">
@@ -1223,7 +1223,7 @@ export default function BettingSlip({
               className="relative top-3 w-[396px]"
             >
               <AccordionItem value="combinations" className="border-none">
-                <div className="relative bottom-[4px] h-[30px]  bg-secondary px-4 text-[13px] text-accent-foreground hover:no-underline">
+                <div className="relative bottom-[4px] h-[30px]  bg-accent px-4 text-[13px] text-accent-foreground hover:no-underline">
                   <span className="relative bottom-1">
                     {t('combinations').toUpperCase()}
                   </span>
@@ -1233,7 +1233,7 @@ export default function BettingSlip({
                         accordionOpen === 'combinations' ? '' : 'combinations',
                       )
                     }}
-                    className="relative left-[238px] top-[3px] transition-transform duration-200"
+                    className="relative left-[251px] top-[3px] transition-transform duration-200"
                     style={{
                       transform:
                         accordionOpen === 'combinations'
@@ -1268,7 +1268,7 @@ export default function BettingSlip({
                           <NumericKeypadDrawer
                             value={systemDistributeStake}
                             setValue={setSystemDistributeStake}
-                            inputWidth="w-[147px] pr-2 text-[13px] "
+                            inputWidth="w-[142px] pr-2 text-[13px] "
                             triggerLabel={t('divide/add_amount')}
                             showPlusMinus={false}
                             drawerId="system-divide-add"
@@ -1382,7 +1382,7 @@ export default function BettingSlip({
                                     setValue={(value) =>
                                       handleUpdateGroupStake(group.name, value)
                                     }
-                                    inputWidth="w-[148px] pr-2 text-[13px]"
+                                    inputWidth="w-[142px] pr-2 text-[13px]"
                                     triggerLabel={group.name}
                                     showPlusMinus={false}
                                     drawerId={`system-group-${group.name}`}

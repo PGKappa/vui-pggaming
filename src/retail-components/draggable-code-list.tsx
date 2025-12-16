@@ -237,8 +237,8 @@ export default function DraggableCodeList({
             className="flex h-14 shrink-0 cursor-move select-none items-center justify-center bg-accent"
             onMouseDown={handleMouseDown}
           >
-            <h2 className="text-[19px] font-bold text-accent-foreground">
-              {t('code_list')}
+            <h2 className="text-[16px] font-bold text-accent-foreground">
+              {t('code_list').toUpperCase()}
             </h2>
 
             <div className="absolute right-4 flex items-center gap-2">
