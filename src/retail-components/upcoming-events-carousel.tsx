@@ -121,6 +121,21 @@ function UpcomingEventItem(props: {
         props.setSelectedEvent(event)
       }}
     >
+      <div className="flex h-full w-12 flex-col items-center justify-center py-0.5 pl-[1px]">
+      <Image
+        src={
+          event.discipline === 'SOCCER'
+            ? '/calciatore_blu.png'
+            : event.discipline === 'DOGS'
+              ? '/cane_blu.png'
+              : '/cavallo_blu.png'
+        }
+        alt={'Horses'}
+        width={40}
+        height={20}
+        className="size-11 object-contain"
+      />
+    </div>
       
       <div className="flex flex-col items-start">
         <span className="relative top-[1px] whitespace-nowrap text-[14px] font-semibold uppercase">
