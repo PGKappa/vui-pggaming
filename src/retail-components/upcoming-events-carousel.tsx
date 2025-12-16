@@ -10,9 +10,7 @@ import { RootContext } from '@/retail-contexts/root-context'
 import { Discipline, UpcomingEvent } from '@/retail-lib/types'
 import { useContext, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-
 import useTimeLeft from '@/retail-lib/use-time-left'
-import Image from 'next/image'
 
 export function UpcomingEventsCarousel(props: {
   selectedEvent?: UpcomingEvent
@@ -121,7 +119,6 @@ function UpcomingEventItem(props: {
         props.setSelectedEvent(event)
       }}
     >
-      
       <div className="flex flex-col items-start">
         <span className="relative top-[1px] whitespace-nowrap text-[14px] font-semibold uppercase">
           {event.discipline === 'SOCCER'
