@@ -313,7 +313,7 @@ export default function AlphanumericKeypadDrawer(props: {
             <Button
               variant="outline"
               size="lg"
-              className="col-span-2 h-12 bg-tertiary text-[18px] font-semibold text-accent-foreground hover:opacity-90"
+              className="col-span-2 h-12 bg-bet text-[18px] font-semibold text-accent-foreground hover:opacity-95"
               onClick={handleSubmit}
             >
               {t('enter')}

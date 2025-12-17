@@ -887,21 +887,7 @@ export default function UpcomingRaceCard({
               {'ID'} {race.id}
             </span>
 
-            {/* Pulsante Clear */}
-            {(activeTab === 'couples' || activeTab === 'triplets') &&
-              (position1Selection.length > 0 ||
-                position2Selection.length > 0 ||
-                position3Selection.length > 0 ||
-                disorderSelection.length > 0 ||
-                fixedSelection.length > 0) && (
-                <Button
-                  variant="ghost"
-                  className="h-11 w-28 bg-secondary px-4 text-[16px] font-bold text-secondary-foreground"
-                  onClick={clearSelections}
-                >
-                  {t('clear_all').toUpperCase()}
-                </Button>
-              )}
+           
 
             {/* Pulsante Latecomers (solo per cani e cavalli) */}
             {shouldShowInfoButton() && (
@@ -932,7 +918,7 @@ export default function UpcomingRaceCard({
                     <TableCell className="relative left-1 p-2 text-[18px]">
                       <div className="flex items-center gap-[7px]">
                         <div
-                          className="flex h-[33px] w-[33px] items-center justify-center rounded-md text-[21px] font-semibold"
+                          className="flex h-[32px] w-[33px] items-center justify-center rounded-md text-[21px] font-semibold pt-[1px]"
                           style={
                             getRacerColors(
                               racer.number,
@@ -960,7 +946,7 @@ export default function UpcomingRaceCard({
                             {racer.performance}%
                             <Progress
                               value={racer.performance}
-                              className="relative bottom-[3px] w-[189px] [&>div]:rounded-r-full [&>div]:bg-accent"
+                              className="relative bottom-[3px] w-[189px] [&>div]:rounded-r-full [&>div]:bg-bet"
                               style={{ height: '8px' }}
                             />
                           </div>

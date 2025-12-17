@@ -83,17 +83,17 @@ export default function EventBets(props: {
         <div className="relative bottom-0 mt-[1px] flex items-center justify-between">
           <span className="relative ml-[3px] text-[15px] font-semibold">
             {eventBets[0].bet.discipline === 'SOCCER'
-              ? t('football')
+              ? t('football').toUpperCase()
               : eventBets[0].bet.discipline === 'DOGS'
-                ? t('dog_races_label')
-                : t('horse_races_label')}
+                ? t('dog_races_label').toUpperCase()
+                : t('horse_races_label').toUpperCase()}
           </span>
 
           <div className="flex items-center gap-2">
             <span className="relative left-[1px] text-[15px] font-bold tabular-nums">
               {format(eventBets[0].bet.event.startingAt, 'HH:mm')}
             </span>
-            <Badge className="mr-[4px] h-[27px] w-[61px] items-center justify-center bg-accent text-[14px] tabular-nums text-[#99a6b1]">
+            <Badge className="mr-[4px] h-[27px] w-[61px] items-center justify-center bg-secondary text-[14px] tabular-nums text-betSlip-header">
               {timeToMatchStart}
             </Badge>
           </div>
