@@ -311,6 +311,7 @@ export default function BettingSlip({
     // Applica i risultati e deflagga i gruppi con stake = 0
     const newSelections: Record<string, boolean> = {}
     const groupsWithStake: string[] = []
+    const groupsWithoutStake: string[] = []
 
     for (const group of selectedGroupsList) {
       if (stakes[group.name] > 0) {
@@ -318,18 +319,26 @@ export default function BettingSlip({
         groupsWithStake.push(group.name)
       } else {
         newSelections[group.name] = false
+        groupsWithoutStake.push(group.name)
       }
     }
 
     setSystemGroupStakes((prev) => ({ ...prev, ...stakes }))
     setSelectedGroups((prev) => ({ ...prev, ...newSelections }))
 
-    // Se solo TRIPLE ha stake > 0, mostra toast
-    if (groupsWithStake.length === 1 && groupsWithStake[0] === 'TRIPLE (x1)') {
-      toast.info(
-        t('only_triple_can_be_selected') ||
-          'Solo TRIPLE può essere selezionato con questo importo',
-      )
+    // Se alcuni gruppi sono stati deflaggeri, calcola quanto manca
+    if (groupsWithoutStake.length > 0) {
+      // Calcola il minimo necessario per includere tutti i gruppi
+      const minNeededForAll = totalCombinations * minStake
+      const difference = minNeededForAll - systemDistributeStake
+
+      if (difference > 0) {
+        toast.error(
+          t('min_stake_per_combination_not_met', {
+            amount: `${currencySymbol}${difference}`,
+          }),
+        )
+      }
     }
 
     setTimeout(() => {

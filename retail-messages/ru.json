@@ -208,5 +208,6 @@
   "selection_required": "Выбор обязателен",
   "details_not_available": "Детали недоступны",
   "date_hour": "Дата/Время",
-  "select_at_least_one_group": "Выберите хотя бы одну группу для распределения суммы"
+  "select_at_least_one_group": "Выберите хотя бы одну группу для распределения суммы",
+  "min_stake_per_combination_not_met": "Минимальная ставка на комбинацию не соблюдена. Увеличьте на {{amount}} чтобы продолжить"
 }
