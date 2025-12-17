@@ -873,7 +873,7 @@ export default function UpcomingRaceCard({
               <Button
                 key={key}
                 variant={activeTab === key ? 'marketSelected' : 'market'}
-                className="h-12 w-[140px] border px-[18px] pb-0 text-[16px] font-semibold uppercase hover:opacity-90"
+                className="h-12 w-[140px]  px-[18px] pb-0 text-[16px] font-semibold uppercase hover:opacity-90"
                 onClick={() => handleTabChange(key as TabType)}
               >
                 {config.name}
@@ -946,7 +946,7 @@ export default function UpcomingRaceCard({
                             {racer.performance}%
                             <Progress
                               value={racer.performance}
-                              className="relative bottom-[3px] w-[189px] [&>div]:rounded-r-full [&>div]:bg-bet"
+                              className="relative bottom-[3px] w-[189px] [&>div]:rounded-r-full [&>div]:bg-tertiary"
                               style={{ height: '8px' }}
                             />
                           </div>

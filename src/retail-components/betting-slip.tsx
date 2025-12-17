@@ -1249,7 +1249,7 @@ export default function BettingSlip({
               className="relative top-3 w-[396px]"
             >
               <AccordionItem value="combinations" className="border-none">
-                <div className="relative bottom-[4px] h-[30px]  bg-accent px-4 text-[13px] text-accent-foreground hover:no-underline">
+                <div className="relative bottom-[4px] h-[30px]  bg-accent px-4 text-[13px] text-accent-foreground hover:no-underline right-[1px]">
                   <span className="relative bottom-1">
                     {t('combinations').toUpperCase()}
                   </span>
@@ -1259,7 +1259,7 @@ export default function BettingSlip({
                         accordionOpen === 'combinations' ? '' : 'combinations',
                       )
                     }}
-                    className="relative left-[251px] top-[3px] transition-transform duration-200"
+                    className="relative left-[238px] top-[3px] transition-transform duration-200"
                     style={{
                       transform:
                         accordionOpen === 'combinations'
@@ -1294,7 +1294,7 @@ export default function BettingSlip({
                           <NumericKeypadDrawer
                             value={systemDistributeStake}
                             setValue={setSystemDistributeStake}
-                            inputWidth="w-[142px] pr-2 text-[13px] "
+                            inputWidth="w-[144px] pr-2 text-[13px] "
                             triggerLabel={t('divide/add_amount')}
                             showPlusMinus={false}
                             drawerId="system-divide-add"
@@ -1408,7 +1408,7 @@ export default function BettingSlip({
                                     setValue={(value) =>
                                       handleUpdateGroupStake(group.name, value)
                                     }
-                                    inputWidth="w-[142px] pr-2 text-[13px]"
+                                    inputWidth="w-[144px] pr-2 text-[13px]"
                                     triggerLabel={group.name}
                                     showPlusMinus={false}
                                     drawerId={`system-group-${group.name}`}
