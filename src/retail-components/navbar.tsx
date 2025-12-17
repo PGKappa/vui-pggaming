@@ -11,7 +11,7 @@ import { Button } from './ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog'
 
 export default function Navbar() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const searchParams = useSearchParams()
   const pathname = usePathname()
   const initCode = searchParams.get('init_code')
@@ -21,14 +21,20 @@ export default function Navbar() {
 
   // Helper per determinare il link info basato sulla pagina
   const getInfoLink = () => {
+    const lang = i18n.language || 'en' // fallback a 'en' se lingua non disponibile
     if (pathname.includes('/calcio')) {
       // Link per il calcio
-      return 'https://d190050z3qr0m1.cloudfront.net/public/Soccer_Gaming_manual_en.html'
+      return `https://d190050z3qr0m1.cloudfront.net/public/Soccer_Gaming_manual_${lang}.html`
     } else {
       // Per cani e cavalli
-      return 'https://d190050z3qr0m1.cloudfront.net/public/RD-RH_Gaming_manual_en.html'
+      return `https://d190050z3qr0m1.cloudfront.net/public/Gaming_manual_${lang}.html`
     }
   }
+
+
+
+
+
 
   return (
     <div
