@@ -237,6 +237,8 @@
   "selection_required": "Selezione richiesta",
   "enter_fastbet_code": "Inserisci codice fastbet",
   "invalid_fastbet_format": "Formato fastbet non valido",
+  "code_and_number_required": "Codice e dopo numero evento richiesti",
+  "invalid_code_for_language": "Codice non valido per la lingua corrente",
   "invalid_format_use_dash": "Formato non valido. Usa il trattino (-) per separare numero evento e mercati",
   "no_markets_provided": "Nessun mercato fornito",
   "selections_required_for_market": "Selezioni richieste per il mercato {{market}}",

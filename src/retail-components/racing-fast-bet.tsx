@@ -41,6 +41,15 @@ export default function RacingFastBet({
   // Ottieni la lingua corrente
   const currentLanguage = rootContext?.userData?.lang || 'en'
 
+  // Codici validi per lingua corrente
+  const getValidCodesForLanguage = (lang: string): string[] => {
+    if (lang === 'es') {
+      return ['G', '2C', '3C', 'E', 'Q', 'T', 'CT', 'PA', 'IM', 'ME', 'MA']
+    }
+    // Inglese e altre lingue
+    return ['W', 'P', 'S', 'E', 'Q', 'T', 'BT', 'EV', 'OD', 'U', 'O']
+  }
+
   const handleSubmit = async () => {
     if (!fastbetInput.trim()) {
       toast.error(t('enter_fastbet_code'))
@@ -79,43 +88,77 @@ export default function RacingFastBet({
         return
       }
 
+      // Validazione: deve essere LETTERE seguite da NUMERI (non viceversa)
+      // Esempi validi: G2, 2C4, E23, T153
+      // Esempi NON validi: 2G, 4C, 23E
+      const orderValidation = /^[A-Z]+\d*$/
+      if (!orderValidation.test(betInput)) {
+        toast.error(t('invalid_fastbet_format') + t('code_and_number_required'))
+        return
+      }
+
       // Check if input contains selections (numbers)
       const hasNumbers = /\d/.test(betInput)
 
       if (hasNumbers) {
         // Extract letters (code) and numbers (selections)
-        const letters = betInput.match(/[A-Z]+/g)?.join('') || ''
-        const numbersMatch = betInput.match(/\d/g)
+        const letterMatch = betInput.match(/^[A-Z]+/)
+        const numberMatch = betInput.match(/\d+$/)
 
-        if (numbersMatch) {
-          // Normalizza il codice alla versione inglese per il processing
-          const normalizedCode = normalizeMarketCode(letters, currentLanguage)
-          const currentMarket = markets[normalizedCode as keyof typeof markets]
+        if (!letterMatch || !numberMatch) {
+          toast.error(t('invalid_fastbet_format'))
+          return
+        }
 
-          if (currentMarket && currentMarket.selections > 1) {
-            // Check if it's an "any order" market (BT = Boxed Trifecta, Q = Quinella)
-            const isAnyOrderMarket = ['BT', 'Q'].includes(normalizedCode)
+        const letters = letterMatch[0]
+        const numbersMatch = numberMatch[0].split('')
 
-            if (isAnyOrderMarket) {
-              // Normalizzazione immediata - ordina sempre per mercati "any order"
-              const sortedNumbers = numbersMatch.sort(
-                (a, b) => parseInt(a) - parseInt(b),
-              )
-              selections = sortedNumbers.join('-')
-            } else {
-              // Keep original order for "in order" markets like Exacta, Trifecta
-              selections = numbersMatch.join('-')
-            }
+        // Validazione: il codice deve essere nella lingua corrente
+        const validCodes = getValidCodesForLanguage(currentLanguage)
+        if (!validCodes.includes(letters)) {
+          toast.error(
+            t('invalid_code_for_language') ||
+              `Codice non valido per la lingua corrente. Usa: ${validCodes.join(', ')}`,
+          )
+          return
+        }
+
+        // Normalizza il codice alla versione inglese per il processing
+        const normalizedCode = normalizeMarketCode(letters, currentLanguage)
+        const currentMarket = markets[normalizedCode as keyof typeof markets]
+
+        if (currentMarket && currentMarket.selections > 1) {
+          // Check if it's an "any order" market (CT/BT = Boxed Trifecta, Q = Quinella)
+          const isAnyOrderMarket = ['BT', 'Q'].includes(normalizedCode)
+
+          if (isAnyOrderMarket) {
+            // Normalizzazione immediata - ordina sempre per mercati "any order"
+            const sortedNumbers = numbersMatch.sort(
+              (a, b) => parseInt(a) - parseInt(b),
+            )
+            selections = sortedNumbers.join('-')
           } else {
-            // For single selection markets like Winner, Place, Show
-            selections = numbersMatch.join('')
+            // Keep original order for "in order" markets like Exacta, Trifecta
+            selections = numbersMatch.join('-')
           }
+        } else {
+          // For single selection markets like Winner, Place, Show
+          selections = numbersMatch.join('')
         }
 
         code = letters
       } else {
-        // Only code provided
+        // Only code provided (senza numeri)
         code = betInput
+
+        // Validazione: il codice deve essere nella lingua corrente
+        const validCodes = getValidCodesForLanguage(currentLanguage)
+        if (!validCodes.includes(code)) {
+          toast.error(
+            t('invalid_code_for_language')
+          )
+          return
+        }
       }
 
       const parsedCode = parseFastBetInput(code, selections, currentLanguage)

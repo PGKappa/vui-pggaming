@@ -33,6 +33,13 @@ const getImageConfig = (discipline: Discipline, language: string) => {
     }
   }
 
+  if (language === 'it') {
+    return {
+      image: '/canicavalli-codes-image.png',
+      alt: 'Códigos de apuestas galgos y caballos',
+      title: 'Racing Code List',
+    }
+  }
   // Default inglese per racing
   return {
     image: '/dogshorses-codes-image.png',
@@ -48,7 +55,7 @@ export default function DraggableCodeList({
   const rootContext = useContext(RootContext)
   const [isOpen, setIsOpen] = useState(false)
   const [position, setPosition] = useState({ x: 100, y: 100 })
-  const [size, setSize] = useState({ width: 1200, height: 566 })
+  const [size, setSize] = useState({ width: 1260, height: 625 })
   const [isDragging, setIsDragging] = useState(false)
   const [isResizing, setIsResizing] = useState(false)
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
@@ -67,7 +74,7 @@ export default function DraggableCodeList({
   // Funzione per chiudere e resettare dimensioni
   const handleClose = () => {
     setIsOpen(false)
-    setSize({ width: 1200, height: 566 })
+    setSize({ width: 1260, height: 625 })
   }
 
   // Funzioni di drag
@@ -116,15 +123,12 @@ export default function DraggableCodeList({
         const deltaX = e.clientX - resizeStart.x
         const deltaY = e.clientY - resizeStart.y
 
-        // Calcola l'aspect ratio originale
-        const aspectRatio = 1200 / 566
-
-        // Usa il delta maggiore tra X e Y per mantenere l'aspect ratio
+        // Usa il delta maggiore per mantenere proporzioni
         const delta = Math.max(deltaX, deltaY)
 
-        // Calcola nuove dimensioni mantenendo l'aspect ratio
+        // Calcola nuove dimensioni con limiti minimi più stretti
         const newWidth = Math.max(600, resizeStart.width + delta)
-        const newHeight = Math.max(400, newWidth / aspectRatio)
+        const newHeight = Math.max(450, resizeStart.height + delta)
 
         setSize({
           width: newWidth,

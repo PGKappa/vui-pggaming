@@ -245,9 +245,11 @@ export default function BettingSlip({
       0,
     )
 
-    const minIncrement = 50 * 100 // Min stake increment (50.00 in cents)
+    // Usa minStakeIncrement dall'API
+    const minIncrement = minStakeIncrement
     const target = systemDistributeStake
 
+    // Formula originale: divide per combinazioni totali, arrotonda al minIncrement
     const baseStake =
       Math.floor(target / totalCombinations / minIncrement) * minIncrement
     const totalBaseUsed = baseStake * totalCombinations
@@ -306,14 +308,29 @@ export default function BettingSlip({
       }
     }
 
-    // Applica i risultati
+    // Applica i risultati e deflagga i gruppi con stake = 0
     const newSelections: Record<string, boolean> = {}
+    const groupsWithStake: string[] = []
+
     for (const group of selectedGroupsList) {
-      newSelections[group.name] = true
+      if (stakes[group.name] > 0) {
+        newSelections[group.name] = true
+        groupsWithStake.push(group.name)
+      } else {
+        newSelections[group.name] = false
+      }
     }
 
     setSystemGroupStakes((prev) => ({ ...prev, ...stakes }))
     setSelectedGroups((prev) => ({ ...prev, ...newSelections }))
+
+    // Se solo TRIPLE ha stake > 0, mostra toast
+    if (groupsWithStake.length === 1 && groupsWithStake[0] === 'TRIPLE (x1)') {
+      toast.info(
+        t('only_triple_can_be_selected') ||
+          'Solo TRIPLE può essere selezionato con questo importo',
+      )
+    }
 
     setTimeout(() => {
       const allSelected = systemGroups.every(
@@ -1312,7 +1329,7 @@ export default function BettingSlip({
                           <div
                             className={`relative h-[59px] border-b px-4 py-[7px] ${systemGroupsOpen.includes(group.name) ? 'bg' : 'bg-background'}`}
                           >
-                            <div className="flex w-full items-center justify-between mt-[3px]">
+                            <div className="mt-[3px] flex w-full items-center justify-between">
                               <div className="flex items-center gap-2">
                                 {/* Checkbox singolo gruppo (Azione 1) */}
                                 <Checkbox
@@ -1332,7 +1349,7 @@ export default function BettingSlip({
                                 </span>
                               </div>
                               <div className="relative flex items-center">
-                                <div className="mt-[2px] flex items-center gap-0 border mr-[12px]">
+                                <div className="mr-[12px] mt-[2px] flex items-center gap-0 border">
                                   <Button
                                     variant="ghost"
                                     size="sm"
