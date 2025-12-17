@@ -1234,7 +1234,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                   {raceResult.odds.evenodd.even && (
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
-                        <span className="mr-[635px]">
+                        <span className="mr-[644px]">
                           {t('even').toUpperCase()}
                         </span>{' '}
                         <span>{raceResult.odds.evenodd.even}</span>
@@ -1245,10 +1245,10 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                   {raceResult.odds.evenodd.odd && (
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
-                        <span className="mr-[630px]">
+                        <span className="mr-[619px]">
                           {t('odd').toUpperCase()}
                         </span>{' '}
-                        <span>{raceResult.odds.evenodd.odd}</span>
+                        <span className='mr-[1px]'>{raceResult.odds.evenodd.odd}</span>
                       </div>
                     </div>
                   )}
@@ -1268,7 +1268,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                   {raceResult.odds.underover.under && (
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
-                        <span className="mr-[621px]">
+                        <span className="mr-[623px]">
                           {t('under').toUpperCase()}
                         </span>{' '}
                         <span>{raceResult.odds.underover.under}</span>
@@ -1278,7 +1278,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                   {raceResult.odds.underover.over && (
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
-                        <span className="mr-[627px]">
+                        <span className="mr-[635px]">
                           {t('over').toUpperCase()}
                         </span>{' '}
                         <span>{raceResult.odds.underover.over}</span>
