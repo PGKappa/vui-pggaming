@@ -439,3 +439,12 @@ div.gap-1:nth-child(2)>div:nth-child(1)>div:nth-child(1)>div:nth-child(2)>button
     transform: rotate(0deg);
   }
 }
+
+
+.data-\[state\=on\]\:bg-bet[data-state="on"]{
+  border: none;
+}
+
+.data-\[state\=on\]\:bg-bet[data-state="on"]:hover{
+  opacity: 1;
+}
