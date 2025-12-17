@@ -873,7 +873,7 @@ export default function UpcomingRaceCard({
               <Button
                 key={key}
                 variant={activeTab === key ? 'marketSelected' : 'market'}
-                className="h-12 w-[140px] border px-[18px] pb-0 text-[16px] font-semibold uppercase hover:opacity-90"
+                className="h-12 w-[140px] px-[18px] pb-0 text-[16px] font-semibold uppercase hover:opacity-90"
                 onClick={() => handleTabChange(key as TabType)}
               >
                 {config.name}
