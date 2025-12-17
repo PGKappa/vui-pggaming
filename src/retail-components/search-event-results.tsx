@@ -565,8 +565,8 @@ export default function SearchEventResults() {
                           className="gap-0"
                         >
                           <AccordionTrigger className="pointer-events-none border-b-0 bg-accent p-0 pl-2 text-base text-accent-foreground hover:no-underline [&[data-state=open]>svg]:-rotate-90">
-                            <div className="relative top-1.5 mb-[7px] flex h-[45px] w-full flex-row items-center justify-between gap-4 px-2 text-white">
-                              <div className="flex flex-row items-center gap-4 text-sm font-semibold">
+                            <div className="relative top-1.5 mb-[7px] flex h-[46px] w-full flex-row items-center justify-between gap-4 pl-[9px] text-white">
+                              <div className="flex flex-row items-center gap-4 text-[15px] font-semibold pb-[5px]">
                                 {/* Discipline Name */}
                                 <span className="whitespace-nowrap">
                                   {eventResult.discipline === 'DOGS'
@@ -614,7 +614,7 @@ export default function SearchEventResults() {
                                 strokeWidth="2"
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
-                                className="mr-2 shrink-0 cursor-pointer text-background transition-transform duration-200"
+                                className="mr-[13px] h-[25px] w-[25px] shrink-0 cursor-pointer text-background transition-transform duration-200"
                                 style={{
                                   animation: openResults.includes(uniqueKey)
                                     ? 'chevron-rotate-open 0.2s ease-out forwards'
@@ -1234,7 +1234,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                   {raceResult.odds.evenodd.even && (
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
-                        <span className="mr-[604px]">
+                        <span className="mr-[635px]">
                           {t('even').toUpperCase()}
                         </span>{' '}
                         <span>{raceResult.odds.evenodd.even}</span>
@@ -1245,7 +1245,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                   {raceResult.odds.evenodd.odd && (
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
-                        <span className="mr-[604px]">
+                        <span className="mr-[630px]">
                           {t('odd').toUpperCase()}
                         </span>{' '}
                         <span>{raceResult.odds.evenodd.odd}</span>
@@ -1268,7 +1268,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                   {raceResult.odds.underover.under && (
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
-                        <span className="mr-[627px]">
+                        <span className="mr-[621px]">
                           {t('under').toUpperCase()}
                         </span>{' '}
                         <span>{raceResult.odds.underover.under}</span>
