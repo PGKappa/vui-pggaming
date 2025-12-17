@@ -70,10 +70,20 @@ export default function UpcomingRaceCard({
     } else if (activeTab === 'triplets') {
       setMarketType('trifecta')
     }
-    clearSelections()
-  }, [activeTab])
 
-  // useEffect per cambio automatico tab da FastBet (SENZA activeTab nelle dependencies)
+    // NON cancellare le selezioni se ci sono bet da fastbet per questa race
+    const hasRaceBets = betEntries.some(
+      (entry) =>
+        entry.bet.discipline === race.discipline &&
+        entry.bet.event.number === race.id,
+    )
+
+    if (!hasRaceBets) {
+      clearSelections()
+    }
+  }, [activeTab, betEntries, race.discipline, race.id])
+
+  // useEffect per cambio automatico tab da FastBet
   useEffect(() => {
     const raceEntries = betEntries.filter(
       (entry) =>
@@ -82,24 +92,68 @@ export default function UpcomingRaceCard({
     )
 
     if (raceEntries.length > 0) {
+      const newPosition1: number[] = []
+      const newPosition2: number[] = []
+      const newPosition3: number[] = []
+
       raceEntries.forEach((entry) => {
         const market = entry.market
+        const competitors = entry.bet.competitors
+        const outcome = entry.bet.option.outcome
 
         // Cambia automaticamente il tab basato sul market FastBet
-        if (market === 'Exacta') {
+        if (market === 'Winner' || market === 'Placed' || market === 'Show') {
+          // Per mercati singoli: outcome contiene il numero, competitors contiene il nome
+          const competitorNum = parseInt(outcome)
+          if (!isNaN(competitorNum) && !newPosition1.includes(competitorNum)) {
+            newPosition1.push(competitorNum)
+          }
+        } else if (market === 'Exacta' || market === 'Quinella') {
+          const parts = competitors
+            .split('-')
+            .map((n: string) => parseInt(n.trim()))
+          if (parts.length >= 2) {
+            const [first, second] = parts
+            if (!isNaN(first) && !newPosition1.includes(first)) {
+              newPosition1.push(first)
+            }
+            if (!isNaN(second) && !newPosition2.includes(second)) {
+              newPosition2.push(second)
+            }
+          }
           setActiveTab('couples')
-          setMarketType('exacta')
-        } else if (market === 'Quinella') {
-          setActiveTab('couples')
-          setMarketType('quinella')
-        } else if (market === 'Trifecta') {
+          setMarketType(market === 'Exacta' ? 'exacta' : 'quinella')
+        } else if (market === 'Trifecta' || market === 'Boxed Trifecta') {
+          const parts = competitors
+            .split('-')
+            .map((n: string) => parseInt(n.trim()))
+          if (parts.length >= 3) {
+            const [first, second, third] = parts
+            if (!isNaN(first) && !newPosition1.includes(first)) {
+              newPosition1.push(first)
+            }
+            if (!isNaN(second) && !newPosition2.includes(second)) {
+              newPosition2.push(second)
+            }
+            if (!isNaN(third) && !newPosition3.includes(third)) {
+              newPosition3.push(third)
+            }
+          }
           setActiveTab('triplets')
-          setMarketType('trifecta')
-        } else if (market === 'Box Trifecta') {
-          setActiveTab('triplets')
-          setMarketType('boxtrifecta')
+          setMarketType(market === 'Trifecta' ? 'trifecta' : 'boxtrifecta')
         }
       })
+
+      // Aggiorna le selezioni usando functional updater (come il toggle manuale)
+      if (newPosition1.length > 0) {
+        setPosition1Selection(() => newPosition1)
+      }
+      if (newPosition2.length > 0) {
+        setPosition2Selection(() => newPosition2)
+      }
+      if (newPosition3.length > 0) {
+        setPosition3Selection(() => newPosition3)
+      }
     }
   }, [betEntries, race.id, race.discipline])
 
@@ -819,7 +873,7 @@ export default function UpcomingRaceCard({
               <Button
                 key={key}
                 variant={activeTab === key ? 'marketSelected' : 'market'}
-                className="h-12 w-[140px] border pb-0 text-[16px] font-semibold uppercase px-[18px] hover:opacity-90"
+                className="h-12 w-[140px] border px-[18px] pb-0 text-[16px] font-semibold uppercase hover:opacity-90"
                 onClick={() => handleTabChange(key as TabType)}
               >
                 {config.name}

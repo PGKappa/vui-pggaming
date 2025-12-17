@@ -155,11 +155,17 @@ export default function AlphanumericKeypadDrawer(props: {
     if (!open) return
 
     const onKeyDown = (event: KeyboardEvent) => {
-      processKey(event.key, () => event.preventDefault())
+      // Previeni il default prima di qualsiasi processing
+      event.preventDefault()
+      event.stopPropagation()
+
+      processKey(event.key, () => {})
     }
 
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
+    window.addEventListener('keydown', onKeyDown, { capture: true })
+    return () =>
+      window.removeEventListener('keydown', onKeyDown, { capture: true })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, value])
 
   return (
@@ -193,7 +199,10 @@ export default function AlphanumericKeypadDrawer(props: {
             onClick={closeDrawer}
             className="absolute right-2 top-2"
           >
-            <ChevronDown className="h-5 w-5 relative bottom-1" style={{ scale: 1.7 }} />
+            <ChevronDown
+              className="relative bottom-1 h-5 w-5"
+              style={{ scale: 1.7 }}
+            />
           </Button>
         </DrawerHeader>
 
@@ -205,7 +214,7 @@ export default function AlphanumericKeypadDrawer(props: {
               onChange={() => {}}
               onKeyDown={handleKeyDown}
               readOnly
-              className="h-12 flex-1 border pr-2 text-left text-2xl pl-[17px] font-bold uppercase"
+              className="h-12 flex-1 border pl-[17px] pr-2 text-left text-2xl font-bold uppercase"
               autoFocus
             />
             <Button
