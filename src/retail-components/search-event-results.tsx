@@ -350,7 +350,6 @@ export default function SearchEventResults() {
               } as EventResult
             }),
           )
-
         } else if (discipline === Discipline.SOCCER) {
           // OTTIMIZZAZIONE: Filtra per fascia oraria anche per SOCCER
           let filteredItems = data.items
@@ -548,12 +547,12 @@ export default function SearchEventResults() {
 
   const handleReset = () => {
     setSelectedDiscipline('NONE')
-    setSelectedDate(dates[0])
+    setSelectedDate('ALL')
     setSelectedTimeSlot('ALL')
     setLastTenGames(false)
     // Reset anche i confirmed
     setConfirmedDiscipline('NONE')
-    setConfirmedDate(dates[0])
+    setConfirmedDate('ALL')
     setConfirmedTimeSlot('ALL')
     setConfirmedLastTenGames(false)
   }
