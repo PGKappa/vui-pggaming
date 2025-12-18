@@ -129,10 +129,10 @@ function UpcomingEventItem(props: {
 
   return (
     <CarouselItem
-      className={`flex h-[65px] max-w-[237px] basis-1/6 cursor-pointer flex-row items-center justify-center gap-3 border-l-8 border-l-background px-3 py-2 text-[15px] last:min-w-[245px] last:border-r-8 last:border-r-background ${
+      className={`flex h-[95px] max-w-[237px] basis-1/6 cursor-pointer flex-row items-center justify-center gap-3 border-l-8 border-l-background px-3 py-2 text-[15px] last:min-w-[245px] last:border-r-8 last:border-r-background ${
         event.id === props.selectedEvent?.id &&
         event.discipline === props.selectedEvent?.discipline
-          ? 'bg-bet text-tertiary-foreground'
+          ? 'bg-bet/95 text-tertiary-foreground'
           : 'bg-secondary text-secondary-foreground'
       }`}
       onClick={() => {
@@ -151,19 +151,19 @@ function UpcomingEventItem(props: {
         alt={'Horses'}
         width={40}
         height={20}
-        className="size-11 object-contain"
+        className="size-14 object-contain relative right-[8px] bottom-[10px]"
       />
       
       
-      <div className="flex flex-col items-start">
-        <span className="relative top-[1px] whitespace-nowrap text-[14px] font-semibold uppercase">
+      <div className="flex flex-col items-start relative right-[2px]">
+        <span className="relative bottom-[9px] whitespace-nowrap text-[14px] font-semibold uppercase">
           {event.discipline === 'SOCCER'
             ? event.name
             : event.discipline === 'HORSES'
               ? t('horse_races_label')
               : t('dog_races_label')}
         </span>
-        <span className="relative bottom-[2px] whitespace-nowrap text-[13px] font-normal uppercase">
+        <span className="relative bottom-[8px] whitespace-nowrap text-[13px] font-normal uppercase">
           {event.discipline === 'SOCCER'
             ? `${t('round')} ${event.id}`
             : `${t('track')} ${(event.data as any)?.channel || 6}`}
@@ -173,7 +173,7 @@ function UpcomingEventItem(props: {
             {event.startTime}
           </span>
           
-            <span className="text-[14px] font-semibold bottom-[3px] relative">
+            <span className="flex flex-col h-[23px] w-[57px] pt-[4px] items-center bg-betEntry text-[14px] text-black font-semibold relative bottom-[4px] leading-none left-1 rounded-[1px] tabular-nums">
             {timeToEventStart}
             </span>
           

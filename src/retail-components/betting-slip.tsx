@@ -1078,8 +1078,8 @@ export default function BettingSlip({
       data-testid="betting-slip"
     >
       <div className="grid grid-cols-2 text-center">
-        <div className="relative top-[5px] col-span-2 flex h-[69px] w-[396px] flex-row items-center justify-between bg-accent px-5">
-          <span className="items-start pb-1 pl-[135px] text-[15px] font-semibold text-accent-foreground">
+        <div className="relative top-[5px] col-span-2 flex h-[47px] w-[396px] flex-row items-center justify-between bg-accent px-5">
+          <span className="items-start pb-1 pl-[135px] text-[14px] font-semibold text-accent-foreground">
             {t('bet_slip').toUpperCase()} ({betEntries.length})
           </span>
           <Button
@@ -1093,16 +1093,16 @@ export default function BettingSlip({
               alt="Bin"
               width={40}
               height={20}
-              className="relative bottom-1 ml-[18px] h-[20px] w-6 object-contain brightness-0 invert filter"
+              className="relative bottom-1 ml-[18px] h-[17px] w-6 object-contain brightness-0 invert filter"
             />
           </Button>
         </div>
 
-        <div className="flex h-[45px] w-[396px] flex-row">
+        <div className="flex h-[41px] w-[396px] flex-row">
           <div
             className={`relative flex w-full flex-col items-center justify-center${
               isSystemToggleEnabled ? 'cursor-pointer' : ''
-            } ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'bg-white' : 'bg-navbarButton'}`}
+            } ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'pb-2 bg-accent  font-semibold border-b-4 border-betSlip-header text-betSlip-header' : 'text-white  font bg-accent '}`}
             onClick={
               isSystemToggleEnabled
                 ? () => setSystemToggleMode('MULTIPLE')
@@ -1110,7 +1110,7 @@ export default function BettingSlip({
             }
           >
             <span
-              className={`text-[14px] ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'font-semibold text-betSlip-foreground' : 'text-black'}`}
+              className={`text-[14px] pt-2 ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'font-semibold text-betSlip-header' : ' text-betSlip-header'}`}
             >
               {betMode === 'SINGLE'
                 ? `${t('single').toUpperCase()}`
@@ -1119,14 +1119,14 @@ export default function BettingSlip({
 
             {betMode === 'SINGLE' ||
               (betMode === 'MULTIPLE' && (
-                <div className="absolute bottom-0.5 h-[0px] w-[156px] bg-navbarButton text-black"></div>
+                <div className="absolute bottom-0.5 h-[0px] w-[156px] bg-navbarButton text-betSlip-header"></div>
               ))}
           </div>
 
           <div
             className={`relative flex w-full flex-col items-center justify-center ${
               isSystemToggleEnabled ? 'cursor-pointer' : ''
-            } ${betMode === 'SYSTEM' ? 'bg-white' : 'bg-navbarButton text-black'}`}
+            } ${betMode === 'SYSTEM' ? 'bg-accent border-b-4 border-betSlip-header' : 'bg-accent font-semibold text-betSlip-header'}`}
             onClick={
               isSystemToggleEnabled
                 ? () => setSystemToggleMode('SYSTEM')
@@ -1134,12 +1134,12 @@ export default function BettingSlip({
             }
           >
             <span
-              className={`text-[14px] ${betMode === 'SYSTEM' ? 'pt-0.5 font-semibold text-betSlip-foreground' : 'text-black'}`}
+              className={`text-[14px] ${betMode === 'SYSTEM' ? 'pt-1 font-semibold text-betSlip-header' : 'text-betSlip-header font-normal'}`}
             >
               {t('system').toUpperCase()}
             </span>
             {betMode === 'SYSTEM' && (
-              <div className="absolute bottom-0.5 h-[0px] w-[156px] bg-navbarButton text-black"></div>
+              <div className="absolute bottom-0.5 h-[0px] w-[156px] bg-navbarButton text-background"></div>
             )}
           </div>
         </div>
@@ -1294,7 +1294,7 @@ export default function BettingSlip({
                           <NumericKeypadDrawer
                             value={systemDistributeStake}
                             setValue={setSystemDistributeStake}
-                            inputWidth="w-[144px] pr-2 text-[13px] "
+                            inputWidth="w-[142px] pr-2 text-[13px] "
                             triggerLabel={t('divide/add_amount')}
                             showPlusMinus={false}
                             drawerId="system-divide-add"
@@ -1408,7 +1408,7 @@ export default function BettingSlip({
                                     setValue={(value) =>
                                       handleUpdateGroupStake(group.name, value)
                                     }
-                                    inputWidth="w-[144px] pr-2 text-[13px]"
+                                    inputWidth="w-[142px] pr-2 text-[13px]"
                                     triggerLabel={group.name}
                                     showPlusMinus={false}
                                     drawerId={`system-group-${group.name}`}

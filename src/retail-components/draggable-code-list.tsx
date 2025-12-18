@@ -234,7 +234,7 @@ export default function DraggableCodeList({
             left: `${position.x}px`,
             top: `${position.y}px`,
             width: `${size.width}px`,
-            height: `${size.height}px`,
+            height: `607px`,
           }}
         >
           <div
