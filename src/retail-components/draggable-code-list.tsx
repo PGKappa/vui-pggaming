@@ -238,7 +238,7 @@ export default function DraggableCodeList({
           }}
         >
           <div
-            className="flex h-14 shrink-0 cursor-move select-none items-center justify-center bg-accent"
+            className="flex h-14 shrink-0 cursor-move select-none items-center justify-center bg-accent border-b-1 border-black"
             onMouseDown={handleMouseDown}
           >
             <h2 className="text-[16px] font-bold text-accent-foreground">

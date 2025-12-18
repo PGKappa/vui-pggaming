@@ -725,10 +725,10 @@ export default function SearchEventResults() {
                           className="gap-0"
                         >
                           <AccordionTrigger className="pointer-events-none border-b-0 bg-accent p-0 pl-2 text-base text-accent-foreground hover:no-underline [&[data-state=open]>svg]:-rotate-90">
-                            <div className="relative top-1.5 mb-[7px] flex h-[46px] w-full flex-row items-center justify-between gap-4 pl-[9px] text-white">
+                            <div className="relative top-1.5 mb-[7px] flex h-[46px] w-full flex-row items-center justify-between gap-4 pl-[9px] text-white uppercase">
                               <div className="flex flex-row items-center gap-4 pb-[5px] text-[15px] font-semibold">
                                 {/* Discipline Name */}
-                                <span className="whitespace-nowrap">
+                                <span className="whitespace-nowrap text-[16px] ">
                                   {eventResult.discipline === 'DOGS'
                                     ? t('dog_races_label')
                                     : eventResult.discipline === 'HORSES'
@@ -745,7 +745,7 @@ export default function SearchEventResults() {
                                         eventResult.track || '6',
                                       )
                                       if (!isNaN(trackNum)) {
-                                        return t(`track_${trackNum}`)
+                                        return t(`track${trackNum}`)
                                       }
                                       // Altrimenti mostra il valore diretto (track_name)
                                       return eventResult.track || '6'
@@ -755,7 +755,7 @@ export default function SearchEventResults() {
 
                                 {/* Event ID */}
                                 <span className="whitespace-nowrap border-l border-l-white pl-4">
-                                  #{eventResult.id}
+                                  ID {eventResult.id}
                                 </span>
 
                                 {/* Date and Time */}
