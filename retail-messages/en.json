@@ -279,5 +279,6 @@
   "login_required": "Login to place bets",
   "min_stake_error": "Minimum stake is {{min}}",
   "min_bet_error": "Minimum ticket amount is {{min}}",
-  "max_win_error": "Maximum potential win is {{max}}"
+  "max_win_error": "Maximum potential win is {{max}}",
+  "min_stake_per_combination_not_met": "Minimum stake per combination not met. Increase by {{amount}} to continue"
 }

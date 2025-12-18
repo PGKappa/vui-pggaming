@@ -47,12 +47,24 @@ const timeSlots = [
 export default function SearchEventResults() {
   const { t } = useTranslation()
   const rootContext = useContext(RootContext)
+
+  // Stati per i parametri selezionati (UI)
   const [selectedDiscipline, setSelectedDiscipline] = useState<
     Discipline | 'NONE'
   >('NONE')
   const [selectedDate, setSelectedDate] = useState<string>('ALL')
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>('ALL')
   const [lastTenGames, setLastTenGames] = useState<boolean>(true)
+
+  // Stati per i parametri confermati (usati per la ricerca)
+  const [confirmedDiscipline, setConfirmedDiscipline] = useState<
+    Discipline | 'NONE'
+  >('NONE')
+  const [confirmedDate, setConfirmedDate] = useState<string>('ALL')
+  const [confirmedTimeSlot, setConfirmedTimeSlot] = useState<string>('ALL')
+  const [confirmedLastTenGames, setConfirmedLastTenGames] =
+    useState<boolean>(true)
+
   const [fetchedResults, setFetchedResults] = useState<EventResult[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [openResults, setOpenResults] = useState<string[]>([])
@@ -78,14 +90,14 @@ export default function SearchEventResults() {
   )
 
   useEffect(() => {
-    if (selectedDiscipline === 'NONE') {
+    if (confirmedDiscipline === 'NONE') {
       setFetchedResults([])
       return
     }
 
-    if (lastTenGames) {
+    if (confirmedLastTenGames) {
       const existingResults = (rootContext.eventResults || []).filter(
-        (result) => result.discipline === selectedDiscipline,
+        (result) => result.discipline === confirmedDiscipline,
       )
 
       if (existingResults.length > 0) {
@@ -99,37 +111,81 @@ export default function SearchEventResults() {
       }
 
       if (
-        selectedDiscipline === Discipline.HORSES ||
-        selectedDiscipline === Discipline.DOGS
+        confirmedDiscipline === Discipline.HORSES ||
+        confirmedDiscipline === Discipline.DOGS
       ) {
         const fetchRacingResults = async () => {
           setIsLoading(true)
           try {
+            // Usa l'API /api/event/results/list anche per Last 10 Games
+            // con un range di date (ultimi 7 giorni) invece di prendere tutto
+            const today = new Date()
+            const sevenDaysAgo = new Date(today)
+            sevenDaysAgo.setDate(today.getDate() - 7)
+
+            const dateStart = sevenDaysAgo.toLocaleDateString('it-IT')
+            const dateEnd = today.toLocaleDateString('it-IT')
+
+            const gameIds =
+              confirmedDiscipline === Discipline.HORSES ? 'horses6' : 'dogs6'
+
+            const requestBody = {
+              gameIds: [gameIds],
+              dateStart: dateStart,
+              dateEnd: dateEnd,
+            }
+
             const response = await createPGVirtualAPICall(
-              '/api/event/list',
+              '/api/event/results/list',
               rootContext.initCode || '',
+              {
+                method: 'POST',
+                body: JSON.stringify(requestBody),
+              },
             )
 
             if (!response.ok) {
               throw new Error('Failed to fetch racing events')
             }
 
-            const racingEvents = await response.json()
+            const data = await response.json()
 
-            // Extract results based on selected discipline
-            const channelIndex = selectedDiscipline === Discipline.DOGS ? 0 : 1
-            const channel = racingEvents.channels?.[channelIndex]
+            if (!data.items || !Array.isArray(data.items)) {
+              setFetchedResults([])
+              return
+            }
 
-            if (channel?.prev_events) {
-              const results: EventResult[] = await Promise.all(
-                channel.prev_events.map(async (event: any) => ({
+            const results: EventResult[] = await Promise.all(
+              data.items.map(async (event: any) => {
+                const detailedResult = await fetchDetailedEventResult(
+                  event.ext_pal_id,
+                  event.int_event_id.toString(),
+                )
+
+                let startTime: Date
+                try {
+                  if (event.time) {
+                    startTime = new Date(event.time)
+                    if (event.start_time && event.start_time.includes(':')) {
+                      const [hours, minutes] = event.start_time.split(':')
+                      startTime.setHours(parseInt(hours, 10))
+                      startTime.setMinutes(parseInt(minutes, 10))
+                    }
+                  } else {
+                    startTime = new Date()
+                  }
+                } catch {
+                  startTime = new Date()
+                }
+
+                return {
                   id: event.int_event_id,
                   extId: event.ext_pal_id,
-                  name: `${selectedDiscipline === Discipline.DOGS ? 'Dog' : 'Horse'} Race ${event.int_event_id}`,
-                  startTime: new Date(event.time),
-                  discipline: selectedDiscipline,
+                  name: `${confirmedDiscipline === Discipline.DOGS ? 'Dog' : 'Horse'} Race ${event.int_event_id}`,
+                  startTime: startTime,
+                  discipline: confirmedDiscipline,
                   track: event.track_name || event.track || '6',
-                  result: {
+                  result: detailedResult || {
                     podium:
                       event.arrival?.map((competitor: any, index: number) => ({
                         name: competitor.name,
@@ -138,11 +194,11 @@ export default function SearchEventResults() {
                       })) || [],
                     odds: {},
                   },
-                })),
-              )
+                }
+              }),
+            )
 
-              setFetchedResults(results)
-            }
+            setFetchedResults(results)
           } catch {
             setFetchedResults([])
           } finally {
@@ -152,11 +208,17 @@ export default function SearchEventResults() {
 
         fetchRacingResults()
       }
+      // Non mettere return qui! Altrimenti quando lastTenGames è false non esegue fetchEventResults
+    }
+
+    // Se lastTenGames è false, esegue la fetch normale con data e fascia oraria
+    if (!confirmedLastTenGames && !confirmedDate) {
+      setFetchedResults([])
       return
     }
 
-    if (!selectedDate) {
-      setFetchedResults([])
+    if (confirmedLastTenGames) {
+      // Se lastTenGames è true, abbiamo già fatto la fetch sopra
       return
     }
 
@@ -205,8 +267,37 @@ export default function SearchEventResults() {
           discipline === Discipline.HORSES ||
           discipline === Discipline.DOGS
         ) {
+          // OTTIMIZZAZIONE: Filtra per fascia oraria PRIMA di fare fetchDetailedEventResult
+          let filteredItems = data.items
+
+          if (confirmedTimeSlot !== 'ALL') {
+            const [startTimeStr, endTimeStr] = confirmedTimeSlot.split(' | ')
+            const [startHours, startMinutes] = startTimeStr
+              .split(':')
+              .map(Number)
+            const [endHours, endMinutes] = endTimeStr.split(':').map(Number)
+            const startInMinutes = startHours * 60 + startMinutes
+            const endInMinutes = endHours * 60 + endMinutes
+
+            filteredItems = data.items.filter((item: any) => {
+              // Usa start_time direttamente (formato HH:MM)
+              if (!item.start_time || !item.start_time.includes(':')) {
+                return false
+              }
+
+              const [hours, minutes] = item.start_time.split(':').map(Number)
+              const timeInMinutes = hours * 60 + minutes
+
+              const isInRange =
+                timeInMinutes >= startInMinutes && timeInMinutes <= endInMinutes
+
+              return isInRange
+            })
+          }
+
+          // Ora chiama fetchDetailedEventResult SOLO per gli eventi filtrati
           results = await Promise.all(
-            data.items.map(async (result: any) => {
+            filteredItems.map(async (result: any) => {
               const detailedResult = await fetchDetailedEventResult(
                 result.ext_pal_id,
                 result.int_event_id.toString(),
@@ -259,8 +350,44 @@ export default function SearchEventResults() {
               } as EventResult
             }),
           )
+
         } else if (discipline === Discipline.SOCCER) {
-          results = data.items.map((result: any) => {
+          // OTTIMIZZAZIONE: Filtra per fascia oraria anche per SOCCER
+          let filteredItems = data.items
+
+          if (confirmedTimeSlot !== 'ALL') {
+            const [startTimeStr, endTimeStr] = confirmedTimeSlot.split(' | ')
+            const [startHours, startMinutes] = startTimeStr
+              .split(':')
+              .map(Number)
+            const [endHours, endMinutes] = endTimeStr.split(':').map(Number)
+            const startInMinutes = startHours * 60 + startMinutes
+            const endInMinutes = endHours * 60 + endMinutes
+
+            filteredItems = data.items.filter((item: any) => {
+              let itemTime: Date
+              try {
+                itemTime = new Date(item.time)
+                if (item.start_time && item.start_time.includes(':')) {
+                  const [hours, minutes] = item.start_time.split(':')
+                  itemTime.setHours(parseInt(hours, 10))
+                  itemTime.setMinutes(parseInt(minutes, 10))
+                }
+              } catch {
+                return false
+              }
+
+              const hours = itemTime.getHours()
+              const minutes = itemTime.getMinutes()
+              const timeInMinutes = hours * 60 + minutes
+
+              return (
+                timeInMinutes >= startInMinutes && timeInMinutes <= endInMinutes
+              )
+            })
+          }
+
+          results = filteredItems.map((result: any) => {
             let startTime: Date
             try {
               startTime = new Date(result.time)
@@ -292,7 +419,42 @@ export default function SearchEventResults() {
             } as EventResult
           })
         } else {
-          results = data.items.map((result: any) => {
+          // OTTIMIZZAZIONE: Filtra per fascia oraria anche per altri sport
+          let filteredItems = data.items
+
+          if (confirmedTimeSlot !== 'ALL') {
+            const [startTimeStr, endTimeStr] = confirmedTimeSlot.split(' | ')
+            const [startHours, startMinutes] = startTimeStr
+              .split(':')
+              .map(Number)
+            const [endHours, endMinutes] = endTimeStr.split(':').map(Number)
+            const startInMinutes = startHours * 60 + startMinutes
+            const endInMinutes = endHours * 60 + endMinutes
+
+            filteredItems = data.items.filter((item: any) => {
+              let itemTime: Date
+              try {
+                itemTime = new Date(item.time)
+                if (item.start_time && item.start_time.includes(':')) {
+                  const [hours, minutes] = item.start_time.split(':')
+                  itemTime.setHours(parseInt(hours, 10))
+                  itemTime.setMinutes(parseInt(minutes, 10))
+                }
+              } catch {
+                return false
+              }
+
+              const hours = itemTime.getHours()
+              const minutes = itemTime.getMinutes()
+              const timeInMinutes = hours * 60 + minutes
+
+              return (
+                timeInMinutes >= startInMinutes && timeInMinutes <= endInMinutes
+              )
+            })
+          }
+
+          results = filteredItems.map((result: any) => {
             let startTime: Date
             try {
               startTime = new Date(result.time)
@@ -314,7 +476,6 @@ export default function SearchEventResults() {
             } as EventResult
           })
         }
-
         setFetchedResults(results)
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : 'Unknown error'
@@ -325,32 +486,41 @@ export default function SearchEventResults() {
       }
     }
 
-    fetchEventResults(selectedDiscipline, selectedDate)
+    fetchEventResults(confirmedDiscipline, confirmedDate)
   }, [
-    selectedDate,
-    selectedDiscipline,
-    lastTenGames,
+    confirmedDate,
+    confirmedDiscipline,
+    confirmedLastTenGames,
+    confirmedTimeSlot,
     fetchDetailedEventResult,
     rootContext.eventResults,
     rootContext.initCode,
   ])
 
+  // Funzione per avviare la ricerca
+  const handleSearch = () => {
+    setConfirmedDiscipline(selectedDiscipline)
+    setConfirmedDate(selectedDate)
+    setConfirmedTimeSlot(selectedTimeSlot)
+    setConfirmedLastTenGames(lastTenGames)
+  }
+
   const filteredEventResults = useMemo(() => {
-    if (selectedDiscipline === 'NONE') {
+    if (confirmedDiscipline === 'NONE') {
       return []
     }
 
-    if (lastTenGames) {
+    if (confirmedLastTenGames) {
       const allResults = rootContext.eventResults || []
       const disciplineResults = allResults.filter(
-        (result) => result.discipline === selectedDiscipline,
+        (result) => result.discipline === confirmedDiscipline,
       )
 
       const resultsToUse =
         disciplineResults.length > 0
           ? disciplineResults
           : fetchedResults.filter(
-              (result) => result.discipline === selectedDiscipline,
+              (result) => result.discipline === confirmedDiscipline,
             )
 
       const filtered = resultsToUse
@@ -360,42 +530,19 @@ export default function SearchEventResults() {
       return filtered
     }
 
-    if (!selectedDate) {
+    if (!confirmedDate) {
       return []
     }
 
-    const resultsToFilter = fetchedResults
-
-    const filteredResults = resultsToFilter.filter((result) => {
-      if (result.discipline !== selectedDiscipline) {
-        return false
-      }
-
-      if (selectedTimeSlot !== 'ALL') {
-        const [startTimeStr, endTimeStr] = selectedTimeSlot.split(' | ')
-        const [startHours, startMinutes] = startTimeStr.split(':').map(Number)
-        const [endHours, endMinutes] = endTimeStr.split(':').map(Number)
-        const hours = result.startTime.getHours()
-        const minutes = result.startTime.getMinutes()
-        const timeInMinutes = hours * 60 + minutes
-        const startInMinutes = startHours * 60 + startMinutes
-        const endInMinutes = endHours * 60 + endMinutes
-
-        if (timeInMinutes < startInMinutes || timeInMinutes > endInMinutes) {
-          return false
-        }
-      }
-
-      return true
-    })
-
-    return filteredResults
+    // Il filtro per fascia oraria è già fatto nella fetch, quindi qui restituiamo solo i risultati
+    return fetchedResults.filter(
+      (result) => result.discipline === confirmedDiscipline,
+    )
   }, [
-    selectedDiscipline,
-    selectedDate,
-    lastTenGames,
+    confirmedDiscipline,
+    confirmedDate,
+    confirmedLastTenGames,
     fetchedResults,
-    selectedTimeSlot,
     rootContext.eventResults,
   ])
 
@@ -404,6 +551,11 @@ export default function SearchEventResults() {
     setSelectedDate(dates[0])
     setSelectedTimeSlot('ALL')
     setLastTenGames(false)
+    // Reset anche i confirmed
+    setConfirmedDiscipline('NONE')
+    setConfirmedDate(dates[0])
+    setConfirmedTimeSlot('ALL')
+    setConfirmedLastTenGames(false)
   }
 
   const formatSafeDate = (date: any): string => {
@@ -525,7 +677,14 @@ export default function SearchEventResults() {
 
           <div className="flex flex-row items-center gap-2">
             <Button
-              className="text-bold relative left-[202px] h-[48px] w-[186px] bg-tertiary text-[15px] text-tertiary-foreground"
+              className="text-bold relative left-[202px] h-[48px] w-[186px] bg-tertiary text-[15px] text-bet-foreground hover:opacity-90"
+              disabled={selectedDiscipline === 'NONE'}
+              onClick={handleSearch}
+            >
+              {t('search').toUpperCase()}
+            </Button>
+            <Button
+              className="text-bold relative left-[202px] h-[48px] w-[186px] bg-searchResult text-[15px] text-tertiary-foreground"
               disabled={
                 !selectedDate && !selectedDiscipline && !selectedTimeSlot
               }
@@ -538,8 +697,9 @@ export default function SearchEventResults() {
       </div>
 
       <div className="relative top-1 h-full overflow-auto pb-2">
-        {selectedDiscipline !== 'NONE' ? (
-          isLoading || (lastTenGames && rootContext.isLoadingEvents) ? (
+        {confirmedDiscipline !== 'NONE' ? (
+          isLoading ||
+          (confirmedLastTenGames && rootContext.isLoadingEvents) ? (
             <div className="flex h-full flex-col items-center justify-center pt-4">
               <LoadingSpinner />
               <p className="mt-4 text-[16px] text-muted-foreground">
@@ -566,7 +726,7 @@ export default function SearchEventResults() {
                         >
                           <AccordionTrigger className="pointer-events-none border-b-0 bg-accent p-0 pl-2 text-base text-accent-foreground hover:no-underline [&[data-state=open]>svg]:-rotate-90">
                             <div className="relative top-1.5 mb-[7px] flex h-[46px] w-full flex-row items-center justify-between gap-4 pl-[9px] text-white">
-                              <div className="flex flex-row items-center gap-4 text-[15px] font-semibold pb-[5px]">
+                              <div className="flex flex-row items-center gap-4 pb-[5px] text-[15px] font-semibold">
                                 {/* Discipline Name */}
                                 <span className="whitespace-nowrap">
                                   {eventResult.discipline === 'DOGS'

@@ -256,5 +256,6 @@
   "ok": "OK",
   "horse_races_label": "Cavalli Reali",
   "dog_races_label": "Levrieri Reali",
-  "combinations": "Combinazioni"
+  "combinations": "Combinazioni",
+  "min_stake_per_combination_not_met": "Valore minimo per combinazione non raggiunto. Aumentare di {{amount}} per continuare"
 }
