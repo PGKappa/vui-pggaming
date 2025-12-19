@@ -951,7 +951,7 @@ export default function RootContextProvider(props: {
     }
 
     fetchUserData()
-  }, [initCode, loadCashierFromCache, saveCashierToCache])
+  }, [initCode, operator, loadCashierFromCache, saveCashierToCache])
 
   useEffect(() => {
     // Aspetta che sia initCode che cashier siano pronti prima di caricare gli eventi
