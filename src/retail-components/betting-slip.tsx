@@ -1100,9 +1100,9 @@ export default function BettingSlip({
 
         <div className="flex h-[41px] w-[396px] flex-row">
           <div
-            className={`relative flex w-full flex-col items-center justify-center border-b-4${
+            className={`relative flex w-full flex-col items-center justify-center border-b-4 pb-0${
               isSystemToggleEnabled ? 'cursor-pointer' : ''
-            } ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'border-betSlip-header bg-accent font-semibold text-betSlip-header' : 'font border-accent bg-accent text-white'}`}
+            } ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'border-betSlip-header bg-accent font-semibold text-betSlip-header border-b-4 pb-1' : 'font border-accent bg-accent text-white'}`}
             onClick={
               isSystemToggleEnabled
                 ? () => setSystemToggleMode('MULTIPLE')
@@ -1110,7 +1110,7 @@ export default function BettingSlip({
             }
           >
             <span
-              className={`pt-1 text-[14px] ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'font-semibold text-betSlip-header' : 'text-betSlip-header'}`}
+              className={`pt-1 text-[14px] ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'font-semibold text-betSlip-header' : 'text-betSlip-header pb-1'}`}
             >
               {betMode === 'SINGLE'
                 ? `${t('single').toUpperCase()}`
