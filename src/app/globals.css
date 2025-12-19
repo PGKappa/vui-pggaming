@@ -267,22 +267,22 @@
 
     --card: 0 0% 100%;
     --card-foreground: 0 0% 0%;
-    --card-header: 212 63% 23%;
+    --card-header: 353, 100%, 25%;
     --card-header-foreground: 0 0% 100%;
 
     --primary: 0 0% 0%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 211 64% 26%;
+    --secondary: 353, 100%, 32%;
     --secondary-foreground: 0 0% 90%;
 
-    --tertiary: 212 58% 51%;
+    --tertiary: 353, 100%, 36%;
     --tertiary-foreground: 0 0% 100%;
 
-    --muted: 0 0% 74%;
+    --muted: 353, 100%, 25%;
     --muted-foreground: 220 12% 95%;
 
-    --accent: 212 62% 23%;
+    --accent: 353, 100%, 25%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 62% 30%;
@@ -383,41 +383,12 @@
 }
 
 
-ul.flex > li:nth-child(2) > div:nth-child(2){
-  height: 77px;
-}
 
-ul.flex > li:nth-child(2) > div:nth-child(2) > div:nth-child(2){
-  position: relative;
-  bottom: 1px;
-}
-
-ul.flex > li:nth-child(2) > div:nth-child(2) > div:nth-child(1){
-  position: relative;
-  top: 1px;
-}
-
-
-ul.flex > li:nth-child(1) > div:nth-child(2){
-  height: 77px;
-}
-
-ul.flex > li:nth-child(1) > div:nth-child(2) > div:nth-child(2){
-  position: relative;
-  bottom: 1px;
-}
-
-ul.flex > li:nth-child(1) > div:nth-child(2) > div:nth-child(1){
-  position: relative;
-  top: 1px;
-}
-
-
-#radix-\:r6\:{
+#radix-\:r6\: {
   border-width: 0px;
 }
 
-div.bg-bet-foreground:nth-child(1) > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > button:nth-child(2) > svg:nth-child(1){
+div.bg-bet-foreground:nth-child(1)>div:nth-child(1)>div:nth-child(1)>div:nth-child(2)>button:nth-child(2)>svg:nth-child(1) {
   width: 20px;
   height: 20px;
   position: relative;
@@ -425,7 +396,7 @@ div.bg-bet-foreground:nth-child(1) > div:nth-child(1) > div:nth-child(1) > div:n
 }
 
 
-div.gap-1:nth-child(2) > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) > button:nth-child(2) > svg:nth-child(1){
+div.gap-1:nth-child(2)>div:nth-child(1)>div:nth-child(1)>div:nth-child(2)>button:nth-child(2)>svg:nth-child(1) {
   width: 20px;
   height: 20px;
   position: relative;
@@ -433,12 +404,47 @@ div.gap-1:nth-child(2) > div:nth-child(1) > div:nth-child(1) > div:nth-child(2) 
 }
 
 
-.left-\[243px\] > svg:nth-child(1){
+.left-\[243px\]>svg:nth-child(1) {
   width: 20px;
   position: relative;
   left: 5px;
 }
 
-#radix-\:r3\:{
+#radix-\:r3\: {
   border: none;
 }
+
+
+.h-9>svg:nth-child(1) {
+  scale: 1.3;
+}
+
+/* Chevron rotation animations - SVG-based */
+@keyframes chevron-rotate-open {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(180deg);
+  }
+}
+
+@keyframes chevron-rotate-close {
+  from {
+    transform: rotate(180deg);
+  }
+
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+.data-\[state\=on\]\:bg-bet[data-state="on"]{
+  border: none;
+}
+
+.data-\[state\=on\]\:bg-bet[data-state="on"]:hover{
+  opacity: 1;
+}
+

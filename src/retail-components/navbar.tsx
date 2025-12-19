@@ -11,7 +11,7 @@ import { Button } from './ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog'
 
 export default function Navbar() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const searchParams = useSearchParams()
   const pathname = usePathname()
   const initCode = searchParams.get('init_code')
@@ -21,27 +21,33 @@ export default function Navbar() {
 
   // Helper per determinare il link info basato sulla pagina
   const getInfoLink = () => {
+    const lang = i18n.language || 'en' // fallback a 'en' se lingua non disponibile
     if (pathname.includes('/calcio')) {
       // Link per il calcio
-      return 'https://d190050z3qr0m1.cloudfront.net/public/Soccer_Gaming_manual_en.html'
+      return `https://d190050z3qr0m1.cloudfront.net/public/Soccer_Gaming_manual_${lang}.html`
     } else {
       // Per cani e cavalli
-      return 'https://d190050z3qr0m1.cloudfront.net/public/RD-RH_Gaming_manual_en.html'
+      return `https://d190050z3qr0m1.cloudfront.net/public/Gaming_manual_${lang}.html`
     }
   }
+
+
+
+
+
 
   return (
     <div
       className="flex w-full flex-row items-center justify-start bg-accent p-3 h-16"
       suppressHydrationWarning={true}
     >
-      <div className="flex flex-row items-center gap-[8px] relative left-[0px]">
+      <div className="flex flex-row items-center gap-[8px] relative left-[8px]">
         <Link
           href={`/retail/dogs-horses${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
             'flex w-28 flex-row items-center justify-between px-4 py-1 text-foreground transition-colors h-12 hover:opacity-90',
             pathname.includes('/retail/dogs-horses')
-              ? 'bg-tertiary'
+              ? 'bg-bet'
               : 'bg-secondary',
           )}
         >
@@ -67,7 +73,7 @@ export default function Navbar() {
             'flex w-24 flex-row items-center justify-center px-4 py-1 text-foreground transition-colors h-12 hover:opacity-90',
             pathname.includes('/retail/dogs') &&
               !pathname.includes('/retail/dogs-horses')
-              ? 'bg-tertiary'
+              ? 'bg-bet'
               : 'bg-secondary',
           )}
         >
@@ -87,7 +93,7 @@ export default function Navbar() {
           className={cn(
             'flex w-24 flex-row items-center justify-center px-4 py-1 text-foreground transition-colors h-12 hover:*opacity-90',
             pathname.includes('/retail/horses')
-              ? 'bg-tertiary'
+              ? 'bg-bet'
               : 'bg-secondary',
           )}
         >
@@ -102,7 +108,7 @@ export default function Navbar() {
           <span className="text-[16px] font-bold">{t('ch3')}</span> */}
         </Link>
 
-        <Link
+      {/**  <Link
           href={`/retail/calcio${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
             'flex w-24 flex-row items-center justify-center gap-3 px-4 py-1 text-foreground transition-colors h-12',
@@ -120,10 +126,10 @@ export default function Navbar() {
           />
           {/* 
           <span className="text-[16px] font-bold">{t('ch4')}</span> */}
-        </Link>
+     {/*   </Link> */} 
       </div>
 
-      <div className="relative  flex w-full justify-end gap-[8px]">
+      <div className="relative  flex w-full justify-end gap-[8px] right-2">
         <Button
           className="h-12 w-fit p-[18px] hover:opacity-95"
           variant="ticketButton"

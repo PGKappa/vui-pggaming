@@ -16,16 +16,16 @@ export function normalizeMarketCode(
   // Mappatura Spagnolo -> Inglese
   const spanishToEnglish: Record<string, string> = {
     G: 'W', // Ganador -> Winner
-    '2P': 'P', // Plaza (Top 2) -> Placed
-    '3P': 'S', // Plaza (Top 3) -> Show
+    '2C': 'P', // Colocado 2°
+    '3C': 'S', // Colocado 3°
     PA: 'EV', // Par -> Even
     IM: 'OD', // Impar -> Odd
-    ME: 'U', // Menos -> Under
-    MA: 'O', // Más -> Over
+    ME: 'U', // Menos 3.5
+    MA: 'O', // Más 3.5
     E: 'E', // Exacta
     Q: 'Q', // Quinella
     T: 'T', // Trifecta
-    BT: 'BT', // Boxed Trifecta
+    CT: 'BT', // Combinada Trifecta
   }
 
   // Se la lingua è spagnola, normalizza
@@ -47,8 +47,8 @@ export function getLocalizedMarketCode(
   if (language === 'es') {
     const englishToSpanish: Record<string, string> = {
       W: 'G',
-      P: '2P',
-      S: '3P',
+      P: '2C',
+      S: '3C',
       EV: 'PA',
       OD: 'IM',
       U: 'ME',
@@ -56,7 +56,7 @@ export function getLocalizedMarketCode(
       E: 'E',
       Q: 'Q',
       T: 'T',
-      BT: 'BT',
+      BT: 'CT',
     }
     return englishToSpanish[upperCode] || upperCode
   }
@@ -160,6 +160,18 @@ export async function createBetFromFastCode(
     ? getTrackName(channel)
     : raceData.track?.name || `Track ${channel || '6'}`
 
+  // Helper per ottenere il nome del competitor dal numero
+  const getCompetitorName = (number: number): string => {
+    // Prova diversi percorsi nell'oggetto API
+    const competitors =
+      raceData.racers ||
+      raceData.current?.competitors ||
+      raceData.current?.racers ||
+      []
+    const competitor = competitors.find((c: any) => c.number === number)
+    return competitor?.name || ''
+  }
+
   const bets: Bet[] = []
 
   if (
@@ -172,6 +184,7 @@ export async function createBetFromFastCode(
           fastCode.selections.forEach((selection) => {
             const oddsValue = odds.winner[selection.toString()]
             if (oddsValue) {
+              const competitorName = getCompetitorName(selection)
               const bet = {
                 discipline: currentEvent.discipline,
                 event: {
@@ -179,7 +192,7 @@ export async function createBetFromFastCode(
                   number: currentEvent.id,
                   startingAt: currentEvent.time,
                 },
-                competitors: `${selection}`,
+                competitors: competitorName,
                 option: {
                   outcome: `${selection}`,
                   decPrice: parseFloat(oddsValue),
@@ -197,6 +210,7 @@ export async function createBetFromFastCode(
           fastCode.selections.forEach((selection) => {
             const oddsValue = odds.placed[selection.toString()]
             if (oddsValue) {
+              const competitorName = getCompetitorName(selection)
               const bet = {
                 discipline: currentEvent.discipline,
                 event: {
@@ -204,7 +218,7 @@ export async function createBetFromFastCode(
                   number: currentEvent.id,
                   startingAt: currentEvent.time,
                 },
-                competitors: `${selection}`,
+                competitors: competitorName,
                 option: {
                   outcome: `${selection}`,
                   decPrice: parseFloat(oddsValue),
@@ -222,6 +236,7 @@ export async function createBetFromFastCode(
           fastCode.selections.forEach((selection) => {
             const oddsValue = odds.show[selection.toString()]
             if (oddsValue) {
+              const competitorName = getCompetitorName(selection)
               const bet = {
                 discipline: currentEvent.discipline,
                 event: {
@@ -229,7 +244,7 @@ export async function createBetFromFastCode(
                   number: currentEvent.id,
                   startingAt: currentEvent.time,
                 },
-                competitors: `${selection}`,
+                competitors: competitorName,
                 option: {
                   outcome: `${selection}`,
                   decPrice: parseFloat(oddsValue),
@@ -286,9 +301,9 @@ export async function createBetFromFastCode(
                 number: currentEvent.id,
                 startingAt: currentEvent.time,
               },
-              competitors: `${first}-${second} any Order`,
+              competitors: `${first}-${second}`,
               option: {
-                outcome: `${first}-${second} any`,
+                outcome: `${first}-${second}`,
                 decPrice: parseFloat(oddsValue),
               },
               track: trackName,
@@ -349,9 +364,9 @@ export async function createBetFromFastCode(
                 number: currentEvent.id,
                 startingAt: currentEvent.time,
               },
-              competitors: `${sortedRacers.join('-')} any Order`,
+              competitors: `${sortedRacers.join('-')}`,
               option: {
-                outcome: `${sortedRacers.join('-')} any`,
+                outcome: `${sortedRacers.join('-')}`,
                 decPrice: parseFloat(oddsValue),
               },
               track: trackName,

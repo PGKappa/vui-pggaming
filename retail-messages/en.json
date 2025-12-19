@@ -262,6 +262,8 @@
   "selection_required": "Selection is required",
   "enter_fastbet_code": "Enter fastbet code",
   "invalid_fastbet_format": "Invalid fastbet format",
+  "code_and_number_required": "Code and after event number required",
+  "invalid_code_for_language": "Invalid code for the current language",
   "invalid_format_use_dash": "Invalid format. Use dash (-) to separate event number and markets",
   "no_markets_provided": "No markets provided",
   "selections_required_for_market": "Selections required for market {{market}}",
@@ -277,5 +279,6 @@
   "login_required": "Login to place bets",
   "min_stake_error": "Minimum stake is {{min}}",
   "min_bet_error": "Minimum ticket amount is {{min}}",
-  "max_win_error": "Maximum potential win is {{max}}"
+  "max_win_error": "Maximum potential win is {{max}}",
+  "min_stake_per_combination_not_met": "Minimum stake per combination not met. Increase by {{amount}} to continue"
 }

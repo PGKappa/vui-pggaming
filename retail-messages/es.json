@@ -15,7 +15,7 @@
   "comb": "Comb.",
   "min": "Min",
   "max": "Max",
-  "win": "Ganancia",
+  "win": "Pago",
   "system": "Sistema",
   "no_selection": "Sin Selección",
   "fixed": "Fija",
@@ -239,6 +239,8 @@
   "selection_required": "Selección requerida",
   "enter_fastbet_code": "Introducir código de apuesta rápida",
   "invalid_fastbet_format": "Formato de apuesta rápida no válido",
+  "code_and_number_required": "Se requiere código y despues número de evento",
+  "invalid_code_for_language": "Código no válido para el idioma actual",
   "invalid_format_use_dash": "Formato no válido. Usa el guion (-) para separar número de evento y mercados",
   "no_markets_provided": "No se proporcionaron mercados",
   "selections_required_for_market": "Selecciones requeridas para el mercado {{market}}",
@@ -298,5 +300,6 @@
   "no_events_available": "No hay eventos disponibles",
   "min_stake_error": "El importe mínimo de apuesta es {{min}}",
   "max_win_error": "La ganancia máxima permitida es {{max}}",
-  "min_bet_error": "El importe mínimo del ticket es {{min}}"
+  "min_bet_error": "El importe mínimo del ticket es {{min}}",
+  "min_stake_per_combination_not_met": "El valor mínimo por columna no se cumple. Auméntelo en {{amount}} para continuar"
 }

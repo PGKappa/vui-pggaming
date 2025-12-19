@@ -155,11 +155,17 @@ export default function AlphanumericKeypadDrawer(props: {
     if (!open) return
 
     const onKeyDown = (event: KeyboardEvent) => {
-      processKey(event.key, () => event.preventDefault())
+      // Previeni il default prima di qualsiasi processing
+      event.preventDefault()
+      event.stopPropagation()
+
+      processKey(event.key, () => {})
     }
 
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
+    window.addEventListener('keydown', onKeyDown, { capture: true })
+    return () =>
+      window.removeEventListener('keydown', onKeyDown, { capture: true })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, value])
 
   return (
@@ -182,7 +188,7 @@ export default function AlphanumericKeypadDrawer(props: {
         </div>
       </DrawerTrigger>
 
-      <DrawerContent className="ml-2 w-[1500px]">
+      <DrawerContent className="ml-2 w-[1500px] border-0">
         <DrawerHeader className="relative bg-secondary text-accent-foreground">
           <DrawerTitle className="pt-1 text-center text-accent-foreground">
             {props.placeholder || 'FASTBET'}
@@ -193,7 +199,10 @@ export default function AlphanumericKeypadDrawer(props: {
             onClick={closeDrawer}
             className="absolute right-2 top-2"
           >
-            <ChevronDown className="h-5 w-5" style={{ scale: 2 }} />
+            <ChevronDown
+              className="relative bottom-1 h-5 w-5"
+              style={{ scale: 1.7 }}
+            />
           </Button>
         </DrawerHeader>
 
@@ -205,7 +214,7 @@ export default function AlphanumericKeypadDrawer(props: {
               onChange={() => {}}
               onKeyDown={handleKeyDown}
               readOnly
-              className="h-12 flex-1 border pr-2 text-right text-2xl font-bold uppercase"
+              className="h-12 flex-1 border pl-[17px] pr-2 text-left text-2xl font-bold uppercase"
               autoFocus
             />
             <Button
@@ -304,7 +313,7 @@ export default function AlphanumericKeypadDrawer(props: {
             <Button
               variant="outline"
               size="lg"
-              className="col-span-2 h-12 bg-tertiary text-[18px] font-semibold text-accent-foreground hover:opacity-90"
+              className="col-span-2 h-12 bg-bet text-[18px] font-semibold text-accent-foreground hover:opacity-95"
               onClick={handleSubmit}
             >
               {t('enter')}

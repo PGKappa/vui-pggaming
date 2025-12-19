@@ -11,13 +11,11 @@ export default function useTimeLeft(targetTime: Date | string): string {
         target = targetTime
       } else {
         // Altrimenti convertilo da stringa
-        // Trim spazi bianchi e assicura che finisca con Z per UTC
+        // Trim spazi bianchi e NON forzare UTC
         const timeStr = (
           typeof targetTime === 'string' ? targetTime : ''
         ).trim()
-        const hasZ = timeStr.endsWith('Z')
-        const timeWithZ = hasZ ? timeStr : `${timeStr}Z`
-        target = new Date(timeWithZ)
+        target = new Date(timeStr)
       }
 
       // Controlla se la data è valida

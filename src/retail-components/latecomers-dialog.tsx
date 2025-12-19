@@ -29,7 +29,7 @@ export default function LatecomersDialog({
       return (
         <div key={racerNumber} className="flex items-center gap-2">
           <div
-            className={`flex h-8 w-8 items-center justify-center rounded text-[21px] pt-0.5 font-bold ${(() => {
+            className={`flex h-8 w-8 items-center justify-center rounded text-[21px] font-bold ${(() => {
               const colors = getRacerColors(racerNumber, discipline)
               return `${colors.bg} ${colors.text} ${colors.border}`
             })()}`}
@@ -80,8 +80,8 @@ export default function LatecomersDialog({
       <DialogContent className="max-w-xl bg-accent p-0">
         {/* Header */}
         <DialogHeader className="flex h-[64px] flex-row items-center justify-center bg-accent px-4 text-accent-foreground border-b border-b-grey">
-          <DialogTitle className="text-center text-[17px] font-semibold text-white pt-0.5">
-            {t('latecomers')}
+          <DialogTitle className="text-center text-[17px] font-semibold text-white pt-1.5">
+            {t('latecomers').toUpperCase()}
           </DialogTitle>
         </DialogHeader>
 
