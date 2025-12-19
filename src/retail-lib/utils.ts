@@ -119,17 +119,6 @@ export function parseAPIDate(
     // Crea la data con il timezone corretto
     const dateWithTz = new Date(localString + offset)
 
-    console.log(
-      '[parseAPIDate] input:',
-      dateString,
-      '| timezone:',
-      apiTimezone,
-      '| offset:',
-      offset,
-      '| result:',
-      dateWithTz.toISOString(),
-    )
-
     return isNaN(dateWithTz.getTime()) ? new Date(localString) : dateWithTz
   } catch (error) {
     console.error('[parseAPIDate] Error:', error, '| input:', dateString)
