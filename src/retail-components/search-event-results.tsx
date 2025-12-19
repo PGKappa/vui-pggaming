@@ -740,15 +740,15 @@ export default function SearchEventResults() {
                                 {(eventResult.track || '6') && (
                                   <span className="whitespace-nowrap border-l border-l-white pl-4">
                                     {(() => {
-                                      // Se track è un numero (6 o 8), usa la translation key
-                                      const trackNum = parseInt(
-                                        eventResult.track || '6',
-                                      )
-                                      if (!isNaN(trackNum)) {
-                                        return t(`track${trackNum}`)
-                                      }
-                                      // Altrimenti mostra il valore diretto (track_name)
-                                      return eventResult.track || '6'
+                                      const trackValue =
+                                        eventResult.track || '6'
+                                      // Estrai il numero dalla stringa
+                                      const numberMatch =
+                                        trackValue.match(/\d+/)
+                                      const trackNum = numberMatch
+                                        ? numberMatch[0]
+                                        : '6'
+                                      return `${t('track')} ${trackNum}`
                                     })()}
                                   </span>
                                 )}
