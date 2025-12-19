@@ -8,11 +8,9 @@ import {
 import { Skeleton } from '@/retail-components/ui/skeleton'
 import { RootContext } from '@/retail-contexts/root-context'
 import { Discipline, UpcomingEvent } from '@/retail-lib/types'
-import { useContext, useMemo } from 'react'
+import { useContext, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-
 import useTimeLeft from '@/retail-lib/use-time-left'
-import Image from 'next/image'
 
 export function UpcomingEventsCarousel(props: {
   selectedEvent?: UpcomingEvent
@@ -46,6 +44,24 @@ export function UpcomingEventsCarousel(props: {
           })
       : []
   }, [upcomingEvents, disciplines])
+
+  // Auto-seleziona il primo evento quando quello corrente scade o non è più disponibile
+  useEffect(() => {
+    if (filteredAndSortedEvents.length === 0) return
+
+    const selectedEventStillExists = props.selectedEvent
+      ? filteredAndSortedEvents.some(
+          (event) =>
+            event.id === props.selectedEvent?.id &&
+            event.discipline === props.selectedEvent?.discipline,
+        )
+      : false
+
+    // Se nessun evento è selezionato o l'evento selezionato è scaduto, seleziona il primo
+    if (!props.selectedEvent || !selectedEventStillExists) {
+      props.setSelectedEvent(filteredAndSortedEvents[0])
+    }
+  }, [filteredAndSortedEvents, props])
 
   return (
     <Carousel
@@ -121,7 +137,6 @@ function UpcomingEventItem(props: {
         props.setSelectedEvent(event)
       }}
     >
-      
       <div className="flex flex-col items-start">
         <span className="relative top-[1px] whitespace-nowrap text-[14px] font-semibold uppercase">
           {event.discipline === 'SOCCER'

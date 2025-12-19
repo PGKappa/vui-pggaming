@@ -41,6 +41,15 @@ export default function RacingFastBet({
   // Ottieni la lingua corrente
   const currentLanguage = rootContext?.userData?.lang || 'en'
 
+  // Codici validi per lingua corrente
+  const getValidCodesForLanguage = (lang: string): string[] => {
+    if (lang === 'es') {
+      return ['G', '2C', '3C', 'E', 'Q', 'T', 'CT', 'PA', 'IM', 'ME', 'MA']
+    }
+    // Inglese e altre lingue
+    return ['W', 'P', 'S', 'E', 'Q', 'T', 'BT', 'EV', 'OD', 'U', 'O']
+  }
+
   const handleSubmit = async () => {
     if (!fastbetInput.trim()) {
       toast.error(t('enter_fastbet_code'))
@@ -79,43 +88,93 @@ export default function RacingFastBet({
         return
       }
 
-      // Check if input contains selections (numbers)
-      const hasNumbers = /\d/.test(betInput)
+      // Casi speciali per codici spagnoli 2C e 3C (Piazzato su 2/3)
+      const is2COr3CCode = /^(2C|3C)/.test(betInput)
+
+      // Validazione
+      const orderValidation = is2COr3CCode ? /^(2C|3C)\d*$/ : /^[A-Z]+\d*$/
+      if (!orderValidation.test(betInput)) {
+        toast.error(t('invalid_fastbet_format') + t('code_and_number_required'))
+        return
+      }
+
+      // Check if input contains selections (numbers after the code)
+      let hasNumbers = false
+      let letters = ''
+      let numbersMatch: string[] = []
+
+      if (is2COr3CCode) {
+        // Per 2C e 3C: estrai "2C" o "3C" come codice
+        letters = betInput.substring(0, 2)
+        const restOfInput = betInput.substring(2)
+        hasNumbers = /\d/.test(restOfInput)
+        if (hasNumbers) {
+          numbersMatch = restOfInput.split('')
+        }
+      } else {
+        // Logica normale per altri codici
+        hasNumbers = /\d/.test(betInput)
+        if (hasNumbers) {
+          const letterMatch = betInput.match(/^[A-Z]+/)
+          const numberMatch = betInput.match(/\d+$/)
+
+          if (!letterMatch || !numberMatch) {
+            toast.error(t('invalid_fastbet_format'))
+            return
+          }
+
+          letters = letterMatch[0]
+          numbersMatch = numberMatch[0].split('')
+        } else {
+          letters = betInput
+        }
+      }
 
       if (hasNumbers) {
-        // Extract letters (code) and numbers (selections)
-        const letters = betInput.match(/[A-Z]+/g)?.join('') || ''
-        const numbersMatch = betInput.match(/\d/g)
+        // Validazione: il codice deve essere nella lingua corrente
+        const validCodes = getValidCodesForLanguage(currentLanguage)
+        if (!validCodes.includes(letters)) {
+          toast.error(
+            t('invalid_code_for_language') ||
+              `Codice non valido per la lingua corrente. Usa: ${validCodes.join(', ')}`,
+          )
+          return
+        }
 
-        if (numbersMatch) {
-          // Normalizza il codice alla versione inglese per il processing
-          const normalizedCode = normalizeMarketCode(letters, currentLanguage)
-          const currentMarket = markets[normalizedCode as keyof typeof markets]
+        // Normalizza il codice alla versione inglese per il processing
+        const normalizedCode = normalizeMarketCode(letters, currentLanguage)
+        const currentMarket = markets[normalizedCode as keyof typeof markets]
 
-          if (currentMarket && currentMarket.selections > 1) {
-            // Check if it's an "any order" market (BT = Boxed Trifecta, Q = Quinella)
-            const isAnyOrderMarket = ['BT', 'Q'].includes(normalizedCode)
+        if (currentMarket && currentMarket.selections > 1) {
+          // Check if it's an "any order" market (CT/BT = Boxed Trifecta, Q = Quinella)
+          const isAnyOrderMarket = ['BT', 'Q'].includes(normalizedCode)
 
-            if (isAnyOrderMarket) {
-              // Normalizzazione immediata - ordina sempre per mercati "any order"
-              const sortedNumbers = numbersMatch.sort(
-                (a, b) => parseInt(a) - parseInt(b),
-              )
-              selections = sortedNumbers.join('-')
-            } else {
-              // Keep original order for "in order" markets like Exacta, Trifecta
-              selections = numbersMatch.join('-')
-            }
+          if (isAnyOrderMarket) {
+            // Normalizzazione immediata - ordina sempre per mercati "any order"
+            const sortedNumbers = numbersMatch.sort(
+              (a, b) => parseInt(a) - parseInt(b),
+            )
+            selections = sortedNumbers.join('-')
           } else {
-            // For single selection markets like Winner, Place, Show
-            selections = numbersMatch.join('')
+            // Keep original order for "in order" markets like Exacta, Trifecta
+            selections = numbersMatch.join('-')
           }
+        } else {
+          // For single selection markets like Winner, Place, Show
+          selections = numbersMatch.join('')
         }
 
         code = letters
       } else {
-        // Only code provided
+        // Only code provided (senza numeri)
         code = betInput
+
+        // Validazione: il codice deve essere nella lingua corrente
+        const validCodes = getValidCodesForLanguage(currentLanguage)
+        if (!validCodes.includes(code)) {
+          toast.error(t('invalid_code_for_language'))
+          return
+        }
       }
 
       const parsedCode = parseFastBetInput(code, selections, currentLanguage)
