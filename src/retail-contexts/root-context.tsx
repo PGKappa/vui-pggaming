@@ -25,6 +25,7 @@ import { toast } from 'sonner'
 
 export type RootContextType = {
   initCode?: string
+  operator?: string
   userData?: User
   cashierData?: any
   apiRequest?: <T>(
@@ -354,6 +355,7 @@ export default function RootContextProvider(props: {
   children: React.ReactNode
 }) {
   const [initCode, setInitCode] = useState<string | undefined>(undefined)
+  const [operator, setOperator] = useState<string>('pg')
   const [rootContext, setRootContext] =
     useState<RootContextType>(defaultRootContext)
   const { i18n } = useTranslation()
@@ -666,6 +668,7 @@ export default function RootContextProvider(props: {
 
     const params = new URLSearchParams(window.location.search)
     const initCode = params.get('init_code') || undefined
+    const operatorParam = params.get('operator') || 'pg' // Estrae operator dall'URL, fallback 'pg'
 
     if (initCode) {
       const storedInitCode = localStorage.getItem('initCode')
@@ -682,6 +685,7 @@ export default function RootContextProvider(props: {
     }
 
     setInitCode(initCode)
+    setOperator(operatorParam)
   }, [])
 
   useEffect(() => {
@@ -689,7 +693,7 @@ export default function RootContextProvider(props: {
 
     const fetchUserData = async (retryCount = 0, maxRetries = 3) => {
       try {
-        const cashierData = await fetchCashierInit(initCode)
+        const cashierData = await fetchCashierInit(initCode, operator)
 
         if (cashierData?.ret_code === 1024) {
           // Estrai i dati "utente" dai configs e intl
@@ -881,9 +885,13 @@ export default function RootContextProvider(props: {
           setIsLoading(false)
           setIsCashierReady(true)
         } else {
-          console.error('Cashier API returned error:', cashierData)
+          toast.error(
+            `Cashier Error: ${cashierData?.description || cashierData?.message || 'Login failed'}`,
+            { duration: 5000 },
+          )
+
           throw new Error(
-            `Cashier API error: ${cashierData?.message || 'Unknown error'}`,
+            `Cashier API error (ret_code: ${cashierData?.ret_code}): ${cashierData?.description || cashierData?.message || 'Unknown error'}`,
           )
         }
       } catch (error) {
@@ -943,7 +951,7 @@ export default function RootContextProvider(props: {
     }
 
     fetchUserData()
-  }, [initCode, loadCashierFromCache, saveCashierToCache])
+  }, [initCode, operator, loadCashierFromCache, saveCashierToCache])
 
   useEffect(() => {
     // Aspetta che sia initCode che cashier siano pronti prima di caricare gli eventi
@@ -1109,6 +1117,8 @@ export default function RootContextProvider(props: {
         const response = await createPGVirtualAPICall(
           '/api/event/list',
           initCode,
+          undefined,
+          operator,
         )
 
         if (!response.ok) {
@@ -1193,6 +1203,8 @@ export default function RootContextProvider(props: {
                   const response = await createPGVirtualAPICall(
                     `/api/event/results/${event.ext_pal_id}/${event.int_event_id}`,
                     initCode,
+                    undefined,
+                    operator,
                   )
 
                   if (response.ok) {
@@ -1238,6 +1250,8 @@ export default function RootContextProvider(props: {
                   const response = await createPGVirtualAPICall(
                     `/api/event/results/${event.ext_pal_id}/${event.int_event_id}`,
                     initCode,
+                    undefined,
+                    operator,
                   )
 
                   if (response.ok) {
@@ -1412,6 +1426,7 @@ export default function RootContextProvider(props: {
       value={{
         ...rootContext,
         initCode,
+        operator,
         isLoadingEvents,
         activeDrawerId,
         setActiveDrawer,

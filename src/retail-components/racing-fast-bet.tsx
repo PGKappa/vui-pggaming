@@ -88,31 +88,49 @@ export default function RacingFastBet({
         return
       }
 
-      // Validazione: deve essere LETTERE seguite da NUMERI (non viceversa)
-      // Esempi validi: G2, 2C4, E23, T153
-      // Esempi NON validi: 2G, 4C, 23E
-      const orderValidation = /^[A-Z]+\d*$/
+      // Casi speciali per codici spagnoli 2C e 3C (Piazzato su 2/3)
+      const is2COr3CCode = /^(2C|3C)/.test(betInput)
+
+      // Validazione
+      const orderValidation = is2COr3CCode ? /^(2C|3C)\d*$/ : /^[A-Z]+\d*$/
       if (!orderValidation.test(betInput)) {
         toast.error(t('invalid_fastbet_format') + t('code_and_number_required'))
         return
       }
 
-      // Check if input contains selections (numbers)
-      const hasNumbers = /\d/.test(betInput)
+      // Check if input contains selections (numbers after the code)
+      let hasNumbers = false
+      let letters = ''
+      let numbersMatch: string[] = []
+
+      if (is2COr3CCode) {
+        // Per 2C e 3C: estrai "2C" o "3C" come codice
+        letters = betInput.substring(0, 2)
+        const restOfInput = betInput.substring(2)
+        hasNumbers = /\d/.test(restOfInput)
+        if (hasNumbers) {
+          numbersMatch = restOfInput.split('')
+        }
+      } else {
+        // Logica normale per altri codici
+        hasNumbers = /\d/.test(betInput)
+        if (hasNumbers) {
+          const letterMatch = betInput.match(/^[A-Z]+/)
+          const numberMatch = betInput.match(/\d+$/)
+
+          if (!letterMatch || !numberMatch) {
+            toast.error(t('invalid_fastbet_format'))
+            return
+          }
+
+          letters = letterMatch[0]
+          numbersMatch = numberMatch[0].split('')
+        } else {
+          letters = betInput
+        }
+      }
 
       if (hasNumbers) {
-        // Extract letters (code) and numbers (selections)
-        const letterMatch = betInput.match(/^[A-Z]+/)
-        const numberMatch = betInput.match(/\d+$/)
-
-        if (!letterMatch || !numberMatch) {
-          toast.error(t('invalid_fastbet_format'))
-          return
-        }
-
-        const letters = letterMatch[0]
-        const numbersMatch = numberMatch[0].split('')
-
         // Validazione: il codice deve essere nella lingua corrente
         const validCodes = getValidCodesForLanguage(currentLanguage)
         if (!validCodes.includes(letters)) {
@@ -154,9 +172,7 @@ export default function RacingFastBet({
         // Validazione: il codice deve essere nella lingua corrente
         const validCodes = getValidCodesForLanguage(currentLanguage)
         if (!validCodes.includes(code)) {
-          toast.error(
-            t('invalid_code_for_language')
-          )
+          toast.error(t('invalid_code_for_language'))
           return
         }
       }
@@ -196,6 +212,7 @@ export default function RacingFastBet({
         selectedEvent,
         rootContext.initCode || '',
         rootContext.getTrackName,
+        rootContext.operator,
       )
 
       if (!bets || bets.length === 0) {

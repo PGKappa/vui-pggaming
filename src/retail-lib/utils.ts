@@ -119,17 +119,6 @@ export function parseAPIDate(
     // Crea la data con il timezone corretto
     const dateWithTz = new Date(localString + offset)
 
-    console.log(
-      '[parseAPIDate] input:',
-      dateString,
-      '| timezone:',
-      apiTimezone,
-      '| offset:',
-      offset,
-      '| result:',
-      dateWithTz.toISOString(),
-    )
-
     return isNaN(dateWithTz.getTime()) ? new Date(localString) : dateWithTz
   } catch (error) {
     console.error('[parseAPIDate] Error:', error, '| input:', dateString)
@@ -143,15 +132,18 @@ export function createPGVirtualAPICall(
   endpoint: string,
   initCode: string,
   options?: RequestInit,
+  operator?: string,
 ) {
+  const finalOperator = operator || 'pg'
+
   return fetch(`${PGVIRTUAL_API_URL}${endpoint}`, {
     ...options,
     headers: {
+      ...options?.headers,
       accept: 'application/json',
       authorization: `Bearer ${initCode}`,
       'content-type': 'application/json',
-      operator: 'pg',
-      ...options?.headers,
+      operator: finalOperator,
     },
     mode: 'cors',
     credentials: 'include',
@@ -197,13 +189,18 @@ export async function fetchEventsByDiscipline(
 }
 
 // Helper per l'inizializzazione cashier (sempre all'avvio)
-export async function fetchCashierInit(initCode: string): Promise<any> {
+export async function fetchCashierInit(
+  initCode: string,
+  operator?: string,
+): Promise<any> {
+  const finalOperator = operator || 'pg'
+
   const response = await fetch(API_URLS.CASHIER_INIT, {
     headers: {
       accept: 'application/json',
       'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
       authorization: `Bearer ${initCode}`,
-      operator: 'pg',
+      operator: finalOperator,
       'Content-Type': 'application/json',
     },
     method: 'POST',

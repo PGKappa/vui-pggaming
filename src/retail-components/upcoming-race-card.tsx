@@ -223,6 +223,8 @@ export default function UpcomingRaceCard({
         const response = await createPGVirtualAPICall(
           `/api/event/info/${race.extId}/${race.id}`,
           rootContext.initCode || '',
+          undefined,
+          rootContext.operator,
         )
 
         if (!response.ok) {
