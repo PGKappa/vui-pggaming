@@ -1100,9 +1100,9 @@ export default function BettingSlip({
 
         <div className="flex h-[41px] w-[396px] flex-row">
           <div
-            className={`relative flex w-full flex-col items-center justify-center${
+            className={`relative flex w-full flex-col items-center justify-center border-b-4${
               isSystemToggleEnabled ? 'cursor-pointer' : ''
-            } ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'pb-2 bg-accent  font-semibold border-b-4 border-betSlip-header text-betSlip-header' : 'text-white  font bg-accent '}`}
+            } ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'border-betSlip-header bg-accent font-semibold text-betSlip-header' : 'font border-accent bg-accent text-white'}`}
             onClick={
               isSystemToggleEnabled
                 ? () => setSystemToggleMode('MULTIPLE')
@@ -1110,7 +1110,7 @@ export default function BettingSlip({
             }
           >
             <span
-              className={`text-[14px] pt-2 ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'font-semibold text-betSlip-header' : ' text-betSlip-header'}`}
+              className={`pt-1 text-[14px] ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'font-semibold text-betSlip-header' : 'text-betSlip-header'}`}
             >
               {betMode === 'SINGLE'
                 ? `${t('single').toUpperCase()}`
@@ -1124,9 +1124,9 @@ export default function BettingSlip({
           </div>
 
           <div
-            className={`relative flex w-full flex-col items-center justify-center ${
+            className={`relative flex w-full flex-col items-center justify-center border-b-4 ${
               isSystemToggleEnabled ? 'cursor-pointer' : ''
-            } ${betMode === 'SYSTEM' ? 'bg-accent border-b-4 border-betSlip-header' : 'bg-accent font-semibold text-betSlip-header'}`}
+            } ${betMode === 'SYSTEM' ? 'border-betSlip-header bg-accent' : 'border-accent bg-accent font-semibold text-betSlip-header'}`}
             onClick={
               isSystemToggleEnabled
                 ? () => setSystemToggleMode('SYSTEM')
@@ -1134,7 +1134,7 @@ export default function BettingSlip({
             }
           >
             <span
-              className={`text-[14px] ${betMode === 'SYSTEM' ? 'pt-1 font-semibold text-betSlip-header' : 'text-betSlip-header font-normal'}`}
+              className={`pt-1 text-[14px] ${betMode === 'SYSTEM' ? 'font-semibold text-betSlip-header' : 'font-normal text-betSlip-header'}`}
             >
               {t('system').toUpperCase()}
             </span>
@@ -1249,7 +1249,7 @@ export default function BettingSlip({
               className="relative top-3 w-[396px]"
             >
               <AccordionItem value="combinations" className="border-none">
-                <div className="relative bottom-[4px] h-[30px]  bg-accent px-4 text-[13px] text-accent-foreground hover:no-underline">
+                <div className="relative bottom-[4px] h-[30px] bg-accent px-4 text-[13px] text-accent-foreground hover:no-underline">
                   <span className="relative bottom-1">
                     {t('combinations').toUpperCase()}
                   </span>
