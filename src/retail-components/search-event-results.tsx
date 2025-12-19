@@ -75,6 +75,8 @@ export default function SearchEventResults() {
         const response = await createPGVirtualAPICall(
           `/api/event/results/${extId}/${eventId}`,
           rootContext.initCode || '',
+          undefined,
+          rootContext.operator,
         )
 
         if (!response.ok) {
@@ -86,7 +88,7 @@ export default function SearchEventResults() {
         return null
       }
     },
-    [rootContext.initCode],
+    [rootContext.initCode, rootContext.operator],
   )
 
   useEffect(() => {
@@ -118,7 +120,6 @@ export default function SearchEventResults() {
           setIsLoading(true)
           try {
             // Usa l'API /api/event/results/list anche per Last 10 Games
-            // con un range di date (ultimi 7 giorni) invece di prendere tutto
             const today = new Date()
             const sevenDaysAgo = new Date(today)
             sevenDaysAgo.setDate(today.getDate() - 7)
@@ -142,6 +143,7 @@ export default function SearchEventResults() {
                 method: 'POST',
                 body: JSON.stringify(requestBody),
               },
+              rootContext.operator,
             )
 
             if (!response.ok) {
@@ -248,6 +250,7 @@ export default function SearchEventResults() {
             method: 'POST',
             body: JSON.stringify(requestBody),
           },
+          rootContext.operator,
         )
 
         if (!response.ok) {
@@ -494,6 +497,7 @@ export default function SearchEventResults() {
     fetchDetailedEventResult,
     rootContext.eventResults,
     rootContext.initCode,
+    rootContext.operator,
   ])
 
   // Funzione per avviare la ricerca
