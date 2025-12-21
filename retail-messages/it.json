@@ -26,7 +26,7 @@
   "total_played": "Totale Giocato",
   "potential_win": "Vincita Potenziale",
   "remove_all": "Rimuovi Tutto",
-  "bet_now": "Punta Ora",
+  "bet_now": "Scommetti Ora",
   "round": "Giornata",
   "today": "Oggi",
   "tomorrow": "Domani",
@@ -51,7 +51,7 @@
   "discipline": "Disciplina",
   "sport": "Sport",
   "last_10_games": "Ultime 10 Gare",
-  "reset": "Reset",
+  "reset": "CANCELLA",
   "no_results_found": "Nessun risultato trovato",
   "upcoming_events": "Prossimi Eventi",
   "no_upcoming_rounds": "Nessuna giornata in programma",
@@ -139,7 +139,7 @@
   "ticket_id": "ID Biglietto",
   "date_n_time": "Data e Ora",
   "staked_amount": "Importo Puntato",
-  "amount": "Importo",
+  "amount": "Importo Totale",
   "type": "Tipo",
   "details": "Dettagli",
   "page_total": "Totale Pagina",
@@ -178,6 +178,7 @@
   "seconds": "secondi",
   "track": "Circuito a",
   "track_6": "Circuito a 6",
+  "track_": "Circuito a",
   "event": "Evento",
   "start_time": "Ora Inizio",
   "match_result": "Risultato Partita",
@@ -256,5 +257,6 @@
   "ok": "OK",
   "horse_races_label": "Cavalli Reali",
   "dog_races_label": "Levrieri Reali",
-  "combinations": "Combinazioni"
+  "combinations": "Combinazioni",
+  "min_stake_per_combination_not_met": "Valore minimo per combinazione non raggiunto. Aumentare di {{amount}} per continuare"
 }

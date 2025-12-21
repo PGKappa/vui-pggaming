@@ -107,6 +107,7 @@ export function parseFastBetInput(
 async function fetchRaceData(
   event: UpcomingEvent,
   initCode: string,
+  operator?: string,
 ): Promise<any> {
   if (!event) {
     throw new Error('Event is required')
@@ -116,6 +117,8 @@ async function fetchRaceData(
     const response = await createPGVirtualAPICall(
       `/api/event/info/${event.extId}/${event.id}`,
       initCode,
+      undefined,
+      operator,
     )
 
     if (!response.ok) {
@@ -137,13 +140,14 @@ export async function createBetFromFastCode(
   currentEvent: UpcomingEvent,
   initCode: string,
   getTrackName?: (channel?: number) => string,
+  operator?: string,
 ): Promise<Bet[] | null> {
   if (!currentEvent) {
     return null
   }
 
   // Fetch delle quote dall'API
-  const raceData = await fetchRaceData(currentEvent, initCode)
+  const raceData = await fetchRaceData(currentEvent, initCode, operator)
 
   if (!raceData) {
     return null

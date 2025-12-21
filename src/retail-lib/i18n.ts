@@ -33,7 +33,7 @@ const getInitialLanguage = () => {
         return data.userData.lang
       }
     }
-  } catch (e) {
+  } catch {
     // Ignora errori di parsing
   }
   return 'es' // Default a spagnolo invece di inglese

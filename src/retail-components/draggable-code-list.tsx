@@ -234,11 +234,11 @@ export default function DraggableCodeList({
             left: `${position.x}px`,
             top: `${position.y}px`,
             width: `${size.width}px`,
-            height: `${size.height}px`,
+            height: `607px`,
           }}
         >
           <div
-            className="flex h-14 shrink-0 cursor-move select-none items-center justify-center bg-accent"
+            className="flex h-14 shrink-0 cursor-move select-none items-center justify-center bg-accent border-b border-black"
             onMouseDown={handleMouseDown}
           >
             <h2 className="text-[16px] font-bold text-accent-foreground">
