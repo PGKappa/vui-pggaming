@@ -502,7 +502,7 @@ export default function UpcomingRaceCard({
                 track: getTrackName(6),
               }}
               variant="racecard"
-              className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] text-betEntry-foreground hover:opacity-85"
+              className=" tabular-nums h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] text-betEntry-foreground hover:opacity-85"
             />
           </TableCell>
           <TableCell className="w-[1px] bg-border p-0" />
@@ -527,7 +527,7 @@ export default function UpcomingRaceCard({
                 track: getTrackName(6),
               }}
               variant="racecard"
-              className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] text-betEntry-foreground hover:opacity-85"
+              className="tabular-nums h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] text-betEntry-foreground hover:opacity-85"
             />
           </TableCell>
 
@@ -553,7 +553,7 @@ export default function UpcomingRaceCard({
                 track: getTrackName(6),
               }}
               variant="racecard"
-              className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] text-betEntry-foreground hover:opacity-85"
+              className="tabular-nums h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] text-betEntry-foreground hover:opacity-85"
             />
           </TableCell>
         </>
@@ -570,7 +570,7 @@ export default function UpcomingRaceCard({
               pressed={position1Selection.includes(racer.number)}
               onPressedChange={() => togglePosition1Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className="relative right-[2px] h-12 w-[117px] border-betEntry-border pt-[3px]"
+              className="relative right-[2px] h-12 w-[117px] border-betEntry-border pt-[3px] tabular-nums"
             >
               <span className="text-[19px]">1°</span>
             </Toggle>

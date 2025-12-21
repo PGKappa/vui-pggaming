@@ -29,7 +29,7 @@ export default function LatecomersDialog({
       return (
         <div key={racerNumber} className="flex items-center gap-2">
           <div
-            className={`flex h-8 w-8 items-center justify-center rounded text-[21px] font-bold ${(() => {
+            className={`flex h-8 w-8 items-center justify-center rounded text-[21px] tabular-nums font-semibold ${(() => {
               const colors = getRacerColors(racerNumber, discipline)
               return `${colors.bg} ${colors.text} ${colors.border}`
             })()}`}
@@ -79,7 +79,7 @@ export default function LatecomersDialog({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-xl bg-accent p-0">
         {/* Header */}
-        <DialogHeader className="flex h-[64px] flex-row items-center justify-center bg-accent px-4 text-accent-foreground border-b border-b-grey">
+        <DialogHeader className="flex h-[64px] flex-row items-center justify-center bg-accent px-4 text-accent-foreground">
           <DialogTitle className="text-center text-[17px] font-semibold text-white pt-1.5">
             {t('latecomers').toUpperCase()}
           </DialogTitle>
@@ -113,7 +113,7 @@ export default function LatecomersDialog({
                         {formatRacers(item.racers)}
                       </div>
                     </TableCell>
-                    <TableCell className="w-1/3 bg-white p-4 text-center text-[18px]">
+                    <TableCell className="w-1/3 bg-white p-4 text-center text-[18px] tabular-nums">
                       {item.delay}
                     </TableCell>
                   </TableRow>

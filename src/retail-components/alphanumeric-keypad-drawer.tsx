@@ -233,7 +233,7 @@ export default function AlphanumericKeypadDrawer(props: {
                 key={num}
                 variant="outline"
                 size="lg"
-                className="h-12 text-xl font-semibold"
+                className="h-12 text-xl font-semibold tabular-nums"
                 onClick={() => handleCharacterClick(num)}
               >
                 {num}

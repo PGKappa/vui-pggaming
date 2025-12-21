@@ -1120,7 +1120,7 @@ export default function BettingSlip({
             }
           >
             <span
-              className={`pt-1 text-[14px] ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'font-semibold text-betSlip-header' : 'text-betSlip-header pb-1'}`}
+              className={`pt-1 text-[14px] ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'font-semibold text-betSlip-header' : 'text-white pb-1'}`}
             >
               {betMode === 'SINGLE'
                 ? `${t('single').toUpperCase()}`
@@ -1144,7 +1144,7 @@ export default function BettingSlip({
             }
           >
             <span
-              className={`pt-1 text-[14px] ${betMode === 'SYSTEM' ? 'font-semibold text-betSlip-header' : 'font-normal text-betSlip-header'}`}
+              className={`pt-1 text-[14px] ${betMode === 'SYSTEM' ? 'font-semibold text-betSlip-header' : 'font-normal text-white'}`}
             >
               {t('system').toUpperCase()}
             </span>
@@ -1211,7 +1211,7 @@ export default function BettingSlip({
                   key={amount}
                   variant="outline"
                   size="sm"
-                  className="h-8 bg-muted-foreground text-[14px]"
+                  className="h-8 bg-muted-foreground text-[14px] tabular-nums"
                   onClick={() => setGlobal((prev) => prev + amount)}
                 >
                   {amount}
@@ -1229,7 +1229,7 @@ export default function BettingSlip({
               <NumericKeypadDrawer
                 value={global}
                 setValue={setGlobal}
-                inputWidth="w-[226px] text-[16px]"
+                inputWidth="w-[164px] text-[16px] tabular-nums"
                 triggerLabel={t('amount').toUpperCase()}
                 showPlusMinus={true}
                 drawerId="global-amount"
@@ -1580,7 +1580,7 @@ export default function BettingSlip({
               <NumericKeypadDrawer
                 value={global}
                 setValue={handleDirectAmountInput}
-                inputWidth="w-[284px] border text-[16px] relative left-[4px]"
+                inputWidth="w-[220px] border text-[16px] relative left-[4px]"
                 triggerLabel={t('amount')}
                 showPlusMinus={false}
                 drawerId="system-amount"
