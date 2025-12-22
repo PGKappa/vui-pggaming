@@ -33,6 +33,14 @@ const getImageConfig = (discipline: Discipline, language: string) => {
     }
   }
 
+  if (language === 'it') {
+    return {
+      image: '/cani-cavalli-codes-image.png',
+      alt: 'Codici scommesse cani e cavalli',
+      title: 'Elenco Codici Corse',
+    }
+  }
+
   // Default inglese per racing
   return {
     image: '/dogshorses-codes-image.png',
