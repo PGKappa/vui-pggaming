@@ -338,6 +338,9 @@ export async function createBetFromFastCode(
           const [first, second] = fastCode.selections
           const oddsValue = odds.exacta[first.toString()]?.[second.toString()]
           if (oddsValue) {
+            // Usa i nomi dei competitor per il confronto con la tabella
+            const firstName = getCompetitorName(first)
+            const secondName = getCompetitorName(second)
             const bet = {
               discipline: currentEvent.discipline,
               event: {
@@ -345,7 +348,7 @@ export async function createBetFromFastCode(
                 number: currentEvent.id,
                 startingAt: currentEvent.time,
               },
-              competitors: `${first}-${second}`,
+              competitors: `${firstName}-${secondName}`,
               option: {
                 outcome: `${first}-${second}`,
                 decPrice: parseFloat(oddsValue),
@@ -366,6 +369,9 @@ export async function createBetFromFastCode(
           const [first, second] = fastCode.selections.sort((a, b) => a - b) // Ordina per quinella
           const oddsValue = odds.quinella[first.toString()]?.[second.toString()]
           if (oddsValue) {
+            // Usa i nomi dei competitor per il confronto con la tabella
+            const firstName = getCompetitorName(first)
+            const secondName = getCompetitorName(second)
             const bet = {
               discipline: currentEvent.discipline,
               event: {
@@ -373,7 +379,7 @@ export async function createBetFromFastCode(
                 number: currentEvent.id,
                 startingAt: currentEvent.time,
               },
-              competitors: `${first}-${second}`,
+              competitors: `${firstName}-${secondName}`,
               option: {
                 outcome: `${first}-${second}`,
                 decPrice: parseFloat(oddsValue),
@@ -397,6 +403,10 @@ export async function createBetFromFastCode(
               third.toString()
             ]
           if (oddsValue) {
+            // Usa i nomi dei competitor per il confronto con la tabella
+            const firstName = getCompetitorName(first)
+            const secondName = getCompetitorName(second)
+            const thirdName = getCompetitorName(third)
             const bet = {
               discipline: currentEvent.discipline,
               event: {
@@ -404,7 +414,7 @@ export async function createBetFromFastCode(
                 number: currentEvent.id,
                 startingAt: currentEvent.time,
               },
-              competitors: `${first}-${second}-${third}`,
+              competitors: `${firstName}-${secondName}-${thirdName}`,
               option: {
                 outcome: `${first}-${second}-${third}`,
                 decPrice: parseFloat(oddsValue),
@@ -429,6 +439,10 @@ export async function createBetFromFastCode(
             ]
           if (oddsValue) {
             const sortedRacers = [first, second, third].sort((a, b) => a - b)
+            // Usa i nomi dei competitor per il confronto con la tabella
+            const firstName = getCompetitorName(sortedRacers[0])
+            const secondName = getCompetitorName(sortedRacers[1])
+            const thirdName = getCompetitorName(sortedRacers[2])
             const bet = {
               discipline: currentEvent.discipline,
               event: {
@@ -436,7 +450,7 @@ export async function createBetFromFastCode(
                 number: currentEvent.id,
                 startingAt: currentEvent.time,
               },
-              competitors: `${sortedRacers.join('-')}`,
+              competitors: `${firstName}-${secondName}-${thirdName}`,
               option: {
                 outcome: `${sortedRacers.join('-')}`,
                 decPrice: parseFloat(oddsValue),
