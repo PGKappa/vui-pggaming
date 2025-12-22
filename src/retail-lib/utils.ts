@@ -5,6 +5,47 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+export function normalizeMarketName(market: string): string {
+  const m = market.toLowerCase().trim()
+
+  if (m.includes('winn') || m.includes('vinc') || m.includes('ganador'))
+    return 'winner'
+  if (m.includes('place') || m.includes('piazz') || m.includes('colocado'))
+    return 'placed'
+  if (m.includes('show') || m.includes('podi')) return 'show'
+  if (m.includes('exacta') || m.includes('accoppiata in ordine'))
+    return 'exacta'
+  if (m.includes('quinella') || m.includes('accoppiata a girare'))
+    return 'quinella'
+  if (
+    (m.includes('trifecta') || m.includes('trio in ordine')) &&
+    !m.includes('box') &&
+    !m.includes('a girare') &&
+    !m.includes('combinada')
+  )
+    return 'trifecta'
+  if (m.includes('box') || m.includes('a girare') || m.includes('combinada'))
+    return 'boxed_trifecta'
+  if (
+    m.includes('even') ||
+    m.includes('odd') ||
+    m.includes('pari') ||
+    m.includes('dispari') ||
+    m.includes('par') ||
+    m.includes('impar')
+  )
+    return 'even_odd'
+  if (
+    m.includes('under') ||
+    m.includes('over') ||
+    m.includes('menos') ||
+    m.includes('más')
+  )
+    return 'under_over'
+
+  return m
+}
+
 // API URLs - direttamente nel codice per evitare problemi con env online
 export const API_URLS = {
   PGVIRTUAL: 'https://apisuprema.pgvirtual.eu',
