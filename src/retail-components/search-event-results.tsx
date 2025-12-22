@@ -603,9 +603,9 @@ export default function SearchEventResults() {
                 {Object.values(Discipline).map((d) => {
                   const translationKey =
                     d === 'DOGS'
-                      ? 'dogs'
+                      ? 'dog_racing'
                       : d === 'HORSES'
-                        ? 'horses'
+                        ? 'horse_racing'
                         : 'football'
                   return (
                     <SelectItem key={d} value={d}>
