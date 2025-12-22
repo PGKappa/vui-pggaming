@@ -821,11 +821,21 @@ export default function BettingSlip({
           method: 'POST',
           body: JSON.stringify(ticketData),
         },
+        rootContext.operator,
       )
 
       if (!response.ok) {
         const errorText = await response.text()
-        console.error('API Error:', response.status, errorText)
+
+        try {
+          const errorJson = JSON.parse(errorText)
+          if (errorJson.ret_msg) {
+            toast.error(errorJson.ret_msg)
+          }
+        } catch {
+          toast.error(`Error: ${response.status}`)
+        }
+
         throw new Error(`HTTP error! status: ${response.status}`)
       }
 
