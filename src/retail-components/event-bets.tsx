@@ -10,6 +10,7 @@ import { BetMode } from './betting-slip'
 import { Badge } from './ui/badge'
 import { Button } from './ui/button'
 import { Checkbox } from './ui/checkbox'
+import { normalizeMarketName } from '@/retail-lib/utils'
 
 export default function EventBets(props: {
   betMode: BetMode
@@ -22,31 +23,10 @@ export default function EventBets(props: {
 
   const timeToMatchStart = useTimeLeft(eventBets[0].bet.event.startingAt)
 
-  // Helper to translate market names
+  // Helper to translate market names - usa normalizeMarketName centralizzato
   const getTranslatedMarket = (market: string) => {
-    const marketLower = market.toLowerCase()
-    switch (marketLower) {
-      case 'winner':
-        return t('winner')
-      case 'placed':
-        return t('place_2')
-      case 'show':
-        return t('show_3')
-      case 'exacta':
-        return t('exacta')
-      case 'quinella':
-        return t('quinella')
-      case 'trifecta':
-        return t('trifecta')
-      case 'boxed trifecta':
-        return t('boxed_trifecta')
-      case 'even/odd':
-        return t('even_odd')
-      case 'under/over':
-        return t('under_over')
-      default:
-        return market
-    }
+    const normalized = normalizeMarketName(market)
+    return t(normalized)
   }
 
   return (
@@ -107,64 +87,84 @@ export default function EventBets(props: {
         )}
       </div>
 
-      <div className="pt-[1px] -space-y-[8px] border border-t-0 border-betSlip-foreground bg-primary-foreground pb-[3px] pl-2 pr-[1px]">
+      <div className="-space-y-[8px] border border-t-0 border-betSlip-foreground bg-primary-foreground pb-[3px] pl-2 pr-[1px] pt-[1px]">
         {eventBets.map((betEntry) => {
-          // Per i mercati principali (Winner, Placed, Show), mostra numero + nome corridore
-          const isMainMarket = ['Winner', 'Placed', 'Show'].includes(
-            betEntry.market,
-          )
+          // Usa normalizeMarketName per riconoscere mercati principali
+          const normalized = normalizeMarketName(betEntry.market)
+          const isMainMarket =
+            normalized === 'winner' ||
+            normalized === 'placed' ||
+            normalized === 'show'
 
           // Traduci anche Even, Odd, Under, Over
-          const isTranslatableOutcome = [
-            'Even',
-            'Odd',
-            'Under',
-            'Over',
-          ].includes(betEntry.bet.option.outcome)
+          const outcomeLower = betEntry.bet.option.outcome.toLowerCase()
+          const isTranslatableOutcome =
+            outcomeLower === 'even' ||
+            outcomeLower === 'pari' ||
+            outcomeLower === 'par' ||
+            outcomeLower === 'odd' ||
+            outcomeLower === 'dispari' ||
+            outcomeLower === 'impar' ||
+            outcomeLower === 'under' ||
+            outcomeLower === 'over'
 
           let outcomeDisplay = betEntry.bet.option.outcome
 
           if (isMainMarket && betEntry.bet.competitors) {
             outcomeDisplay = `${betEntry.bet.option.outcome} ${betEntry.bet.competitors}`
           } else if (isTranslatableOutcome) {
-            outcomeDisplay = t(
-              betEntry.bet.option.outcome,
-              betEntry.bet.option.outcome,
-            )
+            // Traduci usando le chiavi minuscole
+            if (
+              outcomeLower === 'even' ||
+              outcomeLower === 'pari' ||
+              outcomeLower === 'par'
+            ) {
+              outcomeDisplay = t('even')
+            } else if (
+              outcomeLower === 'odd' ||
+              outcomeLower === 'dispari' ||
+              outcomeLower === 'impar'
+            ) {
+              outcomeDisplay = t('odd')
+            } else if (outcomeLower === 'under') {
+              outcomeDisplay = t('under')
+            } else if (outcomeLower === 'over') {
+              outcomeDisplay = t('over')
+            }
           }
 
-          // Traduci il nome del mercato
-          const translatedMarket = t(betEntry.market, betEntry.market)
+          // Traduci il nome del mercato usando getTranslatedMarket
+          const translatedMarket = getTranslatedMarket(betEntry.market)
 
           return (
-            <div 
-  key={betEntry.id}
-  className="flex items-center text-sm pr-[8px]"
->
-  <span className="mr-[1px] text-[13px] w-[126px]">
-    {translatedMarket}
-  </span>
-  <span className="ml-[0px] text-[13px] font-normal w-[109px]">
-    {outcomeDisplay}
-  </span>
-  <span className="text-[13px] w-[101px] break-all leading-tight grid justify-end relative right-[3px] font-semibold">
-  {betEntry.bet.option.decPrice.toFixed(2)}
-</span>
-  <Button
-    variant="ghost"
-    size="icon"
-    className="w-[24px] h-[40px] flex-shrink-0 translate-x-[3px]"
-    onClick={() => {
-      removeBet(
-        betEntry.market,
-        betEntry.bet.option,
-        betEntry.bet.competitors,
-      )
-    }}
-  >
-    <CircleXIcon className="mt-[1px] h-[17px] scale-[1.4]" />
-  </Button>
-</div>
+            <div
+              key={betEntry.id}
+              className="flex items-center pr-[8px] text-sm"
+            >
+              <span className="mr-[1px] w-[126px] text-[13px]">
+                {translatedMarket}
+              </span>
+              <span className="ml-[0px] w-[109px] text-[13px] font-normal">
+                {outcomeDisplay}
+              </span>
+              <span className="relative right-[3px] grid w-[101px] justify-end break-all text-[13px] font-semibold leading-tight">
+                {betEntry.bet.option.decPrice.toFixed(2)}
+              </span>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-[40px] w-[24px] flex-shrink-0 translate-x-[3px]"
+                onClick={() => {
+                  removeBet(
+                    betEntry.market,
+                    betEntry.bet.option,
+                    betEntry.bet.competitors,
+                  )
+                }}
+              >
+                <CircleXIcon className="mt-[1px] h-[17px] scale-[1.4]" />
+              </Button>
+            </div>
           )
         })}
       </div>
