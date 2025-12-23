@@ -5,10 +5,11 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@/retail-components/ui/carousel'
+import { Progress } from '@/retail-components/ui/progress'
 import { Skeleton } from '@/retail-components/ui/skeleton'
 import { RootContext } from '@/retail-contexts/root-context'
 import { Discipline, UpcomingEvent } from '@/retail-lib/types'
-import { useContext, useEffect, useMemo } from 'react'
+import { useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import useTimeLeft from '@/retail-lib/use-time-left'
 
@@ -44,6 +45,20 @@ export function UpcomingEventsCarousel(props: {
           })
       : []
   }, [upcomingEvents, disciplines])
+
+  const [nowMs, setNowMs] = useState(() => Date.now())
+
+  useEffect(() => {
+    const interval = setInterval(() => setNowMs(Date.now()), 1000)
+    return () => clearInterval(interval)
+  }, [])
+
+  const maxRemainingMs = useMemo(() => {
+    return filteredAndSortedEvents.reduce((max, event) => {
+      const diff = new Date(event.time).getTime() - nowMs
+      return diff > max ? diff : max
+    }, 0)
+  }, [filteredAndSortedEvents, nowMs])
 
   // Auto-seleziona il primo evento quando quello corrente scade o non è più disponibile
   useEffect(() => {
@@ -95,6 +110,7 @@ export function UpcomingEventsCarousel(props: {
                 event={event}
                 selectedEvent={props.selectedEvent}
                 setSelectedEvent={props.setSelectedEvent}
+                maxRemainingMs={maxRemainingMs}
               />
             )
           })
@@ -114,11 +130,32 @@ function UpcomingEventItem(props: {
   event: UpcomingEvent
   selectedEvent?: UpcomingEvent
   setSelectedEvent: (event: UpcomingEvent) => void
+  maxRemainingMs: number
 }) {
   const { event } = props
 
   const { t } = useTranslation()
   const timeToEventStart = useTimeLeft(event.time)
+  const [progressValue, setProgressValue] = useState<number>(100)
+
+  // Sincronizza progress con il tempo mancante rispetto all'evento più lontano
+  useEffect(() => {
+    if (!props.maxRemainingMs) {
+      setProgressValue(0)
+      return
+    }
+
+    const [mm, ss] = timeToEventStart.split(':')
+    const remainingMs = (Number(mm) * 60 + Number(ss)) * 1000
+
+    if (Number.isNaN(remainingMs)) {
+      setProgressValue(0)
+      return
+    }
+
+    const value = (remainingMs / props.maxRemainingMs) * 100
+    setProgressValue(Math.max(0, Math.min(100, value)))
+  }, [timeToEventStart, props.maxRemainingMs])
 
   // Rimuovi quando scaduto
   if (timeToEventStart === '00:00') {
@@ -127,7 +164,7 @@ function UpcomingEventItem(props: {
 
   return (
     <CarouselItem
-      className={`flex h-[65px] basis-1/5 cursor-pointer flex-row items-center justify-center gap-3 border-l-8 border-l-background px-3 py-2 text-[15px] last:min-w-[245px] last:border-r-8 last:border-r-background ${
+      className={`relative flex h-[65px] basis-1/5 cursor-pointer flex-row items-center justify-center gap-3 overflow-hidden border-l-8 border-l-background px-3 py-2 text-[15px] last:min-w-[245px] last:border-r-8 last:border-r-background ${
         event.id === props.selectedEvent?.id &&
         event.discipline === props.selectedEvent?.discipline
           ? 'bg-accent text-tertiary-foreground'
@@ -159,6 +196,11 @@ function UpcomingEventItem(props: {
           </span>
         </div>
       </div>
+      <Progress
+        value={progressValue}
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-[6px] rounded-none bg-destructive/20"
+        indicatorClassName="bg-destructive"
+      />
     </CarouselItem>
   )
 }
