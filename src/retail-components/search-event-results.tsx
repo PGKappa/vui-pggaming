@@ -680,7 +680,7 @@ export default function SearchEventResults() {
 
           <div className="flex flex-row items-center gap-2">
             <Button
-              className="text-bold relative left-[202px] h-[48px] w-[186px] bg-tertiary text-[16px] text-bet-foreground hover:opacity-90"
+              className="text-bold relative left-[202px] h-[48px] w-[186px] bg-tertiary text-[16px] text-bet-foreground hover:opacity-90 mr-4"
               disabled={selectedDiscipline === 'NONE'}
               onClick={handleSearch}
             >
