@@ -20,6 +20,7 @@ import {
 } from '@/retail-lib/utils'
 import { t } from 'i18next'
 import { createContext, useCallback, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
 export type RootContextType = {
@@ -1434,7 +1435,4 @@ export default function RootContextProvider(props: {
       {props.children}
     </RootContext.Provider>
   )
-}
-function useTranslation(): { i18n: any } {
-  throw new Error('Function not implemented.')
 }

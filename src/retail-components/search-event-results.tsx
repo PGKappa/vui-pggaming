@@ -5,6 +5,7 @@ import { format } from 'date-fns'
 import { t } from 'i18next'
 import Image from 'next/image'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import LoadingSpinner from './loading-spinner'
 import {
@@ -1627,7 +1628,3 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
     </div>
   )
 }
-function useTranslation(): { t: any } {
-  throw new Error('Function not implemented.')
-}
-
