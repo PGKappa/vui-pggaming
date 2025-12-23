@@ -1312,7 +1312,7 @@ export default function BettingSlip({
               <NumericKeypadDrawer
                 value={global}
                 setValue={setGlobal}
-                inputWidth="w-[164px] text-[16px] tabular-nums"
+                inputWidth="w-[174px] text-[16px] tabular-nums"
                 triggerLabel={t('amount').toUpperCase()}
                 showPlusMinus={true}
                 drawerId="global-amount"
