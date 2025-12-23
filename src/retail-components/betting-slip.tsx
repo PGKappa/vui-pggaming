@@ -30,7 +30,6 @@ import {
 } from 'lucide-react'
 import Image from 'next/image'
 import { useContext, useEffect, useMemo, useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import EventBets from './event-bets'
 import NumericKeypadDrawer from './numeric-keypad-drawer'
@@ -1632,4 +1631,7 @@ export default function BettingSlip({
       {selectedEvent && <div className="w-[396px] bg-white"></div>}
     </Card>
   )
+}
+function useTranslation(): { t: any } {
+  throw new Error('Function not implemented.')
 }
