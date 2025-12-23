@@ -506,7 +506,7 @@ export default function UpcomingRaceCard({
                 track: getTrackName(6),
               }}
               variant="racecard"
-              className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] text-betEntry-foreground hover:opacity-85"
+              className=" tabular-nums h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] text-betEntry-foreground hover:opacity-85"
             />
           </TableCell>
           <TableCell className="w-[1px] bg-border p-0" />
@@ -532,7 +532,7 @@ export default function UpcomingRaceCard({
                 track: getTrackName(6),
               }}
               variant="racecard"
-              className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] text-betEntry-foreground hover:opacity-85"
+              className="tabular-nums h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] text-betEntry-foreground hover:opacity-85"
             />
           </TableCell>
 
@@ -559,7 +559,7 @@ export default function UpcomingRaceCard({
                 track: getTrackName(6),
               }}
               variant="racecard"
-              className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] text-betEntry-foreground hover:opacity-85"
+              className="tabular-nums h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] text-betEntry-foreground hover:opacity-85"
             />
           </TableCell>
         </>
@@ -576,7 +576,7 @@ export default function UpcomingRaceCard({
               pressed={position1Selection.includes(racer.number)}
               onPressedChange={() => togglePosition1Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className="relative right-[2px] h-12 w-[117px] border-betEntry-border pt-[3px]"
+              className="relative right-[2px] h-12 w-[117px] border-betEntry-border pt-[3px] tabular-nums"
             >
               <span className="text-[19px]">1°</span>
             </Toggle>
@@ -885,7 +885,7 @@ export default function UpcomingRaceCard({
               <Button
                 key={key}
                 variant={activeTab === key ? 'marketSelected' : 'market'}
-                className="h-12 w-[140px] border px-[18px] pb-0 text-[16px] font-semibold uppercase hover:opacity-90"
+                className="h-12 w-[140px] px-[18px] pb-0 text-[16px] font-semibold uppercase hover:opacity-90"
                 onClick={() => handleTabChange(key as TabType)}
               >
                 {config.name}
@@ -899,21 +899,7 @@ export default function UpcomingRaceCard({
               {'ID'} {race.id}
             </span>
 
-            {/* Pulsante Clear */}
-            {(activeTab === 'couples' || activeTab === 'triplets') &&
-              (position1Selection.length > 0 ||
-                position2Selection.length > 0 ||
-                position3Selection.length > 0 ||
-                disorderSelection.length > 0 ||
-                fixedSelection.length > 0) && (
-                <Button
-                  variant="ghost"
-                  className="h-11 w-28 bg-secondary px-4 text-[16px] font-bold text-secondary-foreground"
-                  onClick={clearSelections}
-                >
-                  {t('clear_all').toUpperCase()}
-                </Button>
-              )}
+           
 
             {/* Pulsante Latecomers (solo per cani e cavalli) */}
             {shouldShowInfoButton() && (
@@ -944,7 +930,7 @@ export default function UpcomingRaceCard({
                     <TableCell className="relative left-1 p-2 text-[18px]">
                       <div className="flex items-center gap-[7px]">
                         <div
-                          className="flex h-[33px] w-[33px] items-center justify-center rounded-md text-[21px] font-semibold"
+                          className="flex h-[32px] w-[33px] items-center justify-center rounded-md text-[21px] font-semibold pt-[1px]"
                           style={
                             getRacerColors(
                               racer.number,
@@ -972,7 +958,7 @@ export default function UpcomingRaceCard({
                             {racer.performance}%
                             <Progress
                               value={racer.performance}
-                              className="relative bottom-[3px] w-[189px] [&>div]:rounded-r-full [&>div]:bg-accent"
+                              className="relative bottom-[3px] w-[189px] [&>div]:rounded-r-full [&>div]:bg-bet"
                               style={{ height: '8px' }}
                             />
                           </div>

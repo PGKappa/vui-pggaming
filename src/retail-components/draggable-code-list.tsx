@@ -221,7 +221,7 @@ export default function DraggableCodeList({
       <Button
         variant="ghost"
         size="icon"
-        className="h-12 w-12 bg-tertiary text-[18px] font-normal text-tertiary-foreground hover:opacity-90"
+        className="h-12 w-12 bg-bet text-[18px] font-normal text-tertiary-foreground hover:opacity-90"
         onClick={() => setIsOpen(!isOpen)}
       >
         i
@@ -235,15 +235,15 @@ export default function DraggableCodeList({
             left: `${position.x}px`,
             top: `${position.y}px`,
             width: `${size.width}px`,
-            height: `${size.height}px`,
+            height: `607px`,
           }}
         >
           <div
-            className="flex h-14 shrink-0 cursor-move select-none items-center justify-center bg-accent"
+            className="flex h-14 shrink-0 cursor-move select-none items-center justify-center bg-accent border-b border-black"
             onMouseDown={handleMouseDown}
           >
-            <h2 className="text-[19px] font-bold text-accent-foreground">
-              {t('code_list')}
+            <h2 className="text-[16px] font-bold text-accent-foreground">
+              {t('code_list').toUpperCase()}
             </h2>
 
             <div className="absolute right-4 flex items-center gap-2">
