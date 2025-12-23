@@ -29,7 +29,7 @@ function AppContent({ children }: { children: React.ReactNode }) {
       className={`${inter.variable} ${skin} flex h-screen flex-col font-inter antialiased`}
     >
       {/* <ResolutionGate> */}
-      <main className="h-full gap-2 overflow-hidden">
+      <main className="h-full gap-2 overflow-hidden tabular-nums">
         <RootContextProvider>
           {/* <div className="h-[60px]"></div> */}
           <Navbar />
