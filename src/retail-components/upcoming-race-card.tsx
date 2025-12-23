@@ -899,7 +899,21 @@ export default function UpcomingRaceCard({
               {'ID'} {race.id}
             </span>
 
-           
+            {/* Pulsante Clear */}
+            {(activeTab === 'couples' || activeTab === 'triplets') &&
+              (position1Selection.length > 0 ||
+                position2Selection.length > 0 ||
+                position3Selection.length > 0 ||
+                disorderSelection.length > 0 ||
+                fixedSelection.length > 0) && (
+                <Button
+                  variant="ghost"
+                  className="h-11 w-28 bg-secondary px-4 text-[16px] font-bold text-secondary-foreground"
+                  onClick={clearSelections}
+                >
+                  {t('clear_all').toUpperCase()}
+                </Button>
+              )}
 
             {/* Pulsante Latecomers (solo per cani e cavalli) */}
             {shouldShowInfoButton() && (
