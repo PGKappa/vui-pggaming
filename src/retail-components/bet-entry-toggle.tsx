@@ -12,6 +12,7 @@ type BetEntryToggleVariants =
 
 export default function BetEntryToggle(props: {
   marketName: string
+  apiMarketName?: string
   bet: Bet
   variant: BetEntryToggleVariants
   className?: string
@@ -125,7 +126,7 @@ export default function BetEntryToggle(props: {
             discipline: props.bet.discipline,
             competitors: props.bet.competitors,
             option: props.bet.option,
-          })
+          }, props.apiMarketName || props.marketName)
         }
         if (props.onToggle) {
           props.onToggle(!isSelected)

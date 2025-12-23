@@ -487,7 +487,8 @@ export default function UpcomingRaceCard({
         <>
           <TableCell className="p-2 text-center">
             <BetEntryToggle
-              marketName={t('winner')}
+                      marketName={t('winner')}
+                      apiMarketName="winner"
               bet={{
                 discipline: race.discipline,
                 event: {
@@ -512,7 +513,8 @@ export default function UpcomingRaceCard({
 
           <TableCell className="p-2 text-center">
             <BetEntryToggle
-              marketName={t('placed')}
+                      marketName={t('placed')}
+                      apiMarketName="placed"
               bet={{
                 discipline: race.discipline,
                 event: {
@@ -538,7 +540,8 @@ export default function UpcomingRaceCard({
 
           <TableCell className="p-2 text-center">
             <BetEntryToggle
-              marketName={t('show')}
+                      marketName={t('show')}
+                      apiMarketName="show"
               bet={{
                 discipline: race.discipline,
                 event: {
@@ -763,6 +766,7 @@ export default function UpcomingRaceCard({
               <div className="flex flex-1 items-center justify-between border-b pl-16 text-[1px]">
                 <BetEntryToggle
                   marketName={t('even_odd')}
+                  apiMarketName="even/odd"
                   bet={{
                     discipline: race.discipline,
                     event: {
@@ -785,6 +789,7 @@ export default function UpcomingRaceCard({
               <div className="flex flex-1 items-center justify-between border-b border-r border-black pl-16 pr-16">
                 <BetEntryToggle
                   marketName={t('even_odd')}
+                  apiMarketName="even/odd"
                   bet={{
                     discipline: race.discipline,
                     event: {
@@ -818,6 +823,7 @@ export default function UpcomingRaceCard({
               <div className="flex flex-1 items-center justify-between border-b pl-16">
                 <BetEntryToggle
                   marketName={t('under_over')}
+                  apiMarketName="under/over"
                   bet={{
                     discipline: race.discipline,
                     event: {
@@ -842,6 +848,7 @@ export default function UpcomingRaceCard({
               <div className="flex flex-1 items-center justify-between border-b pl-16 pr-16">
                 <BetEntryToggle
                   marketName={t('under_over')}
+                  apiMarketName="under/over"
                   bet={{
                     discipline: race.discipline,
                     event: {
