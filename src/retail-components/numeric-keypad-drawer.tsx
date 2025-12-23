@@ -408,7 +408,7 @@ export default function NumericKeypadDrawer(props: {
 
           <Button
             onClick={handleConfirm}
-            className="h-12 w-full bg-bet text-[18px] text-accent-foreground hover:opacity-95 tabular-nums"
+            className="h-12 w-full bg-tertiary text-[18px] text-accent-foreground hover:opacity-95 tabular-nums"
           >
             {t('ok')}
           </Button>

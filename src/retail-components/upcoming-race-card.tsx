@@ -658,7 +658,7 @@ export default function UpcomingRaceCard({
               pressed={position1Selection.includes(racer.number)}
               onPressedChange={() => togglePosition1Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className="relative left-[11px] h-12 w-[116px] border-betEntry-border pt-[3px]"
+              className="relative left-[11px] h-12 w-[116px] border-betEntry-border pt-[3px] tabular-nums"
             >
               <span className="text-[19px]">1°</span>
             </Toggle>
@@ -672,7 +672,7 @@ export default function UpcomingRaceCard({
               pressed={position2Selection.includes(racer.number)}
               onPressedChange={() => togglePosition2Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className="relative h-12 w-[116px] border-betEntry-border pt-[3px]"
+              className="relative h-12 w-[116px] border-betEntry-border pt-[3px] tabular-nums"
             >
               <span className="text-[19px]">2°</span>
             </Toggle>
@@ -686,7 +686,7 @@ export default function UpcomingRaceCard({
               pressed={position3Selection.includes(racer.number)}
               onPressedChange={() => togglePosition3Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className="relative right-[12px] h-12 w-[116px] border-betEntry-border pt-[3px]"
+              className="relative right-[12px] h-12 w-[116px] border-betEntry-border pt-[3px] tabular-nums"
             >
               <span className="text-[19px]">3°</span>
             </Toggle>
@@ -728,7 +728,7 @@ export default function UpcomingRaceCard({
                   pressed={disorderSelection.includes(racer.number)}
                   onPressedChange={() => toggleDisorderSelection(racer.number)}
                   onClick={(e) => e.stopPropagation()}
-                  className="relative left-[3px] h-12 w-[116px] border-betEntry-border pt-[3px]"
+                  className="relative left-[3px] h-12 w-[116px] border-betEntry-border pt-[3px] tabular-nums"
                 >
                   {disorderSelection.includes(racer.number) && (
                     <Check
@@ -958,7 +958,7 @@ export default function UpcomingRaceCard({
                             {racer.performance}%
                             <Progress
                               value={racer.performance}
-                              className="relative bottom-[3px] w-[189px] [&>div]:rounded-r-full [&>div]:bg-bet"
+                              className="relative bottom-[3px] w-[189px] [&>div]:rounded-r-full [&>div]:bg-tertiary"
                               style={{ height: '8px' }}
                             />
                           </div>
