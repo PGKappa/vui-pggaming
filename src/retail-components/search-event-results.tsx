@@ -593,7 +593,7 @@ export default function SearchEventResults() {
                 )
               }}
             >
-              <SelectTrigger className="relative left-5 ml-[-70px] h-[48px] min-w-[186px] border-none bg-background pl-[16px] pr-[5px] text-[15px] text-foreground">
+              <SelectTrigger className="relative left-5 ml-[-70px] h-[48px] min-w-[186px] border-none bg-background pl-[16px] pr-[5px] text-[16px] text-foreground">
                 <SelectValue placeholder={t('sport')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
@@ -628,7 +628,7 @@ export default function SearchEventResults() {
             />
             <label
               htmlFor="last10"
-              className="relative right-[1px] px-2 py-3 text-[14px] font-semibold text-background"
+              className="relative right-[1px] px-2 py-3 text-[15px] font-semibold text-background"
             >
               {t('last_10_games')}
             </label>
@@ -662,7 +662,7 @@ export default function SearchEventResults() {
               onValueChange={setSelectedTimeSlot}
               disabled={lastTenGames}
             >
-              <SelectTrigger className="relative left-[8px] ml-[27px] h-[48px] min-w-[186px] border-none bg-background pl-[17px] pr-[5px] text-[15px] text-foreground">
+              <SelectTrigger className="relative left-[8px] ml-[27px] h-[48px] min-w-[186px] border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground">
                 <SelectValue placeholder={t('time_slot')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
@@ -680,7 +680,7 @@ export default function SearchEventResults() {
 
           <div className="flex flex-row items-center gap-2">
             <Button
-              className="text-bold relative left-[202px] h-[48px] w-[186px] bg-tertiary text-[15px] text-bet-foreground hover:opacity-90"
+              className="text-bold relative left-[202px] h-[48px] w-[186px] bg-tertiary text-[16px] text-bet-foreground hover:opacity-90"
               disabled={selectedDiscipline === 'NONE'}
               onClick={handleSearch}
             >
