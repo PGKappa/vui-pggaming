@@ -206,6 +206,7 @@ export type Bet = {
 export type BetEntry = {
   id: number
   market: string
+  apiMarket?: string
   bet: Bet
   fixed?: boolean
 }

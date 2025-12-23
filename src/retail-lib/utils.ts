@@ -177,7 +177,7 @@ export function createPGVirtualAPICall(
 ) {
   const finalOperator = operator || 'pg'
 
-  return fetch(`${PGVIRTUAL_API_URL}${endpoint}`, {
+  const finalOptions = {
     ...options,
     headers: {
       ...options?.headers,
@@ -186,9 +186,18 @@ export function createPGVirtualAPICall(
       'content-type': 'application/json',
       operator: finalOperator,
     },
-    mode: 'cors',
-    credentials: 'include',
+    mode: 'cors' as const,
+    credentials: 'include' as const,
+  }
+
+  console.log('🔐 createPGVirtualAPICall:', {
+    endpoint,
+    initCode,
+    headers: finalOptions.headers,
+    operator: finalOperator,
   })
+
+  return fetch(`${PGVIRTUAL_API_URL}${endpoint}`, finalOptions)
 }
 
 // Enum per le discipline
