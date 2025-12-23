@@ -15,11 +15,11 @@ export function normalizeMarketCode(
 
   // Mappatura Spagnolo -> Inglese
   const spanishToEnglish: Record<string, string> = {
-    G: 'W', // Ganador -> Winner
+    G: 'W', // Ganador
     '2C': 'P', // Colocado 2°
     '3C': 'S', // Colocado 3°
-    PA: 'EV', // Par -> Even
-    IM: 'OD', // Impar -> Odd
+    PA: 'EV', // Par
+    IM: 'OD', // Impar
     ME: 'U', // Menos 3.5
     MA: 'O', // Más 3.5
     E: 'E', // Exacta
@@ -28,9 +28,29 @@ export function normalizeMarketCode(
     CT: 'BT', // Combinada Trifecta
   }
 
+  // Mappatura Italiano -> Inglese
+  const italianToEnglish: Record<string, string> = {
+    V: 'W', // Vincente
+    '2P': 'P', // Piazzato 1° 2°
+    '3P': 'S', // Podio 1° 2° 3°
+    AO: 'E', // Accoppiata in Ordine
+    AG: 'Q', // Accoppiata a Girare
+    TO: 'T', // Trio in Ordine
+    TG: 'BT', // Trio a Girare
+    P: 'EV', // Pari
+    D: 'OD', // Dispari
+    U: 'U', // Under 3.5
+    O: 'O', // Over 3.5
+  }
+
   // Se la lingua è spagnola, normalizza
   if (language === 'es') {
     return spanishToEnglish[upperCode] || upperCode
+  }
+
+  // Se la lingua è italiana, normalizza
+  if (language === 'it') {
+    return italianToEnglish[upperCode] || upperCode
   }
 
   // Altrimenti ritorna il codice originale
@@ -61,7 +81,54 @@ export function getLocalizedMarketCode(
     return englishToSpanish[upperCode] || upperCode
   }
 
+  if (language === 'it') {
+    const englishToItalian: Record<string, string> = {
+      W: 'V',
+      P: '2P',
+      S: '3P',
+      E: 'AO',
+      Q: 'AG',
+      T: 'TO',
+      BT: 'TG',
+      EV: 'P',
+      OD: 'D',
+      U: 'U',
+      O: 'O',
+    }
+    return englishToItalian[upperCode] || upperCode
+  }
+
   return upperCode
+}
+
+// Traduce i valori dei mercati (Even, Odd, Over, Under) nella lingua specificata
+export function getLocalizedMarketValue(
+  value: string,
+  language: string = 'en',
+): string {
+  const upperValue = value.toUpperCase()
+
+  if (language === 'es') {
+    const translations: Record<string, string> = {
+      EVEN: 'Par',
+      ODD: 'Impar',
+      UNDER: 'Menos',
+      OVER: 'Más',
+    }
+    return translations[upperValue] || value
+  }
+
+  if (language === 'it') {
+    const translations: Record<string, string> = {
+      EVEN: 'Pari',
+      ODD: 'Dispari',
+      UNDER: 'Under',
+      OVER: 'Over',
+    }
+    return translations[upperValue] || value
+  }
+
+  return value
 }
 
 export function parseFastBetInput(
@@ -107,6 +174,7 @@ export function parseFastBetInput(
 async function fetchRaceData(
   event: UpcomingEvent,
   initCode: string,
+  operator?: string,
 ): Promise<any> {
   if (!event) {
     throw new Error('Event is required')
@@ -116,6 +184,8 @@ async function fetchRaceData(
     const response = await createPGVirtualAPICall(
       `/api/event/info/${event.extId}/${event.id}`,
       initCode,
+      undefined,
+      operator,
     )
 
     if (!response.ok) {
@@ -137,13 +207,15 @@ export async function createBetFromFastCode(
   currentEvent: UpcomingEvent,
   initCode: string,
   getTrackName?: (channel?: number) => string,
+  operator?: string,
+  language: string = 'en',
 ): Promise<Bet[] | null> {
   if (!currentEvent) {
     return null
   }
 
   // Fetch delle quote dall'API
-  const raceData = await fetchRaceData(currentEvent, initCode)
+  const raceData = await fetchRaceData(currentEvent, initCode, operator)
 
   if (!raceData) {
     return null
@@ -266,6 +338,9 @@ export async function createBetFromFastCode(
           const [first, second] = fastCode.selections
           const oddsValue = odds.exacta[first.toString()]?.[second.toString()]
           if (oddsValue) {
+            // Usa i nomi dei competitor per il confronto con la tabella
+            const firstName = getCompetitorName(first)
+            const secondName = getCompetitorName(second)
             const bet = {
               discipline: currentEvent.discipline,
               event: {
@@ -273,7 +348,7 @@ export async function createBetFromFastCode(
                 number: currentEvent.id,
                 startingAt: currentEvent.time,
               },
-              competitors: `${first}-${second}`,
+              competitors: `${firstName}-${secondName}`,
               option: {
                 outcome: `${first}-${second}`,
                 decPrice: parseFloat(oddsValue),
@@ -294,6 +369,9 @@ export async function createBetFromFastCode(
           const [first, second] = fastCode.selections.sort((a, b) => a - b) // Ordina per quinella
           const oddsValue = odds.quinella[first.toString()]?.[second.toString()]
           if (oddsValue) {
+            // Usa i nomi dei competitor per il confronto con la tabella
+            const firstName = getCompetitorName(first)
+            const secondName = getCompetitorName(second)
             const bet = {
               discipline: currentEvent.discipline,
               event: {
@@ -301,7 +379,7 @@ export async function createBetFromFastCode(
                 number: currentEvent.id,
                 startingAt: currentEvent.time,
               },
-              competitors: `${first}-${second}`,
+              competitors: `${firstName}-${secondName}`,
               option: {
                 outcome: `${first}-${second}`,
                 decPrice: parseFloat(oddsValue),
@@ -325,6 +403,10 @@ export async function createBetFromFastCode(
               third.toString()
             ]
           if (oddsValue) {
+            // Usa i nomi dei competitor per il confronto con la tabella
+            const firstName = getCompetitorName(first)
+            const secondName = getCompetitorName(second)
+            const thirdName = getCompetitorName(third)
             const bet = {
               discipline: currentEvent.discipline,
               event: {
@@ -332,7 +414,7 @@ export async function createBetFromFastCode(
                 number: currentEvent.id,
                 startingAt: currentEvent.time,
               },
-              competitors: `${first}-${second}-${third}`,
+              competitors: `${firstName}-${secondName}-${thirdName}`,
               option: {
                 outcome: `${first}-${second}-${third}`,
                 decPrice: parseFloat(oddsValue),
@@ -357,6 +439,10 @@ export async function createBetFromFastCode(
             ]
           if (oddsValue) {
             const sortedRacers = [first, second, third].sort((a, b) => a - b)
+            // Usa i nomi dei competitor per il confronto con la tabella
+            const firstName = getCompetitorName(sortedRacers[0])
+            const secondName = getCompetitorName(sortedRacers[1])
+            const thirdName = getCompetitorName(sortedRacers[2])
             const bet = {
               discipline: currentEvent.discipline,
               event: {
@@ -364,7 +450,7 @@ export async function createBetFromFastCode(
                 number: currentEvent.id,
                 startingAt: currentEvent.time,
               },
-              competitors: `${sortedRacers.join('-')}`,
+              competitors: `${firstName}-${secondName}-${thirdName}`,
               option: {
                 outcome: `${sortedRacers.join('-')}`,
                 decPrice: parseFloat(oddsValue),
@@ -378,6 +464,7 @@ export async function createBetFromFastCode(
 
       case 'EV': // Even
         if (odds.evenodd?.even) {
+          const localizedEven = getLocalizedMarketValue('Even', language)
           const bet = {
             discipline: currentEvent.discipline,
             event: {
@@ -385,9 +472,9 @@ export async function createBetFromFastCode(
               number: currentEvent.id,
               startingAt: currentEvent.time,
             },
-            competitors: 'Even',
+            competitors: localizedEven,
             option: {
-              outcome: 'Even',
+              outcome: localizedEven,
               decPrice: parseFloat(odds.evenodd.even),
             },
             track: trackName,
@@ -398,6 +485,7 @@ export async function createBetFromFastCode(
 
       case 'OD': // Dispari (Odd)
         if (odds.evenodd?.odd) {
+          const localizedOdd = getLocalizedMarketValue('Odd', language)
           const bet = {
             discipline: currentEvent.discipline,
             event: {
@@ -405,9 +493,9 @@ export async function createBetFromFastCode(
               number: currentEvent.id,
               startingAt: currentEvent.time,
             },
-            competitors: 'Odd',
+            competitors: localizedOdd,
             option: {
-              outcome: 'Odd',
+              outcome: localizedOdd,
               decPrice: parseFloat(odds.evenodd.odd),
             },
             track: trackName,
@@ -418,6 +506,7 @@ export async function createBetFromFastCode(
 
       case 'U': // Under
         if (odds.underover?.under) {
+          const localizedUnder = getLocalizedMarketValue('Under', language)
           const bet = {
             discipline: currentEvent.discipline,
             event: {
@@ -425,9 +514,9 @@ export async function createBetFromFastCode(
               number: currentEvent.id,
               startingAt: currentEvent.time,
             },
-            competitors: 'Under',
+            competitors: localizedUnder,
             option: {
-              outcome: 'Under',
+              outcome: localizedUnder,
               decPrice: parseFloat(odds.underover.under),
             },
             track: trackName,
@@ -438,6 +527,7 @@ export async function createBetFromFastCode(
 
       case 'O': // Over
         if (odds.underover?.over) {
+          const localizedOver = getLocalizedMarketValue('Over', language)
           const bet = {
             discipline: currentEvent.discipline,
             event: {
@@ -445,9 +535,9 @@ export async function createBetFromFastCode(
               number: currentEvent.id,
               startingAt: currentEvent.time,
             },
-            competitors: 'Over',
+            competitors: localizedOver,
             option: {
-              outcome: 'Over',
+              outcome: localizedOver,
               decPrice: parseFloat(odds.underover.over),
             },
             track: trackName,

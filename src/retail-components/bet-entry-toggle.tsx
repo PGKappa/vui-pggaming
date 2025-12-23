@@ -2,8 +2,7 @@ import { BetsContext } from '@/retail-contexts/bets-context'
 import { Bet } from '@/retail-lib/types'
 import { useContext, useMemo } from 'react'
 import { Toggle } from './ui/toggle'
-import { cn } from '@/retail-lib/utils'
-import { useTranslation } from 'react-i18next'
+import { cn, normalizeMarketName } from '@/retail-lib/utils'
 
 type BetEntryToggleVariants =
   | 'roundcard'
@@ -13,18 +12,20 @@ type BetEntryToggleVariants =
 
 export default function BetEntryToggle(props: {
   marketName: string
+  apiMarketName?: string
   bet: Bet
   variant: BetEntryToggleVariants
   className?: string
   onToggle?: (isPressed: boolean) => void
 }) {
   const { addBet, removeBet, betEntries } = useContext(BetsContext)
-  const { t } = useTranslation()
 
   const isSelected = useMemo(() => {
+    const propsMarketNormalized = normalizeMarketName(props.marketName)
+    
     const found = betEntries.find(
       (entry) =>
-        entry.market === props.marketName &&
+        normalizeMarketName(entry.market) === propsMarketNormalized &&
         entry.bet.discipline === props.bet.discipline &&
         entry.bet.event.number === props.bet.event.number &&
         entry.bet.competitors === props.bet.competitors &&
@@ -125,7 +126,7 @@ export default function BetEntryToggle(props: {
             discipline: props.bet.discipline,
             competitors: props.bet.competitors,
             option: props.bet.option,
-          })
+          }, props.apiMarketName || props.marketName)
         }
         if (props.onToggle) {
           props.onToggle(!isSelected)

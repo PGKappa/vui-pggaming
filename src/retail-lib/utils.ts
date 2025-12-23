@@ -5,6 +5,47 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+export function normalizeMarketName(market: string): string {
+  const m = market.toLowerCase().trim()
+
+  if (m.includes('winn') || m.includes('vinc') || m.includes('ganador'))
+    return 'winner'
+  if (m.includes('place') || m.includes('piazz') || m.includes('colocado'))
+    return 'placed'
+  if (m.includes('show') || m.includes('podi')) return 'show'
+  if (m.includes('exacta') || m.includes('accoppiata in ordine'))
+    return 'exacta'
+  if (m.includes('quinella') || m.includes('accoppiata a girare'))
+    return 'quinella'
+  if (
+    (m.includes('trifecta') || m.includes('trio in ordine')) &&
+    !m.includes('box') &&
+    !m.includes('a girare') &&
+    !m.includes('combinada')
+  )
+    return 'trifecta'
+  if (m.includes('box') || m.includes('a girare') || m.includes('combinada'))
+    return 'boxed_trifecta'
+  if (
+    m.includes('even') ||
+    m.includes('odd') ||
+    m.includes('pari') ||
+    m.includes('dispari') ||
+    m.includes('par') ||
+    m.includes('impar')
+  )
+    return 'even_odd'
+  if (
+    m.includes('under') ||
+    m.includes('over') ||
+    m.includes('menos') ||
+    m.includes('más')
+  )
+    return 'under_over'
+
+  return m
+}
+
 // API URLs - direttamente nel codice per evitare problemi con env online
 export const API_URLS = {
   PGVIRTUAL: 'https://apisuprema.pgvirtual.eu',
@@ -119,17 +160,6 @@ export function parseAPIDate(
     // Crea la data con il timezone corretto
     const dateWithTz = new Date(localString + offset)
 
-    console.log(
-      '[parseAPIDate] input:',
-      dateString,
-      '| timezone:',
-      apiTimezone,
-      '| offset:',
-      offset,
-      '| result:',
-      dateWithTz.toISOString(),
-    )
-
     return isNaN(dateWithTz.getTime()) ? new Date(localString) : dateWithTz
   } catch (error) {
     console.error('[parseAPIDate] Error:', error, '| input:', dateString)
@@ -143,19 +173,31 @@ export function createPGVirtualAPICall(
   endpoint: string,
   initCode: string,
   options?: RequestInit,
+  operator?: string,
 ) {
-  return fetch(`${PGVIRTUAL_API_URL}${endpoint}`, {
+  const finalOperator = operator || 'pg'
+
+  const finalOptions = {
     ...options,
     headers: {
+      ...options?.headers,
       accept: 'application/json',
       authorization: `Bearer ${initCode}`,
       'content-type': 'application/json',
-      operator: 'pg',
-      ...options?.headers,
+      operator: finalOperator,
     },
-    mode: 'cors',
-    credentials: 'include',
+    mode: 'cors' as const,
+    credentials: 'include' as const,
+  }
+
+  console.log('🔐 createPGVirtualAPICall:', {
+    endpoint,
+    initCode,
+    headers: finalOptions.headers,
+    operator: finalOperator,
   })
+
+  return fetch(`${PGVIRTUAL_API_URL}${endpoint}`, finalOptions)
 }
 
 // Enum per le discipline
@@ -197,13 +239,18 @@ export async function fetchEventsByDiscipline(
 }
 
 // Helper per l'inizializzazione cashier (sempre all'avvio)
-export async function fetchCashierInit(initCode: string): Promise<any> {
+export async function fetchCashierInit(
+  initCode: string,
+  operator?: string,
+): Promise<any> {
+  const finalOperator = operator || 'pg'
+
   const response = await fetch(API_URLS.CASHIER_INIT, {
     headers: {
       accept: 'application/json',
       'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
       authorization: `Bearer ${initCode}`,
-      operator: 'pg',
+      operator: finalOperator,
       'Content-Type': 'application/json',
     },
     method: 'POST',

@@ -22,7 +22,7 @@ export type BetsContextType = {
   isSystemToggleEnabled: boolean
   systemToggleMode: 'MULTIPLE' | 'SYSTEM'
   setSystemToggleMode: (mode: 'MULTIPLE' | 'SYSTEM') => void
-  addBet: (market: string, bet: Bet) => void
+  addBet: (market: string, bet: Bet, apiMarket?: string) => void
   removeBet: (
     marketName: string,
     option: Selection,
@@ -34,12 +34,14 @@ export type BetsContextType = {
   toggleEventBetsFixed: (eventId: string) => void
   removeAllBets: () => void
   restoreLastSubmittedTicket: () => void
-  addBets: (market: string, bet: Bet[]) => number
+  addBets: (market: string, bet: Bet[], apiMarket?: string) => number
   removeBets: (
     market: string,
     betIds: { option: Selection; competitors: string }[],
   ) => void
-  addBetsWithMarket: (bets: { marketName: string; bet: Bet }[]) => void
+  addBetsWithMarket: (
+    bets: { marketName: string; bet: Bet; apiMarketName?: string }[],
+  ) => void
 }
 
 const defaultBetsContext: BetsContextType = {
@@ -219,8 +221,13 @@ export default function BetsContextProvider(props: {
   )
 
   const addBet = useCallback(
-    (market: string, bet: Bet) => {
-      const newEntry = { id: betsContext.lastId + 1, bet, market }
+    (market: string, bet: Bet, apiMarket?: string) => {
+      const newEntry: BetEntry = {
+        id: betsContext.lastId + 1,
+        bet,
+        market,
+        apiMarket: apiMarket || market,
+      }
       if (!checkSystemLimits([newEntry])) {
         return
       }
@@ -309,7 +316,7 @@ export default function BetsContextProvider(props: {
   }
 
   const addBets = useCallback(
-    (market: string, bets: Bet[]) => {
+    (market: string, bets: Bet[], apiMarket?: string) => {
       // Check for duplicates before adding
       const filteredBets: Bet[] = []
 
@@ -336,6 +343,7 @@ export default function BetsContextProvider(props: {
         id: betsContext.lastId + index + 1,
         bet,
         market,
+        apiMarket: apiMarket || market,
       }))
 
       if (!checkSystemLimits(newEntries)) {
@@ -356,7 +364,7 @@ export default function BetsContextProvider(props: {
   )
 
   const addBetsWithMarket = useCallback(
-    (bets: { marketName: string; bet: Bet }[]) => {
+    (bets: { marketName: string; bet: Bet; apiMarketName?: string }[]) => {
       const newEntries: BetEntry[] = []
 
       bets.forEach((bet, index) => {
@@ -375,6 +383,7 @@ export default function BetsContextProvider(props: {
           id: betsContext.lastId + index + 1,
           bet: bet.bet,
           market: bet.marketName,
+          apiMarket: bet.apiMarketName || bet.marketName,
         })
       })
 

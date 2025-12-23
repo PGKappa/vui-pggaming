@@ -18,21 +18,6 @@ export default function RacingFastBet({
 }) {
   const { t } = useTranslation()
 
-  // Sempre usa codici inglesi internamente per coerenza
-  const markets = {
-    W: { name: 'Winner', selections: 1 },
-    P: { name: 'Placed', selections: 1 },
-    S: { name: 'Show', selections: 1 },
-    E: { name: 'Exacta', selections: 2 },
-    Q: { name: 'Quinella', selections: 2 },
-    O: { name: 'Under/Over', selections: 0 },
-    EV: { name: 'Even/Odd', selections: 0 },
-    OD: { name: 'Even/Odd', selections: 0 },
-    T: { name: 'Trifecta', selections: 3 },
-    BT: { name: 'Boxed Trifecta', selections: 3 },
-    U: { name: 'Under/Over', selections: 0 },
-  }
-
   const [fastbetInput, setFastbetInput] = useState('')
 
   const { addBets } = useContext(BetsContext)
@@ -41,10 +26,64 @@ export default function RacingFastBet({
   // Ottieni la lingua corrente
   const currentLanguage = rootContext?.userData?.lang || 'en'
 
+  // Funzione per ottenere i nomi dei mercati tradotti
+  const getMarketNames = (lang: string) => {
+    if (lang === 'it') {
+      return {
+        W: { name: 'Vincente', selections: 1 },
+        P: { name: 'Piazzato', selections: 1 },
+        S: { name: 'Podio', selections: 1 },
+        E: { name: 'Accoppiata in Ordine', selections: 2 },
+        Q: { name: 'Accoppiata a Girare', selections: 2 },
+        O: { name: 'Over 3.5', selections: 0 },
+        EV: { name: 'Pari', selections: 0 },
+        OD: { name: 'Dispari', selections: 0 },
+        T: { name: 'Trio in Ordine', selections: 3 },
+        BT: { name: 'Trio a Girare', selections: 3 },
+        U: { name: 'Under 3.5', selections: 0 },
+      }
+    }
+    if (lang === 'es') {
+      return {
+        W: { name: 'Ganador', selections: 1 },
+        P: { name: 'Colocado', selections: 1 },
+        S: { name: 'Tercero', selections: 1 },
+        E: { name: 'Exacta', selections: 2 },
+        Q: { name: 'Quinella', selections: 2 },
+        O: { name: 'Más 3.5', selections: 0 },
+        EV: { name: 'Par', selections: 0 },
+        OD: { name: 'Impar', selections: 0 },
+        T: { name: 'Trifecta', selections: 3 },
+        BT: { name: 'Combinada Trifecta', selections: 3 },
+        U: { name: 'Menos 3.5', selections: 0 },
+      }
+    }
+    // Default English
+    return {
+      W: { name: 'Winner', selections: 1 },
+      P: { name: 'Placed', selections: 1 },
+      S: { name: 'Show', selections: 1 },
+      E: { name: 'Exacta', selections: 2 },
+      Q: { name: 'Quinella', selections: 2 },
+      O: { name: 'Over 3.5', selections: 0 },
+      EV: { name: 'Even', selections: 0 },
+      OD: { name: 'Odd', selections: 0 },
+      T: { name: 'Trifecta', selections: 3 },
+      BT: { name: 'Boxed Trifecta', selections: 3 },
+      U: { name: 'Under 3.5', selections: 0 },
+    }
+  }
+
+  // Ottieni i nomi dei mercati tradotti
+  const markets = getMarketNames(currentLanguage)
+
   // Codici validi per lingua corrente
   const getValidCodesForLanguage = (lang: string): string[] => {
     if (lang === 'es') {
       return ['G', '2C', '3C', 'E', 'Q', 'T', 'CT', 'PA', 'IM', 'ME', 'MA']
+    }
+    if (lang === 'it') {
+      return ['V', '2P', '3P', 'AO', 'AG', 'TO', 'TG', 'P', 'D', 'U', 'O']
     }
     // Inglese e altre lingue
     return ['W', 'P', 'S', 'E', 'Q', 'T', 'BT', 'EV', 'OD', 'U', 'O']
@@ -88,11 +127,11 @@ export default function RacingFastBet({
         return
       }
 
-      // Casi speciali per codici spagnoli 2C e 3C (Piazzato su 2/3)
-      const is2COr3CCode = /^(2C|3C)/.test(betInput)
+      // Casi speciali per codici con numeri nel codice stesso (spagnolo: 2C, 3C - italiano: 2P, 3P)
+      const isSpecialCode = /^(2C|3C|2P|3P)/.test(betInput)
 
       // Validazione
-      const orderValidation = is2COr3CCode ? /^(2C|3C)\d*$/ : /^[A-Z]+\d*$/
+      const orderValidation = isSpecialCode ? /^(2C|3C|2P|3P)\d*$/ : /^[A-Z]+\d*$/
       if (!orderValidation.test(betInput)) {
         toast.error(t('invalid_fastbet_format') + t('code_and_number_required'))
         return
@@ -103,8 +142,8 @@ export default function RacingFastBet({
       let letters = ''
       let numbersMatch: string[] = []
 
-      if (is2COr3CCode) {
-        // Per 2C e 3C: estrai "2C" o "3C" come codice
+      if (isSpecialCode) {
+        // Per 2C, 3C, 2P, 3P: estrai il codice (primi 2 caratteri)
         letters = betInput.substring(0, 2)
         const restOfInput = betInput.substring(2)
         hasNumbers = /\d/.test(restOfInput)
@@ -212,6 +251,8 @@ export default function RacingFastBet({
         selectedEvent,
         rootContext.initCode || '',
         rootContext.getTrackName,
+        rootContext.operator,
+        currentLanguage,
       )
 
       if (!bets || bets.length === 0) {
