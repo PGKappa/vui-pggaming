@@ -624,14 +624,14 @@ export default function BetCombinationsTable({
         <div className="relative flex gap-2">
           <Button
             variant="navbar"
-            className="h-10 w-fit rounded-[1px] px-[18px] pt-[1px] text-[15px] font-bold text-white hover:"
+            className="h-10 w-fit rounded-[1px] px-[18px] pt-[1px] text-[15px] font-semibold text-white hover:"
             onClick={handleSortClick}
           >
             {getSortButtonText()}
           </Button>
           <Button
             variant="navbar"
-            className="h-10 w-fit rounded-[1px] px-[18px] pt-[1px] text-[15px] font-bold text-white"
+            className="h-10 w-fit rounded-[1px] px-[18px] pt-[1px] text-[15px] font-semibold text-white"
             onClick={() => {
               if (allBetsSelected) {
                 removeBets(
@@ -652,7 +652,7 @@ export default function BetCombinationsTable({
           </Button>
 
           <div className="flex h-10 min-w-fit items-center justify-center rounded-[1px] bg-secondary px-[18px] text-accent-foreground">
-            <span className="pt-[1px] text-[16px] font-bold">
+            <span className="pt-[1px] text-[16px] font-semibold">
               {combinations.length}
             </span>
           </div>
