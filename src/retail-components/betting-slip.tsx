@@ -39,6 +39,12 @@ import SoccerFastBet from './soccer-fast-bet'
 import { Accordion, AccordionContent, AccordionItem } from './ui/accordion'
 import { Checkbox } from './ui/checkbox'
 import { Separator } from './ui/separator'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/retail-components/ui/tooltip'
 
 export type BetMode = 'SINGLE' | 'MULTIPLE' | 'SYSTEM'
 
@@ -1162,20 +1168,27 @@ export default function BettingSlip({
           <span className="items-start pb-1 pl-[135px] text-[15px] font-semibold text-accent-foreground">
             {t('bet_slip').toUpperCase()} ({betEntries.length})
           </span>
-          <Button
-            variant="ghost"
-            className="group size-7"
-            size="icon"
-            onClick={removeAllBets}
-          >
-            <Image
-              src="/bin.svg"
-              alt="Bin"
-              width={40}
-              height={20}
-              className="relative bottom-1 ml-[18px] h-[20px] w-6 object-contain brightness-0 invert filter"
-            />
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="group size-7"
+                  size="icon"
+                  onClick={removeAllBets}
+                >
+                  <Image
+                    src="/bin.svg"
+                    alt="Bin"
+                    width={40}
+                    height={20}
+                    className="relative bottom-1 ml-[18px] h-[20px] w-6 object-contain brightness-0 invert filter"
+                  />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{t('remove_all_bets')}</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
 
         <div className="flex h-[45px] w-[396px] flex-row">
@@ -1190,7 +1203,7 @@ export default function BettingSlip({
             }
           >
             <span
-              className={`text-[14px] ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'font-semibold text-betSlip-foreground' : 'text-betSlip-header-foreground'}`}
+              className={`text-[14px] font-semibold ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'text-betSlip-foreground' : 'text-betSlip-header-foreground'}`}
             >
               {betMode === 'SINGLE'
                 ? `${t('single').toUpperCase()}`
@@ -1214,7 +1227,7 @@ export default function BettingSlip({
             }
           >
             <span
-              className={`text-[14px] ${betMode === 'SYSTEM' ? 'pt-0.5 font-semibold text-betSlip-foreground' : 'text-betSlip-header-foreground'}`}
+              className={`text-[14px] font-semibold ${betMode === 'SYSTEM' ? 'pt-0.5 text-betSlip-foreground' : 'text-betSlip-header-foreground'}`}
             >
               {t('system').toUpperCase()}
             </span>

@@ -593,7 +593,7 @@ export default function SearchEventResults() {
                 )
               }}
             >
-              <SelectTrigger className="relative left-5 ml-[-70px] h-[48px] min-w-[186px] border-none bg-background pl-[16px] pr-[5px] text-[15px] text-foreground">
+              <SelectTrigger className="relative left-5 ml-[-70px] h-[48px] min-w-[186px] border-none bg-background pl-[16px] pr-[5px] text-[16px] text-foreground">
                 <SelectValue placeholder={t('sport')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
@@ -603,9 +603,9 @@ export default function SearchEventResults() {
                 {Object.values(Discipline).map((d) => {
                   const translationKey =
                     d === 'DOGS'
-                      ? 'dogs'
+                      ? 'dog_racing'
                       : d === 'HORSES'
-                        ? 'horses'
+                        ? 'horse_racing'
                         : 'football'
                   return (
                     <SelectItem key={d} value={d}>
@@ -628,7 +628,7 @@ export default function SearchEventResults() {
             />
             <label
               htmlFor="last10"
-              className="relative right-[1px] px-2 py-3 text-[14px] font-semibold text-background"
+              className="relative right-[1px] px-2 py-3 text-[15px] font-semibold text-background"
             >
               {t('last_10_games')}
             </label>
@@ -642,7 +642,7 @@ export default function SearchEventResults() {
               }}
               disabled={lastTenGames}
             >
-              <SelectTrigger className="relative left-[19px] ml-[-34px] h-[48px] min-w-[186px] border-none bg-background pl-[17px] pr-[5px] text-[14px] text-foreground">
+              <SelectTrigger className="relative left-[19px] ml-[-34px] h-[48px] min-w-[186px] border-none bg-background pl-[17px] pr-[5px] text-[15px] text-foreground">
                 <SelectValue placeholder={t('date')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
@@ -662,7 +662,7 @@ export default function SearchEventResults() {
               onValueChange={setSelectedTimeSlot}
               disabled={lastTenGames}
             >
-              <SelectTrigger className="relative left-[8px] ml-[27px] h-[48px] min-w-[186px] border-none bg-background pl-[17px] pr-[5px] text-[15px] text-foreground">
+              <SelectTrigger className="relative left-[8px] ml-[27px] h-[48px] min-w-[186px] border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground">
                 <SelectValue placeholder={t('time_slot')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
@@ -680,14 +680,14 @@ export default function SearchEventResults() {
 
           <div className="flex flex-row items-center gap-2">
             <Button
-              className="text-bold relative left-[202px] h-[48px] w-[186px] bg-tertiary text-[15px] text-bet-foreground hover:opacity-90"
+              className="text-bold relative left-[202px] h-[48px] w-[186px] bg-tertiary text-[16px] text-bet-foreground hover:opacity-90"
               disabled={selectedDiscipline === 'NONE'}
               onClick={handleSearch}
             >
               {t('search').toUpperCase()}
             </Button>
             <Button
-              className="text-bold relative left-[202px] h-[48px] w-[186px] bg-searchResult text-[15px] text-tertiary-foreground"
+              className="text-bold relative left-[202px] h-[48px] w-[186px] bg-searchResult text-[16px] text-tertiary-foreground"
               disabled={
                 !selectedDate && !selectedDiscipline && !selectedTimeSlot
               }
@@ -729,7 +729,7 @@ export default function SearchEventResults() {
                         >
                           <AccordionTrigger className="pointer-events-none border-b-0 bg-accent p-0 pl-2 text-base text-accent-foreground hover:no-underline [&[data-state=open]>svg]:-rotate-90">
                             <div className="relative top-1.5 mb-[7px] flex h-[46px] w-full flex-row items-center justify-between gap-4 pl-[9px] text-white">
-                              <div className="flex flex-row items-center gap-4 pb-[5px] text-[15px] font-semibold">
+                              <div className="flex flex-row items-center gap-4 pb-[5px] text-[16px] font-semibold">
                                 {/* Discipline Name */}
                                 <span className="whitespace-nowrap">
                                   {eventResult.discipline === 'DOGS'
