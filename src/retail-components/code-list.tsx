@@ -90,7 +90,7 @@ export default function CodeList(props?: {
               )}
             </Button>
           </div>
-          <DialogTitle className="text-[19px] font-bold text-accent-foreground">
+          <DialogTitle className="text-[16px] font-bold text-accent-foreground">
             {t('code_list')}
           </DialogTitle>
         </DialogHeader>
