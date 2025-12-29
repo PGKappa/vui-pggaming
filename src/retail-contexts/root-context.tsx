@@ -894,7 +894,7 @@ export default function RootContextProvider(props: {
           // Salva i dati cashier in cache
           saveCashierToCache(initCode, cashierData, contextData)
 
-          toast.success('Cashier data initialized successfully!')
+          toast.success('¡Datos de la caja inicializados correctamente!')
           setIsLoading(false)
           setIsCashierReady(true)
         } else {
