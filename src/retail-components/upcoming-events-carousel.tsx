@@ -127,7 +127,7 @@ function UpcomingEventItem(props: {
 
   return (
     <CarouselItem
-      className={`flex h-[95px] max-w-[237px] basis-1/6 cursor-pointer flex-row items-center justify-center gap-3 border-l-8 border-l-background px-3 py-2 text-[15px] last:min-w-[245px] last:border-r-8 last:border-r-background ${
+      className={`flex h-[94px] max-w-[237px] basis-1/6 cursor-pointer flex-row items-center justify-center gap-3 border-l-8 border-l-background px-3 py-2 text-[15px] last:min-w-[245px] last:border-r-8 last:border-r-background ${
         event.id === props.selectedEvent?.id &&
         event.discipline === props.selectedEvent?.discipline
           ? 'bg-[hsl(211deg_65%_37%_/_.9)] text-tertiary-foreground'
@@ -138,23 +138,23 @@ function UpcomingEventItem(props: {
       }}
     >
       <div className="flex flex-col items-start">
-        <span className="relative top-[1px] whitespace-nowrap text-[14px] font-semibold uppercase">
+        <span className="relative bottom-[10px] whitespace-nowrap text-[14px] font-semibold uppercase">
           {event.discipline === 'SOCCER'
             ? event.name
             : event.discipline === 'HORSES'
               ? t('horse_races_label')
               : t('dog_races_label')}
         </span>
-        <span className="relative bottom-[2px] whitespace-nowrap text-[13px] font-normal uppercase">
+        <span className="relative bottom-[8px] whitespace-nowrap text-[13px] font-normal uppercase">
           {event.discipline === 'SOCCER'
             ? `${t('round')} ${event.id}`
             : `${t('track')} ${(event.data as any)?.channel || 6}`}
         </span>
         <div className="flex flex-row gap-2">
-          <span className="relative bottom-[3px] text-[14px] font-semibold">
+          <span className="relative bottom-[4px] text-[14px] font-semibold">
             {event.startTime}
           </span>
-          <span className="absolute bottom-[3px] py-0 pl-[44px] text-[14px] font-semibold text-[#99a6b1]">
+          <span className="relative bottom-[4px] left-1 pb-[1px] px-2 text-[14px] font-semibold tabular-nums text-black bg-white">
             {timeToEventStart}
           </span>
         </div>
