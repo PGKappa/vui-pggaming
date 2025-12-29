@@ -127,7 +127,7 @@ function UpcomingEventItem(props: {
 
   return (
     <CarouselItem
-      className={`flex h-[65px] max-w-[237px] basis-1/6 cursor-pointer flex-row items-center justify-center gap-3 border-l-8 border-l-background px-3 py-2 text-[15px] last:min-w-[245px] last:border-r-8 last:border-r-background ${
+      className={`flex h-[95px] max-w-[237px] basis-1/6 cursor-pointer flex-row items-center justify-center gap-3 border-l-8 border-l-background px-3 py-2 text-[15px] last:min-w-[245px] last:border-r-8 last:border-r-background ${
         event.id === props.selectedEvent?.id &&
         event.discipline === props.selectedEvent?.discipline
           ? 'bg-[hsl(211deg_65%_37%_/_.9)] text-tertiary-foreground'

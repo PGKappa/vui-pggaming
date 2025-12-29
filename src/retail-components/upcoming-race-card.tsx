@@ -576,7 +576,7 @@ export default function UpcomingRaceCard({
               pressed={position1Selection.includes(racer.number)}
               onPressedChange={() => togglePosition1Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className="relative right-[2px] h-12 w-[117px] border-betEntry-border pt-[3px] tabular-nums"
+              className="relative right-[2px] h-12 w-[117px] border-betEntry-border pt-[2px] tabular-nums"
             >
               <span className="text-[19px]">1°</span>
             </Toggle>
@@ -590,7 +590,7 @@ export default function UpcomingRaceCard({
               pressed={position2Selection.includes(racer.number)}
               onPressedChange={() => togglePosition2Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className="relative left-[2px] h-12 w-[118px] border-betEntry-border pt-[3px]"
+              className="relative left-[2px] h-12 w-[118px] border-betEntry-border pt-[2px]"
             >
               <span className="text-[19px]">2°</span>
             </Toggle>
@@ -610,7 +610,7 @@ export default function UpcomingRaceCard({
                   pressed={fixedSelection.includes(racer.number)}
                   onPressedChange={() => toggleFixedSelection(racer.number)}
                   onClick={(e) => e.stopPropagation()}
-                  className={`relative left-[17px] h-12 w-[56px] border-betEntry-border pt-[3px] ${
+                  className={`relative left-[17px] h-12 w-[56px] border-betEntry-border pt-[2px] ${
                     fixedSelection.includes(racer.number) ? 'text-white' : ''
                   }`}
                 >
@@ -632,7 +632,7 @@ export default function UpcomingRaceCard({
                   pressed={disorderSelection.includes(racer.number)}
                   onPressedChange={() => toggleDisorderSelection(racer.number)}
                   onClick={(e) => e.stopPropagation()}
-                  className="relative right-[4px] h-12 w-[117px] border-betEntry-border pt-[3px]"
+                  className="relative right-[4px] h-12 w-[117px] border-betEntry-border pt-[2px]"
                 >
                   {disorderSelection.includes(racer.number) && (
                     <Check
@@ -658,7 +658,7 @@ export default function UpcomingRaceCard({
               pressed={position1Selection.includes(racer.number)}
               onPressedChange={() => togglePosition1Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className="relative left-[11px] h-12 w-[116px] border-betEntry-border pt-[3px] tabular-nums"
+              className="relative left-[11px] h-12 w-[116px] border-betEntry-border pt-[2px] tabular-nums"
             >
               <span className="text-[19px]">1°</span>
             </Toggle>
@@ -672,7 +672,7 @@ export default function UpcomingRaceCard({
               pressed={position2Selection.includes(racer.number)}
               onPressedChange={() => togglePosition2Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className="relative h-12 w-[116px] border-betEntry-border pt-[3px] tabular-nums"
+              className="relative h-12 w-[116px] border-betEntry-border pt-[2px] tabular-nums"
             >
               <span className="text-[19px]">2°</span>
             </Toggle>
@@ -686,7 +686,7 @@ export default function UpcomingRaceCard({
               pressed={position3Selection.includes(racer.number)}
               onPressedChange={() => togglePosition3Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className="relative right-[12px] h-12 w-[116px] border-betEntry-border pt-[3px] tabular-nums"
+              className="relative right-[12px] h-12 w-[116px] border-betEntry-border pt-[2px] tabular-nums"
             >
               <span className="text-[19px]">3°</span>
             </Toggle>
@@ -706,7 +706,7 @@ export default function UpcomingRaceCard({
                   pressed={fixedSelection.includes(racer.number)}
                   onPressedChange={() => toggleFixedSelection(racer.number)}
                   onClick={(e) => e.stopPropagation()}
-                  className={`relative left-[17px] h-12 w-[56px] border-betEntry-border pt-[3px] ${
+                  className={`relative left-[17px] h-12 w-[56px] border-betEntry-border pt-[2px] ${
                     fixedSelection.includes(racer.number) ? 'text-white' : ''
                   }`}
                 >
@@ -728,7 +728,7 @@ export default function UpcomingRaceCard({
                   pressed={disorderSelection.includes(racer.number)}
                   onPressedChange={() => toggleDisorderSelection(racer.number)}
                   onClick={(e) => e.stopPropagation()}
-                  className="relative left-[3px] h-12 w-[116px] border-betEntry-border pt-[3px] tabular-nums"
+                  className="relative left-[3px] h-12 w-[116px] border-betEntry-border pt-[2px] tabular-nums"
                 >
                   {disorderSelection.includes(racer.number) && (
                     <Check
@@ -930,7 +930,7 @@ export default function UpcomingRaceCard({
                     <TableCell className="relative left-1 p-2 text-[18px]">
                       <div className="flex items-center gap-[7px]">
                         <div
-                          className="flex h-[32px] w-[33px] items-center justify-center rounded-md text-[21px] font-semibold pt-[1px]"
+                          className="flex h-[33px] w-[33px] items-center justify-center rounded-md text-[21px] font-semibold"
                           style={
                             getRacerColors(
                               racer.number,
