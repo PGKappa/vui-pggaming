@@ -129,7 +129,7 @@ function UpcomingEventItem(props: {
 
   return (
     <CarouselItem
-      className={`flex h-[95px] max-w-[237px] basis-1/6 cursor-pointer flex-row items-center justify-center gap-3 border-l-8 border-l-background px-3 py-2 text-[15px] last:min-w-[245px] last:border-r-8 last:border-r-background ${
+      className={`relative flex h-[88px] max-w-[237px] basis-1/6 cursor-pointer flex-row items-center justify-center gap-3 overflow-hidden border-l-8 border-l-background px-3 py-2 text-[15px] last:min-w-[245px] last:border-r-8 last:border-r-background ${
         event.id === props.selectedEvent?.id &&
         event.discipline === props.selectedEvent?.discipline
           ? 'bg-bet/95 text-tertiary-foreground'
@@ -172,14 +172,18 @@ function UpcomingEventItem(props: {
           <span className="relative bottom-[3px] text-[14px] font-semibold">
             {event.startTime}
           </span>
-          
-            <span className="flex flex-col h-[23px] w-[57px] pt-[4px] items-center bg-betEntry text-[14px] text-black font-semibold relative bottom-[4px] leading-none left-1 rounded-[1px] tabular-nums">
+          <span className="relative bottom-[1px]  py-[1px] pt-0 text-[14px] font-semibold px-2 text-black bg-white left-1">
             {timeToEventStart}
             </span>
           
           
         </div>
       </div>
+      <Progress
+        value={progressValue}
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-[6px] rounded-none bg-muted"
+        indicatorClassName="bg-tertiary"
+      />
     </CarouselItem>
   )
 }
