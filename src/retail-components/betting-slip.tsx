@@ -1125,7 +1125,7 @@ export default function BettingSlip({
           <div
             className={`relative flex w-full flex-col items-center justify-center border-b-4 pb-0${
               isSystemToggleEnabled ? 'cursor-pointer' : ''
-            } ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'border-betSlip-header bg-accent font-semibold text-betSlip-header border-b-4 pb-1' : 'font border-accent bg-  accent text-white'}`}
+            } ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'border-betSlip-header bg-accent font-semibold text-betSlip-header border-b-4 pb-1' : 'font border-accent bg-accent text-white'}`}
             onClick={
               isSystemToggleEnabled
                 ? () => setSystemToggleMode('MULTIPLE')
@@ -1242,7 +1242,7 @@ export default function BettingSlip({
               <NumericKeypadDrawer
                 value={global}
                 setValue={setGlobal}
-                inputWidth="w-[164px] text-[16px] tabular-nums"
+                inputWidth="w-[162px] text-[16px] tabular-nums"
                 triggerLabel={t('amount').toUpperCase()}
                 showPlusMinus={true}
                 drawerId="global-amount"

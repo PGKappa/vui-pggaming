@@ -687,7 +687,7 @@ export default function SearchEventResults() {
               {t('search').toUpperCase()}
             </Button>
             <Button
-              className="text-bold relative left-[202px] h-[48px] w-[186px] bg-tertiary text-[15px] text-tertiary-foreground"
+              className="text-bold relative left-[218px] h-[48px] w-[186px] bg-tertiary text-[15px] text-tertiary-foreground"
               disabled={
                 !selectedDate && !selectedDiscipline && !selectedTimeSlot
               }
