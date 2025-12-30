@@ -164,7 +164,7 @@ function UpcomingEventItem(props: {
 
   return (
     <CarouselItem
-      className={`relative flex h-[89px] max-w-[237px] basis-1/6 cursor-pointer flex-row items-center justify-center gap-3 overflow-hidden border-l-8 border-l-background px-3 py-2 text-[15px] last:min-w-[245px] last:border-r-8 last:border-r-background ${
+      className={`relative flex h-[88px] max-w-[237px] basis-1/6 cursor-pointer flex-row items-center justify-center gap-3 overflow-hidden border-l-8 border-l-background px-3 py-2 text-[15px] last:min-w-[245px] last:border-r-8 last:border-r-background ${
         event.id === props.selectedEvent?.id &&
         event.discipline === props.selectedEvent?.discipline
           ? 'bg-[hsl(211deg_65%_37%_/_.9)] text-tertiary-foreground'
@@ -188,17 +188,17 @@ function UpcomingEventItem(props: {
             : `${t('track')} ${(event.data as any)?.channel || 6}`}
         </span>
         <div className="flex flex-row gap-2">
-          <span className="relative bottom-[2px] text-[14px] font-semibold">
+          <span className="relative bottom-[1px] text-[14px] font-semibold">
             {event.startTime}
           </span>
-          <span className="relative bottom-[2px]  py-[1px] pt-0 text-[14px] font-semibold px-2 text-black bg-white left-1">
+          <span className="relative bottom-[1px]  py-[1px] pt-0 text-[14px] font-semibold px-2 text-black bg-white left-1">
             {timeToEventStart}
           </span>
         </div>
       </div>
       <Progress
         value={progressValue}
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-[7px] rounded-none bg-muted"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-[6px] rounded-none bg-muted"
         indicatorClassName="bg-tertiary"
       />
     </CarouselItem>
