@@ -5,10 +5,11 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from '@/retail-components/ui/carousel'
+import { Progress } from '@/retail-components/ui/progress'
 import { Skeleton } from '@/retail-components/ui/skeleton'
 import { RootContext } from '@/retail-contexts/root-context'
 import { Discipline, UpcomingEvent } from '@/retail-lib/types'
-import { useContext, useEffect, useMemo } from 'react'
+import { useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import useTimeLeft from '@/retail-lib/use-time-left'
 
@@ -45,6 +46,20 @@ export function UpcomingEventsCarousel(props: {
       : []
   }, [upcomingEvents, disciplines])
 
+  const [nowMs, setNowMs] = useState(() => Date.now())
+
+  useEffect(() => {
+    const interval = setInterval(() => setNowMs(Date.now()), 1000)
+    return () => clearInterval(interval)
+  }, [])
+
+  const maxRemainingMs = useMemo(() => {
+    return filteredAndSortedEvents.reduce((max, event) => {
+      const diff = new Date(event.time).getTime() - nowMs
+      return diff > max ? diff : max
+    }, 0)
+  }, [filteredAndSortedEvents, nowMs])
+
   // Auto-seleziona il primo evento quando quello corrente scade o non è più disponibile
   useEffect(() => {
     if (filteredAndSortedEvents.length === 0) return
@@ -74,10 +89,10 @@ export function UpcomingEventsCarousel(props: {
       <CarouselContent className="bg-white">
         {isLoadingEvents ? (
           // Show skeleton loading
-          Array.from({ length: 6 }).map((_, index) => (
+          Array.from({ length: 5 }).map((_, index) => (
             <div
               key={`skeleton-${index}`}
-              className="flex h-[72px] basis-1/6 items-center justify-center gap-3 bg-muted/30 py-2"
+              className="flex h-[72px] basis-1/5 items-center justify-center gap-3 bg-muted/30 py-2"
             >
               <Skeleton className="h-12 w-12 rounded" />
               <div className="flex flex-col gap-2">
@@ -95,6 +110,7 @@ export function UpcomingEventsCarousel(props: {
                 event={event}
                 selectedEvent={props.selectedEvent}
                 setSelectedEvent={props.setSelectedEvent}
+                maxRemainingMs={maxRemainingMs}
               />
             )
           })
@@ -114,11 +130,32 @@ function UpcomingEventItem(props: {
   event: UpcomingEvent
   selectedEvent?: UpcomingEvent
   setSelectedEvent: (event: UpcomingEvent) => void
+  maxRemainingMs: number
 }) {
   const { event } = props
 
   const { t } = useTranslation()
   const timeToEventStart = useTimeLeft(event.time)
+  const [progressValue, setProgressValue] = useState<number>(100)
+
+  // Sincronizza progress con il tempo mancante rispetto all'evento più lontano
+  useEffect(() => {
+    if (!props.maxRemainingMs) {
+      setProgressValue(0)
+      return
+    }
+
+    const [mm, ss] = timeToEventStart.split(':')
+    const remainingMs = (Number(mm) * 60 + Number(ss)) * 1000
+
+    if (Number.isNaN(remainingMs)) {
+      setProgressValue(0)
+      return
+    }
+
+    const value = (remainingMs / props.maxRemainingMs) * 100
+    setProgressValue(Math.max(0, Math.min(100, value)))
+  }, [timeToEventStart, props.maxRemainingMs])
 
   // Rimuovi quando scaduto
   if (timeToEventStart === '00:00') {
@@ -127,10 +164,10 @@ function UpcomingEventItem(props: {
 
   return (
     <CarouselItem
-      className={`flex h-[94px] max-w-[237px] basis-1/6 cursor-pointer flex-row items-center justify-center gap-3 border-l-8 border-l-background px-3 py-2 text-[15px] last:min-w-[245px] last:border-r-8 last:border-r-background ${
+      className={`relative flex h-[82px] max-w-[237px] basis-1/6 cursor-pointer flex-row items-center justify-center gap-3 overflow-hidden border-l-8 border-l-background px-3 py-2 text-[15px] last:min-w-[245px] last:border-r-8 last:border-r-background ${
         event.id === props.selectedEvent?.id &&
         event.discipline === props.selectedEvent?.discipline
-          ? 'bg-[hsl(211deg_65%_37%_/_.9)] text-tertiary-foreground'
+          ? 'bg-accent text-tertiary-foreground'
           : 'bg-secondary text-secondary-foreground'
       }`}
       onClick={() => {
@@ -138,27 +175,32 @@ function UpcomingEventItem(props: {
       }}
     >
       <div className="flex flex-col items-start">
-        <span className="relative bottom-[10px] whitespace-nowrap text-[14px] font-semibold uppercase">
+        <span className="relative top-[1px] whitespace-nowrap text-[14px] font-semibold uppercase">
           {event.discipline === 'SOCCER'
             ? event.name
             : event.discipline === 'HORSES'
               ? t('horse_races_label')
               : t('dog_races_label')}
         </span>
-        <span className="relative bottom-[8px] whitespace-nowrap text-[13px] font-normal uppercase">
+        <span className="relative bottom-[2px] whitespace-nowrap text-[13px] font-normal uppercase">
           {event.discipline === 'SOCCER'
             ? `${t('round')} ${event.id}`
             : `${t('track')} ${(event.data as any)?.channel || 6}`}
         </span>
         <div className="flex flex-row gap-2">
-          <span className="relative bottom-[4px] text-[14px] font-semibold">
+          <span className="relative bottom-[3px] text-[14px] font-semibold">
             {event.startTime}
           </span>
-          <span className="relative bottom-[4px] left-1 pb-[1px] px-2 text-[14px] font-semibold tabular-nums text-black bg-white">
+          <span className="absolute bottom-[3px] py-0 pl-[44px] text-[14px] font-semibold text-[#99a6b1]">
             {timeToEventStart}
           </span>
         </div>
       </div>
+      <Progress
+        value={progressValue}
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-[8px] rounded-none bg-destructive/20"
+        indicatorClassName="bg-destructive"
+      />
     </CarouselItem>
   )
 }
