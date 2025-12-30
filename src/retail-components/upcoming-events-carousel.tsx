@@ -179,11 +179,7 @@ function UpcomingEventItem(props: {
           
         </div>
       </div>
-      <Progress
-        value={progressValue}
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-[6px] rounded-none bg-muted"
-        indicatorClassName="bg-tertiary"
-      />
+      
     </CarouselItem>
   )
 }
