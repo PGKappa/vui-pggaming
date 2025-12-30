@@ -164,7 +164,7 @@ function UpcomingEventItem(props: {
 
   return (
     <CarouselItem
-      className={`relative flex h-[82px] max-w-[237px] basis-1/6 cursor-pointer flex-row items-center justify-center gap-3 overflow-hidden border-l-8 border-l-background px-3 py-2 text-[15px] last:min-w-[245px] last:border-r-8 last:border-r-background ${
+      className={`relative flex h-[89px] max-w-[237px] basis-1/6 cursor-pointer flex-row items-center justify-center gap-3 overflow-hidden border-l-8 border-l-background px-3 py-2 text-[15px] last:min-w-[245px] last:border-r-8 last:border-r-background ${
         event.id === props.selectedEvent?.id &&
         event.discipline === props.selectedEvent?.discipline
           ? 'bg-accent text-tertiary-foreground'
@@ -175,30 +175,30 @@ function UpcomingEventItem(props: {
       }}
     >
       <div className="flex flex-col items-start">
-        <span className="relative top-[1px] whitespace-nowrap text-[14px] font-semibold uppercase">
+        <span className="relative bottom-[7px] whitespace-nowrap text-[14px] font-semibold uppercase">
           {event.discipline === 'SOCCER'
             ? event.name
             : event.discipline === 'HORSES'
               ? t('horse_races_label')
               : t('dog_races_label')}
         </span>
-        <span className="relative bottom-[2px] whitespace-nowrap text-[13px] font-normal uppercase">
+        <span className="relative bottom-[5px] whitespace-nowrap text-[13px] font-normal uppercase">
           {event.discipline === 'SOCCER'
             ? `${t('round')} ${event.id}`
             : `${t('track')} ${(event.data as any)?.channel || 6}`}
         </span>
         <div className="flex flex-row gap-2">
-          <span className="relative bottom-[3px] text-[14px] font-semibold">
+          <span className="relative bottom-[1px] text-[14px] font-semibold">
             {event.startTime}
           </span>
-          <span className="absolute bottom-[3px] py-0 pl-[44px] text-[14px] font-semibold text-[#99a6b1]">
+          <span className="relative bottom-[1px]  py-[1px] pt-[1px] text-[14px] font-semibold px-2 text-black bg-white left-1">
             {timeToEventStart}
           </span>
         </div>
       </div>
       <Progress
         value={progressValue}
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-[8px] rounded-none bg-destructive/20"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-[6px] rounded-none bg-destructive/20"
         indicatorClassName="bg-destructive"
       />
     </CarouselItem>
