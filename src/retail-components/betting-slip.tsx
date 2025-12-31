@@ -1094,7 +1094,7 @@ export default function BettingSlip({
       data-testid="betting-slip"
     >
       <div className="grid grid-cols-2 text-center">
-        <div className="relative top-[5px] col-span-2 flex h-[47px] w-[396px] flex-row items-center justify-between bg-accent px-5">
+        <div className="relative top-[5px] col-span-2 flex h-[52px] w-[396px] flex-row items-center justify-between bg-accent px-5">
           <span className="items-start pb-1 pl-[135px] text-[14px] font-semibold text-accent-foreground">
             {t('bet_slip').toUpperCase()} ({betEntries.length})
           </span>
@@ -1133,7 +1133,7 @@ export default function BettingSlip({
             }
           >
             <span
-              className={`pt-1 text-[14px] ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'font-semibold text-betSlip-header' : 'text-white pb-1'}`}
+              className={`pt-1 text-[14px] ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'font-semibold text-betSlip-header' : 'text-betSlip-header font-semibold pb-1'}`}
             >
               {betMode === 'SINGLE'
                 ? `${t('single').toUpperCase()}`
@@ -1149,7 +1149,7 @@ export default function BettingSlip({
           <div
             className={`relative flex w-full flex-col items-center justify-center border-b-4 ${
               isSystemToggleEnabled ? 'cursor-pointer' : ''
-            } ${betMode === 'SYSTEM' ? 'border-betSlip-header bg-accent' : 'border-accent bg-accent font-semibold text-betSlip-header'}`}
+            } ${betMode === 'SYSTEM' ? 'font-normal border-betSlip-header bg-accent' : 'border-accent bg-accent font-normal text-betSlip-header'}`}
             onClick={
               isSystemToggleEnabled
                 ? () => setSystemToggleMode('SYSTEM')
@@ -1157,7 +1157,7 @@ export default function BettingSlip({
             }
           >
             <span
-              className={`pt-1 text-[14px] ${betMode === 'SYSTEM' ? 'font-semibold text-betSlip-header' : 'font-normal text-white'}`}
+              className={`pt-1 text-[14px] ${betMode === 'SYSTEM' ? 'font-normal text-betSlip-header' : 'font-semibold text-betSlip-header'}`}
             >
               {t('system').toUpperCase()}
             </span>
@@ -1242,7 +1242,7 @@ export default function BettingSlip({
               <NumericKeypadDrawer
                 value={global}
                 setValue={setGlobal}
-                inputWidth="w-[164px] text-[16px] tabular-nums"
+                inputWidth="w-[162px] text-[16px] tabular-nums"
                 triggerLabel={t('amount').toUpperCase()}
                 showPlusMinus={true}
                 drawerId="global-amount"

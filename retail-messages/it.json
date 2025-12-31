@@ -252,6 +252,7 @@
   "wrong_selection_count": "Attese {{expected}} selezioni, ricevute {{provided}}",
   "enter_selection": "Inserisci selezione",
   "no_selection_needed": "Nessuna selezione necessaria per questo mercato",
+  "no_selection": "Nessuna selezione",
   "details_not_available": "Dettagli non disponibili",
   "date_hour": "Data/Ora",
   "divide": "Dividi",

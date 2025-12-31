@@ -73,7 +73,7 @@ export default function EventBets(props: {
           </div>
 
           <div className="relative bottom-0 mt-[1px] flex items-center justify-between">
-            <span className="relative ml-[3px] text-[15px] font-semibold">
+            <span className="relative ml-[3px] text-[15px] font-semibold uppercase">
               {eventBets[0].bet.discipline === 'SOCCER'
                 ? t('football')
                 : eventBets[0].bet.discipline === 'DOGS'
