@@ -667,32 +667,6 @@ export default function BettingSlip({
     setIsSubmitting(true)
 
     try {
-      // DEBUG: Verifica stato cashier e autenticazione
-      console.log('🔍 DEBUG handleSubmit:', {
-        initCode: rootContext?.initCode,
-        operator: rootContext?.operator,
-        userData: rootContext?.userData,
-        cashierData: rootContext?.cashierData,
-        hasCashierData: !!rootContext?.cashierData,
-        cashierRetCode: rootContext?.cashierData?.ret_code,
-      })
-
-      // CRITICAL CHECK: Verifica se cashier è stato inizializzato
-      if (!rootContext?.cashierData || rootContext?.cashierData?.ret_code !== 1024) {
-        toast.error('Cashier not initialized. Please refresh the page.')
-        console.error('❌ Cashier not ready:', rootContext?.cashierData)
-        setIsSubmitting(false)
-        return
-      }
-
-      // Validazione: assicurati che il contesto sia inizializzato
-      if (!rootContext?.initCode) {
-        console.error('❌ initCode mancante:', rootContext)
-        toast.error(t('login_required'))
-        setIsSubmitting(false)
-        return
-      }
-
       // Raggruppa le scommesse per evento
       const groupedByEvent = betEntries.reduce(
         (acc, entry) => {
@@ -711,7 +685,7 @@ export default function BettingSlip({
         const normalized = marketName.toLowerCase().trim()
 
         const API_MARKET_NAMES: Record<string, string> = {
-          // English variations
+          // Normalizza variazioni in inglese
           winner: 'winner',
           placed: 'placed',
           show: 'show',
@@ -725,22 +699,6 @@ export default function BettingSlip({
           evenodd: 'evenodd',
           'under/over': 'underover',
           underover: 'underover',
-
-          // Spanish / localized labels
-          'ganador': 'winner',
-          'colocado': 'placed',
-          'colocado 1º 2º': 'placed',
-          'colocado 1º 2º 3º': 'show',
-          'colocado 1 2': 'placed',
-          'colocado 1 2 3': 'show',
-          'tercero': 'show',
-          'par/impar': 'evenodd',
-          par: 'evenodd',
-          impar: 'evenodd',
-          'menos/mas': 'underover',
-          'menos / mas': 'underover',
-          'menos / más': 'underover',
-          'menos / más 3.5': 'underover',
 
           // FastBet codes
           place: 'placed',
@@ -759,9 +717,7 @@ export default function BettingSlip({
           // Raggruppa per market all'interno dell'evento
           const marketGroups = entries.reduce(
             (acc, entry) => {
-              const apiMarketName = getAPIMarketName(
-                entry.apiMarket || entry.market,
-              )
+              const apiMarketName = getAPIMarketName(entry.market)
               if (!acc[apiMarketName]) {
                 acc[apiMarketName] = []
               }
@@ -824,7 +780,7 @@ export default function BettingSlip({
             gameId: gameId,
             channelId: channelId,
             palimpsestId: palimpsestId,
-            eventId: parseInt(eventId, 10),
+            eventId: eventId,
             isBanker: false,
             markets: markets,
           }
@@ -835,12 +791,8 @@ export default function BettingSlip({
       const ticketType = getTicketType(betEntries)
       const ticketMode = getTicketMode(betMode, betEntries)
 
-      // Estrai terminal_id dal cashierData se disponibile
-      const terminalId = rootContext?.cashierData?.configs?.terminals?.[0]
-
       // Prepara il payload nel formato esatto dell'API
       const ticketData = {
-        ...(terminalId ? { terminal_id: terminalId } : {}),
         placeBet: {
           currency: rootContext?.getCurrencyCode?.() || 'USD',
           type: ticketType,
@@ -864,11 +816,6 @@ export default function BettingSlip({
       }
 
       console.log(
-        '📦 Final Ticket Payload WITH init_code:',
-        JSON.stringify(ticketData, null, 2),
-      )
-
-      console.log(
         'Submitting ticket with payload:',
         JSON.stringify(ticketData, null, 2),
       )
@@ -883,39 +830,22 @@ export default function BettingSlip({
         rootContext.operator,
       )
 
-      console.log('📡 API Response Status:', response.status)
-      console.log('📡 API Response OK:', response.ok)
-
       if (!response.ok) {
         const errorText = await response.text()
 
-        console.error('❌ API Error Response:', {
-          status: response.status,
-          statusText: response.statusText,
-          errorText: errorText,
-        })
-
         try {
           const errorJson = JSON.parse(errorText)
-          console.error('❌ Parsed Error JSON:', errorJson)
           if (errorJson.ret_msg) {
             toast.error(errorJson.ret_msg)
-          } else if (errorJson.message) {
-            toast.error(errorJson.message)
           }
         } catch {
-          toast.error(`Error: ${response.status} - ${errorText}`)
+          toast.error(`Error: ${response.status}`)
         }
 
         throw new Error(`HTTP error! status: ${response.status}`)
       }
 
       const result = await response.json()
-
-      console.log('✅ API Success Response:', result)
-      console.log('✅ ret_code:', result.ret_code)
-      console.log('✅ ret_msg:', result.ret_msg)
-      console.log('✅ Entire result object:', JSON.stringify(result, null, 2))
 
       // Check ret_code per successo (1024 = success)
       const retCode = parseInt(result.ret_code) || 0
@@ -1164,7 +1094,7 @@ export default function BettingSlip({
       data-testid="betting-slip"
     >
       <div className="grid grid-cols-2 text-center">
-        <div className="relative top-[5px] col-span-2 flex h-[47px] w-[396px] flex-row items-center justify-between bg-accent px-5">
+        <div className="relative top-[5px] col-span-2 flex h-[52px] w-[396px] flex-row items-center justify-between bg-accent px-5">
           <span className="items-start pb-1 pl-[135px] text-[14px] font-semibold text-accent-foreground">
             {t('bet_slip').toUpperCase()} ({betEntries.length})
           </span>
@@ -1203,7 +1133,7 @@ export default function BettingSlip({
             }
           >
             <span
-              className={`pt-1 text-[14px] ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'font-semibold text-betSlip-header' : 'text-white pb-1'}`}
+              className={`pt-1 text-[14px] ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'font-semibold text-betSlip-header' : 'text-betSlip-header font-semibold pb-1'}`}
             >
               {betMode === 'SINGLE'
                 ? `${t('single').toUpperCase()}`
@@ -1219,7 +1149,7 @@ export default function BettingSlip({
           <div
             className={`relative flex w-full flex-col items-center justify-center border-b-4 ${
               isSystemToggleEnabled ? 'cursor-pointer' : ''
-            } ${betMode === 'SYSTEM' ? 'border-betSlip-header bg-accent' : 'border-accent bg-accent font-semibold text-betSlip-header'}`}
+            } ${betMode === 'SYSTEM' ? 'font-normal border-betSlip-header bg-accent' : 'border-accent bg-accent font-normal text-betSlip-header'}`}
             onClick={
               isSystemToggleEnabled
                 ? () => setSystemToggleMode('SYSTEM')
@@ -1227,7 +1157,7 @@ export default function BettingSlip({
             }
           >
             <span
-              className={`pt-1 text-[14px] ${betMode === 'SYSTEM' ? 'font-semibold text-betSlip-header' : 'font-normal text-white'}`}
+              className={`pt-1 text-[14px] ${betMode === 'SYSTEM' ? 'font-normal text-betSlip-header' : 'font-semibold text-betSlip-header'}`}
             >
               {t('system').toUpperCase()}
             </span>
@@ -1312,7 +1242,7 @@ export default function BettingSlip({
               <NumericKeypadDrawer
                 value={global}
                 setValue={setGlobal}
-                inputWidth="w-[164px] text-[16px] tabular-nums"
+                inputWidth="w-[162px] text-[16px] tabular-nums"
                 triggerLabel={t('amount').toUpperCase()}
                 showPlusMinus={true}
                 drawerId="global-amount"

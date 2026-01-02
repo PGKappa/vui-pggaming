@@ -668,13 +668,7 @@ export default function RootContextProvider(props: {
 
     const params = new URLSearchParams(window.location.search)
     const initCode = params.get('init_code') || undefined
-    const operatorParam = params.get('operator') || 'pg'
-
-    console.log('🔐 RootContext Init:', {
-      urlSearch: window.location.search,
-      initCodeFromUrl: initCode,
-      operatorFromUrl: operatorParam,
-    })
+    const operatorParam = params.get('operator') || 'pg' // Estrae operator dall'URL, fallback 'pg'
 
     if (initCode) {
       const storedInitCode = localStorage.getItem('initCode')
@@ -690,11 +684,6 @@ export default function RootContextProvider(props: {
       setIsCashierReady(false)
     }
 
-    console.log('🔐 RootContext Setting:', {
-      initCode: initCode,
-      operator: operatorParam,
-    })
-
     setInitCode(initCode)
     setOperator(operatorParam)
   }, [])
@@ -705,8 +694,6 @@ export default function RootContextProvider(props: {
     const fetchUserData = async (retryCount = 0, maxRetries = 3) => {
       try {
         const cashierData = await fetchCashierInit(initCode, operator)
-
-        console.log('🔐 CASHIER INIT RESPONSE:', JSON.stringify(cashierData, null, 2))
 
         if (cashierData?.ret_code === 1024) {
           // Estrai i dati "utente" dai configs e intl
