@@ -164,7 +164,7 @@ function UpcomingEventItem(props: {
 
   return (
     <CarouselItem
-      className={`relative flex h-[88px] basis-1/5 cursor-pointer flex-row items-center justify-center gap-3 overflow-hidden border-l-8 border-l-background px-3 py-2 text-[15px] last:min-w-[245px] last:border-r-8 last:border-r-background ${
+      className={`relative flex h-[88px]  basis-1/5 max-w-[284px] cursor-pointer flex-row items-center justify-center gap-3 overflow-hidden border-l-8 border-l-background  px-2 py-2 text-[15px]  last:border-r-8 last:border-r-background ${
         event.id === props.selectedEvent?.id &&
         event.discipline === props.selectedEvent?.discipline
           ? 'bg-[hsl(211deg_65%_37%_/_.9)] text-tertiary-foreground'
@@ -173,8 +173,22 @@ function UpcomingEventItem(props: {
       onClick={() => {
         props.setSelectedEvent(event)
       }}
-    >
-      <div className="flex flex-col items-start">
+    > 
+
+      <Image
+        src={
+          event.discipline === 'SOCCER'
+            ? '/calciatore_blu.png'
+            : event.discipline === 'DOGS'
+              ? '/cane_blu.png'
+              : '/cavallo_blu.png'
+        }
+        alt={'Horses'}
+        width={40}
+        height={20}
+        className="size-14 object-contain relative right-[4px] bottom-[4px]"
+      />
+      <div className="flex flex-col items-start left-1 relative">
         <span className="relative bottom-[7px] whitespace-nowrap text-[14px] font-semibold uppercase">
           {event.discipline === 'SOCCER'
             ? event.name
@@ -198,9 +212,10 @@ function UpcomingEventItem(props: {
       </div>
       <Progress
         value={progressValue}
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-[6px] rounded-none bg-muted"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-[6px] rounded-none bg-navbarButton"
         indicatorClassName="bg-tertiary"
       />
     </CarouselItem>
   )
 }
+import Image from 'next/image'
