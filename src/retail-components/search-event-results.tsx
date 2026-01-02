@@ -597,7 +597,7 @@ export default function SearchEventResults() {
                 <SelectValue placeholder={t('sport')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
-                <SelectItem value="NONE">
+                <SelectItem className="text-[14px]"value="NONE">
                   {t('discipline').toUpperCase()}
                 </SelectItem>
                 {Object.values(Discipline).map((d) => {
@@ -608,7 +608,7 @@ export default function SearchEventResults() {
                         ? 'horse_racing'
                         : 'football'
                   return (
-                    <SelectItem key={d} value={d}>
+                    <SelectItem className='text-[14px]' key={d} value={d}>
                       {t(translationKey).toUpperCase()}
                     </SelectItem>
                   )
@@ -628,7 +628,7 @@ export default function SearchEventResults() {
             />
             <label
               htmlFor="last10"
-              className="relative right-[1px] px-2 py-3 text-[15px] font-semibold text-background"
+              className="relative right-[1px] px-2 py-3 text-[15px] font-semibold text-background top-[1px]"
             >
               {t('last_10_games')}
             </label>
@@ -642,13 +642,13 @@ export default function SearchEventResults() {
               }}
               disabled={lastTenGames}
             >
-              <SelectTrigger className="relative left-[19px] ml-[-34px] h-[48px] min-w-[186px] border-none bg-background pl-[17px] pr-[5px] text-[15px] text-foreground">
+              <SelectTrigger className="relative left-[19px] ml-[-34px] h-[48px] min-w-[186px] border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground">
                 <SelectValue placeholder={t('date')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
-                <SelectItem value="ALL">{t('date').toUpperCase()}</SelectItem>
+                <SelectItem className="text-[14px]" value="ALL">{t('date').toUpperCase()}</SelectItem>
                 {dates.map((date) => (
-                  <SelectItem key={date} value={date}>
+                  <SelectItem className="text-[14px]" key={date} value={date}>
                     {date}
                   </SelectItem>
                 ))}
@@ -666,11 +666,11 @@ export default function SearchEventResults() {
                 <SelectValue placeholder={t('time_slot')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
-                <SelectItem value="ALL">
+                <SelectItem className='text-[14px]' value="ALL">
                   {t('time_slot').toUpperCase()}
                 </SelectItem>
                 {timeSlots.map((slot) => (
-                  <SelectItem key={slot} value={slot}>
+                  <SelectItem className="text-[14px]" key={slot} value={slot}>
                     {slot}
                   </SelectItem>
                 ))}
