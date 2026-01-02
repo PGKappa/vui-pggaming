@@ -80,7 +80,7 @@ export default function LatecomersDialog({
       <DialogContent className="max-w-xl bg-accent p-0">
         {/* Header */}
         <DialogHeader className="flex h-[64px] flex-row items-center justify-center bg-accent px-4 text-accent-foreground">
-          <DialogTitle className="text-center text-[17px] font-semibold text-white pt-1.5">
+          <DialogTitle className="text-center text-[17px] font-semibold text-white">
             {t('latecomers').toUpperCase()}
           </DialogTitle>
         </DialogHeader>
