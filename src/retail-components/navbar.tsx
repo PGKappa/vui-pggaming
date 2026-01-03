@@ -104,7 +104,7 @@ export default function Navbar() {
           <span className="text-[16px] font-bold">{t('ch3')}</span> */}
         </Link>
 
-        {/**  <Link
+          <Link
           href={`/retail/calcio${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
             'flex w-24 flex-row items-center justify-center gap-3 px-4 py-1 text-foreground transition-colors h-12',
@@ -122,7 +122,7 @@ export default function Navbar() {
           />
           {/* 
           <span className="text-[16px] font-bold">{t('ch4')}</span> */}
-        {/*   </Link> */}
+           </Link>
       </div>
 
       <div className="relative right-2 flex w-full justify-end gap-[8px]">
