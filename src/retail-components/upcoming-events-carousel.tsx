@@ -205,7 +205,7 @@ function UpcomingEventItem(props: {
           <span className="relative bottom-[1px] text-[14px] font-semibold">
             {event.startTime}
           </span>
-          <span className="relative bottom-[1px]  py-[1px] pt-0 text-[14px] font-semibold px-2 text-black bg-white left-[9px]">
+          <span className="relative bottom-[1px]  py-[1px] pt-0 text-[14px] font-semibold px-2 text-black bg-white left-[8px] tabular-nums">
             {timeToEventStart}
           </span>
         </div>
