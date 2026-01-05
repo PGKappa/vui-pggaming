@@ -217,7 +217,7 @@ export default function UpcomingRoundCard(props: {
   if (!hasEvents) {
     return (
       <Card className="border-b border-t border-card-foreground">
-        <CardHeader className="sticky top-0 z-40 flex h-16 w-full flex-row items-center justify-center gap-2 border-b bg-accent">
+        <CardHeader className="sticky top-0 z-40 flex h-28 w-full flex-row items-center justify-center gap-2 border-b bg-accent">
           <div className="text-lg">{t('no_events_available')}</div>
         </CardHeader>
       </Card>
@@ -225,13 +225,13 @@ export default function UpcomingRoundCard(props: {
   }
 
   return (
-    <Card className="border-b border-t border-card-foreground">
+    <Card className="border-b  border-card-foreground">
       <CardHeader className="sticky top-0 z-40 flex h-16 w-full flex-row items-center justify-start gap-2 border-b bg-accent">
         {marketTabs.map((tab, index) => (
           <Button
             key={index}
             variant={selectedTab === tab.name ? 'marketSelected' : 'market'}
-            className="h-full w-[202px] border border-b px-2 text-[20px] font-semibold"
+            className="h-[47px] w-[177px] relative left-[6px] px-2 text-[16px] font-semibold"
             onClick={() => handleTabChange(tab.name)}
           >
             {tab.name}
