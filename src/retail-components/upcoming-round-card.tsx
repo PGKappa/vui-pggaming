@@ -300,7 +300,7 @@ export default function UpcomingRoundCard(props: {
                     key={index}
                     className="h-[70px] items-center justify-between border-card-foreground"
                   >
-                    <TableCell className="w-[130px] min-w-[130px] max-w-[130px] whitespace-nowrap text-center text-[16px] font-bold">
+                    <TableCell className="w-[130px] min-w-[130px] max-w-[130px] whitespace-nowrap text-center text-[17px] font-bold">
                       {teamNames}
                     </TableCell>
 
@@ -375,7 +375,7 @@ export default function UpcomingRoundCard(props: {
                               .map((option, i) => (
                                 <TableCell
                                   key={i}
-                                  className="justify-items-center px-[10px]"
+                                  className="justify-items-center px-[15px]"
                                 >
                                   <BetEntryToggle
                                     bet={{
@@ -390,7 +390,7 @@ export default function UpcomingRoundCard(props: {
                                     }}
                                     marketName={market.name}
                                     variant="roundcard"
-                                    className="w-[100px] text-[19px] font-semibold"
+                                    className="w-[100px] h-[51px] text-[16px] font-semibold"
                                   />
                                 </TableCell>
                               ))}
