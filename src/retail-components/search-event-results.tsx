@@ -1506,23 +1506,6 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
 
   // CALCIO
   if (eventResult.discipline === Discipline.SOCCER) {
-    const formatSafeDate = (date: any): string => {
-      try {
-        if (date instanceof Date && !isNaN(date.getTime())) {
-          return format(date, 'dd-MM-yyyy HH:mm')
-        }
-
-        const parsedDate = new Date(date)
-        if (!isNaN(parsedDate.getTime())) {
-          return format(parsedDate, 'dd-MM-yyyy HH:mm')
-        }
-
-        return 'Invalid Date'
-      } catch {
-        return 'Invalid Date'
-      }
-    }
-
     return (
       <div className="mb-[-16px] space-y-4">
         {/* Teams e Score */}
