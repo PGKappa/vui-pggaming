@@ -169,6 +169,8 @@ export type EventResult = {
   startTime: Date
   discipline: Discipline
   track?: string
+  jornada?: number
+  groupId?: number
   result?: MatchResult | RaceResult
 }
 

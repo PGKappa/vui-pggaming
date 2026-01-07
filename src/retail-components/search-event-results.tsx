@@ -408,6 +408,7 @@ export default function SearchEventResults() {
               name: result.round_name || `Soccer Match ${result.int_event_id}`,
               startTime,
               discipline: Discipline.SOCCER,
+              jornada: result.round_number,
               result: {
                 round: {
                   name: result.round_name || 'Unknown Round',
@@ -597,7 +598,7 @@ export default function SearchEventResults() {
                 <SelectValue placeholder={t('sport')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
-                <SelectItem className='text-[14px]' value="NONE">
+                <SelectItem className="text-[14px]" value="NONE">
                   {t('discipline').toUpperCase()}
                 </SelectItem>
                 {Object.values(Discipline).map((d) => {
@@ -617,10 +618,10 @@ export default function SearchEventResults() {
             </Select>
           </div>
 
-          <div className="relative left-1 flex flex-row items-center bottom-[1px]">
+          <div className="relative bottom-[1px] left-1 flex flex-row items-center">
             <Checkbox
               id="last10"
-              className="h-6 w-6 bg-background text-foreground border-0"
+              className="h-6 w-6 border-0 bg-background text-foreground"
               checked={lastTenGames}
               onCheckedChange={(value) => {
                 setLastTenGames(!!value)
@@ -628,7 +629,7 @@ export default function SearchEventResults() {
             />
             <label
               htmlFor="last10"
-              className="relative right-[1px] px-2 py-3 text-[15px] top-[1px] font-semibold text-background"
+              className="relative right-[1px] top-[1px] px-2 py-3 text-[15px] font-semibold text-background"
             >
               {t('last_10_games')}
             </label>
@@ -646,7 +647,9 @@ export default function SearchEventResults() {
                 <SelectValue placeholder={t('date')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
-                <SelectItem className='text-[14px]' value="ALL">{t('date').toUpperCase()}</SelectItem>
+                <SelectItem className="text-[14px]" value="ALL">
+                  {t('date').toUpperCase()}
+                </SelectItem>
                 {dates.map((date) => (
                   <SelectItem className="text-[14px]" key={date} value={date}>
                     {date}
@@ -666,7 +669,7 @@ export default function SearchEventResults() {
                 <SelectValue placeholder={t('time_slot')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
-                <SelectItem className='text-[14px]' value="ALL">
+                <SelectItem className="text-[14px]" value="ALL">
                   {t('time_slot').toUpperCase()}
                 </SelectItem>
                 {timeSlots.map((slot) => (
@@ -680,7 +683,7 @@ export default function SearchEventResults() {
 
           <div className="flex flex-row items-center gap-2">
             <Button
-              className="text-bold relative left-[202px] h-[48px] w-[186px] bg-tertiary text-[16px] text-bet-foreground hover:opacity-90 mr-4"
+              className="text-bold relative left-[202px] mr-4 h-[48px] w-[186px] bg-tertiary text-[16px] text-bet-foreground hover:opacity-90"
               disabled={selectedDiscipline === 'NONE'}
               onClick={handleSearch}
             >
@@ -728,10 +731,10 @@ export default function SearchEventResults() {
                           className="gap-0"
                         >
                           <AccordionTrigger className="pointer-events-none border-b-0 bg-accent p-0 pl-2 text-base text-accent-foreground hover:no-underline [&[data-state=open]>svg]:-rotate-90">
-                            <div className="relative top-1.5 mb-[7px] flex h-[46px] w-full flex-row items-center justify-between gap-4 pl-[9px] text-white uppercase tabular-nums">
+                            <div className="relative top-1.5 mb-[7px] flex h-[46px] w-full flex-row items-center justify-between gap-4 pl-[9px] uppercase tabular-nums text-white">
                               <div className="flex flex-row items-center gap-4 pb-[5px] text-[16px] font-semibold">
                                 {/* Discipline Name */}
-                                <span className="whitespace-nowrap text-[16px] ">
+                                <span className="whitespace-nowrap text-[16px]">
                                   {eventResult.discipline === 'DOGS'
                                     ? t('dog_races_label')
                                     : eventResult.discipline === 'HORSES'
@@ -739,27 +742,30 @@ export default function SearchEventResults() {
                                       : eventResult.discipline === 'SOCCER'
                                         ? t('football_label')
                                         : eventResult.discipline}
-                                    
-                                        
-
                                 </span>
 
-                                {/* Track */}
-                                {(eventResult.track || '6') && (
-                                  <span className="whitespace-nowrap border-l border-l-white pl-4">
-                                    {(() => {
-                                      const trackValue =
-                                        eventResult.track || '6'
-                                      // Estrai il numero dalla stringa
-                                      const numberMatch =
-                                        trackValue.match(/\d+/)
-                                      const trackNum = numberMatch
-                                        ? numberMatch[0]
-                                        : '6'
-                                      return `${t('track')} ${trackNum}`
-                                    })()}
-                                  </span>
-                                )}
+                                {/* Track/Jornada */}
+                                {eventResult.discipline === Discipline.SOCCER
+                                  ? eventResult.jornada && (
+                                      <span className="whitespace-nowrap border-l border-l-white pl-4">
+                                        {t('jornada')} {eventResult.jornada}
+                                      </span>
+                                    )
+                                  : (eventResult.track || '6') && (
+                                      <span className="whitespace-nowrap border-l border-l-white pl-4">
+                                        {(() => {
+                                          const trackValue =
+                                            eventResult.track || '6'
+                                          // Estrai il numero dalla stringa
+                                          const numberMatch =
+                                            trackValue.match(/\d+/)
+                                          const trackNum = numberMatch
+                                            ? numberMatch[0]
+                                            : '6'
+                                          return `${t('track')} ${trackNum}`
+                                        })()}
+                                      </span>
+                                    )}
 
                                 {/* Event ID */}
                                 <span className="whitespace-nowrap border-l border-l-white pl-4">
@@ -1402,10 +1408,12 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                   {raceResult.odds.evenodd.even && (
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
-                        <span className="mr-[644px] relative left-[6px]">
+                        <span className="relative left-[6px] mr-[644px]">
                           {t('even').toUpperCase()}
                         </span>{' '}
-                        <span className='relative right-[6px]'>{raceResult.odds.evenodd.even}</span>
+                        <span className="relative right-[6px]">
+                          {raceResult.odds.evenodd.even}
+                        </span>
                       </div>
                       <div></div>
                     </div>
@@ -1413,10 +1421,12 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                   {raceResult.odds.evenodd.odd && (
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
-                        <span className="mr-[586px] relative right-[5px]">
+                        <span className="relative right-[5px] mr-[586px]">
                           {t('odd').toUpperCase()}
                         </span>{' '}
-                        <span className='mr-[17px] relative left-[22px]'>{raceResult.odds.evenodd.odd}</span>
+                        <span className="relative left-[22px] mr-[17px]">
+                          {raceResult.odds.evenodd.odd}
+                        </span>
                       </div>
                     </div>
                   )}
@@ -1436,20 +1446,24 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                   {raceResult.odds.underover.under && (
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
-                        <span className="mr-[591px] relative left-[2px]">
+                        <span className="relative left-[2px] mr-[591px]">
                           {t('under').toUpperCase()}
                         </span>{' '}
-                        <span className='mr-4 relative left-[14px]'>{raceResult.odds.underover.under}</span>
+                        <span className="relative left-[14px] mr-4">
+                          {raceResult.odds.underover.under}
+                        </span>
                       </div>
                     </div>
                   )}
                   {raceResult.odds.underover.over && (
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
-                        <span className="mr-[635px] relative left-1">
+                        <span className="relative left-1 mr-[635px]">
                           {t('over').toUpperCase()}
                         </span>{' '}
-                        <span className='relative right-[6px]'>{raceResult.odds.underover.over}</span>
+                        <span className="relative right-[6px]">
+                          {raceResult.odds.underover.over}
+                        </span>
                       </div>
                     </div>
                   )}
@@ -1510,9 +1524,9 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
     }
 
     return (
-      <div className="space-y-4 mb-[-16px]">
+      <div className="mb-[-16px] space-y-4">
         {/* Teams e Score */}
-        <div className=" pt-[7px]">
+        <div className="pt-[7px]">
           <div className="bg-accent py-2 text-center">
             <div className="text-[16px] font-bold uppercase text-accent-foreground">
               {t('match_result').toUpperCase()}
@@ -1556,7 +1570,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
               </div>
               <div className="p-3 text-center">
                 <div className="text-[16px] font-semibold">
-                 {detailedResult.odds.doubleChance.odds}
+                  {detailedResult.odds.doubleChance.odds}
                 </div>
               </div>
             </div>
@@ -1572,7 +1586,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
               </div>
               <div className="p-3 text-center">
                 <div className="mb-1 text-[14px]">
-                   {detailedResult.odds.firstScorer.teamLabel}
+                  {detailedResult.odds.firstScorer.teamLabel}
                 </div>
                 <div className="text-[16px] font-semibold">
                   {detailedResult.odds.firstScorer.odds}
@@ -1591,18 +1605,15 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
               </div>
               <div className="p-3 text-center">
                 <div className="mb-1 text-[14px]">
-                   {detailedResult.odds.sumGoals.value}
+                  {detailedResult.odds.sumGoals.value}
                 </div>
                 <div className="text-[16px] font-semibold">
-                   {detailedResult.odds.sumGoals.odds}
+                  {detailedResult.odds.sumGoals.odds}
                 </div>
               </div>
             </div>
           )}
         </div>
-
-      
-        
       </div>
     )
   }
