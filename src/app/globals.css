@@ -456,19 +456,3 @@ div.gap-1:nth-child(2)>div:nth-child(1)>div:nth-child(1)>div:nth-child(2)>button
 th.h-8:nth-child(2){
   background: black;;
 }
-
-th.h-8:nth-child(4){
-  background: black;;
-}
-
-th.h-8:nth-child(6){
-  background: black;;
-}
-
-th.h-8:nth-child(8){
-  background: black;;
-}
-
-th.h-8:nth-child(10){
-  background: black;;
-}
