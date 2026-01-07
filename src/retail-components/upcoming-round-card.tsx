@@ -327,10 +327,10 @@ export default function UpcomingRoundCard(props: {
                               <TableCell className="w-[1px] bg-border p-0"></TableCell>
                               <TableCell
                                 key={marketIndex}
-                                className={`justify-items-center ${
+                                className={`justify-items-center w-1 ${
                                   selectedTab === t('combo')
                                     ? 'px-[20px]'
-                                    : 'px-[2px]'
+                                    : 'px-[8px] pl-2'
                                 }`}
                               >
                                 {optionsChunks.map((chunk, chunkIndex) => (
