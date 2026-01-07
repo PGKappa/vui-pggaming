@@ -617,7 +617,7 @@ export default function SearchEventResults() {
             </Select>
           </div>
 
-          <div className="relative left-1 flex flex-row items-center">
+          <div className="relative left-1 flex flex-row items-center bottom-[1px]">
             <Checkbox
               id="last10"
               className="h-6 w-6 bg-background text-foreground border-0"
@@ -736,7 +736,12 @@ export default function SearchEventResults() {
                                     ? t('dog_races_label')
                                     : eventResult.discipline === 'HORSES'
                                       ? t('horse_races_label')
-                                      : eventResult.discipline}
+                                      : eventResult.discipline === 'SOCCER'
+                                        ? t('football_label')
+                                        : eventResult.discipline}
+                                    
+                                        
+
                                 </span>
 
                                 {/* Track */}
@@ -1505,9 +1510,9 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
     }
 
     return (
-      <div className="space-y-4">
+      <div className="space-y-4 mb-[-16px]">
         {/* Teams e Score */}
-        <div className="border">
+        <div className=" pt-[7px]">
           <div className="bg-accent py-2 text-center">
             <div className="text-[16px] font-bold uppercase text-accent-foreground">
               {t('match_result').toUpperCase()}
@@ -1535,7 +1540,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
               </div>
               <div className="p-3 text-center">
                 <div className="text-[16px] font-semibold">
-                  {t('odds')}: {detailedResult.odds.oneXTwo.odds}
+                  {detailedResult.odds.oneXTwo.odds}
                 </div>
               </div>
             </div>
@@ -1551,7 +1556,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
               </div>
               <div className="p-3 text-center">
                 <div className="text-[16px] font-semibold">
-                  {t('odds')}: {detailedResult.odds.doubleChance.odds}
+                 {detailedResult.odds.doubleChance.odds}
                 </div>
               </div>
             </div>
@@ -1567,10 +1572,10 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
               </div>
               <div className="p-3 text-center">
                 <div className="mb-1 text-[14px]">
-                  {t('team')}: {detailedResult.odds.firstScorer.teamLabel}
+                   {detailedResult.odds.firstScorer.teamLabel}
                 </div>
                 <div className="text-[16px] font-semibold">
-                  {t('odds')}: {detailedResult.odds.firstScorer.odds}
+                  {detailedResult.odds.firstScorer.odds}
                 </div>
               </div>
             </div>
@@ -1586,38 +1591,18 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
               </div>
               <div className="p-3 text-center">
                 <div className="mb-1 text-[14px]">
-                  {t('goals')}: {detailedResult.odds.sumGoals.value}
+                   {detailedResult.odds.sumGoals.value}
                 </div>
                 <div className="text-[16px] font-semibold">
-                  {t('odds')}: {detailedResult.odds.sumGoals.odds}
+                   {detailedResult.odds.sumGoals.odds}
                 </div>
               </div>
             </div>
           )}
         </div>
 
-        {/* Round Info */}
-        <div className="border">
-          <div className="bg-accent py-2 text-center">
-            <div className="text-[16px] font-bold uppercase text-accent-foreground">
-              {t('match_info').toUpperCase()}
-            </div>
-          </div>
-          <div className="space-y-1 p-3">
-            <div className="text-[14px]">
-              <span className="font-semibold">{t('round_name')}:</span>{' '}
-              {detailedResult.round?.name}
-            </div>
-            <div className="text-[14px]">
-              <span className="font-semibold">{t('match')}:</span> #
-              {detailedResult.round?.number}
-            </div>
-            <div className="text-[14px]">
-              <span className="font-semibold">{t('start_time')}:</span>{' '}
-              {formatSafeDate(eventResult.startTime)}
-            </div>
-          </div>
-        </div>
+      
+        
       </div>
     )
   }
