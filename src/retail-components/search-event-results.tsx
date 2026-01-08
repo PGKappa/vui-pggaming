@@ -1526,17 +1526,17 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
         </div>
 
         {/* Betting Markets */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-y-2">
           {/* 1X2 */}
           {detailedResult.odds?.oneXTwo && (
-            <div className="border">
+            <div className="border border-r-0 border-l-0">
               <div className="bg-accent py-2 text-center">
                 <div className="text-[16px] font-bold uppercase text-accent-foreground">
                   1X2
                 </div>
               </div>
               <div className="p-3 text-center">
-                <div className="text-[16px] font-semibold">
+                <div className="text-[17px] font-semibold">
                   {detailedResult.odds.oneXTwo.odds}
                 </div>
               </div>
@@ -1545,14 +1545,14 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
 
           {/* Double Chance */}
           {detailedResult.odds?.doubleChance && (
-            <div className="border">
+            <div className="border border-r-0">
               <div className="bg-accent py-2 text-center">
                 <div className="text-[16px] font-bold uppercase text-accent-foreground">
                   {t('double_chance').toUpperCase()}
                 </div>
               </div>
               <div className="p-3 text-center">
-                <div className="text-[16px] font-semibold">
+                <div className="text-[17px] font-semibold">
                   {detailedResult.odds.doubleChance.odds}
                 </div>
               </div>
@@ -1561,17 +1561,17 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
 
           {/* First Scorer */}
           {detailedResult.odds?.firstScorer && (
-            <div className="border">
+            <div className="border border-r-0 border-l-0">
               <div className="bg-accent py-2 text-center">
                 <div className="text-[16px] font-bold uppercase text-accent-foreground">
                   {t('first_scorer').toUpperCase()}
                 </div>
               </div>
               <div className="p-3 text-center">
-                <div className="mb-1 text-[14px]">
+                <div className="mb-1 text-[16px]">
                   {detailedResult.odds.firstScorer.teamLabel}
                 </div>
-                <div className="text-[16px] font-semibold">
+                <div className="text-[17px] font-semibold">
                   {detailedResult.odds.firstScorer.odds}
                 </div>
               </div>
@@ -1580,17 +1580,17 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
 
           {/* Sum Goals */}
           {detailedResult.odds?.sumGoals && (
-            <div className="border">
+            <div className="border border-r-0">
               <div className="bg-accent py-2 text-center">
                 <div className="text-[16px] font-bold uppercase text-accent-foreground">
                   {t('total_goals').toUpperCase()}
                 </div>
               </div>
               <div className="p-3 text-center">
-                <div className="mb-1 text-[14px]">
+                <div className="mb-1 text-[16px]">
                   {detailedResult.odds.sumGoals.value}
                 </div>
-                <div className="text-[16px] font-semibold">
+                <div className="text-[17px] font-semibold">
                   {detailedResult.odds.sumGoals.odds}
                 </div>
               </div>
