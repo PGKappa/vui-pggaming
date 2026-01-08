@@ -1203,7 +1203,7 @@ export default function BettingSlip({
             }
           >
             <span
-              className={`pt-1 text-[14px] ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'font-semibold text-betSlip-header' : 'text-betSlip-header font-semibold pb-1'}`}
+              className={`pt-1 text-[14px]  ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'font-semibold text-betSlip-header' : 'text-white font-normal pb-1'}`}
             >
               {betMode === 'SINGLE'
                 ? `${t('single').toUpperCase()}`
@@ -1227,12 +1227,12 @@ export default function BettingSlip({
             }
           >
             <span
-              className={`pt-1 text-[14px] ${betMode === 'SYSTEM' ? 'font-normal text-betSlip-header' : 'font-semibold text-betSlip-header'}`}
+              className={`pt-1  text-[14px] ${betMode === 'SYSTEM' ? 'font-semibold text-betSlip-header' : 'font-normal text-white'}`}
             >
               {t('system').toUpperCase()}
             </span>
             {betMode === 'SYSTEM' && (
-              <div className="absolute bottom-0.5 h-[0px] w-[156px] bg-navbarButton text-background"></div>
+              <div className="absolute bottom-0.5 h-[0px] w-[156px] bg-navbarButton text-white"></div>
             )}
           </div>
         </div>
