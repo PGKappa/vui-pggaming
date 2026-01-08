@@ -706,7 +706,10 @@ export default function RootContextProvider(props: {
       try {
         const cashierData = await fetchCashierInit(initCode, operator)
 
-        console.log('🔐 CASHIER INIT RESPONSE:', JSON.stringify(cashierData, null, 2))
+        console.log(
+          '🔐 CASHIER INIT RESPONSE:',
+          JSON.stringify(cashierData, null, 2),
+        )
 
         if (cashierData?.ret_code === 1024) {
           // Estrai i dati "utente" dai configs e intl
@@ -1032,6 +1035,7 @@ export default function RootContextProvider(props: {
             startTime: date,
             duration: 3,
             discipline: Discipline.SOCCER,
+            jornada: 12 - index,
             result: {
               round: {
                 name: 'Trident',
