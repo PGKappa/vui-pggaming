@@ -73,7 +73,7 @@ export default function EventBets(props: {
           </div>
 
           <div className="relative bottom-0 mt-[1px] flex items-center justify-between">
-            <span className="relative ml-[3px] text-[15px] font-semibold">
+            <span className="relative ml-[3px] text-[15px] font-semibold uppercase">
               {eventBets[0].bet.discipline === 'SOCCER'
                 ? t('football')
                 : eventBets[0].bet.discipline === 'DOGS'
@@ -91,7 +91,7 @@ export default function EventBets(props: {
             </div>
           </div>
           {eventBets[0].bet.discipline === 'SOCCER' ? (
-            <span className="text-[16px]">{eventBets[0].bet.competitors}</span>
+            <span className="relative bottom-[1px] ml-[3px] pb-[4px] text-[13px] uppercase">{eventBets[0].bet.competitors}</span>
           ) : (
             <span className="relative bottom-[1px] ml-[3px] pb-[4px] text-[13px] uppercase">
               {eventBets[0].bet.track || t('track_6')}
