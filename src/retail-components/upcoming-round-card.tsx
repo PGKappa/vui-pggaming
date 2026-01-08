@@ -1,6 +1,7 @@
 import React from 'react'
 import { Button } from '@/retail-components/ui/button'
 import { Card, CardContent, CardHeader } from '@/retail-components/ui/card'
+import { ScrollArea } from '@/retail-components/ui/scroll-area'
 import {
   Table,
   TableBody,
@@ -225,13 +226,13 @@ export default function UpcomingRoundCard(props: {
   }
 
   return (
-    <Card className="border-b  border-card-foreground">
+    <Card className="border-b border-card-foreground">
       <CardHeader className="sticky top-0 z-40 flex h-16 w-full flex-row items-center justify-start gap-2 border-b bg-accent">
         {marketTabs.map((tab, index) => (
           <Button
             key={index}
             variant={selectedTab === tab.name ? 'marketSelected' : 'market'}
-            className="h-[47px] w-[177px] relative left-[6px] px-2 text-[16px] font-semibold"
+            className="relative left-[6px] h-[47px] w-[177px] px-2 text-[16px] font-semibold"
             onClick={() => handleTabChange(tab.name)}
           >
             {tab.name}
@@ -239,199 +240,208 @@ export default function UpcomingRoundCard(props: {
         ))}
       </CardHeader>
 
-      <CardContent className="px-0">
-        <Table>
-          <TableHeader className="h-11 bg-card-header text-[20px] text-card-header-foreground">
-            <TableRow className="border-card-foreground transition-none">
-              <TableHead></TableHead>
-              <TableHead className="w-[1px] bg-white p-0"></TableHead>
-              {marketTabs
-                .find((tab) => tab.name === selectedTab)
-                ?.markets.map((market, index) => {
-                  const optionsCount = market.selections.flatMap(
-                    ({ selection }) => selection,
-                  ).length
+      <CardContent className="h-full overflow-hidden px-0">
+        <ScrollArea className="h-full">
+          <Table>
+            <TableHeader className="h-11 bg-card-header text-[20px] text-card-header-foreground">
+              <TableRow className="border-card-foreground transition-none">
+                <TableHead></TableHead>
+                <TableHead className="w-[1px] bg-white p-0"></TableHead>
+                {marketTabs
+                  .find((tab) => tab.name === selectedTab)
+                  ?.markets.map((market, index) => {
+                    const optionsCount = market.selections.flatMap(
+                      ({ selection }) => selection,
+                    ).length
 
-                  const isSpecialTab = specialTabs.includes(selectedTab)
-                  if (isSpecialTab) {
+                    const isSpecialTab = specialTabs.includes(selectedTab)
+                    if (isSpecialTab) {
+                      return (
+                        <React.Fragment key={`special-${index}`}>
+                          <TableHead className="w-[1px] bg-white p-0"></TableHead>
+                          <TableHead
+                            className="text-center font-bold"
+                            colSpan={1}
+                          >
+                            {formatMarketHeader(market.name)}
+                          </TableHead>
+                          <TableHead className="w-[1px] bg-white p-0"></TableHead>
+                        </React.Fragment>
+                      )
+                    }
+
                     return (
-                      <React.Fragment key={`special-${index}`}>
-                        <TableHead className="w-[1px] bg-white p-0"></TableHead>
+                      <React.Fragment key={`market-${index}`}>
                         <TableHead
                           className="text-center font-bold"
-                          colSpan={1}
+                          colSpan={optionsCount}
                         >
                           {formatMarketHeader(market.name)}
                         </TableHead>
-                        <TableHead className="w-[1px] bg-white p-0"></TableHead>
+                        {!isSpecialTab && (
+                          <TableHead className="w-[1px] bg-white p-0"></TableHead>
+                        )}
                       </React.Fragment>
                     )
-                  }
+                  })}
+                <TableHead></TableHead>
+              </TableRow>
+            </TableHeader>
+
+            <TableBody>
+              {props.round.mag_event.length ? (
+                props.round.mag_event.map((match, index) => {
+                  const matchStart = new Date(match.startTime)
+
+                  const teamNames = match.teams.team
+                    .map((t) => t.name || '')
+                    .join(' - ')
 
                   return (
-                    <React.Fragment key={`market-${index}`}>
-                      <TableHead
-                        className="text-center font-bold"
-                        colSpan={optionsCount}
-                      >
-                        {formatMarketHeader(market.name)}
-                      </TableHead>
-                      {!isSpecialTab && (
-                        <TableHead className="w-[1px] bg-white p-0"></TableHead>
-                      )}
-                    </React.Fragment>
-                  )
-                })}
-              <TableHead></TableHead>
-            </TableRow>
-          </TableHeader>
+                    <TableRow
+                      key={index}
+                      className="h-[70px] items-center justify-between border-card-foreground"
+                    >
+                      <TableCell className="w-[130px] min-w-[130px] max-w-[130px] whitespace-nowrap text-center text-[17px] font-bold">
+                        {teamNames}
+                      </TableCell>
 
-          <TableBody>
-            {props.round.mag_event.length ? (
-              props.round.mag_event.map((match, index) => {
-                const matchStart = new Date(match.startTime)
+                      <TableCell className="w-[1px] bg-border p-0"></TableCell>
 
-                const teamNames = match.teams.team
-                  .map((t) => t.name || '')
-                  .join(' - ')
+                      {marketTabs
+                        .find((tab) => tab.name === selectedTab)
+                        ?.markets.map((market, marketIndex) => {
+                          const isSpecialTab = specialTabs.includes(selectedTab)
+                          if (isSpecialTab) {
+                            let chunckSize = 12
+                            if (selectedTab === t('combo')) chunckSize = 3
+                            if (selectedTab === t('home/away_team'))
+                              chunckSize = 1
 
-                return (
-                  <TableRow
-                    key={index}
-                    className="h-[70px] items-center justify-between border-card-foreground"
-                  >
-                    <TableCell className="w-[130px] min-w-[130px] max-w-[130px] whitespace-nowrap text-center text-[17px] font-bold">
-                      {teamNames}
-                    </TableCell>
+                            const options = market.selections.flatMap(
+                              ({ selection }) => selection,
+                            )
+                            const optionsChunks = chunkArray(
+                              options,
+                              chunckSize,
+                            )
+                            return (
+                              <React.Fragment
+                                key={`special-market-${marketIndex}`}
+                              >
+                                <TableCell className="w-[1px] bg-border p-0"></TableCell>
+                                <TableCell
+                                  key={marketIndex}
+                                  className={`justify-items-center ${
+                                    selectedTab === t('combo')
+                                      ? 'px-[20px]'
+                                      : 'px-[2px]'
+                                  }`}
+                                >
+                                  {optionsChunks.map((chunk, chunkIndex) => (
+                                    <div
+                                      key={chunkIndex}
+                                      className={`flex flex-row items-center py-1 ${
+                                        selectedTab === t('combo')
+                                          ? 'justify-center gap-10'
+                                          : 'gap-2'
+                                      }`}
+                                    >
+                                      {chunk.map((option, i) => (
+                                        <BetEntryToggle
+                                          key={i}
+                                          bet={{
+                                            discipline: Discipline.SOCCER,
+                                            event: {
+                                              name: match.eventIdentity
+                                                .eventName,
+                                              number:
+                                                match.eventIdentity.eventId,
+                                              startingAt: matchStart,
+                                            },
+                                            competitors: teamNames,
+                                            option: option,
+                                          }}
+                                          marketName={market.name}
+                                          variant="roundcard"
+                                          className="w-[100px] text-[19px] font-semibold"
+                                        />
+                                      ))}
+                                    </div>
+                                  ))}
+                                </TableCell>
+                                <TableCell className="w-[1px] bg-border p-0"></TableCell>
+                              </React.Fragment>
+                            )
+                          }
 
-                    <TableCell className="w-[1px] bg-border p-0"></TableCell>
-
-                    {marketTabs
-                      .find((tab) => tab.name === selectedTab)
-                      ?.markets.map((market, marketIndex) => {
-                        const isSpecialTab = specialTabs.includes(selectedTab)
-                        if (isSpecialTab) {
-                          let chunckSize = 12
-                          if (selectedTab === t('combo')) chunckSize = 3
-                          if (selectedTab === t('home/away_team'))
-                            chunckSize = 1
-
-                          const options = market.selections.flatMap(
-                            ({ selection }) => selection,
-                          )
-                          const optionsChunks = chunkArray(options, chunckSize)
                           return (
                             <React.Fragment
-                              key={`special-market-${marketIndex}`}
+                              key={`regular-market-${marketIndex}`}
                             >
-                              <TableCell className="w-[1px] bg-border p-0"></TableCell>
-                              <TableCell
-                                key={marketIndex}
-                                className={`justify-items-center ${
-                                  selectedTab === t('combo')
-                                    ? 'px-[20px]'
-                                    : 'px-[2px]'
-                                }`}
-                              >
-                                {optionsChunks.map((chunk, chunkIndex) => (
-                                  <div
-                                    key={chunkIndex}
-                                    className={`flex flex-row items-center py-1 ${
-                                      selectedTab === t('combo')
-                                        ? 'justify-center gap-10'
-                                        : 'gap-2'
-                                    }`}
+                              {market.selections
+                                .flatMap(({ selection }) => selection)
+                                .map((option, i) => (
+                                  <TableCell
+                                    key={i}
+                                    className="justify-items-center px-[15px]"
                                   >
-                                    {chunk.map((option, i) => (
-                                      <BetEntryToggle
-                                        key={i}
-                                        bet={{
-                                          discipline: Discipline.SOCCER,
-                                          event: {
-                                            name: match.eventIdentity.eventName,
-                                            number: match.eventIdentity.eventId,
-                                            startingAt: matchStart,
-                                          },
-                                          competitors: teamNames,
-                                          option: option,
-                                        }}
-                                        marketName={market.name}
-                                        variant="roundcard"
-                                        className="w-[100px] text-[19px] font-semibold"
-                                      />
-                                    ))}
-                                  </div>
+                                    <BetEntryToggle
+                                      bet={{
+                                        discipline: Discipline.SOCCER,
+                                        event: {
+                                          name: match.eventIdentity.eventName,
+                                          number: match.eventIdentity.eventId,
+                                          startingAt: matchStart,
+                                        },
+                                        competitors: teamNames,
+                                        option: option,
+                                      }}
+                                      marketName={market.name}
+                                      variant="roundcard"
+                                      className="h-[51px] w-[100px] text-[16px] font-semibold"
+                                    />
+                                  </TableCell>
                                 ))}
-                              </TableCell>
-                              <TableCell className="w-[1px] bg-border p-0"></TableCell>
+                              {!isSpecialTab && (
+                                <TableCell className="w-[1px] bg-border p-0"></TableCell>
+                              )}
                             </React.Fragment>
                           )
-                        }
+                        })}
 
-                        return (
-                          <React.Fragment key={`regular-market-${marketIndex}`}>
-                            {market.selections
-                              .flatMap(({ selection }) => selection)
-                              .map((option, i) => (
-                                <TableCell
-                                  key={i}
-                                  className="justify-items-center px-[15px]"
-                                >
-                                  <BetEntryToggle
-                                    bet={{
-                                      discipline: Discipline.SOCCER,
-                                      event: {
-                                        name: match.eventIdentity.eventName,
-                                        number: match.eventIdentity.eventId,
-                                        startingAt: matchStart,
-                                      },
-                                      competitors: teamNames,
-                                      option: option,
-                                    }}
-                                    marketName={market.name}
-                                    variant="roundcard"
-                                    className="w-[100px] h-[51px] text-[16px] font-semibold"
-                                  />
-                                </TableCell>
-                              ))}
-                            {!isSpecialTab && (
-                              <TableCell className="w-[1px] bg-border p-0"></TableCell>
-                            )}
-                          </React.Fragment>
-                        )
-                      })}
-
-                    <TableCell className="pr-2 text-right">
-                      <Button
-                        variant="action"
-                        size="icon-lg"
-                        onClick={() =>
-                          props.viewMatchBettingOptions({
-                            round: {
-                              name: props.round.scheduleName,
-                              number: props.round.scheduleId,
-                              startingAt: matchStart,
-                            },
-                            teams: teamNames,
-                            markets: match.markets.market,
-                          })
-                        }
-                      >
-                        <ChevronRight style={{ scale: 1.5 }} />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                )
-              })
-            ) : (
-              <TableRow>
-                <TableCell colSpan={5} className="py-4 text-center">
-                  {t('no_matches')}
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+                      <TableCell className="pr-2 text-right">
+                        <Button
+                          variant="action"
+                          size="icon-lg"
+                          onClick={() =>
+                            props.viewMatchBettingOptions({
+                              round: {
+                                name: props.round.scheduleName,
+                                number: props.round.scheduleId,
+                                startingAt: matchStart,
+                              },
+                              teams: teamNames,
+                              markets: match.markets.market,
+                            })
+                          }
+                        >
+                          <ChevronRight style={{ scale: 1.5 }} />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  )
+                })
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={5} className="py-4 text-center">
+                    {t('no_matches')}
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </ScrollArea>
       </CardContent>
     </Card>
   )
