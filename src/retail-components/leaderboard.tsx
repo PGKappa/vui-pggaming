@@ -32,14 +32,14 @@ export default function Leaderboard({
             className="flex h-12 cursor-pointer flex-row items-center px-5"
             onClick={handleToggle}
           >
-            <CardTitle className="justify-start text-[19px] font-bold">
+            <CardTitle className="justify-start text-[16px] font-semibold">
               {t('standings').toUpperCase()}
             </CardTitle>
             <Button variant="ghost" size="icon-lg">
               {isExpanded ? (
-                <ChevronDown style={{ scale: 2 }} />
+                <ChevronDown style={{ scale: 1.7, marginLeft: '27px' }} />
               ) : (
-                <ChevronUp style={{ scale: 2 }} />
+                <ChevronUp style={{ scale: 1.7 }} />
               )}
             </Button>
           </CardHeader>
@@ -47,9 +47,9 @@ export default function Leaderboard({
       </div>
 
       {isExpanded && (
-        <div className="bg-background">
+        <div className="bg-background relative bottom-[16px]">
           <div className="sticky top-[48px] z-30 bg-card-header">
-            <div className="grid h-[44px] grid-cols-11 [&_div]:flex [&_div]:items-center [&_div]:justify-center [&_div]:font-bold [&_div]:text-card-header-foreground">
+            <div className="grid h-[51px] grid-cols-11 pt-[16px] [&_div]:flex [&_div]:items-center [&_div]:justify-center [&_div]:font-bold [&_div]:text-card-header-foreground text-[16px]">
               <div className="p-2 text-center"></div>
               <div className="p-2 text-center">{t('club')}</div>
               <div className="p-2 text-center">{t('p')}</div>
@@ -71,7 +71,7 @@ export default function Leaderboard({
                   {teamRankings.map((ranking) => (
                     <tr
                       key={ranking.team}
-                      className="grid grid-cols-11 border-b border-border md:grid-cols-11"
+                      className="grid grid-cols-11 border-b border-border md:grid-cols-11 h-[51px]"
                     >
                       <td className="p-3 text-center font-bold">
                         {ranking.position}
@@ -104,7 +104,7 @@ export default function Leaderboard({
                           return (
                             <span
                               key={i}
-                              className={`inline-block font-mono text-sm font-semibold ${textColor}`}
+                              className={`inline-block font-mono text-lg font-semibold ${textColor}`}
                             >
                               {result}
                             </span>
