@@ -3,9 +3,12 @@
 import Navbar from '@/retail-components/navbar'
 import { Toaster } from '@/retail-components/ui/sonner'
 import BetsContextProvider from '@/retail-contexts/bets-context'
+import CashierContextProvider from '@/retail-contexts/cashier-context'
+import EventsContextProvider from '@/retail-contexts/events-context'
 import RootContextProvider from '@/retail-contexts/root-context'
 import SkinProvider, { SkinContext } from '@/retail-contexts/skin-context'
 import { Inter } from 'next/font/google'
+import { usePathname } from 'next/navigation'
 import { useContext } from 'react'
 import { useTranslation } from 'react-i18next'
 import '../globals.css'
@@ -38,25 +41,34 @@ export default function RetailLayout({
 
 function SkinBody({ children }: { children: React.ReactNode }) {
   const [skin] = useContext(SkinContext)
-  
-  return (
-    <body className={`${inter.variable} ${skin} flex h-screen flex-col font-inter antialiased`}>
-      <RootContextProvider>
-        <Navbar />
-        <main className="h-full gap-2 overflow-hidden">
-          <div className="p-2">
-            <BetsContextProvider>{children}</BetsContextProvider>
-          </div>
-        </main>
+  const pathname = usePathname()
 
-        <Toaster
-          position={
-            typeof window !== 'undefined' && window.innerWidth >= 1024
-              ? 'bottom-right'
-              : 'top-center'
-          }
-        />
-      </RootContextProvider>
+  console.log(`[Layout] Current pathname: ${pathname}`)
+
+  return (
+    <body
+      className={`${inter.variable} ${skin} flex h-screen flex-col font-inter antialiased`}
+    >
+      <CashierContextProvider>
+        <EventsContextProvider key={pathname}>
+          <RootContextProvider>
+            <Navbar />
+            <main className="h-full gap-2 overflow-hidden">
+              <div className="p-2">
+                <BetsContextProvider>{children}</BetsContextProvider>
+              </div>
+            </main>
+
+            <Toaster
+              position={
+                typeof window !== 'undefined' && window.innerWidth >= 1024
+                  ? 'bottom-right'
+                  : 'top-center'
+              }
+            />
+          </RootContextProvider>
+        </EventsContextProvider>
+      </CashierContextProvider>
     </body>
   )
 }

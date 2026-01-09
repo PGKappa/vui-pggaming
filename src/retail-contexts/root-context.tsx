@@ -19,6 +19,7 @@ import {
   parseAPIDate,
 } from '@/retail-lib/utils'
 import { t } from 'i18next'
+import { usePathname } from 'next/navigation'
 import { createContext, useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -333,8 +334,8 @@ const defaultRootContext: RootContextType = {
 
 export const RootContext = createContext<RootContextType>(defaultRootContext)
 
-function getAreaFromUrl(): Discipline[] {
-  if (typeof window === 'undefined') return []
+function getAreaFromUrl(pathname: string): Discipline[] {
+  if (!pathname) return []
 
   if (window.location.pathname.includes('dogs-horses')) {
     return [Discipline.DOGS, Discipline.HORSES]
@@ -354,6 +355,7 @@ function getAreaFromUrl(): Discipline[] {
 export default function RootContextProvider(props: {
   children: React.ReactNode
 }) {
+  const pathname = usePathname()
   const [initCode, setInitCode] = useState<string | undefined>(undefined)
   const [operator, setOperator] = useState<string>('pg')
   const [rootContext, setRootContext] =
@@ -702,11 +704,32 @@ export default function RootContextProvider(props: {
   useEffect(() => {
     if (!initCode) return
 
+    // Prima controlla se abbiamo dati cashier validi in cache
+    const cachedContextData = loadCashierFromCache(initCode)
+    if (cachedContextData) {
+      console.log(
+        '✅ Caricamento cashier da cache - cambio canale senza API call',
+      )
+      setRootContext((prev) => ({
+        ...prev,
+        ...cachedContextData,
+      }))
+      setIsLoading(false)
+      setIsCashierReady(true)
+      return
+    }
+
+    // Se non c'è cache valida, effettua la chiamata API
+    console.log('🌐 Chiamata API cashier - prima apertura')
+
     const fetchUserData = async (retryCount = 0, maxRetries = 3) => {
       try {
         const cashierData = await fetchCashierInit(initCode, operator)
 
-        console.log('🔐 CASHIER INIT RESPONSE:', JSON.stringify(cashierData, null, 2))
+        console.log(
+          '🔐 CASHIER INIT RESPONSE:',
+          JSON.stringify(cashierData, null, 2),
+        )
 
         if (cashierData?.ret_code === 1024) {
           // Estrai i dati "utente" dai configs e intl
@@ -1336,7 +1359,8 @@ export default function RootContextProvider(props: {
 
     const fetchAllEvents = async () => {
       try {
-        const areas = getAreaFromUrl()
+        const areas = getAreaFromUrl(pathname)
+        console.log(`📍 Pathname: ${pathname} → Caricamento eventi per:`, areas)
 
         if (areas.length === 0) {
           return
@@ -1390,7 +1414,7 @@ export default function RootContextProvider(props: {
 
     const refreshInterval = setInterval(
       () => {
-        const areas = getAreaFromUrl()
+        const areas = getAreaFromUrl(pathname)
         const racingAreas = areas.filter(
           (area) => area === Discipline.DOGS || area === Discipline.HORSES,
         )
@@ -1406,7 +1430,7 @@ export default function RootContextProvider(props: {
       clearInterval(refreshInterval)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initCode, isCashierReady, apiRequest, loadCachedRacingEvents])
+  }, [initCode, isCashierReady, apiRequest, loadCachedRacingEvents, pathname])
 
   if (isLoading) {
     return (
