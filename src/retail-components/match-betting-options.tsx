@@ -38,7 +38,7 @@ export default function MatchBettingOptions(props: {
       <div className="flex flex-row items-center justify-between bg-accent p-3 text-accent-foreground">
         <div className="flex flex-row items-center gap-2">
           <Button
-            className="rounded-[8px] bg-tertiary text-tertiary-foreground"
+            className= "bg-accent text-tertiary-foreground"
             onClick={props.close}
             size="icon-lg"
           >
@@ -89,7 +89,7 @@ export default function MatchBettingOptions(props: {
                   {market.name.toUpperCase()}
                 </AccordionTrigger>
                 <AccordionContent>
-                  <div className="grid grid-cols-3 items-center justify-between gap-4 px-2">
+                  <div className="grid grid-cols-3 items-center justify-between gap-2 px-2 mt-[3px] mb-[-16px]">
                     {market.selections[0].selection.map((option) => (
                       <BetEntryToggle
                         key={option.outcome}

@@ -375,7 +375,7 @@ export default function UpcomingRoundCard(props: {
                               .map((option, i) => (
                                 <TableCell
                                   key={i}
-                                  className="justify-items-center px-[15px]"
+                                  className="justify-items-center  px-[15px]"
                                 >
                                   <BetEntryToggle
                                     bet={{
