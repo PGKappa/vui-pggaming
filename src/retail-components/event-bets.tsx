@@ -153,7 +153,7 @@ export default function EventBets(props: {
                 key={betEntry.id}
                 className="flex items-center pr-[8px] text-sm"
               >
-                <span className="mr-[1px] w-[126px] text-[13px]">
+                <span className="mr-[1px] w-[126px] text-[13px] uppercase">
                   {translatedMarket}
                 </span>
                 <span className="ml-[0px] w-[109px] text-[13px] font-normal">
