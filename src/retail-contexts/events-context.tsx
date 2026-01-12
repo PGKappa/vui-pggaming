@@ -23,6 +23,9 @@ export type EventsContextType = {
   activeDrawerId?: string
   setActiveDrawer: (drawerId?: string) => void
   upcomingRounds?: any[]
+  currentEvent?: EventResult // Dettaglio evento corrente
+  fetchEventDetails: (extPalId: string, intEventId: string) => Promise<void>
+  isLoadingEventDetails: boolean
 }
 
 const defaultEventsContext: EventsContextType = {
@@ -32,6 +35,9 @@ const defaultEventsContext: EventsContextType = {
   upcomingEvents: [],
   eventResults: [],
   upcomingRounds: [],
+  currentEvent: undefined,
+  fetchEventDetails: async () => {},
+  isLoadingEventDetails: false,
 }
 
 export const EventsContext =
@@ -76,12 +82,21 @@ export default function EventsContextProvider(props: {
     undefined,
   )
   const [upcomingRounds] = useState<any[]>([])
+  const [currentEvent, setCurrentEvent] = useState<EventResult | undefined>(
+    undefined,
+  )
+  const [isLoadingEventDetails, setIsLoadingEventDetails] = useState(false)
   const eventsCacheRef = useRef(
     new Map<
       string,
       { timestamp: number; upcoming: UpcomingEvent[]; results: EventResult[] }
     >(),
   )
+  // Cache dedicata ai dettagli evento (key: "extPalId:intEventId")
+  const eventDetailsCache = useRef(
+    new Map<string, { timestamp: number; event: EventResult }>(),
+  )
+  const keepaliveIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
   // Se initCode non è ancora disponibile da CashierContext, prova localStorage
   const effectiveInitCode =
@@ -100,15 +115,162 @@ export default function EventsContextProvider(props: {
     [],
   )
 
+  // 1️⃣ Dettaglio evento on-demand
+  const fetchEventDetails = useCallback(
+    async (extPalId: string, intEventId: string) => {
+      if (!effectiveInitCode) {
+        console.warn('⚠️ No initCode available for fetchEventDetails')
+        return
+      }
+
+      const cacheKey = `${extPalId}:${intEventId}`
+      const cached = eventDetailsCache.current.get(cacheKey)
+
+      // 3️⃣ Cache dei dettagli - riusa se ancora valido (30s TTL)
+      if (cached && Date.now() - cached.timestamp < 30000) {
+        console.log('♻️ Using cached event details:', cacheKey)
+        setCurrentEvent(cached.event)
+        return
+      }
+
+      setIsLoadingEventDetails(true)
+      console.log('🔍 Fetching event details:', { extPalId, intEventId })
+
+      try {
+        const response = await createPGVirtualAPICall(
+          '/api/event/list',
+          effectiveInitCode,
+          undefined,
+          operator,
+        )
+
+        if (response.ok) {
+          const data = await response.json()
+          const timezone = getTimezone?.() || 'Europe/Rome'
+
+          // Cerca l'evento nei canali (0=Dogs, 1=Horses)
+          let foundEvent: EventResult | undefined
+
+          for (const channel of data.channels || []) {
+            if (channel?.closed_events) {
+              const event = channel.closed_events.find(
+                (e: any) =>
+                  e.ext_pal_id === extPalId && e.int_event_id === intEventId,
+              )
+              if (event) {
+                const discipline =
+                  channel.name === 'dogs' ? Discipline.DOGS : Discipline.HORSES
+                const track = channel.location || 'Unknown'
+
+                foundEvent = {
+                  id: parseInt(event.int_event_id),
+                  extId: event.ext_pal_id,
+                  name: event.name || `Race ${event.ext_pal_id}`,
+                  startTime: parseAPIDate(event.time, timezone),
+                  discipline,
+                  track,
+                  result: {
+                    arrival:
+                      event.arrival?.map((item: any) => ({
+                        name: item.name,
+                        number: item.number,
+                      })) || [],
+                    odds: {
+                      winner: {},
+                      placed: {},
+                      show: {},
+                      exacta: {},
+                      quinella: {},
+                      trifecta: {},
+                      boxedtrifecta: {},
+                      evenodd: {},
+                      underover: {},
+                    },
+                  },
+                }
+                break
+              }
+            }
+          }
+
+          if (foundEvent) {
+            console.log('✅ Event details loaded:', foundEvent)
+            setCurrentEvent(foundEvent)
+            eventDetailsCache.current.set(cacheKey, {
+              timestamp: Date.now(),
+              event: foundEvent,
+            })
+
+            // 2️⃣ Avvia keepalive per questo evento
+            startKeepalive(extPalId, intEventId)
+          } else {
+            console.warn('⚠️ Event not found in API response')
+          }
+        }
+      } catch (error) {
+        console.error('❌ Error fetching event details:', error)
+        toast.error('Failed to load event details')
+      } finally {
+        setIsLoadingEventDetails(false)
+      }
+    },
+    [effectiveInitCode, operator, getTimezone],
+  )
+
+  // 2️⃣ Keepalive/polling sul singolo evento selezionato
+  const startKeepalive = useCallback(
+    (extPalId: string, intEventId: string) => {
+      console.log('⏱️ startKeepalive called for:', { extPalId, intEventId })
+
+      // Stoppa il precedente keepalive se esiste
+      if (keepaliveIntervalRef.current) {
+        console.log('🛑 Stopping previous keepalive')
+        clearInterval(keepaliveIntervalRef.current)
+      }
+
+      // DISABILITO IL KEEPALIVE PER ORA - Debug
+      console.log('⏸️ KEEPALIVE DISABLED FOR DEBUG - polling paused')
+      return
+
+      // Poll ogni 5 secondi per aggiornare l'evento corrente (DISABLED)
+      /*
+      keepaliveIntervalRef.current = setInterval(async () => {
+        console.log('🔄 Keepalive tick - refreshing current event')
+        
+        // Invalida cache per forzare il refresh
+        const cacheKey = `${extPalId}:${intEventId}`
+        eventDetailsCache.current.delete(cacheKey)
+        
+        await fetchEventDetails(extPalId, intEventId)
+      }, 5000)
+      */
+    },
+    [fetchEventDetails],
+  )
+
+  // Cleanup del keepalive quando cambio evento o smonto
+  useEffect(() => {
+    return () => {
+      if (keepaliveIntervalRef.current) {
+        console.log('🧹 Cleaning up keepalive interval')
+        clearInterval(keepaliveIntervalRef.current)
+        keepaliveIntervalRef.current = null
+      }
+    }
+  }, [])
+
   // Carica eventi quando pathname cambia (cambio canale)
   useEffect(() => {
     const disciplines = getDisciplinesFromUrl(pathname)
 
-    console.log(
-      `📍 EventsContext pathname changed - URL: ${pathname} → Disciplines:`,
-      disciplines,
-    )
-    console.log(`🔧 Cashier initCode:`, initCode)
+    console.log(`
+========================================
+📍 EventsContext EFFECT TRIGGERED
+   Pathname: ${pathname}
+   Disciplines: ${JSON.stringify(disciplines)}
+   InitCode: ${initCode ? initCode.slice(0, 8) + '...' : 'NONE'}
+========================================
+    `)
 
     // RESET IMMEDIATO dello stato quando cambio pagina
     console.log('🧹 Clearing previous events data...')
@@ -129,6 +291,7 @@ export default function EventsContextProvider(props: {
     const cached = eventsCacheRef.current.get(cacheKey)
     if (cached && Date.now() - cached.timestamp < EVENTS_CACHE_TTL_MS) {
       console.log('♻️ Using cached events for disciplines', disciplines)
+      console.log('   Cache age:', Date.now() - cached.timestamp, 'ms')
       setUpcomingEvents(cached.upcoming)
       setEventResults(cached.results)
       setIsLoadingEvents(false)
@@ -140,7 +303,9 @@ export default function EventsContextProvider(props: {
 
     const fetchEvents = async () => {
       setIsLoadingEvents(true)
-      console.log('🚀 Starting event fetch... (signal ready for abort)')
+      console.log('🚀 API CALL STARTING: /api/event/list')
+      console.log('   Disciplines:', disciplines)
+      console.log('   Timestamp:', new Date().toISOString())
 
       try {
         const shouldFetchRacing =
@@ -377,8 +542,11 @@ export default function EventsContextProvider(props: {
       console.log('🧹 EventsContext cleanup - cancelling pending requests')
       abortController.abort()
     }
+    // IMPORTANTE: Solo pathname come dipendenza!
+    // initCode, operator, getTimezone vengono usati ma NON come dipendenza
+    // perché sono stabilizzate dal useMemo nel CashierContext
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname, effectiveInitCode, operator, getTimezone])
+  }, [pathname])
 
   return (
     <EventsContext.Provider
@@ -391,6 +559,9 @@ export default function EventsContextProvider(props: {
         activeDrawerId,
         setActiveDrawer,
         upcomingRounds,
+        currentEvent,
+        fetchEventDetails,
+        isLoadingEventDetails,
       }}
     >
       {props.children}

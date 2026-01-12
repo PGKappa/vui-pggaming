@@ -3,7 +3,7 @@
 import LoadingSpinner from '@/retail-components/loading-spinner'
 import { User } from '@/retail-lib/types'
 import { BASE_API_URL, fetchCashierInit } from '@/retail-lib/utils'
-import { createContext, useCallback, useEffect, useState } from 'react'
+import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
@@ -261,6 +261,12 @@ export default function CashierContextProvider(props: {
     [initCode],
   )
 
+  // Memoizza il context per evitare che le funzioni vengano ricreate ad ogni render
+  const memoizedContext = useMemo(
+    () => ({ ...cashierContext, apiRequest }),
+    [cashierContext, apiRequest],
+  )
+
   if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
@@ -270,7 +276,7 @@ export default function CashierContextProvider(props: {
   }
 
   return (
-    <CashierContext.Provider value={{ ...cashierContext, apiRequest }}>
+    <CashierContext.Provider value={memoizedContext}>
       {props.children}
     </CashierContext.Provider>
   )
