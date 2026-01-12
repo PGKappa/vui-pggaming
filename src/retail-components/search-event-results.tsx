@@ -1515,8 +1515,8 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
               {t('match_result').toUpperCase()}
             </div>
           </div>
-          <div className="p-4 text-center">
-            <div className="mb-2 text-[18px] font-bold">
+          <div className="pt-4 text-center">
+            <div className="mb-1 text-[18px] font-bold">
               {detailedResult.teams}
             </div>
             <div className="text-[24px] font-bold">
