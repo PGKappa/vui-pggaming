@@ -49,7 +49,7 @@ export default function MatchBettingOptions(props: {
           </span>
           <span className="text-[16px] font-semibold">{props.teams}</span>
         </div>
-        <span className="text-[16px] font-semibold relative left-[-5px]">
+        <span className="text-[17px] font-semibold relative left-[-5px]">
           {format(props.round.startingAt, 'HH:mm')}
         </span>
       </div>

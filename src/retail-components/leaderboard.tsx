@@ -39,7 +39,7 @@ export default function Leaderboard({
               {isExpanded ? (
                 <ChevronDown style={{ scale: 1.7, marginLeft: '27px' }} />
               ) : (
-                <ChevronUp style={{ scale: 1.7 }} />
+                <ChevronUp style={{ scale: 1.7, marginLeft: '27px' }} />
               )}
             </Button>
           </CardHeader>

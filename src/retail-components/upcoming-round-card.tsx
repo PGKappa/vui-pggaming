@@ -231,7 +231,7 @@ export default function UpcomingRoundCard(props: {
           <Button
             key={index}
             variant={selectedTab === tab.name ? 'marketSelected' : 'market'}
-            className="h-[47px] w-[177px] relative left-[6px] px-2 text-[16px] font-semibold"
+            className="h-[47px] w-[177px] relative left-[6px] px-2 text-[16px] font-semibold uppercase"
             onClick={() => handleTabChange(tab.name)}
           >
             {tab.name}
@@ -357,7 +357,7 @@ export default function UpcomingRoundCard(props: {
                                         }}
                                         marketName={market.name}
                                         variant="roundcard"
-                                        className="w-[100px] text-[19px] font-semibold"
+                                        className="w-[100px] text-[16px] font-semibold"
                                       />
                                     ))}
                                   </div>
