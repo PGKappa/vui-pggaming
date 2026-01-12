@@ -82,6 +82,7 @@ export default function EventsContextProvider(props: {
     undefined,
   )
   const [upcomingRounds] = useState<any[]>([])
+  const hasLoadedOnce = useRef(false)
   const [currentEvent, setCurrentEvent] = useState<EventResult | undefined>(
     undefined,
   )
@@ -272,10 +273,8 @@ export default function EventsContextProvider(props: {
 ========================================
     `)
 
-    // RESET IMMEDIATO dello stato quando cambio pagina
-    console.log('🧹 Clearing previous events data...')
-    setUpcomingEvents([])
-    setEventResults([])
+    // Mantieni eventi esistenti per evitare flicker; resetta solo ricerche
+    console.log('🧹 Preserving events, clearing only search results')
     setSearchEventResults(undefined)
 
     if (!effectiveInitCode || disciplines.length === 0) {
@@ -294,6 +293,7 @@ export default function EventsContextProvider(props: {
       console.log('   Cache age:', Date.now() - cached.timestamp, 'ms')
       setUpcomingEvents(cached.upcoming)
       setEventResults(cached.results)
+      hasLoadedOnce.current = true
       setIsLoadingEvents(false)
       return
     }
@@ -302,10 +302,12 @@ export default function EventsContextProvider(props: {
     const abortController = new AbortController()
 
     const fetchEvents = async () => {
-      setIsLoadingEvents(true)
+      // Mostra loading solo al primissimo caricamento
+      setIsLoadingEvents(!hasLoadedOnce.current)
       console.log('🚀 API CALL STARTING: /api/event/list')
       console.log('   Disciplines:', disciplines)
       console.log('   Timestamp:', new Date().toISOString())
+      console.log('   Silent update:', hasLoadedOnce.current)
 
       try {
         const shouldFetchRacing =
@@ -518,6 +520,7 @@ export default function EventsContextProvider(props: {
           upcoming: allUpcomingEvents,
           results: allEventResults,
         })
+        hasLoadedOnce.current = true
         console.log('📊 Events set in state:', {
           upcomingCount: allUpcomingEvents.length,
           resultsCount: allEventResults.length,
@@ -542,9 +545,6 @@ export default function EventsContextProvider(props: {
       console.log('🧹 EventsContext cleanup - cancelling pending requests')
       abortController.abort()
     }
-    // IMPORTANTE: Solo pathname come dipendenza!
-    // initCode, operator, getTimezone vengono usati ma NON come dipendenza
-    // perché sono stabilizzate dal useMemo nel CashierContext
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname])
 
