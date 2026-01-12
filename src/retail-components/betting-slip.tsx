@@ -1274,7 +1274,7 @@ export default function BettingSlip({
       <CardFooter className="relative bottom-[26px] flex flex-col bg-background">
         {betMode !== 'SYSTEM' ? (
           <>
-            <div className="relative h-[30px] bg-accent py-3"></div>
+            <div className="relative h-[30px] bg-accent py-3 w-[396px]"></div>
 
             {/* TOTALE QUOTA section */}
             <div className="relative top-[12px] flex flex-row items-center justify-between px-4 pt-[9px] text-foreground">
