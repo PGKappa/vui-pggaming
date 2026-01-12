@@ -748,7 +748,7 @@ export default function SearchEventResults() {
                                 {eventResult.discipline === Discipline.SOCCER
                                   ? eventResult.jornada && (
                                       <span className="whitespace-nowrap border-l border-l-white pl-4">
-                                        {t('jornada')} {eventResult.jornada}
+                                        {t('round')} {eventResult.jornada}
                                       </span>
                                     )
                                   : (eventResult.track || '6') && (
