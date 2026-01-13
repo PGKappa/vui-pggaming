@@ -102,8 +102,6 @@ export default function Home() {
             <ScrollArea className="h-full w-full">
               {!!searchEventResults ? (
                 <SearchEventResults />
-              ) : isLoadingEvents ? (
-                <SkeletonRaceCard />
               ) : selectedEvent ? (
                 <UpcomingRaceCard race={selectedEvent} />
               ) : (
