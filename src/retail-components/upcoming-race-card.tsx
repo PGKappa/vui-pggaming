@@ -757,7 +757,7 @@ export default function UpcomingRaceCard({
           {/* Even/Odd Market */}
           <div>
             <div className="bg-accent text-accent-foreground">
-              <div className="border-slate flex h-[64px] items-center justify-center border-r text-[16px] font-bold">
+              <div className="border-slate flex h-[64px] items-center justify-center  text-[16px] font-bold">
                 {t('even_odd').toUpperCase()}
               </div>
             </div>
