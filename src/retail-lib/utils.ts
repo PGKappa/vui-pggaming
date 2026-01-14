@@ -50,7 +50,7 @@ export function normalizeMarketName(market: string): string {
 export const API_URLS = {
   PGVIRTUAL: 'http://localhost:8080',
   CASHIER_INIT: 'http://localhost:8080/api/init/cashier',
-  SOCCER: 'https://cvgl.it/football/incoming.php',
+  SOCCER: 'http://localhost:8080/football/incoming.php',
   // Base per altre chiamate se necessario
   BASE: 'https://pg-gaming.stg.startegois.com/proxy',
 } as const
