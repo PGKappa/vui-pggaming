@@ -270,15 +270,14 @@ export default function UpcomingRoundCard(props: {
 
                   return (
                     <React.Fragment key={`market-${index}`}>
+                      <TableHead className="w-[1px] bg-white p-0"></TableHead>
                       <TableHead
                         className="text-center font-bold"
                         colSpan={optionsCount}
                       >
                         {formatMarketHeader(market.name)}
                       </TableHead>
-                      {!isSpecialTab && (
-                        <TableHead className="w-[1px] bg-white p-0"></TableHead>
-                      )}
+                      <TableHead className="w-[1px] bg-white p-0"></TableHead>
                     </React.Fragment>
                   )
                 })}
@@ -410,12 +409,13 @@ export default function UpcomingRoundCard(props: {
 
                         return (
                           <React.Fragment key={`regular-market-${marketIndex}`}>
+                            <TableCell className="w-[1px] bg-border p-0"></TableCell>
                             {market.selections
                               .flatMap(({ selection }) => selection)
                               .map((option, i) => (
                                 <TableCell
                                   key={i}
-                                  className="justify-items-center px-[15px]"
+                                  className="justify-items-center px-[8px]"
                                 >
                                   <BetEntryToggle
                                     bet={{
@@ -434,9 +434,7 @@ export default function UpcomingRoundCard(props: {
                                   />
                                 </TableCell>
                               ))}
-                            {!isSpecialTab && (
-                              <TableCell className="w-[1px] bg-border p-0"></TableCell>
-                            )}
+                            <TableCell className="w-[1px] bg-border p-0"></TableCell>
                           </React.Fragment>
                         )
                       })
