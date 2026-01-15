@@ -183,12 +183,12 @@ export default function CashierContextProvider(props: {
           const getMinStakeIncrement = () => 0.05
           const getTimezone = () => cashierData.intl?.timezone || 'Europe/Rome'
           const getStakeButtons = () => {
-            const buttons = cashierData.dict?.misc?.stake_buttons
+            const buttons = cashierData.intl?.stake_buttons
             return Array.isArray(buttons) ? buttons : [1, 2, 5, 10]
           }
-          const getMinStake = () => cashierData.dict?.misc?.min_stake || 0.05
-          const getMinBet = () => cashierData.dict?.misc?.min_bet || 0.05
-          const getMaxWin = () => cashierData.dict?.misc?.max_win || 1000000000
+          const getMinStake = () => cashierData.intl?.min_stake || 0.05
+          const getMinBet = () => cashierData.intl?.min_bet || 0.05
+          const getMaxWin = () => cashierData.intl?.max_win || 1000000000
 
           const contextData: CashierContextType = {
             initCode,
