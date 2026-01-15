@@ -211,9 +211,12 @@ export default function CashierContextProvider(props: {
           setCashierContext(contextData)
           saveCashierToCache(initCode, contextData)
 
-          // Aggiorna lingua
+          // Aggiorna lingua e persisti per evitare fallback inattesi
           if (userData.lang && i18n.language !== userData.lang) {
             i18n.changeLanguage(userData.lang)
+            try {
+              localStorage.setItem('i18n.lang', userData.lang)
+            } catch {}
           }
 
           toast.success('Cashier initialized')
