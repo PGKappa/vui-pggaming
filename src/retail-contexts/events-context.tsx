@@ -46,13 +46,6 @@ export const EventsContext =
 // Cache leggero per evitare refetch se si torna su una disciplina già caricata
 const EVENTS_CACHE_TTL_MS = 60 * 1000
 
-/**
- * Estrae le discipline dall'URL
- * /retail/cavalli → [HORSES]
- * /retail/cani → [DOGS]
- * /retail/cani-cavalli → [DOGS, HORSES]
- * /retail/calcio → [SOCCER]
- */
 function getDisciplinesFromUrl(pathname: string): Discipline[] {
   if (!pathname) return []
 
@@ -97,7 +90,6 @@ export default function EventsContextProvider(props: {
   const eventDetailsCache = useRef(
     new Map<string, { timestamp: number; event: EventResult }>(),
   )
-  const keepaliveIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
   // Se initCode non è ancora disponibile da CashierContext, prova localStorage
   const effectiveInitCode =
@@ -116,7 +108,7 @@ export default function EventsContextProvider(props: {
     [],
   )
 
-  // 1️⃣ Dettaglio evento on-demand
+  // Dettaglio evento on-demand
   const fetchEventDetails = useCallback(
     async (extPalId: string, intEventId: string) => {
       if (!effectiveInitCode) {
@@ -127,7 +119,7 @@ export default function EventsContextProvider(props: {
       const cacheKey = `${extPalId}:${intEventId}`
       const cached = eventDetailsCache.current.get(cacheKey)
 
-      // 3️⃣ Cache dei dettagli - riusa se ancora valido (30s TTL)
+      // Cache dei dettagli - riusa se ancora valido (30s TTL)
       if (cached && Date.now() - cached.timestamp < 30000) {
         console.log('♻️ Using cached event details:', cacheKey)
         setCurrentEvent(cached.event)
@@ -202,8 +194,6 @@ export default function EventsContextProvider(props: {
               event: foundEvent,
             })
 
-            // 2️⃣ Avvia keepalive per questo evento
-            startKeepalive(extPalId, intEventId)
           } else {
             console.warn('⚠️ Event not found in API response')
           }
@@ -218,60 +208,10 @@ export default function EventsContextProvider(props: {
     [effectiveInitCode, operator, getTimezone],
   )
 
-  // 2️⃣ Keepalive/polling sul singolo evento selezionato
-  const startKeepalive = useCallback(
-    (extPalId: string, intEventId: string) => {
-      console.log('⏱️ startKeepalive called for:', { extPalId, intEventId })
-
-      // Stoppa il precedente keepalive se esiste
-      if (keepaliveIntervalRef.current) {
-        console.log('🛑 Stopping previous keepalive')
-        clearInterval(keepaliveIntervalRef.current)
-      }
-
-      // DISABILITO IL KEEPALIVE PER ORA - Debug
-      console.log('⏸️ KEEPALIVE DISABLED FOR DEBUG - polling paused')
-      return
-
-      // Poll ogni 5 secondi per aggiornare l'evento corrente (DISABLED)
-      /*
-      keepaliveIntervalRef.current = setInterval(async () => {
-        console.log('🔄 Keepalive tick - refreshing current event')
-        
-        // Invalida cache per forzare il refresh
-        const cacheKey = `${extPalId}:${intEventId}`
-        eventDetailsCache.current.delete(cacheKey)
-        
-        await fetchEventDetails(extPalId, intEventId)
-      }, 5000)
-      */
-    },
-    [fetchEventDetails],
-  )
-
-  // Cleanup del keepalive quando cambio evento o smonto
-  useEffect(() => {
-    return () => {
-      if (keepaliveIntervalRef.current) {
-        console.log('🧹 Cleaning up keepalive interval')
-        clearInterval(keepaliveIntervalRef.current)
-        keepaliveIntervalRef.current = null
-      }
-    }
-  }, [])
 
   // Carica eventi quando pathname cambia (cambio canale)
   useEffect(() => {
     const disciplines = getDisciplinesFromUrl(pathname)
-
-    console.log(`
-========================================
-📍 EventsContext EFFECT TRIGGERED
-   Pathname: ${pathname}
-   Disciplines: ${JSON.stringify(disciplines)}
-   InitCode: ${initCode ? initCode.slice(0, 8) + '...' : 'NONE'}
-========================================
-    `)
 
     // Mantieni eventi esistenti per evitare flicker; resetta solo ricerche
     console.log('🧹 Preserving events, clearing only search results')

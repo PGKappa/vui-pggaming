@@ -30,7 +30,6 @@ export type RootContextType = {
   getChannels?: () => any[]
   getTrackName?: (channel?: number) => string
   getTranslation?: (key: string, fallback?: string) => string
-
   // === Da EventsContext (per backward-compatibility) ===
   upcomingEvents?: UpcomingEvent[]
   searchEventResults?: EventResult[]
@@ -38,7 +37,6 @@ export type RootContextType = {
   isLoadingEvents: boolean
   eventResults?: EventResult[]
   teamRankings?: TeamRanking[]
-
   // === State locale (UI-specific) ===
   activeDrawerId?: string
   setActiveDrawer: (drawerId?: string) => void
@@ -61,11 +59,6 @@ const defaultRootContext: RootContextType = {
 
 export const RootContext = createContext<RootContextType>(defaultRootContext)
 
-/**
- * BRIDGE PROVIDER - Legge da CashierContext e EventsContext, espone nel RootContext
- * Performance: ~50 righe di codice vs 1475 precedenti
- * Responsabilità: SOLO aggregazione dati da sotto-contesti
- */
 export default function RootContextProvider(props: {
   children: React.ReactNode
 }) {
@@ -83,7 +76,6 @@ export default function RootContextProvider(props: {
   // Aggrega i dati da CashierContext e EventsContext nel RootContext
   const rootContextValue = useMemo(
     () => ({
-      // Da CashierContext
       initCode: cashierContext.initCode,
       operator: cashierContext.operator,
       userData: cashierContext.userData,
@@ -99,18 +91,16 @@ export default function RootContextProvider(props: {
       getChannels: cashierContext.getChannels,
       getTrackName: cashierContext.getTrackName,
       getTranslation: cashierContext.getTranslation,
-      // Da EventsContext (backward-compat)
       upcomingEvents: eventsContext.upcomingEvents,
       searchEventResults: eventsContext.searchEventResults,
       setSearchEventResults: eventsContext.setSearchEventResults,
       isLoadingEvents: eventsContext.isLoadingEvents,
       eventResults: eventsContext.eventResults,
       teamRankings: [], // Mock data - non viene da EventsContext
-      // State locale
       activeDrawerId,
       setActiveDrawer: handleSetActiveDrawer,
     }),
-    // ⚠️ CRITICAL: Dipendi SOLO dai valori primitivi e callback specifiche, NON dai full objects
+    // Dipende SOLO dai valori primitivi e callback specifiche, NON dai full objects
     [
       cashierContext.initCode,
       cashierContext.operator,
