@@ -412,3 +412,24 @@ export function getRacerColors(
     },
   }
 }
+
+/**
+ * Formatta i numeri per la valuta COP (Peso Colombiano)
+ * Usa virgola per separare le migliaia e punto per i decimali
+ * Es: 1000.50 → 1,000.50
+ */
+export function formatCOPNumber(value: number | string): string {
+  const num = typeof value === 'string' ? parseFloat(value) : value
+  
+  if (isNaN(num)) return '0.00'
+  
+  // Dividi la parte intera da quella decimale
+  const parts = num.toFixed(2).split('.')
+  const integerPart = parts[0]
+  const decimalPart = parts[1]
+  
+  // Aggiungi virgole ogni 3 cifre nella parte intera
+  const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  
+  return `${formattedInteger}.${decimalPart}`
+}

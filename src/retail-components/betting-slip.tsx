@@ -19,7 +19,7 @@ import {
   SubmittedTicket,
   UpcomingEvent,
 } from '@/retail-lib/types'
-import { createPGVirtualAPICall } from '@/retail-lib/utils'
+import { createPGVirtualAPICall, formatCOPNumber } from '@/retail-lib/utils'
 import {
   ChevronDown,
   CornerDownLeft,
@@ -89,6 +89,15 @@ export default function BettingSlip({
 
   // Ottieni il simbolo della valuta dall'API cashier
   const currencySymbol = rootContext?.getCurrencySymbol?.() || '€'
+  const currencyCode = rootContext?.getCurrencyCode?.() || 'EUR'
+
+  // Helper per formattare i numeri solo per COP
+  const formatAmount = (value: number): string => {
+    if (currencyCode === 'COP') {
+      return formatCOPNumber(value)
+    }
+    return value.toFixed(2)
+  }
 
   // Ottieni i valori dei pulsanti stake dall'API
   const stakeButtons = rootContext?.getStakeButtons?.() || [
@@ -1282,7 +1291,7 @@ export default function BettingSlip({
                 {t('total_odd').toUpperCase()}
               </span>
               <span className="relative bottom-[3px] text-[15px] font-bold">
-                {totalOdds.toFixed(2)}
+                {formatAmount(totalOdds)}
               </span>
             </div>
             <Separator />
@@ -1328,7 +1337,7 @@ export default function BettingSlip({
                 {t('potential_win').toUpperCase()}
               </span>
               <span className="text-[17px] font-semibold">
-                {currencySymbol} {potentialWinning.toFixed(2)}
+                {currencySymbol} {formatAmount(potentialWinning)}
               </span>
             </div>
           </>
@@ -1606,7 +1615,7 @@ export default function BettingSlip({
                                 </div>
                                 <div className="relative top-[0px] text-[13px] font-normal">
                                   {currencySymbol}{' '}
-                                  {(group.minWin * group.stake).toFixed(2)}
+                                  {formatAmount(group.minWin * group.stake)}
                                 </div>
                               </div>
                               <div className="relative right-[12px] text-center text-[12px] font-semibold">
@@ -1615,7 +1624,7 @@ export default function BettingSlip({
                                 </div>
                                 <div className="relative top-[0px] text-[13px] font-normal">
                                   {currencySymbol}{' '}
-                                  {(group.maxWin * group.stake).toFixed(2)}
+                                  {formatAmount(group.maxWin * group.stake)}
                                 </div>
                               </div>
                               <div className="relative right-[16px] text-center text-[12px] font-semibold">
@@ -1624,9 +1633,9 @@ export default function BettingSlip({
                                 </div>
                                 <div className="relative top-[0px] text-[13px] font-normal">
                                   {currencySymbol}{' '}
-                                  {(
+                                  {formatAmount(
                                     group.stake * group.combinations.length
-                                  ).toFixed(2)}
+                                  )}
                                 </div>
                               </div>
                             </div>
@@ -1679,7 +1688,7 @@ export default function BettingSlip({
                 {t('potential_win').toUpperCase()}
               </span>
               <span className="text-[17px] font-semibold">
-                {currencySymbol} {totalSystemPotentialWin.toFixed(2)}
+                {currencySymbol} {formatAmount(totalSystemPotentialWin)}
               </span>
             </div>
           </>

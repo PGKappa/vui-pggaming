@@ -13,6 +13,7 @@ import { MinusIcon, PlusIcon, Delete, ChevronDown } from 'lucide-react'
 import { useState, useEffect, useContext, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { RootContext } from '@/retail-contexts/root-context'
+import { formatCOPNumber } from '@/retail-lib/utils'
 
 export default function NumericKeypadDrawer(props: {
   value: number
@@ -25,7 +26,7 @@ export default function NumericKeypadDrawer(props: {
   incrementValue?: number
 }) {
   const { t } = useTranslation()
-  const { activeDrawerId, setActiveDrawer, getCurrencySymbol, getMinStakeIncrement } =
+  const { activeDrawerId, setActiveDrawer, getCurrencySymbol, getCurrencyCode, getMinStakeIncrement } =
     useContext(RootContext)
   const [value, setValue] = useState(props.value)
   const [drawerValue, setDrawerValue] = useState('0.00')
@@ -34,6 +35,16 @@ export default function NumericKeypadDrawer(props: {
 
   // Get currency symbol from RootContext or fallback to prop/€
   const currencySymbol = getCurrencySymbol?.() || props.currencySymbol || '€'
+  const currencyCode = getCurrencyCode?.() || 'EUR'
+  
+  // Helper per formattare i numeri solo per COP
+  const formatDisplayValue = (val: string): string => {
+    if (currencyCode === 'COP') {
+      const num = parseFloat(val) || 0
+      return formatCOPNumber(num)
+    }
+    return val
+  }
   
   // Get increment value from prop or context
   const incrementValue = props.incrementValue ?? getMinStakeIncrement?.() ?? 50
@@ -244,7 +255,7 @@ export default function NumericKeypadDrawer(props: {
           {/* Display Value */}
           <div className="flex items-center gap-3">
             <Input
-              value={drawerValue}
+              value={formatDisplayValue(drawerValue)}
               onChange={() => {}}
               onKeyDown={handleKeyDown}
               className="h-12 flex-1 border-[1px] pr-2 text-right text-[22px] font-bold"

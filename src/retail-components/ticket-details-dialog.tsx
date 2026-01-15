@@ -17,6 +17,7 @@ import {
 import { Button } from '@/retail-components/ui/button'
 import { ScrollArea } from '@radix-ui/react-scroll-area'
 import { Ticket } from '@/retail-lib/types'
+import { formatCOPNumber } from '@/retail-lib/utils'
 import { t } from 'i18next'
 import { useContext } from 'react'
 import { RootContext } from '@/retail-contexts/root-context'
@@ -24,6 +25,15 @@ import { RootContext } from '@/retail-contexts/root-context'
 export default function TicketDetailsDialog({ ticket }: { ticket: Ticket }) {
   const rootContext = useContext(RootContext)
   const currencySymbol = rootContext?.getCurrencySymbol?.() || '$'
+  const currencyCode = rootContext?.getCurrencyCode?.() || 'EUR'
+
+  // Helper per formattare i numeri solo per COP
+  const formatAmount = (value: number): string => {
+    if (currencyCode === 'COP') {
+      return formatCOPNumber(value)
+    }
+    return value.toFixed(2)
+  }
 
   if (!ticket || !ticket.id) {
     return (
@@ -103,10 +113,10 @@ export default function TicketDetailsDialog({ ticket }: { ticket: Ticket }) {
                           {ticket.status}
                         </TableCell>
                         <TableCell className="text-center">
-                          {currencySymbol} {ticket.amount.toFixed(2)}
+                          {currencySymbol} {formatAmount(ticket.amount)}
                         </TableCell>
                         <TableCell className="text-right">
-                          {ticket.winning.toFixed(2)}
+                          {formatAmount(ticket.winning)}
                         </TableCell>
                       </TableRow>
                     </TableBody>
