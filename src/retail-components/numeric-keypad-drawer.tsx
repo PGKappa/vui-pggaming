@@ -217,7 +217,7 @@ export default function NumericKeypadDrawer(props: {
         <div className="relative inline-block">
           <Input
             type="text"
-            value={`${currencySymbol} ${value.toFixed(2)}`}
+            value={`${currencySymbol} ${typeof value === 'number' ? value.toFixed(2) : parseFloat(String(value) || '0').toFixed(2)}`}
             className={`bg-background-foreground h-8 text-center ${props.inputWidth || 'w-20'}`}
             readOnly
             onClick={openDrawer}
