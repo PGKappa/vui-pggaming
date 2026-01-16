@@ -23,9 +23,13 @@ const resources = {
 
 // Prova a recuperare la lingua dal localStorage o usa 'es' come default
 const getInitialLanguage = () => {
-  if (typeof window === 'undefined') return 'es'
+  if (typeof window === 'undefined') return 'en'
 
   try {
+    // Nuova chiave semplice e dedicata
+    const storedLang = localStorage.getItem('i18n.lang')
+    if (storedLang) return storedLang
+
     const cached = localStorage.getItem('rootContext')
     if (cached) {
       const data = JSON.parse(cached)
@@ -36,7 +40,7 @@ const getInitialLanguage = () => {
   } catch {
     // Ignora errori di parsing
   }
-  return 'es' // Default a spagnolo invece di inglese
+  return 'en' // Default a inglese
 }
 
 i18n.use(initReactI18next).init({

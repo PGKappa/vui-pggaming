@@ -1,7 +1,11 @@
 import { BetsContext } from '@/retail-contexts/bets-context'
 import { RootContext } from '@/retail-contexts/root-context'
 import { UpcomingEvent, UpcomingRace } from '@/retail-lib/types'
-import { getRacerColors, createPGVirtualAPICall, normalizeMarketName } from '@/retail-lib/utils'
+import {
+  getRacerColors,
+  createPGVirtualAPICall,
+  normalizeMarketName,
+} from '@/retail-lib/utils'
 import { t } from 'i18next'
 import { useContext, useEffect, useState } from 'react'
 import BetCombinationsTable from './bet-combination-table'
@@ -49,6 +53,7 @@ export default function UpcomingRaceCard({
   const [fixedSelection, setFixedSelection] = useState<number[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isLatecomersDialogOpen, setIsLatecomersDialogOpen] = useState(false)
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false) // ← Aggiungo questo
 
   // Aggiungi il context
   const { betEntries } = useContext(BetsContext)
@@ -100,12 +105,16 @@ export default function UpcomingRaceCard({
         const market = entry.market
         const competitors = entry.bet.competitors
         const outcome = entry.bet.option.outcome
-        
+
         // Normalizza il market per riconoscere tutte le lingue
         const normalized = normalizeMarketName(market)
 
         // Cambia automaticamente il tab basato sul market FastBet
-        if (normalized === 'winner' || normalized === 'placed' || normalized === 'show') {
+        if (
+          normalized === 'winner' ||
+          normalized === 'placed' ||
+          normalized === 'show'
+        ) {
           // Per mercati singoli: outcome contiene il numero, competitors contiene il nome
           const competitorNum = parseInt(outcome)
           if (!isNaN(competitorNum) && !newPosition1.includes(competitorNum)) {
@@ -126,7 +135,10 @@ export default function UpcomingRaceCard({
           }
           setActiveTab('couples')
           setMarketType(normalized === 'exacta' ? 'exacta' : 'quinella')
-        } else if (normalized === 'trifecta' || normalized === 'boxed_trifecta') {
+        } else if (
+          normalized === 'trifecta' ||
+          normalized === 'boxed_trifecta'
+        ) {
           const parts = competitors
             .split('-')
             .map((n: string) => parseInt(n.trim()))
@@ -221,7 +233,10 @@ export default function UpcomingRaceCard({
 
   useEffect(() => {
     const fetchEventInfo = async () => {
-      setIsLoading(true)
+      // Mostra loading solo al primo caricamento; gli aggiornamenti successivi sono silenziosi
+      if (!hasLoadedOnce) {
+        setIsLoading(true)
+      }
       try {
         const response = await createPGVirtualAPICall(
           `/api/event/info/${race.extId}/${race.id}`,
@@ -240,6 +255,7 @@ export default function UpcomingRaceCard({
           id: parseInt(data.int_event_id),
         }
         setRaceInfo(upcomingRace)
+        setHasLoadedOnce(true) 
       } catch (error) {
         console.error('Error fetching event info:', error)
       } finally {
@@ -248,7 +264,13 @@ export default function UpcomingRaceCard({
     }
 
     fetchEventInfo()
-  }, [race.id, race.extId, rootContext.initCode, rootContext.operator])
+  }, [
+    race.id,
+    race.extId,
+    rootContext.initCode,
+    rootContext.operator,
+    hasLoadedOnce,
+  ])
 
   useEffect(() => {
     if (onSelectionChange) {
@@ -487,8 +509,8 @@ export default function UpcomingRaceCard({
         <>
           <TableCell className="p-2 text-center">
             <BetEntryToggle
-                      marketName={t('winner')}
-                      apiMarketName="winner"
+              marketName={t('winner')}
+              apiMarketName="winner"
               bet={{
                 discipline: race.discipline,
                 event: {
@@ -506,15 +528,15 @@ export default function UpcomingRaceCard({
                 track: getTrackName(6),
               }}
               variant="racecard"
-              className=" tabular-nums h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] text-betEntry-foreground hover:opacity-85"
+              className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] tabular-nums text-betEntry-foreground hover:opacity-85"
             />
           </TableCell>
           <TableCell className="w-[1px] bg-border p-0" />
 
           <TableCell className="p-2 text-center">
             <BetEntryToggle
-                      marketName={t('placed')}
-                      apiMarketName="placed"
+              marketName={t('placed')}
+              apiMarketName="placed"
               bet={{
                 discipline: race.discipline,
                 event: {
@@ -532,7 +554,7 @@ export default function UpcomingRaceCard({
                 track: getTrackName(6),
               }}
               variant="racecard"
-              className="tabular-nums h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] text-betEntry-foreground hover:opacity-85"
+              className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] tabular-nums text-betEntry-foreground hover:opacity-85"
             />
           </TableCell>
 
@@ -540,8 +562,8 @@ export default function UpcomingRaceCard({
 
           <TableCell className="p-2 text-center">
             <BetEntryToggle
-                      marketName={t('show')}
-                      apiMarketName="show"
+              marketName={t('show')}
+              apiMarketName="show"
               bet={{
                 discipline: race.discipline,
                 event: {
@@ -559,7 +581,7 @@ export default function UpcomingRaceCard({
                 track: getTrackName(6),
               }}
               variant="racecard"
-              className="tabular-nums h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] text-betEntry-foreground hover:opacity-85"
+              className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] tabular-nums text-betEntry-foreground hover:opacity-85"
             />
           </TableCell>
         </>

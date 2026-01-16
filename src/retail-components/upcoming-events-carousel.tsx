@@ -12,6 +12,7 @@ import { Discipline, UpcomingEvent } from '@/retail-lib/types'
 import { useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import useTimeLeft from '@/retail-lib/use-time-left'
+import { usePathname } from 'next/navigation'
 
 export function UpcomingEventsCarousel(props: {
   selectedEvent?: UpcomingEvent
@@ -20,30 +21,34 @@ export function UpcomingEventsCarousel(props: {
   const { upcomingEvents, isLoadingEvents } = useContext(RootContext)
 
   const { t } = useTranslation()
+  const pathname = usePathname()
 
   const disciplines = useMemo(() => {
-    const path = window.location.pathname
-    if (path.includes('dogs-horses')) {
+    const path = (pathname || '/').toLowerCase()
+    if (path.includes('dogs-horses') || path.includes('cani-cavalli')) {
       return [Discipline.DOGS, Discipline.HORSES]
-    } else if (path.includes('dogs')) {
+    } else if (path.includes('dogs') || path.includes('cani')) {
       return [Discipline.DOGS]
-    } else if (path.includes('horses')) {
+    } else if (path.includes('horses') || path.includes('cavalli')) {
       return [Discipline.HORSES]
     } else {
       return [Discipline.SOCCER]
     }
-  }, [])
+  }, [pathname])
 
   const filteredAndSortedEvents = useMemo(() => {
-    return upcomingEvents
-      ? upcomingEvents
-          .filter((event) => disciplines.includes(event.discipline))
-          .sort((a, b) => {
-            const timeA = new Date(a.time).getTime()
-            const timeB = new Date(b.time).getTime()
-            return timeA - timeB
-          })
-      : []
+    const events = upcomingEvents || []
+    const filtered = events.filter((event) =>
+      disciplines.includes(event.discipline),
+    )
+    const sorted = filtered.sort((a, b) => {
+      const timeA =
+        a.time instanceof Date ? a.time.getTime() : new Date(a.time).getTime()
+      const timeB =
+        b.time instanceof Date ? b.time.getTime() : new Date(b.time).getTime()
+      return timeA - timeB
+    })
+    return sorted
   }, [upcomingEvents, disciplines])
 
   const [nowMs, setNowMs] = useState(() => Date.now())
@@ -164,7 +169,9 @@ function UpcomingEventItem(props: {
 
   return (
     <CarouselItem
-      className={`relative flex h-[88px]  basis-1/6  cursor-pointer flex-row items-center justify-center gap-3 overflow-hidden border-l-8 border-l-background  px-2 py-2 text-[15px]  last:border-r-8 last:border-r-background ${
+
+      className={`relative flex h-[88px] max-w-[284px] basis-1/5 cursor-pointer flex-row items-center justify-center gap-3 overflow-hidden border-l-8 border-l-background px-2 py-2 text-[15px] last:border-r-8 last:border-r-background ${
+
         event.id === props.selectedEvent?.id &&
         event.discipline === props.selectedEvent?.discipline
           ? 'bg-[hsl(211deg_65%_37%_/_.9)] text-tertiary-foreground'
@@ -173,8 +180,7 @@ function UpcomingEventItem(props: {
       onClick={() => {
         props.setSelectedEvent(event)
       }}
-    > 
-
+    >
       <Image
         src={
           event.discipline === 'SOCCER'
@@ -186,9 +192,11 @@ function UpcomingEventItem(props: {
         alt={'Horses'}
         width={40}
         height={20}
-        className="size-14 object-contain relative right-[8px] bottom-[4px]"
+
+        className="relative bottom-[4px] right-[4px] size-14 object-contain"
       />
-      <div className="flex flex-col items-start left-[0px] relative">
+      <div className="relative left-1 flex flex-col items-start">
+
         <span className="relative bottom-[7px] whitespace-nowrap text-[14px] font-semibold uppercase">
           {event.discipline === 'SOCCER'
             ? event.name
@@ -205,7 +213,9 @@ function UpcomingEventItem(props: {
           <span className="relative bottom-[1px] text-[14px] font-semibold">
             {event.startTime}
           </span>
-          <span className="relative bottom-[1px]  py-[1px] pt-0 text-[14px] font-semibold px-2 text-black bg-white left-[8px] tabular-nums">
+
+          <span className="relative bottom-[1px] left-1 bg-white px-2 py-[1px] pt-0 text-[14px] font-semibold text-black">
+
             {timeToEventStart}
           </span>
         </div>
