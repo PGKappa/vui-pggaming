@@ -2,6 +2,7 @@
 
 import Navbar from '@/retail-components/navbar'
 import { Toaster } from '@/retail-components/ui/sonner'
+import InactivityBridge from '@/retail-components/inactivity-bridge'
 import BetsContextProvider from '@/retail-contexts/bets-context'
 import CashierContextProvider from '@/retail-contexts/cashier-context'
 import EventsContextProvider from '@/retail-contexts/events-context'
@@ -49,6 +50,7 @@ function SkinBody({ children }: { children: React.ReactNode }) {
     <body
       className={`${inter.variable} ${skin} flex h-screen flex-col font-inter antialiased`}
     >
+      <InactivityBridge />
       <CashierContextProvider>
         <EventsContextProvider key={pathname}>
           <RootContextProvider>
