@@ -80,11 +80,20 @@ export default function SearchEventResults() {
         )
 
         if (!response.ok) {
+          console.warn('Response not ok:', response.status)
           return null
         }
 
-        return await response.json()
-      } catch {
+        const data = await response.json()
+        
+        // Controlla se è un errore API (ha ret_code senza dati reali)
+        if (data.ret_code && !data.odds && !data.arrival) {
+          return null
+        }
+        
+        return data
+      } catch (error) {
+        console.error('Error fetching detailed result:', error)
         return null
       }
     },
@@ -157,8 +166,11 @@ export default function SearchEventResults() {
               return
             }
 
+            // LIMITA a 10 risultati PRIMA di fare fetch dettagli (altrimenti troppe richieste)
+            const limitedItems = data.items.slice(0, 10)
+
             const results: EventResult[] = await Promise.all(
-              data.items.map(async (event: any) => {
+              limitedItems.map(async (event: any) => {
                 const detailedResult = await fetchDetailedEventResult(
                   event.ext_pal_id,
                   event.int_event_id.toString(),
@@ -329,11 +341,29 @@ export default function SearchEventResults() {
               }
 
               let raceResult = detailedResult
-              if (detailedResult && !detailedResult.arrival && result.arrival) {
+              
+              // Se detailedResult è null o non ha dati, crea oggetto di fallback dai dati base
+              if (!detailedResult) {
+                // Se arrival è vuoto, ritorna null per filtrare il risultato
+                if (!result.arrival || result.arrival.length === 0) {
+                  return null
+                }
+                
+                raceResult = {
+                  arrival: (result.arrival as Array<{name: string; number: number}>)?.map((item: any) => ({
+                    name: item.name,
+                    number: item.number,
+                  })) || [],
+                  odds: {},
+                } as RaceResult
+              } else if (detailedResult && !detailedResult.arrival && result.arrival) {
                 raceResult = {
                   ...detailedResult,
-                  arrival: result.arrival,
-                }
+                  arrival: (result.arrival as Array<{name: string; number: number}>)?.map((item: any) => ({
+                    name: item.name,
+                    number: item.number,
+                  })) || [],
+                } as RaceResult
               }
 
               const trackValue =
@@ -353,6 +383,9 @@ export default function SearchEventResults() {
               } as EventResult
             }),
           )
+          
+          // FILTRA via i risultati null (quelli senza arrival disponibile)
+          results = results.filter((r: EventResult | null) => r !== null) as EventResult[]
         } else if (discipline === Discipline.SOCCER) {
           // OTTIMIZZAZIONE: Filtra per fascia oraria anche per SOCCER
           let filteredItems = data.items
@@ -527,7 +560,24 @@ export default function SearchEventResults() {
               (result) => result.discipline === confirmedDiscipline,
             )
 
-      const filtered = resultsToUse
+      // Applica filtro fascia oraria se specificato
+      let filtered = resultsToUse
+      if (confirmedTimeSlot !== 'ALL') {
+        const [startTimeStr, endTimeStr] = confirmedTimeSlot.split(' | ')
+        const [startHours, startMinutes] = startTimeStr.split(':').map(Number)
+        const [endHours, endMinutes] = endTimeStr.split(':').map(Number)
+        const startInMinutes = startHours * 60 + startMinutes
+        const endInMinutes = endHours * 60 + endMinutes
+
+        filtered = filtered.filter((result) => {
+          const hours = result.startTime.getHours()
+          const minutes = result.startTime.getMinutes()
+          const timeInMinutes = hours * 60 + minutes
+          return timeInMinutes >= startInMinutes && timeInMinutes <= endInMinutes
+        })
+      }
+
+      filtered = filtered
         .sort((a, b) => b.startTime.getTime() - a.startTime.getTime())
         .slice(0, 10)
 
@@ -546,6 +596,7 @@ export default function SearchEventResults() {
     confirmedDiscipline,
     confirmedDate,
     confirmedLastTenGames,
+    confirmedTimeSlot,
     fetchedResults,
     rootContext.eventResults,
   ])
