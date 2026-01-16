@@ -49,11 +49,15 @@ const EVENTS_CACHE_TTL_MS = 60 * 1000
 function getDisciplinesFromUrl(pathname: string): Discipline[] {
   if (!pathname) return []
 
-  if (pathname.includes('dogs-horses'))
+  const p = pathname.toLowerCase()
+
+  // Support both English and Italian slugs
+  if (p.includes('dogs-horses') || p.includes('cani-cavalli'))
     return [Discipline.DOGS, Discipline.HORSES]
-  if (pathname.includes('horses')) return [Discipline.HORSES]
-  if (pathname.includes('dogs')) return [Discipline.DOGS]
-  if (pathname.includes('calcio')) return [Discipline.SOCCER]
+  if (p.includes('horses') || p.includes('cavalli')) return [Discipline.HORSES]
+  if (p.includes('dogs') || p.includes('cani')) return [Discipline.DOGS]
+  if (p.includes('calcio') || p.includes('football') || p.includes('soccer'))
+    return [Discipline.SOCCER]
 
   return []
 }
@@ -193,7 +197,6 @@ export default function EventsContextProvider(props: {
               timestamp: Date.now(),
               event: foundEvent,
             })
-
           } else {
             console.warn('⚠️ Event not found in API response')
           }
@@ -207,7 +210,6 @@ export default function EventsContextProvider(props: {
     },
     [effectiveInitCode, operator, getTimezone],
   )
-
 
   // Carica eventi quando pathname cambia (cambio canale)
   useEffect(() => {
@@ -226,9 +228,17 @@ export default function EventsContextProvider(props: {
       return
     }
 
+    const nocache =
+      typeof window !== 'undefined' &&
+      new URLSearchParams(window.location.search).get('nocache') === '1'
+
     const cacheKey = `${effectiveInitCode}:${disciplines.sort().join('+')}`
     const cached = eventsCacheRef.current.get(cacheKey)
-    if (cached && Date.now() - cached.timestamp < EVENTS_CACHE_TTL_MS) {
+    if (
+      !nocache &&
+      cached &&
+      Date.now() - cached.timestamp < EVENTS_CACHE_TTL_MS
+    ) {
       console.log('♻️ Using cached events for disciplines', disciplines)
       console.log('   Cache age:', Date.now() - cached.timestamp, 'ms')
       setUpcomingEvents(cached.upcoming)
@@ -270,16 +280,32 @@ export default function EventsContextProvider(props: {
           if (response.ok) {
             const racingData = await response.json()
             console.log('🎯 API Response - racingData:', racingData)
-            console.log('🔍 Channel 0 (Dogs):', racingData.channels?.[0])
-            console.log('🔍 Channel 1 (Horses):', racingData.channels?.[1])
+            console.log('🔍 Channels:', racingData.channels)
             const timezone = getTimezone?.() || 'Europe/Rome'
 
             // Dogs
             if (disciplines.includes(Discipline.DOGS)) {
-              const dogChannel = racingData.channels?.[0]
+              const channels = Array.isArray(racingData.channels)
+                ? racingData.channels
+                : []
+              const dogChannel =
+                channels.find(
+                  (c: any) =>
+                    typeof c?.name === 'string' && /dog|grey/i.test(c.name),
+                ) || channels[0]
+              if (!dogChannel) {
+                console.warn(
+                  '⚠️ No dog channel found. Available channels:',
+                  channels?.map((c: any) => c?.name),
+                )
+              }
 
               // Upcoming events
               if (dogChannel?.next_events) {
+                console.log(
+                  '🐶 Dog next_events count:',
+                  dogChannel.next_events.length,
+                )
                 const dogEvents = dogChannel.next_events.map(
                   (event: any, idx: number): UpcomingEvent => {
                     let startTime: Date
@@ -317,6 +343,10 @@ export default function EventsContextProvider(props: {
 
               // Event results
               if (dogChannel?.prev_events) {
+                console.log(
+                  '🐶 Dog prev_events count:',
+                  dogChannel.prev_events.length,
+                )
                 const dogResults: EventResult[] = dogChannel.prev_events.map(
                   (event: any): EventResult => {
                     const trackValue = event.track_name || event.track
@@ -355,10 +385,27 @@ export default function EventsContextProvider(props: {
 
             // Horses
             if (disciplines.includes(Discipline.HORSES)) {
-              const horseChannel = racingData.channels?.[1]
+              const channels = Array.isArray(racingData.channels)
+                ? racingData.channels
+                : []
+              const horseChannel =
+                channels.find(
+                  (c: any) =>
+                    typeof c?.name === 'string' && /horse|cavall/i.test(c.name),
+                ) || channels[1]
+              if (!horseChannel) {
+                console.warn(
+                  '⚠️ No horse channel found. Available channels:',
+                  channels?.map((c: any) => c?.name),
+                )
+              }
 
               // Upcoming events
               if (horseChannel?.next_events) {
+                console.log(
+                  '🐴 Horse next_events count:',
+                  horseChannel.next_events.length,
+                )
                 const horseEvents = horseChannel.next_events.map(
                   (event: any, idx: number): UpcomingEvent => {
                     let startTime: Date
@@ -396,6 +443,10 @@ export default function EventsContextProvider(props: {
 
               // Event results
               if (horseChannel?.prev_events) {
+                console.log(
+                  '🐴 Horse prev_events count:',
+                  horseChannel.prev_events.length,
+                )
                 const horseResults: EventResult[] =
                   horseChannel.prev_events.map((event: any): EventResult => {
                     const trackValue = event.track_name || event.track
@@ -455,11 +506,15 @@ export default function EventsContextProvider(props: {
         )
         setUpcomingEvents(allUpcomingEvents)
         setEventResults(allEventResults)
-        eventsCacheRef.current.set(cacheKey, {
-          timestamp: Date.now(),
-          upcoming: allUpcomingEvents,
-          results: allEventResults,
-        })
+        if (!nocache) {
+          eventsCacheRef.current.set(cacheKey, {
+            timestamp: Date.now(),
+            upcoming: allUpcomingEvents,
+            results: allEventResults,
+          })
+        } else {
+          console.log('🚫 Cache bypassed due to nocache=1')
+        }
         hasLoadedOnce.current = true
         console.log('📊 Events set in state:', {
           upcomingCount: allUpcomingEvents.length,
