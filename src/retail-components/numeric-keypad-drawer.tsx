@@ -25,8 +25,13 @@ export default function NumericKeypadDrawer(props: {
   incrementValue?: number
 }) {
   const { t } = useTranslation()
-  const { activeDrawerId, setActiveDrawer, getCurrencySymbol, getMinStakeIncrement } =
-    useContext(RootContext)
+  const {
+    activeDrawerId,
+    setActiveDrawer,
+    getCurrencySymbol,
+    getMinStakeIncrement,
+    getStakeButtons,
+  } = useContext(RootContext)
   const [value, setValue] = useState(props.value)
   const [drawerValue, setDrawerValue] = useState('0.00')
   const [shouldReplaceOnNextDigit, setShouldReplaceOnNextDigit] =
@@ -34,9 +39,14 @@ export default function NumericKeypadDrawer(props: {
 
   // Get currency symbol from RootContext or fallback to prop/€
   const currencySymbol = getCurrencySymbol?.() || props.currencySymbol || '€'
-  
+
   // Get increment value from prop or context
   const incrementValue = props.incrementValue ?? getMinStakeIncrement?.() ?? 50
+
+  // Get stake buttons from context or fallback to defaults
+  const stakeButtons = useMemo(() => {
+    return getStakeButtons?.() || [1000, 2000, 3000, 5000, 10000]
+  }, [getStakeButtons])
 
   // Genera un ID univoco per questo drawer se non fornito
   const drawerId = useMemo(
@@ -207,7 +217,7 @@ export default function NumericKeypadDrawer(props: {
         <div className="relative inline-block">
           <Input
             type="text"
-            value={`${currencySymbol} ${value.toFixed(2)}`}
+            value={`${currencySymbol} ${typeof value === 'number' ? value.toFixed(2) : parseFloat(String(value) || '0').toFixed(2)}`}
             className={`bg-background-foreground h-8 text-center ${props.inputWidth || 'w-20'}`}
             readOnly
             onClick={openDrawer}
@@ -225,8 +235,8 @@ export default function NumericKeypadDrawer(props: {
     >
       <DrawerTrigger asChild>{renderTrigger()}</DrawerTrigger>
 
-      <DrawerContent className="ml-auto mr-2 w-[396px] border-0 h-[469px]">
-        <DrawerHeader className="relative bg-secondary text-accent-foreground h-[45px]">
+      <DrawerContent className="ml-auto mr-2 h-[469px] w-[396px] border-0">
+        <DrawerHeader className="relative h-[45px] bg-secondary text-accent-foreground">
           <DrawerTitle className="relative bottom-[1px] text-center text-accent-foreground">
             {props.triggerLabel || t('enter_stake_amount')}
           </DrawerTitle>
@@ -260,47 +270,23 @@ export default function NumericKeypadDrawer(props: {
           </div>
 
           {/* Preset Values */}
-          <div className="grid grid-cols-5 gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-10 text-[16px] font-semibold tabular-nums"
-              onClick={() => handlePresetValue(1000)}
-            >
-              {/* {currencySymbol} */} 1000
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-10 text-[16px] font-semibold tabular-nums"
-              onClick={() => handlePresetValue(2000)}
-            >
-              {/* {currencySymbol} */} 2000
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-10 text-[16px] font-semibold tabular-nums"
-              onClick={() => handlePresetValue(3000)}
-            >
-              {/* {currencySymbol} */} 3000
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-10 text-[16px] font-semibold tabular-nums"
-              onClick={() => handlePresetValue(5000)}
-            >
-              {/* {currencySymbol} */} 5000
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-10 text-[16px] font-semibold tabular-nums"
-              onClick={() => handlePresetValue(10000)}
-            >
-              {/* {currencySymbol} */} 10000
-            </Button>
+          <div
+            className="grid gap-2"
+            style={{
+              gridTemplateColumns: `repeat(${Math.min(stakeButtons.length, 5)}, minmax(0, 1fr))`,
+            }}
+          >
+            {stakeButtons.map((amount) => (
+              <Button
+                key={amount}
+                variant="outline"
+                size="sm"
+                className="h-10 text-[16px] font-semibold tabular-nums"
+                onClick={() => handlePresetValue(amount)}
+              >
+                {amount}
+              </Button>
+            ))}
           </div>
 
           {/* Keypad */}
@@ -408,7 +394,7 @@ export default function NumericKeypadDrawer(props: {
 
           <Button
             onClick={handleConfirm}
-            className="h-12 w-full bg-tertiary text-[18px] text-accent-foreground hover:opacity-95 tabular-nums"
+            className="h-12 w-full bg-tertiary text-[18px] tabular-nums text-accent-foreground hover:opacity-95"
           >
             {t('ok')}
           </Button>
