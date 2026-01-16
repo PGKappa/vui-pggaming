@@ -116,7 +116,7 @@ export default function Home() {
           />
         </div>
 
-        <div className="flex h-[942px] w-[1503px] flex-col gap-2 overflow-y-auto pl-1">
+        <div className="flex h-[942px] w-[1503px] flex-col gap-2 overflow-y-auto pl-1 tabular-nums">
           {!!searchEventResults ? (
             <SearchEventResults />
           ) : isLoadingEvents ? (

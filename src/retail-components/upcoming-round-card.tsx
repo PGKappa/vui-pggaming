@@ -324,8 +324,8 @@ export default function UpcomingRoundCard(props: {
                                 key={`special-market-${marketIndex}`}
                               >
                                 <TableCell className="w-[1px] bg-border p-0"></TableCell>
-                                <TableCell className="w-1 justify-items-center px-[8px] pl-2">
-                                  <div className="flex flex-row items-center justify-between gap-0.5">
+                                <TableCell className="w-1  justify-items-center px-[5px]">
+                                  <div className="flex flex-row items-center justify-between gap-[5px]">
                                     {options.map((option, i) => (
                                       <BetEntryToggle
                                         key={i}
@@ -341,7 +341,7 @@ export default function UpcomingRoundCard(props: {
                                         }}
                                         marketName={market.name}
                                         variant="roundcard"
-                                        className="w-[100px] text-[16px] font-semibold"
+                                        className="w-[100px] text-[16px] font-semibold tabular-nums"
                                       />
                                     ))}
                                   </div>
@@ -377,7 +377,7 @@ export default function UpcomingRoundCard(props: {
                                     key={chunkIndex}
                                     className={`flex flex-row items-center py-1 ${
                                       selectedTab === t('combo')
-                                        ? 'justify-center gap-10'
+                                        ? 'justify-center gap-[34px] px-[14px]'
                                         : 'gap-2'
                                     }`}
                                   >
@@ -396,7 +396,7 @@ export default function UpcomingRoundCard(props: {
                                         }}
                                         marketName={market.name}
                                         variant="roundcard"
-                                        className="w-[100px] text-[16px] font-semibold"
+                                        className="w-[100px] text-[16px] font-semibold tabular-num"
                                       />
                                     ))}
                                   </div>
@@ -430,7 +430,7 @@ export default function UpcomingRoundCard(props: {
                                     }}
                                     marketName={market.name}
                                     variant="roundcard"
-                                    className="h-[51px] w-[100px] text-[16px] font-semibold"
+                                    className="h-[51px] w-[100px] text-[16px] font-semibold tabular-nums"
                                   />
                                 </TableCell>
                               ))}
