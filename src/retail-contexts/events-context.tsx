@@ -490,7 +490,7 @@ export default function EventsContextProvider(props: {
           try {
             // TODO: Sostituire con l'endpoint corretto per il calcio
             const soccerResponse = await fetch(
-              `https://cvgl.it/football/incoming.php?t=${Date.now()}`,
+              `http://localhost:8080/football/incoming.php?t=${Date.now()}`,
             )
             if (soccerResponse.ok) {
               const soccerData = await soccerResponse.json()
