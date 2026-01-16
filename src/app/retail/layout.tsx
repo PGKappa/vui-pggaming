@@ -2,6 +2,8 @@
 
 import Navbar from '@/retail-components/navbar'
 import { Toaster } from '@/retail-components/ui/sonner'
+import InactivityBridge from '@/retail-components/inactivity-bridge'
+import ZoomBlocker from '@/retail-components/zoom-blocker'
 import BetsContextProvider from '@/retail-contexts/bets-context'
 import CashierContextProvider from '@/retail-contexts/cashier-context'
 import EventsContextProvider from '@/retail-contexts/events-context'
@@ -31,6 +33,10 @@ export default function RetailLayout({
       <head>
         <title>PG Gaming</title>
         <meta name="description" content="Gaming platform" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+        />
       </head>
       <SkinProvider>
         <SkinBody>{children}</SkinBody>
@@ -47,8 +53,10 @@ function SkinBody({ children }: { children: React.ReactNode }) {
 
   return (
     <body
-      className={`${inter.variable} ${skin} flex h-screen flex-col font-inter antialiased`}
+      className={`${inter.variable} ${skin} flex h-screen flex-col overflow-hidden font-inter antialiased`}
     >
+      <InactivityBridge />
+      <ZoomBlocker />
       <CashierContextProvider>
         <EventsContextProvider key={pathname}>
           <RootContextProvider>
