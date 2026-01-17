@@ -104,7 +104,7 @@ export default function Home() {
   return (
     <div className="flex h-full flex-row overflow-hidden py-2">
       <div className="flex flex-col gap-2">
-        <div className="flex h-[88px] w-[1508px] flex-row items-center justify-center bg-betslip pb-[2px]">
+        <div className="flex h-[88px] w-[1516px] flex-row items-center justify-center bg-betslip pb-[2px] pr-[3px]">
           <UpcomingEventsCarousel
             selectedEvent={selectedEvent}
             setSelectedEvent={(event) => {
@@ -116,7 +116,7 @@ export default function Home() {
           />
         </div>
 
-        <div className="flex h-[942px] w-[1503px] flex-col gap-2 overflow-y-auto pl-1 tabular-nums">
+        <div className="flex h-[942px] w-[1506px] flex-col gap-2 overflow-y-auto pl-[8px] tabular-nums">
           {!!searchEventResults ? (
             <SearchEventResults />
           ) : isLoadingEvents ? (
