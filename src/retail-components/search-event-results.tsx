@@ -451,6 +451,7 @@ export default function SearchEventResults() {
               name: result.round_name || `Soccer Match ${result.int_event_id}`,
               startTime,
               discipline: Discipline.SOCCER,
+              jornada: result.round_number,
               result: {
                 round: {
                   name: result.round_name || 'Unknown Round',
@@ -680,7 +681,7 @@ export default function SearchEventResults() {
             </Select>
           </div>
 
-          <div className="relative left-1 flex flex-row items-center">
+          <div className="relative bottom-[1px] left-1 flex flex-row items-center">
             <Checkbox
               id="last10"
               className="h-6 w-6 border-0 bg-background text-foreground"
@@ -801,25 +802,33 @@ export default function SearchEventResults() {
                                     ? t('dog_races_label')
                                     : eventResult.discipline === 'HORSES'
                                       ? t('horse_races_label')
-                                      : eventResult.discipline}
+                                      : eventResult.discipline === 'SOCCER'
+                                        ? t('football_label')
+                                        : eventResult.discipline}
                                 </span>
 
-                                {/* Track */}
-                                {(eventResult.track || '6') && (
-                                  <span className="whitespace-nowrap border-l border-l-white pl-4">
-                                    {(() => {
-                                      const trackValue =
-                                        eventResult.track || '6'
-                                      // Estrai il numero dalla stringa
-                                      const numberMatch =
-                                        trackValue.match(/\d+/)
-                                      const trackNum = numberMatch
-                                        ? numberMatch[0]
-                                        : '6'
-                                      return `${t('track')} ${trackNum}`
-                                    })()}
-                                  </span>
-                                )}
+                                {/* Track/Jornada */}
+                                {eventResult.discipline === Discipline.SOCCER
+                                  ? eventResult.jornada && (
+                                      <span className="whitespace-nowrap border-l border-l-white pl-4">
+                                        {t('jornada')} {eventResult.jornada}
+                                      </span>
+                                    )
+                                  : (eventResult.track || '6') && (
+                                      <span className="whitespace-nowrap border-l border-l-white pl-4">
+                                        {(() => {
+                                          const trackValue =
+                                            eventResult.track || '6'
+                                          // Estrai il numero dalla stringa
+                                          const numberMatch =
+                                            trackValue.match(/\d+/)
+                                          const trackNum = numberMatch
+                                            ? numberMatch[0]
+                                            : '6'
+                                          return `${t('track')} ${trackNum}`
+                                        })()}
+                                      </span>
+                                    )}
 
                                 {/* Event ID */}
                                 <span className="whitespace-nowrap border-l border-l-white pl-4">
@@ -1560,27 +1569,10 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
 
   // CALCIO
   if (eventResult.discipline === Discipline.SOCCER) {
-    const formatSafeDate = (date: any): string => {
-      try {
-        if (date instanceof Date && !isNaN(date.getTime())) {
-          return format(date, 'dd-MM-yyyy HH:mm')
-        }
-
-        const parsedDate = new Date(date)
-        if (!isNaN(parsedDate.getTime())) {
-          return format(parsedDate, 'dd-MM-yyyy HH:mm')
-        }
-
-        return 'Invalid Date'
-      } catch {
-        return 'Invalid Date'
-      }
-    }
-
     return (
-      <div className="space-y-4">
+      <div className="mb-[-16px] space-y-4">
         {/* Teams e Score */}
-        <div className="border">
+        <div className="pt-[7px]">
           <div className="bg-accent py-2 text-center">
             <div className="text-[16px] font-bold uppercase text-accent-foreground">
               {t('match_result').toUpperCase()}
@@ -1597,18 +1589,18 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
         </div>
 
         {/* Betting Markets */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-y-2">
           {/* 1X2 */}
           {detailedResult.odds?.oneXTwo && (
-            <div className="border">
+            <div className="border border-r-0 border-l-0">
               <div className="bg-accent py-2 text-center">
                 <div className="text-[16px] font-bold uppercase text-accent-foreground">
                   1X2
                 </div>
               </div>
               <div className="p-3 text-center">
-                <div className="text-[16px] font-semibold">
-                  {t('odds')}: {detailedResult.odds.oneXTwo.odds}
+                <div className="text-[17px] font-semibold">
+                  {detailedResult.odds.oneXTwo.odds}
                 </div>
               </div>
             </div>
@@ -1616,15 +1608,15 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
 
           {/* Double Chance */}
           {detailedResult.odds?.doubleChance && (
-            <div className="border">
+            <div className="border border-r-0">
               <div className="bg-accent py-2 text-center">
                 <div className="text-[16px] font-bold uppercase text-accent-foreground">
                   {t('double_chance').toUpperCase()}
                 </div>
               </div>
               <div className="p-3 text-center">
-                <div className="text-[16px] font-semibold">
-                  {t('odds')}: {detailedResult.odds.doubleChance.odds}
+                <div className="text-[17px] font-semibold">
+                  {detailedResult.odds.doubleChance.odds}
                 </div>
               </div>
             </div>
@@ -1632,18 +1624,18 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
 
           {/* First Scorer */}
           {detailedResult.odds?.firstScorer && (
-            <div className="border">
+            <div className="border border-r-0 border-l-0">
               <div className="bg-accent py-2 text-center">
                 <div className="text-[16px] font-bold uppercase text-accent-foreground">
                   {t('first_scorer').toUpperCase()}
                 </div>
               </div>
               <div className="p-3 text-center">
-                <div className="mb-1 text-[14px]">
-                  {t('team')}: {detailedResult.odds.firstScorer.teamLabel}
+                <div className="mb-1 text-[16px]">
+                  {detailedResult.odds.firstScorer.teamLabel}
                 </div>
-                <div className="text-[16px] font-semibold">
-                  {t('odds')}: {detailedResult.odds.firstScorer.odds}
+                <div className="text-[17px] font-semibold">
+                  {detailedResult.odds.firstScorer.odds}
                 </div>
               </div>
             </div>
@@ -1651,45 +1643,22 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
 
           {/* Sum Goals */}
           {detailedResult.odds?.sumGoals && (
-            <div className="border">
+            <div className="border border-r-0">
               <div className="bg-accent py-2 text-center">
                 <div className="text-[16px] font-bold uppercase text-accent-foreground">
                   {t('total_goals').toUpperCase()}
                 </div>
               </div>
               <div className="p-3 text-center">
-                <div className="mb-1 text-[14px]">
-                  {t('goals')}: {detailedResult.odds.sumGoals.value}
+                <div className="mb-1 text-[16px]">
+                  {detailedResult.odds.sumGoals.value}
                 </div>
-                <div className="text-[16px] font-semibold">
-                  {t('odds')}: {detailedResult.odds.sumGoals.odds}
+                <div className="text-[17px] font-semibold">
+                  {detailedResult.odds.sumGoals.odds}
                 </div>
               </div>
             </div>
           )}
-        </div>
-
-        {/* Round Info */}
-        <div className="border">
-          <div className="bg-accent py-2 text-center">
-            <div className="text-[16px] font-bold uppercase text-accent-foreground">
-              {t('match_info').toUpperCase()}
-            </div>
-          </div>
-          <div className="space-y-1 p-3">
-            <div className="text-[14px]">
-              <span className="font-semibold">{t('round_name')}:</span>{' '}
-              {detailedResult.round?.name}
-            </div>
-            <div className="text-[14px]">
-              <span className="font-semibold">{t('match')}:</span> #
-              {detailedResult.round?.number}
-            </div>
-            <div className="text-[14px]">
-              <span className="font-semibold">{t('start_time')}:</span>{' '}
-              {formatSafeDate(eventResult.startTime)}
-            </div>
-          </div>
         </div>
       </div>
     )

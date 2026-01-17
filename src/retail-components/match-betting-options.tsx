@@ -38,18 +38,18 @@ export default function MatchBettingOptions(props: {
       <div className="flex flex-row items-center justify-between bg-accent p-3 text-accent-foreground">
         <div className="flex flex-row items-center gap-2">
           <Button
-            className="rounded-[8px] bg-tertiary text-tertiary-foreground"
+            className= "bg-accent text-tertiary-foreground"
             onClick={props.close}
             size="icon-lg"
           >
             <ChevronsLeftIcon style={{ scale: 2 }} />
           </Button>
-          <span className="text-[24px]">
+          <span className="text-[16px]">
             {props.round.name} {t('round')} {props.round.number} /
           </span>
-          <span className="text-[20px] font-semibold">{props.teams}</span>
+          <span className="text-[16px] font-semibold">{props.teams}</span>
         </div>
-        <span className="text-[20px]">
+        <span className="text-[16px] font-semibold relative left-[-5px]">
           {format(props.round.startingAt, 'HH:mm')}
         </span>
       </div>
@@ -89,7 +89,7 @@ export default function MatchBettingOptions(props: {
                   {market.name.toUpperCase()}
                 </AccordionTrigger>
                 <AccordionContent>
-                  <div className="grid grid-cols-3 items-center justify-between gap-4 px-2">
+                  <div className="grid grid-cols-3 items-center justify-between gap-2 px-2 mt-[3px] mb-[-16px]">
                     {market.selections[0].selection.map((option) => (
                       <BetEntryToggle
                         key={option.outcome}

@@ -217,7 +217,7 @@ export default function UpcomingRoundCard(props: {
   if (!hasEvents) {
     return (
       <Card className="border-b border-t border-card-foreground">
-        <CardHeader className="sticky top-0 z-40 flex h-16 w-full flex-row items-center justify-center gap-2 border-b bg-accent">
+        <CardHeader className="sticky top-0 z-40 flex h-28 w-full flex-row items-center justify-center gap-2 border-b bg-accent">
           <div className="text-lg">{t('no_events_available')}</div>
         </CardHeader>
       </Card>
@@ -225,13 +225,13 @@ export default function UpcomingRoundCard(props: {
   }
 
   return (
-    <Card className="border-b border-t border-card-foreground">
+    <Card className="border-b  border-card-foreground">
       <CardHeader className="sticky top-0 z-40 flex h-16 w-full flex-row items-center justify-start gap-2 border-b bg-accent">
         {marketTabs.map((tab, index) => (
           <Button
             key={index}
             variant={selectedTab === tab.name ? 'marketSelected' : 'market'}
-            className="h-full w-[202px] border border-b px-2 text-[20px] font-semibold"
+            className="h-[47px] w-[177px] relative left-[6px] px-2 text-[16px] font-semibold"
             onClick={() => handleTabChange(tab.name)}
           >
             {tab.name}
@@ -300,7 +300,7 @@ export default function UpcomingRoundCard(props: {
                     key={index}
                     className="h-[70px] items-center justify-between border-card-foreground"
                   >
-                    <TableCell className="w-[130px] min-w-[130px] max-w-[130px] whitespace-nowrap text-center text-[16px] font-bold">
+                    <TableCell className="w-[130px] min-w-[130px] max-w-[130px] whitespace-nowrap text-center text-[17px] font-bold">
                       {teamNames}
                     </TableCell>
 
@@ -327,10 +327,10 @@ export default function UpcomingRoundCard(props: {
                               <TableCell className="w-[1px] bg-border p-0"></TableCell>
                               <TableCell
                                 key={marketIndex}
-                                className={`justify-items-center ${
+                                className={`justify-items-center w-1 ${
                                   selectedTab === t('combo')
                                     ? 'px-[20px]'
-                                    : 'px-[2px]'
+                                    : 'px-[8px] pl-2'
                                 }`}
                               >
                                 {optionsChunks.map((chunk, chunkIndex) => (
@@ -375,7 +375,7 @@ export default function UpcomingRoundCard(props: {
                               .map((option, i) => (
                                 <TableCell
                                   key={i}
-                                  className="justify-items-center px-[10px]"
+                                  className="justify-items-center  px-[15px]"
                                 >
                                   <BetEntryToggle
                                     bet={{
@@ -390,7 +390,7 @@ export default function UpcomingRoundCard(props: {
                                     }}
                                     marketName={market.name}
                                     variant="roundcard"
-                                    className="w-[100px] text-[19px] font-semibold"
+                                    className="w-[100px] h-[51px] text-[16px] font-semibold"
                                   />
                                 </TableCell>
                               ))}
@@ -417,7 +417,7 @@ export default function UpcomingRoundCard(props: {
                           })
                         }
                       >
-                        <ChevronRight style={{ scale: 1.5 }} />
+                        <ChevronRight style={{ scale: 1.7 }} />
                       </Button>
                     </TableCell>
                   </TableRow>

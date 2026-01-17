@@ -25,7 +25,7 @@ const buttonVariants = cva(
         ticketButton: 'bg-navbarButton text-black font-bold',
         ticketFilter: 'bg-background text-foreground',
         info: 'bg-chart-1 text-muted',
-        action: 'rounded-[8px] bg-tertiary text-tertiary-foreground',
+        action: 'rounded-[8px] text-black',
       },
       size: {
         default: 'h-10 w-10',
