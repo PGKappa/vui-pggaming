@@ -93,9 +93,15 @@ export default function EventBets(props: {
           {eventBets[0].bet.discipline === 'SOCCER' ? (
             <span className="text-[16px]">{eventBets[0].bet.competitors}</span>
           ) : (
-            <span className="relative bottom-[1px] ml-[3px] pb-[4px] text-[13px] uppercase">
-              {eventBets[0].bet.track || t('track_6')}
-            </span>
+            <div className="relative bottom-[1px] ml-[3px] flex items-center justify-between pb-[4px]">
+              <span className="text-[13px] uppercase">
+                {eventBets[0].bet.track || t('track_6')}
+              </span>
+              <span className="relative mr-[4px] pt-1 text-[13px] font-bold text-accent">
+                ID {eventBets[0].bet.event.number}{' '}
+                {/* In case you want to translate ID in all the languages, don't forget to translate with i18n and add all in the jsons */}
+              </span>
+            </div>
           )}
         </div>
 
