@@ -283,6 +283,12 @@ export default function EventsContextProvider(props: {
                   (c: any) =>
                     typeof c?.name === 'string' && /dog|grey/i.test(c.name),
                 ) || channels[0]
+              if (!dogChannel) {
+                console.warn(
+                  '⚠️ No dog channel found. Available channels:',
+                  channels?.map((c: any) => c?.name),
+                )
+              }
 
               // Upcoming events
               if (dogChannel?.next_events) {
@@ -385,6 +391,12 @@ export default function EventsContextProvider(props: {
                   (c: any) =>
                     typeof c?.name === 'string' && /horse|cavall/i.test(c.name),
                 ) || channels[1]
+              if (!horseChannel) {
+                console.warn(
+                  '⚠️ No horse channel found. Available channels:',
+                  channels?.map((c: any) => c?.name),
+                )
+              }
 
               // Upcoming events
               if (horseChannel?.next_events) {

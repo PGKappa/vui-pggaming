@@ -85,12 +85,12 @@ export default function SearchEventResults() {
         }
 
         const data = await response.json()
-
+        
         // Controlla se è un errore API (ha ret_code senza dati reali)
         if (data.ret_code && !data.odds && !data.arrival) {
           return null
         }
-
+        
         return data
       } catch (error) {
         console.error('Error fetching detailed result:', error)
@@ -339,7 +339,7 @@ export default function SearchEventResults() {
               }
 
               let raceResult = detailedResult
-
+              
               // Se detailedResult è null o non ha dati, crea oggetto di fallback dai dati base
               if (!detailedResult) {
                 // Se arrival è vuoto, ritorna null per filtrare il risultato
