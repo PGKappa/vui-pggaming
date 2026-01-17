@@ -130,7 +130,10 @@ export default function Home() {
                 close={() => setMatchBetOptions(undefined)}
               />
             ) : (
-              <div ref={scrollContainerRef} className="overflow-y-auto">
+              <div
+                ref={scrollContainerRef}
+                className="thin-scrollbar overflow-y-auto"
+              >
                 <div className="thin-scrollbar h-[814px] overflow-y-auto">
                   <UpcomingRoundCard
                     round={selectedEvent.data as UpcomingRound}
