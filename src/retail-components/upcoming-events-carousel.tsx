@@ -97,7 +97,7 @@ export function UpcomingEventsCarousel(props: {
           Array.from({ length: 5 }).map((_, index) => (
             <div
               key={`skeleton-${index}`}
-              className="flex h-[72px] basis-1/5 items-center justify-center gap-3 bg-muted/30 py-2"
+              className="flex h-[72px] basis-1/6 items-center justify-center gap-3 bg-muted/30 py-2"
             >
               <Skeleton className="h-12 w-12 rounded" />
               <div className="flex flex-col gap-2">
@@ -169,7 +169,7 @@ function UpcomingEventItem(props: {
 
   return (
     <CarouselItem
-      className={`relative flex h-[88px] basis-1/5 cursor-pointer flex-row items-center justify-center gap-3 overflow-hidden border-l-8 border-l-background px-2 py-2 text-[15px] last:border-r-8 last:border-r-background ${
+      className={`relative flex h-[88px] basis-1/6 cursor-pointer flex-row items-center justify-center gap-3 overflow-hidden border-l-8 border-l-background px-2 py-2 text-[15px] last:border-r-8 last:border-r-background ${
         event.id === props.selectedEvent?.id &&
         event.discipline === props.selectedEvent?.discipline
           ? 'bg-[hsl(211deg_65%_37%_/_.9)] text-tertiary-foreground'
