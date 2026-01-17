@@ -17,6 +17,13 @@ interface DraggableCodeListProps {
 // Configurazione immagini basata su disciplina e lingua
 const getImageConfig = (discipline: Discipline, language: string) => {
   if (discipline === 'soccer') {
+    if(language === 'es') {
+      return {
+        image: '/futbol-codes-image.png',
+        alt: 'Códigos de apuestas de fútbol',
+        title: 'Lista de Códigos de Fútbol',
+      }
+    }
     return {
       image: '/soccer-codes-image.png',
       alt: 'Soccer betting codes',
