@@ -94,7 +94,7 @@ export function UpcomingEventsCarousel(props: {
       <CarouselContent className="bg-white">
         {isLoadingEvents ? (
           // Show skeleton loading
-          Array.from({ length: 5 }).map((_, index) => (
+          Array.from({ length: 6 }).map((_, index) => (
             <div
               key={`skeleton-${index}`}
               className="flex h-[72px] basis-1/6 items-center justify-center gap-3 bg-muted/30 py-2"
@@ -190,9 +190,9 @@ function UpcomingEventItem(props: {
         alt={'Horses'}
         width={40}
         height={20}
-        className="relative bottom-[4px] right-[27px] size-14 object-contain"
+        className="size-14 object-contain relative right-[8px] bottom-[4px]"
       />
-      <div className="relative left-[-10px] flex flex-col items-start">
+      <div className="flex flex-col items-start left-[0px] relative">
         <span className="relative bottom-[7px] whitespace-nowrap text-[14px] font-semibold uppercase">
           {event.discipline === 'SOCCER'
             ? event.name
