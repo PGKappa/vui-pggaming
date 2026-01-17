@@ -86,7 +86,7 @@ export default function Home() {
   return (
     <div className="relative bottom-[5px] flex h-full flex-row overflow-hidden">
       <div className="flex flex-col">
-        <div className="flex h-[109px] w-[1508px] flex-row items-center justify-center bg-betslip pb-[2px] pr-2">
+        <div className="bg-betslip flex h-[109px] w-[1508px] flex-row items-center justify-center pb-[2px] pr-2">
           <UpcomingEventsCarousel
             selectedEvent={selectedEvent}
             setSelectedEvent={(event) => {
@@ -102,6 +102,8 @@ export default function Home() {
             <ScrollArea className="h-full w-full">
               {!!searchEventResults ? (
                 <SearchEventResults />
+              ) : isLoadingEvents ? (
+                <SkeletonRaceCard />
               ) : selectedEvent ? (
                 <UpcomingRaceCard race={selectedEvent} />
               ) : (
