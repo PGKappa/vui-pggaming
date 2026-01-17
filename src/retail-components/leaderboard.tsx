@@ -1,9 +1,8 @@
 'use client'
 
 import { RootContext } from '@/retail-contexts/root-context'
-import { TeamRanking } from '@/retail-lib/types'
 import { ChevronDown, ChevronUp } from 'lucide-react'
-import { useContext, useMemo } from 'react'
+import { useContext } from 'react'
 import { useTranslation } from 'react-i18next'
 import LoadingSpinner from './loading-spinner'
 import { Button } from './ui/button'
@@ -342,7 +341,7 @@ export default function Leaderboard({
             <div className="min-h-[800px]">
               <table className="w-full">
                 <tbody>
-                  {displayRankings.map((ranking) => (
+                  {teamRankings.map((ranking) => (
                     <tr
                       key={ranking.team}
                       className="grid grid-cols-11 border-b border-border md:grid-cols-11 h-[51px]"

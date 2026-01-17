@@ -225,13 +225,13 @@ export default function UpcomingRoundCard(props: {
   }
 
   return (
-    <Card className="border-b  border-card-foreground">
+    <Card className="border-b border-card-foreground">
       <CardHeader className="sticky top-0 z-40 flex h-16 w-full flex-row items-center justify-start gap-2 border-b bg-accent">
         {marketTabs.map((tab, index) => (
           <Button
             key={index}
             variant={selectedTab === tab.name ? 'marketSelected' : 'market'}
-            className="h-[47px] w-[177px] relative left-[6px] px-2 text-[16px] font-semibold uppercase"
+            className="relative left-[6px] h-[47px] w-[177px] px-2 text-[16px] font-semibold uppercase"
             onClick={() => handleTabChange(tab.name)}
           >
             {tab.name}
@@ -244,7 +244,7 @@ export default function UpcomingRoundCard(props: {
           <TableHeader className="h-11 bg-card-header text-[20px] text-card-header-foreground">
             <TableRow className="border-card-foreground transition-none">
               <TableHead></TableHead>
-              <TableHead className="w-[1px] bg-white p-0"></TableHead>
+              <TableHead className="w-[1px] bg-border p-0"></TableHead>
               {marketTabs
                 .find((tab) => tab.name === selectedTab)
                 ?.markets.map((market, index) => {
@@ -256,29 +256,28 @@ export default function UpcomingRoundCard(props: {
                   if (isSpecialTab) {
                     return (
                       <React.Fragment key={`special-${index}`}>
-                        <TableHead className="w-[1px] bg-white p-0"></TableHead>
+                        <TableHead className="w-[1px] bg-border p-0"></TableHead>
                         <TableHead
                           className="text-center font-bold"
                           colSpan={1}
                         >
                           {formatMarketHeader(market.name)}
                         </TableHead>
-                        <TableHead className="w-[1px] bg-white p-0"></TableHead>
+                        <TableHead className="w-[1px] bg-border p-0"></TableHead>
                       </React.Fragment>
                     )
                   }
 
                   return (
                     <React.Fragment key={`market-${index}`}>
+                      <TableHead className="w-[1px] bg-border p-0"></TableHead>
                       <TableHead
                         className="text-center font-bold"
                         colSpan={optionsCount}
                       >
                         {formatMarketHeader(market.name)}
                       </TableHead>
-                      {!isSpecialTab && (
-                        <TableHead className="w-[1px] bg-white p-0"></TableHead>
-                      )}
+                      <TableHead className="w-[1px] bg-border p-0"></TableHead>
                     </React.Fragment>
                   )
                 })}
@@ -306,20 +305,60 @@ export default function UpcomingRoundCard(props: {
 
                     <TableCell className="w-[1px] bg-border p-0"></TableCell>
 
-                    {marketTabs
-                      .find((tab) => tab.name === selectedTab)
-                      ?.markets.map((market, marketIndex) => {
-                        const isSpecialTab = specialTabs.includes(selectedTab)
+                    {(() => {
+                      const currentMarkets =
+                        marketTabs.find((tab) => tab.name === selectedTab)
+                          ?.markets || []
+                      const isSpecialTab = specialTabs.includes(selectedTab)
+
+                      return currentMarkets.map((market, marketIndex) => {
                         if (isSpecialTab) {
+                          // Per CASA/TRASFERTA mostriamo i pulsanti di ogni mercato in riga
+                          if (selectedTab === t('home/away_team')) {
+                            const options = market.selections.flatMap(
+                              ({ selection }) => selection,
+                            )
+
+                            return (
+                              <React.Fragment
+                                key={`special-market-${marketIndex}`}
+                              >
+                                <TableCell className="w-[1px] bg-border p-0"></TableCell>
+                                <TableCell className="w-1  justify-items-center px-[5px]">
+                                  <div className="flex flex-row items-center justify-between gap-[5px]">
+                                    {options.map((option, i) => (
+                                      <BetEntryToggle
+                                        key={i}
+                                        bet={{
+                                          discipline: Discipline.SOCCER,
+                                          event: {
+                                            name: match.eventIdentity.eventName,
+                                            number: match.eventIdentity.eventId,
+                                            startingAt: matchStart,
+                                          },
+                                          competitors: teamNames,
+                                          option: option,
+                                        }}
+                                        marketName={market.name}
+                                        variant="roundcard"
+                                        className="w-[100px] text-[16px] font-semibold tabular-nums"
+                                      />
+                                    ))}
+                                  </div>
+                                </TableCell>
+                                <TableCell className="w-[1px] bg-border p-0"></TableCell>
+                              </React.Fragment>
+                            )
+                          }
+
                           let chunckSize = 12
                           if (selectedTab === t('combo')) chunckSize = 3
-                          if (selectedTab === t('home/away_team'))
-                            chunckSize = 1
 
                           const options = market.selections.flatMap(
                             ({ selection }) => selection,
                           )
                           const optionsChunks = chunkArray(options, chunckSize)
+
                           return (
                             <React.Fragment
                               key={`special-market-${marketIndex}`}
@@ -327,7 +366,7 @@ export default function UpcomingRoundCard(props: {
                               <TableCell className="w-[1px] bg-border p-0"></TableCell>
                               <TableCell
                                 key={marketIndex}
-                                className={`justify-items-center w-1 ${
+                                className={`w-1 justify-items-center ${
                                   selectedTab === t('combo')
                                     ? 'px-[20px]'
                                     : 'px-[8px] pl-2'
@@ -338,7 +377,7 @@ export default function UpcomingRoundCard(props: {
                                     key={chunkIndex}
                                     className={`flex flex-row items-center py-1 ${
                                       selectedTab === t('combo')
-                                        ? 'justify-center gap-10'
+                                        ? 'justify-center gap-[34px] px-[14px]'
                                         : 'gap-2'
                                     }`}
                                   >
@@ -357,7 +396,7 @@ export default function UpcomingRoundCard(props: {
                                         }}
                                         marketName={market.name}
                                         variant="roundcard"
-                                        className="w-[100px] text-[16px] font-semibold"
+                                        className="w-[100px] text-[16px] font-semibold tabular-num"
                                       />
                                     ))}
                                   </div>
@@ -370,12 +409,13 @@ export default function UpcomingRoundCard(props: {
 
                         return (
                           <React.Fragment key={`regular-market-${marketIndex}`}>
+                            <TableCell className="w-[1px] bg-border p-0"></TableCell>
                             {market.selections
                               .flatMap(({ selection }) => selection)
                               .map((option, i) => (
                                 <TableCell
                                   key={i}
-                                  className="justify-items-center  px-[15px]"
+                                  className="justify-items-center px-[8px]"
                                 >
                                   <BetEntryToggle
                                     bet={{
@@ -390,16 +430,15 @@ export default function UpcomingRoundCard(props: {
                                     }}
                                     marketName={market.name}
                                     variant="roundcard"
-                                    className="w-[100px] h-[51px] text-[16px] font-semibold"
+                                    className="h-[51px] w-[100px] text-[16px] font-semibold tabular-nums"
                                   />
                                 </TableCell>
                               ))}
-                            {!isSpecialTab && (
-                              <TableCell className="w-[1px] bg-border p-0"></TableCell>
-                            )}
+                            <TableCell className="w-[1px] bg-border p-0"></TableCell>
                           </React.Fragment>
                         )
-                      })}
+                      })
+                    })()}
 
                     <TableCell className="pr-2 text-right">
                       <Button
