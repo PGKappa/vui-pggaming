@@ -6,7 +6,7 @@ import {
   UpcomingEvent,
   UpcomingRound,
 } from '@/retail-lib/types'
-import { createPGVirtualAPICall, parseAPIDate } from '@/retail-lib/utils'
+import { createPGVirtualAPICall, parseAPIDate, SOCCER_API_URL } from '@/retail-lib/utils'
 import { usePathname } from 'next/navigation'
 import {
   createContext,
@@ -490,7 +490,7 @@ export default function EventsContextProvider(props: {
           try {
             // TODO: Sostituire con l'endpoint corretto per il calcio
             const soccerResponse = await fetch(
-              `https://cvgl.it/football/incoming.php?t=${Date.now()}`,
+              `${SOCCER_API_URL}?t=${Date.now()}`,
             )
             if (soccerResponse.ok) {
               const soccerData = await soccerResponse.json()
