@@ -102,7 +102,7 @@ export default function Home() {
   }, [selectedEvent, upcomingEvents])
 
   return (
-    <div className="flex h-full flex-row overflow-hidden py-2">
+    <div className="flex h-full flex-row overflow-hidden">
       <div className="flex flex-col gap-2">
         <div className="flex h-[88px] w-[1508px] flex-row items-center justify-center bg-betslip pb-[2px]">
           <UpcomingEventsCarousel
