@@ -169,7 +169,7 @@ function UpcomingEventItem(props: {
 
   return (
     <CarouselItem
-      className={`relative flex h-[88px]  basis-1/5  cursor-pointer flex-row items-center justify-center gap-3 overflow-hidden border-l-8 border-l-background  px-2 py-2 text-[15px]  last:border-r-8 last:border-r-background ${
+      className={`relative flex h-[88px] basis-1/5 cursor-pointer flex-row items-center justify-center gap-3 overflow-hidden border-l-8 border-l-background px-2 py-2 text-[15px] last:border-r-8 last:border-r-background ${
         event.id === props.selectedEvent?.id &&
         event.discipline === props.selectedEvent?.discipline
           ? 'bg-[hsl(211deg_65%_37%_/_.9)] text-tertiary-foreground'
@@ -190,9 +190,9 @@ function UpcomingEventItem(props: {
         alt={'Horses'}
         width={40}
         height={20}
-        className="size-14 object-contain relative right-[27px] bottom-[4px]"
+        className="relative bottom-[4px] right-[27px] size-14 object-contain"
       />
-      <div className="flex flex-col items-start left-[-10px] relative">
+      <div className="relative left-[-10px] flex flex-col items-start">
         <span className="relative bottom-[7px] whitespace-nowrap text-[14px] font-semibold uppercase">
           {event.discipline === 'SOCCER'
             ? event.name
@@ -209,7 +209,7 @@ function UpcomingEventItem(props: {
           <span className="relative bottom-[1px] text-[14px] font-semibold">
             {event.startTime}
           </span>
-          <span className="relative bottom-[1px]  py-[1px] pt-0 text-[14px] font-semibold px-2 text-black bg-white left-[8px] tabular-nums">
+          <span className="relative bottom-[1px] left-[8px] bg-white px-2 py-[1px] pt-0 text-[14px] font-semibold tabular-nums text-black">
             {timeToEventStart}
           </span>
         </div>

@@ -2,7 +2,7 @@
 
 import { Discipline, Market } from '@/retail-lib/types'
 import { format } from 'date-fns'
-import { ChevronsLeftIcon } from 'lucide-react'
+import { ChevronDown, ChevronsLeftIcon } from 'lucide-react'
 import { useDetectClickOutside } from 'react-detect-click-outside'
 import { useTranslation } from 'react-i18next'
 import BetEntryToggle from './bet-entry-toggle'
@@ -49,7 +49,7 @@ export default function MatchBettingOptions(props: {
           </span>
           <span className="text-[16px] font-semibold">{props.teams}</span>
         </div>
-        <span className="text-[16px] font-semibold relative left-[-5px]">
+        <span className="text-[17px] font-semibold relative left-[-5px]">
           {format(props.round.startingAt, 'HH:mm')}
         </span>
       </div>
@@ -87,9 +87,13 @@ export default function MatchBettingOptions(props: {
               >
                 <AccordionTrigger className="h-12 text-[16px] font-bold">
                   {market.name.toUpperCase()}
+                  <ChevronDown className="scale-170 shrink-0 transition-transform duration-200 text-white" /> 
                 </AccordionTrigger>
+                
                 <AccordionContent>
+                  
                   <div className="grid grid-cols-3 items-center justify-between gap-2 px-2 mt-[3px] mb-[-16px]">
+                    
                     {market.selections[0].selection.map((option) => (
                       <BetEntryToggle
                         key={option.outcome}
