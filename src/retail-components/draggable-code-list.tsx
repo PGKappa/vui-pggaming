@@ -88,6 +88,16 @@ export default function DraggableCodeList({
     })
   }
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    e.preventDefault()
+    const touch = e.touches[0]
+    setIsDragging(true)
+    setDragStart({
+      x: touch.clientX - position.x,
+      y: touch.clientY - position.y,
+    })
+  }
+
   const handleMouseMove = useCallback(
     (e: MouseEvent) => {
       if (isDragging) {
@@ -100,7 +110,25 @@ export default function DraggableCodeList({
     [isDragging, dragStart.x, dragStart.y],
   )
 
+  const handleTouchMove = useCallback(
+    (e: TouchEvent) => {
+      if (isDragging) {
+        const touch = e.touches[0]
+        setPosition({
+          x: touch.clientX - dragStart.x,
+          y: touch.clientY - dragStart.y,
+        })
+      }
+    },
+    [isDragging, dragStart.x, dragStart.y],
+  )
+
   const handleMouseUp = useCallback(() => {
+    setIsDragging(false)
+    setIsResizing(false)
+  }, [])
+
+  const handleTouchEnd = useCallback(() => {
     setIsDragging(false)
     setIsResizing(false)
   }, [])
@@ -113,6 +141,19 @@ export default function DraggableCodeList({
     setResizeStart({
       x: e.clientX,
       y: e.clientY,
+      width: size.width,
+      height: size.height,
+    })
+  }
+
+  const handleResizeTouchStart = (e: React.TouchEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const touch = e.touches[0]
+    setIsResizing(true)
+    setResizeStart({
+      x: touch.clientX,
+      y: touch.clientY,
       width: size.width,
       height: size.height,
     })
@@ -140,22 +181,58 @@ export default function DraggableCodeList({
     [isResizing, resizeStart],
   )
 
-  // Event listeners per mouse
+  const handleResizeTouch = useCallback(
+    (e: TouchEvent) => {
+      if (isResizing) {
+        const touch = e.touches[0]
+        const deltaX = touch.clientX - resizeStart.x
+        const deltaY = touch.clientY - resizeStart.y
+
+        const delta = Math.max(deltaX, deltaY)
+        const newWidth = Math.max(600, resizeStart.width + delta)
+        const newHeight = Math.max(450, resizeStart.height + delta)
+
+        setSize({
+          width: newWidth,
+          height: newHeight,
+        })
+      }
+    },
+    [isResizing, resizeStart],
+  )
+
+  // Event listeners per mouse e touch
   useEffect(() => {
     if (isDragging) {
       document.addEventListener('mousemove', handleMouseMove)
       document.addEventListener('mouseup', handleMouseUp)
+      document.addEventListener('touchmove', handleTouchMove)
+      document.addEventListener('touchend', handleTouchEnd)
     } else if (isResizing) {
       document.addEventListener('mousemove', handleResize)
       document.addEventListener('mouseup', handleMouseUp)
+      document.addEventListener('touchmove', handleResizeTouch)
+      document.addEventListener('touchend', handleTouchEnd)
     }
 
     return () => {
       document.removeEventListener('mousemove', handleMouseMove)
       document.removeEventListener('mousemove', handleResize)
       document.removeEventListener('mouseup', handleMouseUp)
+      document.removeEventListener('touchmove', handleTouchMove)
+      document.removeEventListener('touchmove', handleResizeTouch)
+      document.removeEventListener('touchend', handleTouchEnd)
     }
-  }, [isDragging, isResizing, handleMouseMove, handleResize, handleMouseUp])
+  }, [
+    isDragging,
+    isResizing,
+    handleMouseMove,
+    handleResize,
+    handleMouseUp,
+    handleTouchMove,
+    handleTouchEnd,
+    handleResizeTouch,
+  ])
 
   const handlePrint = () => {
     const printWindow = window.open('', '', 'width=1200,height=800')
@@ -239,8 +316,9 @@ export default function DraggableCodeList({
           }}
         >
           <div
-            className="flex h-14 shrink-0 cursor-move select-none items-center justify-center bg-accent border-b border-black"
+            className="flex h-14 shrink-0 cursor-move select-none items-center justify-center border-b border-black bg-accent"
             onMouseDown={handleMouseDown}
+            onTouchStart={handleTouchStart}
           >
             <h2 className="text-[16px] font-bold text-accent-foreground">
               {t('code_list').toUpperCase()}
@@ -289,6 +367,7 @@ export default function DraggableCodeList({
           <div
             className="absolute bottom-0 right-0 z-10 h-6 w-6 cursor-nwse-resize bg-accent/50 hover:bg-accent"
             onMouseDown={handleResizeStart}
+            onTouchStart={handleResizeTouchStart}
             title="Ridimensiona"
           >
             <svg
