@@ -131,7 +131,7 @@ export default function Home() {
               />
             ) : (
               <div ref={scrollContainerRef} className="overflow-y-auto">
-                <div className="h-[814px] overflow-y-auto">
+                <div className="thin-scrollbar h-[814px] overflow-y-auto">
                   <UpcomingRoundCard
                     round={selectedEvent.data as UpcomingRound}
                     viewMatchBettingOptions={setMatchBetOptions}
