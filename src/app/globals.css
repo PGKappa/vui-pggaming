@@ -334,7 +334,7 @@
 
     --footer-betslip: 353 100% 44%;
     --footer-betslip-foreground: 0 0% 100%;
-  } 
+  }
 }
 
 @layer base {
@@ -440,19 +440,35 @@ div.gap-1:nth-child(2)>div:nth-child(1)>div:nth-child(1)>div:nth-child(2)>button
   }
 }
 
-.data-\[state\=on\]\:bg-tertiary[data-state="on"]{
+.data-\[state\=on\]\:bg-tertiary[data-state="on"] {
   border: none;
   color: white;
 }
 
-.data-\[state\=on\]\:bg-bet[data-state="on"]:hover{
+.data-\[state\=on\]\:bg-bet[data-state="on"]:hover {
   opacity: 1;
 }
 
-.sticky{
-  height: 72px;
+/* Scrollbar sottilissima per calcio */
+.thin-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
 }
 
-th.h-8:nth-child(2){
-  background: black;;
+.thin-scrollbar::-webkit-scrollbar {
+  width: 1px;
+  height: 1px;
+}
+
+.thin-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.thin-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 1px;
+}
+
+.thin-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.4);
 }

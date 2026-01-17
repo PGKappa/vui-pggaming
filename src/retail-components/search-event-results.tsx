@@ -85,12 +85,12 @@ export default function SearchEventResults() {
         }
 
         const data = await response.json()
-        
+
         // Controlla se è un errore API (ha ret_code senza dati reali)
         if (data.ret_code && !data.odds && !data.arrival) {
           return null
         }
-        
+
         return data
       } catch (error) {
         console.error('Error fetching detailed result:', error)
@@ -178,15 +178,15 @@ export default function SearchEventResults() {
 
                 let startTime: Date
                 try {
-                  if (event.time) {
-                    startTime = new Date(event.time)
-                    if (event.start_time && event.start_time.includes(':')) {
-                      const [hours, minutes] = event.start_time.split(':')
-                      startTime.setHours(parseInt(hours, 10))
-                      startTime.setMinutes(parseInt(minutes, 10))
-                    }
-                  } else {
-                    startTime = new Date()
+                  // Se time non c'è, usa oggi; altrimenti usa event.time
+                  startTime = event.time ? new Date(event.time) : new Date()
+
+                  // Applica SEMPRE l'orario da start_time se disponibile
+                  if (event.start_time && event.start_time.includes(':')) {
+                    const [hours, minutes] = event.start_time.split(':')
+                    startTime.setHours(parseInt(hours, 10))
+                    startTime.setMinutes(parseInt(minutes, 10))
+                    startTime.setSeconds(0) // Reset secondi per coerenza
                   }
                 } catch {
                   startTime = new Date()
@@ -320,49 +320,57 @@ export default function SearchEventResults() {
 
               let startTime: Date
               try {
+                // Se time non c'è, usa la data passata; altrimenti usa result.time
                 if (result.time) {
                   startTime = new Date(result.time)
-
-                  if (result.start_time && result.start_time.includes(':')) {
-                    const [hours, minutes] = result.start_time.split(':')
-                    startTime.setHours(parseInt(hours, 10))
-                    startTime.setMinutes(parseInt(minutes, 10))
-                  }
                 } else {
                   startTime = new Date(date.split('/').reverse().join('-'))
-                  if (result.start_time && result.start_time.includes(':')) {
-                    const [hours, minutes] = result.start_time.split(':')
-                    startTime.setHours(parseInt(hours, 10))
-                    startTime.setMinutes(parseInt(minutes, 10))
-                  }
+                }
+
+                // Applica SEMPRE l'orario da start_time se disponibile
+                if (result.start_time && result.start_time.includes(':')) {
+                  const [hours, minutes] = result.start_time.split(':')
+                  startTime.setHours(parseInt(hours, 10))
+                  startTime.setMinutes(parseInt(minutes, 10))
+                  startTime.setSeconds(0) // Reset secondi per coerenza
                 }
               } catch {
                 startTime = new Date()
               }
 
               let raceResult = detailedResult
-              
+
               // Se detailedResult è null o non ha dati, crea oggetto di fallback dai dati base
               if (!detailedResult) {
                 // Se arrival è vuoto, ritorna null per filtrare il risultato
                 if (!result.arrival || result.arrival.length === 0) {
                   return null
                 }
-                
+
                 raceResult = {
-                  arrival: (result.arrival as Array<{name: string; number: number}>)?.map((item: any) => ({
-                    name: item.name,
-                    number: item.number,
-                  })) || [],
+                  arrival:
+                    (
+                      result.arrival as Array<{ name: string; number: number }>
+                    )?.map((item: any) => ({
+                      name: item.name,
+                      number: item.number,
+                    })) || [],
                   odds: {},
                 } as RaceResult
-              } else if (detailedResult && !detailedResult.arrival && result.arrival) {
+              } else if (
+                detailedResult &&
+                !detailedResult.arrival &&
+                result.arrival
+              ) {
                 raceResult = {
                   ...detailedResult,
-                  arrival: (result.arrival as Array<{name: string; number: number}>)?.map((item: any) => ({
-                    name: item.name,
-                    number: item.number,
-                  })) || [],
+                  arrival:
+                    (
+                      result.arrival as Array<{ name: string; number: number }>
+                    )?.map((item: any) => ({
+                      name: item.name,
+                      number: item.number,
+                    })) || [],
                 } as RaceResult
               }
 
@@ -383,9 +391,11 @@ export default function SearchEventResults() {
               } as EventResult
             }),
           )
-          
+
           // FILTRA via i risultati null (quelli senza arrival disponibile)
-          results = results.filter((r: EventResult | null) => r !== null) as EventResult[]
+          results = results.filter(
+            (r: EventResult | null) => r !== null,
+          ) as EventResult[]
         } else if (discipline === Discipline.SOCCER) {
           // OTTIMIZZAZIONE: Filtra per fascia oraria anche per SOCCER
           let filteredItems = data.items
@@ -573,7 +583,9 @@ export default function SearchEventResults() {
           const hours = result.startTime.getHours()
           const minutes = result.startTime.getMinutes()
           const timeInMinutes = hours * 60 + minutes
-          return timeInMinutes >= startInMinutes && timeInMinutes <= endInMinutes
+          return (
+            timeInMinutes >= startInMinutes && timeInMinutes <= endInMinutes
+          )
         })
       }
 
