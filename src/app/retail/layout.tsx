@@ -62,7 +62,7 @@ function SkinBody({ children }: { children: React.ReactNode }) {
             <Toaster
               position={
                 typeof window !== 'undefined' && window.innerWidth >= 1024
-                  ? 'bottom-right'
+                  ? 'top-right'
                   : 'top-center'
               }
             />
