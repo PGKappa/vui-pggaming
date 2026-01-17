@@ -74,6 +74,38 @@ function loadCashierFromCache(initCode: string): any | null {
   return null
 }
 
+// Pulisce il localStorage dalla sessione precedente quando initCode cambia
+function clearSessionStorageForNewInitCode(newInitCode: string) {
+  try {
+    const oldInitCode = localStorage.getItem('initCode')
+    if (oldInitCode && oldInitCode !== newInitCode) {
+      console.log(
+        `🧹 Clearing session data: initCode changed from "${oldInitCode}" to "${newInitCode}"`,
+      )
+
+      // Rimuovi dati specifici della sessione precedente
+      localStorage.removeItem('i18n.lang')
+      localStorage.removeItem('cashier_timezone')
+      localStorage.removeItem('betsContext')
+
+      // Rimuovi cache cashier della sessione precedente
+      localStorage.removeItem(`cashier_cache_${oldInitCode}`)
+
+      // Rimuovi cache eventi della sessione precedente
+      localStorage.removeItem('dogs_events_cache')
+      localStorage.removeItem('horses_events_cache')
+      localStorage.removeItem('soccer_events_cache')
+      localStorage.removeItem('dogs_results_cache')
+      localStorage.removeItem('horses_results_cache')
+      localStorage.removeItem('soccer_results_cache')
+      localStorage.removeItem('racing_events_last_fetch')
+      localStorage.removeItem('soccer_events_last_fetch')
+    }
+  } catch (e) {
+    console.error('Error clearing session storage:', e)
+  }
+}
+
 export default function CashierContextProvider(props: {
   children: React.ReactNode
 }) {
@@ -92,6 +124,8 @@ export default function CashierContextProvider(props: {
     console.log('🔍 CashierContext init - URL initCode:', urlInitCode)
 
     if (urlInitCode) {
+      // Se l'initCode è cambiato, pulisci la sessione precedente
+      clearSessionStorageForNewInitCode(urlInitCode)
       setInitCode(urlInitCode)
       localStorage.setItem('initCode', urlInitCode)
     } else {
