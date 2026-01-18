@@ -299,14 +299,14 @@ export default function Leaderboard({
   }
 
   return (
-    <div className="relative pb-20">
+    <div className="relative pb-20 bottom-[7px]">
       <div className={`${isExpanded ? 'sticky top-0 z-30' : ''} bg-background`}>
         <Card>
           <CardHeader
-            className="flex h-12 cursor-pointer flex-row items-center px-5"
+            className="flex h-[41px] cursor-pointer flex-row items-center px-5"
             onClick={handleToggle}
           >
-            <CardTitle className="justify-start text-[16px] font-bold">
+            <CardTitle className="justify-start text-[16px] font-bold realtive bottom-[1px]">
               {t('standings').toUpperCase()}
             </CardTitle>
             <Button variant="ghost" size="icon-lg">

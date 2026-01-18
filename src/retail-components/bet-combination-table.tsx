@@ -651,7 +651,7 @@ export default function BetCombinationsTable({
               : `${t('select_all').toUpperCase()}`}
           </Button>
 
-          <div className="flex h-10 min-w-fit items-center justify-center rounded-[1px] bg-secondary px-[18px] text-accent-foreground">
+          <div className="flex h-10 min-w-fit items-center justify-center rounded-[1px] bg-background px-[18px] text-accent">
             <span className="pt-[1px] text-[16px] font-semibold">
               {combinations.length}
             </span>

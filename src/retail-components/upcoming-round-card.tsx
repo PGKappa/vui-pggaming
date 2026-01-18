@@ -226,12 +226,12 @@ export default function UpcomingRoundCard(props: {
 
   return (
     <Card className="border-b border-card-foreground">
-      <CardHeader className="sticky top-0 z-40 flex h-16 w-full flex-row items-center justify-start gap-2 border-b bg-accent">
+      <CardHeader className="sticky top-0 z-40 flex h-[72px] w-full flex-row items-center justify-start px-2 gap-2  bg-accent">
         {marketTabs.map((tab, index) => (
           <Button
             key={index}
             variant={selectedTab === tab.name ? 'marketSelected' : 'market'}
-            className="relative left-[6px] h-[47px] w-[177px] px-2 text-[16px] font-semibold uppercase"
+            className="relative left-[6px] h-[47px] w-[177px] px-2 text-[15px] font-semibold uppercase pb-[1px]"
             onClick={() => handleTabChange(tab.name)}
           >
             {tab.name}
@@ -297,7 +297,7 @@ export default function UpcomingRoundCard(props: {
                 return (
                   <TableRow
                     key={index}
-                    className="h-[70px] items-center justify-between border-card-foreground"
+                    className="h-[69px] items-center justify-between border-card-foreground"
                   >
                     <TableCell className="w-[130px] min-w-[130px] max-w-[130px] whitespace-nowrap text-center text-[17px] font-bold">
                       {teamNames}
@@ -430,7 +430,7 @@ export default function UpcomingRoundCard(props: {
                                     }}
                                     marketName={market.name}
                                     variant="roundcard"
-                                    className="h-[51px] w-[100px] text-[16px] font-semibold"
+                                    className="h-[50px] w-[100px] text-[16px] font-semibold tabular-nums"
                                   />
                                 </TableCell>
                               ))}

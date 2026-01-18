@@ -163,7 +163,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="h-[945px] w-[410px] bg-background pr-2 mt-[-5px] text-foreground">
+      <div className="h-[949px] w-[410px] bg-background pr-2 mt-[-5px] text-foreground">
         <BettingSlip selectedEvent={selectedEvent} />
       </div>
     </div>
