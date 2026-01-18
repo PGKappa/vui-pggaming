@@ -25,10 +25,10 @@ export default function Navbar() {
 
     if (pathname.includes('/calcio')) {
       // Link per il calcio
-      return `https://d190050z3qr0m1.cloudfront.net/public/Soccer_Gaming_manual_${lang}.html`
+      return `http://localhost:8080/docs/Soccer_Gaming_manual_${lang}.html`
     } else {
       // Per cani e cavalli
-      return `https://d190050z3qr0m1.cloudfront.net/public/Gaming_manual_${lang}.html`
+      return `http://localhost:8080/docs/Gaming_manual_${lang}.html`
     }
   }
 
