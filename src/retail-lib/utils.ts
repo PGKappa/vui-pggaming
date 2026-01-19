@@ -40,8 +40,10 @@ export function normalizeMarketName(market: string): string {
     m.includes('over') ||
     m.includes('menos') ||
     m.includes('más')
-  )
-    return 'under_over'
+  ) {
+    // Normalizza rimuovendo spazi extra e gestendo gli slash escapati
+    return m.replace(/\s+/g, ' ').replace(/\\\//g, '/')
+  }
 
   return m
 }

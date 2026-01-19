@@ -102,7 +102,11 @@ export const soccerMarkets: Record<string, MarketConfig> = {
 
   // 1X2 + UNDER/OVER 2.5
   C1U2: { marketName: 'Combo 1x2 + Under\/Over (2.5)', outcome: '1+U' },
-  //... add other combo for this market
+  CXU2: { marketName: 'Combo 1x2 + Under\/Over (2.5)', outcome: 'X+U' },
+  C2U2: { marketName: 'Combo 1x2 + Under\/Over (2.5)', outcome: '2+U' },
+  C1O2: { marketName: 'Combo 1x2 + Under\/Over (2.5)', outcome: '1+O' },
+  CXO2: { marketName: 'Combo 1x2 + Under\/Over (2.5)', outcome: 'X+O' },
+  C2O2: { marketName: 'Combo 1x2 + Under\/Over (2.5)', outcome: '2+O' },
 
   // MULTIGOAL
   M01: { marketName: 'Multigoal', outcome: '0-1' },
