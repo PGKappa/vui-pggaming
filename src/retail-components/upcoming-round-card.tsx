@@ -43,16 +43,25 @@ export default function UpcomingRoundCard(props: {
   const translateMarketName = (marketName: string): string => {
     const marketMap: { [key: string]: string } = {
       'Esito finale 1X2': t('market_esito_finale_1x2'),
+      'Double Chance': t('market_doppia_chance').toUpperCase(),
       'Doppia Chance': t('market_doppia_chance').toUpperCase(),
       'Under/Over 2.5': t('market_under_over_2_5').toUpperCase(),
       'Gol no gol': t('market_gol_no_gol').toUpperCase(),
       'Under/Over 1.5': t('market_under_over_1_5').toUpperCase(),
       'Under/Over 3.5': t('market_under_over_3_5').toUpperCase(),
       'Under/Over 4.5': t('market_under_over_4_5').toUpperCase(),
+      'Correct Score': t('market_risultato_esatto').toUpperCase(),
       'Risultato esatto': t('market_risultato_esatto').toUpperCase(),
+      'Combo 1x2 + Goal/No Goal': '1X2 + GOL/NO GOL',
       'Combo Vincente & Segna': t('market_combo_vincente_segna').toUpperCase(),
+      'Combo 1x2 + Under/Over (1.5)': t(
+        'market_combo_vincente_goals_1_5',
+      ).toUpperCase(),
       'Combo Vincente & Goals (1.5)': t(
         'market_combo_vincente_goals_1_5',
+      ).toUpperCase(),
+      'Combo 1x2 + Under/Over (2.5)': t(
+        'market_combo_vincente_goals_2_5',
       ).toUpperCase(),
       'Combo Vincente & Goals (2.5)': t(
         'market_combo_vincente_goals_2_5',
@@ -72,9 +81,20 @@ export default function UpcomingRoundCard(props: {
       'Trasferta Under/Over 2.5': t(
         'market_trasferta_under_over_2_5',
       ).toUpperCase(),
+      'Half Time/ Full Time': t('market_parziale_finale').toUpperCase(),
       'Parziale/Finale': t('market_parziale_finale').toUpperCase(),
+      'First Scorer': t('market_primo_marcatore').toUpperCase(),
       'Primo marcatore': t('market_primo_marcatore').toUpperCase(),
+      'Red Card': t('market_cartellino_rosso').toUpperCase(),
       'Cartellino Rosso': t('market_cartellino_rosso').toUpperCase(),
+      'Multigoal Home': `${t('multi_goal').toUpperCase()} ${t('home_extended').toUpperCase()}`,
+      'Multigoal Away': `${t('multi_goal').toUpperCase()} ${t('away_extended').toUpperCase()}`,
+      'Home Under/Over 0.5': `${t('home_extended').toUpperCase()} ${t('under/over').toUpperCase()} 0.5`,
+      'Home Under/Over 1.5': `${t('home_extended').toUpperCase()} ${t('under/over').toUpperCase()} 1.5`,
+      'Home Under/Over 2.5': `${t('home_extended').toUpperCase()} ${t('under/over').toUpperCase()} 2.5`,
+      'Away Under/Over 0.5': `${t('away_extended').toUpperCase()} ${t('under/over').toUpperCase()} 0.5`,
+      'Away Under/Over 1.5': `${t('away_extended').toUpperCase()} ${t('under/over').toUpperCase()} 1.5`,
+      'Away Under/Over 2.5': `${t('away_extended').toUpperCase()} ${t('under/over').toUpperCase()} 2.5`,
     }
 
     return marketMap[marketName.trim()] || marketName
