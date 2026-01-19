@@ -263,7 +263,6 @@ export default function UpcomingRoundCard(props: {
                         >
                           {formatMarketHeader(market.name)}
                         </TableHead>
-                        <TableHead className="w-[1px] bg-border p-0"></TableHead>
                       </React.Fragment>
                     )
                   }
@@ -277,10 +276,10 @@ export default function UpcomingRoundCard(props: {
                       >
                         {formatMarketHeader(market.name)}
                       </TableHead>
-                      <TableHead className="w-[1px] bg-border p-0"></TableHead>
                     </React.Fragment>
                   )
-                })}
+                })}{' '}
+              <TableHead className="w-[1px] bg-border p-0"></TableHead>{' '}
               <TableHead></TableHead>
             </TableRow>
           </TableHeader>
@@ -349,7 +348,6 @@ export default function UpcomingRoundCard(props: {
                                     ))}
                                   </div>
                                 </TableCell>
-                                <TableCell className="w-[1px] bg-border p-0"></TableCell>
                               </React.Fragment>
                             )
                           }
@@ -405,7 +403,6 @@ export default function UpcomingRoundCard(props: {
                                   </div>
                                 ))}
                               </TableCell>
-                              <TableCell className="w-[1px] bg-border p-0"></TableCell>
                             </React.Fragment>
                           )
                         }
@@ -437,12 +434,12 @@ export default function UpcomingRoundCard(props: {
                                   />
                                 </TableCell>
                               ))}
-                            <TableCell className="w-[1px] bg-border p-0"></TableCell>
                           </React.Fragment>
                         )
                       })
                     })()}
 
+                    <TableCell className="w-[1px] bg-border p-0"></TableCell>
                     <TableCell className="w-1 pr-2 text-center">
                       <Button
                         variant="action"
