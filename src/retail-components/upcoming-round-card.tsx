@@ -226,12 +226,12 @@ export default function UpcomingRoundCard(props: {
 
   return (
     <Card className="border-b border-card-foreground">
-      <CardHeader className="sticky top-0 z-40 flex h-[72px] w-full flex-row items-center justify-start px-2 gap-2  bg-accent">
+      <CardHeader className="sticky top-0 z-40 flex h-[72px] w-full flex-row items-center justify-start gap-2 bg-accent px-2">
         {marketTabs.map((tab, index) => (
           <Button
             key={index}
             variant={selectedTab === tab.name ? 'marketSelected' : 'market'}
-            className="relative left-[6px] h-[47px] w-[177px] px-2 text-[15px] font-semibold uppercase pb-[1px]"
+            className="relative left-[6px] h-[47px] w-[177px] px-2 pb-[1px] text-[15px] font-semibold uppercase"
             onClick={() => handleTabChange(tab.name)}
           >
             {tab.name}
@@ -272,7 +272,7 @@ export default function UpcomingRoundCard(props: {
                     <React.Fragment key={`market-${index}`}>
                       <TableHead className="w-[1px] bg-border p-0"></TableHead>
                       <TableHead
-                        className="text-center font-bold p-0"
+                        className="p-0 text-center font-bold"
                         colSpan={optionsCount}
                       >
                         {formatMarketHeader(market.name)}
@@ -299,7 +299,10 @@ export default function UpcomingRoundCard(props: {
                     key={index}
                     className="h-[69px] items-center justify-between border-card-foreground"
                   >
-                    <TableCell className="w-[130px] min-w-[130px] max-w-[130px] whitespace-nowrap text-center text-[17px] font-bold">
+                    <TableCell className="w-[130px] min-w-[130px] max-w-[130px] whitespace-nowrap text-start text-[17px] font-bold">
+                      <span className="text-[14px] font-bold text-accent">
+                        {index + 1}.{' '}
+                      </span>
                       {teamNames}
                     </TableCell>
 
@@ -341,7 +344,7 @@ export default function UpcomingRoundCard(props: {
                                         }}
                                         marketName={market.name}
                                         variant="roundcard"
-                                        className="w-[100px] text-[16px] font-semibold h-[50px]"
+                                        className="h-[50px] w-[100px] text-[16px] font-semibold"
                                       />
                                     ))}
                                   </div>
@@ -396,7 +399,7 @@ export default function UpcomingRoundCard(props: {
                                         }}
                                         marketName={market.name}
                                         variant="roundcard"
-                                        className="w-[100px] text-[16px] font-semibold h-[50px]"
+                                        className="h-[50px] w-[100px] text-[16px] font-semibold"
                                       />
                                     ))}
                                   </div>
@@ -415,7 +418,7 @@ export default function UpcomingRoundCard(props: {
                               .map((option, i) => (
                                 <TableCell
                                   key={i}
-                                  className="justify-items-center px-[15px] w-1"
+                                  className="w-1 justify-items-center px-[15px]"
                                 >
                                   <BetEntryToggle
                                     bet={{
@@ -440,7 +443,7 @@ export default function UpcomingRoundCard(props: {
                       })
                     })()}
 
-                    <TableCell className="pr-2 text-center w-1">
+                    <TableCell className="w-1 pr-2 text-center">
                       <Button
                         variant="action"
                         size="icon-lg"
