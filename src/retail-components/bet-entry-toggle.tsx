@@ -38,7 +38,18 @@ export default function BetEntryToggle(props: {
   const formatOutcome = (outcome: string, marketName: string): string => {
     if (marketName === 'Half Time\/ Full Time') {
       if (outcome.length === 2) {
-        return `${outcome[0]}/${outcome[1]}`
+        return `${outcome[0]} / ${outcome[1]}`
+      }
+    }
+
+    if (marketName.toLowerCase().includes('multigoal')) {
+      return outcome
+    }
+
+    if (marketName.toLowerCase().includes('combo') && marketName.toLowerCase().includes('goal') && outcome.includes('+')) {
+      const parts = outcome.split('+')
+      if (parts.length === 2) {
+        return `${parts[0]} + ${parts[1]}`
       }
     }
 
@@ -60,9 +71,9 @@ export default function BetEntryToggle(props: {
       const [prefix, suffix] = outcome.split('+')
 
       if (suffix === 'U' || suffix.toLowerCase().includes('under')) {
-        return `${prefix}+UN ${value}`
+        return `${prefix} + UN ${value}`
       } else if (suffix === 'O' || suffix.toLowerCase().includes('over')) {
-        return `${prefix}+OV ${value}`
+        return `${prefix} + OV ${value}`
       }
 
       return outcome
@@ -72,22 +83,22 @@ export default function BetEntryToggle(props: {
       outcome.includes('1+') &&
       (outcome.includes('Under') || outcome.includes('U'))
     ) {
-      return `1+UN ${value}`
+      return `1 + UN ${value}`
     } else if (
       outcome.includes('1+') &&
       (outcome.includes('Over') || outcome.includes('O'))
     ) {
-      return `1+OV ${value}`
+      return `1 + OV ${value}`
     } else if (
       outcome.includes('2+') &&
       (outcome.includes('Under') || outcome.includes('U'))
     ) {
-      return `2+UN ${value}`
+      return `2 + UN ${value}`
     } else if (
       outcome.includes('2+') &&
       (outcome.includes('Over') || outcome.includes('O'))
     ) {
-      return `2+OV ${value}`
+      return `2 + OV ${value}`
     }
 
     if (outcome.toLowerCase().includes('under') || outcome === 'U') {
