@@ -1,8 +1,8 @@
 'use client'
 
+import InactivityBridge from '@/retail-components/inactivity-bridge'
 import Navbar from '@/retail-components/navbar'
 import { Toaster } from '@/retail-components/ui/sonner'
-import InactivityBridge from '@/retail-components/inactivity-bridge'
 import ZoomBlocker from '@/retail-components/zoom-blocker'
 import BetsContextProvider from '@/retail-contexts/bets-context'
 import CashierContextProvider from '@/retail-contexts/cashier-context'
@@ -11,10 +11,10 @@ import RootContextProvider from '@/retail-contexts/root-context'
 import SkinProvider, { SkinContext } from '@/retail-contexts/skin-context'
 import { Inter } from 'next/font/google'
 import { usePathname } from 'next/navigation'
-import { useContext, useEffect } from 'react'
+import { useContext } from 'react'
 import { useTranslation } from 'react-i18next'
-import '../globals.css'
 import '../../retail-lib/i18n'
+import '../globals.css'
 
 const inter = Inter({
   variable: '--font-inter',
@@ -26,14 +26,8 @@ export default function RetailLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const { i18n } = useTranslation();
-  
-	useEffect(()=>{
-		
-		localStorage.clear();
-		
-	},[]);
-	
+  const { i18n } = useTranslation()
+
   return (
     <html lang={i18n.language}>
       <head>
