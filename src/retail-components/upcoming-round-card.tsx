@@ -324,7 +324,7 @@ export default function UpcomingRoundCard(props: {
                                 key={`special-market-${marketIndex}`}
                               >
                                 <TableCell className="w-[1px] bg-border p-0"></TableCell>
-                                <TableCell className="w-1 justify-items-center px-[8px] pl-2">
+                                <TableCell className="w-1 justify-items-center px-[08px] pl-2">
                                   <div className="flex flex-row items-center justify-between gap-[2px]">
                                     {options.map((option, i) => (
                                       <BetEntryToggle
@@ -415,7 +415,7 @@ export default function UpcomingRoundCard(props: {
                               .map((option, i) => (
                                 <TableCell
                                   key={i}
-                                  className="justify-items-center px-[8px]"
+                                  className="justify-items-center px-[15px] w-1"
                                 >
                                   <BetEntryToggle
                                     bet={{
