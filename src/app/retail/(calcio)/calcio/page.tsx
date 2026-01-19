@@ -134,7 +134,7 @@ export default function Home() {
                 ref={scrollContainerRef}
                 className="thin-scrollbar overflow-y-auto"
               >
-                <div className="thin-scrollbar h-[814px] overflow-y-auto">
+                <div className="thin-scrollbar h-[810px] overflow-y-auto">
                   <UpcomingRoundCard
                     round={selectedEvent.data as UpcomingRound}
                     viewMatchBettingOptions={setMatchBetOptions}
@@ -163,7 +163,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="h-[949px] w-[410px] bg-background pr-2 mt-[-5px] text-foreground">
+      <div className="h-[945px] w-[410px] bg-background pr-2 mt-[-5px] text-foreground">
         <BettingSlip selectedEvent={selectedEvent} />
       </div>
     </div>

@@ -321,9 +321,9 @@ export default function Leaderboard({
       </div>
 
       {isExpanded && (
-        <div className="bg-background relative bottom-4">
+        <div className="bg-background">
           <div className="sticky top-[48px] z-30 bg-card-header">
-            <div className="grid h-[51px] grid-cols-11 pt-4 [&_div]:flex [&_div]:items-center [&_div]:justify-center [&_div]:font-bold [&_div]:text-card-header-foreground text-[16px]">
+            <div className="grid h-[51px] grid-cols-11 [&_div]:flex [&_div]:items-center [&_div]:justify-center [&_div]:font-bold [&_div]:text-card-header-foreground text-[16px]">
               <div className="p-2 text-center"></div>
               <div className="p-2 text-center">{t('club')}</div>
               <div className="p-2 text-center">{t('p')}</div>
