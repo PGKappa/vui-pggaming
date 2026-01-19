@@ -26,14 +26,8 @@ export default function RetailLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const { i18n } = useTranslation();
-  
-	useEffect(()=>{
-		
-		localStorage.clear();
-		
-	},[]);
-	
+  const { i18n } = useTranslation()
+
   return (
     <html lang={i18n.language}>
       <head>
