@@ -11,7 +11,7 @@ import RootContextProvider from '@/retail-contexts/root-context'
 import SkinProvider, { SkinContext } from '@/retail-contexts/skin-context'
 import { Inter } from 'next/font/google'
 import { usePathname } from 'next/navigation'
-import { useContext } from 'react'
+import { useContext, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import '../../retail-lib/i18n'
 import '../globals.css'
@@ -27,6 +27,10 @@ export default function RetailLayout({
   children: React.ReactNode
 }>) {
   const { i18n } = useTranslation()
+
+  useEffect(() => {
+    localStorage.clear()
+  }, [])
 
   return (
     <html lang={i18n.language}>
