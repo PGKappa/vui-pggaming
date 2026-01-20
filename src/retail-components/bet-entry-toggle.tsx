@@ -184,7 +184,7 @@ export default function BetEntryToggle(props: {
         </>
       ) : props.variant === 'roundcard' ? (
         <>
-          <span className="pt-[2px] font-semibold">{formattedOutcome}</span>
+          <span className="pt-[2px] font-semibold capitalize">{formattedOutcome}</span>
           <span className="relative bottom-[7px] text-[18px]">
             {props.bet.option.decPrice.toFixed(2)}
           </span>
