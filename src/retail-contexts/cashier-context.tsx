@@ -50,16 +50,25 @@ export const CashierContext = createContext<CashierContextType>(
 
 const CACHE_DURATION = 30 * 60 * 1000 // 30 minuti
 
-function saveCashierToCache(initCode: string, data: any) {
+function saveCashierToCache(
+  initCode: string,
+  operator: string | undefined,
+  data: any,
+) {
+  const cacheKey = `cashier_cache_${initCode}_${operator || 'pg'}`
   const cacheData = {
     data,
     timestamp: Date.now(),
   }
-  localStorage.setItem(`cashier_cache_${initCode}`, JSON.stringify(cacheData))
+  localStorage.setItem(cacheKey, JSON.stringify(cacheData))
 }
 
-function loadCashierFromCache(initCode: string): any | null {
-  const cached = localStorage.getItem(`cashier_cache_${initCode}`)
+function loadCashierFromCache(
+  initCode: string,
+  operator: string | undefined,
+): any | null {
+  const cacheKey = `cashier_cache_${initCode}_${operator || 'pg'}`
+  const cached = localStorage.getItem(cacheKey)
   if (!cached) return null
 
   try {
@@ -162,7 +171,7 @@ export default function CashierContextProvider(props: {
     )
 
     // Controlla cache prima
-    const cachedData = loadCashierFromCache(initCode)
+    const cachedData = loadCashierFromCache(initCode, operator)
     if (cachedData) {
       console.log('✅ Cashier caricato da cache (30min)')
       setCashierContext(cachedData)
@@ -258,7 +267,7 @@ export default function CashierContextProvider(props: {
           }
 
           setCashierContext(contextData)
-          saveCashierToCache(initCode, contextData)
+          saveCashierToCache(initCode, operator, contextData)
 
           // Aggiorna lingua e persisti per evitare fallback inattesi
           if (userData.lang && i18n.language !== userData.lang) {
