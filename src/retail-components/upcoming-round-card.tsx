@@ -319,26 +319,16 @@ export default function UpcomingRoundCard(props: {
                     className="h-[67px] items-center justify-between border-card-foreground"
                   >
                     <TableCell className="w-[130px] min-w-[130px] max-w-[130px] whitespace-nowrap text-start text-[17px] font-bold">
-  <div className="flex flex-col text-center">
-     <span>
-      {teamNames}
-    </span>
+                      <div className="flex flex-col text-center">
+                        <span>{teamNames}</span>
 
-    
-    <span className="text-[14px] font-bold text-accent text-center">
-     <span>
-  <span>
-  ID&nbsp;&nbsp;{index + 1}
-</span>
-
-</span>
-
-    </span>
-
-   
-  </div>
-</TableCell>
-
+                        <span className="text-center text-[14px] font-bold text-accent">
+                          <span>
+                            <span>ID&nbsp;&nbsp;{index + 1}</span>
+                          </span>
+                        </span>
+                      </div>
+                    </TableCell>
 
                     <TableCell className="w-[1px] bg-white p-0"></TableCell>
 
