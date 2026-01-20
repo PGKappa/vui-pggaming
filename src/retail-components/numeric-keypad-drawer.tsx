@@ -60,7 +60,8 @@ export default function NumericKeypadDrawer(props: {
 
   // Sync with props.value when it changes from outside
   useEffect(() => {
-    setValue(props.value)
+    const numValue = typeof props.value === 'number' ? props.value : 0
+    setValue(numValue)
   }, [props.value])
 
   useEffect(() => {
@@ -177,6 +178,7 @@ export default function NumericKeypadDrawer(props: {
 
   // Render trigger based on showPlusMinus prop
   const renderTrigger = () => {
+    const displayValue = typeof value === 'number' ? value : 0
     if (props.showPlusMinus) {
       return (
         <div className="relative left-1 flex w-fit items-center border border-border">
@@ -184,7 +186,7 @@ export default function NumericKeypadDrawer(props: {
             variant="ghost"
             size="sm"
             className="h-8 w-7 bg-bet p-3 text-[19px] text-bet-foreground hover:opacity-90"
-            disabled={value <= 0}
+            disabled={displayValue <= 0}
             onClick={(e) => {
               e.stopPropagation()
               handlePlusMinus(-incrementValue)
@@ -194,7 +196,7 @@ export default function NumericKeypadDrawer(props: {
           </Button>
           <Input
             type="text"
-            value={`${currencySymbol} ${value.toFixed(2)}`}
+            value={`${currencySymbol} ${displayValue.toFixed(2)}`}
             className={`bg-background-foreground h-8 border-x text-center ${props.inputWidth || 'w-20'}`}
             readOnly
             onClick={openDrawer}
@@ -217,7 +219,7 @@ export default function NumericKeypadDrawer(props: {
         <div className="relative inline-block">
           <Input
             type="text"
-            value={`${currencySymbol} ${value.toFixed(2)}`}
+            value={`${currencySymbol} ${displayValue.toFixed(2)}`}
             className={`bg-background-foreground h-8 text-center ${props.inputWidth || 'w-20'}`}
             readOnly
             onClick={openDrawer}
