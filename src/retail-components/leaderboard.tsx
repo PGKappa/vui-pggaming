@@ -299,7 +299,7 @@ export default function Leaderboard({
   }
 
   return (
-    <div className="relative pb-20 bottom-[7px]">
+    <div className="relative pb-20 bottom-[15px]">
       <div className={`${isExpanded ? 'sticky top-0 z-30' : ''} bg-background`}>
         <Card>
           <CardHeader
