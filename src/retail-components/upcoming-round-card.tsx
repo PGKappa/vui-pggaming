@@ -442,16 +442,20 @@ export default function UpcomingRoundCard(props: {
                                 ({ selection }) => selection,
                               )
                               const lastIndex = options.length - 1
+                              const isUnderOverTab =
+                                selectedTab === t('under/over')
 
                               return options.map((option, i) => (
                                 <TableCell
                                   key={i}
                                   className={`w-1 justify-items-center ${
-                                    i === 0
-                                      ? 'pl-6 pr-2'
-                                      : i === lastIndex
-                                        ? 'pl-2 pr-6'
-                                        : 'px-2'
+                                    isUnderOverTab
+                                      ? 'px-[15px]'
+                                      : i === 0
+                                        ? 'pl-6 pr-2'
+                                        : i === lastIndex
+                                          ? 'pl-2 pr-6'
+                                          : 'px-2'
                                   }`}
                                 >
                                   <BetEntryToggle
