@@ -245,7 +245,7 @@ export default function UpcomingRoundCard(props: {
   }
 
   return (
-    <Card className="border-card-foreground">
+    <Card className="border-b border-card-foreground">
       <CardHeader className="sticky top-0 z-40 flex h-[72px] w-full flex-row items-center justify-start gap-2 bg-accent px-2">
         {marketTabs.map((tab, index) => (
           <Button
@@ -264,7 +264,7 @@ export default function UpcomingRoundCard(props: {
           <TableHeader className="h-11 bg-card-header text-[20px] text-card-header-foreground">
             <TableRow className="border-card-foreground transition-none">
               <TableHead></TableHead>
-              <TableHead className="w-[1px] bg-border p-0"></TableHead>
+              <TableHead className="w-[1px] bg-accent p-0"></TableHead>
               {marketTabs
                 .find((tab) => tab.name === selectedTab)
                 ?.markets.map((market, index) => {
@@ -299,7 +299,7 @@ export default function UpcomingRoundCard(props: {
                     </React.Fragment>
                   )
                 })}{' '}
-              <TableHead className="w-[1px] bg-border/50 p-0"></TableHead>{' '}
+              <TableHead className="w-[1px] bg-black/50 p-0"></TableHead>{' '}
               <TableHead></TableHead>
             </TableRow>
           </TableHeader>
@@ -316,7 +316,7 @@ export default function UpcomingRoundCard(props: {
                 return (
                   <TableRow
                     key={index}
-                    className="h-[67px] items-center justify-between border-card-foreground"
+                    className="h-[69px] items-center justify-between border-card-foreground"
                   >
                     <TableCell className="w-[130px] min-w-[130px] max-w-[130px] whitespace-nowrap text-start text-[17px] font-bold">
                       <div className="flex flex-col text-center">
@@ -352,7 +352,7 @@ export default function UpcomingRoundCard(props: {
                               >
                                 <TableCell className="w-[1px] bg-black/50 p-0"></TableCell>
                                 <TableCell className="w-1 justify-items-center px-[08px] pl-2">
-                                  <div className="flex flex-row items-center justify-between gap-[2px]">
+                                  <div className="flex flex-row items-center justify-center gap-[2px]">
                                     {options.map((option, i) => (
                                       <BetEntryToggle
                                         key={i}
@@ -403,8 +403,10 @@ export default function UpcomingRoundCard(props: {
                                     key={chunkIndex}
                                     className={`flex flex-row items-center py-1 ${
                                       selectedTab === t('combo')
-                                        ? 'justify-center gap-10'
-                                        : 'gap-2'
+                                        ? 'justify-between gap-6 px-6'
+                                        : selectedTab === t('exact_result')
+                                          ? 'justify-center gap-2 px-2'
+                                          : 'justify-between gap-2 px-4'
                                     }`}
                                   >
                                     {chunk.map((option, i) => (
@@ -435,12 +437,22 @@ export default function UpcomingRoundCard(props: {
                         return (
                           <React.Fragment key={`regular-market-${marketIndex}`}>
                             <TableCell className="w-[1px] bg-black/50 p-0"></TableCell>
-                            {market.selections
-                              .flatMap(({ selection }) => selection)
-                              .map((option, i) => (
+                            {(() => {
+                              const options = market.selections.flatMap(
+                                ({ selection }) => selection,
+                              )
+                              const lastIndex = options.length - 1
+
+                              return options.map((option, i) => (
                                 <TableCell
                                   key={i}
-                                  className="w-1 justify-items-center px-[15px]"
+                                  className={`w-1 justify-items-center ${
+                                    i === 0
+                                      ? 'pl-6 pr-2'
+                                      : i === lastIndex
+                                        ? 'pl-2 pr-6'
+                                        : 'px-2'
+                                  }`}
                                 >
                                   <BetEntryToggle
                                     bet={{
@@ -455,16 +467,17 @@ export default function UpcomingRoundCard(props: {
                                     }}
                                     marketName={market.name}
                                     variant="roundcard"
-                                    className="h-[48px] w-[100px] text-[16px] font-semibold tabular-nums"
+                                    className="h-[50px] w-[100px] text-[16px] font-semibold tabular-nums"
                                   />
                                 </TableCell>
-                              ))}
+                              ))
+                            })()}
                           </React.Fragment>
                         )
                       })
                     })()}
 
-                    <TableCell className="w-[1px] bg-border/30 p-0"></TableCell>
+                    <TableCell className="w-[1px] bg-accent p-0"></TableCell>
                     <TableCell className="w-1 pr-2 text-center">
                       <Button
                         variant="action"
