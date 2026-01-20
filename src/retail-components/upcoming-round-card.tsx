@@ -245,7 +245,7 @@ export default function UpcomingRoundCard(props: {
   }
 
   return (
-    <Card className="border-b border-card-foreground">
+    <Card className="border-card-foreground">
       <CardHeader className="sticky top-0 z-40 flex h-[72px] w-full flex-row items-center justify-start gap-2 bg-accent px-2">
         {marketTabs.map((tab, index) => (
           <Button
@@ -316,7 +316,7 @@ export default function UpcomingRoundCard(props: {
                 return (
                   <TableRow
                     key={index}
-                    className="h-[69px] items-center justify-between border-card-foreground"
+                    className="h-[67px] items-center justify-between border-card-foreground"
                   >
                     <TableCell className="w-[130px] min-w-[130px] max-w-[130px] whitespace-nowrap text-start text-[17px] font-bold">
   <div className="flex flex-col text-center">
@@ -465,7 +465,7 @@ export default function UpcomingRoundCard(props: {
                                     }}
                                     marketName={market.name}
                                     variant="roundcard"
-                                    className="h-[50px] w-[100px] text-[16px] font-semibold tabular-nums"
+                                    className="h-[48px] w-[100px] text-[16px] font-semibold tabular-nums"
                                   />
                                 </TableCell>
                               ))}
