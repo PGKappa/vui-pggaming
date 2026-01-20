@@ -264,7 +264,7 @@ export default function UpcomingRoundCard(props: {
           <TableHeader className="h-11 bg-card-header text-[20px] text-card-header-foreground">
             <TableRow className="border-card-foreground transition-none">
               <TableHead></TableHead>
-              <TableHead className="w-[1px] bg-accent p-0"></TableHead>
+              <TableHead className="w-[1px] bg-border p-0"></TableHead>
               {marketTabs
                 .find((tab) => tab.name === selectedTab)
                 ?.markets.map((market, index) => {
@@ -299,7 +299,7 @@ export default function UpcomingRoundCard(props: {
                     </React.Fragment>
                   )
                 })}{' '}
-              <TableHead className="w-[1px] bg-black/50 p-0"></TableHead>{' '}
+              <TableHead className="w-[1px] bg-border/50 p-0"></TableHead>{' '}
               <TableHead></TableHead>
             </TableRow>
           </TableHeader>
@@ -474,7 +474,7 @@ export default function UpcomingRoundCard(props: {
                       })
                     })()}
 
-                    <TableCell className="w-[1px] bg-accent p-0"></TableCell>
+                    <TableCell className="w-[1px] bg-border/30 p-0"></TableCell>
                     <TableCell className="w-1 pr-2 text-center">
                       <Button
                         variant="action"
