@@ -316,7 +316,7 @@ export default function UpcomingRoundCard(props: {
                 return (
                   <TableRow
                     key={index}
-                    className="h-[69px] items-center justify-between border-card-foreground"
+                    className="h-[67px] items-center justify-between border-card-foreground"
                   >
                     <TableCell className="w-[130px] min-w-[130px] max-w-[130px] whitespace-nowrap text-start text-[17px] font-bold">
                       <div className="flex flex-col text-center">
@@ -450,11 +450,11 @@ export default function UpcomingRoundCard(props: {
                                   key={i}
                                   className={`w-1 justify-items-center ${
                                     isUnderOverTab
-                                      ? 'px-[15px]'
+                                      ? 'px-[32px]'
                                       : i === 0
-                                        ? 'pl-6 pr-2'
+                                        ? 'pl-[23px] pr-[1px]'
                                         : i === lastIndex
-                                          ? 'pl-2 pr-6'
+                                          ? 'pl-1 pr-0'
                                           : 'px-2'
                                   }`}
                                 >

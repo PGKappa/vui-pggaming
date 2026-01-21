@@ -299,7 +299,7 @@ export default function Leaderboard({
   }
 
   return (
-    <div className="relative pb-20 bottom-[15px]">
+    <div className="relative pb-20 bottom-[14px]">
       <div className={`${isExpanded ? 'sticky top-0 z-30' : ''} bg-background`}>
         <Card>
           <CardHeader
@@ -322,7 +322,7 @@ export default function Leaderboard({
 
       {isExpanded && (
         <div className="bg-background">
-          <div className="sticky top-[48px] z-30 bg-card-header">
+          <div className="sticky top-[41px] z-30 bg-card-header">
             <div className="grid h-[51px] grid-cols-11 [&_div]:flex [&_div]:items-center [&_div]:justify-center [&_div]:font-bold [&_div]:text-card-header-foreground text-[16px]">
               <div className="p-2 text-center"></div>
               <div className="p-2 text-center">{t('club')}</div>

@@ -90,29 +90,38 @@ export default function MatchBettingOptions(props: {
                   <ChevronDown className="scale-170 shrink-0 transition-transform duration-200 text-white" /> 
                 </AccordionTrigger>
                 
-                <AccordionContent>
-                  
-                  <div className="grid grid-cols-3 items-center justify-between gap-2 px-2 mt-[3px] mb-[-16px]">
-                    
-                    {market.selections[0].selection.map((option) => (
-                      <BetEntryToggle
-                        key={option.outcome}
-                        bet={{
-                          discipline: Discipline.SOCCER,
-                          event: {
-                            name: props.round.name,
-                            number: props.round.number,
-                            startingAt: props.round.startingAt,
-                          },
-                          competitors: props.teams,
-                          option: option,
-                        }}
-                        marketName={market.name}
-                        variant="matchcard"
-                        className="h-[45px] w-full font-semibold"
-                      />
-                    ))}
-                  </div>
+                <AccordionContent> 
+                  <div
+                  className={`
+                    grid
+                    grid-cols-[repeat(auto-fit,minmax(140px,1fr))]
+                    items-center
+                    px-[64px]
+                    gap-y-[8px]
+                    mt-[3px]
+                    mb-[-16px]
+                    ${market.selections[0].selection.length > 3 ? "gap-x-8" : "gap-x-16"}
+                  `}
+                >
+                  {market.selections[0].selection.map((option) => (
+                    <BetEntryToggle
+                      key={option.outcome}
+                      bet={{
+                        discipline: Discipline.SOCCER,
+                        event: {
+                          name: props.round.name,
+                          number: props.round.number,
+                          startingAt: props.round.startingAt,
+                        },
+                        competitors: props.teams,
+                        option: option,
+                      }}
+                      marketName={market.name}
+                      variant="matchcard"
+                      className="h-[45px] w-full font-semibold"
+                    />
+                  ))}
+                </div>
                 </AccordionContent>
               </AccordionItem>
             ))}
