@@ -299,7 +299,7 @@ export default function UpcomingRoundCard(props: {
                     </React.Fragment>
                   )
                 })}{' '}
-              <TableHead className="w-[1px] bg-black/50 p-0"></TableHead>{' '}
+              {/* <TableHead className="w-[1px] bg-black/50 p-0"></TableHead>{' '} */}
               <TableHead></TableHead>
             </TableRow>
           </TableHeader>
@@ -481,8 +481,8 @@ export default function UpcomingRoundCard(props: {
                       })
                     })()}
 
-                    <TableCell className="w-[1px] bg-accent p-0"></TableCell>
-                    <TableCell className="w-1 pr-2 text-center">
+                    {/* <TableCell className="w-[1px] bg-accent p-0"></TableCell> */}
+                    <TableCell className="w-1 border-l pr-2 text-center">
                       <Button
                         variant="action"
                         size="icon-lg"
