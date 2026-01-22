@@ -213,8 +213,6 @@ export default function CashierContextProvider(props: {
 
           const getCurrencyCode = () => cashierData.intl?.currency || 'EUR'
           const getCurrencySymbol = () => {
-            const apiSymbol = cashierData.dict?.misc?.currency?.symbol
-            if (apiSymbol) return apiSymbol
             const currencyCode = cashierData.intl?.currency || 'EUR'
             const currencyMap: Record<string, string> = {
               USD: '$',
@@ -225,12 +223,18 @@ export default function CashierContextProvider(props: {
               CAD: 'C$',
               AUD: 'A$',
               COP: '$',
-              DOP: 'RD$',
+              DOP: '$',
               MXN: '$',
               ARS: '$',
               BRL: 'R$',
             }
-            return currencyMap[currencyCode] || '$'
+            const mapped = currencyMap[currencyCode]
+            if (mapped) return mapped
+
+            const apiSymbol = cashierData.dict?.misc?.currency?.symbol
+            if (apiSymbol) return apiSymbol
+
+            return '$'
           }
           const getChannels = () => cashierData.channels || []
           const getTrackName = (channel?: number) => {
