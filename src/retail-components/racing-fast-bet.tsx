@@ -95,6 +95,12 @@ export default function RacingFastBet({
       return
     }
 
+    // Validazione iniziale: assicurati che initCode e operator siano disponibili
+    if (!rootContext?.initCode || !rootContext?.operator) {
+      toast.error(t('login_required') || 'Authentication required')
+      return
+    }
+
     // Parse the fastbet input to handle multiple bets separated by "/"
     const trimmedInput = fastbetInput.trim().toUpperCase()
     const betInputs = trimmedInput
@@ -131,7 +137,9 @@ export default function RacingFastBet({
       const isSpecialCode = /^(2C|3C|2P|3P)/.test(betInput)
 
       // Validazione
-      const orderValidation = isSpecialCode ? /^(2C|3C|2P|3P)\d*$/ : /^[A-Z]+\d*$/
+      const orderValidation = isSpecialCode
+        ? /^(2C|3C|2P|3P)\d*$/
+        : /^[A-Z]+\d*$/
       if (!orderValidation.test(betInput)) {
         toast.error(t('invalid_fastbet_format') + t('code_and_number_required'))
         return

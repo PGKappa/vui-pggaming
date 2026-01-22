@@ -237,10 +237,17 @@ export default function UpcomingRaceCard({
       if (!hasLoadedOnce) {
         setIsLoading(true)
       }
+
+      // Stop se manca initCode/operator per evitare errori hard
+      if (!rootContext.initCode || !rootContext.operator) {
+        console.warn('⚠️ Missing initCode/operator, skip fetchEventInfo')
+        setIsLoading(false)
+        return
+      }
       try {
         const response = await createPGVirtualAPICall(
           `/api/event/info/${race.extId}/${race.id}`,
-          rootContext.initCode || '',
+          rootContext.initCode,
           undefined,
           rootContext.operator,
         )
@@ -255,7 +262,7 @@ export default function UpcomingRaceCard({
           id: parseInt(data.int_event_id),
         }
         setRaceInfo(upcomingRace)
-        setHasLoadedOnce(true) 
+        setHasLoadedOnce(true)
       } catch (error) {
         console.error('Error fetching event info:', error)
       } finally {
@@ -779,7 +786,7 @@ export default function UpcomingRaceCard({
           {/* Even/Odd Market */}
           <div>
             <div className="bg-accent text-accent-foreground">
-              <div className="border-slate flex h-[64px] items-center justify-center  text-[16px] font-bold">
+              <div className="border-slate flex h-[64px] items-center justify-center text-[16px] font-bold">
                 {t('even_odd').toUpperCase()}
               </div>
             </div>
