@@ -50,9 +50,9 @@ export function normalizeMarketName(market: string): string {
 
 // API URLs - direttamente nel codice per evitare problemi con env online
 export const API_URLS = {
-  PGVIRTUAL: 'http://localhost:8080',
-  CASHIER_INIT: 'http://localhost:8080/api/init/cashier',
-  SOCCER: 'http://localhost:8080/football/incoming.php',
+  PGVIRTUAL: 'https://apisuprema.pgvirtual.eu',
+  CASHIER_INIT: 'https://apisuprema.pgvirtual.eu/api/init/cashier',
+  SOCCER: 'https://cvgl.it/football/incoming.php',
   // Base per altre chiamate se necessario
   BASE: 'https://pg-gaming.stg.startegois.com/proxy',
 } as const
@@ -177,7 +177,13 @@ export function createPGVirtualAPICall(
   options?: RequestInit,
   operator?: string,
 ) {
-  const finalOperator = operator || 'pg'
+  if (!operator) {
+    console.error(
+      '❌ Operator is required but not provided for API call:',
+      endpoint,
+    )
+    throw new Error(`Operator is required for API calls. Endpoint: ${endpoint}`)
+  }
 
   const finalOptions = {
     ...options,
@@ -186,7 +192,7 @@ export function createPGVirtualAPICall(
       accept: 'application/json',
       authorization: `Bearer ${initCode}`,
       'content-type': 'application/json',
-      operator: finalOperator,
+      operator: operator,
     },
     mode: 'cors' as const,
     credentials: 'include' as const,
@@ -196,7 +202,7 @@ export function createPGVirtualAPICall(
     endpoint,
     initCode,
     headers: finalOptions.headers,
-    operator: finalOperator,
+    operator: operator,
   })
 
   return fetch(`${PGVIRTUAL_API_URL}${endpoint}`, finalOptions)
@@ -226,6 +232,7 @@ export function getAPIUrlForDiscipline(discipline: Discipline): string {
 export async function fetchEventsByDiscipline(
   discipline: Discipline,
   initCode?: string,
+  operator?: string,
 ): Promise<any> {
   const baseUrl = getAPIUrlForDiscipline(discipline)
 
@@ -236,7 +243,13 @@ export async function fetchEventsByDiscipline(
   } else {
     // Per cani e cavalli usiamo PGVirtual API
     if (!initCode) throw new Error('InitCode required for racing events')
-    return createPGVirtualAPICall('/api/event/list', initCode)
+    if (!operator) throw new Error('Operator required for racing events')
+    return createPGVirtualAPICall(
+      '/api/event/list',
+      initCode,
+      undefined,
+      operator,
+    )
   }
 }
 
@@ -245,14 +258,17 @@ export async function fetchCashierInit(
   initCode: string,
   operator?: string,
 ): Promise<any> {
-  const finalOperator = operator || 'pg'
+  if (!operator) {
+    console.error('❌ Operator is required but not provided for Cashier Init')
+    throw new Error('Operator is required for Cashier initialization')
+  }
 
   const response = await fetch(API_URLS.CASHIER_INIT, {
     headers: {
       accept: 'application/json',
       'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
       authorization: `Bearer ${initCode}`,
-      operator: finalOperator,
+      operator: operator,
       'Content-Type': 'application/json',
     },
     method: 'POST',
@@ -262,6 +278,9 @@ export async function fetchCashierInit(
   })
 
   if (!response.ok) {
+    console.error(
+      `❌ Cashier API error: ${response.status} - ${response.statusText}`,
+    )
     throw new Error(`Cashier API error: ${response.status}`)
   }
 
