@@ -121,7 +121,7 @@ export default function BettingSlip() {
   }, [baseSystemGroups, systemGroupStakes])
 
   // Calcola i totali per la modalità SYSTEM
-  const systemTotals = useMemo(() => {
+  /* const systemTotals = useMemo(() => {
     const totalStake = systemGroups.reduce((sum, group) => sum + group.stake, 0)
     const minWin = systemGroups.reduce((sum, group) => {
       if (group.stake === 0) return sum
@@ -138,7 +138,7 @@ export default function BettingSlip() {
     }, 0)
 
     return { totalStake, minWin, maxWin, totalOdds }
-  }, [systemGroups])
+  }, [systemGroups]) */
 
   // Funzione per calcolare il type basato sulle discipline nel ticket
   const getTicketType = (entries: BetEntry[]): string => {

@@ -450,25 +450,21 @@ export default function UpcomingRoundCard(props: {
                               const isHomeAwayTab =
                                 selectedTab === t('home/away_team')
 
-                              const isSpecialTab = selectedTab === t('special')
-
                               return options.map((option, i) => (
                                 <TableCell
                                   key={i}
                                   className={`w-1 justify-items-center ${
                                     isHomeAwayTab
-                                    ? 'text-sm'
-                                    :
-                                    isMainTab
-                                    ? 'pl-4 pr-2 text-sm'
-                                    :
-                                    isUnderOverTab
-                                      ? 'px-[31px]'
-                                      : i === 0
-                                        ? 'pl-[28px] pr-[1px]'
-                                        : i === lastIndex
-                                          ? 'pl-2 pr-0'
-                                          : 'px-2'
+                                      ? 'text-sm'
+                                      : isMainTab
+                                        ? 'pl-4 pr-2 text-sm'
+                                        : isUnderOverTab
+                                          ? 'px-[31px]'
+                                          : i === 0
+                                            ? 'pl-[28px] pr-[1px]'
+                                            : i === lastIndex
+                                              ? 'pl-2 pr-0'
+                                              : 'px-2'
                                   }`}
                                 >
                                   <BetEntryToggle
