@@ -6,7 +6,11 @@ import {
   UpcomingEvent,
   UpcomingRound,
 } from '@/retail-lib/types'
-import { createPGVirtualAPICall, parseAPIDate, SOCCER_API_URL } from '@/retail-lib/utils'
+import {
+  createPGVirtualAPICall,
+  parseAPIDate,
+  SOCCER_API_URL,
+} from '@/retail-lib/utils'
 import { usePathname } from 'next/navigation'
 import {
   createContext,
@@ -125,6 +129,12 @@ export default function EventsContextProvider(props: {
     async (extPalId: string, intEventId: string) => {
       if (!effectiveInitCode) {
         console.warn('⚠️ No initCode available for fetchEventDetails')
+        return
+      }
+
+      if (!operator) {
+        console.error('❌ Cannot fetch event details: operator is required')
+        toast.error('Operator is required for API calls')
         return
       }
 
@@ -251,6 +261,13 @@ export default function EventsContextProvider(props: {
       setIsLoadingEvents(!hasLoadedOnce.current)
 
       try {
+        if (!operator) {
+          console.error('❌ Cannot fetch events: operator is required')
+          toast.error('Operator is required for API calls')
+          setIsLoadingEvents(false)
+          return
+        }
+
         const shouldFetchRacing =
           disciplines.includes(Discipline.DOGS) ||
           disciplines.includes(Discipline.HORSES)
@@ -267,7 +284,6 @@ export default function EventsContextProvider(props: {
             undefined,
             operator,
           )
-
 
           if (response.ok) {
             const racingData = await response.json()
@@ -328,7 +344,7 @@ export default function EventsContextProvider(props: {
               ) {
                 // Limita ai soli ultimi 10 per velocità
                 const topDogs = dogChannel.prev_events.slice(0, 10)
-                
+
                 // Fetch dettagli per i top 10 (necessario per avere arrival/podium)
                 const dogResults: EventResult[] = await Promise.all(
                   topDogs.map(async (event: any) => {
@@ -729,8 +745,7 @@ export default function EventsContextProvider(props: {
     return () => {
       abortController.abort()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname])
+  }, [pathname, operator, effectiveInitCode, getTimezone])
 
   return (
     <EventsContext.Provider
