@@ -445,12 +445,13 @@ export default function UpcomingRoundCard(props: {
                               const isUnderOverTab =
                                 selectedTab === t('under/over')
 
-                              const isMainTab =
-                                selectedTab === t('main')
+                              const isMainTab = selectedTab === t('main')
 
                               const isHomeAwayTab =
-                                selectedTab === t('home/away')
-                                
+                                selectedTab === t('home/away_team')
+
+                              const isSpecialTab = selectedTab === t('special')
+
                               return options.map((option, i) => (
                                 <TableCell
                                   key={i}
