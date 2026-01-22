@@ -264,7 +264,7 @@ export default function UpcomingRoundCard(props: {
           <TableHeader className="h-11 bg-card-header text-[20px] text-card-header-foreground">
             <TableRow className="border-card-foreground transition-none">
               <TableHead></TableHead>
-              <TableHead className="w-[1px] bg-accent p-0"></TableHead>
+              <TableHead className="w-[1px] bg-card-header p-0"></TableHead>
               {marketTabs
                 .find((tab) => tab.name === selectedTab)
                 ?.markets.map((market, index) => {
@@ -276,7 +276,7 @@ export default function UpcomingRoundCard(props: {
                   if (isSpecialTab) {
                     return (
                       <React.Fragment key={`special-${index}`}>
-                        <TableHead className="w-[1px] bg-black/50 p-0"></TableHead>
+                        <TableHead className="w-[1px] bg-card-header p-0"></TableHead>
                         <TableHead
                           className="text-center font-bold"
                           colSpan={1}
@@ -289,7 +289,7 @@ export default function UpcomingRoundCard(props: {
 
                   return (
                     <React.Fragment key={`market-${index}`}>
-                      <TableHead className="w-[1px] bg-black/10 p-0"></TableHead>
+                      <TableHead className="w-[1px] bg-card-header p-0"></TableHead>
                       <TableHead
                         className="p-0 text-center font-bold"
                         colSpan={optionsCount}
@@ -299,7 +299,7 @@ export default function UpcomingRoundCard(props: {
                     </React.Fragment>
                   )
                 })}{' '}
-              <TableHead className="w-[1px] bg-black/50 p-0"></TableHead>{' '}
+              <TableHead className="w-[1px] bg-card-header p-0"></TableHead>{' '}
               <TableHead></TableHead>
             </TableRow>
           </TableHeader>
@@ -350,7 +350,7 @@ export default function UpcomingRoundCard(props: {
                               <React.Fragment
                                 key={`special-market-${marketIndex}`}
                               >
-                                <TableCell className="w-[1px] bg-black/50 p-0"></TableCell>
+                                <TableCell className="w-[1px] bg-black p-0"></TableCell>
                                 <TableCell className="w-1 justify-items-center px-[08px] pl-2">
                                   <div className="flex flex-row items-center justify-center gap-[3px]">
                                     {options.map((option, i) => (
@@ -389,7 +389,7 @@ export default function UpcomingRoundCard(props: {
                             <React.Fragment
                               key={`special-market-${marketIndex}`}
                             >
-                              <TableCell className="w-[1px] bg-black/50 p-0"></TableCell>
+                              <TableCell className="w-[1px] bg-black p-0"></TableCell>
                               <TableCell
                                 key={marketIndex}
                                 className={`w-1 justify-items-center ${
@@ -436,7 +436,7 @@ export default function UpcomingRoundCard(props: {
 
                         return (
                           <React.Fragment key={`regular-market-${marketIndex}`}>
-                            <TableCell className="w-[1px] bg-black/50 p-0"></TableCell>
+                            <TableCell className="w-[1px] bg-black p-0"></TableCell>
                             {(() => {
                               const options = market.selections.flatMap(
                                 ({ selection }) => selection,
@@ -464,7 +464,7 @@ export default function UpcomingRoundCard(props: {
                                     isUnderOverTab
                                       ? 'px-[31px]'
                                       : i === 0
-                                        ? 'pl-[17px] pr-[1px]'
+                                        ? 'pl-[28px] pr-[1px]'
                                         : i === lastIndex
                                           ? 'pl-2 pr-0'
                                           : 'px-2'
@@ -493,7 +493,7 @@ export default function UpcomingRoundCard(props: {
                       })
                     })()}
 
-                    <TableCell className="w-[1px] bg-accent p-0"></TableCell>
+                    <TableCell className="w-[1px] bg-black p-0"></TableCell>
                     <TableCell className="w-1 pr-2 text-center">
                       <Button
                         variant="action"
