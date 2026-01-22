@@ -299,7 +299,7 @@ export default function UpcomingRoundCard(props: {
                     </React.Fragment>
                   )
                 })}{' '}
-              {/* <TableHead className="w-[1px] bg-black/50 p-0"></TableHead>{' '} */}
+              <TableHead className="w-[1px] bg-black/50 p-0"></TableHead>{' '}
               <TableHead></TableHead>
             </TableRow>
           </TableHeader>
@@ -405,7 +405,7 @@ export default function UpcomingRoundCard(props: {
                                       selectedTab === t('combo')
                                         ? 'justify-between gap-6 px-6'
                                         : selectedTab === t('exact_result')
-                                          ? 'justify-center gap-2 px-2'
+                                          ? 'justify-center gap-2 px-1'
                                           : 'justify-between gap-2 px-4'
                                     }`}
                                   >
@@ -493,8 +493,8 @@ export default function UpcomingRoundCard(props: {
                       })
                     })()}
 
-                    {/* <TableCell className="w-[1px] bg-accent p-0"></TableCell> */}
-                    <TableCell className="w-1 border-l pr-2 text-center">
+                    <TableCell className="w-[1px] bg-accent p-0"></TableCell>
+                    <TableCell className="w-1 pr-2 text-center">
                       <Button
                         variant="action"
                         size="icon-lg"
