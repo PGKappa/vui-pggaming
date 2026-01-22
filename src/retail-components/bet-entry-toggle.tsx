@@ -1,6 +1,7 @@
 import { BetsContext } from '@/retail-contexts/bets-context'
 import { Bet } from '@/retail-lib/types'
 import { useContext, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Toggle } from './ui/toggle'
 import { cn, normalizeMarketName } from '@/retail-lib/utils'
 
@@ -18,11 +19,12 @@ export default function BetEntryToggle(props: {
   className?: string
   onToggle?: (isPressed: boolean) => void
 }) {
+  const { t } = useTranslation()
   const { addBet, removeBet, betEntries } = useContext(BetsContext)
 
   const isSelected = useMemo(() => {
     const propsMarketNormalized = normalizeMarketName(props.marketName)
-    
+
     const found = betEntries.find(
       (entry) =>
         normalizeMarketName(entry.market) === propsMarketNormalized &&
@@ -36,9 +38,31 @@ export default function BetEntryToggle(props: {
   }, [betEntries, props.marketName, props.bet])
 
   const formatOutcome = (outcome: string, marketName: string): string => {
+    const underLabel = t('under') || 'Under'
+    const overLabel = t('over') || 'Over'
+
+    const lower = outcome.toLowerCase()
+    if (lower === 'yes') return t('yes') || 'Sí'.toUpperCase()
+    if (lower === 'no') return t('no') || 'No'.toUpperCase()
+
     if (marketName === 'Half Time\/ Full Time') {
       if (outcome.length === 2) {
-        return `${outcome[0]}/${outcome[1]}`
+        return `${outcome[0]} / ${outcome[1]}`
+      }
+    }
+
+    if (marketName.toLowerCase().includes('multigoal')) {
+      return outcome
+    }
+
+    if (
+      marketName.toLowerCase().includes('combo') &&
+      marketName.toLowerCase().includes('goal') &&
+      outcome.includes('+')
+    ) {
+      const parts = outcome.split('+')
+      if (parts.length === 2) {
+        return `${parts[0]} + ${parts[1]}`
       }
     }
 
@@ -60,9 +84,9 @@ export default function BetEntryToggle(props: {
       const [prefix, suffix] = outcome.split('+')
 
       if (suffix === 'U' || suffix.toLowerCase().includes('under')) {
-        return `${prefix}+UN ${value}`
+        return `${prefix} + ${underLabel} ${value}`
       } else if (suffix === 'O' || suffix.toLowerCase().includes('over')) {
-        return `${prefix}+OV ${value}`
+        return `${prefix} + ${overLabel} ${value}`
       }
 
       return outcome
@@ -72,28 +96,28 @@ export default function BetEntryToggle(props: {
       outcome.includes('1+') &&
       (outcome.includes('Under') || outcome.includes('U'))
     ) {
-      return `1+UN ${value}`
+      return `1 + ${underLabel} ${value}`
     } else if (
       outcome.includes('1+') &&
       (outcome.includes('Over') || outcome.includes('O'))
     ) {
-      return `1+OV ${value}`
+      return `1 + ${overLabel} ${value}`
     } else if (
       outcome.includes('2+') &&
       (outcome.includes('Under') || outcome.includes('U'))
     ) {
-      return `2+UN ${value}`
+      return `2 + ${underLabel} ${value}`
     } else if (
       outcome.includes('2+') &&
       (outcome.includes('Over') || outcome.includes('O'))
     ) {
-      return `2+OV ${value}`
+      return `2 + ${overLabel} ${value}`
     }
 
     if (outcome.toLowerCase().includes('under') || outcome === 'U') {
-      return `Under ${value}`
+      return `${underLabel} ${value}`
     } else if (outcome.toLowerCase().includes('over') || outcome === 'O') {
-      return `Over ${value}`
+      return `${overLabel} ${value}`
     }
 
     return outcome
@@ -117,16 +141,20 @@ export default function BetEntryToggle(props: {
             props.bet.discipline,
           )
         } else {
-          addBet(props.marketName, {
-            event: {
-              name: props.bet.event.name,
-              number: props.bet.event.number,
-              startingAt: props.bet.event.startingAt,
+          addBet(
+            props.marketName,
+            {
+              event: {
+                name: props.bet.event.name,
+                number: props.bet.event.number,
+                startingAt: props.bet.event.startingAt,
+              },
+              discipline: props.bet.discipline,
+              competitors: props.bet.competitors,
+              option: props.bet.option,
             },
-            discipline: props.bet.discipline,
-            competitors: props.bet.competitors,
-            option: props.bet.option,
-          }, props.apiMarketName || props.marketName)
+            props.apiMarketName || props.marketName,
+          )
         }
         if (props.onToggle) {
           props.onToggle(!isSelected)
@@ -134,7 +162,7 @@ export default function BetEntryToggle(props: {
       }}
       className={cn(
         props.variant === 'matchcard'
-          ? 'flex flex-row justify-between px-4 text-[19px]'
+          ? 'flex flex-row justify-between px-4 text-[19px] capitalize'
           : props.variant === 'roundcard'
             ? 'flex flex-col justify-between text-[19px]'
             : props.variant === 'racecard'
@@ -148,7 +176,7 @@ export default function BetEntryToggle(props: {
       {props.variant === 'matchcard' ? (
         <>
           <span className="pl-[1px] pt-[1px] text-[16px] font-semibold">
-            {(formattedOutcome)}
+            {formattedOutcome}
           </span>
           <span className="pr-[1px] text-[18px] font-semibold tabular-nums">
             {props.bet.option.decPrice.toFixed(2)}
@@ -156,8 +184,10 @@ export default function BetEntryToggle(props: {
         </>
       ) : props.variant === 'roundcard' ? (
         <>
-          <span className="font-bold">{formattedOutcome}</span>
-          <span className='text-[18px]'>{props.bet.option.decPrice.toFixed(2)}</span>
+          <span className="pt-[1px] font-semibold capitalize">{formattedOutcome}</span>
+          <span className="relative bottom-[4px] text-[18px]">
+            {props.bet.option.decPrice.toFixed(2)}
+          </span>
         </>
       ) : props.variant === 'racecard' ? (
         props.bet.option.decPrice.toFixed(2)
