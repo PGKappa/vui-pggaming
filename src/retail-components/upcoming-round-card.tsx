@@ -352,7 +352,7 @@ export default function UpcomingRoundCard(props: {
                               >
                                 <TableCell className="w-[1px] bg-black/50 p-0"></TableCell>
                                 <TableCell className="w-1 justify-items-center px-[08px] pl-2">
-                                  <div className="flex flex-row items-center justify-center gap-[2px]">
+                                  <div className="flex flex-row items-center justify-center gap-[3px]">
                                     {options.map((option, i) => (
                                       <BetEntryToggle
                                         key={i}
@@ -445,16 +445,28 @@ export default function UpcomingRoundCard(props: {
                               const isUnderOverTab =
                                 selectedTab === t('under/over')
 
+                              const isMainTab =
+                                selectedTab === t('main')
+
+                              const isHomeAwayTab =
+                                selectedTab === t('home/away')
+                                
                               return options.map((option, i) => (
                                 <TableCell
                                   key={i}
                                   className={`w-1 justify-items-center ${
+                                    isHomeAwayTab
+                                    ? 'text-sm'
+                                    :
+                                    isMainTab
+                                    ? 'pl-4 pr-2 text-sm'
+                                    :
                                     isUnderOverTab
-                                      ? 'px-[32px]'
+                                      ? 'px-[31px]'
                                       : i === 0
-                                        ? 'pl-[23px] pr-[1px]'
+                                        ? 'pl-[17px] pr-[1px]'
                                         : i === lastIndex
-                                          ? 'pl-1 pr-0'
+                                          ? 'pl-2 pr-0'
                                           : 'px-2'
                                   }`}
                                 >
