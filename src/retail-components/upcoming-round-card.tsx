@@ -28,7 +28,12 @@ export default function UpcomingRoundCard(props: {
   viewMatchBettingOptions: Dispatch<
     SetStateAction<
       | {
-          round: { name: string; number: number; startingAt: Date }
+          round: {
+            name: string
+            number: number
+            startingAt: Date
+            roundId?: number
+          }
           teams: string
           markets: Market[]
         }
@@ -362,6 +367,8 @@ export default function UpcomingRoundCard(props: {
                                             name: match.eventIdentity.eventName,
                                             number: match.eventIdentity.eventId,
                                             startingAt: matchStart,
+                                            roundId:
+                                              match.eventIdentity.groupId,
                                           },
                                           competitors: teamNames,
                                           option: option,
@@ -418,6 +425,8 @@ export default function UpcomingRoundCard(props: {
                                             name: match.eventIdentity.eventName,
                                             number: match.eventIdentity.eventId,
                                             startingAt: matchStart,
+                                            roundId:
+                                              match.eventIdentity.groupId,
                                           },
                                           competitors: teamNames,
                                           option: option,
@@ -474,6 +483,7 @@ export default function UpcomingRoundCard(props: {
                                         name: match.eventIdentity.eventName,
                                         number: match.eventIdentity.eventId,
                                         startingAt: matchStart,
+                                        roundId: match.eventIdentity.groupId,
                                       },
                                       competitors: teamNames,
                                       option: option,
@@ -501,6 +511,7 @@ export default function UpcomingRoundCard(props: {
                               name: props.round.scheduleName,
                               number: props.round.scheduleId,
                               startingAt: matchStart,
+                              roundId: match.eventIdentity.groupId,
                             },
                             teams: teamNames,
                             markets: match.markets.market,

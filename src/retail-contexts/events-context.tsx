@@ -745,7 +745,7 @@ export default function EventsContextProvider(props: {
     return () => {
       abortController.abort()
     }
-  }, [pathname, operator, effectiveInitCode, getTimezone])
+  }, [pathname, operator, effectiveInitCode, getTimezone, activeDisciplines])
 
   return (
     <EventsContext.Provider
