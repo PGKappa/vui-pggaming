@@ -260,10 +260,10 @@ export default function UpcomingRoundCard(props: {
       </CardHeader>
 
       <CardContent className="px-0">
-        <Table>
+        <Table className="table-fixed">
           <TableHeader className="h-11 bg-card-header text-[20px] text-card-header-foreground">
             <TableRow className="border-card-foreground transition-none">
-              <TableHead></TableHead>
+              <TableHead className="w-[130px] min-w-[130px] max-w-[130px]"></TableHead>
               <TableHead className="w-[1px] bg-card-header p-0"></TableHead>
               {marketTabs
                 .find((tab) => tab.name === selectedTab)
@@ -300,7 +300,7 @@ export default function UpcomingRoundCard(props: {
                   )
                 })}{' '}
               <TableHead className="w-[1px] bg-card-header p-0"></TableHead>{' '}
-              <TableHead></TableHead>
+              <TableHead className="w-[48px] min-w-[48px] max-w-[48px]"></TableHead>
             </TableRow>
           </TableHeader>
 
@@ -351,7 +351,7 @@ export default function UpcomingRoundCard(props: {
                                 key={`special-market-${marketIndex}`}
                               >
                                 <TableCell className="w-[1px] bg-black p-0"></TableCell>
-                                <TableCell className="w-1 justify-items-center px-[08px] pl-2">
+                                <TableCell className="justify-items-center px-[8px] pl-2">
                                   <div className="flex flex-row items-center justify-center gap-[3px]">
                                     {options.map((option, i) => (
                                       <BetEntryToggle
@@ -392,7 +392,7 @@ export default function UpcomingRoundCard(props: {
                               <TableCell className="w-[1px] bg-black p-0"></TableCell>
                               <TableCell
                                 key={marketIndex}
-                                className={`w-1 justify-items-center ${
+                                className={`justify-items-center ${
                                   selectedTab === t('combo')
                                     ? 'px-[20px]'
                                     : 'px-[8px] pl-2'
@@ -453,7 +453,7 @@ export default function UpcomingRoundCard(props: {
                               return options.map((option, i) => (
                                 <TableCell
                                   key={i}
-                                  className={`w-1 justify-items-center ${
+                                  className={`justify-items-center ${
                                     isHomeAwayTab
                                       ? 'text-sm'
                                       : isMainTab
@@ -491,7 +491,7 @@ export default function UpcomingRoundCard(props: {
                     })()}
 
                     <TableCell className="w-[1px] bg-black p-0"></TableCell>
-                    <TableCell className="w-1 pr-2 text-center">
+                    <TableCell className="w-[48px] min-w-[48px] max-w-[48px] pr-2 text-center">
                       <Button
                         variant="action"
                         size="icon-lg"
