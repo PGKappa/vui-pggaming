@@ -22,6 +22,7 @@ export default function MatchBettingOptions(props: {
     name: string
     number: number
     startingAt: Date
+    roundId?: number
   }
   teams: string
   markets: Market[]
@@ -38,7 +39,7 @@ export default function MatchBettingOptions(props: {
       <div className="flex flex-row items-center justify-between bg-accent p-3 text-accent-foreground">
         <div className="flex flex-row items-center gap-2">
           <Button
-            className= "bg-accent text-tertiary-foreground"
+            className="bg-accent text-tertiary-foreground"
             onClick={props.close}
             size="icon-lg"
           >
@@ -49,7 +50,7 @@ export default function MatchBettingOptions(props: {
           </span>
           <span className="text-[16px] font-semibold">{props.teams}</span>
         </div>
-        <span className="text-[17px] font-semibold relative left-[-5px]">
+        <span className="relative left-[-5px] text-[17px] font-semibold">
           {format(props.round.startingAt, 'HH:mm')}
         </span>
       </div>
@@ -87,41 +88,33 @@ export default function MatchBettingOptions(props: {
               >
                 <AccordionTrigger className="h-12 text-[16px] font-bold">
                   {market.name.toUpperCase()}
-                  <ChevronDown className="scale-170 shrink-0 transition-transform duration-200 text-white" /> 
+                  <ChevronDown className="scale-170 shrink-0 text-white transition-transform duration-200" />
                 </AccordionTrigger>
-                
-                <AccordionContent> 
+
+                <AccordionContent>
                   <div
-                  className={`
-                    grid
-                    grid-cols-[repeat(auto-fit,minmax(140px,1fr))]
-                    items-center
-                    px-[64px]
-                    gap-y-[8px]
-                    mt-[3px]
-                    mb-[-16px]
-                    ${market.selections[0].selection.length > 3 ? "gap-x-8" : "gap-x-16"}
-                  `}
-                >
-                  {market.selections[0].selection.map((option) => (
-                    <BetEntryToggle
-                      key={option.outcome}
-                      bet={{
-                        discipline: Discipline.SOCCER,
-                        event: {
-                          name: props.round.name,
-                          number: props.round.number,
-                          startingAt: props.round.startingAt,
-                        },
-                        competitors: props.teams,
-                        option: option,
-                      }}
-                      marketName={market.name}
-                      variant="matchcard"
-                      className="h-[45px] w-full font-semibold"
-                    />
-                  ))}
-                </div>
+                    className={`mb-[-16px] mt-[3px] grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] items-center gap-y-[8px] px-[64px] ${market.selections[0].selection.length > 3 ? 'gap-x-8' : 'gap-x-16'} `}
+                  >
+                    {market.selections[0].selection.map((option) => (
+                      <BetEntryToggle
+                        key={option.outcome}
+                        bet={{
+                          discipline: Discipline.SOCCER,
+                          event: {
+                            name: props.round.name,
+                            number: props.round.number,
+                            startingAt: props.round.startingAt,
+                            roundId: props.round.roundId,
+                          },
+                          competitors: props.teams,
+                          option: option,
+                        }}
+                        marketName={market.name}
+                        variant="matchcard"
+                        className="h-[45px] w-full font-semibold"
+                      />
+                    ))}
+                  </div>
                 </AccordionContent>
               </AccordionItem>
             ))}

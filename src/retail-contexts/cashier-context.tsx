@@ -55,7 +55,11 @@ function saveCashierToCache(
   operator: string | undefined,
   data: any,
 ) {
-  const cacheKey = `cashier_cache_${initCode}_${operator || 'pg'}`
+  if (!operator) {
+    console.error('❌ Cannot save to cache: operator is required')
+    return
+  }
+  const cacheKey = `cashier_cache_${initCode}_${operator}`
   const cacheData = {
     data,
     timestamp: Date.now(),
@@ -67,7 +71,11 @@ function loadCashierFromCache(
   initCode: string,
   operator: string | undefined,
 ): any | null {
-  const cacheKey = `cashier_cache_${initCode}_${operator || 'pg'}`
+  if (!operator) {
+    console.warn('⚠️ Cannot load from cache: operator is required')
+    return null
+  }
+  const cacheKey = `cashier_cache_${initCode}_${operator}`
   const cached = localStorage.getItem(cacheKey)
   if (!cached) return null
 
@@ -139,20 +147,27 @@ export default function CashierContextProvider(props: {
       // Se l'initCode è cambiato, pulisci la sessione precedente
       clearSessionStorageForNewInitCode(urlInitCode)
       setInitCode(urlInitCode)
-      setOperator(urlOperator || 'pg')
-      localStorage.setItem('initCode', urlInitCode)
       if (urlOperator) {
+        setOperator(urlOperator)
         localStorage.setItem('operator', urlOperator)
+      } else {
+        console.error('❌ Operator is required in URL params')
+        toast.error('Operator parameter is missing in URL')
+        setIsLoading(false)
+        return
       }
+      localStorage.setItem('initCode', urlInitCode)
     } else {
       const storedInitCode = localStorage.getItem('initCode')
       const storedOperator = localStorage.getItem('operator')
-      console.log('🔍 CashierContext init - Stored initCode:', storedInitCode)
-      console.log('🔍 CashierContext init - Stored operator:', storedOperator)
-      if (storedInitCode) {
+      if (storedInitCode && storedOperator) {
         setInitCode(storedInitCode)
-        setOperator(storedOperator || 'pg')
+        setOperator(storedOperator)
       } else {
+        if (storedInitCode && !storedOperator) {
+          console.error('❌ Operator is missing from localStorage')
+          toast.error('Operator is required but not found in storage')
+        }
         setIsLoading(false)
       }
     }
@@ -198,8 +213,6 @@ export default function CashierContextProvider(props: {
 
           const getCurrencyCode = () => cashierData.intl?.currency || 'EUR'
           const getCurrencySymbol = () => {
-            const apiSymbol = cashierData.dict?.misc?.currency?.symbol
-            if (apiSymbol) return apiSymbol
             const currencyCode = cashierData.intl?.currency || 'EUR'
             const currencyMap: Record<string, string> = {
               USD: '$',
@@ -210,12 +223,18 @@ export default function CashierContextProvider(props: {
               CAD: 'C$',
               AUD: 'A$',
               COP: '$',
-              DOP: 'RD$',
+              DOP: '$',
               MXN: '$',
               ARS: '$',
               BRL: 'R$',
             }
-            return currencyMap[currencyCode] || '$'
+            const mapped = currencyMap[currencyCode]
+            if (mapped) return mapped
+
+            const apiSymbol = cashierData.dict?.misc?.currency?.symbol
+            if (apiSymbol) return apiSymbol
+
+            return '$'
           }
           const getChannels = () => cashierData.channels || []
           const getTrackName = (channel?: number) => {
@@ -324,8 +343,13 @@ export default function CashierContextProvider(props: {
 
   // Memoizza il context per evitare che le funzioni vengano ricreate ad ogni render
   const memoizedContext = useMemo(
-    () => ({ ...cashierContext, apiRequest }),
-    [cashierContext, apiRequest],
+    () => ({
+      ...cashierContext,
+      initCode,
+      operator,
+      apiRequest,
+    }),
+    [cashierContext, apiRequest, initCode, operator],
   )
 
   if (isLoading) {

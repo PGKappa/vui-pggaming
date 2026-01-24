@@ -102,6 +102,7 @@ export default function SoccerFastBet(props: { selectedEvent: UpcomingEvent }) {
               name: props.selectedEvent.name,
               number: selectedMatch.eventIdentity.eventId,
               startingAt: props.selectedEvent.time,
+              roundId: selectedMatch.eventIdentity.groupId,
             },
             discipline: Discipline.SOCCER,
             competitors: selectedMatch.teams.team

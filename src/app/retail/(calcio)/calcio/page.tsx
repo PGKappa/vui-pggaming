@@ -34,6 +34,7 @@ export default function Home() {
       name: string
       number: number
       startingAt: Date
+      roundId?: number
     }
     teams: string
     markets: Market[]
@@ -104,7 +105,7 @@ export default function Home() {
   return (
     <div className="flex h-full flex-row overflow-hidden">
       <div className="flex flex-col gap-2">
-        <div className="flex h-[88px] w-[1500px] flex-row items-center justify-center bg-betslip pb-[2px]">
+        <div className="bg-betslip flex h-[88px] w-[1500px] flex-row items-center justify-center pb-[2px]">
           <UpcomingEventsCarousel
             selectedEvent={selectedEvent}
             setSelectedEvent={(event) => {
@@ -163,7 +164,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="h-[937px] w-[410px] bg-background pr-2 mt-[-5px] text-foreground">
+      <div className="mt-[-5px] h-[937px] w-[410px] bg-background pr-2 text-foreground">
         <BettingSlip selectedEvent={selectedEvent} />
       </div>
     </div>
