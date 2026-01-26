@@ -42,6 +42,12 @@ export default function SoccerFastBet(props: { selectedEvent: UpcomingEvent }) {
     const eventNumberStr = trimmedInput.substring(0, dashIndex)
     const marketsStr = trimmedInput.substring(dashIndex + 1)
 
+    // Validazione formato numero evento (solo 1-9 o 10, senza zero davanti)
+    if (!/^([1-9]|10)$/.test(eventNumberStr)) {
+      toast.error(t('invalid_event_format'))
+      return
+    }
+
     // Validazione numero evento
     const eventNumber = parseInt(eventNumberStr)
     if (
@@ -96,6 +102,7 @@ export default function SoccerFastBet(props: { selectedEvent: UpcomingEvent }) {
               name: props.selectedEvent.name,
               number: selectedMatch.eventIdentity.eventId,
               startingAt: props.selectedEvent.time,
+              roundId: selectedMatch.eventIdentity.groupId,
             },
             discipline: Discipline.SOCCER,
             competitors: selectedMatch.teams.team
@@ -120,7 +127,7 @@ export default function SoccerFastBet(props: { selectedEvent: UpcomingEvent }) {
   }
 
   return (
-    <div className="flex h-14 w-full items-center gap-2 bg-accent">
+    <div className="relative top-[3px] flex h-12 w-full items-center gap-2 bg-white">
       <AlphanumericKeypadDrawer
         value={fastbetInput}
         setValue={setFastbetInput}

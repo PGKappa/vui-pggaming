@@ -25,10 +25,10 @@ export default function Navbar() {
 
     if (pathname.includes('/calcio')) {
       // Link per il calcio
-      return `https://d190050z3qr0m1.cloudfront.net/public/Soccer_Gaming_manual_${lang}.html`
+      return `http://localhost:8080/docs/Soccer_Gaming_manual_${lang}.html`
     } else {
       // Per cani e cavalli
-      return `https://d190050z3qr0m1.cloudfront.net/public/Gaming_manual_${lang}.html`
+      return `http://localhost:8080/docs/Gaming_manual_${lang}.html`
     }
   }
 
@@ -104,10 +104,10 @@ export default function Navbar() {
           <span className="text-[16px] font-bold">{t('ch3')}</span> */}
         </Link>
 
-        {/**  <Link
+        <Link
           href={`/retail/calcio${initCode ? `?init_code=${initCode}` : ''}`}
           className={cn(
-            'flex w-24 flex-row items-center justify-center gap-3 px-4 py-1 text-foreground transition-colors h-12',
+            'flex h-12 w-24 flex-row items-center justify-center gap-3 px-4 py-1 text-foreground transition-colors',
             pathname.includes('/retail/calcio')
               ? 'bg-tertiary'
               : 'bg-secondary',
@@ -122,7 +122,7 @@ export default function Navbar() {
           />
           {/* 
           <span className="text-[16px] font-bold">{t('ch4')}</span> */}
-        {/*   </Link> */}
+        </Link>
       </div>
 
       <div className="relative right-2 flex w-full justify-end gap-[8px]">

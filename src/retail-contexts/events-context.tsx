@@ -1,7 +1,16 @@
 'use client'
 
-import { Discipline, EventResult, UpcomingEvent } from '@/retail-lib/types'
-import { createPGVirtualAPICall, parseAPIDate } from '@/retail-lib/utils'
+import {
+  Discipline,
+  EventResult,
+  UpcomingEvent,
+  UpcomingRound,
+} from '@/retail-lib/types'
+import {
+  createPGVirtualAPICall,
+  parseAPIDate,
+  SOCCER_API_URL,
+} from '@/retail-lib/utils'
 import { usePathname } from 'next/navigation'
 import {
   createContext,
@@ -49,11 +58,15 @@ const EVENTS_CACHE_TTL_MS = 60 * 1000
 function getDisciplinesFromUrl(pathname: string): Discipline[] {
   if (!pathname) return []
 
-  if (pathname.includes('dogs-horses'))
+  const p = pathname.toLowerCase()
+
+  // Support both English and Italian slugs
+  if (p.includes('dogs-horses') || p.includes('cani-cavalli'))
     return [Discipline.DOGS, Discipline.HORSES]
-  if (pathname.includes('horses')) return [Discipline.HORSES]
-  if (pathname.includes('dogs')) return [Discipline.DOGS]
-  if (pathname.includes('calcio')) return [Discipline.SOCCER]
+  if (p.includes('horses') || p.includes('cavalli')) return [Discipline.HORSES]
+  if (p.includes('dogs') || p.includes('cani')) return [Discipline.DOGS]
+  if (p.includes('calcio') || p.includes('football') || p.includes('soccer'))
+    return [Discipline.SOCCER]
 
   return []
 }
@@ -74,6 +87,9 @@ export default function EventsContextProvider(props: {
   const [activeDrawerId, setActiveDrawerId] = useState<string | undefined>(
     undefined,
   )
+
+  // Get disciplines from current URL/page
+  const activeDisciplines = getDisciplinesFromUrl(pathname)
   const [upcomingRounds] = useState<any[]>([])
   const hasLoadedOnce = useRef(false)
   const [currentEvent, setCurrentEvent] = useState<EventResult | undefined>(
@@ -116,18 +132,22 @@ export default function EventsContextProvider(props: {
         return
       }
 
+      if (!operator) {
+        console.error('❌ Cannot fetch event details: operator is required')
+        toast.error('Operator is required for API calls')
+        return
+      }
+
       const cacheKey = `${extPalId}:${intEventId}`
       const cached = eventDetailsCache.current.get(cacheKey)
 
       // Cache dei dettagli - riusa se ancora valido (30s TTL)
       if (cached && Date.now() - cached.timestamp < 30000) {
-        console.log('♻️ Using cached event details:', cacheKey)
         setCurrentEvent(cached.event)
         return
       }
 
       setIsLoadingEventDetails(true)
-      console.log('🔍 Fetching event details:', { extPalId, intEventId })
 
       try {
         const response = await createPGVirtualAPICall(
@@ -187,13 +207,11 @@ export default function EventsContextProvider(props: {
           }
 
           if (foundEvent) {
-            console.log('✅ Event details loaded:', foundEvent)
             setCurrentEvent(foundEvent)
             eventDetailsCache.current.set(cacheKey, {
               timestamp: Date.now(),
               event: foundEvent,
             })
-
           } else {
             console.warn('⚠️ Event not found in API response')
           }
@@ -208,29 +226,26 @@ export default function EventsContextProvider(props: {
     [effectiveInitCode, operator, getTimezone],
   )
 
-
   // Carica eventi quando pathname cambia (cambio canale)
   useEffect(() => {
     const disciplines = getDisciplinesFromUrl(pathname)
 
-    // Mantieni eventi esistenti per evitare flicker; resetta solo ricerche
-    console.log('🧹 Preserving events, clearing only search results')
-    setSearchEventResults(undefined)
-
     if (!effectiveInitCode || disciplines.length === 0) {
-      console.log('⚠️ No initCode or disciplines - skipping fetch', {
-        effectiveInitCode,
-        disciplinesLength: disciplines.length,
-      })
       setIsLoadingEvents(false)
       return
     }
 
+    const nocache =
+      typeof window !== 'undefined' &&
+      new URLSearchParams(window.location.search).get('nocache') === '1'
+
     const cacheKey = `${effectiveInitCode}:${disciplines.sort().join('+')}`
     const cached = eventsCacheRef.current.get(cacheKey)
-    if (cached && Date.now() - cached.timestamp < EVENTS_CACHE_TTL_MS) {
-      console.log('♻️ Using cached events for disciplines', disciplines)
-      console.log('   Cache age:', Date.now() - cached.timestamp, 'ms')
+    if (
+      !nocache &&
+      cached &&
+      Date.now() - cached.timestamp < EVENTS_CACHE_TTL_MS
+    ) {
       setUpcomingEvents(cached.upcoming)
       setEventResults(cached.results)
       hasLoadedOnce.current = true
@@ -244,12 +259,15 @@ export default function EventsContextProvider(props: {
     const fetchEvents = async () => {
       // Mostra loading solo al primissimo caricamento
       setIsLoadingEvents(!hasLoadedOnce.current)
-      console.log('🚀 API CALL STARTING: /api/event/list')
-      console.log('   Disciplines:', disciplines)
-      console.log('   Timestamp:', new Date().toISOString())
-      console.log('   Silent update:', hasLoadedOnce.current)
 
       try {
+        if (!operator) {
+          console.error('❌ Cannot fetch events: operator is required')
+          toast.error('Operator is required for API calls')
+          setIsLoadingEvents(false)
+          return
+        }
+
         const shouldFetchRacing =
           disciplines.includes(Discipline.DOGS) ||
           disciplines.includes(Discipline.HORSES)
@@ -269,14 +287,18 @@ export default function EventsContextProvider(props: {
 
           if (response.ok) {
             const racingData = await response.json()
-            console.log('🎯 API Response - racingData:', racingData)
-            console.log('🔍 Channel 0 (Dogs):', racingData.channels?.[0])
-            console.log('🔍 Channel 1 (Horses):', racingData.channels?.[1])
             const timezone = getTimezone?.() || 'Europe/Rome'
 
             // Dogs
             if (disciplines.includes(Discipline.DOGS)) {
-              const dogChannel = racingData.channels?.[0]
+              const channels = Array.isArray(racingData.channels)
+                ? racingData.channels
+                : []
+              const dogChannel =
+                channels.find(
+                  (c: any) =>
+                    typeof c?.name === 'string' && /dog|grey/i.test(c.name),
+                ) || channels[0]
 
               // Upcoming events
               if (dogChannel?.next_events) {
@@ -315,39 +337,55 @@ export default function EventsContextProvider(props: {
                 allUpcomingEvents.push(...dogEvents)
               }
 
-              // Event results
-              if (dogChannel?.prev_events) {
-                const dogResults: EventResult[] = dogChannel.prev_events.map(
-                  (event: any): EventResult => {
-                    const trackValue = event.track_name || event.track
+              // Event results - SOLO se disciplina è attiva e limita a 10
+              if (
+                dogChannel?.prev_events &&
+                activeDisciplines.includes(Discipline.DOGS)
+              ) {
+                // Limita ai soli ultimi 10 per velocità
+                const topDogs = dogChannel.prev_events.slice(0, 10)
+
+                // Fetch dettagli per i top 10 (necessario per avere arrival/podium)
+                const dogResults: EventResult[] = await Promise.all(
+                  topDogs.map(async (event: any) => {
+                    let detailedResult = null
+                    try {
+                      const response = await createPGVirtualAPICall(
+                        `/api/event/results/${event.ext_pal_id}/${event.int_event_id}`,
+                        effectiveInitCode,
+                        undefined,
+                        operator,
+                      )
+                      if (response.ok) {
+                        detailedResult = await response.json()
+                      }
+                    } catch (error) {
+                      console.error('Failed to fetch dog details:', error)
+                    }
+
+                    const trackValue =
+                      (detailedResult as any)?.track_name ||
+                      event.track_name ||
+                      event.track
                     return {
                       id: event.int_event_id,
                       extId: event.ext_pal_id,
                       name: `Dog Race ${event.int_event_id}`,
                       startTime: parseAPIDate(event.time, timezone),
+                      time: event.time,
                       discipline: Discipline.DOGS,
                       track: trackValue,
-                      result: {
-                        arrival:
+                      result: detailedResult || {
+                        podium:
                           event.arrival?.map((dog: any, idx: number) => ({
                             name: dog.name,
                             number: dog.number,
                             position: idx + 1,
                           })) || [],
-                        odds: {
-                          winner: {},
-                          placed: {},
-                          show: {},
-                          exacta: {},
-                          quinella: {},
-                          trifecta: {},
-                          boxedtrifecta: {},
-                          evenodd: {},
-                          underover: {},
-                        },
+                        odds: {},
                       },
                     }
-                  },
+                  }),
                 )
                 allEventResults.push(...dogResults)
               }
@@ -355,7 +393,14 @@ export default function EventsContextProvider(props: {
 
             // Horses
             if (disciplines.includes(Discipline.HORSES)) {
-              const horseChannel = racingData.channels?.[1]
+              const channels = Array.isArray(racingData.channels)
+                ? racingData.channels
+                : []
+              const horseChannel =
+                channels.find(
+                  (c: any) =>
+                    typeof c?.name === 'string' && /horse|cavall/i.test(c.name),
+                ) || channels[1]
 
               // Upcoming events
               if (horseChannel?.next_events) {
@@ -394,39 +439,56 @@ export default function EventsContextProvider(props: {
                 allUpcomingEvents.push(...horseEvents)
               }
 
-              // Event results
-              if (horseChannel?.prev_events) {
-                const horseResults: EventResult[] =
-                  horseChannel.prev_events.map((event: any): EventResult => {
-                    const trackValue = event.track_name || event.track
+              // Event results - SOLO se disciplina è attiva e limita a 10
+              if (
+                horseChannel?.prev_events &&
+                activeDisciplines.includes(Discipline.HORSES)
+              ) {
+                // Limita ai soli ultimi 10 per velocità
+                const topHorses = horseChannel.prev_events.slice(0, 10)
+
+                // Fetch dettagli per i top 10 (necessario per avere arrival/podium)
+                const horseResults: EventResult[] = await Promise.all(
+                  topHorses.map(async (event: any) => {
+                    let detailedResult = null
+                    try {
+                      const response = await createPGVirtualAPICall(
+                        `/api/event/results/${event.ext_pal_id}/${event.int_event_id}`,
+                        effectiveInitCode,
+                        undefined,
+                        operator,
+                      )
+                      if (response.ok) {
+                        detailedResult = await response.json()
+                      }
+                    } catch (error) {
+                      console.error('Failed to fetch horse details:', error)
+                    }
+
+                    const trackValue =
+                      (detailedResult as any)?.track_name ||
+                      event.track_name ||
+                      event.track
                     return {
                       id: event.int_event_id,
                       extId: event.ext_pal_id,
                       name: `Horse Race ${event.int_event_id}`,
                       startTime: parseAPIDate(event.time, timezone),
+                      time: event.time,
                       discipline: Discipline.HORSES,
                       track: trackValue,
-                      result: {
-                        arrival:
+                      result: detailedResult || {
+                        podium:
                           event.arrival?.map((horse: any, idx: number) => ({
                             name: horse.name,
                             number: horse.number,
                             position: idx + 1,
                           })) || [],
-                        odds: {
-                          winner: {},
-                          placed: {},
-                          show: {},
-                          exacta: {},
-                          quinella: {},
-                          trifecta: {},
-                          boxedtrifecta: {},
-                          evenodd: {},
-                          underover: {},
-                        },
+                        odds: {},
                       },
                     }
-                  })
+                  }),
+                )
                 allEventResults.push(...horseResults)
               }
             }
@@ -440,14 +502,216 @@ export default function EventsContextProvider(props: {
 
         // ===== SOCCER =====
         if (shouldFetchSoccer) {
-          console.log('⚽ Soccer events fetch - TODO')
-          // Implementare quando necessario
-        }
+          console.log('⚽ Starting Soccer API fetch...')
+          try {
+            // TODO: Sostituire con l'endpoint corretto per il calcio
+            const soccerResponse = await fetch(
+              `${SOCCER_API_URL}?t=${Date.now()}`,
+            )
+            if (soccerResponse.ok) {
+              const soccerData = await soccerResponse.json()
+              console.log('⚽ Soccer API Response:', soccerData)
+              console.log('⚽ Soccer data type:', typeof soccerData)
+              console.log('⚽ Soccer data keys:', Object.keys(soccerData || {}))
 
-        if (!shouldFetchRacing) {
-          console.log(
-            '⏭️ Skipped racing fetch - not needed for this discipline',
-          )
+              // Log della struttura per capire il formato
+              if (Array.isArray(soccerData)) {
+                console.log(
+                  '⚽ Soccer data is Array, length:',
+                  soccerData.length,
+                )
+                if (soccerData.length > 0) {
+                  console.log('⚽ First item sample:', soccerData[0])
+                }
+              } else if (soccerData && typeof soccerData === 'object') {
+                console.log('⚽ Soccer data is Object')
+                console.log(
+                  '⚽ Full data structure:',
+                  JSON.stringify(soccerData, null, 2),
+                )
+
+                // Espandi schedules se esiste
+                if (soccerData.schedules) {
+                  console.log('⚽ Schedules type:', typeof soccerData.schedules)
+                  console.log(
+                    '⚽ Schedules keys:',
+                    Object.keys(soccerData.schedules || {}),
+                  )
+                  console.log('⚽ Schedules content:', soccerData.schedules)
+
+                  // Se schedules è un object, elenca le categorie
+                  if (
+                    typeof soccerData.schedules === 'object' &&
+                    !Array.isArray(soccerData.schedules)
+                  ) {
+                    Object.entries(soccerData.schedules).forEach(
+                      ([key, value]: [string, any]) => {
+                        console.log(`⚽ Schedule category "${key}":`, {
+                          type: typeof value,
+                          isArray: Array.isArray(value),
+                          length: Array.isArray(value) ? value.length : 'N/A',
+                          firstItem: Array.isArray(value) ? value[0] : value,
+                        })
+                      },
+                    )
+                  }
+                }
+
+                if (soccerData.header) {
+                  console.log('⚽ Header:', soccerData.header)
+                }
+              }
+
+              // ===== PARSE SOCCER DATA (OLD LOGIC) =====
+              const scheduleArray = soccerData.schedules?.schedule || []
+
+              if (scheduleArray.length === 0) {
+                console.warn('⚽ No schedules found in soccer data')
+                return
+              }
+
+              const firstSchedule = scheduleArray[0]
+              const allEvents = firstSchedule.mag_event || []
+
+              console.log(
+                `⚽ Found ${allEvents.length} total events in schedule`,
+              )
+
+              // Raggruppa eventi per groupId (come nel vecchio codice)
+              const eventsByGroup: Record<number, any[]> = {}
+
+              allEvents.forEach((event: any) => {
+                const groupId = event.eventIdentity?.groupId
+                if (groupId !== undefined) {
+                  if (!eventsByGroup[groupId]) {
+                    eventsByGroup[groupId] = []
+                  }
+                  eventsByGroup[groupId].push(event)
+                }
+              })
+
+              console.log(
+                `⚽ Grouped events into ${Object.keys(eventsByGroup).length} groups`,
+              )
+
+              // Crea un UpcomingRound per ogni gruppo
+              const rounds: UpcomingRound[] = Object.entries(eventsByGroup).map(
+                ([groupId, events]) => {
+                  const firstEvent = events[0]
+
+                  return {
+                    ...firstSchedule,
+                    scheduleId: Number(groupId),
+                    scheduleName:
+                      firstEvent.eventIdentity.scheduleType ??
+                      firstSchedule.scheduleName,
+                    mag_event: events.map((event) => {
+                      return {
+                        ...event,
+                        startTime: new Date(
+                          event.eventIdentity.startTime,
+                        ).toISOString(),
+                      }
+                    }),
+                  }
+                },
+              )
+
+              const timezone = getTimezone?.() || 'Europe/Rome'
+
+              // Crea UpcomingEvent per ogni round (non per ogni partita singola)
+              const upcomingSoccerEvents = rounds.map((round) => {
+                const eventDate = parseAPIDate(
+                  round.mag_event[0].startTime,
+                  timezone,
+                )
+                return {
+                  id: round.scheduleId,
+                  name: round.scheduleName,
+                  startTime: eventDate.toLocaleTimeString('it-IT', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  }),
+                  time: eventDate,
+                  duration: 3,
+                  discipline: Discipline.SOCCER,
+                  data: round,
+                }
+              })
+
+              allUpcomingEvents.push(...upcomingSoccerEvents)
+
+              // Crea 10 risultati mockup per il calcio (come nel vecchio codice)
+              const roundResults: EventResult[] = Array.from(
+                { length: 10 },
+                (_, index) => {
+                  const date = new Date(rounds[0].mag_event[0].startTime)
+                  date.setMinutes(date.getMinutes() - (index + 1) * 3)
+
+                  return {
+                    id: 10 - index,
+                    name: ` Trident round ${10 - index}`,
+                    startTime: date,
+                    discipline: Discipline.SOCCER,
+                    result: {
+                      round: {
+                        name: 'Trident',
+                        number: 12 - index,
+                      },
+                      teams: 'AST - WOL',
+                      score1: 2,
+                      score2: 1,
+                      odds: {
+                        oneXTwo: {
+                          odds: 1.95,
+                        },
+                        doubleChance: {
+                          odds: 1.63,
+                        },
+                        firstScorer: {
+                          teamLabel: 'WOL',
+                          odds: 2.05,
+                        },
+                        sumGoals: {
+                          value: 2,
+                          odds: 1.63,
+                        },
+                        goalNoGoal: {
+                          value: 1,
+                          odds: 1.95,
+                        },
+                        redCard: {
+                          value: 'WOL',
+                          odds: 2.05,
+                        },
+                        winningCombo: {
+                          value: 'WOL',
+                          odds: 2.05,
+                        },
+                        exactGoals: {
+                          value: 2,
+                          odds: 1.63,
+                        },
+                      },
+                    },
+                  }
+                },
+              )
+
+              allEventResults.push(...roundResults)
+
+              console.log(
+                `⚽ Soccer parsing complete: ${upcomingSoccerEvents.length} rounds created, ${roundResults.length} mock results added`,
+              )
+            } else {
+              console.error('⚽ Soccer API response NOT OK:', {
+                status: soccerResponse.status,
+                statusText: soccerResponse.statusText,
+              })
+            }
+          } catch (error) {
+            console.error('⚽ Error fetching soccer events:', error)
+          }
         }
 
         console.log(
@@ -455,20 +719,17 @@ export default function EventsContextProvider(props: {
         )
         setUpcomingEvents(allUpcomingEvents)
         setEventResults(allEventResults)
-        eventsCacheRef.current.set(cacheKey, {
-          timestamp: Date.now(),
-          upcoming: allUpcomingEvents,
-          results: allEventResults,
-        })
+        if (!nocache) {
+          eventsCacheRef.current.set(cacheKey, {
+            timestamp: Date.now(),
+            upcoming: allUpcomingEvents,
+            results: allEventResults,
+          })
+        }
         hasLoadedOnce.current = true
-        console.log('📊 Events set in state:', {
-          upcomingCount: allUpcomingEvents.length,
-          resultsCount: allEventResults.length,
-        })
       } catch (error) {
         // Ignora errori dovuti ad abort
         if (error instanceof Error && error.name === 'AbortError') {
-          console.log('⏹️ Event fetch was cancelled (pathname changed)')
           return
         }
         console.error('Error fetching events:', error)
@@ -482,11 +743,9 @@ export default function EventsContextProvider(props: {
 
     // Cleanup: cancel fetch se pathname cambia prima che sia finito
     return () => {
-      console.log('🧹 EventsContext cleanup - cancelling pending requests')
       abortController.abort()
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname])
+  }, [pathname, operator, effectiveInitCode, getTimezone, activeDisciplines])
 
   return (
     <EventsContext.Provider

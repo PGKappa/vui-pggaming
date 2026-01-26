@@ -1,7 +1,9 @@
 'use client'
 
+import InactivityBridge from '@/retail-components/inactivity-bridge'
 import Navbar from '@/retail-components/navbar'
 import { Toaster } from '@/retail-components/ui/sonner'
+import ZoomBlocker from '@/retail-components/zoom-blocker'
 import BetsContextProvider from '@/retail-contexts/bets-context'
 import CashierContextProvider from '@/retail-contexts/cashier-context'
 import EventsContextProvider from '@/retail-contexts/events-context'
@@ -9,10 +11,10 @@ import RootContextProvider from '@/retail-contexts/root-context'
 import SkinProvider, { SkinContext } from '@/retail-contexts/skin-context'
 import { Inter } from 'next/font/google'
 import { usePathname } from 'next/navigation'
-import { useContext } from 'react'
+import { useContext, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import '../globals.css'
 import '../../retail-lib/i18n'
+import '../globals.css'
 
 const inter = Inter({
   variable: '--font-inter',
@@ -26,11 +28,19 @@ export default function RetailLayout({
 }>) {
   const { i18n } = useTranslation()
 
+  useEffect(() => {
+    localStorage.clear()
+  }, [])
+
   return (
     <html lang={i18n.language}>
       <head>
         <title>PG Gaming</title>
         <meta name="description" content="Gaming platform" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+        />
       </head>
       <SkinProvider>
         <SkinBody>{children}</SkinBody>
@@ -47,8 +57,10 @@ function SkinBody({ children }: { children: React.ReactNode }) {
 
   return (
     <body
-      className={`${inter.variable} ${skin} flex h-screen flex-col font-inter antialiased`}
+      className={`${inter.variable} ${skin} flex h-screen flex-col overflow-hidden font-inter antialiased`}
     >
+      <InactivityBridge />
+      <ZoomBlocker />
       <CashierContextProvider>
         <EventsContextProvider key={pathname}>
           <RootContextProvider>
@@ -62,7 +74,7 @@ function SkinBody({ children }: { children: React.ReactNode }) {
             <Toaster
               position={
                 typeof window !== 'undefined' && window.innerWidth >= 1024
-                  ? 'bottom-right'
+                  ? 'top-right'
                   : 'top-center'
               }
             />

@@ -73,7 +73,7 @@ export default function EventBets(props: {
           </div>
 
           <div className="relative bottom-0 mt-[1px] flex items-center justify-between">
-            <span className="relative ml-[3px] text-[15px] font-semibold">
+            <span className="relative ml-[3px] text-[15px] font-semibold uppercase">
               {eventBets[0].bet.discipline === 'SOCCER'
                 ? t('football')
                 : eventBets[0].bet.discipline === 'DOGS'
@@ -91,7 +91,16 @@ export default function EventBets(props: {
             </div>
           </div>
           {eventBets[0].bet.discipline === 'SOCCER' ? (
-            <span className="text-[16px]">{eventBets[0].bet.competitors}</span>
+            <div className="relative bottom-[1px] ml-[3px] flex items-center justify-between pb-[4px]">
+              <span className="text-[13px] uppercase">
+                {eventBets[0].bet.competitors}
+              </span>
+              {eventBets[0].bet.event.roundId && (
+                <span className="relative mr-[4px] pt-1 text-[13px] font-bold text-accent">
+                  {t('round').toUpperCase()} {eventBets[0].bet.event.roundId}
+                </span>
+              )}
+            </div>
           ) : (
             <div className="relative bottom-[1px] ml-[3px] flex items-center justify-between pb-[4px]">
               <span className="text-[13px] uppercase">
@@ -159,7 +168,7 @@ export default function EventBets(props: {
                 key={betEntry.id}
                 className="flex items-center pr-[8px] text-sm"
               >
-                <span className="mr-[1px] w-[126px] text-[13px]">
+                <span className="mr-[1px] w-[126px] text-[13px] uppercase">
                   {translatedMarket}
                 </span>
                 <span className="ml-[0px] w-[109px] text-[13px] font-normal">

@@ -332,12 +332,6 @@ export default function BettingSlip({
     setSystemGroupStakes((prev) => ({ ...prev, ...stakes }))
     setSelectedGroups((prev) => ({ ...prev, ...newSelections }))
 
-    // Aggiorna checkbox "tutti" immediatamente
-    const allSelected = systemGroups.every(
-      (group) => newSelections[group.name] && stakes[group.name] > 0,
-    )
-    setAllGroupsSelected(allSelected)
-
     // Se alcuni gruppi sono stati deflaggeri, calcola quanto manca
     if (groupsWithoutStake.length > 0) {
       // Calcola il minimo necessario per includere tutti i gruppi
@@ -352,6 +346,13 @@ export default function BettingSlip({
         )
       }
     }
+
+    setTimeout(() => {
+      const allSelected = systemGroups.every(
+        (group) => newSelections[group.name] && stakes[group.name] > 0,
+      )
+      setAllGroupsSelected(allSelected)
+    }, 0)
   }
 
   const handleAddStakeToAll = () => {
@@ -394,11 +395,13 @@ export default function BettingSlip({
     setSystemGroupStakes(newStakes)
     setSelectedGroups(newSelections)
 
-    // Aggiorna checkbox "tutti" immediatamente
-    const allSelected = systemGroups.every(
-      (group) => newSelections[group.name] && newStakes[group.name] > 0,
-    )
-    setAllGroupsSelected(allSelected)
+    // Aggiorna checkbox "tutti"
+    setTimeout(() => {
+      const allSelected = systemGroups.every(
+        (group) => newSelections[group.name] && newStakes[group.name] > 0,
+      )
+      setAllGroupsSelected(allSelected)
+    }, 0)
   }
 
   const handleUpdateGroupStake = (groupName: string, value: number) => {
@@ -664,16 +667,6 @@ export default function BettingSlip({
     setIsSubmitting(true)
 
     try {
-      // DEBUG: Verifica stato cashier e autenticazione
-      console.log('🔍 DEBUG handleSubmit:', {
-        initCode: rootContext?.initCode,
-        operator: rootContext?.operator,
-        userData: rootContext?.userData,
-        cashierData: rootContext?.cashierData,
-        hasCashierData: !!rootContext?.cashierData,
-        cashierRetCode: rootContext?.cashierData?.ret_code,
-      })
-
       // CRITICAL CHECK: Verifica se cashier è stato inizializzato
       if (
         !rootContext?.cashierData ||
@@ -689,6 +682,14 @@ export default function BettingSlip({
       if (!rootContext?.initCode) {
         console.error('❌ initCode mancante:', rootContext)
         toast.error(t('login_required'))
+        setIsSubmitting(false)
+        return
+      }
+
+      // Validazione: operator è obbligatorio per l'invio del ticket
+      if (!rootContext?.operator) {
+        console.error('❌ operator mancante:', rootContext)
+        toast.error('Operator is required to submit bet')
         setIsSubmitting(false)
         return
       }
@@ -1160,7 +1161,7 @@ export default function BettingSlip({
 
   return (
     <Card
-      className="flex h-full w-full flex-col overflow-hidden bg-primary-foreground text-betSlip-foreground"
+      className="ml-2 flex h-full w-full flex-col overflow-hidden bg-primary-foreground text-betSlip-foreground"
       data-testid="betting-slip"
     >
       <div className="grid grid-cols-2 text-center">
@@ -1203,7 +1204,7 @@ export default function BettingSlip({
             }
           >
             <span
-              className={`pt-1 text-[14px] ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'font-semibold text-betSlip-header' : 'pb-1 font-semibold text-betSlip-header'}`}
+              className={`pt-1 text-[14px] ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'font-semibold text-betSlip-header' : 'pb-1 font-normal text-white'}`}
             >
               {betMode === 'SINGLE'
                 ? `${t('single').toUpperCase()}`
@@ -1227,12 +1228,12 @@ export default function BettingSlip({
             }
           >
             <span
-              className={`pt-1 text-[14px] ${betMode === 'SYSTEM' ? 'font-normal text-betSlip-header' : 'font-semibold text-betSlip-header'}`}
+              className={`pt-1 text-[14px] ${betMode === 'SYSTEM' ? 'font-semibold text-betSlip-header' : 'font-normal text-white'}`}
             >
               {t('system').toUpperCase()}
             </span>
             {betMode === 'SYSTEM' && (
-              <div className="absolute bottom-0.5 h-[0px] w-[156px] bg-navbarButton text-background"></div>
+              <div className="absolute bottom-0.5 h-[0px] w-[156px] bg-navbarButton text-white"></div>
             )}
           </div>
         </div>
@@ -1274,7 +1275,7 @@ export default function BettingSlip({
       <CardFooter className="relative bottom-[26px] flex flex-col bg-background">
         {betMode !== 'SYSTEM' ? (
           <>
-            <div className="relative h-[30px] bg-accent py-3"></div>
+            <div className="relative h-[30px] w-[396px] bg-accent py-3"></div>
 
             {/* TOTALE QUOTA section */}
             <div className="relative top-[12px] flex flex-row items-center justify-between px-4 pt-[9px] text-foreground">
@@ -1352,7 +1353,7 @@ export default function BettingSlip({
                         accordionOpen === 'combinations' ? '' : 'combinations',
                       )
                     }}
-                    className="relative left-[238px] top-[3px] transition-transform duration-200"
+                    className="relative left-[247px] top-[3px] transition-transform duration-200"
                     style={{
                       transform:
                         accordionOpen === 'combinations'
@@ -1475,17 +1476,20 @@ export default function BettingSlip({
                                         }))
 
                                         // Aggiorna checkbox "tutti"
-                                        const updatedSelections = {
-                                          ...selectedGroups,
-                                          [group.name]: false,
-                                        }
-                                        const allSelected = systemGroups.every(
-                                          (g) =>
-                                            updatedSelections[g.name] &&
-                                            (systemGroupStakes[g.name] || 0) >
-                                              0,
-                                        )
-                                        setAllGroupsSelected(allSelected)
+                                        setTimeout(() => {
+                                          const updatedSelections = {
+                                            ...selectedGroups,
+                                            [group.name]: false,
+                                          }
+                                          const allSelected =
+                                            systemGroups.every(
+                                              (g) =>
+                                                updatedSelections[g.name] &&
+                                                (systemGroupStakes[g.name] ||
+                                                  0) > 0,
+                                            )
+                                          setAllGroupsSelected(allSelected)
+                                        }, 0)
                                       }
                                     }}
                                     disabled={group.stake <= 0}
@@ -1526,17 +1530,20 @@ export default function BettingSlip({
                                         }))
 
                                         // Aggiorna checkbox "tutti"
-                                        const updatedSelections = {
-                                          ...selectedGroups,
-                                          [group.name]: true,
-                                        }
-                                        const allSelected = systemGroups.every(
-                                          (g) =>
-                                            updatedSelections[g.name] &&
-                                            (systemGroupStakes[g.name] ||
-                                              newValue) > 0,
-                                        )
-                                        setAllGroupsSelected(allSelected)
+                                        setTimeout(() => {
+                                          const updatedSelections = {
+                                            ...selectedGroups,
+                                            [group.name]: true,
+                                          }
+                                          const allSelected =
+                                            systemGroups.every(
+                                              (g) =>
+                                                updatedSelections[g.name] &&
+                                                (systemGroupStakes[g.name] ||
+                                                  newValue) > 0,
+                                            )
+                                          setAllGroupsSelected(allSelected)
+                                        }, 0)
                                       }
                                     }}
                                     className="h-8 w-7 bg-bet p-3 text-[19px] text-bet-foreground hover:opacity-90"

@@ -34,6 +34,7 @@ export default function Home() {
       name: string
       number: number
       startingAt: Date
+      roundId?: number
     }
     teams: string
     markets: Market[]
@@ -102,9 +103,9 @@ export default function Home() {
   }, [selectedEvent, upcomingEvents])
 
   return (
-    <div className="flex h-full flex-row overflow-hidden py-2">
+    <div className="flex h-full flex-row overflow-hidden">
       <div className="flex flex-col gap-2">
-        <div className="mx-2 flex h-[80px] w-[1508px] flex-row items-center justify-center bg-accent px-4">
+        <div className="bg-betslip flex h-[88px] w-[1500px] flex-row items-center justify-center pb-[2px]">
           <UpcomingEventsCarousel
             selectedEvent={selectedEvent}
             setSelectedEvent={(event) => {
@@ -116,7 +117,7 @@ export default function Home() {
           />
         </div>
 
-        <div className="mx-2 flex h-[942px] w-[1500px] flex-col gap-2">
+        <div className="flex h-[942px] w-[1500px] flex-col gap-2 overflow-y-auto tabular-nums">
           {!!searchEventResults ? (
             <SearchEventResults />
           ) : isLoadingEvents ? (
@@ -130,8 +131,11 @@ export default function Home() {
                 close={() => setMatchBetOptions(undefined)}
               />
             ) : (
-              <div ref={scrollContainerRef} className="overflow-y-auto">
-                <div className="h-[814px] overflow-y-auto">
+              <div
+                ref={scrollContainerRef}
+                className="thin-scrollbar overflow-y-auto"
+              >
+                <div className="thin-scrollbar h-[810px] overflow-y-auto">
                   <UpcomingRoundCard
                     round={selectedEvent.data as UpcomingRound}
                     viewMatchBettingOptions={setMatchBetOptions}
@@ -160,7 +164,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="h-[942px] w-[410px] bg-background pr-2 text-foreground">
+      <div className="mt-[-5px] h-[937px] w-[410px] bg-background pr-2 text-foreground">
         <BettingSlip selectedEvent={selectedEvent} />
       </div>
     </div>

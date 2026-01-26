@@ -71,20 +71,35 @@ export default function SearchEventResults() {
 
   const fetchDetailedEventResult = useCallback(
     async (extId: string, eventId: string) => {
+      if (!rootContext.initCode || !rootContext.operator) {
+        console.warn(
+          '⚠️ Missing initCode/operator, skip fetchDetailedEventResult',
+        )
+        return null
+      }
       try {
         const response = await createPGVirtualAPICall(
           `/api/event/results/${extId}/${eventId}`,
-          rootContext.initCode || '',
+          rootContext.initCode,
           undefined,
           rootContext.operator,
         )
 
         if (!response.ok) {
+          console.warn('Response not ok:', response.status)
           return null
         }
 
-        return await response.json()
-      } catch {
+        const data = await response.json()
+
+        // Controlla se è un errore API (ha ret_code senza dati reali)
+        if (data.ret_code && !data.odds && !data.arrival) {
+          return null
+        }
+
+        return data
+      } catch (error) {
+        console.error('Error fetching detailed result:', error)
         return null
       }
     },
@@ -119,6 +134,13 @@ export default function SearchEventResults() {
         const fetchRacingResults = async () => {
           setIsLoading(true)
           try {
+            if (!rootContext.initCode || !rootContext.operator) {
+              console.warn(
+                '⚠️ Missing initCode/operator, skip fetchRacingResults',
+              )
+              setIsLoading(false)
+              return
+            }
             // Usa l'API /api/event/results/list anche per Last 10 Games
             const today = new Date()
             const sevenDaysAgo = new Date(today)
@@ -138,7 +160,7 @@ export default function SearchEventResults() {
 
             const response = await createPGVirtualAPICall(
               '/api/event/results/list',
-              rootContext.initCode || '',
+              rootContext.initCode,
               {
                 method: 'POST',
                 body: JSON.stringify(requestBody),
@@ -157,8 +179,11 @@ export default function SearchEventResults() {
               return
             }
 
+            // LIMITA a 10 risultati PRIMA di fare fetch dettagli (altrimenti troppe richieste)
+            const limitedItems = data.items.slice(0, 10)
+
             const results: EventResult[] = await Promise.all(
-              data.items.map(async (event: any) => {
+              limitedItems.map(async (event: any) => {
                 const detailedResult = await fetchDetailedEventResult(
                   event.ext_pal_id,
                   event.int_event_id.toString(),
@@ -166,15 +191,15 @@ export default function SearchEventResults() {
 
                 let startTime: Date
                 try {
-                  if (event.time) {
-                    startTime = new Date(event.time)
-                    if (event.start_time && event.start_time.includes(':')) {
-                      const [hours, minutes] = event.start_time.split(':')
-                      startTime.setHours(parseInt(hours, 10))
-                      startTime.setMinutes(parseInt(minutes, 10))
-                    }
-                  } else {
-                    startTime = new Date()
+                  // Se time non c'è, usa oggi; altrimenti usa event.time
+                  startTime = event.time ? new Date(event.time) : new Date()
+
+                  // Applica SEMPRE l'orario da start_time se disponibile
+                  if (event.start_time && event.start_time.includes(':')) {
+                    const [hours, minutes] = event.start_time.split(':')
+                    startTime.setHours(parseInt(hours, 10))
+                    startTime.setMinutes(parseInt(minutes, 10))
+                    startTime.setSeconds(0) // Reset secondi per coerenza
                   }
                 } catch {
                   startTime = new Date()
@@ -228,6 +253,11 @@ export default function SearchEventResults() {
       setIsLoading(true)
 
       try {
+        if (!rootContext.initCode || !rootContext.operator) {
+          console.warn('⚠️ Missing initCode/operator, skip fetchEventResults')
+          setIsLoading(false)
+          return
+        }
         const apiDateFormat = date
 
         const gameIds =
@@ -245,7 +275,7 @@ export default function SearchEventResults() {
 
         const response = await createPGVirtualAPICall(
           '/api/event/results/list',
-          rootContext.initCode || '',
+          rootContext.initCode,
           {
             method: 'POST',
             body: JSON.stringify(requestBody),
@@ -308,32 +338,58 @@ export default function SearchEventResults() {
 
               let startTime: Date
               try {
+                // Se time non c'è, usa la data passata; altrimenti usa result.time
                 if (result.time) {
                   startTime = new Date(result.time)
-
-                  if (result.start_time && result.start_time.includes(':')) {
-                    const [hours, minutes] = result.start_time.split(':')
-                    startTime.setHours(parseInt(hours, 10))
-                    startTime.setMinutes(parseInt(minutes, 10))
-                  }
                 } else {
                   startTime = new Date(date.split('/').reverse().join('-'))
-                  if (result.start_time && result.start_time.includes(':')) {
-                    const [hours, minutes] = result.start_time.split(':')
-                    startTime.setHours(parseInt(hours, 10))
-                    startTime.setMinutes(parseInt(minutes, 10))
-                  }
+                }
+
+                // Applica SEMPRE l'orario da start_time se disponibile
+                if (result.start_time && result.start_time.includes(':')) {
+                  const [hours, minutes] = result.start_time.split(':')
+                  startTime.setHours(parseInt(hours, 10))
+                  startTime.setMinutes(parseInt(minutes, 10))
+                  startTime.setSeconds(0) // Reset secondi per coerenza
                 }
               } catch {
                 startTime = new Date()
               }
 
               let raceResult = detailedResult
-              if (detailedResult && !detailedResult.arrival && result.arrival) {
+
+              // Se detailedResult è null o non ha dati, crea oggetto di fallback dai dati base
+              if (!detailedResult) {
+                // Se arrival è vuoto, ritorna null per filtrare il risultato
+                if (!result.arrival || result.arrival.length === 0) {
+                  return null
+                }
+
+                raceResult = {
+                  arrival:
+                    (
+                      result.arrival as Array<{ name: string; number: number }>
+                    )?.map((item: any) => ({
+                      name: item.name,
+                      number: item.number,
+                    })) || [],
+                  odds: {},
+                } as RaceResult
+              } else if (
+                detailedResult &&
+                !detailedResult.arrival &&
+                result.arrival
+              ) {
                 raceResult = {
                   ...detailedResult,
-                  arrival: result.arrival,
-                }
+                  arrival:
+                    (
+                      result.arrival as Array<{ name: string; number: number }>
+                    )?.map((item: any) => ({
+                      name: item.name,
+                      number: item.number,
+                    })) || [],
+                } as RaceResult
               }
 
               const trackValue =
@@ -353,6 +409,11 @@ export default function SearchEventResults() {
               } as EventResult
             }),
           )
+
+          // FILTRA via i risultati null (quelli senza arrival disponibile)
+          results = results.filter(
+            (r: EventResult | null) => r !== null,
+          ) as EventResult[]
         } else if (discipline === Discipline.SOCCER) {
           // OTTIMIZZAZIONE: Filtra per fascia oraria anche per SOCCER
           let filteredItems = data.items
@@ -408,6 +469,7 @@ export default function SearchEventResults() {
               name: result.round_name || `Soccer Match ${result.int_event_id}`,
               startTime,
               discipline: Discipline.SOCCER,
+              jornada: result.round_number,
               result: {
                 round: {
                   name: result.round_name || 'Unknown Round',
@@ -526,7 +588,26 @@ export default function SearchEventResults() {
               (result) => result.discipline === confirmedDiscipline,
             )
 
-      const filtered = resultsToUse
+      // Applica filtro fascia oraria se specificato
+      let filtered = resultsToUse
+      if (confirmedTimeSlot !== 'ALL') {
+        const [startTimeStr, endTimeStr] = confirmedTimeSlot.split(' | ')
+        const [startHours, startMinutes] = startTimeStr.split(':').map(Number)
+        const [endHours, endMinutes] = endTimeStr.split(':').map(Number)
+        const startInMinutes = startHours * 60 + startMinutes
+        const endInMinutes = endHours * 60 + endMinutes
+
+        filtered = filtered.filter((result) => {
+          const hours = result.startTime.getHours()
+          const minutes = result.startTime.getMinutes()
+          const timeInMinutes = hours * 60 + minutes
+          return (
+            timeInMinutes >= startInMinutes && timeInMinutes <= endInMinutes
+          )
+        })
+      }
+
+      filtered = filtered
         .sort((a, b) => b.startTime.getTime() - a.startTime.getTime())
         .slice(0, 10)
 
@@ -545,6 +626,7 @@ export default function SearchEventResults() {
     confirmedDiscipline,
     confirmedDate,
     confirmedLastTenGames,
+    confirmedTimeSlot,
     fetchedResults,
     rootContext.eventResults,
   ])
@@ -597,7 +679,7 @@ export default function SearchEventResults() {
                 <SelectValue placeholder={t('sport')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
-                <SelectItem className='text-[14px]' value="NONE">
+                <SelectItem className="text-[14px]" value="NONE">
                   {t('discipline').toUpperCase()}
                 </SelectItem>
                 {Object.values(Discipline).map((d) => {
@@ -617,10 +699,10 @@ export default function SearchEventResults() {
             </Select>
           </div>
 
-          <div className="relative left-1 flex flex-row items-center">
+          <div className="relative bottom-[1px] left-1 flex flex-row items-center">
             <Checkbox
               id="last10"
-              className="h-6 w-6 bg-background text-foreground border-0"
+              className="h-6 w-6 border-0 bg-background text-foreground"
               checked={lastTenGames}
               onCheckedChange={(value) => {
                 setLastTenGames(!!value)
@@ -628,7 +710,7 @@ export default function SearchEventResults() {
             />
             <label
               htmlFor="last10"
-              className="relative right-[1px] px-2 py-3 text-[15px] top-[1px] font-semibold text-background"
+              className="relative right-[1px] top-[1px] px-2 py-3 text-[15px] font-semibold text-background"
             >
               {t('last_10_games')}
             </label>
@@ -646,7 +728,9 @@ export default function SearchEventResults() {
                 <SelectValue placeholder={t('date')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
-                <SelectItem className='text-[14px]' value="ALL">{t('date').toUpperCase()}</SelectItem>
+                <SelectItem className="text-[14px]" value="ALL">
+                  {t('date').toUpperCase()}
+                </SelectItem>
                 {dates.map((date) => (
                   <SelectItem className="text-[14px]" key={date} value={date}>
                     {date}
@@ -666,7 +750,7 @@ export default function SearchEventResults() {
                 <SelectValue placeholder={t('time_slot')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
-                <SelectItem className='text-[14px]' value="ALL">
+                <SelectItem className="text-[14px]" value="ALL">
                   {t('time_slot').toUpperCase()}
                 </SelectItem>
                 {timeSlots.map((slot) => (
@@ -680,7 +764,7 @@ export default function SearchEventResults() {
 
           <div className="flex flex-row items-center gap-2">
             <Button
-              className="text-bold relative left-[202px] h-[48px] w-[186px] bg-tertiary text-[16px] text-bet-foreground hover:opacity-90 mr-4"
+              className="text-bold relative left-[202px] mr-4 h-[48px] w-[186px] bg-tertiary text-[16px] text-bet-foreground hover:opacity-90"
               disabled={selectedDiscipline === 'NONE'}
               onClick={handleSearch}
             >
@@ -728,33 +812,41 @@ export default function SearchEventResults() {
                           className="gap-0"
                         >
                           <AccordionTrigger className="pointer-events-none border-b-0 bg-accent p-0 pl-2 text-base text-accent-foreground hover:no-underline [&[data-state=open]>svg]:-rotate-90">
-                            <div className="relative top-1.5 mb-[7px] flex h-[46px] w-full flex-row items-center justify-between gap-4 pl-[9px] text-white uppercase tabular-nums">
+                            <div className="relative top-1.5 mb-[7px] flex h-[46px] w-full flex-row items-center justify-between gap-4 pl-[9px] uppercase tabular-nums text-white">
                               <div className="flex flex-row items-center gap-4 pb-[5px] text-[16px] font-semibold">
                                 {/* Discipline Name */}
-                                <span className="whitespace-nowrap text-[16px] ">
+                                <span className="whitespace-nowrap text-[16px]">
                                   {eventResult.discipline === 'DOGS'
                                     ? t('dog_races_label')
                                     : eventResult.discipline === 'HORSES'
                                       ? t('horse_races_label')
-                                      : eventResult.discipline}
+                                      : eventResult.discipline === 'SOCCER'
+                                        ? t('football_label')
+                                        : eventResult.discipline}
                                 </span>
 
-                                {/* Track */}
-                                {(eventResult.track || '6') && (
-                                  <span className="whitespace-nowrap border-l border-l-white pl-4">
-                                    {(() => {
-                                      const trackValue =
-                                        eventResult.track || '6'
-                                      // Estrai il numero dalla stringa
-                                      const numberMatch =
-                                        trackValue.match(/\d+/)
-                                      const trackNum = numberMatch
-                                        ? numberMatch[0]
-                                        : '6'
-                                      return `${t('track')} ${trackNum}`
-                                    })()}
-                                  </span>
-                                )}
+                                {/* Track/Jornada */}
+                                {eventResult.discipline === Discipline.SOCCER
+                                  ? eventResult.jornada && (
+                                      <span className="whitespace-nowrap border-l border-l-white pl-4">
+                                        {t('round')} {eventResult.jornada}
+                                      </span>
+                                    )
+                                  : (eventResult.track || '6') && (
+                                      <span className="whitespace-nowrap border-l border-l-white pl-4">
+                                        {(() => {
+                                          const trackValue =
+                                            eventResult.track || '6'
+                                          // Estrai il numero dalla stringa
+                                          const numberMatch =
+                                            trackValue.match(/\d+/)
+                                          const trackNum = numberMatch
+                                            ? numberMatch[0]
+                                            : '6'
+                                          return `${t('track')} ${trackNum}`
+                                        })()}
+                                      </span>
+                                    )}
 
                                 {/* Event ID */}
                                 <span className="whitespace-nowrap border-l border-l-white pl-4">
@@ -1397,10 +1489,12 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                   {raceResult.odds.evenodd.even && (
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
-                        <span className="mr-[644px] relative left-[6px]">
+                        <span className="relative left-[6px] mr-[644px]">
                           {t('even').toUpperCase()}
                         </span>{' '}
-                        <span className='relative right-[6px]'>{raceResult.odds.evenodd.even}</span>
+                        <span className="relative right-[6px]">
+                          {raceResult.odds.evenodd.even}
+                        </span>
                       </div>
                       <div></div>
                     </div>
@@ -1408,10 +1502,12 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                   {raceResult.odds.evenodd.odd && (
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
-                        <span className="mr-[586px] relative right-[5px]">
+                        <span className="relative right-[5px] mr-[586px]">
                           {t('odd').toUpperCase()}
                         </span>{' '}
-                        <span className='mr-[17px] relative left-[22px]'>{raceResult.odds.evenodd.odd}</span>
+                        <span className="relative left-[22px] mr-[17px]">
+                          {raceResult.odds.evenodd.odd}
+                        </span>
                       </div>
                     </div>
                   )}
@@ -1431,20 +1527,24 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                   {raceResult.odds.underover.under && (
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
-                        <span className="mr-[591px] relative left-[2px]">
+                        <span className="relative left-[2px] mr-[591px]">
                           {t('under').toUpperCase()}
                         </span>{' '}
-                        <span className='mr-4 relative left-[14px]'>{raceResult.odds.underover.under}</span>
+                        <span className="relative left-[14px] mr-4">
+                          {raceResult.odds.underover.under}
+                        </span>
                       </div>
                     </div>
                   )}
                   {raceResult.odds.underover.over && (
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
-                        <span className="mr-[635px] relative left-1">
+                        <span className="relative left-1 mr-[635px]">
                           {t('over').toUpperCase()}
                         </span>{' '}
-                        <span className='relative right-[6px]'>{raceResult.odds.underover.over}</span>
+                        <span className="relative right-[6px]">
+                          {raceResult.odds.underover.over}
+                        </span>
                       </div>
                     </div>
                   )}
@@ -1487,34 +1587,17 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
 
   // CALCIO
   if (eventResult.discipline === Discipline.SOCCER) {
-    const formatSafeDate = (date: any): string => {
-      try {
-        if (date instanceof Date && !isNaN(date.getTime())) {
-          return format(date, 'dd-MM-yyyy HH:mm')
-        }
-
-        const parsedDate = new Date(date)
-        if (!isNaN(parsedDate.getTime())) {
-          return format(parsedDate, 'dd-MM-yyyy HH:mm')
-        }
-
-        return 'Invalid Date'
-      } catch {
-        return 'Invalid Date'
-      }
-    }
-
     return (
-      <div className="space-y-4">
+      <div className="mb-[-16px] space-y-4">
         {/* Teams e Score */}
-        <div className="border">
+        <div className="pt-[7px]">
           <div className="bg-accent py-2 text-center">
             <div className="text-[16px] font-bold uppercase text-accent-foreground">
               {t('match_result').toUpperCase()}
             </div>
           </div>
-          <div className="p-4 text-center">
-            <div className="mb-2 text-[18px] font-bold">
+          <div className="pt-4 text-center">
+            <div className="mb-1 text-[18px] font-bold">
               {detailedResult.teams}
             </div>
             <div className="text-[24px] font-bold">
@@ -1524,18 +1607,18 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
         </div>
 
         {/* Betting Markets */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-y-2">
           {/* 1X2 */}
           {detailedResult.odds?.oneXTwo && (
-            <div className="border">
+            <div className="border border-l-0 border-r-0">
               <div className="bg-accent py-2 text-center">
                 <div className="text-[16px] font-bold uppercase text-accent-foreground">
                   1X2
                 </div>
               </div>
               <div className="p-3 text-center">
-                <div className="text-[16px] font-semibold">
-                  {t('odds')}: {detailedResult.odds.oneXTwo.odds}
+                <div className="text-[17px] font-semibold">
+                  {detailedResult.odds.oneXTwo.odds}
                 </div>
               </div>
             </div>
@@ -1543,15 +1626,15 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
 
           {/* Double Chance */}
           {detailedResult.odds?.doubleChance && (
-            <div className="border">
+            <div className="border border-r-0">
               <div className="bg-accent py-2 text-center">
                 <div className="text-[16px] font-bold uppercase text-accent-foreground">
                   {t('double_chance').toUpperCase()}
                 </div>
               </div>
               <div className="p-3 text-center">
-                <div className="text-[16px] font-semibold">
-                  {t('odds')}: {detailedResult.odds.doubleChance.odds}
+                <div className="text-[17px] font-semibold">
+                  {detailedResult.odds.doubleChance.odds}
                 </div>
               </div>
             </div>
@@ -1559,18 +1642,18 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
 
           {/* First Scorer */}
           {detailedResult.odds?.firstScorer && (
-            <div className="border">
+            <div className="border border-l-0 border-r-0">
               <div className="bg-accent py-2 text-center">
                 <div className="text-[16px] font-bold uppercase text-accent-foreground">
                   {t('first_scorer').toUpperCase()}
                 </div>
               </div>
               <div className="p-3 text-center">
-                <div className="mb-1 text-[14px]">
-                  {t('team')}: {detailedResult.odds.firstScorer.teamLabel}
+                <div className="mb-1 text-[16px]">
+                  {detailedResult.odds.firstScorer.teamLabel}
                 </div>
-                <div className="text-[16px] font-semibold">
-                  {t('odds')}: {detailedResult.odds.firstScorer.odds}
+                <div className="text-[17px] font-semibold">
+                  {detailedResult.odds.firstScorer.odds}
                 </div>
               </div>
             </div>
@@ -1578,45 +1661,22 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
 
           {/* Sum Goals */}
           {detailedResult.odds?.sumGoals && (
-            <div className="border">
+            <div className="border border-r-0">
               <div className="bg-accent py-2 text-center">
                 <div className="text-[16px] font-bold uppercase text-accent-foreground">
                   {t('total_goals').toUpperCase()}
                 </div>
               </div>
               <div className="p-3 text-center">
-                <div className="mb-1 text-[14px]">
-                  {t('goals')}: {detailedResult.odds.sumGoals.value}
+                <div className="mb-1 text-[16px]">
+                  {detailedResult.odds.sumGoals.value}
                 </div>
-                <div className="text-[16px] font-semibold">
-                  {t('odds')}: {detailedResult.odds.sumGoals.odds}
+                <div className="text-[17px] font-semibold">
+                  {detailedResult.odds.sumGoals.odds}
                 </div>
               </div>
             </div>
           )}
-        </div>
-
-        {/* Round Info */}
-        <div className="border">
-          <div className="bg-accent py-2 text-center">
-            <div className="text-[16px] font-bold uppercase text-accent-foreground">
-              {t('match_info').toUpperCase()}
-            </div>
-          </div>
-          <div className="space-y-1 p-3">
-            <div className="text-[14px]">
-              <span className="font-semibold">{t('round_name')}:</span>{' '}
-              {detailedResult.round?.name}
-            </div>
-            <div className="text-[14px]">
-              <span className="font-semibold">{t('match')}:</span> #
-              {detailedResult.round?.number}
-            </div>
-            <div className="text-[14px]">
-              <span className="font-semibold">{t('start_time')}:</span>{' '}
-              {formatSafeDate(eventResult.startTime)}
-            </div>
-          </div>
         </div>
       </div>
     )

@@ -2,7 +2,7 @@
 
 import { Discipline, Market } from '@/retail-lib/types'
 import { format } from 'date-fns'
-import { ChevronsLeftIcon } from 'lucide-react'
+import { ChevronDown, ChevronsLeftIcon } from 'lucide-react'
 import { useDetectClickOutside } from 'react-detect-click-outside'
 import { useTranslation } from 'react-i18next'
 import BetEntryToggle from './bet-entry-toggle'
@@ -22,6 +22,7 @@ export default function MatchBettingOptions(props: {
     name: string
     number: number
     startingAt: Date
+    roundId?: number
   }
   teams: string
   markets: Market[]
@@ -38,18 +39,18 @@ export default function MatchBettingOptions(props: {
       <div className="flex flex-row items-center justify-between bg-accent p-3 text-accent-foreground">
         <div className="flex flex-row items-center gap-2">
           <Button
-            className="rounded-[8px] bg-tertiary text-tertiary-foreground"
+            className="bg-accent text-tertiary-foreground"
             onClick={props.close}
             size="icon-lg"
           >
             <ChevronsLeftIcon style={{ scale: 2 }} />
           </Button>
-          <span className="text-[24px]">
+          <span className="text-[16px]">
             {props.round.name} {t('round')} {props.round.number} /
           </span>
-          <span className="text-[20px] font-semibold">{props.teams}</span>
+          <span className="text-[16px] font-semibold">{props.teams}</span>
         </div>
-        <span className="text-[20px]">
+        <span className="relative left-[-5px] text-[17px] font-semibold">
           {format(props.round.startingAt, 'HH:mm')}
         </span>
       </div>
@@ -87,9 +88,13 @@ export default function MatchBettingOptions(props: {
               >
                 <AccordionTrigger className="h-12 text-[16px] font-bold">
                   {market.name.toUpperCase()}
+                  <ChevronDown className="scale-170 shrink-0 text-white transition-transform duration-200" />
                 </AccordionTrigger>
+
                 <AccordionContent>
-                  <div className="grid grid-cols-3 items-center justify-between gap-4 px-2">
+                  <div
+                    className={`mb-[-16px] mt-[3px] grid grid-cols-[repeat(auto-fit,minmax(140px,1fr))] items-center gap-y-[8px] px-[64px] ${market.selections[0].selection.length > 3 ? 'gap-x-8' : 'gap-x-16'} `}
+                  >
                     {market.selections[0].selection.map((option) => (
                       <BetEntryToggle
                         key={option.outcome}
@@ -99,6 +104,7 @@ export default function MatchBettingOptions(props: {
                             name: props.round.name,
                             number: props.round.number,
                             startingAt: props.round.startingAt,
+                            roundId: props.round.roundId,
                           },
                           competitors: props.teams,
                           option: option,

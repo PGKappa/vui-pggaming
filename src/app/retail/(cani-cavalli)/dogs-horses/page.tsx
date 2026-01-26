@@ -29,11 +29,7 @@ export default function Home() {
 
   // SINCRONIZZAZIONE PERFETTA CON CAROSELLO
   const carouselEvents = useMemo(
-    () =>
-      getCarouselFilteredEvents(upcomingEvents, [
-        Discipline.DOGS,
-        Discipline.HORSES,
-      ]),
+    () => getCarouselFilteredEvents(upcomingEvents, [Discipline.DOGS]),
     [upcomingEvents],
   )
 
@@ -66,10 +62,7 @@ export default function Home() {
         if (eventTime <= now) {
           // Refresh degli eventi
           const freshFutureEvents = getFutureEventsFromCarousel(
-            getCarouselFilteredEvents(upcomingEvents, [
-              Discipline.DOGS,
-              Discipline.HORSES,
-            ]),
+            getCarouselFilteredEvents(upcomingEvents, [Discipline.DOGS]),
           )
 
           if (freshFutureEvents.length > 0) {
@@ -78,7 +71,6 @@ export default function Home() {
             // Nessun evento futuro, prendi il più recente
             const allEvents = getCarouselFilteredEvents(upcomingEvents, [
               Discipline.DOGS,
-              Discipline.HORSES,
             ])
             if (allEvents.length > 0) {
               setSelectedEvent(allEvents[allEvents.length - 1])
@@ -92,9 +84,9 @@ export default function Home() {
   }, [selectedEvent, upcomingEvents])
 
   return (
-    <div className="relative bottom-[5px] flex h-full flex-row overflow-hidden">
+    <div className="flex h-full flex-row overflow-hidden relative bottom-[5px]">
       <div className="flex flex-col">
-        <div className="bg-betslip flex h-[80px] w-[1508px] flex-row items-center justify-center pb-[2px] pr-2">
+        <div className="flex h-[109px] w-[1508px] flex-row items-center justify-center bg-betslip pb-[2px] pr-2">
           <UpcomingEventsCarousel
             selectedEvent={selectedEvent}
             setSelectedEvent={(event) => {
@@ -105,11 +97,13 @@ export default function Home() {
         </div>
 
         {/* Main content area */}
-        <div className="bg-betslip flex h-full flex-row gap-2 overflow-hidden pr-2 pt-[2px]">
-          <div className="flex h-[942px] w-[1500px] flex-col gap-2 overflow-y-auto">
+        <div className="flex h-full flex-row gap-2 overflow-hidden pr-2 pt-[2px] bg-betslip">
+          <div className="flex h-[921px] w-[1500px] flex-col gap-2 overflow-y-auto">
             <ScrollArea className="h-full w-full">
               {!!searchEventResults ? (
                 <SearchEventResults />
+              ) : isLoadingEvents ? (
+                <SkeletonRaceCard />
               ) : selectedEvent ? (
                 <UpcomingRaceCard race={selectedEvent} />
               ) : (

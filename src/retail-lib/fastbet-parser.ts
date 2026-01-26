@@ -180,6 +180,10 @@ async function fetchRaceData(
     throw new Error('Event is required')
   }
 
+  if (!operator) {
+    throw new Error('Operator is required to fetch race data')
+  }
+
   try {
     const response = await createPGVirtualAPICall(
       `/api/event/info/${event.extId}/${event.id}`,
