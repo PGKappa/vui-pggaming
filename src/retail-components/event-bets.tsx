@@ -91,7 +91,16 @@ export default function EventBets(props: {
             </div>
           </div>
           {eventBets[0].bet.discipline === 'SOCCER' ? (
-            <span className="relative bottom-[1px] ml-[3px] pb-[4px] text-[13px] uppercase">{eventBets[0].bet.competitors}</span>
+            <div className="relative bottom-[1px] ml-[3px] flex items-center justify-between pb-[4px]">
+              <span className="text-[13px] uppercase">
+                {eventBets[0].bet.competitors}
+              </span>
+              {eventBets[0].bet.event.roundId && (
+                <span className="relative mr-[4px] pt-1 text-[13px] font-bold text-accent">
+                  {t('round').toUpperCase()} {eventBets[0].bet.event.roundId}
+                </span>
+              )}
+            </div>
           ) : (
             <div className="relative bottom-[1px] ml-[3px] flex items-center justify-between pb-[4px]">
               <span className="text-[13px] uppercase">

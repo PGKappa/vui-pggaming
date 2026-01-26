@@ -12,7 +12,6 @@ import {
   useState,
 } from 'react'
 
-
 export type RootContextType = {
   // === Da CashierContext ===
   initCode?: string

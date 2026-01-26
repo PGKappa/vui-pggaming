@@ -71,10 +71,16 @@ export default function SearchEventResults() {
 
   const fetchDetailedEventResult = useCallback(
     async (extId: string, eventId: string) => {
+      if (!rootContext.initCode || !rootContext.operator) {
+        console.warn(
+          '⚠️ Missing initCode/operator, skip fetchDetailedEventResult',
+        )
+        return null
+      }
       try {
         const response = await createPGVirtualAPICall(
           `/api/event/results/${extId}/${eventId}`,
-          rootContext.initCode || '',
+          rootContext.initCode,
           undefined,
           rootContext.operator,
         )
@@ -128,6 +134,13 @@ export default function SearchEventResults() {
         const fetchRacingResults = async () => {
           setIsLoading(true)
           try {
+            if (!rootContext.initCode || !rootContext.operator) {
+              console.warn(
+                '⚠️ Missing initCode/operator, skip fetchRacingResults',
+              )
+              setIsLoading(false)
+              return
+            }
             // Usa l'API /api/event/results/list anche per Last 10 Games
             const today = new Date()
             const sevenDaysAgo = new Date(today)
@@ -147,7 +160,7 @@ export default function SearchEventResults() {
 
             const response = await createPGVirtualAPICall(
               '/api/event/results/list',
-              rootContext.initCode || '',
+              rootContext.initCode,
               {
                 method: 'POST',
                 body: JSON.stringify(requestBody),
@@ -240,6 +253,11 @@ export default function SearchEventResults() {
       setIsLoading(true)
 
       try {
+        if (!rootContext.initCode || !rootContext.operator) {
+          console.warn('⚠️ Missing initCode/operator, skip fetchEventResults')
+          setIsLoading(false)
+          return
+        }
         const apiDateFormat = date
 
         const gameIds =
@@ -257,7 +275,7 @@ export default function SearchEventResults() {
 
         const response = await createPGVirtualAPICall(
           '/api/event/results/list',
-          rootContext.initCode || '',
+          rootContext.initCode,
           {
             method: 'POST',
             body: JSON.stringify(requestBody),
@@ -1592,7 +1610,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
         <div className="grid grid-cols-2 gap-y-2">
           {/* 1X2 */}
           {detailedResult.odds?.oneXTwo && (
-            <div className="border border-r-0 border-l-0">
+            <div className="border border-l-0 border-r-0">
               <div className="bg-accent py-2 text-center">
                 <div className="text-[16px] font-bold uppercase text-accent-foreground">
                   1X2
@@ -1624,7 +1642,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
 
           {/* First Scorer */}
           {detailedResult.odds?.firstScorer && (
-            <div className="border border-r-0 border-l-0">
+            <div className="border border-l-0 border-r-0">
               <div className="bg-accent py-2 text-center">
                 <div className="text-[16px] font-bold uppercase text-accent-foreground">
                   {t('first_scorer').toUpperCase()}
