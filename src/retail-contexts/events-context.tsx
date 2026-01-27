@@ -17,7 +17,6 @@ import {
   useCallback,
   useContext,
   useEffect,
-  useRef,
   useState,
 } from 'react'
 import { toast } from 'sonner'
@@ -53,7 +52,18 @@ export const EventsContext =
   createContext<EventsContextType>(defaultEventsContext)
 
 // Cache leggero per evitare refetch se si torna su una disciplina già caricata
-const EVENTS_CACHE_TTL_MS = 60 * 1000
+const EVENTS_CACHE_TTL_MS = 10 * 60 * 1000 // 10 minuti
+
+// MODULE-LEVEL cache and flags - persist across component remounts
+const moduleEventsCache = new Map<
+  string,
+  { timestamp: number; upcoming: UpcomingEvent[]; results: EventResult[] }
+>()
+let moduleHasLoadedOnce = false
+const moduleEventDetailsCache = new Map<
+  string,
+  { timestamp: number; event: EventResult }
+>()
 
 function getDisciplinesFromUrl(pathname: string): Discipline[] {
   if (!pathname) return []
@@ -91,21 +101,11 @@ export default function EventsContextProvider(props: {
   // Get disciplines from current URL/page
   const activeDisciplines = getDisciplinesFromUrl(pathname)
   const [upcomingRounds] = useState<any[]>([])
-  const hasLoadedOnce = useRef(false)
+  // NOTE: hasLoadedOnce and caches are now at MODULE LEVEL to persist across remounts
   const [currentEvent, setCurrentEvent] = useState<EventResult | undefined>(
     undefined,
   )
   const [isLoadingEventDetails, setIsLoadingEventDetails] = useState(false)
-  const eventsCacheRef = useRef(
-    new Map<
-      string,
-      { timestamp: number; upcoming: UpcomingEvent[]; results: EventResult[] }
-    >(),
-  )
-  // Cache dedicata ai dettagli evento (key: "extPalId:intEventId")
-  const eventDetailsCache = useRef(
-    new Map<string, { timestamp: number; event: EventResult }>(),
-  )
 
   // Se initCode non è ancora disponibile da CashierContext, prova localStorage
   const effectiveInitCode =
@@ -139,7 +139,7 @@ export default function EventsContextProvider(props: {
       }
 
       const cacheKey = `${extPalId}:${intEventId}`
-      const cached = eventDetailsCache.current.get(cacheKey)
+      const cached = moduleEventDetailsCache.get(cacheKey)
 
       // Cache dei dettagli - riusa se ancora valido (30s TTL)
       if (cached && Date.now() - cached.timestamp < 30000) {
@@ -208,7 +208,7 @@ export default function EventsContextProvider(props: {
 
           if (foundEvent) {
             setCurrentEvent(foundEvent)
-            eventDetailsCache.current.set(cacheKey, {
+            moduleEventDetailsCache.set(cacheKey, {
               timestamp: Date.now(),
               event: foundEvent,
             })
@@ -226,11 +226,150 @@ export default function EventsContextProvider(props: {
     [effectiveInitCode, operator, getTimezone],
   )
 
+  // Funzione per fetch in background (senza mostrare loading)
+  const fetchEventsInBackground = useCallback(
+    async (
+      disciplines: Discipline[],
+      normalizedDisciplines: Discipline[],
+      cacheKey: string,
+    ) => {
+      if (!operator || !effectiveInitCode) return
+
+      try {
+        const shouldFetchRacing =
+          disciplines.includes(Discipline.DOGS) ||
+          disciplines.includes(Discipline.HORSES)
+
+        const allUpcomingEvents: UpcomingEvent[] = []
+        const allEventResults: EventResult[] = []
+
+        // Fetch racing in background
+        if (shouldFetchRacing) {
+          const response = await createPGVirtualAPICall(
+            '/api/event/list',
+            effectiveInitCode,
+            undefined,
+            operator,
+          )
+
+          if (response.ok) {
+            const racingData = await response.json()
+            const timezone = getTimezone?.() || 'Europe/Rome'
+
+            // Dogs
+            const channels = Array.isArray(racingData.channels)
+              ? racingData.channels
+              : []
+            const dogChannel = channels.find(
+              (c: any) =>
+                typeof c?.name === 'string' && /dog|grey/i.test(c.name),
+            )
+
+            if (dogChannel?.next_events) {
+              const dogEvents = dogChannel.next_events.map(
+                (event: any, idx: number): UpcomingEvent => {
+                  let startTime: Date
+                  if (event.since && typeof event.since === 'number') {
+                    startTime = new Date(Date.now() + event.since * 1000)
+                  } else if (
+                    event.start_time &&
+                    typeof event.start_time === 'string'
+                  ) {
+                    const [hours, minutes] = event.start_time.split(':')
+                    startTime = new Date()
+                    startTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
+                  } else {
+                    startTime = parseAPIDate(event.time, timezone)
+                  }
+
+                  return {
+                    id: parseInt(event.int_event_id),
+                    extId: event.ext_pal_id,
+                    duration: dogChannel.duration?.[idx] || 3,
+                    name: 'Dog',
+                    startTime: event.start_time,
+                    time: startTime,
+                    discipline: Discipline.DOGS,
+                  }
+                },
+              )
+              allUpcomingEvents.push(...dogEvents)
+            }
+
+            // Horses
+            const horseChannel = channels.find(
+              (c: any) =>
+                typeof c?.name === 'string' && /horse|cavall/i.test(c.name),
+            )
+
+            if (horseChannel?.next_events) {
+              const horseEvents = horseChannel.next_events.map(
+                (event: any, idx: number): UpcomingEvent => {
+                  let startTime: Date
+                  if (event.since && typeof event.since === 'number') {
+                    startTime = new Date(Date.now() + event.since * 1000)
+                  } else if (
+                    event.start_time &&
+                    typeof event.start_time === 'string'
+                  ) {
+                    const [hours, minutes] = event.start_time.split(':')
+                    startTime = new Date()
+                    startTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
+                  } else {
+                    startTime = parseAPIDate(event.time, timezone)
+                  }
+
+                  return {
+                    id: parseInt(event.int_event_id),
+                    extId: event.ext_pal_id,
+                    duration: horseChannel.duration?.[idx] || 3,
+                    name: 'Horse',
+                    startTime: event.start_time,
+                    time: startTime,
+                    discipline: Discipline.HORSES,
+                  }
+                },
+              )
+              allUpcomingEvents.push(...horseEvents)
+            }
+          }
+        }
+
+        // Aggiorna cache e stato (senza loading)
+        if (allUpcomingEvents.length > 0) {
+          setUpcomingEvents(allUpcomingEvents)
+          moduleEventsCache.set(cacheKey, {
+            timestamp: Date.now(),
+            upcoming: allUpcomingEvents,
+            results: allEventResults,
+          })
+        }
+      } catch (error) {
+        // Ignora errori in background fetch
+        console.warn('Background fetch error:', error)
+      }
+    },
+    [operator, effectiveInitCode, getTimezone],
+  )
+
   // Carica eventi quando pathname cambia (cambio canale)
   useEffect(() => {
     const disciplines = getDisciplinesFromUrl(pathname)
 
+    // Unifica cache per racing: dogs e horses usano la stessa API, quindi usa una chiave condivisa
+    const normalizedDisciplines = disciplines.includes(Discipline.SOCCER)
+      ? disciplines
+      : [Discipline.DOGS, Discipline.HORSES]
+
+    console.log('🔄 [events-context] pathname changed:', pathname)
+    console.log('🔄 [events-context] disciplines:', disciplines)
+    console.log(
+      '🔄 [events-context] normalizedDisciplines:',
+      normalizedDisciplines,
+    )
+
     if (!effectiveInitCode || disciplines.length === 0) {
+      console.log('🔄 [events-context] No initCode or disciplines, skipping')
       setIsLoadingEvents(false)
       return
     }
@@ -239,26 +378,59 @@ export default function EventsContextProvider(props: {
       typeof window !== 'undefined' &&
       new URLSearchParams(window.location.search).get('nocache') === '1'
 
-    const cacheKey = `${effectiveInitCode}:${disciplines.sort().join('+')}`
-    const cached = eventsCacheRef.current.get(cacheKey)
+    const cacheKey = `${effectiveInitCode}:${normalizedDisciplines.sort().join('+')}`
+    const cached = moduleEventsCache.get(cacheKey)
+
+    console.log('🔄 [events-context] cacheKey:', cacheKey)
+    console.log(
+      '🔄 [events-context] cached:',
+      cached
+        ? `Found (age: ${Date.now() - cached.timestamp}ms, events: ${cached.upcoming.length})`
+        : 'NOT FOUND',
+    )
+    console.log('🔄 [events-context] hasLoadedOnce:', moduleHasLoadedOnce)
+
+    // Se abbiamo dati in cache validi, usali subito SENZA loading
     if (
       !nocache &&
       cached &&
       Date.now() - cached.timestamp < EVENTS_CACHE_TTL_MS
     ) {
+      console.log('✅ [events-context] Using CACHE - NO loading!')
+      // Imposta i dati immediatamente dalla cache
       setUpcomingEvents(cached.upcoming)
       setEventResults(cached.results)
-      hasLoadedOnce.current = true
+      moduleHasLoadedOnce = true
       setIsLoadingEvents(false)
+
+      // Fetch in background per aggiornare i dati (senza mostrare loading)
+      // Solo se la cache è più vecchia di 30 secondi
+      if (Date.now() - cached.timestamp > 30 * 1000) {
+        fetchEventsInBackground(disciplines, normalizedDisciplines, cacheKey)
+      }
       return
     }
+
+    console.log('⏳ [events-context] Cache miss - will fetch')
 
     // AbortController per cancellare le fetch se pathname cambia
     const abortController = new AbortController()
 
     const fetchEvents = async () => {
-      // Mostra loading solo al primissimo caricamento
-      setIsLoadingEvents(!hasLoadedOnce.current)
+      // Mostra loading SOLO al primissimo caricamento assoluto della pagina
+      // Non mostrare loading per cambio disciplina (transizione fra pagine)
+      console.log(
+        '⏳ [events-context] fetchEvents called, hasLoadedOnce:',
+        moduleHasLoadedOnce,
+      )
+      if (!moduleHasLoadedOnce) {
+        console.log('⏳ [events-context] Setting isLoadingEvents = TRUE')
+        setIsLoadingEvents(true)
+      } else {
+        console.log(
+          '⏳ [events-context] hasLoadedOnce=true, NOT setting loading',
+        )
+      }
 
       try {
         if (!operator) {
@@ -290,7 +462,10 @@ export default function EventsContextProvider(props: {
             const timezone = getTimezone?.() || 'Europe/Rome'
 
             // Dogs
-            if (disciplines.includes(Discipline.DOGS)) {
+            if (
+              disciplines.includes(Discipline.DOGS) ||
+              disciplines.includes(Discipline.HORSES)
+            ) {
               const channels = Array.isArray(racingData.channels)
                 ? racingData.channels
                 : []
@@ -392,7 +567,10 @@ export default function EventsContextProvider(props: {
             }
 
             // Horses
-            if (disciplines.includes(Discipline.HORSES)) {
+            if (
+              disciplines.includes(Discipline.DOGS) ||
+              disciplines.includes(Discipline.HORSES)
+            ) {
               const channels = Array.isArray(racingData.channels)
                 ? racingData.channels
                 : []
@@ -720,13 +898,13 @@ export default function EventsContextProvider(props: {
         setUpcomingEvents(allUpcomingEvents)
         setEventResults(allEventResults)
         if (!nocache) {
-          eventsCacheRef.current.set(cacheKey, {
+          moduleEventsCache.set(cacheKey, {
             timestamp: Date.now(),
             upcoming: allUpcomingEvents,
             results: allEventResults,
           })
         }
-        hasLoadedOnce.current = true
+        moduleHasLoadedOnce = true
       } catch (error) {
         // Ignora errori dovuti ad abort
         if (error instanceof Error && error.name === 'AbortError') {
@@ -745,7 +923,14 @@ export default function EventsContextProvider(props: {
     return () => {
       abortController.abort()
     }
-  }, [pathname, operator, effectiveInitCode, getTimezone, activeDisciplines])
+  }, [
+    pathname,
+    operator,
+    effectiveInitCode,
+    getTimezone,
+    activeDisciplines,
+    fetchEventsInBackground,
+  ])
 
   return (
     <EventsContext.Provider
