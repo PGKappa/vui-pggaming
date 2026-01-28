@@ -134,7 +134,6 @@ export default function EventsContextProvider(props: {
       }
 
       if (!operator) {
-        console.error('❌ Cannot fetch event details: operator is required')
         toast.error('Operator is required for API calls')
         return
       }
@@ -261,29 +260,11 @@ export default function EventsContextProvider(props: {
               ? racingData.channels
               : []
 
-            console.log(
-              '🏁 [background] API response channels:',
-              channels.map((c: any) => ({
-                name: c?.name,
-                next_events_count: c?.next_events?.length || 0,
-                next_events_sample: c?.next_events?.[0],
-              })),
-            )
-
             const dogChannel =
               channels.find(
                 (c: any) =>
                   typeof c?.name === 'string' && /dog|grey/i.test(c.name),
               ) || channels[0] // Fallback to first channel
-
-            console.log(
-              '🏁 [background] dogChannel found:',
-              dogChannel ? dogChannel.name : 'NOT FOUND',
-            )
-            console.log(
-              '🏁 [background] dogChannel.next_events:',
-              dogChannel?.next_events?.length || 0,
-            )
 
             if (dogChannel?.next_events) {
               const dogEvents = dogChannel.next_events.map(
@@ -356,11 +337,6 @@ export default function EventsContextProvider(props: {
           }
         }
 
-        console.log(
-          '🏁 [background] Total events after processing:',
-          allUpcomingEvents.length,
-        )
-
         // Aggiorna cache e stato (senza loading)
         if (allUpcomingEvents.length > 0) {
           setUpcomingEvents(allUpcomingEvents)
@@ -387,15 +363,7 @@ export default function EventsContextProvider(props: {
       ? disciplines
       : [Discipline.DOGS, Discipline.HORSES]
 
-    console.log('🔄 [events-context] pathname changed:', pathname)
-    console.log('🔄 [events-context] disciplines:', disciplines)
-    console.log(
-      '🔄 [events-context] normalizedDisciplines:',
-      normalizedDisciplines,
-    )
-
     if (!effectiveInitCode || disciplines.length === 0) {
-      console.log('🔄 [events-context] No initCode or disciplines, skipping')
       setIsLoadingEvents(false)
       return
     }
@@ -407,41 +375,27 @@ export default function EventsContextProvider(props: {
     const cacheKey = `${effectiveInitCode}:${normalizedDisciplines.sort().join('+')}`
     const cached = moduleEventsCache.get(cacheKey)
 
-    console.log('🔄 [events-context] cacheKey:', cacheKey)
-    console.log(
-      '🔄 [events-context] cached:',
-      cached
-        ? `Found (age: ${Date.now() - cached.timestamp}ms, events: ${cached.upcoming.length})`
-        : 'NOT FOUND',
-    )
-    console.log('🔄 [events-context] hasLoadedOnce:', moduleHasLoadedOnce)
-
     // Se abbiamo dati in cache validi, usali subito SENZA loading
     if (
       !nocache &&
       cached &&
       Date.now() - cached.timestamp < EVENTS_CACHE_TTL_MS
     ) {
-      console.log('✅ [events-context] Using CACHE - NO loading!')
       // Imposta i dati immediatamente dalla cache
       setUpcomingEvents(cached.upcoming)
       setEventResults(cached.results)
       moduleHasLoadedOnce = true
       setIsLoadingEvents(false)
 
-      // Fetch in background per aggiornare i dati (senza mostrare loading)
-      // Solo se la cache è più vecchia di 30 secondi
+      // Fetch in background per aggiornare i dati
       if (Date.now() - cached.timestamp > 30 * 1000) {
         fetchEventsInBackground(disciplines, normalizedDisciplines, cacheKey)
       }
       return
     }
 
-    console.log('⏳ [events-context] Cache miss - will fetch')
-
     // Previeni chiamate duplicate
     if (isFetchingEvents) {
-      console.log('⚠️ [events-context] Already fetching, skipping...')
       return
     }
     isFetchingEvents = true
@@ -451,18 +405,8 @@ export default function EventsContextProvider(props: {
 
     const fetchEvents = async () => {
       // Mostra loading SOLO al primissimo caricamento assoluto della pagina
-      // Non mostrare loading per cambio disciplina (transizione fra pagine)
-      console.log(
-        '⏳ [events-context] fetchEvents called, hasLoadedOnce:',
-        moduleHasLoadedOnce,
-      )
       if (!moduleHasLoadedOnce) {
-        console.log('⏳ [events-context] Setting isLoadingEvents = TRUE')
         setIsLoadingEvents(true)
-      } else {
-        console.log(
-          '⏳ [events-context] hasLoadedOnce=true, NOT setting loading',
-        )
       }
 
       try {
@@ -481,7 +425,6 @@ export default function EventsContextProvider(props: {
 
         const allUpcomingEvents: UpcomingEvent[] = []
 
-        // ===== FASE 1: RACING - Solo upcoming events (veloce) =====
         let racingData: any = null
         if (shouldFetchRacing) {
           const response = await createPGVirtualAPICall(
@@ -574,10 +517,6 @@ export default function EventsContextProvider(props: {
               allUpcomingEvents.push(...horseEvents)
             }
 
-            // 🚀 MOSTRA SUBITO gli upcoming events e nascondi loading!
-            console.log(
-              `🚀 [FASE 1] Showing ${allUpcomingEvents.length} upcoming events immediately`,
-            )
             setUpcomingEvents(allUpcomingEvents)
             setIsLoadingEvents(false)
             moduleHasLoadedOnce = true
@@ -602,7 +541,6 @@ export default function EventsContextProvider(props: {
 
         // ===== SOCCER =====
         if (shouldFetchSoccer) {
-          console.log('⚽ Starting Soccer API fetch...')
           const allSoccerResults: EventResult[] = []
           try {
             // TODO: Sostituire con l'endpoint corretto per il calcio
@@ -611,72 +549,15 @@ export default function EventsContextProvider(props: {
             )
             if (soccerResponse.ok) {
               const soccerData = await soccerResponse.json()
-              console.log('⚽ Soccer API Response:', soccerData)
-              console.log('⚽ Soccer data type:', typeof soccerData)
-              console.log('⚽ Soccer data keys:', Object.keys(soccerData || {}))
 
-              // Log della struttura per capire il formato
-              if (Array.isArray(soccerData)) {
-                console.log(
-                  '⚽ Soccer data is Array, length:',
-                  soccerData.length,
-                )
-                if (soccerData.length > 0) {
-                  console.log('⚽ First item sample:', soccerData[0])
-                }
-              } else if (soccerData && typeof soccerData === 'object') {
-                console.log('⚽ Soccer data is Object')
-                console.log(
-                  '⚽ Full data structure:',
-                  JSON.stringify(soccerData, null, 2),
-                )
-
-                // Espandi schedules se esiste
-                if (soccerData.schedules) {
-                  console.log('⚽ Schedules type:', typeof soccerData.schedules)
-                  console.log(
-                    '⚽ Schedules keys:',
-                    Object.keys(soccerData.schedules || {}),
-                  )
-                  console.log('⚽ Schedules content:', soccerData.schedules)
-
-                  // Se schedules è un object, elenca le categorie
-                  if (
-                    typeof soccerData.schedules === 'object' &&
-                    !Array.isArray(soccerData.schedules)
-                  ) {
-                    Object.entries(soccerData.schedules).forEach(
-                      ([key, value]: [string, any]) => {
-                        console.log(`⚽ Schedule category "${key}":`, {
-                          type: typeof value,
-                          isArray: Array.isArray(value),
-                          length: Array.isArray(value) ? value.length : 'N/A',
-                          firstItem: Array.isArray(value) ? value[0] : value,
-                        })
-                      },
-                    )
-                  }
-                }
-
-                if (soccerData.header) {
-                  console.log('⚽ Header:', soccerData.header)
-                }
-              }
-
-              // ===== PARSE SOCCER DATA (OLD LOGIC) =====
               const scheduleArray = soccerData.schedules?.schedule || []
 
               if (scheduleArray.length === 0) {
-                console.warn('⚽ No schedules found in soccer data')
                 return
               }
 
               const firstSchedule = scheduleArray[0]
               const allEvents = firstSchedule.mag_event || []
-
-              console.log(
-                `⚽ Found ${allEvents.length} total events in schedule`,
-              )
 
               // Raggruppa eventi per groupId (come nel vecchio codice)
               const eventsByGroup: Record<number, any[]> = {}
@@ -690,10 +571,6 @@ export default function EventsContextProvider(props: {
                   eventsByGroup[groupId].push(event)
                 }
               })
-
-              console.log(
-                `⚽ Grouped events into ${Object.keys(eventsByGroup).length} groups`,
-              )
 
               // Crea un UpcomingRound per ogni gruppo
               const rounds: UpcomingRound[] = Object.entries(eventsByGroup).map(
@@ -740,7 +617,7 @@ export default function EventsContextProvider(props: {
                 }
               })
 
-              // Crea 10 risultati mockup per il calcio (come nel vecchio codice)
+              // Crea 10 risultati mockup per il calcio
               const roundResults: EventResult[] = Array.from(
                 { length: 10 },
                 (_, index) => {
@@ -798,10 +675,6 @@ export default function EventsContextProvider(props: {
               )
 
               allSoccerResults.push(...roundResults)
-
-              console.log(
-                `⚽ Soccer parsing complete: ${upcomingSoccerEvents.length} rounds created, ${roundResults.length} mock results added`,
-              )
 
               // Soccer: mostra subito
               setUpcomingEvents((prev) => [...prev, ...upcomingSoccerEvents])
@@ -871,8 +744,7 @@ export default function EventsContextProvider(props: {
     fetchEventsInBackground,
   ])
 
-  // Polling periodico per mantenere il carosello aggiornato (ogni 45 secondi)
-  // + Refresh automatico quando gli eventi stanno per esaurirsi
+  // Polling periodico per mantenere il carosello aggiornato
   useEffect(() => {
     const POLLING_INTERVAL_MS = 45 * 1000 // 45 secondi
     const MIN_EVENTS_THRESHOLD = 6 // Soglia minima di eventi prima di fare refresh
@@ -916,19 +788,11 @@ export default function EventsContextProvider(props: {
         disciplines.includes(event.discipline),
       )
 
-      console.log(
-        `🔍 [events-monitor] Future events: ${relevantFutureEvents.length}/${upcomingEvents.length}`,
-      )
-
       // Se abbiamo meno eventi della soglia, fai refresh immediato
-      // Ma non più di una volta ogni 10 secondi per evitare loop
       if (
         relevantFutureEvents.length < MIN_EVENTS_THRESHOLD &&
         Date.now() - lastFetchTime > 100000
       ) {
-        console.log(
-          `⚠️ [events-monitor] Low events (${relevantFutureEvents.length}), triggering refresh...`,
-        )
         lastFetchTime = Date.now()
         fetchEventsInBackground(disciplines, normalizedDisciplines, cacheKey)
       }
@@ -939,7 +803,6 @@ export default function EventsContextProvider(props: {
 
     // Polling regolare ogni 45 secondi
     const pollingIntervalId = setInterval(() => {
-      console.log('🔄 [events-context] Polling: background refresh...')
       lastFetchTime = Date.now()
       fetchEventsInBackground(disciplines, normalizedDisciplines, cacheKey)
     }, POLLING_INTERVAL_MS)

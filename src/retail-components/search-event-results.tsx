@@ -86,9 +86,6 @@ export default function SearchEventResults() {
   const fetchDetailedEventResult = useCallback(
     async (extId: string, eventId: string) => {
       if (!rootContext.initCode || !rootContext.operator) {
-        console.warn(
-          '⚠️ Missing initCode/operator, skip fetchDetailedEventResult',
-        )
         return null
       }
       try {
@@ -121,7 +118,7 @@ export default function SearchEventResults() {
   )
 
   useEffect(() => {
-    // Esegui solo quando searchTrigger > 0 (dopo che l'utente ha cliccato CERCA)
+    // Esegui solo dopo che l'utente ha cliccato CERCA
     if (searchTrigger === 0) {
       return
     }
@@ -137,7 +134,6 @@ export default function SearchEventResults() {
 
     // Se abbiamo risultati in cache validi, usali
     if (cached && Date.now() - cached.timestamp < SEARCH_CACHE_TTL_MS) {
-      console.log('🔍 [search] Using cached results for:', cacheKey)
       setFetchedResults(cached.results)
       return
     }
@@ -149,7 +145,7 @@ export default function SearchEventResults() {
       )
 
       if (existingResults.length > 0) {
-        // Assicura che tutti i risultati abbiano un track (default '6' se non presente)
+        // Assicura che tutti i risultati abbiano un track
         const resultsWithTrack = existingResults.map((r) => ({
           ...r,
           track: r.track || '6',
@@ -171,9 +167,6 @@ export default function SearchEventResults() {
           setIsLoading(true)
           try {
             if (!rootContext.initCode || !rootContext.operator) {
-              console.warn(
-                '⚠️ Missing initCode/operator, skip fetchRacingResults',
-              )
               setIsLoading(false)
               return
             }
@@ -215,7 +208,7 @@ export default function SearchEventResults() {
               return
             }
 
-            // LIMITA a 10 risultati PRIMA di fare fetch dettagli (altrimenti troppe richieste)
+            // LIMITA a 10 risultati PRIMA di fare fetch dettagli
             const limitedItems = data.items.slice(0, 10)
 
             const results: EventResult[] = await Promise.all(
@@ -292,7 +285,6 @@ export default function SearchEventResults() {
 
       try {
         if (!rootContext.initCode || !rootContext.operator) {
-          console.warn('⚠️ Missing initCode/operator, skip fetchEventResults')
           setIsLoading(false)
           return
         }
@@ -592,12 +584,12 @@ export default function SearchEventResults() {
 
     fetchEventResults(confirmedDiscipline, confirmedDate)
   }, [
-    searchTrigger, // Trigger principale - la ricerca parte solo quando questo cambia
+    searchTrigger,
     confirmedDate,
     confirmedDiscipline,
     confirmedLastTenGames,
     confirmedTimeSlot,
-    contextResultsSnapshot, // Snapshot invece di rootContext.eventResults
+    contextResultsSnapshot,
     fetchDetailedEventResult,
     rootContext.initCode,
     rootContext.operator,
@@ -605,13 +597,11 @@ export default function SearchEventResults() {
 
   // Funzione per avviare la ricerca
   const handleSearch = () => {
-    // Prendi uno snapshot dei risultati del context PRIMA di avviare la ricerca
     setContextResultsSnapshot(rootContext.eventResults || [])
     setConfirmedDiscipline(selectedDiscipline)
     setConfirmedDate(selectedDate)
     setConfirmedTimeSlot(selectedTimeSlot)
     setConfirmedLastTenGames(lastTenGames)
-    // Incrementa il trigger per far partire la ricerca
     setSearchTrigger((prev) => prev + 1)
   }
 
@@ -674,7 +664,7 @@ export default function SearchEventResults() {
     confirmedLastTenGames,
     confirmedTimeSlot,
     fetchedResults,
-    contextResultsSnapshot, // Usa snapshot invece di rootContext.eventResults
+    contextResultsSnapshot,
   ])
 
   const handleReset = () => {
