@@ -260,9 +260,29 @@ export default function EventsContextProvider(props: {
             const channels = Array.isArray(racingData.channels)
               ? racingData.channels
               : []
-            const dogChannel = channels.find(
-              (c: any) =>
-                typeof c?.name === 'string' && /dog|grey/i.test(c.name),
+
+            console.log(
+              '🏁 [background] API response channels:',
+              channels.map((c: any) => ({
+                name: c?.name,
+                next_events_count: c?.next_events?.length || 0,
+                next_events_sample: c?.next_events?.[0],
+              })),
+            )
+
+            const dogChannel =
+              channels.find(
+                (c: any) =>
+                  typeof c?.name === 'string' && /dog|grey/i.test(c.name),
+              ) || channels[0] // Fallback to first channel
+
+            console.log(
+              '🏁 [background] dogChannel found:',
+              dogChannel ? dogChannel.name : 'NOT FOUND',
+            )
+            console.log(
+              '🏁 [background] dogChannel.next_events:',
+              dogChannel?.next_events?.length || 0,
             )
 
             if (dogChannel?.next_events) {
@@ -297,10 +317,11 @@ export default function EventsContextProvider(props: {
             }
 
             // Horses
-            const horseChannel = channels.find(
-              (c: any) =>
-                typeof c?.name === 'string' && /horse|cavall/i.test(c.name),
-            )
+            const horseChannel =
+              channels.find(
+                (c: any) =>
+                  typeof c?.name === 'string' && /horse|cavall/i.test(c.name),
+              ) || channels[1] // Fallback to second channel
 
             if (horseChannel?.next_events) {
               const horseEvents = horseChannel.next_events.map(
@@ -334,6 +355,11 @@ export default function EventsContextProvider(props: {
             }
           }
         }
+
+        console.log(
+          '🏁 [background] Total events after processing:',
+          allUpcomingEvents.length,
+        )
 
         // Aggiorna cache e stato (senza loading)
         if (allUpcomingEvents.length > 0) {
@@ -931,6 +957,40 @@ export default function EventsContextProvider(props: {
     activeDisciplines,
     fetchEventsInBackground,
   ])
+
+  // Polling periodico per mantenere il carosello aggiornato (ogni 45 secondi)
+  useEffect(() => {
+    const POLLING_INTERVAL_MS = 45 * 1000 // 45 secondi
+
+    // Non fare polling se non abbiamo ancora i dati iniziali
+    if (!moduleHasLoadedOnce || !effectiveInitCode || !operator) {
+      return
+    }
+
+    const disciplines = getDisciplinesFromUrl(pathname)
+    if (disciplines.length === 0) {
+      return
+    }
+
+    // Normalizza le discipline per racing (DOGS + HORSES usano stessa API)
+    const isRacing = disciplines.some(
+      (d) => d === Discipline.DOGS || d === Discipline.HORSES,
+    )
+    const normalizedDisciplines = isRacing
+      ? [Discipline.DOGS, Discipline.HORSES]
+      : disciplines
+
+    const cacheKey = `${effectiveInitCode}:${normalizedDisciplines.sort().join('+')}`
+
+    const intervalId = setInterval(() => {
+      console.log('🔄 [events-context] Polling: background refresh...')
+      fetchEventsInBackground(disciplines, normalizedDisciplines, cacheKey)
+    }, POLLING_INTERVAL_MS)
+
+    return () => {
+      clearInterval(intervalId)
+    }
+  }, [pathname, effectiveInitCode, operator, fetchEventsInBackground])
 
   return (
     <EventsContext.Provider

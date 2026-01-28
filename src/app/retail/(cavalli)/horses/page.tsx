@@ -78,7 +78,7 @@ export default function Home() {
           }
         }
       }
-    }, 5000)
+    }, 500)
 
     return () => clearInterval(interval)
   }, [selectedEvent, upcomingEvents])
@@ -102,10 +102,10 @@ export default function Home() {
             <ScrollArea className="h-full w-full">
               {!!searchEventResults ? (
                 <SearchEventResults />
-              ) : isLoadingEvents ? (
-                <SkeletonRaceCard />
               ) : selectedEvent ? (
                 <UpcomingRaceCard race={selectedEvent} />
+              ) : isLoadingEvents ? (
+                <SkeletonRaceCard />
               ) : (
                 <div className="flex h-full items-center justify-center">
                   {t('no_event_selected')}
