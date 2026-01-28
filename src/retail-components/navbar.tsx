@@ -14,10 +14,16 @@ export default function Navbar() {
   const { t, i18n } = useTranslation()
   const searchParams = useSearchParams()
   const pathname = usePathname()
-  const initCode = searchParams.get('init_code')
 
   const { eventResults, setSearchEventResults } = useContext(RootContext)
   const [isInfoDialogOpen, setIsInfoDialogOpen] = useState(false)
+
+  // Helper per creare link preservando TUTTI i parametri URL
+  const buildHref = (path: string) => {
+    const params = new URLSearchParams(searchParams.toString())
+    const queryString = params.toString()
+    return `${path}${queryString ? `?${queryString}` : ''}`
+  }
 
   // Helper per determinare il link info basato sulla pagina e lingua
   const getInfoLink = () => {
@@ -39,7 +45,7 @@ export default function Navbar() {
     >
       <div className="relative left-[8px] flex flex-row items-center gap-[8px]">
         <Link
-          href={`/retail/dogs-horses${initCode ? `?init_code=${initCode}` : ''}`}
+          href={buildHref('/retail/dogs-horses')}
           className={cn(
             'flex h-12 w-28 flex-row items-center justify-between px-4 py-1 text-foreground transition-colors hover:opacity-90',
             pathname.includes('/retail/dogs-horses')
@@ -64,7 +70,7 @@ export default function Navbar() {
         </Link>
 
         <Link
-          href={`/retail/dogs${initCode ? `?init_code=${initCode}` : ''}`}
+          href={buildHref('/retail/dogs')}
           className={cn(
             'flex h-12 w-24 flex-row items-center justify-center px-4 py-1 text-foreground transition-colors hover:opacity-90',
             pathname.includes('/retail/dogs') &&
@@ -83,7 +89,7 @@ export default function Navbar() {
         </Link>
 
         <Link
-          href={`/retail/horses${initCode ? `?init_code=${initCode}` : ''}`}
+          href={buildHref('/retail/horses')}
           className={cn(
             'hover:*opacity-90 flex h-12 w-24 flex-row items-center justify-center px-4 py-1 text-foreground transition-colors',
             pathname.includes('/retail/horses')
@@ -101,7 +107,7 @@ export default function Navbar() {
         </Link>
 
         <Link
-          href={`/retail/calcio${initCode ? `?init_code=${initCode}` : ''}`}
+          href={buildHref('/retail/calcio')}
           className={cn(
             'flex h-12 w-24 flex-row items-center justify-center gap-3 px-4 py-1 text-foreground transition-colors',
             pathname.includes('/retail/calcio')
