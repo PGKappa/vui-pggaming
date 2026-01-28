@@ -872,8 +872,11 @@ export default function EventsContextProvider(props: {
   ])
 
   // Polling periodico per mantenere il carosello aggiornato (ogni 45 secondi)
+  // + Refresh automatico quando gli eventi stanno per esaurirsi
   useEffect(() => {
     const POLLING_INTERVAL_MS = 45 * 1000 // 45 secondi
+    const MIN_EVENTS_THRESHOLD = 6 // Soglia minima di eventi prima di fare refresh
+    const CHECK_INTERVAL_MS = 25 * 1000 // Controlla ogni 25 secondi se serve refresh
 
     // Non fare polling se non abbiamo ancora i dati iniziali
     if (!moduleHasLoadedOnce || !effectiveInitCode || !operator) {
@@ -895,15 +898,63 @@ export default function EventsContextProvider(props: {
 
     const cacheKey = `${effectiveInitCode}:${normalizedDisciplines.sort().join('+')}`
 
-    const intervalId = setInterval(() => {
+    let lastFetchTime = Date.now()
+
+    // Funzione per controllare se serve un refresh
+    const checkAndRefresh = () => {
+      const now = new Date()
+
+      // Conta gli eventi futuri (non ancora scaduti)
+      const futureEvents = upcomingEvents.filter((event) => {
+        const eventTime =
+          event.time instanceof Date ? event.time : new Date(event.time)
+        return eventTime > now
+      })
+
+      // Filtra per le discipline correnti
+      const relevantFutureEvents = futureEvents.filter((event) =>
+        disciplines.includes(event.discipline),
+      )
+
+      console.log(
+        `🔍 [events-monitor] Future events: ${relevantFutureEvents.length}/${upcomingEvents.length}`,
+      )
+
+      // Se abbiamo meno eventi della soglia, fai refresh immediato
+      // Ma non più di una volta ogni 10 secondi per evitare loop
+      if (
+        relevantFutureEvents.length < MIN_EVENTS_THRESHOLD &&
+        Date.now() - lastFetchTime > 100000
+      ) {
+        console.log(
+          `⚠️ [events-monitor] Low events (${relevantFutureEvents.length}), triggering refresh...`,
+        )
+        lastFetchTime = Date.now()
+        fetchEventsInBackground(disciplines, normalizedDisciplines, cacheKey)
+      }
+    }
+
+    // Controlla frequentemente se serve refresh
+    const checkIntervalId = setInterval(checkAndRefresh, CHECK_INTERVAL_MS)
+
+    // Polling regolare ogni 45 secondi
+    const pollingIntervalId = setInterval(() => {
       console.log('🔄 [events-context] Polling: background refresh...')
+      lastFetchTime = Date.now()
       fetchEventsInBackground(disciplines, normalizedDisciplines, cacheKey)
     }, POLLING_INTERVAL_MS)
 
     return () => {
-      clearInterval(intervalId)
+      clearInterval(checkIntervalId)
+      clearInterval(pollingIntervalId)
     }
-  }, [pathname, effectiveInitCode, operator, fetchEventsInBackground])
+  }, [
+    pathname,
+    effectiveInitCode,
+    operator,
+    fetchEventsInBackground,
+    upcomingEvents,
+  ])
 
   return (
     <EventsContext.Provider
