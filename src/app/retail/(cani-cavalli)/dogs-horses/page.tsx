@@ -29,7 +29,11 @@ export default function Home() {
 
   // SINCRONIZZAZIONE PERFETTA CON CAROSELLO
   const carouselEvents = useMemo(
-    () => getCarouselFilteredEvents(upcomingEvents, [Discipline.DOGS]),
+    () =>
+      getCarouselFilteredEvents(upcomingEvents, [
+        Discipline.DOGS,
+        Discipline.HORSES,
+      ]),
     [upcomingEvents],
   )
 
@@ -38,8 +42,17 @@ export default function Home() {
     [carouselEvents],
   )
 
-  // AUTO-SELEZIONE: Sempre primo evento del carosello
+  // AUTO-SELEZIONE: Solo se non c'è evento selezionato o se l'evento selezionato non esiste più
   useEffect(() => {
+    // Se c'è un evento selezionato, verifica che esista ancora
+    if (selectedEvent) {
+      const stillExists = carouselEvents.some((e) => e.id === selectedEvent.id)
+      if (stillExists) {
+        return // Evento ancora valido, non cambiare
+      }
+    }
+
+    // Auto-seleziona il primo evento futuro
     if (futureEvents && futureEvents.length > 0 && futureEvents[0]) {
       setSelectedEvent(futureEvents[0])
     } else if (carouselEvents && carouselEvents.length > 0) {
@@ -47,7 +60,7 @@ export default function Home() {
     } else {
       setSelectedEvent(undefined)
     }
-  }, [futureEvents, carouselEvents])
+  }, [futureEvents, carouselEvents, selectedEvent])
 
   // AUTO-AGGIORNAMENTO
   useEffect(() => {
@@ -62,7 +75,10 @@ export default function Home() {
         if (eventTime <= now) {
           // Refresh degli eventi
           const freshFutureEvents = getFutureEventsFromCarousel(
-            getCarouselFilteredEvents(upcomingEvents, [Discipline.DOGS]),
+            getCarouselFilteredEvents(upcomingEvents, [
+              Discipline.DOGS,
+              Discipline.HORSES,
+            ]),
           )
 
           if (freshFutureEvents.length > 0) {
@@ -71,6 +87,7 @@ export default function Home() {
             // Nessun evento futuro, prendi il più recente
             const allEvents = getCarouselFilteredEvents(upcomingEvents, [
               Discipline.DOGS,
+              Discipline.HORSES,
             ])
             if (allEvents.length > 0) {
               setSelectedEvent(allEvents[allEvents.length - 1])
