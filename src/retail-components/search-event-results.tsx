@@ -44,6 +44,13 @@ const timeSlots = [
   '21:00 | 23:59',
 ]
 
+// Cache a livello modulo per i risultati di ricerca
+const searchResultsCache = new Map<
+  string,
+  { timestamp: number; results: EventResult[] }
+>()
+const SEARCH_CACHE_TTL_MS = 5 * 60 * 1000 // 5 minuti
+
 export default function SearchEventResults() {
   const { t } = useTranslation()
   const rootContext = useContext(RootContext)
@@ -68,6 +75,13 @@ export default function SearchEventResults() {
   const [fetchedResults, setFetchedResults] = useState<EventResult[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [openResults, setOpenResults] = useState<string[]>([])
+
+  // Trigger per avviare la ricerca (incrementato quando l'utente clicca CERCA)
+  const [searchTrigger, setSearchTrigger] = useState<number>(0)
+  // Snapshot dei risultati del context al momento della ricerca
+  const [contextResultsSnapshot, setContextResultsSnapshot] = useState<
+    EventResult[]
+  >([])
 
   const fetchDetailedEventResult = useCallback(
     async (extId: string, eventId: string) => {
@@ -107,13 +121,30 @@ export default function SearchEventResults() {
   )
 
   useEffect(() => {
+    // Esegui solo quando searchTrigger > 0 (dopo che l'utente ha cliccato CERCA)
+    if (searchTrigger === 0) {
+      return
+    }
+
     if (confirmedDiscipline === 'NONE') {
       setFetchedResults([])
       return
     }
 
+    // Genera cache key per questa ricerca
+    const cacheKey = `${confirmedDiscipline}:${confirmedDate}:${confirmedTimeSlot}:${confirmedLastTenGames}`
+    const cached = searchResultsCache.get(cacheKey)
+
+    // Se abbiamo risultati in cache validi, usali
+    if (cached && Date.now() - cached.timestamp < SEARCH_CACHE_TTL_MS) {
+      console.log('🔍 [search] Using cached results for:', cacheKey)
+      setFetchedResults(cached.results)
+      return
+    }
+
     if (confirmedLastTenGames) {
-      const existingResults = (rootContext.eventResults || []).filter(
+      // Usa lo snapshot dei risultati del context (preso al momento del click su CERCA)
+      const existingResults = contextResultsSnapshot.filter(
         (result) => result.discipline === confirmedDiscipline,
       )
 
@@ -124,6 +155,11 @@ export default function SearchEventResults() {
           track: r.track || '6',
         }))
         setFetchedResults(resultsWithTrack)
+        // Salva in cache
+        searchResultsCache.set(cacheKey, {
+          timestamp: Date.now(),
+          results: resultsWithTrack,
+        })
         return
       }
 
@@ -226,6 +262,8 @@ export default function SearchEventResults() {
             )
 
             setFetchedResults(results)
+            // Salva in cache
+            searchResultsCache.set(cacheKey, { timestamp: Date.now(), results })
           } catch {
             setFetchedResults([])
           } finally {
@@ -541,6 +579,8 @@ export default function SearchEventResults() {
           })
         }
         setFetchedResults(results)
+        // Salva in cache
+        searchResultsCache.set(cacheKey, { timestamp: Date.now(), results })
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : 'Unknown error'
         toast.error(`Failed to fetch results: ${message}`)
@@ -552,22 +592,27 @@ export default function SearchEventResults() {
 
     fetchEventResults(confirmedDiscipline, confirmedDate)
   }, [
+    searchTrigger, // Trigger principale - la ricerca parte solo quando questo cambia
     confirmedDate,
     confirmedDiscipline,
     confirmedLastTenGames,
     confirmedTimeSlot,
+    contextResultsSnapshot, // Snapshot invece di rootContext.eventResults
     fetchDetailedEventResult,
-    rootContext.eventResults,
     rootContext.initCode,
     rootContext.operator,
   ])
 
   // Funzione per avviare la ricerca
   const handleSearch = () => {
+    // Prendi uno snapshot dei risultati del context PRIMA di avviare la ricerca
+    setContextResultsSnapshot(rootContext.eventResults || [])
     setConfirmedDiscipline(selectedDiscipline)
     setConfirmedDate(selectedDate)
     setConfirmedTimeSlot(selectedTimeSlot)
     setConfirmedLastTenGames(lastTenGames)
+    // Incrementa il trigger per far partire la ricerca
+    setSearchTrigger((prev) => prev + 1)
   }
 
   const filteredEventResults = useMemo(() => {
@@ -576,7 +621,8 @@ export default function SearchEventResults() {
     }
 
     if (confirmedLastTenGames) {
-      const allResults = rootContext.eventResults || []
+      // Usa lo snapshot invece di rootContext.eventResults
+      const allResults = contextResultsSnapshot
       const disciplineResults = allResults.filter(
         (result) => result.discipline === confirmedDiscipline,
       )
@@ -628,7 +674,7 @@ export default function SearchEventResults() {
     confirmedLastTenGames,
     confirmedTimeSlot,
     fetchedResults,
-    rootContext.eventResults,
+    contextResultsSnapshot, // Usa snapshot invece di rootContext.eventResults
   ])
 
   const handleReset = () => {
@@ -641,6 +687,9 @@ export default function SearchEventResults() {
     setConfirmedDate('ALL')
     setConfirmedTimeSlot('ALL')
     setConfirmedLastTenGames(false)
+    // Reset searchTrigger e cache
+    setSearchTrigger(0)
+    setContextResultsSnapshot([])
   }
 
   const formatSafeDate = (date: any): string => {
