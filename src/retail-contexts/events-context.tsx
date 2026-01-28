@@ -19,6 +19,7 @@ import {
   useEffect,
   useState,
 } from 'react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import { CashierContext } from './cashier-context'
 
@@ -85,6 +86,7 @@ function getDisciplinesFromUrl(pathname: string): Discipline[] {
 export default function EventsContextProvider(props: {
   children: React.ReactNode
 }) {
+  const { t } = useTranslation()
   const pathname = usePathname()
   const cashierContext = useContext(CashierContext)
   const { initCode, operator, getTimezone } = cashierContext
@@ -129,12 +131,12 @@ export default function EventsContextProvider(props: {
   const fetchEventDetails = useCallback(
     async (extPalId: string, intEventId: string) => {
       if (!effectiveInitCode) {
-        console.warn('⚠️ No initCode available for fetchEventDetails')
+        console.warn('No initCode available for fetchEventDetails')
         return
       }
 
       if (!operator) {
-        toast.error('Operator is required for API calls')
+        toast.error(t('operator_required'))
         return
       }
 
@@ -213,17 +215,17 @@ export default function EventsContextProvider(props: {
               event: foundEvent,
             })
           } else {
-            console.warn('⚠️ Event not found in API response')
+            console.warn('Event not found in API response')
           }
         }
       } catch (error) {
-        console.error('❌ Error fetching event details:', error)
-        toast.error('Failed to load event details')
+        console.error('Error fetching event details:', error)
+        toast.error(t('error_fetching_event_details'))
       } finally {
         setIsLoadingEventDetails(false)
       }
     },
-    [effectiveInitCode, operator, getTimezone],
+    [effectiveInitCode, operator, getTimezone, t],
   )
 
   // Funzione per fetch in background (senza mostrare loading)
@@ -411,8 +413,7 @@ export default function EventsContextProvider(props: {
 
       try {
         if (!operator) {
-          console.error('❌ Cannot fetch events: operator is required')
-          toast.error('Operator is required for API calls')
+          toast.error(t('operator_required'))
           setIsLoadingEvents(false)
           isFetchingEvents = false
           return
@@ -531,7 +532,7 @@ export default function EventsContextProvider(props: {
               })
             }
           } else {
-            console.error('❌ API Racing response NOT OK:', {
+            console.error('API Racing response NOT OK:', {
               status: response.status,
               statusText: response.statusText,
             })
@@ -742,6 +743,7 @@ export default function EventsContextProvider(props: {
     getTimezone,
     activeDisciplines,
     fetchEventsInBackground,
+    t,
   ])
 
   // Polling periodico per mantenere il carosello aggiornato

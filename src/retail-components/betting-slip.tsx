@@ -672,15 +672,15 @@ export default function BettingSlip({
         !rootContext?.cashierData ||
         rootContext?.cashierData?.ret_code !== 1024
       ) {
-        toast.error('Cashier not initialized. Please refresh the page.')
-        console.error('❌ Cashier not ready:', rootContext?.cashierData)
+        toast.error(t('cashier_not_initialized'))
+        console.error('Cashier not ready:', rootContext?.cashierData)
         setIsSubmitting(false)
         return
       }
 
       // Validazione: assicurati che il contesto sia inizializzato
       if (!rootContext?.initCode) {
-        console.error('❌ initCode mancante:', rootContext)
+        console.error('initCode mancante:', rootContext)
         toast.error(t('login_required'))
         setIsSubmitting(false)
         return
@@ -688,8 +688,8 @@ export default function BettingSlip({
 
       // Validazione: operator è obbligatorio per l'invio del ticket
       if (!rootContext?.operator) {
-        console.error('❌ operator mancante:', rootContext)
-        toast.error('Operator is required to submit bet')
+        console.error('operator mancante:', rootContext)
+        toast.error(t('operator_required'))
         setIsSubmitting(false)
         return
       }
@@ -864,16 +864,6 @@ export default function BettingSlip({
         },
       }
 
-      console.log(
-        '📦 Final Ticket Payload WITH init_code:',
-        JSON.stringify(ticketData, null, 2),
-      )
-
-      console.log(
-        'Submitting ticket with payload:',
-        JSON.stringify(ticketData, null, 2),
-      )
-
       const response = await createPGVirtualAPICall(
         '/api/ticket/add',
         rootContext.initCode || '',
@@ -884,13 +874,10 @@ export default function BettingSlip({
         rootContext.operator,
       )
 
-      console.log('📡 API Response Status:', response.status)
-      console.log('📡 API Response OK:', response.ok)
-
       if (!response.ok) {
         const errorText = await response.text()
 
-        console.error('❌ API Error Response:', {
+        console.error('API Error Response:', {
           status: response.status,
           statusText: response.statusText,
           errorText: errorText,
@@ -898,7 +885,7 @@ export default function BettingSlip({
 
         try {
           const errorJson = JSON.parse(errorText)
-          console.error('❌ Parsed Error JSON:', errorJson)
+          console.error('Parsed Error JSON:', errorJson)
           if (errorJson.ret_msg) {
             toast.error(errorJson.ret_msg)
           } else if (errorJson.message) {
@@ -912,11 +899,6 @@ export default function BettingSlip({
       }
 
       const result = await response.json()
-
-      console.log('✅ API Success Response:', result)
-      console.log('✅ ret_code:', result.ret_code)
-      console.log('✅ ret_msg:', result.ret_msg)
-      console.log('✅ Entire result object:', JSON.stringify(result, null, 2))
 
       // Check ret_code per successo (1024 = success)
       const retCode = parseInt(result.ret_code) || 0

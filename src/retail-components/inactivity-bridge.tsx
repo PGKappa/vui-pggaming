@@ -35,14 +35,10 @@ export default function InactivityBridge() {
             event.data.type === 'session-expired'))
 
       if (isInactivityMessage) {
-        console.log(
-          'Inactivity message received from parent, clearing localStorage and reloading...',
-        )
 
         try {
           // Pulisce completamente il localStorage
           localStorage.clear()
-          console.log('localStorage cleared')
         } catch (error) {
           console.error('Error clearing localStorage:', error)
         }
