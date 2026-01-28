@@ -1272,17 +1272,33 @@ export default function BettingSlip({
 
             {/* Quick stake buttons */}
             <div className="relative top-[19px] grid grid-cols-5 gap-2 p-2">
-              {stakeButtons.map((amount) => (
-                <Button
-                  key={amount}
-                  variant="outline"
-                  size="sm"
-                  className="h-8 bg-muted-foreground text-[14px] tabular-nums"
-                  onClick={() => setGlobal((prev) => prev + amount)}
-                >
-                  {amount}
-                </Button>
-              ))}
+              {stakeButtons.map((amount, index) => {
+                // Estrai il valore numerico se è una stringa con simbolo valuta
+                let numericAmount = 0
+                if (typeof amount === 'string') {
+                  numericAmount = parseFloat(
+                    (amount as string).replace(/[^\d.]/g, ''),
+                  )
+                } else if (typeof amount === 'number') {
+                  numericAmount = amount as number
+                }
+
+                if (isNaN(numericAmount) || numericAmount <= 0) return null
+
+                const displayText = `${numericAmount} ${currencySymbol}`
+
+                return (
+                  <Button
+                    key={`stake-${index}-${numericAmount}`}
+                    variant="outline"
+                    size="sm"
+                    className="h-8 bg-muted-foreground text-[14px] tabular-nums"
+                    onClick={() => setGlobal((prev) => prev + numericAmount)}
+                  >
+                    {displayText}
+                  </Button>
+                )
+              })}
             </div>
 
             {/* IMPORTO section */}
