@@ -21,14 +21,14 @@ export default function Navbar() {
 
   // Helper per determinare il link info basato sulla pagina e lingua
   const getInfoLink = () => {
-    const lang = i18n.language || 'en' // fallback a 'en' se lingua non disponibile
+    const lang = i18n.language || 'en'
 
     if (pathname.includes('/calcio')) {
       // Link per il calcio
-      return `http://localhost:8080/docs/Soccer_Gaming_manual_${lang}.html`
+      return `https://d190050z3qr0m1.cloudfront.net/public/Soccer_Gaming_manual_${lang}.html`
     } else {
       // Per cani e cavalli
-      return `http://localhost:8080/docs/Gaming_manual_${lang}.html`
+      return `https://d190050z3qr0m1.cloudfront.net/public/Gaming_manual_${lang}.html`
     }
   }
 
@@ -80,8 +80,6 @@ export default function Navbar() {
             height={20}
             className="size-8 object-contain"
           />
-          {/* 
-          <span className="text-[16px] font-bold">{t('ch1')}</span> */}
         </Link>
 
         <Link
@@ -100,8 +98,6 @@ export default function Navbar() {
             height={20}
             className="size-8 object-contain"
           />
-          {/* 
-          <span className="text-[16px] font-bold">{t('ch3')}</span> */}
         </Link>
 
         <Link
@@ -120,8 +116,6 @@ export default function Navbar() {
             height={20}
             className="size-8 object-contain brightness-0 invert filter"
           />
-          {/* 
-          <span className="text-[16px] font-bold">{t('ch4')}</span> */}
         </Link>
       </div>
 
@@ -139,7 +133,6 @@ export default function Navbar() {
           </span>
         </Button>
 
-        {/* Pulsante Info - sempre visibile con dialog diversi per calcio vs racing */}
         <Button
           className="h-12 w-12 text-[18px] hover:opacity-95"
           variant="ticketButton"
