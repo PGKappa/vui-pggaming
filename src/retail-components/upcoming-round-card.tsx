@@ -356,8 +356,8 @@ export default function UpcomingRoundCard(props: {
                                 key={`special-market-${marketIndex}`}
                               >
                                 <TableCell className="w-[1px] bg-black p-0"></TableCell>
-                                <TableCell className="justify-items-center px-[8px] pl-2">
-                                  <div className="flex flex-row items-center justify-center gap-[3px]">
+                                <TableCell className="justify-items-center px-[8px] pl-[7px]">
+                                  <div className="flex flex-row items-center justify-center gap-[8px]">
                                     {options.map((option, i) => (
                                       <BetEntryToggle
                                         key={i}
@@ -466,14 +466,14 @@ export default function UpcomingRoundCard(props: {
                                     isHomeAwayTab
                                       ? 'text-sm'
                                       : isMainTab
-                                        ? 'pl-4 pr-2 text-sm'
+                                        ? 'px-4'
                                         : isUnderOverTab
                                           ? 'px-[31px]'
                                           : i === 0
-                                            ? 'pl-[28px] pr-[1px]'
+                                            ? 'pl-[30px] pr-[1px]'
                                             : i === lastIndex
-                                              ? 'pl-2 pr-0'
-                                              : 'px-2'
+                                              ? 'pl-[15px] pr-0'
+                                              : 'pl-[25px]'
                                   }`}
                                 >
                                   <BetEntryToggle
@@ -501,7 +501,7 @@ export default function UpcomingRoundCard(props: {
                     })()}
 
                     <TableCell className="w-[1px] bg-black p-0"></TableCell>
-                    <TableCell className="w-[48px] min-w-[48px] max-w-[48px] pr-2 text-center">
+                    <TableCell className="w-[48px] min-w-[48px] max-w-[48px]  text-center">
                       <Button
                         variant="action"
                         size="icon-lg"
