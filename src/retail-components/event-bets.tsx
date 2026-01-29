@@ -171,7 +171,7 @@ export default function EventBets(props: {
                 <span className="mr-[1px] w-[126px] text-[13px] uppercase">
                   {translatedMarket}
                 </span>
-                <span className="ml-[0px] w-[109px] text-[13px] font-normal">
+                <span className="ml-[0px] w-[109px] text-[13px] font-normal text-center">
                   {outcomeDisplay}
                 </span>
                 <span className="relative right-[3px] grid w-[101px] justify-end break-all text-[13px] font-semibold leading-tight">
