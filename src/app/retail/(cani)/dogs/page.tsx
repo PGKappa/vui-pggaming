@@ -38,8 +38,17 @@ export default function Home() {
     [carouselEvents],
   )
 
-  // AUTO-SELEZIONE: Sempre primo evento del carosello
+  // AUTO-SELEZIONE: Solo se non c'è evento selezionato o se l'evento selezionato non esiste più
   useEffect(() => {
+    // Se c'è un evento selezionato, verifica che esista ancora
+    if (selectedEvent) {
+      const stillExists = carouselEvents.some((e) => e.id === selectedEvent.id)
+      if (stillExists) {
+        return // Evento ancora valido, non cambiare
+      }
+    }
+
+    // Auto-seleziona il primo evento futuro
     if (futureEvents && futureEvents.length > 0 && futureEvents[0]) {
       setSelectedEvent(futureEvents[0])
     } else if (carouselEvents && carouselEvents.length > 0) {
@@ -47,7 +56,7 @@ export default function Home() {
     } else {
       setSelectedEvent(undefined)
     }
-  }, [futureEvents, carouselEvents])
+  }, [futureEvents, carouselEvents, selectedEvent])
 
   // AUTO-AGGIORNAMENTO
   useEffect(() => {
@@ -78,15 +87,15 @@ export default function Home() {
           }
         }
       }
-    }, 5000)
+    }, 500)
 
     return () => clearInterval(interval)
   }, [selectedEvent, upcomingEvents])
 
   return (
-    <div className="flex h-full flex-row overflow-hidden relative bottom-[5px]">
+    <div className="relative bottom-[5px] flex h-full flex-row overflow-hidden">
       <div className="flex flex-col">
-        <div className="flex h-[109px] w-[1508px] flex-row items-center justify-center bg-betslip pb-[2px] pr-2">
+        <div className="bg-betslip flex h-[109px] w-[1508px] flex-row items-center justify-center pb-[2px] pr-2">
           <UpcomingEventsCarousel
             selectedEvent={selectedEvent}
             setSelectedEvent={(event) => {
@@ -97,15 +106,15 @@ export default function Home() {
         </div>
 
         {/* Main content area */}
-        <div className="flex h-full flex-row gap-2 overflow-hidden pr-2 pt-[2px] bg-betslip">
+        <div className="bg-betslip flex h-full flex-row gap-2 overflow-hidden pr-2 pt-[2px]">
           <div className="flex h-[921px] w-[1500px] flex-col gap-2 overflow-y-auto">
             <ScrollArea className="h-full w-full">
               {!!searchEventResults ? (
                 <SearchEventResults />
-              ) : isLoadingEvents ? (
-                <SkeletonRaceCard />
               ) : selectedEvent ? (
                 <UpcomingRaceCard race={selectedEvent} />
+              ) : isLoadingEvents ? (
+                <SkeletonRaceCard />
               ) : (
                 <div className="flex h-full items-center justify-center">
                   {t('no_event_selected')}

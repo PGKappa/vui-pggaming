@@ -53,8 +53,6 @@ function SkinBody({ children }: { children: React.ReactNode }) {
   const [skin] = useContext(SkinContext)
   const pathname = usePathname()
 
-  console.log(`[Layout] Current pathname: ${pathname}`)
-
   return (
     <body
       className={`${inter.variable} ${skin} flex h-screen flex-col overflow-hidden font-inter antialiased`}

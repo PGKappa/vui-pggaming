@@ -38,8 +38,17 @@ export default function Home() {
     [carouselEvents],
   )
 
-  // AUTO-SELEZIONE: Sempre primo evento del carosello
+  // AUTO-SELEZIONE: Solo se non c'è evento selezionato o se l'evento selezionato non esiste più
   useEffect(() => {
+    // Se c'è un evento selezionato, verifica che esista ancora
+    if (selectedEvent) {
+      const stillExists = carouselEvents.some((e) => e.id === selectedEvent.id)
+      if (stillExists) {
+        return // Evento ancora valido, non cambiare
+      }
+    }
+
+    // Auto-seleziona il primo evento futuro
     if (futureEvents && futureEvents.length > 0 && futureEvents[0]) {
       setSelectedEvent(futureEvents[0])
     } else if (carouselEvents && carouselEvents.length > 0) {
@@ -47,7 +56,7 @@ export default function Home() {
     } else {
       setSelectedEvent(undefined)
     }
-  }, [futureEvents, carouselEvents])
+  }, [futureEvents, carouselEvents, selectedEvent])
 
   // AUTO-AGGIORNAMENTO
   useEffect(() => {
@@ -78,7 +87,7 @@ export default function Home() {
           }
         }
       }
-    }, 5000)
+    }, 500)
 
     return () => clearInterval(interval)
   }, [selectedEvent, upcomingEvents])
@@ -102,10 +111,10 @@ export default function Home() {
             <ScrollArea className="h-full w-full">
               {!!searchEventResults ? (
                 <SearchEventResults />
-              ) : isLoadingEvents ? (
-                <SkeletonRaceCard />
               ) : selectedEvent ? (
                 <UpcomingRaceCard race={selectedEvent} />
+              ) : isLoadingEvents ? (
+                <SkeletonRaceCard />
               ) : (
                 <div className="flex h-full items-center justify-center">
                   {t('no_event_selected')}

@@ -198,13 +198,6 @@ export function createPGVirtualAPICall(
     credentials: 'include' as const,
   }
 
-  console.log('🔐 createPGVirtualAPICall:', {
-    endpoint,
-    initCode,
-    headers: finalOptions.headers,
-    operator: operator,
-  })
-
   return fetch(`${PGVIRTUAL_API_URL}${endpoint}`, finalOptions)
 }
 

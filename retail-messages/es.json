@@ -307,5 +307,22 @@
   "min_stake_error": "El importe mínimo de apuesta es {{min}}",
   "max_win_error": "La ganancia máxima permitida es {{max}}",
   "min_bet_error": "El importe mínimo del ticket es {{min}}",
-  "min_stake_per_combination_not_met": "El valor mínimo por columna no se cumple. Auméntelo en {{amount}} para continuar"
+  "min_stake_per_combination_not_met": "El valor mínimo por columna no se cumple. Auméntelo en {{amount}} para continuar",
+  "operator_missing": "Falta el operador",
+  "operator_required": "Se requiere operador para enviar el ticket",
+  "operator_not_found": "Se requiere operador pero no se encontró en el almacenamiento",
+  "cashier_initialized": "Cajero inicializado",
+  "cashier_unavailable": "Cajero no disponible - usando alternativa",
+  "no_last_ticket": "No hay último ticket para restaurar",
+  "duplicate_bet_found": "Apuesta duplicada encontrada",
+  "api_request_failed": "Error en la solicitud API",
+  "cashier_not_initialized": "Cajero no inicializado. Por favor, actualiza la página",
+  "error_fetching_events": "Error al obtener eventos",
+  "error_fetching_event_details": "Error al cargar detalles del evento",
+  "event_not_found": "Evento no encontrado en la respuesta de la API",
+  "error_loading_events": "Error al cargar eventos",
+  "last_ticket_restore_error": "Error al restaurar el último ticket",
+  "cashier_data_loaded": "Datos del cajero cargados desde la caché",
+  "user_data_fetched": "Datos del usuario obtenidos con éxito",
+  "error_fetching_racing_events": "Error al obtener eventos de carreras"
 }
