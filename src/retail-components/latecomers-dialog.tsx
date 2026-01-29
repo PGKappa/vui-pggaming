@@ -104,7 +104,7 @@ export default function LatecomersDialog({
               </TableHeader>
               <TableBody>
                 {latecomersData.map((item, index) => (
-                  <TableRow key={index} className="border-b border-muted">
+                  <TableRow key={index} className="border-b border-black">
                     <TableCell className="w-1/3 border-r border-border bg-white p-4 text-center text-[16px] font-medium">
                       {item.market}
                     </TableCell>
