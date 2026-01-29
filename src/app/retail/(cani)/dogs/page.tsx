@@ -1,7 +1,6 @@
 'use client'
 import BettingSlip from '@/retail-components/betting-slip'
 import SearchEventResults from '@/retail-components/search-event-results'
-import SkeletonRaceCard from '@/retail-components/skeleton-race-card'
 import { ScrollArea } from '@/retail-components/ui/scroll-area'
 import { UpcomingEventsCarousel } from '@/retail-components/upcoming-events-carousel'
 import UpcomingRaceCard from '@/retail-components/upcoming-race-card'
@@ -16,12 +15,8 @@ import { useTranslation } from 'react-i18next'
 
 export default function Home() {
   const { t } = useTranslation()
-  const {
-    upcomingEvents,
-    searchEventResults,
-    setSearchEventResults,
-    isLoadingEvents,
-  } = useContext(RootContext)
+  const { upcomingEvents, searchEventResults, setSearchEventResults } =
+    useContext(RootContext)
 
   const [selectedEvent, setSelectedEvent] = useState<UpcomingEvent | undefined>(
     undefined,
@@ -113,8 +108,6 @@ export default function Home() {
                 <SearchEventResults />
               ) : selectedEvent ? (
                 <UpcomingRaceCard race={selectedEvent} />
-              ) : isLoadingEvents ? (
-                <SkeletonRaceCard />
               ) : (
                 <div className="flex h-full items-center justify-center">
                   {t('no_event_selected')}
@@ -126,7 +119,7 @@ export default function Home() {
       </div>
 
       {/* RIGHT COLUMN - Betting slip */}
-      <div className="h-[937px] w-[410px] bg-background text-foreground relative right-2">
+      <div className="relative right-2 h-[937px] w-[410px] bg-background text-foreground">
         <BettingSlip selectedEvent={selectedEvent} />
       </div>
     </div>
