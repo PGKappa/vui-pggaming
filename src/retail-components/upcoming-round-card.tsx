@@ -252,16 +252,26 @@ export default function UpcomingRoundCard(props: {
   return (
     <Card className="border-b border-card-foreground">
       <CardHeader className="sticky top-0 z-40 flex h-[72px] w-full flex-row items-center justify-start gap-2 bg-accent px-2">
-        {marketTabs.map((tab, index) => (
-          <Button
-            key={index}
-            variant={selectedTab === tab.name ? 'marketSelected' : 'market'}
-            className="relative left-[6px] h-[47px] w-[177px] px-2 pb-[1px] text-[15px] font-semibold uppercase"
-            onClick={() => handleTabChange(tab.name)}
-          >
-            {tab.name}
-          </Button>
-        ))}
+        {marketTabs.map((tab, index) => {
+          const isMainTab = tab.name === t('main')
+          return (
+            <Button
+              key={index}
+              variant={selectedTab === tab.name ? 'marketSelected' : 'market'}
+              className="relative left-[6px] h-[47px] w-[177px] px-2 pb-[1px] text-[15px] font-semibold uppercase"
+              onClick={() => handleTabChange(tab.name)}
+            >
+              <div className="flex flex-col items-center leading-none">
+                <span>{tab.name}</span>
+                {isMainTab ? (
+                  <span className="mt-1 text-[10px] font-semibold uppercase">
+                    {t('round')} {props.round.scheduleId}
+                  </span>
+                ) : null}
+              </div>
+            </Button>
+          )
+        })}
       </CardHeader>
 
       <CardContent className="px-0">
@@ -501,7 +511,7 @@ export default function UpcomingRoundCard(props: {
                     })()}
 
                     <TableCell className="w-[1px] bg-black p-0"></TableCell>
-                    <TableCell className="w-[48px] min-w-[48px] max-w-[48px]  text-center">
+                    <TableCell className="w-[48px] min-w-[48px] max-w-[48px] text-center">
                       <Button
                         variant="action"
                         size="icon-lg"
