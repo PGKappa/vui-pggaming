@@ -268,7 +268,9 @@ export default function UpcomingRoundCard(props: {
         <Table className="table-fixed">
           <TableHeader className="h-11 bg-card-header text-[20px] text-card-header-foreground">
             <TableRow className="border-card-foreground transition-none">
-              <TableHead className="w-[130px] min-w-[130px] max-w-[130px]"></TableHead>
+              <TableHead className="w-[130px] min-w-[130px] max-w-[130px] text-center font-bold">
+                {t('round')} {props.round.scheduleId}
+              </TableHead>
               <TableHead className="w-[1px] bg-card-header p-0"></TableHead>
               {marketTabs
                 .find((tab) => tab.name === selectedTab)
@@ -501,7 +503,7 @@ export default function UpcomingRoundCard(props: {
                     })()}
 
                     <TableCell className="w-[1px] bg-black p-0"></TableCell>
-                    <TableCell className="w-[48px] min-w-[48px] max-w-[48px]  text-center">
+                    <TableCell className="w-[48px] min-w-[48px] max-w-[48px] text-center">
                       <Button
                         variant="action"
                         size="icon-lg"
