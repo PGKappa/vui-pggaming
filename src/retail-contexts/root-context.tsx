@@ -18,6 +18,8 @@ export type RootContextType = {
   operator?: string
   userData?: User
   cashierData?: any
+  hasCashierError?: boolean
+  isLoadingCashier?: boolean
   getCurrencySymbol?: () => string
   getCurrencyCode?: () => string
   getMinStakeIncrement?: () => number
@@ -45,6 +47,8 @@ const defaultRootContext: RootContextType = {
   setSearchEventResults: () => {},
   activeDrawerId: undefined,
   setActiveDrawer: () => {},
+  hasCashierError: false,
+  isLoadingCashier: true,
   getCurrencySymbol: () => '$',
   getCurrencyCode: () => 'USD',
   getChannels: () => [],
@@ -79,6 +83,8 @@ export default function RootContextProvider(props: {
       operator: cashierContext.operator,
       userData: cashierContext.userData,
       cashierData: cashierContext.cashierData,
+      hasCashierError: cashierContext.hasCashierError,
+      isLoadingCashier: cashierContext.isLoadingCashier,
       getCurrencySymbol: cashierContext.getCurrencySymbol,
       getCurrencyCode: cashierContext.getCurrencyCode,
       getMinStakeIncrement: cashierContext.getMinStakeIncrement,
@@ -105,6 +111,8 @@ export default function RootContextProvider(props: {
       cashierContext.operator,
       cashierContext.userData,
       cashierContext.cashierData,
+      cashierContext.hasCashierError,
+      cashierContext.isLoadingCashier,
       cashierContext.getCurrencySymbol,
       cashierContext.getCurrencyCode,
       cashierContext.getMinStakeIncrement,

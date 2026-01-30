@@ -14,7 +14,7 @@ import RootContextProvider, {
 import SkinProvider, { SkinContext } from '@/retail-contexts/skin-context'
 import { Inter } from 'next/font/google'
 import { usePathname } from 'next/navigation'
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import '../../retail-lib/i18n'
 import '../globals.css'
@@ -128,6 +128,8 @@ function SkinBody({ children }: { children: React.ReactNode }) {
     <body
       className={`${inter.variable} ${skin} flex h-screen flex-col overflow-hidden font-inter antialiased`}
     >
+      {/* Toaster globale - visibile anche durante lo splash screen */}
+      <Toaster position="top-right" />
       <InactivityBridge />
       <ZoomBlocker />
       <CashierContextProvider>
@@ -147,7 +149,6 @@ let hasAppLoaded = false
 function RetailShell({ children }: { children: React.ReactNode }) {
   const { isLoadingEvents, upcomingEvents, eventResults } =
     useContext(RootContext)
-  const [hasInitialData, setHasInitialData] = useState(hasAppLoaded)
 
   useEffect(() => {
     // Solo al primo caricamento
@@ -157,7 +158,6 @@ function RetailShell({ children }: { children: React.ReactNode }) {
       ((upcomingEvents?.length ?? 0) > 0 || (eventResults?.length ?? 0) > 0)
     ) {
       hasAppLoaded = true
-      setHasInitialData(true)
 
       // Nasconde lo splash screen statico
       const splash = document.getElementById('static-splash')
@@ -175,14 +175,6 @@ function RetailShell({ children }: { children: React.ReactNode }) {
           <BetsContextProvider>{children}</BetsContextProvider>
         </div>
       </main>
-
-      <Toaster
-        position={
-          typeof window !== 'undefined' && window.innerWidth >= 1024
-            ? 'top-right'
-            : 'top-center'
-        }
-      />
     </>
   )
 }

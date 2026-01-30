@@ -1,6 +1,5 @@
 'use client'
 
-import LoadingSpinner from '@/retail-components/loading-spinner'
 import { User } from '@/retail-lib/types'
 import { BASE_API_URL, fetchCashierInit } from '@/retail-lib/utils'
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
@@ -12,6 +11,8 @@ export type CashierContextType = {
   operator?: string
   userData?: User
   cashierData?: any
+  hasCashierError?: boolean
+  isLoadingCashier?: boolean
   apiRequest?: <T>(
     input: string | URL | globalThis.Request,
     init?: RequestInit,
@@ -31,6 +32,8 @@ export type CashierContextType = {
 }
 
 const defaultCashierContext: CashierContextType = {
+  hasCashierError: false,
+  isLoadingCashier: true,
   getCurrencySymbol: () => '$',
   getCurrencyCode: () => 'USD',
   getMinStakeIncrement: () => 0.05,
@@ -95,7 +98,6 @@ function clearSessionStorageForNewInitCode(newInitCode: string) {
   try {
     const oldInitCode = localStorage.getItem('initCode')
     if (oldInitCode && oldInitCode !== newInitCode) {
-
       // Rimuovi dati specifici della sessione precedente
       localStorage.removeItem('i18n.lang')
       localStorage.removeItem('cashier_timezone')
@@ -127,8 +129,9 @@ export default function CashierContextProvider(props: {
   const [cashierContext, setCashierContext] = useState<CashierContextType>(
     defaultCashierContext,
   )
-  const { i18n } = useTranslation()
+  const { i18n, t } = useTranslation()
   const [isLoading, setIsLoading] = useState(true)
+  const [hasCashierError, setHasCashierError] = useState(false)
 
   // Leggi initCode e operator da URL o localStorage
   useEffect(() => {
@@ -145,7 +148,8 @@ export default function CashierContextProvider(props: {
         localStorage.setItem('operator', urlOperator)
       } else {
         console.error('Operator is required in URL params')
-        toast.error('Operator parameter is missing in URL')
+        toast.error(t('operator_missing'))
+        setHasCashierError(true)
         setIsLoading(false)
         return
       }
@@ -159,12 +163,13 @@ export default function CashierContextProvider(props: {
       } else {
         if (storedInitCode && !storedOperator) {
           console.error('Operator is missing from localStorage')
-          toast.error('Operator is required but not found in storage')
+          toast.error(t('operator_not_found'))
+          setHasCashierError(true)
         }
         setIsLoading(false)
       }
     }
-  }, [])
+  }, [t])
 
   // Fetch cashier data (solo una volta, poi cache)
   useEffect(() => {
@@ -280,7 +285,7 @@ export default function CashierContextProvider(props: {
             } catch {}
           }
 
-          toast.success('Cashier initialized')
+          toast.success(t('cashier_initialized'))
           setIsLoading(false)
         } else {
           throw new Error(`Cashier error: ${cashierData?.message || 'Unknown'}`)
@@ -289,20 +294,21 @@ export default function CashierContextProvider(props: {
         console.error('Cashier error:', error)
         if (retryCount < maxRetries) {
           const delay = Math.pow(2, retryCount) * 1000
-          toast.loading('Retrying cashier...', {
+          toast.loading(t('retrying_cashier'), {
             id: 'retry-toast',
           })
           setTimeout(() => fetchUserData(retryCount + 1, maxRetries), delay)
         } else {
           toast.dismiss('retry-toast')
-          toast.error('Cashier unavailable - using fallback')
+          toast.error(t('cashier_unavailable'))
+          setHasCashierError(true)
           setIsLoading(false)
         }
       }
     }
 
     fetchUserData()
-  }, [initCode, operator, i18n])
+  }, [initCode, operator, i18n, t])
 
   const apiRequest = useCallback(
     async <T,>(
@@ -332,17 +338,18 @@ export default function CashierContextProvider(props: {
       initCode,
       operator,
       apiRequest,
+      hasCashierError,
+      isLoadingCashier: isLoading,
     }),
-    [cashierContext, apiRequest, initCode, operator],
+    [
+      cashierContext,
+      apiRequest,
+      initCode,
+      operator,
+      hasCashierError,
+      isLoading,
+    ],
   )
-
-  if (isLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <LoadingSpinner />
-      </div>
-    )
-  }
 
   return (
     <CashierContext.Provider value={memoizedContext}>
