@@ -141,60 +141,48 @@ function SkinBody({ children }: { children: React.ReactNode }) {
   )
 }
 
+// Flag globale per tracciare se l'app è già stata caricata una volta
+let hasAppLoaded = false
+
 function RetailShell({ children }: { children: React.ReactNode }) {
   const { isLoadingEvents, upcomingEvents, eventResults } =
     useContext(RootContext)
-  const [hasStartedLoading, setHasStartedLoading] = useState(false)
-  const [hasInitialData, setHasInitialData] = useState(false)
+  const [hasInitialData, setHasInitialData] = useState(hasAppLoaded)
 
   useEffect(() => {
-    if (isLoadingEvents) {
-      setHasStartedLoading(true)
-    }
-  }, [isLoadingEvents])
-
-  useEffect(() => {
+    // Solo al primo caricamento
     if (
-      hasStartedLoading &&
+      !hasAppLoaded &&
       !isLoadingEvents &&
       ((upcomingEvents?.length ?? 0) > 0 || (eventResults?.length ?? 0) > 0)
     ) {
+      hasAppLoaded = true
       setHasInitialData(true)
-    }
-  }, [hasStartedLoading, isLoadingEvents, upcomingEvents, eventResults])
 
-  // Nasconde lo splash screen statico quando i dati sono pronti
-  useEffect(() => {
-    if (hasInitialData) {
+      // Nasconde lo splash screen statico
       const splash = document.getElementById('static-splash')
       if (splash) {
         splash.classList.add('hidden')
       }
     }
-  }, [hasInitialData])
-
-  const showContent = hasInitialData
+  }, [isLoadingEvents, upcomingEvents, eventResults])
 
   return (
     <>
-      {showContent && (
-        <>
-          <Navbar />
-          <main className="h-full gap-2 overflow-hidden">
-            <div className="p-2">
-              <BetsContextProvider>{children}</BetsContextProvider>
-            </div>
-          </main>
+      <Navbar />
+      <main className="h-full gap-2 overflow-hidden">
+        <div className="p-2">
+          <BetsContextProvider>{children}</BetsContextProvider>
+        </div>
+      </main>
 
-          <Toaster
-            position={
-              typeof window !== 'undefined' && window.innerWidth >= 1024
-                ? 'top-right'
-                : 'top-center'
-            }
-          />
-        </>
-      )}
+      <Toaster
+        position={
+          typeof window !== 'undefined' && window.innerWidth >= 1024
+            ? 'top-right'
+            : 'top-center'
+        }
+      />
     </>
   )
 }
