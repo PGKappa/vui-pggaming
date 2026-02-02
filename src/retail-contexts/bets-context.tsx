@@ -82,6 +82,8 @@ function getBetsByEvent(betEntries: BetEntry[]): { [key: string]: BetEntry[] } {
 }
 
 function getBetsContext(): BetsContextType {
+  if (typeof window === 'undefined') return defaultBetsContext
+
   try {
     const betsContext = localStorage.getItem('betsContext')
     if (!betsContext) return defaultBetsContext

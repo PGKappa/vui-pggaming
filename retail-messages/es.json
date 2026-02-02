@@ -313,6 +313,7 @@
   "operator_not_found": "Se requiere operador pero no se encontró en el almacenamiento",
   "cashier_initialized": "Cajero inicializado",
   "cashier_unavailable": "Cajero no disponible - usando alternativa",
+  "retrying_cashier": "Reintentando cajero...",
   "no_last_ticket": "No hay último ticket para restaurar",
   "duplicate_bet_found": "Apuesta duplicada encontrada",
   "api_request_failed": "Error en la solicitud API",
