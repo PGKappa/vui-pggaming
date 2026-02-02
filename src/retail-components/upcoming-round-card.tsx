@@ -44,6 +44,96 @@ export default function UpcomingRoundCard(props: {
 }) {
   const { t } = useTranslation()
 
+  // CONFIGURAZIONE PADDING PER TAB
+  // Struttura: { cellPadding (esterni), gapInterno (tra i toggle) }
+  const paddingConfig = {
+    normal: {
+      main: {
+        cellPadding: { first: 'pl-4', middle: 'px-0', last: 'pr-4' },
+        gapInterno: 'gap-0',
+      },
+      underover: {
+        cellPadding: {
+          first: 'pl-[31px]',
+          middle: 'px-0',
+          last: ' pr-[31px]',
+        },
+        gapInterno: 'gap-0',
+      },
+      multigoal: {
+        cellPadding: {
+          first: 'pl-[30px]',
+          middle: 'px-0',
+          last: 'pr-[30px]',
+        },
+        gapInterno: 'gap-0',
+      },
+      partialeFinale: {
+        cellPadding: {
+          first: 'pl-[30px]',
+          middle: 'px-0',
+          last: 'pr-[30px]',
+        },
+        gapInterno: 'gap-0',
+      },
+      special: {
+        cellPadding: {
+          first: 'pl-[30px]',
+          middle: 'px-0',
+          last: 'pr-[30px]',
+        },
+        gapInterno: 'gap-0',
+      },
+    },
+    special: {
+      homeaway: {
+        cellPadding: 'px-[8px] pl-[7px]',
+        gapInterno: 'gap-[8px]',
+        containerGap: 'gap-[8px]',
+        containerPadding: 'px-0',
+        containerJustify: 'justify-center',
+      },
+      exact_result: {
+        cellPadding: 'px-[8px] pl-2',
+        gapInterno: 'gap-2',
+        containerGap: 'gap-2',
+        containerPadding: 'px-1',
+        containerJustify: 'justify-center',
+      },
+      combo: {
+        cellPadding: 'px-[20px]',
+        gapInterno: 'gap-6',
+        containerGap: 'gap-6',
+        containerPadding: 'px-6',
+        containerJustify: 'justify-between',
+      },
+      homeawayFull: {
+        cellPadding: 'px-[8px] pl-2',
+        gapInterno: 'gap-2',
+        containerGap: 'gap-2',
+        containerPadding: 'px-4',
+        containerJustify: 'justify-between',
+      },
+    },
+  }
+
+  // Helper per ottenere la configurazione padding corretta
+  const getPaddingConfig = (tabName: string) => {
+    if (tabName === t('main')) return paddingConfig.normal.main
+    if (tabName === t('under/over')) return paddingConfig.normal.underover
+    if (tabName === t('multi_goal')) return paddingConfig.normal.multigoal
+    if (tabName === t('partial/final'))
+      return paddingConfig.normal.partialeFinale
+    return paddingConfig.normal.special
+  }
+
+  const getSpecialTabConfig = (tabName: string) => {
+    if (tabName === t('home/away_team')) return paddingConfig.special.homeaway
+    if (tabName === t('exact_result')) return paddingConfig.special.exact_result
+    if (tabName === t('combo')) return paddingConfig.special.combo
+    return paddingConfig.special.homeawayFull
+  }
+
   // Funzione per tradurre i nomi dei mercati
   const translateMarketName = (marketName: string): string => {
     const marketMap: { [key: string]: string } = {
@@ -352,14 +442,19 @@ export default function UpcomingRoundCard(props: {
                             const options = market.selections.flatMap(
                               ({ selection }) => selection,
                             )
+                            const config = getSpecialTabConfig(selectedTab)
 
                             return (
                               <React.Fragment
                                 key={`special-market-${marketIndex}`}
                               >
                                 <TableCell className="w-[1px] bg-black p-0"></TableCell>
-                                <TableCell className="justify-items-center px-[8px] pl-[7px]">
-                                  <div className="flex flex-row items-center justify-center gap-[8px]">
+                                <TableCell
+                                  className={`justify-items-center ${config.cellPadding}`}
+                                >
+                                  <div
+                                    className={`flex flex-row items-center justify-center ${config.gapInterno}`}
+                                  >
                                     {options.map((option, i) => (
                                       <BetEntryToggle
                                         key={i}
@@ -393,6 +488,7 @@ export default function UpcomingRoundCard(props: {
                             ({ selection }) => selection,
                           )
                           const optionsChunks = chunkArray(options, chunckSize)
+                          const config = getSpecialTabConfig(selectedTab)
 
                           return (
                             <React.Fragment
@@ -401,22 +497,12 @@ export default function UpcomingRoundCard(props: {
                               <TableCell className="w-[1px] bg-black p-0"></TableCell>
                               <TableCell
                                 key={marketIndex}
-                                className={`justify-items-center ${
-                                  selectedTab === t('combo')
-                                    ? 'px-[20px]'
-                                    : 'px-[8px] pl-2'
-                                }`}
+                                className={`justify-items-center ${config.cellPadding}`}
                               >
                                 {optionsChunks.map((chunk, chunkIndex) => (
                                   <div
                                     key={chunkIndex}
-                                    className={`flex flex-row items-center py-1 ${
-                                      selectedTab === t('combo')
-                                        ? 'justify-between gap-6 px-6'
-                                        : selectedTab === t('exact_result')
-                                          ? 'justify-center gap-2 px-1'
-                                          : 'justify-between gap-2 px-4'
-                                    }`}
+                                    className={`flex flex-row items-center py-1 ${config.containerJustify} ${config.containerGap} ${config.containerPadding}`}
                                   >
                                     {chunk.map((option, i) => (
                                       <BetEntryToggle
@@ -453,49 +539,39 @@ export default function UpcomingRoundCard(props: {
                                 ({ selection }) => selection,
                               )
                               const lastIndex = options.length - 1
-                              const isUnderOverTab =
-                                selectedTab === t('under/over')
+                              const config = getPaddingConfig(selectedTab)
 
-                              const isMainTab = selectedTab === t('main')
+                              return options.map((option, i) => {
+                                let paddingClass = config.cellPadding.middle
+                                if (i === 0)
+                                  paddingClass = config.cellPadding.first
+                                if (i === lastIndex)
+                                  paddingClass = config.cellPadding.last
 
-                              const isHomeAwayTab =
-                                selectedTab === t('home/away_team')
-
-                              return options.map((option, i) => (
-                                <TableCell
-                                  key={i}
-                                  className={`justify-items-center ${
-                                    isHomeAwayTab
-                                      ? 'text-sm'
-                                      : isMainTab
-                                        ? 'px-4'
-                                        : isUnderOverTab
-                                          ? 'px-[31px]'
-                                          : i === 0
-                                            ? 'pl-[30px] pr-[1px]'
-                                            : i === lastIndex
-                                              ? 'pl-[15px] pr-0'
-                                              : 'pl-[25px]'
-                                  }`}
-                                >
-                                  <BetEntryToggle
-                                    bet={{
-                                      discipline: Discipline.SOCCER,
-                                      event: {
-                                        name: match.eventIdentity.eventName,
-                                        number: match.eventIdentity.eventId,
-                                        startingAt: matchStart,
-                                        roundId: match.eventIdentity.groupId,
-                                      },
-                                      competitors: teamNames,
-                                      option: option,
-                                    }}
-                                    marketName={market.name}
-                                    variant="roundcard"
-                                    className="h-[50px] w-[100px] text-[16px] font-semibold tabular-nums"
-                                  />
-                                </TableCell>
-                              ))
+                                return (
+                                  <TableCell
+                                    key={i}
+                                    className={`justify-items-center ${paddingClass}`}
+                                  >
+                                    <BetEntryToggle
+                                      bet={{
+                                        discipline: Discipline.SOCCER,
+                                        event: {
+                                          name: match.eventIdentity.eventName,
+                                          number: match.eventIdentity.eventId,
+                                          startingAt: matchStart,
+                                          roundId: match.eventIdentity.groupId,
+                                        },
+                                        competitors: teamNames,
+                                        option: option,
+                                      }}
+                                      marketName={market.name}
+                                      variant="roundcard"
+                                      className="h-[50px] w-[100px] text-[16px] font-semibold tabular-nums"
+                                    />
+                                  </TableCell>
+                                )
+                              })
                             })()}
                           </React.Fragment>
                         )
