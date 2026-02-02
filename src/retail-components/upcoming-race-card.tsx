@@ -39,11 +39,18 @@ type UpcomingRaceCardProps = {
 
 type TabType = 'main' | 'couples' | 'triplets'
 
+// MODULE-LEVEL: persiste tra remount del componente
+let moduleHasLoadedOnce = false
+let lastRaceInfo: UpcomingRace | undefined = undefined
+
 export default function UpcomingRaceCard({
   race,
   onSelectionChange,
 }: UpcomingRaceCardProps) {
-  const [raceInfo, setRaceInfo] = useState<UpcomingRace>()
+  // Inizializza raceInfo con l'ultimo valore caricato (per evitare flash di loading)
+  const [raceInfo, setRaceInfo] = useState<UpcomingRace | undefined>(
+    lastRaceInfo,
+  )
   const [activeTab, setActiveTab] = useState<TabType>('main')
 
   const [position1Selection, setPosition1Selection] = useState<number[]>([])
@@ -51,9 +58,9 @@ export default function UpcomingRaceCard({
   const [position3Selection, setPosition3Selection] = useState<number[]>([])
   const [disorderSelection, setDisorderSelection] = useState<number[]>([])
   const [fixedSelection, setFixedSelection] = useState<number[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  // isLoading = false se abbiamo già caricato almeno una volta (mostra dati precedenti)
+  const [isLoading, setIsLoading] = useState(!moduleHasLoadedOnce)
   const [isLatecomersDialogOpen, setIsLatecomersDialogOpen] = useState(false)
-  const [hasLoadedOnce, setHasLoadedOnce] = useState(false) // ← Aggiungo questo
 
   // Aggiungi il context
   const { betEntries } = useContext(BetsContext)
@@ -233,8 +240,8 @@ export default function UpcomingRaceCard({
 
   useEffect(() => {
     const fetchEventInfo = async () => {
-      // Mostra loading solo al primo caricamento; gli aggiornamenti successivi sono silenziosi
-      if (!hasLoadedOnce) {
+      // MAI mostrare loading dopo il primo caricamento - mantieni dati precedenti visibili
+      if (!moduleHasLoadedOnce) {
         setIsLoading(true)
       }
 
@@ -262,7 +269,9 @@ export default function UpcomingRaceCard({
           id: parseInt(data.int_event_id),
         }
         setRaceInfo(upcomingRace)
-        setHasLoadedOnce(true)
+        // Salva a livello di modulo per il prossimo mount
+        lastRaceInfo = upcomingRace
+        moduleHasLoadedOnce = true
       } catch (error) {
         console.error('Error fetching event info:', error)
       } finally {
@@ -271,13 +280,7 @@ export default function UpcomingRaceCard({
     }
 
     fetchEventInfo()
-  }, [
-    race.id,
-    race.extId,
-    rootContext.initCode,
-    rootContext.operator,
-    hasLoadedOnce,
-  ])
+  }, [race.id, race.extId, rootContext.initCode, rootContext.operator])
 
   useEffect(() => {
     if (onSelectionChange) {

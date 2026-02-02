@@ -3,6 +3,7 @@
 import { Bet, BetEntry, Selection, SubmittedTicket } from '@/retail-lib/types'
 import { BetMode } from '@/retail-components/betting-slip'
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
 const getEventStatus = (event: any): 'active' | 'expired' => {
@@ -118,6 +119,7 @@ function getBetsContext(): BetsContextType {
 export default function BetsContextProvider(props: {
   children: React.ReactNode
 }) {
+  const { t } = useTranslation()
   const initialBetsContext = getBetsContext()
   const [betsContext, setBetsContext] =
     useState<BetsContextType>(initialBetsContext)
@@ -241,34 +243,37 @@ export default function BetsContextProvider(props: {
     [betsContext.lastId, checkSystemLimits],
   )
 
-  const removeBet = (
-    marketName: string,
-    option: Selection,
-    teams: string,
-    eventNumber?: number,
-    discipline?: string,
-  ) => {
-    setBetsContext((prev) => {
-      const filtered = prev.betEntries.filter((betEntry) => {
-        // Rimuovi SOLO se TUTTI i parametri corrispondono (incluso evento e disciplina)
-        const shouldRemove =
-          betEntry.market === marketName &&
-          betEntry.bet.competitors === teams &&
-          betEntry.bet.option.outcome === option.outcome &&
-          (eventNumber ? betEntry.bet.event.number === eventNumber : true) &&
-          (discipline ? betEntry.bet.discipline === discipline : true)
+  const removeBet = useCallback(
+    (
+      marketName: string,
+      option: Selection,
+      teams: string,
+      eventNumber?: number,
+      discipline?: string,
+    ) => {
+      setBetsContext((prev) => {
+        const filtered = prev.betEntries.filter((betEntry) => {
+          // Rimuovi SOLO se TUTTI i parametri corrispondono (incluso evento e disciplina)
+          const shouldRemove =
+            betEntry.market === marketName &&
+            betEntry.bet.competitors === teams &&
+            betEntry.bet.option.outcome === option.outcome &&
+            (eventNumber ? betEntry.bet.event.number === eventNumber : true) &&
+            (discipline ? betEntry.bet.discipline === discipline : true)
 
-        return !shouldRemove
+          return !shouldRemove
+        })
+
+        return {
+          ...prev,
+          betEntries: filtered,
+        }
       })
+    },
+    [],
+  )
 
-      return {
-        ...prev,
-        betEntries: filtered,
-      }
-    })
-  }
-
-  const removeEventBets = (eventId: string) => {
+  const removeEventBets = useCallback((eventId: string) => {
     setBetsContext((prev) => ({
       ...prev,
       betEntries: prev.betEntries.filter((betEntry) => {
@@ -276,9 +281,9 @@ export default function BetsContextProvider(props: {
         return entryKey !== eventId
       }),
     }))
-  }
+  }, [])
 
-  const toggleEventBetsFixed = (eventId: string) => {
+  const toggleEventBetsFixed = useCallback((eventId: string) => {
     setBetsContext((prev) => ({
       ...prev,
       betEntries: prev.betEntries.map((betEntry) => {
@@ -289,16 +294,16 @@ export default function BetsContextProvider(props: {
         return betEntry
       }),
     }))
-  }
+  }, [])
 
-  const removeAllBets = () => {
+  const removeAllBets = useCallback(() => {
     setBetsContext((prev) => ({ ...prev, betEntries: [], lastId: 0 }))
-  }
+  }, [])
 
-  const restoreLastSubmittedTicket = () => {
+  const restoreLastSubmittedTicket = useCallback(() => {
     const stored = localStorage.getItem('lastSubmittedTicket')
     if (!stored) {
-      toast.error('There is no last ticket to restore!')
+      toast.error(t('no_last_ticket'))
       return
     }
 
@@ -313,7 +318,7 @@ export default function BetsContextProvider(props: {
           ? Math.max(...lastTicket.betEntries.map((b) => b.id))
           : 0,
     }))
-  }
+  }, [t])
 
   const addBets = useCallback(
     (market: string, bets: Bet[], apiMarket?: string) => {
@@ -375,7 +380,7 @@ export default function BetsContextProvider(props: {
             entry.bet.option.outcome === bet.bet.option.outcome,
         )
         if (existingEntry) {
-          toast.error('Duplicate bet found')
+          toast.error(t('duplicate_bet_found'))
           return
         }
 
@@ -399,26 +404,26 @@ export default function BetsContextProvider(props: {
         }
       })
     },
-    [betsContext.betEntries, betsContext.lastId, checkSystemLimits],
+    [betsContext.betEntries, betsContext.lastId, checkSystemLimits, t],
   )
 
-  const removeBets = (
-    market: string,
-    betIds: { option: Selection; competitors: string }[],
-  ) => {
-    setBetsContext((prev) => ({
-      ...prev,
-      betEntries: prev.betEntries.filter(
-        (betEntry) =>
-          betEntry.market !== market ||
-          !betIds.some(
-            (id) =>
-              betEntry.bet.option.outcome === id.option.outcome &&
-              betEntry.bet.competitors === id.competitors,
-          ),
-      ),
-    }))
-  }
+  const removeBets = useCallback(
+    (market: string, betIds: { option: Selection; competitors: string }[]) => {
+      setBetsContext((prev) => ({
+        ...prev,
+        betEntries: prev.betEntries.filter(
+          (betEntry) =>
+            betEntry.market !== market ||
+            !betIds.some(
+              (id) =>
+                betEntry.bet.option.outcome === id.option.outcome &&
+                betEntry.bet.competitors === id.competitors,
+            ),
+        ),
+      }))
+    },
+    [],
+  )
 
   useEffect(() => {
     setBetsContext((prev) => ({
@@ -451,6 +456,12 @@ export default function BetsContextProvider(props: {
     betMode,
     isSystemToggleEnabled,
     systemToggleMode,
+    restoreLastSubmittedTicket,
+    removeBet,
+    removeEventBets,
+    toggleEventBetsFixed,
+    removeAllBets,
+    removeBets,
   ])
 
   useEffect(() => {

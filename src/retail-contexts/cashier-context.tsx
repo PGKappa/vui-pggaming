@@ -56,7 +56,7 @@ function saveCashierToCache(
   data: any,
 ) {
   if (!operator) {
-    console.error('❌ Cannot save to cache: operator is required')
+    console.error('Cannot save to cache: operator is required')
     return
   }
   const cacheKey = `cashier_cache_${initCode}_${operator}`
@@ -72,7 +72,7 @@ function loadCashierFromCache(
   operator: string | undefined,
 ): any | null {
   if (!operator) {
-    console.warn('⚠️ Cannot load from cache: operator is required')
+    console.warn('Cannot load from cache: operator is required')
     return null
   }
   const cacheKey = `cashier_cache_${initCode}_${operator}`
@@ -82,7 +82,6 @@ function loadCashierFromCache(
   try {
     const { data, timestamp } = JSON.parse(cached)
     if (Date.now() - timestamp < CACHE_DURATION) {
-      console.log('✅ Cashier caricato da cache (30min)')
       return data
     }
   } catch (e) {
@@ -96,9 +95,6 @@ function clearSessionStorageForNewInitCode(newInitCode: string) {
   try {
     const oldInitCode = localStorage.getItem('initCode')
     if (oldInitCode && oldInitCode !== newInitCode) {
-      console.log(
-        `🧹 Clearing session data: initCode changed from "${oldInitCode}" to "${newInitCode}"`,
-      )
 
       // Rimuovi dati specifici della sessione precedente
       localStorage.removeItem('i18n.lang')
@@ -140,9 +136,6 @@ export default function CashierContextProvider(props: {
     const urlInitCode = params.get('init_code')
     const urlOperator = params.get('operator')
 
-    console.log('🔍 CashierContext init - URL initCode:', urlInitCode)
-    console.log('🔍 CashierContext init - URL operator:', urlOperator)
-
     if (urlInitCode) {
       // Se l'initCode è cambiato, pulisci la sessione precedente
       clearSessionStorageForNewInitCode(urlInitCode)
@@ -151,7 +144,7 @@ export default function CashierContextProvider(props: {
         setOperator(urlOperator)
         localStorage.setItem('operator', urlOperator)
       } else {
-        console.error('❌ Operator is required in URL params')
+        console.error('Operator is required in URL params')
         toast.error('Operator parameter is missing in URL')
         setIsLoading(false)
         return
@@ -165,7 +158,7 @@ export default function CashierContextProvider(props: {
         setOperator(storedOperator)
       } else {
         if (storedInitCode && !storedOperator) {
-          console.error('❌ Operator is missing from localStorage')
+          console.error('Operator is missing from localStorage')
           toast.error('Operator is required but not found in storage')
         }
         setIsLoading(false)
@@ -176,25 +169,16 @@ export default function CashierContextProvider(props: {
   // Fetch cashier data (solo una volta, poi cache)
   useEffect(() => {
     if (!initCode) {
-      console.log('⚠️ CashierContext: No initCode, skipping fetch')
       return
     }
-
-    console.log(
-      '🚀 CashierContext: initCode detected, starting fetch -',
-      initCode,
-    )
 
     // Controlla cache prima
     const cachedData = loadCashierFromCache(initCode, operator)
     if (cachedData) {
-      console.log('✅ Cashier caricato da cache (30min)')
       setCashierContext(cachedData)
       setIsLoading(false)
       return
     }
-
-    console.log('🌐 Cashier API call - first initialization')
 
     const fetchUserData = async (retryCount = 0, maxRetries = 3) => {
       try {

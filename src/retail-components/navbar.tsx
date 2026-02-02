@@ -14,21 +14,27 @@ export default function Navbar() {
   const { t, i18n } = useTranslation()
   const searchParams = useSearchParams()
   const pathname = usePathname()
-  const initCode = searchParams.get('init_code')
 
   const { eventResults, setSearchEventResults } = useContext(RootContext)
   const [isInfoDialogOpen, setIsInfoDialogOpen] = useState(false)
 
+  // Helper per creare link preservando TUTTI i parametri URL
+  const buildHref = (path: string) => {
+    const params = new URLSearchParams(searchParams.toString())
+    const queryString = params.toString()
+    return `${path}${queryString ? `?${queryString}` : ''}`
+  }
+
   // Helper per determinare il link info basato sulla pagina e lingua
   const getInfoLink = () => {
-    const lang = i18n.language || 'en' // fallback a 'en' se lingua non disponibile
+    const lang = i18n.language || 'en'
 
     if (pathname.includes('/calcio')) {
       // Link per il calcio
-      return `http://localhost:8080/docs/Soccer_Gaming_manual_${lang}.html`
+      return `https://d190050z3qr0m1.cloudfront.net/public/Soccer_Gaming_manual_${lang}.html`
     } else {
       // Per cani e cavalli
-      return `http://localhost:8080/docs/Gaming_manual_${lang}.html`
+      return `https://d190050z3qr0m1.cloudfront.net/public/Gaming_manual_${lang}.html`
     }
   }
 
@@ -39,7 +45,7 @@ export default function Navbar() {
     >
       <div className="relative left-[8px] flex flex-row items-center gap-[8px]">
         <Link
-          href={`/retail/dogs-horses${initCode ? `?init_code=${initCode}` : ''}`}
+          href={buildHref('/retail/dogs-horses')}
           className={cn(
             'flex h-12 w-28 flex-row items-center justify-between px-4 py-1 text-foreground transition-colors hover:opacity-90',
             pathname.includes('/retail/dogs-horses')
@@ -64,7 +70,7 @@ export default function Navbar() {
         </Link>
 
         <Link
-          href={`/retail/dogs${initCode ? `?init_code=${initCode}` : ''}`}
+          href={buildHref('/retail/dogs')}
           className={cn(
             'flex h-12 w-24 flex-row items-center justify-center px-4 py-1 text-foreground transition-colors hover:opacity-90',
             pathname.includes('/retail/dogs') &&
@@ -80,12 +86,10 @@ export default function Navbar() {
             height={20}
             className="size-8 object-contain"
           />
-          {/* 
-          <span className="text-[16px] font-bold">{t('ch1')}</span> */}
         </Link>
 
         <Link
-          href={`/retail/horses${initCode ? `?init_code=${initCode}` : ''}`}
+          href={buildHref('/retail/horses')}
           className={cn(
             'hover:*opacity-90 flex h-12 w-24 flex-row items-center justify-center px-4 py-1 text-foreground transition-colors',
             pathname.includes('/retail/horses')
@@ -100,12 +104,10 @@ export default function Navbar() {
             height={20}
             className="size-8 object-contain"
           />
-          {/* 
-          <span className="text-[16px] font-bold">{t('ch3')}</span> */}
         </Link>
 
         <Link
-          href={`/retail/calcio${initCode ? `?init_code=${initCode}` : ''}`}
+          href={buildHref('/retail/calcio')}
           className={cn(
             'flex h-12 w-24 flex-row items-center justify-center gap-3 px-4 py-1 text-foreground transition-colors',
             pathname.includes('/retail/calcio')
@@ -120,8 +122,6 @@ export default function Navbar() {
             height={20}
             className="size-8 object-contain brightness-0 invert filter"
           />
-          {/* 
-          <span className="text-[16px] font-bold">{t('ch4')}</span> */}
         </Link>
       </div>
 
@@ -139,7 +139,6 @@ export default function Navbar() {
           </span>
         </Button>
 
-        {/* Pulsante Info - sempre visibile con dialog diversi per calcio vs racing */}
         <Button
           className="h-12 w-12 text-[18px] hover:opacity-95"
           variant="ticketButton"
