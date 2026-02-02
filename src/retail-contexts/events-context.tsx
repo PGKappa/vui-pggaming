@@ -678,24 +678,17 @@ export default function EventsContextProvider(props: {
               allSoccerResults.push(...roundResults)
 
               // Soccer: mostra subito
-              setUpcomingEvents((prev) => [...prev, ...upcomingSoccerEvents])
-              setEventResults((prev) => [...prev, ...allSoccerResults])
+              setUpcomingEvents(upcomingSoccerEvents)
+              setEventResults(allSoccerResults)
               setIsLoadingEvents(false)
               moduleHasLoadedOnce = true
               isFetchingEvents = false
 
               if (!nocache) {
-                const existingCache = moduleEventsCache.get(cacheKey)
                 moduleEventsCache.set(cacheKey, {
                   timestamp: Date.now(),
-                  upcoming: [
-                    ...(existingCache?.upcoming || []),
-                    ...upcomingSoccerEvents,
-                  ],
-                  results: [
-                    ...(existingCache?.results || []),
-                    ...allSoccerResults,
-                  ],
+                  upcoming: upcomingSoccerEvents,
+                  results: allSoccerResults,
                 })
               }
             } else {

@@ -5,12 +5,12 @@ import { cn } from '@/retail-lib/utils'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
-import { useContext, useState } from 'react'
+import { Suspense, useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Button } from './ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog'
 
-export default function Navbar() {
+function NavbarContent() {
   const { t, i18n } = useTranslation()
   const searchParams = useSearchParams()
   const pathname = usePathname()
@@ -185,5 +185,13 @@ export default function Navbar() {
         </DialogContent>
       </Dialog>
     </div>
+  )
+}
+
+export default function Navbar() {
+  return (
+    <Suspense fallback={<div className="flex h-16 w-full bg-accent" />}>
+      <NavbarContent />
+    </Suspense>
   )
 }

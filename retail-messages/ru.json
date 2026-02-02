@@ -212,5 +212,11 @@
   "details_not_available": "Детали недоступны",
   "date_hour": "Дата/Время",
   "select_at_least_one_group": "Выберите хотя бы одну группу для распределения суммы",
-  "min_stake_per_combination_not_met": "Минимальная ставка на комбинацию не соблюдена. Увеличьте на {{amount}} чтобы продолжить"
+  "min_stake_per_combination_not_met": "Минимальная ставка на комбинацию не соблюдена. Увеличьте на {{amount}} чтобы продолжить",
+  "operator_missing": "Параметр оператора отсутствует в URL",
+  "operator_required": "Требуется оператор",
+  "operator_not_found": "Требуется оператор, но не найден",
+  "cashier_initialized": "Касса инициализирована",
+  "cashier_unavailable": "Касса недоступна - используется резерв",
+  "retrying_cashier": "Повторная попытка подключения к кассе..."
 }
