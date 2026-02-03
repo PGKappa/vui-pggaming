@@ -49,38 +49,38 @@ export default function UpcomingRoundCard(props: {
   const paddingConfig = {
     normal: {
       main: {
-        cellPadding: { first: 'pl-4', middle: 'px-0', last: 'pr-4' },
+        cellPadding: { first: 'pl-[24px]', middle: 'pl-[16px]', last: 'pl-2' },
         gapInterno: 'gap-0',
       },
       underover: {
         cellPadding: {
-          first: 'pl-[31px]',
-          middle: 'px-0',
-          last: ' pr-[31px]',
+          first: 'pl-[43px]',
+          middle: 'pl-4',
+          last: ' pl-[21px]',
         },
         gapInterno: 'gap-0',
       },
       multigoal: {
         cellPadding: {
-          first: 'pl-[30px]',
-          middle: 'px-0',
-          last: 'pr-[30px]',
+          first: 'pl-[35px]',
+          middle: 'pl-[23px]',
+          last: 'pl-[11px]',
         },
         gapInterno: 'gap-0',
       },
       partialeFinale: {
         cellPadding: {
           first: 'pl-[30px]',
-          middle: 'px-0',
-          last: 'pr-[30px]',
+          middle: 'pl-[30px]',
+          last: 'pl-[20px]',
         },
         gapInterno: 'gap-0',
       },
       special: {
         cellPadding: {
           first: 'pl-[30px]',
-          middle: 'px-0',
-          last: 'pr-[30px]',
+          middle: 'pl-[25px]',
+          last: 'pl-[15px]',
         },
         gapInterno: 'gap-0',
       },
@@ -104,12 +104,12 @@ export default function UpcomingRoundCard(props: {
         cellPadding: 'px-[20px]',
         gapInterno: 'gap-6',
         containerGap: 'gap-6',
-        containerPadding: 'px-6',
+        containerPadding: 'px-3',
         containerJustify: 'justify-between',
       },
       homeawayFull: {
         cellPadding: 'px-[8px] pl-2',
-        gapInterno: 'gap-2',
+        gapInterno: 'gap-1',
         containerGap: 'gap-2',
         containerPadding: 'px-4',
         containerJustify: 'justify-between',
@@ -340,7 +340,7 @@ export default function UpcomingRoundCard(props: {
   }
 
   return (
-    <Card className="border-b border-card-foreground">
+    <Card className="border-card-foreground">
       <CardHeader className="sticky top-0 z-40 flex h-[72px] w-full flex-row items-center justify-start gap-2 bg-accent px-2">
         {marketTabs.map((tab, index) => (
           <Button
@@ -358,7 +358,7 @@ export default function UpcomingRoundCard(props: {
         <Table className="table-fixed">
           <TableHeader className="h-11 bg-card-header text-[20px] text-card-header-foreground">
             <TableRow className="border-card-foreground transition-none">
-              <TableHead className="w-[130px] min-w-[130px] max-w-[130px] text-center font-bold">
+              <TableHead className="w-[130px] min-w-[130px] max-w-[130px] text-[16px] text-center font-semibold">
                 {t('round')} {props.round.scheduleId}
               </TableHead>
               <TableHead className="w-[1px] bg-card-header p-0"></TableHead>
@@ -413,7 +413,7 @@ export default function UpcomingRoundCard(props: {
                 return (
                   <TableRow
                     key={index}
-                    className="h-[67px] items-center justify-between border-card-foreground"
+                    className="h-[67px] items-center justify-between border-card-foreground tabular-nums"
                   >
                     <TableCell className="w-[130px] min-w-[130px] max-w-[130px] whitespace-nowrap text-start text-[17px] font-bold">
                       <div className="flex flex-col text-center">
@@ -472,7 +472,7 @@ export default function UpcomingRoundCard(props: {
                                         }}
                                         marketName={market.name}
                                         variant="roundcard"
-                                        className="h-[50px] w-[100px] text-[16px] font-semibold"
+                                        className="h-[50px] w-[100px] text-[16px] font-semibold tabular-nums"
                                       />
                                     ))}
                                   </div>
@@ -521,7 +521,7 @@ export default function UpcomingRoundCard(props: {
                                         }}
                                         marketName={market.name}
                                         variant="roundcard"
-                                        className="h-[50px] w-[100px] text-[16px] font-semibold"
+                                        className="h-[50px] w-[100px] text-[16px] font-semibold tabular-nums"
                                       />
                                     ))}
                                   </div>
@@ -579,7 +579,7 @@ export default function UpcomingRoundCard(props: {
                     })()}
 
                     <TableCell className="w-[1px] bg-black p-0"></TableCell>
-                    <TableCell className="w-[48px] min-w-[48px] max-w-[48px] text-center">
+                    <TableCell className="w-[48px] min-w-[48px] max-w-[48px] text-center items-center justify-center">
                       <Button
                         variant="action"
                         size="icon-lg"

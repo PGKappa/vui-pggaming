@@ -45,7 +45,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.3",
     "@next/eslint-plugin-next": "^15.5.11",
-    "@types/node": "^20.19.30",
+    "@types/node": "^20.19.31",
     "@types/react": "^19.2.10",
     "@types/react-dom": "^19.2.3",
     "eslint": "^9.39.2",
