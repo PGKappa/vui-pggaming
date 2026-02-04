@@ -45,7 +45,10 @@ export default function NumericKeypadDrawer(props: {
 
   // Get stake buttons from context or fallback to defaults
   const stakeButtons = useMemo(() => {
-    return getStakeButtons?.() || [1000, 2000, 3000, 5000, 10000]
+    const buttons = getStakeButtons?.()
+    return Array.isArray(buttons) && buttons.length > 0
+      ? buttons
+      : [5, 10, 20, 30, 50]
   }, [getStakeButtons])
 
   // Genera un ID univoco per questo drawer se non fornito

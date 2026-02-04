@@ -91,15 +91,13 @@ export default function BettingSlip({
   const currencySymbol = rootContext?.getCurrencySymbol?.() || '€'
 
   // Ottieni i valori dei pulsanti stake dall'API
-  const stakeButtons = rootContext?.getStakeButtons?.() || [
-    1000, 2000, 3000, 5000, 10000,
-  ]
+  const stakeButtons = rootContext?.getStakeButtons?.() || [5, 10, 20, 30, 50]
 
   // Ottieni i limiti di stake e vincita dall'API
-  const minStake = rootContext?.getMinStake?.() || 50
+  const minStake = rootContext?.getMinStake?.() || 0.05
   const minBet = rootContext?.getMinBet?.() || 0
   const maxWin = rootContext?.getMaxWin?.() || 1000000000
-  const minStakeIncrement = rootContext?.getMinStakeIncrement?.() || 50
+  const minStakeIncrement = rootContext?.getMinStakeIncrement?.() || 0.05
 
   const [accordionOpen, setAccordionOpen] = useState<string>('combinations')
   const [systemGroupsOpen, setSystemGroupsOpen] = useState<string[]>([])
@@ -1215,7 +1213,7 @@ export default function BettingSlip({
               {t('system').toUpperCase()}
             </span>
             {betMode === 'SYSTEM' && (
-              <div className="absolute bottom-0.5 h-[0px] w-[156px] bg-navbarButton  text-white"></div>
+              <div className="absolute bottom-0.5 h-[0px] w-[156px] bg-navbarButton text-white"></div>
             )}
           </div>
         </div>
