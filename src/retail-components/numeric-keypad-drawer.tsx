@@ -75,6 +75,10 @@ export default function NumericKeypadDrawer(props: {
     setDrawerValue((prev) => {
       const currentValue = parseFloat(prev) || 0
       const newValue = currentValue + amount
+      // Assicurati che newValue sia un numero valido prima di chiamare toFixed
+      if (isNaN(newValue) || !isFinite(newValue)) {
+        return '0.00'
+      }
       return newValue.toFixed(2)
     })
     // Dopo aver cliccato un preset, il prossimo digit dovrebbe sostituire
@@ -278,17 +282,31 @@ export default function NumericKeypadDrawer(props: {
               gridTemplateColumns: `repeat(${Math.min(stakeButtons.length, 5)}, minmax(0, 1fr))`,
             }}
           >
-            {stakeButtons.map((amount) => (
-              <Button
-                key={amount}
-                variant="outline"
-                size="sm"
-                className="h-10 text-[16px] font-semibold tabular-nums"
-                onClick={() => handlePresetValue(amount)}
-              >
-                {amount}
-              </Button>
-            ))}
+            {stakeButtons.map((amount, index) => {
+              // Estrai il valore numerico se è una stringa con simbolo valuta
+              let numericAmount = 0
+              if (typeof amount === 'string') {
+                numericAmount = parseFloat(
+                  (amount as string).replace(/[^\d.]/g, ''),
+                )
+              } else if (typeof amount === 'number') {
+                numericAmount = amount as number
+              }
+
+              if (isNaN(numericAmount) || numericAmount <= 0) return null
+
+              return (
+                <Button
+                  key={`stake-${index}-${numericAmount}`}
+                  variant="outline"
+                  size="sm"
+                  className="h-10 text-[16px] font-semibold tabular-nums"
+                  onClick={() => handlePresetValue(numericAmount)}
+                >
+                  {numericAmount}
+                </Button>
+              )
+            })}
           </div>
 
           {/* Keypad */}
