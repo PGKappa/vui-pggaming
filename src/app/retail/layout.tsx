@@ -147,13 +147,32 @@ function SkinBody({ children }: { children: React.ReactNode }) {
 let hasAppLoaded = false
 
 function RetailShell({ children }: { children: React.ReactNode }) {
-  const { isLoadingEvents, upcomingEvents, eventResults } =
-    useContext(RootContext)
+  const {
+    isLoadingEvents,
+    upcomingEvents,
+    eventResults,
+    isLoadingCashier,
+    hasCashierError,
+  } = useContext(RootContext)
 
   useEffect(() => {
-    // Solo al primo caricamento
+    // Non nascondere lo splash se c'è un errore cashier
+    if (hasCashierError) {
+      // Mantieni lo splash visibile ma senza spinner
+      const splash = document.getElementById('static-splash')
+      if (splash) {
+        const spinner = splash.querySelector('.splash-spinner')
+        if (spinner) {
+          ;(spinner as HTMLElement).style.display = 'none'
+        }
+      }
+      return
+    }
+
+    // Solo al primo caricamento, quando cashier e eventi sono pronti
     if (
       !hasAppLoaded &&
+      !isLoadingCashier &&
       !isLoadingEvents &&
       ((upcomingEvents?.length ?? 0) > 0 || (eventResults?.length ?? 0) > 0)
     ) {
@@ -165,7 +184,18 @@ function RetailShell({ children }: { children: React.ReactNode }) {
         splash.classList.add('hidden')
       }
     }
-  }, [isLoadingEvents, upcomingEvents, eventResults])
+  }, [
+    isLoadingEvents,
+    upcomingEvents,
+    eventResults,
+    isLoadingCashier,
+    hasCashierError,
+  ])
+
+  // Se c'è errore cashier, non mostrare il contenuto
+  if (hasCashierError) {
+    return null
+  }
 
   return (
     <>

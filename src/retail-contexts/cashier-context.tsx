@@ -295,7 +295,17 @@ export default function CashierContextProvider(props: {
           toast.success(t('cashier_initialized'))
           setIsLoading(false)
         } else {
-          throw new Error(`Cashier error: ${cashierData?.message || 'Unknown'}`)
+          // Mostra il messaggio di errore specifico dall'API
+          const errorMessage =
+            cashierData?.description ||
+            cashierData?.message ||
+            `Error code: ${cashierData?.ret_code}`
+          console.error('Cashier API error:', {
+            ret_code: cashierData?.ret_code,
+            description: cashierData?.description,
+            message: cashierData?.message,
+          })
+          throw new Error(errorMessage)
         }
       } catch (error) {
         console.error('Cashier error:', error)
@@ -307,7 +317,10 @@ export default function CashierContextProvider(props: {
           setTimeout(() => fetchUserData(retryCount + 1, maxRetries), delay)
         } else {
           toast.dismiss('retry-toast')
-          toast.error(t('cashier_unavailable'))
+          // Mostra il messaggio di errore specifico se disponibile
+          const errorMsg =
+            error instanceof Error ? error.message : t('cashier_unavailable')
+          toast.error(errorMsg, { duration: 10000 })
           setHasCashierError(true)
           setIsLoading(false)
         }
