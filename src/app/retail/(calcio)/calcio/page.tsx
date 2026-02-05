@@ -5,6 +5,7 @@ import MatchBettingOptions from '@/retail-components/match-betting-options'
 import SearchEventResults from '@/retail-components/search-event-results'
 import { UpcomingEventsCarousel } from '@/retail-components/upcoming-events-carousel'
 import UpcomingRoundCard from '@/retail-components/upcoming-round-card'
+import CustomScrollbar from '@/retail-components/custom-scrollbar'
 import { RootContext } from '@/retail-contexts/root-context'
 import {
   Market,
@@ -112,7 +113,7 @@ export default function Home() {
           />
         </div>
 
-        <div className="flex h-[942px] w-[1500px] flex-col gap-2 overflow-y-auto tabular-nums">
+        <div className="flex h-[942px] w-[1500px] flex-col gap-2 tabular-nums">
           {!!searchEventResults ? (
             <SearchEventResults />
           ) : selectedEvent ? (
@@ -124,28 +125,34 @@ export default function Home() {
                 close={() => setMatchBetOptions(undefined)}
               />
             ) : (
-              <div
-                ref={scrollContainerRef}
-                className="thin-scrollbar overflow-y-auto"
-              >
-                <div className="thin-scrollbar h-[810px] overflow-y-auto">
-                  <UpcomingRoundCard
-                    round={selectedEvent.data as UpcomingRound}
-                    viewMatchBettingOptions={setMatchBetOptions}
-                    onTabChange={() => {
-                      scrollContainerRef.current?.scrollTo({
-                        top: 0,
-                        behavior: 'smooth',
-                      })
-                    }}
-                  />
+              <div className="relative h-[942px]">
+                {/* Contenuto scrollabile unico */}
+                <div className="h-full overflow-hidden">
+                  <div
+                    ref={scrollContainerRef}
+                    className="h-full overflow-y-scroll no-scrollbar"
+                  >
+                    <UpcomingRoundCard
+                      round={selectedEvent.data as UpcomingRound}
+                      viewMatchBettingOptions={setMatchBetOptions}
+                      onTabChange={() => {
+                        scrollContainerRef.current?.scrollTo({
+                          top: 0,
+                          behavior: 'smooth',
+                        })
+                      }}
+                    />
+
+                    <Leaderboard
+                      isExpanded={isLeaderboardExpanded}
+                      onToggle={setIsLeaderboardExpanded}
+                    />
+                  </div>
                 </div>
 
-                <div>
-                  <Leaderboard
-                    isExpanded={isLeaderboardExpanded}
-                    onToggle={setIsLeaderboardExpanded}
-                  />
+                {/* Scrollbar custom posizionata in absolute sopra il contenuto */}
+                <div className="absolute right-0 top-0 h-full pointer-events-none">
+                  <CustomScrollbar contentRef={scrollContainerRef} />
                 </div>
               </div>
             )

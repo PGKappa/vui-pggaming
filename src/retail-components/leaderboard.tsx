@@ -299,7 +299,7 @@ export default function Leaderboard({
   }
 
   return (
-    <div className="relative pb-20 bottom-[14px]">
+    <div className={`relative ${isExpanded ? '' : 'mt-[10px]'}`}>
       <div className={`${isExpanded ? 'sticky top-0 z-30' : ''} bg-background`}>
         <Card>
           <CardHeader
@@ -339,7 +339,7 @@ export default function Leaderboard({
           </div>
 
           {displayRankings && displayRankings.length > 0 ? (
-            <div className="min-h-[800px] overflow-y-auto">
+            <div className="pb-20">
               <table className="w-full">
                 <tbody>
                   {displayRankings.map((ranking) => (
