@@ -74,7 +74,8 @@ function NavbarContent() {
           className={cn(
             'flex h-12 w-24 flex-row items-center justify-center px-4 py-1 text-foreground transition-colors hover:opacity-90',
             pathname.includes('/retail/dogs') &&
-              !pathname.includes('/retail/dogs-horses')
+              !pathname.includes('/retail/dogs-horses') &&
+              !pathname.includes('/retail/dogs8')
               ? 'bg-tertiary'
               : 'bg-secondary',
           )}
@@ -86,6 +87,23 @@ function NavbarContent() {
             height={20}
             className="size-8 object-contain"
           />
+        </Link>
+
+        <Link
+          href={buildHref('/retail/dogs8')}
+          className={cn(
+            'flex h-12 w-28 flex-row items-center justify-center gap-1 px-3 py-1 text-foreground transition-colors hover:opacity-90',
+            pathname.includes('/retail/dogs8') ? 'bg-tertiary' : 'bg-secondary',
+          )}
+        >
+          <Image
+            src="/dog.png"
+            alt="Dogs 8"
+            width={40}
+            height={20}
+            className="size-8 object-contain"
+          />
+          <span className="text-sm font-bold text-white">8</span>
         </Link>
 
         <Link
