@@ -135,7 +135,7 @@ export default function CustomScrollbar({ contentRef }: CustomScrollbarProps) {
     >
       <div
         ref={thumbRef}
-        className="w-full bg-[#94a3b8] cursor-grab active:cursor-grabbing hover:bg-[#64748b] transition-colors"
+        className="w-full bg-[#94a3b8]/30 cursor-grab active:cursor-grabbing hover:bg-[#64748b]/35 transition-colors"
         style={{
           height: `${thumbHeight}px`,
           transform: `translateY(${thumbTop}px)`,
