@@ -43,6 +43,7 @@ export default function Home() {
   const [isLeaderboardExpanded, setIsLeaderboardExpanded] = useState(false)
 
   const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const pageScrollRef = useRef<HTMLDivElement>(null)
 
   // SINCRONIZZAZIONE PERFETTA CON CAROSELLO
   const carouselEvents = useMemo(() => {
@@ -126,33 +127,68 @@ export default function Home() {
               />
             ) : (
               <div className="relative h-[942px]">
-                {/* Contenuto scrollabile unico */}
+                {/* Scroll principale della pagina */}
                 <div className="h-full overflow-hidden">
                   <div
-                    ref={scrollContainerRef}
+                    ref={pageScrollRef}
                     className="h-full overflow-y-scroll no-scrollbar"
                   >
-                    <UpcomingRoundCard
-                      round={selectedEvent.data as UpcomingRound}
-                      viewMatchBettingOptions={setMatchBetOptions}
-                      onTabChange={() => {
-                        scrollContainerRef.current?.scrollTo({
-                          top: 0,
-                          behavior: 'smooth',
-                        })
-                      }}
-                    />
+                    {/* Sezione UpcomingRoundCard con scrollbar custom interna */}
+                    <div className="relative h-[810px] flex-shrink-0 overflow-hidden">
+                      <div className="h-full overflow-hidden">
+                        <div
+                          ref={scrollContainerRef}
+                          className="h-full overflow-y-scroll no-scrollbar"
+                          onWheel={(e) => {
+                            // Se siamo al top o al bottom della scrollbar interna, 
+                            // lascia che lo scroll si propaghi alla pagina principale
+                            const element = scrollContainerRef.current
+                            if (element) {
+                              const isAtTop = element.scrollTop === 0
+                              const isAtBottom = 
+                                element.scrollHeight - element.scrollTop === element.clientHeight
+                              
+                              if ((isAtTop && e.deltaY < 0) || (isAtBottom && e.deltaY > 0)) {
+                                // Lascia propagare lo scroll
+                                return
+                              }
+                              // Blocca la propagazione se siamo nel mezzo
+                              e.stopPropagation()
+                            }
+                          }}
+                        >
+                          <UpcomingRoundCard
+                            round={selectedEvent.data as UpcomingRound}
+                            viewMatchBettingOptions={setMatchBetOptions}
+                            onTabChange={() => {
+                              scrollContainerRef.current?.scrollTo({
+                                top: 0,
+                                behavior: 'smooth',
+                              })
+                            }}
+                          />
+                        </div>
+                      </div>
 
-                    <Leaderboard
-                      isExpanded={isLeaderboardExpanded}
-                      onToggle={setIsLeaderboardExpanded}
-                    />
+                      {/* Scrollbar custom per UpcomingRoundCard */}
+                      <div className="absolute right-0 top-0 h-full pointer-events-none z-10">
+                        <CustomScrollbar contentRef={scrollContainerRef} />
+                      </div>
+                    </div>
+
+                    {/* Leaderboard con la sua scrollbar separata */}
+                    <div className=" relative bottom-[13px]">
+                      <Leaderboard
+                        isExpanded={isLeaderboardExpanded}
+                        onToggle={setIsLeaderboardExpanded}
+                      />
+                    </div>
                   </div>
                 </div>
 
-                {/* Scrollbar custom posizionata in absolute sopra il contenuto */}
-                <div className="absolute right-0 top-0 h-full pointer-events-none">
-                  <CustomScrollbar contentRef={scrollContainerRef} />
+                {/* Scrollbar custom per tutta la pagina - limitata all'altezza della sezione eventi */}
+                <div className="absolute right-0 top-0 h-[810px] pointer-events-none z-20">
+                  <CustomScrollbar contentRef={pageScrollRef} />
                 </div>
               </div>
             )

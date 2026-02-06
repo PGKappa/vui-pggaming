@@ -3,11 +3,12 @@
 import { RootContext } from '@/retail-contexts/root-context'
 import { TeamRanking } from '@/retail-lib/types'
 import { ChevronDown, ChevronUp } from 'lucide-react'
-import { useContext, useMemo } from 'react'
+import { useContext, useMemo, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import LoadingSpinner from './loading-spinner'
 import { Button } from './ui/button'
 import { Card, CardHeader, CardTitle } from './ui/card'
+import CustomScrollbar from './custom-scrollbar'
 
 interface LeaderboardProps {
   isExpanded: boolean
@@ -284,6 +285,7 @@ export default function Leaderboard({
 }: LeaderboardProps) {
   const { t } = useTranslation()
   const { teamRankings } = useContext(RootContext)
+  const leaderboardScrollRef = useRef<HTMLDivElement>(null)
 
   // Usa teamRankings da contesto se disponibile, altrimenti fallback a default
   const displayRankings = useMemo(
@@ -295,11 +297,29 @@ export default function Leaderboard({
   )
 
   const handleToggle = () => {
-    onToggle(!isExpanded)
+    const newExpandedState = !isExpanded
+    onToggle(newExpandedState)
+    
+    // Quando si apre la Leaderboard, scrolla la pagina principale della metà
+    if (newExpandedState) {
+      setTimeout(() => {
+        // Trova il contenitore di scroll principale (pageScrollRef)
+        const pageScroll = document.querySelector('[class*="overflow-y-scroll"][class*="no-scrollbar"]') as HTMLDivElement
+        
+        if (pageScroll) {
+          // Scrolla della metà dell'altezza della Leaderboard (400px = metà di 800px)
+          const currentScroll = pageScroll.scrollTop
+          pageScroll.scrollTo({
+            top: currentScroll + 400,
+            behavior: 'smooth',
+          })
+        }
+      }, 50)
+    }
   }
 
   return (
-    <div className={`relative ${isExpanded ? '' : 'mt-[10px]'}`}>
+    <div className="relative">
       <div className={`${isExpanded ? 'sticky top-0 z-30' : ''} bg-background`}>
         <Card>
           <CardHeader
@@ -321,80 +341,92 @@ export default function Leaderboard({
       </div>
 
       {isExpanded && (
-        <div className="bg-background">
-          <div className="sticky top-[41px] z-30 bg-card-header">
-            <div className="grid h-[51px] grid-cols-11 [&_div]:flex [&_div]:items-center [&_div]:justify-center [&_div]:font-bold [&_div]:text-card-header-foreground text-[16px]">
-              <div className="p-2 text-center"></div>
-              <div className="p-2 text-center">{t('club')}</div>
-              <div className="p-2 text-center">{t('p')}</div>
-              <div className="p-2 text-center">{t('w')}</div>
-              <div className="p-2 text-center">{t('d')}</div>
-              <div className="p-2 text-center">{t('l')}</div>
-              <div className="p-2 text-center">{t('pts')}</div>
-              <div className="p-2 text-center">{t('gf')}</div>
-              <div className="p-2 text-center">{t('ga')}</div>
-              <div className="p-2 text-center">{t('gd')}</div>
-              <div className="p-2 text-center">{t('last_8')}</div>
+        <div className="bg-background relative h-[800px] overflow-hidden">
+          <div className="h-full overflow-hidden">
+            <div
+              ref={leaderboardScrollRef}
+              className="h-full overflow-y-scroll no-scrollbar"
+            >
+              <div className="sticky top-0 z-30 bg-card-header">
+                <div className="grid h-[51px] grid-cols-11 [&_div]:flex [&_div]:items-center [&_div]:justify-center [&_div]:font-bold [&_div]:text-card-header-foreground text-[16px]">
+                  <div className="p-2 text-center"></div>
+                  <div className="p-2 text-center">{t('club')}</div>
+                  <div className="p-2 text-center">{t('p')}</div>
+                  <div className="p-2 text-center">{t('w')}</div>
+                  <div className="p-2 text-center">{t('d')}</div>
+                  <div className="p-2 text-center">{t('l')}</div>
+                  <div className="p-2 text-center">{t('pts')}</div>
+                  <div className="p-2 text-center">{t('gf')}</div>
+                  <div className="p-2 text-center">{t('ga')}</div>
+                  <div className="p-2 text-center">{t('gd')}</div>
+                  <div className="p-2 text-center">{t('last_8')}</div>
+                </div>
+              </div>
+
+              {displayRankings && displayRankings.length > 0 ? (
+                <div className="pb-20">
+                  <table className="w-full">
+                    <tbody>
+                      {displayRankings.map((ranking) => (
+                        <tr
+                          key={ranking.team}
+                          className="grid grid-cols-11 border-b border-border md:grid-cols-11 h-[51px]"
+                        >
+                          <td className="p-3 text-center font-bold">
+                            {ranking.position}
+                          </td>
+                          <td className="p-3 text-center font-bold">
+                            {ranking.team}
+                          </td>
+                          <td className="p-3 text-center">{ranking.played}</td>
+                          <td className="p-3 text-center">{ranking.wins}</td>
+                          <td className="p-3 text-center">{ranking.draws}</td>
+                          <td className="p-3 text-center">{ranking.losses}</td>
+                          <td className="p-3 text-center font-bold">
+                            {ranking.points}
+                          </td>
+                          <td className="p-3 text-center">{ranking.goalsFor}</td>
+                          <td className="p-3 text-center">
+                            {ranking.goalsAgainst}
+                          </td>
+                          <td className="p-3 text-center">
+                            {ranking.goalDifference}
+                          </td>
+                          <td className="flex justify-center gap-1 p-3">
+                            {ranking.last8.map((result, i) => {
+                              const textColor =
+                                result === 'W'
+                                  ? 'text-green-500'
+                                  : result === 'L'
+                                    ? 'text-red-500'
+                                    : 'text-yellow-500'
+                              return (
+                                <span
+                                  key={i}
+                                  className={`inline-block font-mono text-lg font-semibold ${textColor}`}
+                                >
+                                  {result}
+                                </span>
+                              )
+                            })}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center">
+                  <LoadingSpinner />
+                </div>
+              )}
             </div>
           </div>
 
-          {displayRankings && displayRankings.length > 0 ? (
-            <div className="pb-20">
-              <table className="w-full">
-                <tbody>
-                  {displayRankings.map((ranking) => (
-                    <tr
-                      key={ranking.team}
-                      className="grid grid-cols-11 border-b border-border md:grid-cols-11 h-[51px]"
-                    >
-                      <td className="p-3 text-center font-bold">
-                        {ranking.position}
-                      </td>
-                      <td className="p-3 text-center font-bold">
-                        {ranking.team}
-                      </td>
-                      <td className="p-3 text-center">{ranking.played}</td>
-                      <td className="p-3 text-center">{ranking.wins}</td>
-                      <td className="p-3 text-center">{ranking.draws}</td>
-                      <td className="p-3 text-center">{ranking.losses}</td>
-                      <td className="p-3 text-center font-bold">
-                        {ranking.points}
-                      </td>
-                      <td className="p-3 text-center">{ranking.goalsFor}</td>
-                      <td className="p-3 text-center">
-                        {ranking.goalsAgainst}
-                      </td>
-                      <td className="p-3 text-center">
-                        {ranking.goalDifference}
-                      </td>
-                      <td className="flex justify-center gap-1 p-3">
-                        {ranking.last8.map((result, i) => {
-                          const textColor =
-                            result === 'W'
-                              ? 'text-green-500'
-                              : result === 'L'
-                                ? 'text-red-500'
-                                : 'text-yellow-500'
-                          return (
-                            <span
-                              key={i}
-                              className={`inline-block font-mono text-lg font-semibold ${textColor}`}
-                            >
-                              {result}
-                            </span>
-                          )
-                        })}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center">
-              <LoadingSpinner />
-            </div>
-          )}
+          {/* Scrollbar custom per Leaderboard */}
+          <div className="absolute right-0 top-0 h-full pointer-events-none">
+            <CustomScrollbar contentRef={leaderboardScrollRef} />
+          </div>
         </div>
       )}
     </div>
