@@ -49,38 +49,38 @@ export default function UpcomingRoundCard(props: {
   const paddingConfig = {
     normal: {
       main: {
-        cellPadding: { first: 'pl-[24px]', middle: 'pl-[16px]', last: 'pl-2' },
+        cellPadding: { first: 'pl-[19px]', middle: 'pl-[8px]', last: 'pr-[9px]' },
         gapInterno: 'gap-0',
       },
       underover: {
         cellPadding: {
-          first: 'pl-[43px]',
+          first: 'pl-[28px]',
           middle: 'pl-4',
-          last: ' pl-[21px]',
+          last: ' pr-[18px]',
         },
         gapInterno: 'gap-0',
       },
       multigoal: {
         cellPadding: {
-          first: 'pl-[35px]',
-          middle: 'pl-[23px]',
-          last: 'pl-[11px]',
+          first: 'pl-[20px]',
+          middle: 'pl-[0px]',
+          last: 'pr-[20px]',
         },
         gapInterno: 'gap-0',
       },
       partialeFinale: {
         cellPadding: {
-          first: 'pl-[30px]',
-          middle: 'pl-[30px]',
-          last: 'pl-[20px]',
+          first: 'pl-[20px]',
+          middle: 'pl-[10px]',
+          last: 'pr-[15px]',
         },
         gapInterno: 'gap-0',
       },
       special: {
         cellPadding: {
-          first: 'pl-[30px]',
-          middle: 'pl-[25px]',
-          last: 'pl-[15px]',
+          first: 'pl-[15px]',
+          middle: 'pl-[20px]',
+          last: 'pr-[15px]',
         },
         gapInterno: 'gap-0',
       },
