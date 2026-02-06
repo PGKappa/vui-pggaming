@@ -163,7 +163,7 @@ export default function BetEntryToggle(props: {
       }}
       className={cn(
         props.variant === 'matchcard'
-          ? 'flex flex-row justify-between px-4 text-[19px] capitalize'
+          ? 'flex flex-row justify-between px-4 text-[19px] capitalize tabular-nums'
           : props.variant === 'roundcard'
             ? 'flex flex-col justify-between text-[19px]'
             : props.variant === 'racecard'

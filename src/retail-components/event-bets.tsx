@@ -95,8 +95,11 @@ export default function EventBets(props: {
               <span className="text-[13px] uppercase">
                 {eventBets[0].bet.competitors}
               </span>
+              <span className='text-[10px]'>
+                |
+              </span>
               {eventBets[0].bet.event.roundId && (
-                <span className="relative mr-[4px] pt-1 text-[13px] font-bold text-accent">
+                <span className="relative mr-[220px] text-[13px] font-bold text-accent">
                   {t('round').toUpperCase()} {eventBets[0].bet.event.roundId}
                 </span>
               )}
@@ -114,7 +117,7 @@ export default function EventBets(props: {
           )}
         </div>
 
-        <div className="-space-y-[8px] border border-t-0 border-betSlip-foreground bg-primary-foreground pb-[3px] pl-2 pr-[1px] pt-[1px]">
+        <div className="-space-y-[8px] border border-t-0 border-betSlip-foreground bg-primary-foreground pb-[3px] pl-2 pr-[1px] pt-[1px] tabular-nums">
           {eventBets.map((betEntry) => {
             // Usa normalizeMarketName per riconoscere mercati principali
             const normalized = normalizeMarketName(betEntry.market)
