@@ -71,10 +71,22 @@ export default function NumericKeypadDrawer(props: {
     }
   }, [open])
 
-  const handlePresetValue = (amount: number) => {
+  const handlePresetValue = (amount: string | number) => {
+    // Estrai il numero dalla stringa se è una stringa (tipo "5 €")
+    const numAmount =
+      typeof amount === 'number' ? amount : parseFloat(amount.toString())
+
+    // Valida che sia un numero valido
+    if (isNaN(numAmount) || !isFinite(numAmount) || numAmount <= 0) {
+      return
+    }
+
     setDrawerValue((prev) => {
       const currentValue = parseFloat(prev) || 0
-      const newValue = currentValue + amount
+      const newValue = currentValue + numAmount
+      if (isNaN(newValue) || !isFinite(newValue)) {
+        return '0.00'
+      }
       return newValue.toFixed(2)
     })
     // Dopo aver cliccato un preset, il prossimo digit dovrebbe sostituire
@@ -278,17 +290,27 @@ export default function NumericKeypadDrawer(props: {
               gridTemplateColumns: `repeat(${Math.min(stakeButtons.length, 5)}, minmax(0, 1fr))`,
             }}
           >
-            {stakeButtons.map((amount) => (
-              <Button
-                key={amount}
-                variant="outline"
-                size="sm"
-                className="h-10 text-[16px] font-semibold tabular-nums"
-                onClick={() => handlePresetValue(amount)}
-              >
-                {amount}
-              </Button>
-            ))}
+            {stakeButtons
+              .filter((amount) => {
+                // Estrai numero da string se necessario
+                const numAmount =
+                  typeof amount === 'number'
+                    ? amount
+                    : parseFloat(amount.toString())
+                // Filtra valori invalidi
+                return !isNaN(numAmount) && isFinite(numAmount) && numAmount > 0
+              })
+              .map((amount, idx) => (
+                <Button
+                  key={`stake-btn-${idx}`}
+                  variant="outline"
+                  size="sm"
+                  className="h-10 text-[16px] font-semibold tabular-nums"
+                  onClick={() => handlePresetValue(amount)}
+                >
+                  {amount}
+                </Button>
+              ))}
           </div>
 
           {/* Keypad */}

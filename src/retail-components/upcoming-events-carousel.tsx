@@ -27,6 +27,9 @@ export function UpcomingEventsCarousel(props: {
     const path = (pathname || '/').toLowerCase()
     if (path.includes('dogs-horses') || path.includes('cani-cavalli')) {
       return [Discipline.DOGS, Discipline.HORSES]
+    } else if (path.includes('dogs8') || path.includes('cani8')) {
+      // IMPORTANTE: controllare dogs8 PRIMA di dogs!
+      return [Discipline.DOGS8]
     } else if (path.includes('dogs') || path.includes('cani')) {
       return [Discipline.DOGS]
     } else if (path.includes('horses') || path.includes('cavalli')) {
@@ -183,7 +186,7 @@ function UpcomingEventItem(props: {
         src={
           event.discipline === 'SOCCER'
             ? '/calciatore_blu.png'
-            : event.discipline === 'DOGS'
+            : event.discipline === 'DOGS' || event.discipline === 'DOGS8'
               ? '/cane_blu.png'
               : '/cavallo_blu.png'
         }
@@ -203,7 +206,7 @@ function UpcomingEventItem(props: {
         <span className="relative bottom-[5px] whitespace-nowrap text-[13px] font-normal uppercase">
           {event.discipline === 'SOCCER'
             ? `${t('round')} ${event.id}`
-            : `${t('track')} ${(event.data as any)?.channel || 6}`}
+            : `${t('track')} ${event.discipline === 'DOGS8' ? 8 : event.discipline === 'HORSES' ? 4 : 6}`}
         </span>
         <div className="flex flex-row gap-2">
           <span className="relative bottom-[1px] text-[14px] font-semibold">

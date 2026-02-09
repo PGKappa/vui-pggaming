@@ -15,7 +15,7 @@ type LatecomersDialogProps = {
   isOpen: boolean
   onOpenChange: (open: boolean) => void
   raceInfo: UpcomingRace | undefined
-  discipline: 'DOGS' | 'HORSES'
+  discipline: 'DOGS' | 'DOGS8' | 'HORSES'
 }
 
 export default function LatecomersDialog({
