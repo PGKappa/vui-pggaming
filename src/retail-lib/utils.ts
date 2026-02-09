@@ -50,8 +50,8 @@ export function normalizeMarketName(market: string): string {
 
 // API URLs - direttamente nel codice per evitare problemi con env online
 export const API_URLS = {
-  PGVIRTUAL: 'https://apisuprema.pgvirtual.eu',
-  CASHIER_INIT: 'https://apisuprema.pgvirtual.eu/api/init/cashier',
+  PGVIRTUAL: 'https://apidev.pgvirtual.eu',
+  CASHIER_INIT: 'https://apidev.pgvirtual.eu/api/init/cashier',
   SOCCER: 'https://cvgl.it/football/incoming.php',
   // Base per altre chiamate se necessario
   BASE: 'https://pg-gaming.stg.startegois.com/proxy',
@@ -205,6 +205,7 @@ export function createPGVirtualAPICall(
 export enum Discipline {
   SOCCER = 'SOCCER',
   DOGS = 'DOGS',
+  DOGS8 = 'DOGS8',
   HORSES = 'HORSES',
 }
 
@@ -214,6 +215,7 @@ export function getAPIUrlForDiscipline(discipline: Discipline): string {
     case Discipline.SOCCER:
       return API_URLS.SOCCER
     case Discipline.DOGS:
+    case Discipline.DOGS8:
     case Discipline.HORSES:
       return API_URLS.PGVIRTUAL
     default:
