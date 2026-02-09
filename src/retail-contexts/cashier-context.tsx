@@ -21,7 +21,7 @@ export type CashierContextType = {
   getCurrencySymbol?: () => string
   getCurrencyCode?: () => string
   getMinStakeIncrement?: () => number
-  getStakeButtons?: () => number[]
+  getStakeButtons?: () => (string | number)[]
   getMinStake?: () => number
   getMinBet?: () => number
   getMaxWin?: () => number
@@ -103,8 +103,13 @@ function clearSessionStorageForNewInitCode(newInitCode: string) {
       localStorage.removeItem('cashier_timezone')
       localStorage.removeItem('betsContext')
 
-      // Rimuovi cache cashier della sessione precedente
-      localStorage.removeItem(`cashier_cache_${oldInitCode}`)
+      // Rimuovi TUTTE le cache cashier della sessione precedente (non solo per questo operator)
+      const keys = Object.keys(localStorage)
+      keys.forEach((key) => {
+        if (key.startsWith('cashier_cache_')) {
+          localStorage.removeItem(key)
+        }
+      })
 
       // Rimuovi cache eventi della sessione precedente
       localStorage.removeItem('dogs_events_cache')
