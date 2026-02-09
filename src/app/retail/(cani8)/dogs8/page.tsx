@@ -1,7 +1,6 @@
 'use client'
 import BettingSlip from '@/retail-components/betting-slip'
 import SearchEventResults from '@/retail-components/search-event-results'
-import { ScrollArea } from '@/retail-components/ui/scroll-area'
 import { UpcomingEventsCarousel } from '@/retail-components/upcoming-events-carousel'
 import UpcomingRaceCard from '@/retail-components/upcoming-race-card'
 import { RootContext } from '@/retail-contexts/root-context'
@@ -102,18 +101,16 @@ export default function Dogs8Page() {
 
         {/* Main content area */}
         <div className="bg-betslip flex h-full flex-row gap-2 overflow-hidden pr-2 pt-[2px]">
-          <div className="flex h-[921px] w-[1500px] flex-col gap-2 overflow-y-auto">
-            <ScrollArea className="h-full w-full">
-              {!!searchEventResults ? (
-                <SearchEventResults />
-              ) : selectedEvent ? (
-                <UpcomingRaceCard race={selectedEvent} />
-              ) : (
-                <div className="flex h-full items-center justify-center">
-                  {t('no_event_selected')}
-                </div>
-              )}
-            </ScrollArea>
+          <div className="flex h-[921px] w-[1500px] flex-col gap-2 overflow-y-auto pb-16">
+            {!!searchEventResults ? (
+              <SearchEventResults />
+            ) : selectedEvent ? (
+              <UpcomingRaceCard race={selectedEvent} />
+            ) : (
+              <div className="flex h-full items-center justify-center">
+                {t('no_event_selected')}
+              </div>
+            )}
           </div>
         </div>
       </div>

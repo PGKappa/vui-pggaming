@@ -102,7 +102,7 @@ export default function Home() {
 
         {/* Main content area */}
         <div className="bg-betslip flex h-full flex-row gap-2 overflow-hidden pr-2 pt-[2px]">
-          <div className="flex h-[942px] w-[1500px] flex-col gap-2 overflow-y-auto">
+          <div className="flex h-[942px] w-[1500px] flex-col gap-2 overflow-y-auto pb-16">
             <ScrollArea className="h-full w-full">
               {!!searchEventResults ? (
                 <SearchEventResults />
