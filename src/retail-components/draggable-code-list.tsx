@@ -365,7 +365,7 @@ export default function DraggableCodeList({
               alt={config.alt}
               width={1920}
               height={1080}
-              className="h-full w-full object-fill"
+              className="h-full w-full object-contain"
               priority
             />
           </div>
