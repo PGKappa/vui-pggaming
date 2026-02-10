@@ -357,7 +357,7 @@ export default function UpcomingRoundCard(props: {
                       <React.Fragment key={`special-${index}`}>
                         <TableHead className="w-[1px] bg-card-header p-0"></TableHead>
                         <TableHead
-                          className="text-center font-bold"
+                          className="text-center font-semibold"
                           colSpan={1}
                         >
                           {formatMarketHeader(market.name)}
@@ -370,7 +370,7 @@ export default function UpcomingRoundCard(props: {
                     <React.Fragment key={`market-${index}`}>
                       <TableHead className="w-[1px] bg-card-header p-0"></TableHead>
                       <TableHead
-                        className="p-0 text-center font-bold"
+                        className="p-0 text-center font-semibold"
                         colSpan={optionsCount}
                       >
                         {formatMarketHeader(market.name)}
@@ -395,7 +395,7 @@ export default function UpcomingRoundCard(props: {
                 return (
                   <TableRow
                     key={index}
-                    className="h-[67px] items-center justify-between border-card-foreground tabular-nums"
+                    className="h-[67px] items-center justify-between border-card-foreground tabular-nums "
                   >
                     <TableCell className="w-[130px] min-w-[130px] max-w-[130px] whitespace-nowrap text-start text-[17px] font-bold">
                       <div className="flex flex-col text-center">

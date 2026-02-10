@@ -130,7 +130,7 @@ export default function CustomScrollbar({ contentRef }: CustomScrollbarProps) {
   return (
     <div
       ref={trackRef}
-      className="w-[8px] h-full bg-[#e5e7eb] cursor-pointer pointer-events-auto"
+      className="w-[8px] h-full bg-[#e5e7eb] cursor-pointer pointer-events-auto relative bottom-4"
       onClick={handleTrackClick}
     >
       <div

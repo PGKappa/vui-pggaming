@@ -454,17 +454,17 @@ export default function UpcomingRaceCard({
     return (
       <TableHeader className="h-14 bg-card-header text-[16px] text-card-header-foreground">
         <TableRow>
-          <TableHead className="w-[249px] text-center font-bold">
+          <TableHead className="w-[249px] text-center font-semibold">
             {t('starters_list').toUpperCase()}
           </TableHead>
           <TableHead className="w-[1px] bg-border p-0" />
 
-          <TableHead className="w-[249px] text-center font-bold">
+          <TableHead className="w-[249px] text-center font-semibold">
             {t('performance').toUpperCase()}
           </TableHead>
           <TableHead className="w-[1px] bg-border p-0" />
 
-          <TableHead className="w-[249px] text-center font-bold">
+          <TableHead className="w-[249px] text-center font-semibold">
             {t('history').toUpperCase()}
           </TableHead>
           <TableHead className="w-[1px] bg-border p-0" />
@@ -475,11 +475,11 @@ export default function UpcomingRaceCard({
                 {t('winner').toUpperCase()}
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
-              <TableHead className="w-[249px] text-center font-bold">
+              <TableHead className="w-[249px] text-center font-semibold">
                 {t('place_2').toUpperCase()}
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
-              <TableHead className="w-[249px] text-center font-bold">
+              <TableHead className="w-[249px] text-center font-semibold">
                 {t('show_3').toUpperCase()}
               </TableHead>
             </>

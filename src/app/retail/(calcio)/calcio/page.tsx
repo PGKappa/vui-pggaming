@@ -163,7 +163,7 @@ export default function Home() {
                             onTabChange={() => {
                               scrollContainerRef.current?.scrollTo({
                                 top: 0,
-                                behavior: 'smooth',
+                                behavior: 'smooth', 
                               })
                             }}
                           />
@@ -177,7 +177,7 @@ export default function Home() {
                     </div>
 
                     {/* Leaderboard con la sua scrollbar separata */}
-                    <div className=" relative bottom-[13px]">
+                    <div className=" relative bottom-[15px]">
                       <Leaderboard
                         isExpanded={isLeaderboardExpanded}
                         onToggle={setIsLeaderboardExpanded}
