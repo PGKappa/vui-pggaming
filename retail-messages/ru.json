@@ -218,5 +218,6 @@
   "operator_not_found": "Требуется оператор, но не найден",
   "cashier_initialized": "Касса инициализирована",
   "cashier_unavailable": "Касса недоступна - используется резерв",
-  "retrying_cashier": "Повторная попытка подключения к кассе..."
+  "retrying_cashier": "Повторная попытка подключения к кассе...",
+  "stake_increment_error": "Ставка должна быть кратна {{increment}}"
 }

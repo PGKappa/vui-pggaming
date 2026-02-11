@@ -325,5 +325,6 @@
   "last_ticket_restore_error": "Error al restaurar el último ticket",
   "cashier_data_loaded": "Datos del cajero cargados desde la caché",
   "user_data_fetched": "Datos del usuario obtenidos con éxito",
-  "error_fetching_racing_events": "Error al obtener eventos de carreras"
+  "error_fetching_racing_events": "Error al obtener eventos de carreras",
+  "stake_increment_error": "La apuesta debe ser un múltiplo de {{increment}}"
 }

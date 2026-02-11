@@ -600,6 +600,20 @@ export default function BettingSlip({
       return
     }
 
+    // Validazione che lo stake sia multiplo del min_stake_increment_step
+    if (betMode !== 'SYSTEM' && minStakeIncrement > 0) {
+      // Moltiplica per 100 per evitare problemi di precisione floating point
+      const scaledGlobal = Math.round(global * 100)
+      const scaledIncrement = Math.round(minStakeIncrement * 100)
+      if (scaledGlobal % scaledIncrement !== 0) {
+        toast.error(
+          t('stake_increment_error', { increment: minStakeIncrement }) ||
+            `Stake must be a multiple of ${currencySymbol} ${minStakeIncrement.toFixed(2)}`,
+        )
+        return
+      }
+    }
+
     // Validazione min_bet per il totale del ticket
     if (betMode !== 'SYSTEM' && minBet > 0 && global < minBet) {
       toast.error(
