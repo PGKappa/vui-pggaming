@@ -40,8 +40,8 @@ export default function NumericKeypadDrawer(props: {
   // Get currency symbol from RootContext or fallback to prop/€
   const currencySymbol = getCurrencySymbol?.() || props.currencySymbol || '€'
 
-  // Get increment value from prop or context
-  const incrementValue = props.incrementValue ?? getMinStakeIncrement?.() ?? 50
+  // Get increment value from prop or context (fallback 0.5 se non disponibile)
+  const incrementValue = props.incrementValue ?? getMinStakeIncrement?.() ?? 0.5
 
   // Get stake buttons from context or fallback to defaults
   const stakeButtons = useMemo(() => {

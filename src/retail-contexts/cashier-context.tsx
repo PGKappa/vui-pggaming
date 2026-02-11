@@ -251,8 +251,20 @@ export default function CashierContextProvider(props: {
             }
             return typeof value === 'string' ? value : fallback || key
           }
-          const getMinStakeIncrement = () =>
-            cashierData.intl?.stake_increment || 0.05
+          const getMinStakeIncrement = () => {
+            // Il campo dall'API è min_stake_increment_step (può essere stringa o numero)
+            const step = cashierData.intl?.min_stake_increment_step
+            if (typeof step === 'string') {
+              const parsed = parseFloat(step.replace(',', '.'))
+              if (!isNaN(parsed) && parsed > 0) {
+                return parsed
+              }
+            }
+            if (typeof step === 'number' && step > 0) {
+              return step
+            }
+            return 0.5
+          }
           const getTimezone = () => cashierData.intl?.timezone || 'Europe/Rome'
           const getStakeButtons = () => {
             const buttons = cashierData.intl?.stake_buttons
