@@ -72,9 +72,15 @@ export default function NumericKeypadDrawer(props: {
   }, [open])
 
   const handlePresetValue = (amount: string | number) => {
-    // Estrai il numero dalla stringa se è una stringa (tipo "5 €")
-    const numAmount =
-      typeof amount === 'number' ? amount : parseFloat(amount.toString())
+    // Estrai il numero dalla stringa - gestisce sia formato europeo (virgola) che americano (punto)
+    let numAmount = 0
+    if (typeof amount === 'number') {
+      numAmount = amount
+    } else {
+      // Sostituisci virgola con punto e rimuovi tutto tranne numeri e punto
+      const cleanedAmount = amount.toString().replace(',', '.').replace(/[^\d.]/g, '')
+      numAmount = parseFloat(cleanedAmount)
+    }
 
     // Valida che sia un numero valido
     if (isNaN(numAmount) || !isFinite(numAmount) || numAmount <= 0) {
@@ -292,11 +298,14 @@ export default function NumericKeypadDrawer(props: {
           >
             {stakeButtons
               .filter((amount) => {
-                // Estrai numero da string se necessario
-                const numAmount =
-                  typeof amount === 'number'
-                    ? amount
-                    : parseFloat(amount.toString())
+                // Estrai numero - gestisce sia formato europeo (virgola) che americano (punto)
+                let numAmount = 0
+                if (typeof amount === 'number') {
+                  numAmount = amount
+                } else {
+                  const cleanedAmount = amount.toString().replace(',', '.').replace(/[^\d.]/g, '')
+                  numAmount = parseFloat(cleanedAmount)
+                }
                 // Filtra valori invalidi
                 return !isNaN(numAmount) && isFinite(numAmount) && numAmount > 0
               })

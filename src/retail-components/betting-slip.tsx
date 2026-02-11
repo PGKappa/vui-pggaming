@@ -1271,12 +1271,14 @@ export default function BettingSlip({
             {/* Quick stake buttons */}
             <div className="relative top-[19px] grid grid-cols-5 gap-2 p-2">
               {stakeButtons.map((amount, index) => {
-                // Estrai il valore numerico se è una stringa con simbolo valuta
+                // Estrai il valore numerico - gestisce sia formato europeo (virgola) che americano (punto)
                 let numericAmount = 0
                 if (typeof amount === 'string') {
-                  numericAmount = parseFloat(
-                    (amount as string).replace(/[^\d.]/g, ''),
-                  )
+                  // Sostituisci virgola con punto e rimuovi tutto tranne numeri e punto
+                  const cleanedAmount = (amount as string)
+                    .replace(',', '.')
+                    .replace(/[^\d.]/g, '')
+                  numericAmount = parseFloat(cleanedAmount)
                 } else if (typeof amount === 'number') {
                   numericAmount = amount as number
                 }
@@ -1291,7 +1293,9 @@ export default function BettingSlip({
                     variant="outline"
                     size="sm"
                     className="h-8 bg-muted-foreground text-[14px] tabular-nums"
-                    onClick={() => setGlobal((prev) => prev + numericAmount)}
+                    onClick={() => {
+                      setGlobal((prev) => prev + numericAmount)
+                    }}
                   >
                     {displayText}
                   </Button>
