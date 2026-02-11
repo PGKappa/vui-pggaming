@@ -78,7 +78,10 @@ export default function NumericKeypadDrawer(props: {
       numAmount = amount
     } else {
       // Sostituisci virgola con punto e rimuovi tutto tranne numeri e punto
-      const cleanedAmount = amount.toString().replace(',', '.').replace(/[^\d.]/g, '')
+      const cleanedAmount = amount
+        .toString()
+        .replace(',', '.')
+        .replace(/[^\d.]/g, '')
       numAmount = parseFloat(cleanedAmount)
     }
 
@@ -107,14 +110,22 @@ export default function NumericKeypadDrawer(props: {
         return digit === '0' ? '0' : digit
       }
 
+      // Se il valore è "0.00" (stato iniziale), qualsiasi digit lo sostituisce
       if (prev === '0.00') {
-        return digit === '0' ? '0.00' : digit
+        return digit === '0' ? '0' : digit
       }
 
+      // Se il valore è "0" e digiti "0", resta "0" (per permettere poi "0.")
+      if (prev === '0' && digit === '0') {
+        return '0'
+      }
+
+      // Se il valore è "0" e digiti altro numero, sostituisci
       if (prev === '0') {
         return digit
       }
 
+      // Limita a 2 decimali
       const decimalIndex = prev.indexOf('.')
       if (decimalIndex !== -1 && prev.length - decimalIndex > 2) {
         return prev
@@ -303,7 +314,10 @@ export default function NumericKeypadDrawer(props: {
                 if (typeof amount === 'number') {
                   numAmount = amount
                 } else {
-                  const cleanedAmount = amount.toString().replace(',', '.').replace(/[^\d.]/g, '')
+                  const cleanedAmount = amount
+                    .toString()
+                    .replace(',', '.')
+                    .replace(/[^\d.]/g, '')
                   numAmount = parseFloat(cleanedAmount)
                 }
                 // Filtra valori invalidi
