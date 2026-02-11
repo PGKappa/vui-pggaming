@@ -40,8 +40,8 @@ export default function NumericKeypadDrawer(props: {
   // Get currency symbol from RootContext or fallback to prop/€
   const currencySymbol = getCurrencySymbol?.() || props.currencySymbol || '€'
 
-  // Get increment value from prop or context
-  const incrementValue = props.incrementValue ?? getMinStakeIncrement?.() ?? 50
+  // Get increment value from prop or context (fallback 0.5 se non disponibile)
+  const incrementValue = props.incrementValue ?? getMinStakeIncrement?.() ?? 0.5
 
   // Get stake buttons from context or fallback to defaults
   const stakeButtons = useMemo(() => {
@@ -72,9 +72,17 @@ export default function NumericKeypadDrawer(props: {
   }, [open])
 
   const handlePresetValue = (amount: number) => {
+    // Valida che amount sia un numero valido
+    if (typeof amount !== 'number' || isNaN(amount) || !isFinite(amount)) {
+      return
+    }
+    
     setDrawerValue((prev) => {
       const currentValue = parseFloat(prev) || 0
       const newValue = currentValue + amount
+      if (isNaN(newValue) || !isFinite(newValue)) {
+        return '0.00'
+      }
       return newValue.toFixed(2)
     })
     // Dopo aver cliccato un preset, il prossimo digit dovrebbe sostituire
@@ -278,17 +286,31 @@ export default function NumericKeypadDrawer(props: {
               gridTemplateColumns: `repeat(${Math.min(stakeButtons.length, 5)}, minmax(0, 1fr))`,
             }}
           >
-            {stakeButtons.map((amount) => (
-              <Button
-                key={amount}
-                variant="outline"
-                size="sm"
-                className="h-10 text-[16px] font-semibold tabular-nums"
-                onClick={() => handlePresetValue(amount)}
-              >
-                {amount}
-              </Button>
-            ))}
+            {stakeButtons.map((amount, idx) => {
+              // Converti amount in numero se è stringa
+              let numericAmount: number
+              if (typeof amount === 'number') {
+                numericAmount = amount
+              } else {
+                numericAmount = parseFloat(String(amount).replace(',', '.').replace(/[^\d.]/g, ''))
+              }
+              
+              if (isNaN(numericAmount) || !isFinite(numericAmount) || numericAmount <= 0) {
+                return null
+              }
+              
+              return (
+                <Button
+                  key={`stake-${idx}-${numericAmount}`}
+                  variant="outline"
+                  size="sm"
+                  className="h-10 text-[16px] font-semibold tabular-nums"
+                  onClick={() => handlePresetValue(numericAmount)}
+                >
+                  {amount}
+                </Button>
+              )
+            })}
           </div>
 
           {/* Keypad */}
