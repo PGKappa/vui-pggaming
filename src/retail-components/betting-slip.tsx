@@ -1254,7 +1254,7 @@ export default function BettingSlip({
 
       <Separator />
 
-      <CardFooter className="relative bottom-[26px] flex flex-col bg-background">
+      <CardFooter className="relative mb-[26px] flex flex-col bg-background">
         {betMode !== 'SYSTEM' ? (
           <>
             <div className="relative h-[30px] w-[396px] bg-accent py-3"></div>
