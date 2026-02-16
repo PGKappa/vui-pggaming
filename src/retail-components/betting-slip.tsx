@@ -45,6 +45,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/retail-components/ui/tooltip'
+import { ScrollAreaB } from './ui/betting-slip-scroll-area'
 
 export type BetMode = 'SINGLE' | 'MULTIPLE' | 'SYSTEM'
 
@@ -1237,7 +1238,7 @@ export default function BettingSlip({
             </Button>
           </div>
         ) : (
-          <ScrollArea className="h-full">
+          <ScrollAreaB className="h-full w-full">
             <ul className="flex flex-col gap-2 bg-background">
               {Object.entries(betsByEvent).map(([matchKey, matchBets]) => (
                 <EventBets
@@ -1248,7 +1249,7 @@ export default function BettingSlip({
                 />
               ))}
             </ul>
-          </ScrollArea>
+          </ScrollAreaB>
         )}
       </CardContent>
 
@@ -1411,7 +1412,7 @@ export default function BettingSlip({
                   <Separator />
 
                   {/* ACCORDION GRUPPI con ScrollArea */}
-                  <ScrollArea
+                  <ScrollAreaB
                     className="overflow-hidden"
                     style={{ height: `${scrollAreaHeight}px` }}
                   >
@@ -1633,7 +1634,7 @@ export default function BettingSlip({
                         </AccordionItem>
                       ))}
                     </Accordion>
-                  </ScrollArea>
+                  </ScrollAreaB>
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
