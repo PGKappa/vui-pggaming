@@ -246,7 +246,14 @@ export default function CashierContextProvider(props: {
             }
             return typeof value === 'string' ? value : fallback || key
           }
-          const getMinStakeIncrement = () => 0.05
+          const getMinStakeIncrement = () => {
+            const step = cashierData.intl?.min_stake_increment_step
+            if (step) {
+              const parsed = typeof step === 'string' ? parseFloat(step) : step
+              if (!isNaN(parsed) && parsed > 0) return parsed
+            }
+            return 0.05
+          }
           const getTimezone = () => cashierData.intl?.timezone || 'Europe/Rome'
           const getStakeButtons = () => {
             const buttons = cashierData.intl?.stake_buttons
