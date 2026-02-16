@@ -76,7 +76,7 @@ export default function NumericKeypadDrawer(props: {
     if (typeof amount !== 'number' || isNaN(amount) || !isFinite(amount)) {
       return
     }
-    
+
     setDrawerValue((prev) => {
       const currentValue = parseFloat(prev) || 0
       const newValue = currentValue + amount
@@ -97,11 +97,8 @@ export default function NumericKeypadDrawer(props: {
         return digit === '0' ? '0' : digit
       }
 
-      if (prev === '0.00') {
-        return digit === '0' ? '0.00' : digit
-      }
-
-      if (prev === '0') {
+      // Se il valore precedente è '0.00' o '0', inizia da capo
+      if (prev === '0.00' || prev === '0') {
         return digit
       }
 
@@ -292,13 +289,21 @@ export default function NumericKeypadDrawer(props: {
               if (typeof amount === 'number') {
                 numericAmount = amount
               } else {
-                numericAmount = parseFloat(String(amount).replace(',', '.').replace(/[^\d.]/g, ''))
+                numericAmount = parseFloat(
+                  String(amount)
+                    .replace(',', '.')
+                    .replace(/[^\d.]/g, ''),
+                )
               }
-              
-              if (isNaN(numericAmount) || !isFinite(numericAmount) || numericAmount <= 0) {
+
+              if (
+                isNaN(numericAmount) ||
+                !isFinite(numericAmount) ||
+                numericAmount <= 0
+              ) {
                 return null
               }
-              
+
               return (
                 <Button
                   key={`stake-${idx}-${numericAmount}`}

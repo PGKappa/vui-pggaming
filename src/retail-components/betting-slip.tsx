@@ -99,7 +99,7 @@ export default function BettingSlip({
   const minStake = rootContext?.getMinStake?.() || 50
   const minBet = rootContext?.getMinBet?.() || 0
   const maxWin = rootContext?.getMaxWin?.() || 1000000000
-  const minStakeIncrement = rootContext?.getMinStakeIncrement?.() || 50
+  const minStakeIncrement = rootContext?.getMinStakeIncrement?.() || 0.5
 
   const [accordionOpen, setAccordionOpen] = useState<string>('combinations')
   const [systemGroupsOpen, setSystemGroupsOpen] = useState<string[]>([])
@@ -593,6 +593,19 @@ export default function BettingSlip({
       return
     }
 
+    // Validazione che lo stake sia multiplo di min_stake_increment_step (prima del min_stake)
+    if (betMode !== 'SYSTEM' && minStakeIncrement > 0) {
+      const remainder = Math.abs(global % minStakeIncrement)
+      const tolerance = 0.0001 // Tolleranza per errori floating point
+      if (remainder > tolerance && remainder < minStakeIncrement - tolerance) {
+        toast.error(
+          t('stake_increment_error', { increment: minStakeIncrement }) ||
+            `Stake must be a multiple of ${currencySymbol} ${minStakeIncrement}`,
+        )
+        return
+      }
+    }
+
     // Validazione min_stake per single/multiple
     if (betMode !== 'SYSTEM' && global < minStake) {
       toast.error(
@@ -643,6 +656,25 @@ export default function BettingSlip({
             `Minimum stake per combination is ${currencySymbol} ${minStake.toFixed(2)}`,
         )
         return
+      }
+
+      // Validazione che ogni stake sistema sia multiplo di min_stake_increment_step
+      if (minStakeIncrement > 0) {
+        const invalidIncrementGroups = systemGroups.filter((group) => {
+          if (!selectedGroups[group.name] || group.stake <= 0) return false
+          const remainder = Math.abs(group.stake % minStakeIncrement)
+          const tolerance = 0.0001
+          return (
+            remainder > tolerance && remainder < minStakeIncrement - tolerance
+          )
+        })
+        if (invalidIncrementGroups.length > 0) {
+          toast.error(
+            t('stake_increment_error', { increment: minStakeIncrement }) ||
+              `Stake must be a multiple of ${currencySymbol} ${minStakeIncrement}`,
+          )
+          return
+        }
       }
 
       // Validazione min_bet per il totale del ticket sistema
@@ -1215,7 +1247,7 @@ export default function BettingSlip({
               {t('system').toUpperCase()}
             </span>
             {betMode === 'SYSTEM' && (
-              <div className="absolute bottom-0.5 h-[0px] w-[156px] bg-navbarButton  text-white"></div>
+              <div className="absolute bottom-0.5 h-[0px] w-[156px] bg-navbarButton text-white"></div>
             )}
           </div>
         </div>
