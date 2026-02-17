@@ -7,7 +7,7 @@ import {
   normalizeMarketName,
 } from '@/retail-lib/utils'
 import { t } from 'i18next'
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import BetCombinationsTable from './bet-combination-table'
 import BetEntryToggle from './bet-entry-toggle'
 import LatecomersDialog from './latecomers-dialog'
@@ -95,7 +95,10 @@ export default function UpcomingRaceCard({
     }
   }, [activeTab, betEntries, race.discipline, race.id])
 
-  // useEffect per cambio automatico tab da FastBet
+  // Ref per tracciare il numero di bet precedenti per questa corsa
+  const prevRaceBetCountRef = useRef<number>(0)
+
+  // useEffect per cambio automatico tab da FastBet (solo su NUOVA bet)
   useEffect(() => {
     const raceEntries = betEntries.filter(
       (entry) =>
@@ -103,79 +106,87 @@ export default function UpcomingRaceCard({
         entry.bet.event.number === race.id,
     )
 
-    if (raceEntries.length > 0) {
-      const newPosition1: number[] = []
-      const newPosition2: number[] = []
-      const newPosition3: number[] = []
+    const prevCount = prevRaceBetCountRef.current
+    const currentCount = raceEntries.length
 
-      raceEntries.forEach((entry) => {
-        const market = entry.market
-        const competitors = entry.bet.competitors
-        const outcome = entry.bet.option.outcome
+    // Aggiorna il ref per il prossimo ciclo
+    prevRaceBetCountRef.current = currentCount
 
-        // Normalizza il market per riconoscere tutte le lingue
-        const normalized = normalizeMarketName(market)
+    // Solo se è stata AGGIUNTA una nuova bet (non rimosse o invariate)
+    if (currentCount <= prevCount || currentCount === 0) {
+      return
+    }
 
-        // Cambia automaticamente il tab basato sul market FastBet
-        if (
-          normalized === 'winner' ||
-          normalized === 'placed' ||
-          normalized === 'show'
-        ) {
-          // Per mercati singoli: outcome contiene il numero, competitors contiene il nome
-          const competitorNum = parseInt(outcome)
-          if (!isNaN(competitorNum) && !newPosition1.includes(competitorNum)) {
-            newPosition1.push(competitorNum)
-          }
-        } else if (normalized === 'exacta' || normalized === 'quinella') {
-          const parts = competitors
-            .split('-')
-            .map((n: string) => parseInt(n.trim()))
-          if (parts.length >= 2) {
-            const [first, second] = parts
-            if (!isNaN(first) && !newPosition1.includes(first)) {
-              newPosition1.push(first)
-            }
-            if (!isNaN(second) && !newPosition2.includes(second)) {
-              newPosition2.push(second)
-            }
-          }
-          setActiveTab('couples')
-          setMarketType(normalized === 'exacta' ? 'exacta' : 'quinella')
-        } else if (
-          normalized === 'trifecta' ||
-          normalized === 'boxed_trifecta'
-        ) {
-          const parts = competitors
-            .split('-')
-            .map((n: string) => parseInt(n.trim()))
-          if (parts.length >= 3) {
-            const [first, second, third] = parts
-            if (!isNaN(first) && !newPosition1.includes(first)) {
-              newPosition1.push(first)
-            }
-            if (!isNaN(second) && !newPosition2.includes(second)) {
-              newPosition2.push(second)
-            }
-            if (!isNaN(third) && !newPosition3.includes(third)) {
-              newPosition3.push(third)
-            }
-          }
-          setActiveTab('triplets')
-          setMarketType(normalized === 'trifecta' ? 'trifecta' : 'boxtrifecta')
+    // Guarda SOLO l'ultima bet aggiunta per decidere il tab
+    const latestEntry = raceEntries[raceEntries.length - 1]
+    const normalized = normalizeMarketName(latestEntry.market)
+
+    const newPosition1: number[] = []
+    const newPosition2: number[] = []
+    const newPosition3: number[] = []
+
+    raceEntries.forEach((entry) => {
+      const market = entry.market
+      const competitors = entry.bet.competitors
+      const outcome = entry.bet.option.outcome
+      const norm = normalizeMarketName(market)
+
+      if (norm === 'winner' || norm === 'placed' || norm === 'show') {
+        const competitorNum = parseInt(outcome)
+        if (!isNaN(competitorNum) && !newPosition1.includes(competitorNum)) {
+          newPosition1.push(competitorNum)
         }
-      })
+      } else if (norm === 'exacta' || norm === 'quinella') {
+        const parts = competitors
+          .split('-')
+          .map((n: string) => parseInt(n.trim()))
+        if (parts.length >= 2) {
+          const [first, second] = parts
+          if (!isNaN(first) && !newPosition1.includes(first)) {
+            newPosition1.push(first)
+          }
+          if (!isNaN(second) && !newPosition2.includes(second)) {
+            newPosition2.push(second)
+          }
+        }
+      } else if (norm === 'trifecta' || norm === 'boxed_trifecta') {
+        const parts = competitors
+          .split('-')
+          .map((n: string) => parseInt(n.trim()))
+        if (parts.length >= 3) {
+          const [first, second, third] = parts
+          if (!isNaN(first) && !newPosition1.includes(first)) {
+            newPosition1.push(first)
+          }
+          if (!isNaN(second) && !newPosition2.includes(second)) {
+            newPosition2.push(second)
+          }
+          if (!isNaN(third) && !newPosition3.includes(third)) {
+            newPosition3.push(third)
+          }
+        }
+      }
+    })
 
-      // Aggiorna le selezioni usando functional updater (come il toggle manuale)
-      if (newPosition1.length > 0) {
-        setPosition1Selection(() => newPosition1)
-      }
-      if (newPosition2.length > 0) {
-        setPosition2Selection(() => newPosition2)
-      }
-      if (newPosition3.length > 0) {
-        setPosition3Selection(() => newPosition3)
-      }
+    // Auto-switch tab SOLO basato sull'ultima bet aggiunta
+    if (normalized === 'exacta' || normalized === 'quinella') {
+      setActiveTab('couples')
+      setMarketType(normalized === 'exacta' ? 'exacta' : 'quinella')
+    } else if (normalized === 'trifecta' || normalized === 'boxed_trifecta') {
+      setActiveTab('triplets')
+      setMarketType(normalized === 'trifecta' ? 'trifecta' : 'boxtrifecta')
+    }
+    // Per winner/placed/show NON cambiare tab - resta dove sei
+
+    // Aggiorna le selezioni
+    if (newPosition1.length > 0) {
+      setPosition1Selection(() => newPosition1)
+    }
+    if (newPosition2.length > 0) {
+      setPosition2Selection(() => newPosition2)
+    }
+    if (newPosition3.length > 0) {
+      setPosition3Selection(() => newPosition3)
     }
   }, [betEntries, race.id, race.discipline])
 
