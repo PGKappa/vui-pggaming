@@ -160,7 +160,7 @@ function RetailShell({ children }: { children: React.ReactNode }) {
 
   // Update splash screen with API data
   useEffect(() => {
-    const version = getVersion?.() || 'v0.1.0'
+    const version = getVersion?.() || 'v1.0.0'
     const splashscreenImage = getSplashscreen?.() || 'splashscreen.png'
 
     // Update version text
