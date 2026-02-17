@@ -270,5 +270,6 @@
   "operator_not_found": "Operatore richiesto ma non trovato",
   "cashier_initialized": "Cassa inizializzata",
   "cashier_unavailable": "Cassa non disponibile - uso alternativa",
-  "retrying_cashier": "Ritento connessione cassa..."
+  "retrying_cashier": "Ritento connessione cassa...",
+  "stake_increment_error": "L'importo deve essere un multiplo di {{increment}}"
 }

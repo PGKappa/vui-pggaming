@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import InactivityBridge from '@/retail-components/inactivity-bridge'
 import Navbar from '@/retail-components/navbar'
 import { Toaster } from '@/retail-components/ui/sonner'
@@ -55,24 +54,31 @@ export default function RetailLayout({
                 display: flex;
                 flex-direction: column;
                 align-items: center;
+                justify-content: center;
                 background: white;
                 width: 1920px;
                 height: 1020px;
               }
               #static-splash .splash-content {
-                flex: 1;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                justify-content: center;
                 gap: 4px;
               }
               #static-splash .splash-logo {
                 width: 400px;
                 height: 150px;
                 object-fit: contain;
+                opacity: 0;
+                transition: opacity 0.2s ease-in;
+              }
+              #static-splash .splash-logo.loaded {
+                opacity: 1;
               }
               #static-splash .splash-spinner {
+                position: absolute;
+                top: 60%;
+                left: 48%;
                 width: 64px;
                 height: 64px;
                 border: 4px solid #1e3a5f;
@@ -87,6 +93,11 @@ export default function RetailLayout({
                 transform: translateX(-50%);
                 font-size: 14px;
                 color: #6b7280;
+                opacity: 0;
+                transition: opacity 0.2s ease-in;
+              }
+              #static-splash .splash-version.loaded {
+                opacity: 1;
               }
               @keyframes spin {
                 to { transform: rotate(360deg); }
@@ -101,17 +112,16 @@ export default function RetailLayout({
       {/* Splash screen statico inline - appare ISTANTANEAMENTE */}
       <div id="static-splash">
         <div className="splash-content">
-          <Image
-            src="/splashscreen.png"
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/splashscreen-empty.png"
             alt="PGV Virtual"
-            width={400}
-            height={150}
-            priority
-            style={{ objectFit: 'contain' }}
+            className="splash-logo"
+            style={{ objectFit: 'contain', width: 400, height: 150 }}
           />
           <div className="splash-spinner"></div>
         </div>
-        <span className="splash-version">v0.1.0</span>
+        <span className="splash-version"></span>
       </div>
       <SkinProvider>
         <SkinBody>{children}</SkinBody>
@@ -147,25 +157,83 @@ function SkinBody({ children }: { children: React.ReactNode }) {
 let hasAppLoaded = false
 
 function RetailShell({ children }: { children: React.ReactNode }) {
-  const { isLoadingEvents, upcomingEvents, eventResults } =
-    useContext(RootContext)
+  const {
+    isLoadingEvents,
+    isLoadingCashier,
+    upcomingEvents,
+    eventResults,
+    getVersion,
+    getSplashscreen,
+  } = useContext(RootContext)
+
+  // Update splash screen with API data
+  useEffect(() => {
+    const version = getVersion?.() || 'v1.0'
+    const splashscreenImage = getSplashscreen?.() || 'splashscreen-empty.png'
+
+    // Update version text
+    const versionElement = document.querySelector(
+      '#static-splash .splash-version',
+    )
+
+    // Update splash image
+    const logoElement = document.querySelector(
+      '#static-splash .splash-logo',
+    ) as HTMLImageElement
+
+    // Check if we have a non-empty splashscreen image
+    const hasRealImage =
+      splashscreenImage && !splashscreenImage.includes('empty')
+
+    if (logoElement && hasRealImage) {
+      // Handle case where path may or may not start with /
+      const imagePath = splashscreenImage.startsWith('/')
+        ? splashscreenImage
+        : `/${splashscreenImage}`
+      const preloadImg = new Image()
+      preloadImg.onload = () => {
+        logoElement.src = imagePath
+        logoElement.classList.add('loaded')
+        if (versionElement) {
+          versionElement.textContent = version
+          versionElement.classList.add('loaded')
+        }
+      }
+      preloadImg.onerror = () => {
+        if (versionElement) {
+          versionElement.textContent = version
+          versionElement.classList.add('loaded')
+        }
+      }
+      preloadImg.src = imagePath
+    } else {
+      if (versionElement) {
+        versionElement.textContent = version
+        versionElement.classList.add('loaded')
+      }
+    }
+  }, [isLoadingCashier, getVersion, getSplashscreen])
 
   useEffect(() => {
     // Solo al primo caricamento
     if (
       !hasAppLoaded &&
       !isLoadingEvents &&
+      !isLoadingCashier &&
       ((upcomingEvents?.length ?? 0) > 0 || (eventResults?.length ?? 0) > 0)
     ) {
       hasAppLoaded = true
 
-      // Nasconde lo splash screen statico
-      const splash = document.getElementById('static-splash')
-      if (splash) {
-        splash.classList.add('hidden')
-      }
+      // Aspetta un minimo di tempo per mostrare versione e logo
+      setTimeout(() => {
+        // Nasconde lo splash screen statico
+        const splash = document.getElementById('static-splash')
+        if (splash) {
+          splash.classList.add('hidden')
+        }
+      }, 900) // 900ms per dare tempo di vedere versione e logo
     }
-  }, [isLoadingEvents, upcomingEvents, eventResults])
+  }, [isLoadingEvents, isLoadingCashier, upcomingEvents, eventResults])
 
   return (
     <>
