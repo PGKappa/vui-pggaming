@@ -54,16 +54,15 @@ export default function RetailLayout({
                 display: flex;
                 flex-direction: column;
                 align-items: center;
+                justify-content: center;
                 background: white;
                 width: 1920px;
                 height: 1020px;
               }
               #static-splash .splash-content {
-                flex: 1;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                justify-content: center;
                 gap: 4px;
               }
               #static-splash .splash-logo {
@@ -77,6 +76,9 @@ export default function RetailLayout({
                 opacity: 1;
               }
               #static-splash .splash-spinner {
+                position: absolute;
+                top: 60%;
+                left: 48%;
                 width: 64px;
                 height: 64px;
                 border: 4px solid #1e3a5f;
@@ -209,9 +211,6 @@ function RetailShell({ children }: { children: React.ReactNode }) {
         versionElement.textContent = version
         versionElement.classList.add('loaded')
       }
-      if (logoElement) {
-        logoElement.style.display = 'none'
-      }
     }
   }, [isLoadingCashier, getVersion, getSplashscreen])
 
@@ -232,7 +231,7 @@ function RetailShell({ children }: { children: React.ReactNode }) {
         if (splash) {
           splash.classList.add('hidden')
         }
-      }, 800) // 800ms per dare tempo di vedere versione e logo
+      }, 900) // 900ms per dare tempo di vedere versione e logo
     }
   }, [isLoadingEvents, isLoadingCashier, upcomingEvents, eventResults])
 
