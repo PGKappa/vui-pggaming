@@ -95,9 +95,7 @@ export default function EventBets(props: {
               <span className="text-[13px] uppercase">
                 {eventBets[0].bet.competitors}
               </span>
-              <span className='text-[10px]'>
-                |
-              </span>
+              <span className="text-[10px]">|</span>
               {eventBets[0].bet.event.roundId && (
                 <span className="relative mr-[220px] text-[13px] font-bold text-accent">
                   {t('round').toUpperCase()} {eventBets[0].bet.event.roundId}
@@ -157,9 +155,17 @@ export default function EventBets(props: {
               ) {
                 outcomeDisplay = t('odd')
               } else if (outcomeLower === 'under') {
-                outcomeDisplay = t('under')
+                // Per cani e cavalli usa la versione completa
+                const isRacing =
+                  betEntry.bet.discipline === 'DOGS' ||
+                  betEntry.bet.discipline === 'HORSES'
+                outcomeDisplay = isRacing ? t('under_full') : t('under')
               } else if (outcomeLower === 'over') {
-                outcomeDisplay = t('over')
+                // Per cani e cavalli usa la versione completa
+                const isRacing =
+                  betEntry.bet.discipline === 'DOGS' ||
+                  betEntry.bet.discipline === 'HORSES'
+                outcomeDisplay = isRacing ? t('over_full') : t('over')
               }
             }
 
@@ -174,7 +180,7 @@ export default function EventBets(props: {
                 <span className="mr-[1px] w-[126px] text-[13px] uppercase">
                   {translatedMarket}
                 </span>
-                <span className="ml-[0px] w-[109px] text-[13px] font-normal text-center">
+                <span className="ml-[0px] w-[109px] text-center text-[13px] font-normal">
                   {outcomeDisplay}
                 </span>
                 <span className="relative right-[3px] grid w-[101px] justify-end break-all text-[13px] font-semibold leading-tight">

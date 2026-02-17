@@ -198,6 +198,8 @@
   "match": "Partido",
   "under": "ME",
   "over": "MÀ",
+  "under_full": "Menos",
+  "over_full": "Más",
   "even": "Par",
   "odd": "Impar",
   "event_completed_detailed_results": "Evento completado - resultados detallados disponibles solo para carreras de caballos y galgos",

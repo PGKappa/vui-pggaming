@@ -863,9 +863,9 @@ export default function UpcomingRaceCard({
                       number: race.id,
                       startingAt: race.time,
                     },
-                    competitors: t('under'),
+                    competitors: t('under_full'),
                     option: {
-                      outcome: t('under'),
+                      outcome: t('under_full'),
                       decPrice: parseFloat(
                         raceInfo.odds.underover?.under || '0',
                       ),
@@ -888,9 +888,9 @@ export default function UpcomingRaceCard({
                       number: race.id,
                       startingAt: race.time,
                     },
-                    competitors: t('over'),
+                    competitors: t('over_full'),
                     option: {
-                      outcome: t('over'),
+                      outcome: t('over_full'),
                       decPrice: parseFloat(
                         raceInfo.odds.underover?.over || '0',
                       ),

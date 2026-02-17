@@ -205,6 +205,8 @@
   "match": "Match",
   "under": "Un",
   "over": "Ov",
+  "under_full": "Under",
+  "over_full": "Over",
   "even": "Even",
   "odd": "Odd",
   "event_completed_detailed_results": "Event completed - detailed results available for horse and dog racing only",

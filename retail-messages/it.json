@@ -198,6 +198,8 @@
   "match": "Partita",
   "under": "UN",
   "over": "OV",
+  "under_full": "Under",
+  "over_full": "Over",
   "even": "Pari",
   "odd": "Dispari",
   "event_completed_detailed_results": "Evento completato - risultati dettagliati disponibili solo per corse di cavalli e cani",
