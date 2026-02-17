@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import InactivityBridge from '@/retail-components/inactivity-bridge'
 import Navbar from '@/retail-components/navbar'
 import { Toaster } from '@/retail-components/ui/sonner'
@@ -87,6 +86,11 @@ export default function RetailLayout({
                 transform: translateX(-50%);
                 font-size: 14px;
                 color: #6b7280;
+                opacity: 0;
+                transition: opacity 0.2s ease-in;
+              }
+              #static-splash .splash-version.loaded {
+                opacity: 1;
               }
               @keyframes spin {
                 to { transform: rotate(360deg); }
@@ -101,17 +105,16 @@ export default function RetailLayout({
       {/* Splash screen statico inline - appare ISTANTANEAMENTE */}
       <div id="static-splash">
         <div className="splash-content">
-          <Image
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
             src="/splashscreen.png"
             alt="PGV Virtual"
-            width={400}
-            height={150}
-            priority
-            style={{ objectFit: 'contain' }}
+            className="splash-logo"
+            style={{ objectFit: 'contain', width: 400, height: 150 }}
           />
           <div className="splash-spinner"></div>
         </div>
-        <span className="splash-version">v0.1.0</span>
+        <span className="splash-version"></span>
       </div>
       <SkinProvider>
         <SkinBody>{children}</SkinBody>
@@ -147,8 +150,40 @@ function SkinBody({ children }: { children: React.ReactNode }) {
 let hasAppLoaded = false
 
 function RetailShell({ children }: { children: React.ReactNode }) {
-  const { isLoadingEvents, upcomingEvents, eventResults } =
-    useContext(RootContext)
+  const {
+    isLoadingEvents,
+    upcomingEvents,
+    eventResults,
+    getVersion,
+    getSplashscreen,
+  } = useContext(RootContext)
+
+  // Update splash screen with API data
+  useEffect(() => {
+    const version = getVersion?.() || 'v0.1.0'
+    const splashscreenImage = getSplashscreen?.() || 'splashscreen.png'
+
+    // Update version text
+    const versionElement = document.querySelector(
+      '#static-splash .splash-version',
+    )
+    if (versionElement) {
+      versionElement.textContent = version
+      versionElement.classList.add('loaded')
+    }
+
+    // Update splash image
+    const logoElement = document.querySelector(
+      '#static-splash .splash-logo',
+    ) as HTMLImageElement
+    if (logoElement && splashscreenImage) {
+      // Handle case where path may or may not start with /
+      const imagePath = splashscreenImage.startsWith('/')
+        ? splashscreenImage
+        : `/${splashscreenImage}`
+      logoElement.src = imagePath
+    }
+  }, [getVersion, getSplashscreen])
 
   useEffect(() => {
     // Solo al primo caricamento

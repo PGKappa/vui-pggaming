@@ -31,6 +31,8 @@ export type RootContextType = {
   getChannels?: () => any[]
   getTrackName?: (channel?: number) => string
   getTranslation?: (key: string, fallback?: string) => string
+  getVersion?: () => string
+  getSplashscreen?: () => string
   // === Da EventsContext (per backward-compatibility) ===
   upcomingEvents?: UpcomingEvent[]
   searchEventResults?: EventResult[]
@@ -54,6 +56,8 @@ const defaultRootContext: RootContextType = {
   getChannels: () => [],
   getTrackName: (channel?: number) => `Track ${channel || 6}`,
   getTranslation: (key: string, fallback?: string) => fallback || key,
+  getVersion: () => 'v1.0.0',
+  getSplashscreen: () => 'splashscreen.png',
   isLoadingEvents: false,
   upcomingEvents: [],
   eventResults: [],
@@ -96,6 +100,8 @@ export default function RootContextProvider(props: {
       getChannels: cashierContext.getChannels,
       getTrackName: cashierContext.getTrackName,
       getTranslation: cashierContext.getTranslation,
+      getVersion: cashierContext.getVersion,
+      getSplashscreen: cashierContext.getSplashscreen,
       upcomingEvents: eventsContext.upcomingEvents,
       searchEventResults: eventsContext.searchEventResults,
       setSearchEventResults: eventsContext.setSearchEventResults,
@@ -124,6 +130,8 @@ export default function RootContextProvider(props: {
       cashierContext.getChannels,
       cashierContext.getTrackName,
       cashierContext.getTranslation,
+      cashierContext.getVersion,
+      cashierContext.getSplashscreen,
       eventsContext.upcomingEvents,
       eventsContext.searchEventResults,
       eventsContext.setSearchEventResults,
