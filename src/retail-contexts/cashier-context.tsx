@@ -47,8 +47,8 @@ const defaultCashierContext: CashierContextType = {
   getChannels: () => [],
   getTrackName: (channel?: number) => `Track ${channel || 6}`,
   getTranslation: (key: string, fallback?: string) => fallback || key,
-  getVersion: () => 'v1.0.0',
-  getSplashscreen: () => 'splashscreen.png',
+  getVersion: () => 'v1.0',
+  getSplashscreen: () => 'splashscreen-empty.png',
 }
 
 export const CashierContext = createContext<CashierContextType>(
@@ -266,9 +266,9 @@ export default function CashierContextProvider(props: {
           const getMinStake = () => cashierData.intl?.min_stake || 0.05
           const getMinBet = () => cashierData.intl?.min_bet || 0.05
           const getMaxWin = () => cashierData.intl?.max_win || 1000000000
-          const getVersion = () => cashierData.intl?.version || 'v1.0.0'
+          const getVersion = () => cashierData.intl?.version || 'v1.0'
           const getSplashscreen = () =>
-            cashierData.intl?.splashscreen || 'splashscreen.png'
+            cashierData.intl?.splashscreen || 'splashscreen-empty.png'
 
           const contextData: CashierContextType = {
             initCode,

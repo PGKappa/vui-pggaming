@@ -70,6 +70,11 @@ export default function RetailLayout({
                 width: 400px;
                 height: 150px;
                 object-fit: contain;
+                opacity: 0;
+                transition: opacity 0.2s ease-in;
+              }
+              #static-splash .splash-logo.loaded {
+                opacity: 1;
               }
               #static-splash .splash-spinner {
                 width: 64px;
@@ -107,7 +112,7 @@ export default function RetailLayout({
         <div className="splash-content">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/splashscreen.png"
+            src="/splashscreen-empty.png"
             alt="PGV Virtual"
             className="splash-logo"
             style={{ objectFit: 'contain', width: 400, height: 150 }}
@@ -152,6 +157,7 @@ let hasAppLoaded = false
 function RetailShell({ children }: { children: React.ReactNode }) {
   const {
     isLoadingEvents,
+    isLoadingCashier,
     upcomingEvents,
     eventResults,
     getVersion,
@@ -160,47 +166,75 @@ function RetailShell({ children }: { children: React.ReactNode }) {
 
   // Update splash screen with API data
   useEffect(() => {
-    const version = getVersion?.() || 'v1.0.0'
-    const splashscreenImage = getSplashscreen?.() || 'splashscreen.png'
+    const version = getVersion?.() || 'v1.0'
+    const splashscreenImage = getSplashscreen?.() || 'splashscreen-empty.png'
 
     // Update version text
     const versionElement = document.querySelector(
       '#static-splash .splash-version',
     )
-    if (versionElement) {
-      versionElement.textContent = version
-      versionElement.classList.add('loaded')
-    }
 
     // Update splash image
     const logoElement = document.querySelector(
       '#static-splash .splash-logo',
     ) as HTMLImageElement
-    if (logoElement && splashscreenImage) {
+
+    // Check if we have a non-empty splashscreen image
+    const hasRealImage =
+      splashscreenImage && !splashscreenImage.includes('empty')
+
+    if (logoElement && hasRealImage) {
       // Handle case where path may or may not start with /
       const imagePath = splashscreenImage.startsWith('/')
         ? splashscreenImage
         : `/${splashscreenImage}`
-      logoElement.src = imagePath
+      const preloadImg = new Image()
+      preloadImg.onload = () => {
+        logoElement.src = imagePath
+        logoElement.classList.add('loaded')
+        if (versionElement) {
+          versionElement.textContent = version
+          versionElement.classList.add('loaded')
+        }
+      }
+      preloadImg.onerror = () => {
+        if (versionElement) {
+          versionElement.textContent = version
+          versionElement.classList.add('loaded')
+        }
+      }
+      preloadImg.src = imagePath
+    } else {
+      if (versionElement) {
+        versionElement.textContent = version
+        versionElement.classList.add('loaded')
+      }
+      if (logoElement) {
+        logoElement.style.display = 'none'
+      }
     }
-  }, [getVersion, getSplashscreen])
+  }, [isLoadingCashier, getVersion, getSplashscreen])
 
   useEffect(() => {
     // Solo al primo caricamento
     if (
       !hasAppLoaded &&
       !isLoadingEvents &&
+      !isLoadingCashier &&
       ((upcomingEvents?.length ?? 0) > 0 || (eventResults?.length ?? 0) > 0)
     ) {
       hasAppLoaded = true
 
-      // Nasconde lo splash screen statico
-      const splash = document.getElementById('static-splash')
-      if (splash) {
-        splash.classList.add('hidden')
-      }
+      // Aspetta un minimo di tempo per mostrare versione e logo
+      setTimeout(() => {
+        // Nasconde lo splash screen statico
+        const splash = document.getElementById('static-splash')
+        if (splash) {
+          splash.classList.add('hidden')
+        }
+      }, 800) // 800ms per dare tempo di vedere versione e logo
     }
-  }, [isLoadingEvents, upcomingEvents, eventResults])
+  }, [isLoadingEvents, isLoadingCashier, upcomingEvents, eventResults])
 
   return (
     <>
