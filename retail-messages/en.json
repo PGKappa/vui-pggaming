@@ -305,5 +305,6 @@
   "last_ticket_restore_error": "There is no last ticket to restore!",
   "cashier_data_loaded": "Cashier data loaded from cache!",
   "user_data_fetched": "User data fetched successfully!",
-  "error_fetching_racing_events": "Error fetching racing events"
+  "error_fetching_racing_events": "Error fetching racing events",
+  "stake_increment_error": "Stake must be a multiple of {{increment}}"
 }
