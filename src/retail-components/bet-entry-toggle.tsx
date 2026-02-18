@@ -62,8 +62,13 @@ export default function BetEntryToggle(props: {
   }, [betEntries, props.marketName, props.bet])
 
   const formatOutcome = (outcome: string, marketName: string): string => {
-    const underLabel = t('under') || 'Under'
-    const overLabel = t('over') || 'Over'
+    // Per cani e cavalli usa le label complete, per il calcio usa le abbreviazioni
+    const isRacing =
+      props.bet.discipline === 'DOGS' || props.bet.discipline === 'HORSES'
+    const underLabel = isRacing
+      ? t('under_full') || 'Under'
+      : t('under') || 'Un'
+    const overLabel = isRacing ? t('over_full') || 'Over' : t('over') || 'Ov'
 
     const lower = outcome.toLowerCase()
     if (lower === 'yes') return t('yes') || 'Sí'.toUpperCase()
