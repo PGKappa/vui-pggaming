@@ -599,9 +599,17 @@ export default function SearchEventResults() {
   const handleSearch = () => {
     setContextResultsSnapshot(rootContext.eventResults || [])
     setConfirmedDiscipline(selectedDiscipline)
-    setConfirmedDate(selectedDate)
-    setConfirmedTimeSlot(selectedTimeSlot)
+    // Quando "Last 10 Games" è attivo, ignora data e fascia oraria 
+    const effectiveDate = lastTenGames ? 'ALL' : selectedDate
+    const effectiveTimeSlot = lastTenGames ? 'ALL' : selectedTimeSlot
+    setConfirmedDate(effectiveDate)
+    setConfirmedTimeSlot(effectiveTimeSlot)
     setConfirmedLastTenGames(lastTenGames)
+    // Azzera risultati precedenti per evitare di mostrare dati stantii
+    setFetchedResults([])
+    // Invalida cache per la prossima ricerca
+    const nextCacheKey = `${selectedDiscipline}:${effectiveDate}:${effectiveTimeSlot}:${lastTenGames}`
+    searchResultsCache.delete(nextCacheKey)
     setSearchTrigger((prev) => prev + 1)
   }
 
