@@ -659,7 +659,7 @@ export default function BetCombinationsTable({
         </div>
       </CardHeader>
       <CardContent className="p-2">
-        <div className="grid grid-cols-12 gap-2">
+        <div className="grid grid-cols-12 gap-2 pb-16">
           {combinations.map((bet) => (
             <BetEntryToggle
               key={bet.option.outcome}
