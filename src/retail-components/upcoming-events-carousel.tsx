@@ -135,16 +135,17 @@ export function UpcomingEventsCarousel(props: {
 // Offset per disciplina — aggiusta bottom/right per allineare visivamente le immagini
 const imageOffsetByDiscipline: Record<string, string> = {
   SOCCER: 'bottom-[4px] right-[10px]',
-  HORSES: 'bottom-[4px] left-[0px]', // ← aggiusta se necessario
-  DOGS:   'bottom-[4px] right-[7px]', // ← aggiusta questi valori
+  HORSES: 'bottom-[4px] right-[5px]', // ← aggiusta se necessario
+  DOGS:   'bottom-[4px] right-[12px]', // ← aggiusta questi valori
 }
 
 // Offset del div testo per disciplina — aggiusta right/top per allineare il testo visivamente
 const textOffsetByDiscipline: Record<string, string> = {
   SOCCER: 'right-[3px]',
-  HORSES: 'left-[4px]', // ← aggiusta se necessario
-  DOGS:   'right-[3px]', // ← aggiusta questi valori
+  HORSES: 'right-[1px]', // ← aggiusta se necessario
+  DOGS:   'right-[8px]', // ← aggiusta questi valori
 }
+
 
 function UpcomingEventItem(props: {
   event: UpcomingEvent
@@ -211,14 +212,14 @@ function UpcomingEventItem(props: {
         className={`relative size-14 object-contain ${imageOffset}`}
       />
       <div className={`relative ${textOffset} flex flex-col items-start`}>
-        <span className="relative bottom-[7px] whitespace-nowrap text-[14px] font-semibold uppercase">
+        <span className="relative bottom-[7px] whitespace-nowrap text-[13px] font-semibold uppercase">
           {event.discipline === 'SOCCER'
             ? event.name
             : event.discipline === 'HORSES'
               ? t('horse_races_label')
               : t('dog_races_label')}
         </span>
-        <span className="relative bottom-[5px] whitespace-nowrap text-[13px] font-normal uppercase">
+        <span className="relative bottom-[4px] whitespace-nowrap text-[12px] font-normal uppercase">
           {event.discipline === 'SOCCER'
             ? `${t('round')} ${event.id}`
             : `${t('track')} ${(event.data as any)?.channel || 6}`}
@@ -234,7 +235,7 @@ function UpcomingEventItem(props: {
       </div>
       <Progress
         value={progressValue}
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-[6px] rounded-none bg-navbarButton"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-[7 px] rounded-none bg-navbarButton"
         indicatorClassName="bg-tertiary"
       />
     </CarouselItem>
