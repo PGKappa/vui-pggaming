@@ -111,7 +111,7 @@ export default function EventBets(props: {
                 |
               </span>
 
-              <span className="relative mr-[255px] text-[13px] font-bold text-accent">
+              <span className="relative mr-[220px] text-[13px] font-bold text-accent">
                 ID {eventBets[0].bet.event.number}{' '}
                 {/* In case you want to translate ID in all the languages, don't forget to translate with i18n and add all in the jsons */}
               </span>
@@ -184,7 +184,7 @@ export default function EventBets(props: {
                 <span className="mr-[1px] w-[126px] text-[13px] capitalize">
                   {translatedMarket}
                 </span>
-                <span className="ml-[0px] w-[109px] text-center text-[13px] font-normal">
+                <span className="ml-[0px] w-[109px] text-left items-center text-[13px] font-normal">
                   {outcomeDisplay}
                 </span>
                 <span className="relative right-[3px] grid w-[101px] justify-end break-all text-[13px] font-semibold leading-tight">

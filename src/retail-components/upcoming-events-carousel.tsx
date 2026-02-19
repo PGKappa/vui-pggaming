@@ -190,9 +190,9 @@ function UpcomingEventItem(props: {
         alt={'Horses'}
         width={40}
         height={20}
-        className="relative bottom-[4px] right-[17px] size-14 object-contain"
+        className="relative bottom-[4px] right-[7px] size-14 object-contain"
       />
-      <div className="relative left-[8px] flex flex-col items-start">
+      <div className="relative right-[2px] flex flex-col items-start">
         <span className="relative bottom-[7px] whitespace-nowrap text-[14px] font-semibold uppercase">
           {event.discipline === 'SOCCER'
             ? event.name
