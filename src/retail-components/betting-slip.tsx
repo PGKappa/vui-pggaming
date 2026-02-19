@@ -95,11 +95,11 @@ export default function BettingSlip({
     1000, 2000, 3000, 5000, 10000,
   ]
 
-  // Ottieni i limiti di stake e vincita dall'API
-  const minStake = rootContext?.getMinStake?.() || 0.5 // Minimo per singola scommessa
-  const minBet = rootContext?.getMinBet?.() || 0 // Minimo totale schedina
-  const maxWin = rootContext?.getMaxWin?.() || 1000000000
-  const minStakeIncrement = rootContext?.getMinStakeIncrement?.() || 0.5 // Step +/- per single/multiple
+  // Ottieni i limiti di stake e vincita dall'API (Number() per sicurezza se arrivano stringhe)
+  const minStake = Number(rootContext?.getMinStake?.()) || 0.5 // Minimo per singola scommessa
+  const minBet = Number(rootContext?.getMinBet?.()) || 0 // Minimo totale schedina
+  const maxWin = Number(rootContext?.getMaxWin?.()) || 1000000000
+  const minStakeIncrement = Number(rootContext?.getMinStakeIncrement?.()) || 0.5 // Step +/- per single/multiple
   // Step +/- per sistema (hardcoded per ora, poi arriverà dall'API come min_stake_increment_step_system)
   const systemStakeIncrement = 0.1
 
@@ -407,7 +407,8 @@ export default function BettingSlip({
   }
 
   const handleUpdateGroupStake = (groupName: string, value: number) => {
-    const finalValue = Math.max(0, value)
+    const numValue = Number(value)
+    const finalValue = Math.max(0, isNaN(numValue) ? 0 : numValue)
     // Arrotonda per evitare errori floating point
     const roundedValue = Math.round(finalValue * 100) / 100
 

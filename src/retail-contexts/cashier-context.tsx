@@ -263,9 +263,30 @@ export default function CashierContextProvider(props: {
             const buttons = cashierData.intl?.stake_buttons
             return Array.isArray(buttons) ? buttons : [1, 2, 5, 10]
           }
-          const getMinStake = () => cashierData.intl?.min_stake || 0.05
-          const getMinBet = () => cashierData.intl?.min_bet || 0.05
-          const getMaxWin = () => cashierData.intl?.max_win || 1000000000
+          const getMinStake = () => {
+            const val = cashierData.intl?.min_stake
+            if (val !== undefined && val !== null) {
+              const parsed = typeof val === 'string' ? parseFloat(val) : val
+              if (!isNaN(parsed) && parsed > 0) return parsed
+            }
+            return 0.05
+          }
+          const getMinBet = () => {
+            const val = cashierData.intl?.min_bet
+            if (val !== undefined && val !== null) {
+              const parsed = typeof val === 'string' ? parseFloat(val) : val
+              if (!isNaN(parsed) && parsed >= 0) return parsed
+            }
+            return 0.05
+          }
+          const getMaxWin = () => {
+            const val = cashierData.intl?.max_win
+            if (val !== undefined && val !== null) {
+              const parsed = typeof val === 'string' ? parseFloat(val) : val
+              if (!isNaN(parsed) && parsed > 0) return parsed
+            }
+            return 1000000000
+          }
           const getVersion = () => cashierData.intl?.version || 'v1.0'
           const getSplashscreen = () =>
             cashierData.intl?.splashscreen || 'splashscreen-empty.png'
