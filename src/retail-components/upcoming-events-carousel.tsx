@@ -13,6 +13,7 @@ import { useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import useTimeLeft from '@/retail-lib/use-time-left'
 import { usePathname } from 'next/navigation'
+import Image from 'next/image'
 
 export function UpcomingEventsCarousel(props: {
   selectedEvent?: UpcomingEvent
@@ -131,6 +132,20 @@ export function UpcomingEventsCarousel(props: {
   )
 }
 
+// Offset per disciplina — aggiusta bottom/right per allineare visivamente le immagini
+const imageOffsetByDiscipline: Record<string, string> = {
+  SOCCER: 'bottom-[4px] right-[10px]',
+  HORSES: 'bottom-[4px] left-[0px]', // ← aggiusta se necessario
+  DOGS:   'bottom-[4px] right-[7px]', // ← aggiusta questi valori
+}
+
+// Offset del div testo per disciplina — aggiusta right/top per allineare il testo visivamente
+const textOffsetByDiscipline: Record<string, string> = {
+  SOCCER: 'right-[3px]',
+  HORSES: 'left-[4px]', // ← aggiusta se necessario
+  DOGS:   'right-[3px]', // ← aggiusta questi valori
+}
+
 function UpcomingEventItem(props: {
   event: UpcomingEvent
   selectedEvent?: UpcomingEvent
@@ -167,6 +182,9 @@ function UpcomingEventItem(props: {
     return null
   }
 
+  const imageOffset = imageOffsetByDiscipline[event.discipline] ?? 'bottom-[4px] right-[10px]'
+  const textOffset = textOffsetByDiscipline[event.discipline] ?? 'right-[3px]'
+
   return (
     <CarouselItem
       className={`relative flex h-[88px] basis-1/5 cursor-pointer flex-row items-center justify-center gap-3 overflow-hidden border-l-8 border-l-background px-2 py-2 text-[15px] last:border-r-background ${
@@ -187,12 +205,12 @@ function UpcomingEventItem(props: {
               ? '/cane_blu.png'
               : '/cavallo_blu.png'
         }
-        alt={'Horses'}
+        alt={event.discipline}
         width={40}
         height={20}
-        className="relative bottom-[4px] right-[5px] size-14 object-contain w-[59px] h-[58px]"
+        className={`relative size-14 object-contain ${imageOffset}`}
       />
-      <div className="relative right-[1px] flex flex-col items-start">
+      <div className={`relative ${textOffset} flex flex-col items-start`}>
         <span className="relative bottom-[7px] whitespace-nowrap text-[14px] font-semibold uppercase">
           {event.discipline === 'SOCCER'
             ? event.name
@@ -206,10 +224,10 @@ function UpcomingEventItem(props: {
             : `${t('track')} ${(event.data as any)?.channel || 6}`}
         </span>
         <div className="flex flex-row gap-2">
-          <span className="relative bottom-[1px] text-[14px] font-semibold">
+          <span className="relative bottom-[1px] text-[14px] font-semibold tabular-nums">
             {event.startTime}
           </span>
-          <span className="relative bottom-[1px] left-[8px] bg-white px-2 py-[1px] pt-0 text-[14px] font-semibold tabular-nums text-black">
+          <span className="relative bottom-[1px] min-w-[56px] left-[8px] bg-white px-2 py-[1px] pt-0 text-[14px] font-semibold tabular-nums text-black">
             {timeToEventStart}
           </span>
         </div>
@@ -222,4 +240,3 @@ function UpcomingEventItem(props: {
     </CarouselItem>
   )
 }
-import Image from 'next/image'
