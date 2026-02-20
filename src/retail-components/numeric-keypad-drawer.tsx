@@ -37,8 +37,8 @@ export default function NumericKeypadDrawer(props: {
   const [shouldReplaceOnNextDigit, setShouldReplaceOnNextDigit] =
     useState(false)
 
-  // Get currency symbol from RootContext or fallback to prop/€
-  const currencySymbol = getCurrencySymbol?.() || props.currencySymbol || '€'
+  // Get currency symbol from RootContext or fallback to prop/$
+  const currencySymbol = getCurrencySymbol?.() || props.currencySymbol || '$'
 
   // Get increment value from prop or context (fallback 0.5 se non disponibile)
   const incrementValue = props.incrementValue ?? getMinStakeIncrement?.() ?? 0.5
