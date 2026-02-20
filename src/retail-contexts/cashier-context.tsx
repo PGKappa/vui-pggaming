@@ -21,6 +21,7 @@ export type CashierContextType = {
   getCurrencySymbol?: () => string
   getCurrencyCode?: () => string
   getMinStakeIncrement?: () => number
+  getSystemStakeIncrement?: () => number
   getStakeButtons?: () => number[]
   getMinStake?: () => number
   getMinBet?: () => number
@@ -39,6 +40,7 @@ const defaultCashierContext: CashierContextType = {
   getCurrencySymbol: () => '$',
   getCurrencyCode: () => 'USD',
   getMinStakeIncrement: () => 0.05,
+  getSystemStakeIncrement: () => 0.1,
   getStakeButtons: () => [1, 2, 5, 10],
   getMinStake: () => 0.05,
   getMinBet: () => 0.05,
@@ -258,6 +260,14 @@ export default function CashierContextProvider(props: {
             }
             return 0.05
           }
+          const getSystemStakeIncrement = () => {
+            const step = cashierData.intl?.min_stake_increment_step_sys
+            if (step) {
+              const parsed = typeof step === 'string' ? parseFloat(step) : step
+              if (!isNaN(parsed) && parsed > 0) return parsed
+            }
+            return 0.1
+          }
           const getTimezone = () => cashierData.intl?.timezone || 'Europe/Rome'
           const getStakeButtons = () => {
             const buttons = cashierData.intl?.stake_buttons
@@ -299,6 +309,7 @@ export default function CashierContextProvider(props: {
             getCurrencySymbol,
             getCurrencyCode,
             getMinStakeIncrement,
+            getSystemStakeIncrement,
             getStakeButtons,
             getMinStake,
             getMinBet,

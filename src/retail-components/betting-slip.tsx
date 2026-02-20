@@ -100,8 +100,9 @@ export default function BettingSlip({
   const minBet = Number(rootContext?.getMinBet?.()) || 0 // Minimo totale schedina
   const maxWin = Number(rootContext?.getMaxWin?.()) || 1000000000
   const minStakeIncrement = Number(rootContext?.getMinStakeIncrement?.()) || 0.5 // Step +/- per single/multiple
-  // Step +/- per sistema (hardcoded per ora, poi arriverà dall'API come min_stake_increment_step_system)
-  const systemStakeIncrement = 0.1
+  // Step +/- per sistema
+  const systemStakeIncrement =
+    Number(rootContext?.getSystemStakeIncrement?.()) || 0.1
 
   const [accordionOpen, setAccordionOpen] = useState<string>('combinations')
   const [systemGroupsOpen, setSystemGroupsOpen] = useState<string[]>([])
