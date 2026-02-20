@@ -104,10 +104,7 @@ function createContextDataFromCashierData(
       return channels[channel].track_name || `Track ${channel + 1}`
     }
     const defaultChannel = channel ? channel - 1 : 5
-    return (
-      channels[defaultChannel]?.track_name ||
-      `Track ${defaultChannel + 1}`
-    )
+    return channels[defaultChannel]?.track_name || `Track ${defaultChannel + 1}`
   }
   const getTranslation = (key: string, fallback?: string) => {
     const keys = key.split('.')
@@ -134,7 +131,8 @@ function createContextDataFromCashierData(
   const getMinStake = () => {
     const minStake = cashierData.intl?.min_stake
     if (minStake) {
-      const parsed = typeof minStake === 'string' ? parseFloat(minStake) : minStake
+      const parsed =
+        typeof minStake === 'string' ? parseFloat(minStake) : minStake
       if (!isNaN(parsed) && parsed > 0) return parsed
     }
     return 0.05
@@ -319,7 +317,10 @@ export default function CashierContextProvider(props: {
 
         if (cashierData?.ret_code === 1024) {
           // Use the helper function to create context with all getter functions
-          const contextData = createContextDataFromCashierData(cashierData, initCode)
+          const contextData = createContextDataFromCashierData(
+            cashierData,
+            initCode,
+          )
 
           setCashierContext(contextData)
           // Save only raw cashierData to cache (functions will be recreated on load)
