@@ -57,10 +57,133 @@ export const CashierContext = createContext<CashierContextType>(
 
 const CACHE_DURATION = 30 * 60 * 1000 // 30 minuti
 
+// Helper function to create context data with all getter functions from raw cashierData
+function createContextDataFromCashierData(
+  cashierData: any,
+  initCode: string,
+): CashierContextType {
+  const userData: User = {
+    status: '1024',
+    description: cashierData.description,
+    playerId: `${cashierData.configs?.user_type}-${cashierData.configs?.terminals?.[0] || 'unknown'}`,
+    currency: cashierData.intl?.currency || 'EUR',
+    lang: cashierData.dictInfo?.lang || 'it',
+    level: 1,
+    group: [cashierData.configs?.ui_type || 'retail'],
+  } as User
+
+  const getCurrencyCode = () => cashierData.intl?.currency || 'EUR'
+  const getCurrencySymbol = () => {
+    const currencyCode = cashierData.intl?.currency || 'EUR'
+    const currencyMap: Record<string, string> = {
+      USD: '$',
+      EUR: '€',
+      GBP: '£',
+      JPY: '¥',
+      CHF: 'CHF',
+      CAD: 'C$',
+      AUD: 'A$',
+      COP: '$',
+      DOP: '$',
+      MXN: '$',
+      ARS: '$',
+      BRL: 'R$',
+    }
+    const mapped = currencyMap[currencyCode]
+    if (mapped) return mapped
+
+    const apiSymbol = cashierData.dict?.misc?.currency?.symbol
+    if (apiSymbol) return apiSymbol
+
+    return '$'
+  }
+  const getChannels = () => cashierData.channels || []
+  const getTrackName = (channel?: number) => {
+    const channels = cashierData.channels || []
+    if (channel !== undefined && channels[channel]) {
+      return channels[channel].track_name || `Track ${channel + 1}`
+    }
+    const defaultChannel = channel ? channel - 1 : 5
+    return (
+      channels[defaultChannel]?.track_name ||
+      `Track ${defaultChannel + 1}`
+    )
+  }
+  const getTranslation = (key: string, fallback?: string) => {
+    const keys = key.split('.')
+    let value: any = cashierData.dict
+    for (const k of keys) {
+      value = value?.[k]
+      if (value === undefined) break
+    }
+    return typeof value === 'string' ? value : fallback || key
+  }
+  const getMinStakeIncrement = () => {
+    const step = cashierData.intl?.min_stake_increment_step
+    if (step) {
+      const parsed = typeof step === 'string' ? parseFloat(step) : step
+      if (!isNaN(parsed) && parsed > 0) return parsed
+    }
+    return 0.05
+  }
+  const getTimezone = () => cashierData.intl?.timezone || 'Europe/Rome'
+  const getStakeButtons = () => {
+    const buttons = cashierData.intl?.stake_buttons
+    return Array.isArray(buttons) ? buttons : [1, 2, 5, 10]
+  }
+  const getMinStake = () => {
+    const minStake = cashierData.intl?.min_stake
+    if (minStake) {
+      const parsed = typeof minStake === 'string' ? parseFloat(minStake) : minStake
+      if (!isNaN(parsed) && parsed > 0) return parsed
+    }
+    return 0.05
+  }
+  const getMinBet = () => {
+    const minBet = cashierData.intl?.min_bet
+    if (minBet) {
+      const parsed = typeof minBet === 'string' ? parseFloat(minBet) : minBet
+      if (!isNaN(parsed) && parsed > 0) return parsed
+    }
+    return 0.05
+  }
+  const getMaxWin = () => {
+    const maxWin = cashierData.intl?.max_win
+    if (maxWin) {
+      const parsed = typeof maxWin === 'string' ? parseFloat(maxWin) : maxWin
+      if (!isNaN(parsed) && parsed > 0) return parsed
+    }
+    return 1000000000
+  }
+  const getVersion = () => cashierData.intl?.version || 'v1.0'
+  const getSplashscreen = () =>
+    cashierData.intl?.splashscreen || 'splashscreen-empty.png'
+
+  return {
+    initCode,
+    operator: cashierData.configs?.operator_name,
+    userData,
+    cashierData,
+    getCurrencySymbol,
+    getCurrencyCode,
+    getMinStakeIncrement,
+    getStakeButtons,
+    getMinStake,
+    getMinBet,
+    getMaxWin,
+    getTimezone,
+    getChannels,
+    getTrackName,
+    getTranslation,
+    getVersion,
+    getSplashscreen,
+  }
+}
+
 function saveCashierToCache(
   initCode: string,
   operator: string | undefined,
-  data: any,
+  cashierData: any,
 ) {
   if (!operator) {
     console.error('Cannot save to cache: operator is required')
@@ -68,7 +191,7 @@ function saveCashierToCache(
   }
   const cacheKey = `cashier_cache_${initCode}_${operator}`
   const cacheData = {
-    data,
+    cashierData, // Save only raw API data, not functions
     timestamp: Date.now(),
   }
   localStorage.setItem(cacheKey, JSON.stringify(cacheData))
@@ -87,9 +210,10 @@ function loadCashierFromCache(
   if (!cached) return null
 
   try {
-    const { data, timestamp } = JSON.parse(cached)
+    const { cashierData, timestamp } = JSON.parse(cached)
     if (Date.now() - timestamp < CACHE_DURATION) {
-      return data
+      // Recreate context with functions from raw cashierData
+      return createContextDataFromCashierData(cashierData, initCode)
     }
   } catch (e) {
     console.error('Cache parse error:', e)
@@ -194,110 +318,19 @@ export default function CashierContextProvider(props: {
         const cashierData = await fetchCashierInit(initCode, operator)
 
         if (cashierData?.ret_code === 1024) {
-          const userData: User = {
-            status: '1024',
-            description: cashierData.description,
-            playerId: `${cashierData.configs?.user_type}-${cashierData.configs?.terminals?.[0] || 'unknown'}`,
-            currency: cashierData.intl?.currency || 'EUR',
-            lang: cashierData.dictInfo?.lang || 'it',
-            level: 1,
-            group: [cashierData.configs?.ui_type || 'retail'],
-          } as User
-
-          const getCurrencyCode = () => cashierData.intl?.currency || 'EUR'
-          const getCurrencySymbol = () => {
-            const currencyCode = cashierData.intl?.currency || 'EUR'
-            const currencyMap: Record<string, string> = {
-              USD: '$',
-              EUR: '€',
-              GBP: '£',
-              JPY: '¥',
-              CHF: 'CHF',
-              CAD: 'C$',
-              AUD: 'A$',
-              COP: '$',
-              DOP: '$',
-              MXN: '$',
-              ARS: '$',
-              BRL: 'R$',
-            }
-            const mapped = currencyMap[currencyCode]
-            if (mapped) return mapped
-
-            const apiSymbol = cashierData.dict?.misc?.currency?.symbol
-            if (apiSymbol) return apiSymbol
-
-            return '$'
-          }
-          const getChannels = () => cashierData.channels || []
-          const getTrackName = (channel?: number) => {
-            const channels = cashierData.channels || []
-            if (channel !== undefined && channels[channel]) {
-              return channels[channel].track_name || `Track ${channel + 1}`
-            }
-            const defaultChannel = channel ? channel - 1 : 5
-            return (
-              channels[defaultChannel]?.track_name ||
-              `Track ${defaultChannel + 1}`
-            )
-          }
-          const getTranslation = (key: string, fallback?: string) => {
-            const keys = key.split('.')
-            let value: any = cashierData.dict
-            for (const k of keys) {
-              value = value?.[k]
-              if (value === undefined) break
-            }
-            return typeof value === 'string' ? value : fallback || key
-          }
-          const getMinStakeIncrement = () => {
-            const step = cashierData.intl?.min_stake_increment_step
-            if (step) {
-              const parsed = typeof step === 'string' ? parseFloat(step) : step
-              if (!isNaN(parsed) && parsed > 0) return parsed
-            }
-            return 0.05
-          }
-          const getTimezone = () => cashierData.intl?.timezone || 'Europe/Rome'
-          const getStakeButtons = () => {
-            const buttons = cashierData.intl?.stake_buttons
-            return Array.isArray(buttons) ? buttons : [1, 2, 5, 10]
-          }
-          const getMinStake = () => cashierData.intl?.min_stake || 0.05
-          const getMinBet = () => cashierData.intl?.min_bet || 0.05
-          const getMaxWin = () => cashierData.intl?.max_win || 1000000000
-          const getVersion = () => cashierData.intl?.version || 'v1.0'
-          const getSplashscreen = () =>
-            cashierData.intl?.splashscreen || 'splashscreen-empty.png'
-
-          const contextData: CashierContextType = {
-            initCode,
-            operator: cashierData.configs?.operator_name,
-            userData,
-            cashierData,
-            getCurrencySymbol,
-            getCurrencyCode,
-            getMinStakeIncrement,
-            getStakeButtons,
-            getMinStake,
-            getMinBet,
-            getMaxWin,
-            getTimezone,
-            getChannels,
-            getTrackName,
-            getTranslation,
-            getVersion,
-            getSplashscreen,
-          }
+          // Use the helper function to create context with all getter functions
+          const contextData = createContextDataFromCashierData(cashierData, initCode)
 
           setCashierContext(contextData)
-          saveCashierToCache(initCode, operator, contextData)
+          // Save only raw cashierData to cache (functions will be recreated on load)
+          saveCashierToCache(initCode, operator, cashierData)
 
           // Aggiorna lingua e persisti per evitare fallback inattesi
-          if (userData.lang && i18n.language !== userData.lang) {
-            i18n.changeLanguage(userData.lang)
+          const lang = cashierData.dictInfo?.lang || 'it'
+          if (lang && i18n.language !== lang) {
+            i18n.changeLanguage(lang)
             try {
-              localStorage.setItem('i18n.lang', userData.lang)
+              localStorage.setItem('i18n.lang', lang)
             } catch {}
           }
 

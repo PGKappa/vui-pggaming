@@ -88,7 +88,7 @@ export default function BettingSlip({
   const rootContext = useContext(RootContext)
 
   // Ottieni il simbolo della valuta dall'API cashier
-  const currencySymbol = rootContext?.getCurrencySymbol?.() || '€'
+  const currencySymbol = rootContext?.getCurrencySymbol?.() || '$'
 
   // Ottieni i valori dei pulsanti stake dall'API
   const stakeButtons = rootContext?.getStakeButtons?.() || [
