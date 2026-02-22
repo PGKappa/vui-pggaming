@@ -89,7 +89,7 @@ export default function BettingSlip({
   const rootContext = useContext(RootContext)
 
   // Ottieni il simbolo della valuta dall'API cashier
-  const currencySymbol = rootContext?.getCurrencySymbol?.() || '€'
+  const currencySymbol = rootContext?.getCurrencySymbol?.() || '$'
 
   // Ottieni i valori dei pulsanti stake dall'API
   const stakeButtons = rootContext?.getStakeButtons?.() || [
@@ -1318,8 +1318,6 @@ export default function BettingSlip({
 
                 if (isNaN(numericAmount) || numericAmount <= 0) return null
 
-                const displayText = `${numericAmount} ${currencySymbol}`
-
                 return (
                   <Button
                     key={`stake-${index}-${numericAmount}`}
@@ -1328,7 +1326,7 @@ export default function BettingSlip({
                     className="h-8 bg-muted-foreground text-[14px] tabular-nums"
                     onClick={() => setGlobal((prev) => prev + numericAmount)}
                   >
-                    {displayText}
+                    {amount}
                   </Button>
                 )
               })}
