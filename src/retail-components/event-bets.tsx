@@ -105,13 +105,13 @@ export default function EventBets(props: {
           ) : (
             <div className="relative bottom-[1px] ml-[3px] flex items-center justify-between pb-[4px]">
               <span className="text-[13px] uppercase">
-                {eventBets[0].bet.track || t('track_6')}
+                {eventBets[0].bet.track || t("track_6")}
               </span>
               <span className='text-[10px]'>
                 |
               </span>
 
-              <span className="relative mr-[255px] text-[13px] font-bold text-accent">
+              <span className="relative mr-[228px] text-[13px] font-bold text-accent">
                 ID {eventBets[0].bet.event.number}{' '}
                 {/* In case you want to translate ID in all the languages, don't forget to translate with i18n and add all in the jsons */}
               </span>

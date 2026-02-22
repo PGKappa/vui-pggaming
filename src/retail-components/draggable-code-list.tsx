@@ -323,7 +323,7 @@ export default function DraggableCodeList({
           }}
         >
           <div
-            className="flex h-14 shrink-0 cursor-move select-none items-center justify-center  border-black bg-accent"
+            className="flex h-14 shrink-0 cursor-move select-none items-center justify-center  border-black bg-accent border-b-1"
             onMouseDown={handleMouseDown}
             onTouchStart={handleTouchStart}
           >
