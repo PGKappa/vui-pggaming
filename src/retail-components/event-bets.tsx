@@ -107,7 +107,11 @@ export default function EventBets(props: {
               <span className="text-[13px] uppercase">
                 {eventBets[0].bet.track || t('track_6')}
               </span>
-              <span className="relative mr-[4px] pt-1 text-[13px] font-bold text-accent">
+              <span className='text-[10px]'>
+                |
+              </span>
+
+              <span className="relative mr-[255px] text-[13px] font-bold text-accent">
                 ID {eventBets[0].bet.event.number}{' '}
                 {/* In case you want to translate ID in all the languages, don't forget to translate with i18n and add all in the jsons */}
               </span>
@@ -177,7 +181,7 @@ export default function EventBets(props: {
                 key={betEntry.id}
                 className="flex items-center pr-[8px] text-sm"
               >
-                <span className="mr-[1px] w-[126px] text-[13px] uppercase">
+                <span className="mr-[1px] w-[126px] text-[13px] capitalize">
                   {translatedMarket}
                 </span>
                 <span className="ml-[0px] w-[109px] text-center text-[13px] font-normal">

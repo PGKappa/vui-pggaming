@@ -10,17 +10,18 @@ export default function CustomScrollbar({ contentRef }: CustomScrollbarProps) {
   const [clientHeight, setClientHeight] = useState(0)
   const [scrollTop, setScrollTop] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
+  const [isHovered, setIsHovered] = useState(false)
   const thumbRef = useRef<HTMLDivElement>(null)
   const trackRef = useRef<HTMLDivElement>(null)
 
-
-  const thumbHeight = clientHeight > 0 
+  // Calcola l'altezza del thumb in base al rapporto contenuto/viewport
+  const thumbHeight = clientHeight > 0 && scrollHeight > 0
     ? Math.max((clientHeight / scrollHeight) * clientHeight, 40) 
     : 0
+  
   const thumbTop = clientHeight > 0 && scrollHeight > clientHeight
     ? (scrollTop / (scrollHeight - clientHeight)) * (clientHeight - thumbHeight)
     : 0
-
 
   useEffect(() => {
     const updateDimensions = () => {
@@ -35,10 +36,7 @@ export default function CustomScrollbar({ contentRef }: CustomScrollbarProps) {
       }
     }
 
-
     updateDimensions()
-
-
     const timeoutId = setTimeout(updateDimensions, 100)
 
     const resizeObserver = new ResizeObserver(updateDimensions)
@@ -56,7 +54,6 @@ export default function CustomScrollbar({ contentRef }: CustomScrollbarProps) {
       })
     }
 
-
     const intervalId = setInterval(updateDimensions, 200)
 
     return () => {
@@ -66,7 +63,6 @@ export default function CustomScrollbar({ contentRef }: CustomScrollbarProps) {
       mutationObserver.disconnect()
     }
   }, [contentRef])
-
 
   useEffect(() => {
     const handleScroll = () => {
@@ -80,6 +76,24 @@ export default function CustomScrollbar({ contentRef }: CustomScrollbarProps) {
     return () => content?.removeEventListener('scroll', handleScroll)
   }, [contentRef, isDragging])
 
+  // Gestisci hover sul contenitore scrollabile
+  useEffect(() => {
+    const handleMouseEnter = () => setIsHovered(true)
+    const handleMouseLeave = () => {
+      if (!isDragging) {
+        setIsHovered(false)
+      }
+    }
+
+    const content = contentRef.current
+    content?.addEventListener('mouseenter', handleMouseEnter)
+    content?.addEventListener('mouseleave', handleMouseLeave)
+    
+    return () => {
+      content?.removeEventListener('mouseenter', handleMouseEnter)
+      content?.removeEventListener('mouseleave', handleMouseLeave)
+    }
+  }, [contentRef, isDragging])
 
   useEffect(() => {
     if (!isDragging) return
@@ -97,6 +111,17 @@ export default function CustomScrollbar({ contentRef }: CustomScrollbarProps) {
 
     const handleMouseUp = () => {
       setIsDragging(false)
+      const content = contentRef.current
+      if (content) {
+        const rect = content.getBoundingClientRect()
+        const mouseX = window.event ? (window.event as MouseEvent).clientX : 0
+        const mouseY = window.event ? (window.event as MouseEvent).clientY : 0
+        const isInside = mouseX >= rect.left && mouseX <= rect.right && 
+                        mouseY >= rect.top && mouseY <= rect.bottom
+        if (!isInside) {
+          setIsHovered(false)
+        }
+      }
     }
 
     document.addEventListener('mousemove', handleMouseMove)
@@ -108,7 +133,6 @@ export default function CustomScrollbar({ contentRef }: CustomScrollbarProps) {
     }
   }, [isDragging, clientHeight, scrollHeight, thumbHeight, contentRef])
 
-  // Click sul track
   const handleTrackClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!trackRef.current || !contentRef.current) return
     if (e.target === thumbRef.current) return
@@ -130,12 +154,14 @@ export default function CustomScrollbar({ contentRef }: CustomScrollbarProps) {
   return (
     <div
       ref={trackRef}
-      className="w-[8px] h-full bg-[#e5e7eb] cursor-pointer pointer-events-auto"
+      className={`w-[8px] h-full bg-[#e5e7eb] cursor-pointer pointer-events-auto relative bottom-4 transition-opacity duration-200 ${
+        isHovered || isDragging ? 'opacity-100' : 'opacity-0'
+      }`}
       onClick={handleTrackClick}
     >
       <div
         ref={thumbRef}
-        className="w-full bg-[#94a3b8]/30 cursor-grab active:cursor-grabbing hover:bg-[#64748b]/35 transition-colors"
+        className="w-full bg-[#cdd2dc] cursor-grab active:cursor-grabbing hover:bg-[#64748b] transition-colors rounded-sm"
         style={{
           height: `${thumbHeight}px`,
           transform: `translateY(${thumbTop}px)`,
