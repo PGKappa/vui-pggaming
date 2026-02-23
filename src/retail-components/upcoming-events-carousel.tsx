@@ -14,7 +14,7 @@ import { useTranslation } from 'react-i18next'
 import useTimeLeft from '@/retail-lib/use-time-left'
 import { usePathname } from 'next/navigation'
 import Image from 'next/image'
-import Image from 'next/image'
+
 
 export function UpcomingEventsCarousel(props: {
   selectedEvent?: UpcomingEvent
@@ -187,8 +187,7 @@ function UpcomingEventItem(props: {
   const imageOffset = imageOffsetByDiscipline[event.discipline] ?? 'bottom-[4px] right-[10px]'
   const textOffset = textOffsetByDiscipline[event.discipline] ?? 'right-[3px]'
 
-  const imageOffset = imageOffsetByDiscipline[event.discipline] ?? 'bottom-[4px] right-[10px]'
-  const textOffset = textOffsetByDiscipline[event.discipline] ?? 'right-[3px]'
+
 
   return (
     <CarouselItem
@@ -211,10 +210,8 @@ function UpcomingEventItem(props: {
               : '/cavallo_blu.png'
         }
         alt={event.discipline}
-        alt={event.discipline}
         width={40}
         height={20}
-        className={`relative size-14 object-contain ${imageOffset}`}
         className={`relative size-14 object-contain ${imageOffset}`}
       />
       <div className={`relative ${textOffset} flex flex-col items-start`}>
@@ -232,10 +229,8 @@ function UpcomingEventItem(props: {
         </span>
         <div className="flex flex-row gap-2">
           <span className="relative bottom-[1px] text-[14px] font-semibold tabular-nums">
-          <span className="relative bottom-[1px] text-[14px] font-semibold tabular-nums">
             {event.startTime}
           </span>
-          <span className="relative bottom-[1px] min-w-[56px] left-[8px] bg-white px-2 py-[1px] pt-0 text-[14px] font-semibold tabular-nums text-black">
           <span className="relative bottom-[1px] min-w-[56px] left-[8px] bg-white px-2 py-[1px] pt-0 text-[14px] font-semibold tabular-nums text-black">
             {timeToEventStart}
           </span>
