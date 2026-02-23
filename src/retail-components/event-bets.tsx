@@ -107,9 +107,7 @@ export default function EventBets(props: {
               <span className="text-[13px] uppercase">
                 {eventBets[0].bet.track || t('track_6')}
               </span>
-              <span className='text-[10px]'>
-                |
-              </span>
+              <span className="text-[10px]">|</span>
 
               <span className="relative mr-[255px] text-[13px] font-bold text-accent">
                 ID {eventBets[0].bet.event.number}{' '}
@@ -162,12 +160,14 @@ export default function EventBets(props: {
                 // Per cani e cavalli usa la versione completa
                 const isRacing =
                   betEntry.bet.discipline === 'DOGS' ||
+                  betEntry.bet.discipline === 'DOGS8' ||
                   betEntry.bet.discipline === 'HORSES'
                 outcomeDisplay = isRacing ? t('under_full') : t('under')
               } else if (outcomeLower === 'over') {
                 // Per cani e cavalli usa la versione completa
                 const isRacing =
                   betEntry.bet.discipline === 'DOGS' ||
+                  betEntry.bet.discipline === 'DOGS8' ||
                   betEntry.bet.discipline === 'HORSES'
                 outcomeDisplay = isRacing ? t('over_full') : t('over')
               }
