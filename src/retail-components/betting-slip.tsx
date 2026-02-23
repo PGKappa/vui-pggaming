@@ -96,11 +96,14 @@ export default function BettingSlip({
     1000, 2000, 3000, 5000, 10000,
   ]
 
-  // Ottieni i limiti di stake e vincita dall'API
-  const minStake = rootContext?.getMinStake?.() || 50
-  const minBet = rootContext?.getMinBet?.() || 0
-  const maxWin = rootContext?.getMaxWin?.() || 1000000000
-  const minStakeIncrement = rootContext?.getMinStakeIncrement?.() || 0.5
+  // Ottieni i limiti di stake e vincita dall'API (Number() per sicurezza se arrivano stringhe)
+  const minStake = Number(rootContext?.getMinStake?.()) || 0.5 // Minimo per singola scommessa
+  const minBet = Number(rootContext?.getMinBet?.()) || 0 // Minimo totale schedina
+  const maxWin = Number(rootContext?.getMaxWin?.()) || 1000000000
+  const minStakeIncrement = Number(rootContext?.getMinStakeIncrement?.()) || 0.5 // Step +/- per single/multiple
+  // Step +/- per sistema
+  const systemStakeIncrement =
+    Number(rootContext?.getSystemStakeIncrement?.()) || 0.1
 
   const [accordionOpen, setAccordionOpen] = useState<string>('combinations')
   const [systemGroupsOpen, setSystemGroupsOpen] = useState<string[]>([])
@@ -228,7 +231,7 @@ export default function BettingSlip({
       return
     }
 
-    // Validazione min_stake
+    // Validazione min_stake per singola scommessa
     if (systemDistributeStake < minStake) {
       toast.error(
         t('min_stake_error', { min: minStake }) ||
@@ -252,8 +255,8 @@ export default function BettingSlip({
       0,
     )
 
-    // Usa minStakeIncrement dall'API
-    const minIncrement = minStakeIncrement
+    // Usa systemStakeIncrement per il sistema
+    const minIncrement = systemStakeIncrement
     const target = systemDistributeStake
 
     // Formula originale: divide per combinazioni totali, arrotonda al minIncrement
@@ -362,7 +365,7 @@ export default function BettingSlip({
       return
     }
 
-    // Validazione min_stake
+    // Validazione min_stake per singola scommessa
     if (systemDistributeStake < minStake) {
       toast.error(
         t('min_stake_error', { min: minStake }) ||
@@ -406,20 +409,14 @@ export default function BettingSlip({
   }
 
   const handleUpdateGroupStake = (groupName: string, value: number) => {
-    const finalValue = Math.max(0, value)
-
-    // Validazione: se il valore è maggiore di 0 ma minore di minStake, mostra errore
-    if (finalValue > 0 && finalValue < minStake) {
-      toast.error(
-        t('min_stake_error', { min: minStake }) ||
-          `Minimum stake is ${currencySymbol} ${minStake.toFixed(2)}`,
-      )
-      return
-    }
+    const numValue = Number(value)
+    const finalValue = Math.max(0, isNaN(numValue) ? 0 : numValue)
+    // Arrotonda per evitare errori floating point
+    const roundedValue = Math.round(finalValue * 100) / 100
 
     setSystemGroupStakes((prev) => ({
       ...prev,
-      [groupName]: finalValue,
+      [groupName]: roundedValue,
     }))
   }
 
@@ -607,8 +604,11 @@ export default function BettingSlip({
       }
     }
 
-    // Validazione min_stake per single/multiple
-    if (betMode !== 'SYSTEM' && global < minStake) {
+    // Validazione min_stake per single/multiple (con tolleranza floating point)
+    if (
+      betMode !== 'SYSTEM' &&
+      Math.round(global * 100) < Math.round(minStake * 100)
+    ) {
       toast.error(
         t('min_stake_error', { min: minStake }) ||
           `Minimum stake is ${currencySymbol} ${minStake.toFixed(2)}`,
@@ -659,20 +659,21 @@ export default function BettingSlip({
         return
       }
 
-      // Validazione che ogni stake sistema sia multiplo di min_stake_increment_step
-      if (minStakeIncrement > 0) {
+      // Validazione che ogni stake sistema sia multiplo di systemStakeIncrement
+      if (systemStakeIncrement > 0) {
         const invalidIncrementGroups = systemGroups.filter((group) => {
           if (!selectedGroups[group.name] || group.stake <= 0) return false
-          const remainder = Math.abs(group.stake % minStakeIncrement)
+          const remainder = Math.abs(group.stake % systemStakeIncrement)
           const tolerance = 0.0001
           return (
-            remainder > tolerance && remainder < minStakeIncrement - tolerance
+            remainder > tolerance &&
+            remainder < systemStakeIncrement - tolerance
           )
         })
         if (invalidIncrementGroups.length > 0) {
           toast.error(
-            t('stake_increment_error', { increment: minStakeIncrement }) ||
-              `Stake must be a multiple of ${currencySymbol} ${minStakeIncrement}`,
+            t('stake_increment_error', { increment: systemStakeIncrement }) ||
+              `Stake must be a multiple of ${currencySymbol} ${systemStakeIncrement}`,
           )
           return
         }
@@ -1488,7 +1489,7 @@ export default function BettingSlip({
                                     onClick={(e) => {
                                       e.stopPropagation()
                                       const newValue =
-                                        group.stake - minStakeIncrement
+                                        group.stake - systemStakeIncrement
                                       const finalValue = Math.max(0, newValue)
 
                                       // Aggiorna il valore
@@ -1543,7 +1544,7 @@ export default function BettingSlip({
                                     onClick={(e) => {
                                       e.stopPropagation()
                                       const newValue =
-                                        group.stake + minStakeIncrement
+                                        group.stake + systemStakeIncrement
 
                                       // Aggiorna il valore
                                       handleUpdateGroupStake(
