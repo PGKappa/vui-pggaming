@@ -14,49 +14,6 @@ import { useTranslation } from 'react-i18next'
 import useTimeLeft from '@/retail-lib/use-time-left'
 import { usePathname } from 'next/navigation'
 import Image from 'next/image'
-import { useLang } from '@/retail-lib/use-lang'
-
-const basisByLang: Record<string, string> = {
-  en: 'basis-1/6',
-  es: 'basis-1/5',
-  it: 'basis-1/5',
-}
-
-const imageOffsetByDiscipline: Record<string, Record<string, string>> = {
-  en: {
-    SOCCER: 'bottom-[4px] right-[10px]',
-    HORSES: 'bottom-[4px] right-[9px]',
-    DOGS:   'bottom-[4px] right-[11px]',
-  },
-  es: {
-    SOCCER: 'bottom-[4px] right-[10px]',
-    HORSES: 'bottom-[4px] right-[5px]',
-    DOGS:   'bottom-[4px] right-[12px]',
-  },
-  it: {
-    SOCCER: 'bottom-[4px] right-[10px]',
-    HORSES: 'bottom-[4px] right-[9px]',
-    DOGS:   'bottom-[4px] right-[11px]',
-  },
-}
-
-const textOffsetByDiscipline: Record<string, Record<string, string>> = {
-  en: {
-    SOCCER: 'right-[3px]',
-    HORSES: 'right-[5px]',
-    DOGS:   'right-[6px]',
-  },
-  es: {
-    SOCCER: 'right-[3px]',
-    HORSES: 'right-[1px]',
-    DOGS:   'right-[8px]',
-  },
-  it: {
-    SOCCER: 'right-[3px]',
-    HORSES: 'right-[5px]',
-    DOGS:   'right-[6px]',
-  },
-}
 
 export function UpcomingEventsCarousel(props: {
   selectedEvent?: UpcomingEvent
@@ -66,8 +23,6 @@ export function UpcomingEventsCarousel(props: {
 
   const { t } = useTranslation()
   const pathname = usePathname()
-  const lang = useLang()
-  const itemBasis = basisByLang[lang] ?? 'basis-1/6'
 
   const disciplines = useMemo(() => {
     const path = (pathname || '/').toLowerCase()
@@ -111,6 +66,7 @@ export function UpcomingEventsCarousel(props: {
     }, 0)
   }, [filteredAndSortedEvents, nowMs])
 
+  // Auto-seleziona il primo evento quando quello corrente scade o non è più disponibile
   useEffect(() => {
     if (filteredAndSortedEvents.length === 0) return
 
@@ -122,6 +78,7 @@ export function UpcomingEventsCarousel(props: {
         )
       : false
 
+    // Se nessun evento è selezionato o l'evento selezionato è scaduto, seleziona il primo
     if (!props.selectedEvent || !selectedEventStillExists) {
       props.setSelectedEvent(filteredAndSortedEvents[0])
     }
@@ -137,10 +94,11 @@ export function UpcomingEventsCarousel(props: {
     >
       <CarouselContent className="bg-white">
         {isLoadingEvents ? (
+          // Show skeleton loading
           Array.from({ length: 6 }).map((_, index) => (
             <div
               key={`skeleton-${index}`}
-              className={`flex h-[72px] ${itemBasis} items-center justify-center gap-3 bg-muted/30 py-2`}
+              className="flex h-[72px] basis-1/6 items-center justify-center gap-3 bg-muted/30 py-2"
             >
               <Skeleton className="h-12 w-12 rounded" />
               <div className="flex flex-col gap-2">
@@ -159,8 +117,6 @@ export function UpcomingEventsCarousel(props: {
                 selectedEvent={props.selectedEvent}
                 setSelectedEvent={props.setSelectedEvent}
                 maxRemainingMs={maxRemainingMs}
-                itemBasis={itemBasis}
-                lang={lang}
               />
             )
           })
@@ -176,20 +132,33 @@ export function UpcomingEventsCarousel(props: {
   )
 }
 
+
+const imageOffsetByDiscipline: Record<string, string> = {
+  SOCCER: 'bottom-[4px] right-[10px]',
+  HORSES: 'bottom-[4px] right-[9px]', 
+  DOGS:   'bottom-[4px] right-[11px]', 
+}
+
+
+const textOffsetByDiscipline: Record<string, string> = {
+  SOCCER: 'right-[3px]',
+  HORSES: 'right-[5px]', 
+  DOGS:   'right-[6px]', 
+}
+
 function UpcomingEventItem(props: {
   event: UpcomingEvent
   selectedEvent?: UpcomingEvent
   setSelectedEvent: (event: UpcomingEvent) => void
   maxRemainingMs: number
-  itemBasis: string
-  lang: string
 }) {
-  const { event, lang } = props
+  const { event } = props
 
   const { t } = useTranslation()
   const timeToEventStart = useTimeLeft(event.time)
   const [progressValue, setProgressValue] = useState<number>(100)
 
+  
   useEffect(() => {
     if (!props.maxRemainingMs) {
       setProgressValue(0)
@@ -208,21 +177,17 @@ function UpcomingEventItem(props: {
     setProgressValue(Math.max(0, Math.min(100, value)))
   }, [timeToEventStart, props.maxRemainingMs])
 
+  // Rimuovi quando scaduto
   if (timeToEventStart === '00:00') {
     return null
   }
 
-  const imageOffset =
-    imageOffsetByDiscipline[lang]?.[event.discipline] ??
-    imageOffsetByDiscipline['en'][event.discipline]
-
-  const textOffset =
-    textOffsetByDiscipline[lang]?.[event.discipline] ??
-    textOffsetByDiscipline['en'][event.discipline]
+  const imageOffset = imageOffsetByDiscipline[event.discipline] ?? 'bottom-[4px] right-[10px]'
+  const textOffset = textOffsetByDiscipline[event.discipline] ?? 'right-[3px]'
 
   return (
     <CarouselItem
-      className={`relative flex h-[88px] ${props.itemBasis} cursor-pointer flex-row items-center justify-center gap-3 overflow-hidden border-l-8 border-l-background px-2 py-2 text-[15px] last:border-r-background ${
+      className={`relative flex h-[88px] basis-1/6 cursor-pointer flex-row items-center justify-center gap-3 overflow-hidden border-l-8 border-l-background px-2 py-2 text-[15px] last:border-r-background ${
         event.id === props.selectedEvent?.id &&
         event.discipline === props.selectedEvent?.discipline
           ? 'bg-[hsl(211deg_65%_37%_/_.9)] text-tertiary-foreground'
