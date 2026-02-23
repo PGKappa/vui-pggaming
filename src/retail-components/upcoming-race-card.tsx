@@ -7,7 +7,7 @@ import {
   normalizeMarketName,
 } from '@/retail-lib/utils'
 import { t } from 'i18next'
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import BetCombinationsTable from './bet-combination-table'
 import BetEntryToggle from './bet-entry-toggle'
 import LatecomersDialog from './latecomers-dialog'
@@ -75,27 +75,23 @@ export default function UpcomingRaceCard({
     return activeTab === 'triplets' ? 'trifecta' : 'exacta'
   })
 
-  // Reset marketType quando cambia activeTab
+  // Reset marketType e selezioni quando cambia activeTab (SOLO su cambio tab manuale)
   useEffect(() => {
     if (activeTab === 'couples') {
       setMarketType('exacta')
     } else if (activeTab === 'triplets') {
       setMarketType('trifecta')
     }
+    // Cancella le selezioni di posizione quando si cambia tab
+    clearSelections()
+  }, [activeTab])
 
-    // NON cancellare le selezioni se ci sono bet da fastbet per questa race
-    const hasRaceBets = betEntries.some(
-      (entry) =>
-        entry.bet.discipline === race.discipline &&
-        entry.bet.event.number === race.id,
-    )
+  // Ref per tracciare il numero di bet precedenti per questa corsa
+  const prevRaceBetCountRef = useRef<number>(0)
+  // Flag per indicare che la bet è stata aggiunta dal toggle UI (non da FastBet)
+  const betAddedFromUIRef = useRef<boolean>(false)
 
-    if (!hasRaceBets) {
-      clearSelections()
-    }
-  }, [activeTab, betEntries, race.discipline, race.id])
-
-  // useEffect per cambio automatico tab da FastBet
+  // useEffect per cambio automatico tab da FastBet (solo su NUOVA bet da FastBet)
   useEffect(() => {
     const raceEntries = betEntries.filter(
       (entry) =>
@@ -103,79 +99,92 @@ export default function UpcomingRaceCard({
         entry.bet.event.number === race.id,
     )
 
-    if (raceEntries.length > 0) {
-      const newPosition1: number[] = []
-      const newPosition2: number[] = []
-      const newPosition3: number[] = []
+    const prevCount = prevRaceBetCountRef.current
+    const currentCount = raceEntries.length
 
-      raceEntries.forEach((entry) => {
-        const market = entry.market
-        const competitors = entry.bet.competitors
-        const outcome = entry.bet.option.outcome
+    // Aggiorna il ref per il prossimo ciclo
+    prevRaceBetCountRef.current = currentCount
 
-        // Normalizza il market per riconoscere tutte le lingue
-        const normalized = normalizeMarketName(market)
+    // Solo se è stata AGGIUNTA una nuova bet (non rimosse o invariate)
+    if (currentCount <= prevCount || currentCount === 0) {
+      return
+    }
 
-        // Cambia automaticamente il tab basato sul market FastBet
-        if (
-          normalized === 'winner' ||
-          normalized === 'placed' ||
-          normalized === 'show'
-        ) {
-          // Per mercati singoli: outcome contiene il numero, competitors contiene il nome
-          const competitorNum = parseInt(outcome)
-          if (!isNaN(competitorNum) && !newPosition1.includes(competitorNum)) {
-            newPosition1.push(competitorNum)
-          }
-        } else if (normalized === 'exacta' || normalized === 'quinella') {
-          const parts = competitors
-            .split('-')
-            .map((n: string) => parseInt(n.trim()))
-          if (parts.length >= 2) {
-            const [first, second] = parts
-            if (!isNaN(first) && !newPosition1.includes(first)) {
-              newPosition1.push(first)
-            }
-            if (!isNaN(second) && !newPosition2.includes(second)) {
-              newPosition2.push(second)
-            }
-          }
-          setActiveTab('couples')
-          setMarketType(normalized === 'exacta' ? 'exacta' : 'quinella')
-        } else if (
-          normalized === 'trifecta' ||
-          normalized === 'boxed_trifecta'
-        ) {
-          const parts = competitors
-            .split('-')
-            .map((n: string) => parseInt(n.trim()))
-          if (parts.length >= 3) {
-            const [first, second, third] = parts
-            if (!isNaN(first) && !newPosition1.includes(first)) {
-              newPosition1.push(first)
-            }
-            if (!isNaN(second) && !newPosition2.includes(second)) {
-              newPosition2.push(second)
-            }
-            if (!isNaN(third) && !newPosition3.includes(third)) {
-              newPosition3.push(third)
-            }
-          }
-          setActiveTab('triplets')
-          setMarketType(normalized === 'trifecta' ? 'trifecta' : 'boxtrifecta')
+    // Se la bet è stata aggiunta dal toggle UI, non sovrascrivere le selezioni
+    if (betAddedFromUIRef.current) {
+      betAddedFromUIRef.current = false
+      return
+    }
+
+    // Guarda SOLO l'ultima bet aggiunta per decidere il tab
+    const latestEntry = raceEntries[raceEntries.length - 1]
+    const normalized = normalizeMarketName(latestEntry.market)
+
+    const newPosition1: number[] = []
+    const newPosition2: number[] = []
+    const newPosition3: number[] = []
+
+    raceEntries.forEach((entry) => {
+      const competitors = entry.bet.competitors
+      const outcome = entry.bet.option.outcome
+      const norm = normalizeMarketName(entry.market)
+
+      if (norm === 'winner' || norm === 'placed' || norm === 'show') {
+        const competitorNum = parseInt(outcome)
+        if (!isNaN(competitorNum) && !newPosition1.includes(competitorNum)) {
+          newPosition1.push(competitorNum)
         }
-      })
+      } else if (norm === 'exacta' || norm === 'quinella') {
+        const parts = competitors
+          .split('-')
+          .map((n: string) => parseInt(n.trim()))
+        if (parts.length >= 2) {
+          const [first, second] = parts
+          if (!isNaN(first) && !newPosition1.includes(first)) {
+            newPosition1.push(first)
+          }
+          if (!isNaN(second) && !newPosition2.includes(second)) {
+            newPosition2.push(second)
+          }
+        }
+      } else if (norm === 'trifecta' || norm === 'boxed_trifecta') {
+        const parts = competitors
+          .split('-')
+          .map((n: string) => parseInt(n.trim()))
+        if (parts.length >= 3) {
+          const [first, second, third] = parts
+          if (!isNaN(first) && !newPosition1.includes(first)) {
+            newPosition1.push(first)
+          }
+          if (!isNaN(second) && !newPosition2.includes(second)) {
+            newPosition2.push(second)
+          }
+          if (!isNaN(third) && !newPosition3.includes(third)) {
+            newPosition3.push(third)
+          }
+        }
+      }
+    })
 
-      // Aggiorna le selezioni usando functional updater (come il toggle manuale)
-      if (newPosition1.length > 0) {
-        setPosition1Selection(() => newPosition1)
-      }
-      if (newPosition2.length > 0) {
-        setPosition2Selection(() => newPosition2)
-      }
-      if (newPosition3.length > 0) {
-        setPosition3Selection(() => newPosition3)
-      }
+    // Auto-switch tab SOLO basato sull'ultima bet aggiunta
+    if (normalized === 'exacta' || normalized === 'quinella') {
+      setActiveTab('couples')
+      setMarketType(normalized === 'exacta' ? 'exacta' : 'quinella')
+    } else if (normalized === 'trifecta' || normalized === 'boxed_trifecta') {
+      setActiveTab('triplets')
+      setMarketType(normalized === 'trifecta' ? 'trifecta' : 'boxtrifecta')
+    }
+    // Per winner/placed/show NON cambiare tab - resta dove sei
+
+    // Aggiorna le selezioni
+    if (newPosition1.length > 0) {
+      setPosition1Selection(() => newPosition1)
+    }
+    if (newPosition2.length > 0) {
+      setPosition2Selection(() => newPosition2)
+    }
+    if (newPosition3.length > 0) {
+      setPosition3Selection(() => newPosition3)
     }
   }, [betEntries, race.id, race.discipline])
 
@@ -458,17 +467,17 @@ export default function UpcomingRaceCard({
     return (
       <TableHeader className="h-14 bg-card-header text-[16px] text-card-header-foreground">
         <TableRow>
-          <TableHead className="w-[249px] text-center font-bold">
+          <TableHead className="w-[249px] text-center font-semibold">
             {t('starters_list').toUpperCase()}
           </TableHead>
           <TableHead className="w-[1px] bg-border p-0" />
 
-          <TableHead className="w-[249px] text-center font-bold">
+          <TableHead className="w-[249px] text-center font-semibold">
             {t('performance').toUpperCase()}
           </TableHead>
           <TableHead className="w-[1px] bg-border p-0" />
 
-          <TableHead className="w-[249px] text-center font-bold">
+          <TableHead className="w-[249px] text-center font-semibold">
             {t('history').toUpperCase()}
           </TableHead>
           <TableHead className="w-[1px] bg-border p-0" />
@@ -479,11 +488,11 @@ export default function UpcomingRaceCard({
                 {t('winner').toUpperCase()}
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
-              <TableHead className="w-[249px] text-center font-bold">
+              <TableHead className="w-[249px] text-center font-semibold">
                 {t('place_2').toUpperCase()}
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
-              <TableHead className="w-[249px] text-center font-bold">
+              <TableHead className="w-[249px] text-center font-semibold">
                 {t('show_3').toUpperCase()}
               </TableHead>
             </>
@@ -543,6 +552,9 @@ export default function UpcomingRaceCard({
               }}
               variant="racecard"
               className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] tabular-nums text-betEntry-foreground hover:opacity-85"
+              onToggle={() => {
+                betAddedFromUIRef.current = true
+              }}
             />
           </TableCell>
           <TableCell className="w-[1px] bg-border p-0" />
@@ -569,6 +581,9 @@ export default function UpcomingRaceCard({
               }}
               variant="racecard"
               className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] tabular-nums text-betEntry-foreground hover:opacity-85"
+              onToggle={() => {
+                betAddedFromUIRef.current = true
+              }}
             />
           </TableCell>
 
@@ -596,6 +611,9 @@ export default function UpcomingRaceCard({
               }}
               variant="racecard"
               className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] tabular-nums text-betEntry-foreground hover:opacity-85"
+              onToggle={() => {
+                betAddedFromUIRef.current = true
+              }}
             />
           </TableCell>
         </>
@@ -819,6 +837,9 @@ export default function UpcomingRaceCard({
                   }}
                   variant="matchcard"
                   className="h-[49px] w-full text-[16px] text-black"
+                  onToggle={() => {
+                    betAddedFromUIRef.current = true
+                  }}
                 />
               </div>
 
@@ -842,6 +863,9 @@ export default function UpcomingRaceCard({
                   }}
                   variant="matchcard"
                   className="h-[49px] w-full text-[16px] text-black"
+                  onToggle={() => {
+                    betAddedFromUIRef.current = true
+                  }}
                 />
               </div>
             </div>
@@ -867,9 +891,9 @@ export default function UpcomingRaceCard({
                       number: race.id,
                       startingAt: race.time,
                     },
-                    competitors: t('under'),
+                    competitors: t('under_full'),
                     option: {
-                      outcome: t('under'),
+                      outcome: t('under_full'),
                       decPrice: parseFloat(
                         raceInfo.odds.underover?.under || '0',
                       ),
@@ -878,6 +902,9 @@ export default function UpcomingRaceCard({
                   }}
                   variant="matchcard"
                   className="h-[49px] w-full text-[16px] text-black"
+                  onToggle={() => {
+                    betAddedFromUIRef.current = true
+                  }}
                 />
               </div>
 
@@ -892,9 +919,9 @@ export default function UpcomingRaceCard({
                       number: race.id,
                       startingAt: race.time,
                     },
-                    competitors: t('over'),
+                    competitors: t('over_full'),
                     option: {
-                      outcome: t('over'),
+                      outcome: t('over_full'),
                       decPrice: parseFloat(
                         raceInfo.odds.underover?.over || '0',
                       ),
@@ -903,6 +930,9 @@ export default function UpcomingRaceCard({
                   }}
                   variant="matchcard"
                   className="h-[49px] w-full text-[16px] text-black"
+                  onToggle={() => {
+                    betAddedFromUIRef.current = true
+                  }}
                 />
               </div>
             </div>
@@ -1061,7 +1091,9 @@ export default function UpcomingRaceCard({
           disorderSelection={disorderSelection}
           fixedSelection={fixedSelection}
           marketType={marketType}
-          onClearSelections={clearSelections}
+          onBeforeToggle={() => {
+            betAddedFromUIRef.current = true
+          }}
         />
       )}
 

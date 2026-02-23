@@ -95,8 +95,9 @@ export default function EventBets(props: {
               <span className="text-[13px] uppercase">
                 {eventBets[0].bet.competitors}
               </span>
+              <span className="text-[10px]">|</span>
               {eventBets[0].bet.event.roundId && (
-                <span className="relative mr-[4px] pt-1 text-[13px] font-bold text-accent">
+                <span className="relative mr-[220px] text-[13px] font-bold text-accent">
                   {t('round').toUpperCase()} {eventBets[0].bet.event.roundId}
                 </span>
               )}
@@ -106,7 +107,11 @@ export default function EventBets(props: {
               <span className="text-[13px] uppercase">
                 {eventBets[0].bet.track || t('track_6')}
               </span>
-              <span className="relative mr-[4px] pt-1 text-[13px] font-bold text-accent">
+              <span className='text-[10px]'>
+                |
+              </span>
+
+              <span className="relative mr-[255px] text-[13px] font-bold text-accent">
                 ID {eventBets[0].bet.event.number}{' '}
                 {/* In case you want to translate ID in all the languages, don't forget to translate with i18n and add all in the jsons */}
               </span>
@@ -114,7 +119,7 @@ export default function EventBets(props: {
           )}
         </div>
 
-        <div className="-space-y-[8px] border border-t-0 border-betSlip-foreground bg-primary-foreground pb-[3px] pl-2 pr-[1px] pt-[1px]">
+        <div className="-space-y-[8px] border border-t-0 border-betSlip-foreground bg-primary-foreground pb-[3px] pl-2 pr-[1px] pt-[1px] tabular-nums">
           {eventBets.map((betEntry) => {
             // Usa normalizeMarketName per riconoscere mercati principali
             const normalized = normalizeMarketName(betEntry.market)
@@ -154,9 +159,17 @@ export default function EventBets(props: {
               ) {
                 outcomeDisplay = t('odd')
               } else if (outcomeLower === 'under') {
-                outcomeDisplay = t('under')
+                // Per cani e cavalli usa la versione completa
+                const isRacing =
+                  betEntry.bet.discipline === 'DOGS' ||
+                  betEntry.bet.discipline === 'HORSES'
+                outcomeDisplay = isRacing ? t('under_full') : t('under')
               } else if (outcomeLower === 'over') {
-                outcomeDisplay = t('over')
+                // Per cani e cavalli usa la versione completa
+                const isRacing =
+                  betEntry.bet.discipline === 'DOGS' ||
+                  betEntry.bet.discipline === 'HORSES'
+                outcomeDisplay = isRacing ? t('over_full') : t('over')
               }
             }
 
@@ -168,10 +181,10 @@ export default function EventBets(props: {
                 key={betEntry.id}
                 className="flex items-center pr-[8px] text-sm"
               >
-                <span className="mr-[1px] w-[126px] text-[13px] uppercase">
+                <span className="mr-[1px] w-[126px] text-[13px] capitalize">
                   {translatedMarket}
                 </span>
-                <span className="ml-[0px] w-[109px] text-[13px] font-normal text-center">
+                <span className="ml-[0px] w-[109px] text-center text-[13px] font-normal">
                   {outcomeDisplay}
                 </span>
                 <span className="relative right-[3px] grid w-[101px] justify-end break-all text-[13px] font-semibold leading-tight">

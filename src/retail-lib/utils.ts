@@ -5,6 +5,21 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+// Normalizes competitors/outcome for under/over markets to enable matching
+// between toggles (which use t('under') = "UN") and fast bet (which uses "Under")
+export function normalizeUnderOverValue(value: string): string {
+  const v = value.toLowerCase().trim()
+  // Map all variations of "under" to canonical form
+  if (v === 'under' || v === 'un' || v === 'menos' || v === 'me' || v === 'm') {
+    return 'under'
+  }
+  // Map all variations of "over" to canonical form
+  if (v === 'over' || v === 'ov' || v === 'más' || v === 'ma' || v === 'o') {
+    return 'over'
+  }
+  return v
+}
+
 export function normalizeMarketName(market: string): string {
   const m = market.toLowerCase().trim()
 
@@ -41,8 +56,8 @@ export function normalizeMarketName(market: string): string {
     m.includes('menos') ||
     m.includes('más')
   ) {
-    // Normalizza rimuovendo spazi extra e gestendo gli slash escapati
-    return m.replace(/\s+/g, ' ').replace(/\\\//g, '/')
+    // Return canonical form for under/over markets
+    return 'underover'
   }
 
   return m

@@ -599,9 +599,17 @@ export default function SearchEventResults() {
   const handleSearch = () => {
     setContextResultsSnapshot(rootContext.eventResults || [])
     setConfirmedDiscipline(selectedDiscipline)
-    setConfirmedDate(selectedDate)
-    setConfirmedTimeSlot(selectedTimeSlot)
+    // Quando "Last 10 Games" è attivo, ignora data e fascia oraria 
+    const effectiveDate = lastTenGames ? 'ALL' : selectedDate
+    const effectiveTimeSlot = lastTenGames ? 'ALL' : selectedTimeSlot
+    setConfirmedDate(effectiveDate)
+    setConfirmedTimeSlot(effectiveTimeSlot)
     setConfirmedLastTenGames(lastTenGames)
+    // Azzera risultati precedenti per evitare di mostrare dati stantii
+    setFetchedResults([])
+    // Invalida cache per la prossima ricerca
+    const nextCacheKey = `${selectedDiscipline}:${effectiveDate}:${effectiveTimeSlot}:${lastTenGames}`
+    searchResultsCache.delete(nextCacheKey)
     setSearchTrigger((prev) => prev + 1)
   }
 
@@ -1567,7 +1575,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
                         <span className="relative left-[2px] mr-[591px]">
-                          {t('under').toUpperCase()}
+                          {t('under_full').toUpperCase()}
                         </span>{' '}
                         <span className="relative left-[14px] mr-4">
                           {raceResult.odds.underover.under}
@@ -1579,7 +1587,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
                         <span className="relative left-1 mr-[635px]">
-                          {t('over').toUpperCase()}
+                          {t('over_full').toUpperCase()}
                         </span>{' '}
                         <span className="relative right-[6px]">
                           {raceResult.odds.underover.over}

@@ -3,7 +3,11 @@ import { Bet } from '@/retail-lib/types'
 import { useContext, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Toggle } from './ui/toggle'
-import { cn, normalizeMarketName } from '@/retail-lib/utils'
+import {
+  cn,
+  normalizeMarketName,
+  normalizeUnderOverValue,
+} from '@/retail-lib/utils'
 
 type BetEntryToggleVariants =
   | 'roundcard'
@@ -24,22 +28,47 @@ export default function BetEntryToggle(props: {
 
   const isSelected = useMemo(() => {
     const propsMarketNormalized = normalizeMarketName(props.marketName)
+    // Check if this is an under/over market
+    const isUnderOverMarket =
+      propsMarketNormalized.includes('under') ||
+      propsMarketNormalized.includes('over')
 
-    const found = betEntries.find(
-      (entry) =>
-        normalizeMarketName(entry.market) === propsMarketNormalized &&
-        entry.bet.discipline === props.bet.discipline &&
-        entry.bet.event.number === props.bet.event.number &&
-        entry.bet.competitors === props.bet.competitors &&
-        entry.bet.option.outcome === props.bet.option.outcome,
-    )
+    const found = betEntries.find((entry) => {
+      const marketMatches =
+        normalizeMarketName(entry.market) === propsMarketNormalized
+      const disciplineMatches = entry.bet.discipline === props.bet.discipline
+      const eventMatches = entry.bet.event.number === props.bet.event.number
+
+      // For under/over markets, normalize the competitors and outcome before comparing
+      const competitorsMatch = isUnderOverMarket
+        ? normalizeUnderOverValue(entry.bet.competitors) ===
+          normalizeUnderOverValue(props.bet.competitors)
+        : entry.bet.competitors === props.bet.competitors
+      const outcomeMatch = isUnderOverMarket
+        ? normalizeUnderOverValue(entry.bet.option.outcome) ===
+          normalizeUnderOverValue(props.bet.option.outcome)
+        : entry.bet.option.outcome === props.bet.option.outcome
+
+      return (
+        marketMatches &&
+        disciplineMatches &&
+        eventMatches &&
+        competitorsMatch &&
+        outcomeMatch
+      )
+    })
 
     return !!found
   }, [betEntries, props.marketName, props.bet])
 
   const formatOutcome = (outcome: string, marketName: string): string => {
-    const underLabel = t('under') || 'Under'
-    const overLabel = t('over') || 'Over'
+    // Per cani e cavalli usa le label complete, per il calcio usa le abbreviazioni
+    const isRacing =
+      props.bet.discipline === 'DOGS' || props.bet.discipline === 'HORSES'
+    const underLabel = isRacing
+      ? t('under_full') || 'Under'
+      : t('under') || 'Un'
+    const overLabel = isRacing ? t('over_full') || 'Over' : t('over') || 'Ov'
 
     const lower = outcome.toLowerCase()
     if (lower === 'yes') return t('yes') || 'Sí'.toUpperCase()
@@ -163,7 +192,7 @@ export default function BetEntryToggle(props: {
       }}
       className={cn(
         props.variant === 'matchcard'
-          ? 'flex flex-row justify-between px-4 text-[19px] capitalize'
+          ? 'flex flex-row justify-between px-4 text-[19px] capitalize tabular-nums'
           : props.variant === 'roundcard'
             ? 'flex flex-col justify-between text-[19px]'
             : props.variant === 'racecard'

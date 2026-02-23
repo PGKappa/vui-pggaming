@@ -105,6 +105,7 @@
   "deselect_all": "Deseleccionar Todo",
   "even_odd": "Par / Impar",
   "under_over": "Menos / Más",
+  "underover": "Menos / Más",
   "exacta": "Exacta",
   "trifecta": "Trifecta",
   "boxed_trifecta": "Trifecta Combinada",
@@ -198,6 +199,8 @@
   "match": "Partido",
   "under": "ME",
   "over": "MÀ",
+  "under_full": "Menos",
+  "over_full": "Más",
   "even": "Par",
   "odd": "Impar",
   "event_completed_detailed_results": "Evento completado - resultados detallados disponibles solo para carreras de caballos y galgos",
@@ -326,5 +329,5 @@
   "cashier_data_loaded": "Datos del cajero cargados desde la caché",
   "user_data_fetched": "Datos del usuario obtenidos con éxito",
   "error_fetching_racing_events": "Error al obtener eventos de carreras",
-  "stake_increment_error": "La apuesta debe ser un múltiplo de {{increment}}"
+  "stake_increment_error": "El importe debe ser múltiplo de {{increment}}"
 }

@@ -9,7 +9,7 @@ const Table = React.forwardRef<
   <div className="relative w-full overflow-auto tabular-nums">
     <table
       ref={ref}
-      className={cn('w-full caption-bottom text-sm tabular-nums', className)}
+      className={cn('w-full caption-bottom text-sm tabular-nums border-b', className)}
       {...props}
     />
   </div>
@@ -30,7 +30,7 @@ const TableBody = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <tbody
     ref={ref}
-    className={cn('[&_tr:last-child]:border-0', className)}
+    className={cn('[&_tr:last-child]:border-0 tabular-nums', className)}
     {...props}
   />
 ))

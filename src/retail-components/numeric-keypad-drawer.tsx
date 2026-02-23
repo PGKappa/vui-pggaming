@@ -37,8 +37,8 @@ export default function NumericKeypadDrawer(props: {
   const [shouldReplaceOnNextDigit, setShouldReplaceOnNextDigit] =
     useState(false)
 
-  // Get currency symbol from RootContext or fallback to prop/€
-  const currencySymbol = getCurrencySymbol?.() || props.currencySymbol || '€'
+  // Get currency symbol from RootContext or fallback to prop/$
+  const currencySymbol = getCurrencySymbol?.() || props.currencySymbol || '$'
 
   // Get increment value from prop or context (fallback 0.5 se non disponibile)
   const incrementValue = props.incrementValue ?? getMinStakeIncrement?.() ?? 0.5
@@ -71,28 +71,15 @@ export default function NumericKeypadDrawer(props: {
     }
   }, [open])
 
-  const handlePresetValue = (amount: string | number) => {
-    // Estrai il numero dalla stringa - gestisce sia formato europeo (virgola) che americano (punto)
-    let numAmount = 0
-    if (typeof amount === 'number') {
-      numAmount = amount
-    } else {
-      // Sostituisci virgola con punto e rimuovi tutto tranne numeri e punto
-      const cleanedAmount = amount
-        .toString()
-        .replace(',', '.')
-        .replace(/[^\d.]/g, '')
-      numAmount = parseFloat(cleanedAmount)
-    }
-
-    // Valida che sia un numero valido
-    if (isNaN(numAmount) || !isFinite(numAmount) || numAmount <= 0) {
+  const handlePresetValue = (amount: number) => {
+    // Valida che amount sia un numero valido
+    if (typeof amount !== 'number' || isNaN(amount) || !isFinite(amount)) {
       return
     }
 
     setDrawerValue((prev) => {
       const currentValue = parseFloat(prev) || 0
-      const newValue = currentValue + numAmount
+      const newValue = currentValue + amount
       if (isNaN(newValue) || !isFinite(newValue)) {
         return '0.00'
       }
@@ -110,18 +97,8 @@ export default function NumericKeypadDrawer(props: {
         return digit === '0' ? '0' : digit
       }
 
-      // Se il valore è "0.00" (stato iniziale), qualsiasi digit lo sostituisce
-      if (prev === '0.00') {
-        return digit === '0' ? '0' : digit
-      }
-
-      // Se il valore è "0" e digiti "0", resta "0" (per permettere poi "0.")
-      if (prev === '0' && digit === '0') {
-        return '0'
-      }
-
-      // Se il valore è "0" e digiti altro numero, sostituisci
-      if (prev === '0') {
+      // Se il valore precedente è '0.00' o '0', inizia da capo
+      if (prev === '0.00' || prev === '0') {
         return digit
       }
 
@@ -307,33 +284,39 @@ export default function NumericKeypadDrawer(props: {
               gridTemplateColumns: `repeat(${Math.min(stakeButtons.length, 5)}, minmax(0, 1fr))`,
             }}
           >
-            {stakeButtons
-              .filter((amount) => {
-                // Estrai numero - gestisce sia formato europeo (virgola) che americano (punto)
-                let numAmount = 0
-                if (typeof amount === 'number') {
-                  numAmount = amount
-                } else {
-                  const cleanedAmount = amount
-                    .toString()
+            {stakeButtons.map((amount, idx) => {
+              // Converti amount in numero se è stringa
+              let numericAmount: number
+              if (typeof amount === 'number') {
+                numericAmount = amount
+              } else {
+                numericAmount = parseFloat(
+                  String(amount)
                     .replace(',', '.')
-                    .replace(/[^\d.]/g, '')
-                  numAmount = parseFloat(cleanedAmount)
-                }
-                // Filtra valori invalidi
-                return !isNaN(numAmount) && isFinite(numAmount) && numAmount > 0
-              })
-              .map((amount, idx) => (
+                    .replace(/[^\d.]/g, ''),
+                )
+              }
+
+              if (
+                isNaN(numericAmount) ||
+                !isFinite(numericAmount) ||
+                numericAmount <= 0
+              ) {
+                return null
+              }
+
+              return (
                 <Button
-                  key={`stake-btn-${idx}`}
+                  key={`stake-${idx}-${numericAmount}`}
                   variant="outline"
                   size="sm"
                   className="h-10 text-[16px] font-semibold tabular-nums"
-                  onClick={() => handlePresetValue(amount)}
+                  onClick={() => handlePresetValue(numericAmount)}
                 >
                   {amount}
                 </Button>
-              ))}
+              )
+            })}
           </div>
 
           {/* Keypad */}

@@ -9,7 +9,6 @@ declare global {
 
 import { Button } from '@/retail-components/ui/button'
 import { Card, CardContent, CardFooter } from '@/retail-components/ui/card'
-import { ScrollArea } from '@/retail-components/ui/scroll-area'
 import { BetsContext } from '@/retail-contexts/bets-context'
 import { RootContext } from '@/retail-contexts/root-context'
 import { generateSystemGroups } from '@/retail-lib/system-bets'
@@ -45,6 +44,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/retail-components/ui/tooltip'
+import { ScrollAreaB } from './ui/betting-slip-scroll-area'
 
 export type BetMode = 'SINGLE' | 'MULTIPLE' | 'SYSTEM'
 
@@ -88,7 +88,7 @@ export default function BettingSlip({
   const rootContext = useContext(RootContext)
 
   // Ottieni il simbolo della valuta dall'API cashier
-  const currencySymbol = rootContext?.getCurrencySymbol?.() || '€'
+  const currencySymbol = rootContext?.getCurrencySymbol?.() || '$'
 
   // Ottieni i valori dei pulsanti stake dall'API
   const stakeButtons = rootContext?.getStakeButtons?.() || [1, 2, 5, 10]
@@ -97,7 +97,7 @@ export default function BettingSlip({
   const minStake = rootContext?.getMinStake?.() || 0.05
   const minBet = rootContext?.getMinBet?.() || 0
   const maxWin = rootContext?.getMaxWin?.() || 1000000000
-  const minStakeIncrement = rootContext?.getMinStakeIncrement?.() || 0.05
+  const minStakeIncrement = rootContext?.getMinStakeIncrement?.() || 0.5
 
   const [accordionOpen, setAccordionOpen] = useState<string>('combinations')
   const [systemGroupsOpen, setSystemGroupsOpen] = useState<string[]>([])
@@ -591,6 +591,19 @@ export default function BettingSlip({
       return
     }
 
+    // Validazione che lo stake sia multiplo di min_stake_increment_step (prima del min_stake)
+    if (betMode !== 'SYSTEM' && minStakeIncrement > 0) {
+      const remainder = Math.abs(global % minStakeIncrement)
+      const tolerance = 0.0001 // Tolleranza per errori floating point
+      if (remainder > tolerance && remainder < minStakeIncrement - tolerance) {
+        toast.error(
+          t('stake_increment_error', { increment: minStakeIncrement }) ||
+            `Stake must be a multiple of ${currencySymbol} ${minStakeIncrement}`,
+        )
+        return
+      }
+    }
+
     // Validazione min_stake per single/multiple
     if (betMode !== 'SYSTEM' && global < minStake) {
       toast.error(
@@ -655,6 +668,25 @@ export default function BettingSlip({
             `Minimum stake per combination is ${currencySymbol} ${minStake.toFixed(2)}`,
         )
         return
+      }
+
+      // Validazione che ogni stake sistema sia multiplo di min_stake_increment_step
+      if (minStakeIncrement > 0) {
+        const invalidIncrementGroups = systemGroups.filter((group) => {
+          if (!selectedGroups[group.name] || group.stake <= 0) return false
+          const remainder = Math.abs(group.stake % minStakeIncrement)
+          const tolerance = 0.0001
+          return (
+            remainder > tolerance && remainder < minStakeIncrement - tolerance
+          )
+        })
+        if (invalidIncrementGroups.length > 0) {
+          toast.error(
+            t('stake_increment_error', { increment: minStakeIncrement }) ||
+              `Stake must be a multiple of ${currencySymbol} ${minStakeIncrement}`,
+          )
+          return
+        }
       }
 
       // Validazione min_bet per il totale del ticket sistema
@@ -1249,7 +1281,7 @@ export default function BettingSlip({
             </Button>
           </div>
         ) : (
-          <ScrollArea className="h-full">
+          <ScrollAreaB className="h-full w-full">
             <ul className="flex flex-col gap-2 bg-background">
               {Object.entries(betsByEvent).map(([matchKey, matchBets]) => (
                 <EventBets
@@ -1260,13 +1292,13 @@ export default function BettingSlip({
                 />
               ))}
             </ul>
-          </ScrollArea>
+          </ScrollAreaB>
         )}
       </CardContent>
 
       <Separator />
 
-      <CardFooter className="relative bottom-[26px] flex flex-col bg-background">
+      <CardFooter className="relative mb-[26px] flex flex-col bg-background">
         {betMode !== 'SYSTEM' ? (
           <>
             <div className="relative h-[30px] w-[396px] bg-accent py-3"></div>
@@ -1299,8 +1331,6 @@ export default function BettingSlip({
 
                 if (isNaN(numericAmount) || numericAmount <= 0) return null
 
-                const displayText = `${numericAmount} ${currencySymbol}`
-
                 return (
                   <Button
                     key={`stake-${index}-${numericAmount}`}
@@ -1311,7 +1341,7 @@ export default function BettingSlip({
                       setGlobal((prev) => prev + numericAmount)
                     }}
                   >
-                    {displayText}
+                    {amount}
                   </Button>
                 )
               })}
@@ -1427,7 +1457,7 @@ export default function BettingSlip({
                   <Separator />
 
                   {/* ACCORDION GRUPPI con ScrollArea */}
-                  <ScrollArea
+                  <ScrollAreaB
                     className="overflow-hidden"
                     style={{ height: `${scrollAreaHeight}px` }}
                   >
@@ -1649,7 +1679,7 @@ export default function BettingSlip({
                         </AccordionItem>
                       ))}
                     </Accordion>
-                  </ScrollArea>
+                  </ScrollAreaB>
                 </AccordionContent>
               </AccordionItem>
             </Accordion>

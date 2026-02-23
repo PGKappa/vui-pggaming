@@ -15,7 +15,7 @@ type BetCombinationsTableProps = {
   disorderSelection: number[]
   fixedSelection: number[]
   marketType?: 'exacta' | 'quinella' | 'trifecta' | 'boxtrifecta'
-  onClearSelections?: () => void
+  onBeforeToggle?: () => void
 }
 
 export default function BetCombinationsTable({
@@ -26,7 +26,7 @@ export default function BetCombinationsTable({
   disorderSelection,
   fixedSelection,
   marketType = 'exacta',
-  onClearSelections,
+  onBeforeToggle,
 }: BetCombinationsTableProps) {
   const { t } = useTranslation()
   const rootContext = useContext(RootContext)
@@ -624,7 +624,7 @@ export default function BetCombinationsTable({
         <div className="relative flex gap-2">
           <Button
             variant="navbar"
-            className="h-10 w-fit rounded-[1px] px-[18px] pt-[1px] text-[15px] font-semibold text-white hover:"
+            className="h-10 w-fit rounded-[1px] px-[18px] pt-[1px] text-[15px] font-semibold text-white"
             onClick={handleSortClick}
           >
             {getSortButtonText()}
@@ -633,6 +633,7 @@ export default function BetCombinationsTable({
             variant="navbar"
             className="h-10 w-fit rounded-[1px] px-[18px] pt-[1px] text-[15px] font-semibold text-white"
             onClick={() => {
+              if (onBeforeToggle) onBeforeToggle()
               if (allBetsSelected) {
                 removeBets(
                   marketName,
@@ -659,19 +660,15 @@ export default function BetCombinationsTable({
         </div>
       </CardHeader>
       <CardContent className="p-2">
-        <div className="grid grid-cols-12 gap-2">
+        <div className="grid grid-cols-12 gap-2 pb-16">
           {combinations.map((bet) => (
             <BetEntryToggle
               key={bet.option.outcome}
               bet={bet}
               marketName={marketName}
               variant="racecombination"
-              onToggle={(isPressed) => {
-                if (isPressed && onClearSelections) {
-                  setTimeout(() => {
-                    onClearSelections()
-                  }, 100)
-                }
+              onToggle={() => {
+                if (onBeforeToggle) onBeforeToggle()
               }}
             />
           ))}
