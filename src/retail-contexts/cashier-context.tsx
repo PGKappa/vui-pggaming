@@ -125,6 +125,14 @@ function createContextDataFromCashierData(
     }
     return 0.05
   }
+  const getSystemStakeIncrement = () => {
+    const step = cashierData.intl?.min_stake_increment_step_sys
+    if (step) {
+      const parsed = typeof step === 'string' ? parseFloat(step) : step
+      if (!isNaN(parsed) && parsed > 0) return parsed
+    }
+    return 0.1
+  }
   const getTimezone = () => cashierData.intl?.timezone || 'Europe/Rome'
   const getStakeButtons = () => {
     const buttons = cashierData.intl?.stake_buttons
@@ -167,6 +175,7 @@ function createContextDataFromCashierData(
     getCurrencySymbol,
     getCurrencyCode,
     getMinStakeIncrement,
+    getSystemStakeIncrement,
     getStakeButtons,
     getMinStake,
     getMinBet,
