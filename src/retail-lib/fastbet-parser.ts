@@ -252,7 +252,8 @@ export async function createBetFromFastCode(
 
   if (
     currentEvent.discipline === Discipline.HORSES ||
-    currentEvent.discipline === Discipline.DOGS
+    currentEvent.discipline === Discipline.DOGS ||
+    currentEvent.discipline === Discipline.DOGS8
   ) {
     switch (fastCode.code) {
       case 'W': // Winner
