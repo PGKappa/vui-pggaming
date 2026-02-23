@@ -132,18 +132,18 @@ export function UpcomingEventsCarousel(props: {
   )
 }
 
-// Offset per disciplina — aggiusta bottom/right per allineare visivamente le immagini
+
 const imageOffsetByDiscipline: Record<string, string> = {
   SOCCER: 'bottom-[4px] right-[10px]',
-  HORSES: 'bottom-[4px] right-[9px]', // ← aggiusta se necessario
-  DOGS:   'bottom-[4px] right-[11px]', // ← aggiusta questi valori
+  HORSES: 'bottom-[4px] right-[9px]', 
+  DOGS:   'bottom-[4px] right-[11px]', 
 }
 
-// Offset del div testo per disciplina — aggiusta right/top per allineare il testo visivamente
+
 const textOffsetByDiscipline: Record<string, string> = {
   SOCCER: 'right-[3px]',
-  HORSES: 'right-[5px]', // ← aggiusta se necessario
-  DOGS:   'right-[6px]', // ← aggiusta questi valori
+  HORSES: 'right-[5px]', 
+  DOGS:   'right-[6px]', 
 }
 
 function UpcomingEventItem(props: {
@@ -158,7 +158,7 @@ function UpcomingEventItem(props: {
   const timeToEventStart = useTimeLeft(event.time)
   const [progressValue, setProgressValue] = useState<number>(100)
 
-  // Sincronizza progress con il tempo mancante rispetto all'evento più lontano
+  
   useEffect(() => {
     if (!props.maxRemainingMs) {
       setProgressValue(0)
