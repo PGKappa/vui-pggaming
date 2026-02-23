@@ -23,6 +23,7 @@ export type RootContextType = {
   getCurrencySymbol?: () => string
   getCurrencyCode?: () => string
   getMinStakeIncrement?: () => number
+  getSystemStakeIncrement?: () => number
   getStakeButtons?: () => number[]
   getMinStake?: () => number
   getMinBet?: () => number
@@ -92,6 +93,7 @@ export default function RootContextProvider(props: {
       getCurrencySymbol: cashierContext.getCurrencySymbol,
       getCurrencyCode: cashierContext.getCurrencyCode,
       getMinStakeIncrement: cashierContext.getMinStakeIncrement,
+      getSystemStakeIncrement: cashierContext.getSystemStakeIncrement,
       getStakeButtons: cashierContext.getStakeButtons,
       getMinStake: cashierContext.getMinStake,
       getMinBet: cashierContext.getMinBet,
@@ -122,6 +124,7 @@ export default function RootContextProvider(props: {
       cashierContext.getCurrencySymbol,
       cashierContext.getCurrencyCode,
       cashierContext.getMinStakeIncrement,
+      cashierContext.getSystemStakeIncrement,
       cashierContext.getStakeButtons,
       cashierContext.getMinStake,
       cashierContext.getMinBet,
