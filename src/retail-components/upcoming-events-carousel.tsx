@@ -8,6 +8,7 @@ import {
 import { Progress } from '@/retail-components/ui/progress'
 import { Skeleton } from '@/retail-components/ui/skeleton'
 import { RootContext } from '@/retail-contexts/root-context'
+import { getLayoutConfig } from '@/retail-lib/layout-config'
 import { Discipline, UpcomingEvent } from '@/retail-lib/types'
 import { useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -132,20 +133,6 @@ export function UpcomingEventsCarousel(props: {
   )
 }
 
-
-const imageOffsetByDiscipline: Record<string, string> = {
-  SOCCER: 'bottom-[4px] right-[10px]',
-  HORSES: 'bottom-[4px] right-[9px]', 
-  DOGS:   'bottom-[4px] right-[11px]', 
-}
-
-
-const textOffsetByDiscipline: Record<string, string> = {
-  SOCCER: 'right-[3px]',
-  HORSES: 'right-[5px]', 
-  DOGS:   'right-[6px]', 
-}
-
 function UpcomingEventItem(props: {
   event: UpcomingEvent
   selectedEvent?: UpcomingEvent
@@ -155,10 +142,12 @@ function UpcomingEventItem(props: {
   const { event } = props
 
   const { t } = useTranslation()
+  const rootContext = useContext(RootContext)
+  const lang = rootContext?.userData?.lang || 'en'
+  const layout = getLayoutConfig(lang)
   const timeToEventStart = useTimeLeft(event.time)
   const [progressValue, setProgressValue] = useState<number>(100)
 
-  
   useEffect(() => {
     if (!props.maxRemainingMs) {
       setProgressValue(0)
@@ -182,12 +171,14 @@ function UpcomingEventItem(props: {
     return null
   }
 
-  const imageOffset = imageOffsetByDiscipline[event.discipline] ?? 'bottom-[4px] right-[10px]'
-  const textOffset = textOffsetByDiscipline[event.discipline] ?? 'right-[3px]'
+  const imageOffset =
+    layout.carousel.imageOffset[event.discipline] ?? 'bottom-[4px] right-[10px]'
+  const textOffset =
+    layout.carousel.textOffset[event.discipline] ?? 'right-[3px]'
 
   return (
     <CarouselItem
-      className={`relative flex h-[88px] basis-1/6 cursor-pointer flex-row items-center justify-center gap-3 overflow-hidden border-l-8 border-l-background px-2 py-2 text-[15px] last:border-r-background ${
+      className={`relative flex h-[88px] ${layout.carousel.itemBasis} cursor-pointer flex-row items-center justify-center gap-3 overflow-hidden border-l-8 border-l-background px-2 py-2 text-[15px] last:border-r-background ${
         event.id === props.selectedEvent?.id &&
         event.discipline === props.selectedEvent?.discipline
           ? 'bg-[hsl(211deg_65%_37%_/_.9)] text-tertiary-foreground'
@@ -227,7 +218,7 @@ function UpcomingEventItem(props: {
           <span className="relative bottom-[1px] text-[14px] font-semibold tabular-nums">
             {event.startTime}
           </span>
-          <span className="relative bottom-[1px] min-w-[56px] left-[8px] bg-white px-2 py-[1px] pt-0 text-[14px] font-semibold tabular-nums text-black">
+          <span className="relative bottom-[1px] left-[8px] min-w-[56px] bg-white px-2 py-[1px] pt-0 text-[14px] font-semibold tabular-nums text-black">
             {timeToEventStart}
           </span>
         </div>
