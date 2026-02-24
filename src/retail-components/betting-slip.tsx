@@ -1335,7 +1335,7 @@ export default function BettingSlip({
             {/* IMPORTO section */}
             <div className="relative top-[17px] flex flex-row items-center justify-between px-4 py-[18px]">
               <div className="flex items-center gap-2">
-                <span className="pt-[1px] text-[16px] font-semibold">
+                <span className="pt-[1px] text-[15px] font-semibold">
                   {t('amount').toUpperCase()}
                 </span>
               </div>

@@ -6,6 +6,7 @@ import { Button } from '@/retail-components/ui/button'
 import { X, Printer } from 'lucide-react'
 import Image from 'next/image'
 import { RootContext } from '@/retail-contexts/root-context'
+import { SkinContext, SkinType } from '@/retail-contexts/skin-context'
 
 type Discipline = 'soccer' | 'racing'
 
@@ -14,8 +15,8 @@ interface DraggableCodeListProps {
   onCodeClick?: (code: string) => void
 }
 
-// Configurazione immagini basata su disciplina e lingua
-const getImageConfig = (discipline: Discipline, language: string) => {
+// Configurazione immagini basata su disciplina, lingua e skin
+const getImageConfig = (discipline: Discipline, language: string, skin: SkinType = SkinType.DEFAULT) => {
   if (discipline === 'soccer') {
     if(language === 'es') {
       return {
@@ -31,7 +32,7 @@ const getImageConfig = (discipline: Discipline, language: string) => {
     }
   }
 
-  // Racing: cambia immagine in base alla lingua
+  // Racing: cambia immagine in base alla lingua e skin
   if (language === 'es') {
     return {
       image: '/galgoscaballos-codes-image.png',
@@ -41,8 +42,9 @@ const getImageConfig = (discipline: Discipline, language: string) => {
   }
 
   if (language === 'it') {
+    const isStanleybet = skin === SkinType.STANLEYBET
     return {
-      image: '/cani-cavalli-codes-image.png',
+      image: isStanleybet ? '/cani-cavalli-codes-image-rosso.png' : '/cani-cavalli-codes-image.png',
       alt: 'Codici scommesse cani e cavalli',
       title: 'Elenco Codici Corse',
     }
@@ -56,14 +58,24 @@ const getImageConfig = (discipline: Discipline, language: string) => {
   }
 }
 
+const HEADER_HEIGHT = 56 // px altezza header
+const DEFAULT_ASPECT_RATIO = 9 / 16 // proporzioni di fallback
+const INITIAL_WIDTH = 1260
+
 export default function DraggableCodeList({
   discipline,
 }: DraggableCodeListProps) {
   const { t } = useTranslation()
   const rootContext = useContext(RootContext)
+  const [skin] = useContext(SkinContext)
   const [isOpen, setIsOpen] = useState(false)
+  const [isImageReady, setIsImageReady] = useState(false)
   const [position, setPosition] = useState({ x: 100, y: 100 })
-  const [size, setSize] = useState({ width: 1260, height: 625 })
+  const [imageRatio, setImageRatio] = useState(DEFAULT_ASPECT_RATIO)
+  const [size, setSize] = useState({
+    width: INITIAL_WIDTH,
+    height: INITIAL_WIDTH * DEFAULT_ASPECT_RATIO + HEADER_HEIGHT,
+  })
   const [isDragging, setIsDragging] = useState(false)
   const [isResizing, setIsResizing] = useState(false)
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
@@ -77,12 +89,30 @@ export default function DraggableCodeList({
 
   // Ottieni la lingua dall'API e configura l'immagine corretta
   const currentLanguage = rootContext?.userData?.lang || 'en'
-  const config = getImageConfig(discipline, currentLanguage)
+  const config = getImageConfig(discipline, currentLanguage, skin)
+
+  // Quando l'immagine viene caricata, aggiorna le proporzioni reali e mostra il container
+  const handleImageLoad = useCallback(
+    ({ naturalWidth, naturalHeight }: { naturalWidth: number; naturalHeight: number }) => {
+      const ratio = naturalHeight / naturalWidth
+      setImageRatio(ratio)
+      setSize((prev) => ({
+        width: prev.width,
+        height: prev.width * ratio + HEADER_HEIGHT,
+      }))
+      setIsImageReady(true)
+    },
+    [],
+  )
 
   // Funzione per chiudere e resettare dimensioni
   const handleClose = () => {
     setIsOpen(false)
-    setSize({ width: 1260, height: 625 })
+    setIsImageReady(false)
+    setSize({
+      width: INITIAL_WIDTH,
+      height: INITIAL_WIDTH * imageRatio + HEADER_HEIGHT,
+    })
   }
 
   // Funzioni di drag
@@ -170,14 +200,8 @@ export default function DraggableCodeList({
     (e: MouseEvent) => {
       if (isResizing) {
         const deltaX = e.clientX - resizeStart.x
-        const deltaY = e.clientY - resizeStart.y
-
-        // Usa il delta maggiore per mantenere proporzioni
-        const delta = Math.max(deltaX, deltaY)
-
-        // Calcola nuove dimensioni con limiti minimi più stretti
-        const newWidth = Math.max(600, resizeStart.width + delta)
-        const newHeight = Math.max(450, resizeStart.height + delta)
+        const newWidth = Math.max(600, resizeStart.width + deltaX)
+        const newHeight = newWidth * imageRatio + HEADER_HEIGHT
 
         setSize({
           width: newWidth,
@@ -185,7 +209,7 @@ export default function DraggableCodeList({
         })
       }
     },
-    [isResizing, resizeStart],
+    [isResizing, resizeStart, imageRatio],
   )
 
   const handleResizeTouch = useCallback(
@@ -193,11 +217,8 @@ export default function DraggableCodeList({
       if (isResizing) {
         const touch = e.touches[0]
         const deltaX = touch.clientX - resizeStart.x
-        const deltaY = touch.clientY - resizeStart.y
-
-        const delta = Math.max(deltaX, deltaY)
-        const newWidth = Math.max(600, resizeStart.width + delta)
-        const newHeight = Math.max(450, resizeStart.height + delta)
+        const newWidth = Math.max(600, resizeStart.width + deltaX)
+        const newHeight = newWidth * imageRatio + HEADER_HEIGHT
 
         setSize({
           width: newWidth,
@@ -205,7 +226,7 @@ export default function DraggableCodeList({
         })
       }
     },
-    [isResizing, resizeStart],
+    [isResizing, resizeStart, imageRatio],
   )
 
   // Event listeners per mouse e touch
@@ -244,10 +265,8 @@ export default function DraggableCodeList({
   const handlePrint = () => {
     const printWindow = window.open('', '', 'width=1200,height=800')
     if (printWindow) {
-      // Imposta il titolo del documento
       printWindow.document.title = config.title
 
-      // Imposta gli stili nella head
       printWindow.document.head.innerHTML = `
         <title>${config.title}</title>
         <style>
@@ -275,7 +294,6 @@ export default function DraggableCodeList({
         </style>
       `
 
-      // Crea gli elementi nel body
       const heading = printWindow.document.createElement('h2')
       heading.textContent = config.title
       printWindow.document.body.appendChild(heading)
@@ -286,7 +304,6 @@ export default function DraggableCodeList({
       img.style.maxWidth = '100%'
       img.style.height = 'auto'
 
-      // Avvia la stampa quando l'immagine è caricata
       img.onload = () => {
         setTimeout(() => {
           printWindow.print()
@@ -319,11 +336,12 @@ export default function DraggableCodeList({
             left: `${position.x}px`,
             top: `${position.y}px`,
             width: `${size.width}px`,
-            height: `607px`,
+            height: `${size.height}px`,
+            visibility: isImageReady ? 'visible' : 'hidden',
           }}
         >
           <div
-            className="flex h-14 shrink-0 cursor-move select-none items-center justify-center  border-black bg-accent"
+            className="flex h-14 shrink-0 cursor-move select-none items-center justify-center border-black bg-accent border-b"
             onMouseDown={handleMouseDown}
             onTouchStart={handleTouchStart}
           >
@@ -365,8 +383,9 @@ export default function DraggableCodeList({
               alt={config.alt}
               width={1920}
               height={1080}
-              className="h-full w-full object-contain"
+              className="h-full w-full object-fill"
               priority
+              onLoadingComplete={handleImageLoad}
             />
           </div>
 
