@@ -6,6 +6,7 @@ import { Button } from '@/retail-components/ui/button'
 import { X, Printer } from 'lucide-react'
 import Image from 'next/image'
 import { RootContext } from '@/retail-contexts/root-context'
+import { SkinContext, SkinType } from '@/retail-contexts/skin-context'
 
 type Discipline = 'soccer' | 'racing'
 
@@ -14,8 +15,8 @@ interface DraggableCodeListProps {
   onCodeClick?: (code: string) => void
 }
 
-// Configurazione immagini basata su disciplina e lingua
-const getImageConfig = (discipline: Discipline, language: string) => {
+// Configurazione immagini basata su disciplina, lingua e skin
+const getImageConfig = (discipline: Discipline, language: string, skin: SkinType = SkinType.DEFAULT) => {
   if (discipline === 'soccer') {
     if(language === 'es') {
       return {
@@ -31,7 +32,7 @@ const getImageConfig = (discipline: Discipline, language: string) => {
     }
   }
 
-  // Racing: cambia immagine in base alla lingua
+  // Racing: cambia immagine in base alla lingua e skin
   if (language === 'es') {
     return {
       image: '/galgoscaballos-codes-image.png',
@@ -41,8 +42,9 @@ const getImageConfig = (discipline: Discipline, language: string) => {
   }
 
   if (language === 'it') {
+    const isStanleybet = skin === SkinType.STANLEYBET
     return {
-      image: '/cani-cavalli-codes-image.png',
+      image: isStanleybet ? '/cani-cavalli-codes-image-rosso.png' : '/cani-cavalli-codes-image.png',
       alt: 'Codici scommesse cani e cavalli',
       title: 'Elenco Codici Corse',
     }
@@ -61,6 +63,7 @@ export default function DraggableCodeList({
 }: DraggableCodeListProps) {
   const { t } = useTranslation()
   const rootContext = useContext(RootContext)
+  const [skin] = useContext(SkinContext)
   const [isOpen, setIsOpen] = useState(false)
   const [position, setPosition] = useState({ x: 100, y: 100 })
   const [size, setSize] = useState({ width: 1260, height: 625 })
@@ -77,7 +80,7 @@ export default function DraggableCodeList({
 
   // Ottieni la lingua dall'API e configura l'immagine corretta
   const currentLanguage = rootContext?.userData?.lang || 'en'
-  const config = getImageConfig(discipline, currentLanguage)
+  const config = getImageConfig(discipline, currentLanguage, skin)
 
   // Funzione per chiudere e resettare dimensioni
   const handleClose = () => {
