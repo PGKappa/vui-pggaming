@@ -69,6 +69,7 @@ export default function DraggableCodeList({
   const rootContext = useContext(RootContext)
   const [skin] = useContext(SkinContext)
   const [isOpen, setIsOpen] = useState(false)
+  const [isImageReady, setIsImageReady] = useState(false)
   const [position, setPosition] = useState({ x: 100, y: 100 })
   const [imageRatio, setImageRatio] = useState(DEFAULT_ASPECT_RATIO)
   const [size, setSize] = useState({
@@ -90,7 +91,7 @@ export default function DraggableCodeList({
   const currentLanguage = rootContext?.userData?.lang || 'en'
   const config = getImageConfig(discipline, currentLanguage, skin)
 
-  // Quando l'immagine viene caricata, aggiorna le proporzioni reali e ridimensiona il container
+  // Quando l'immagine viene caricata, aggiorna le proporzioni reali e mostra il container
   const handleImageLoad = useCallback(
     ({ naturalWidth, naturalHeight }: { naturalWidth: number; naturalHeight: number }) => {
       const ratio = naturalHeight / naturalWidth
@@ -99,6 +100,7 @@ export default function DraggableCodeList({
         width: prev.width,
         height: prev.width * ratio + HEADER_HEIGHT,
       }))
+      setIsImageReady(true)
     },
     [],
   )
@@ -106,6 +108,7 @@ export default function DraggableCodeList({
   // Funzione per chiudere e resettare dimensioni
   const handleClose = () => {
     setIsOpen(false)
+    setIsImageReady(false)
     setSize({
       width: INITIAL_WIDTH,
       height: INITIAL_WIDTH * imageRatio + HEADER_HEIGHT,
@@ -334,6 +337,7 @@ export default function DraggableCodeList({
             top: `${position.y}px`,
             width: `${size.width}px`,
             height: `${size.height}px`,
+            visibility: isImageReady ? 'visible' : 'hidden',
           }}
         >
           <div
