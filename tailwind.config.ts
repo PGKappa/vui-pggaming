@@ -6,6 +6,7 @@ export default {
   safelist: [
     'default',
     'sportradar',
+    'stanleybet',
     'dp',
     'sc',
     'retail-default',
@@ -147,6 +148,8 @@ export default {
             foreground: 'hsl(var(--footer-betslip-foreground))',
           },
         },
+        selectedEvent: 'hsl(var(--selected-event))',
+        carouselArrow: 'hsl(var(--carousel-arrow))',
       },
       borderRadius: {
         lg: 'var(--radius)',
