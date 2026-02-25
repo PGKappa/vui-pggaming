@@ -1610,7 +1610,7 @@ export default function BettingSlip({
                                     height: '20px',
                                   }}
                                 >
-                                  <svg
+                                  <svg className='relative left-1'
                                     width="20"
                                     height="20"
                                     viewBox="0 0 24 24"
