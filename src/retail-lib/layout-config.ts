@@ -61,7 +61,7 @@ const layoutByLanguage: Record<string, LayoutConfig> = {
         DOGS: 'right-[9px]',
         DOGS8: 'right-[8px]',
       },
-      progressBarHeight: 'h-[6px]',
+      progressBarHeight: 'h-[7px]',
       eventNameFontSize: 'text-[13px]',
       eventSubtitleFontSize: 'text-[12px]',
       eventSubtitleBottom: 'bottom-[4px]',
