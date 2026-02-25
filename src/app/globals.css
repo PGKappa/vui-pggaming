@@ -318,6 +318,89 @@
     --bet: 353 100% 44%;
     --bet-foreground: 0 0% 100%;
 
+    --selected-event: 211 65% 37%;
+    
+    --carousel-arrow: 211 57% 51%;
+
+    --betSlip: 0 0% 62%;
+    --betSlip-foreground: 0 0% 0%;
+    --betSlip-header: 207 18% 76%;
+    --betSlip-header-foreground: 0 0% 100%;
+
+    --betHistory: 353 100% 44%;
+    --betHistory-foreground: 0 0% 0%;
+    --betHistory-header: 0 0% 100%;
+
+    --navbarButton: 207 18% 76%;
+    --navbarButton-foreground: 0 0% 100%;
+
+    --navbarButton-selected: 212 92% 13%;
+    --navbarButton-selected-foreground: 0 0% 100%;
+
+    --searchResult: 215 83% 68%;
+    --searchResult-foreground: 0 0% 0%;
+    --searchResult-secondary: 210 64% 94%;
+
+    --chart-1: 0 0% 63%;
+    --chart-2: 0 68% 52%;
+    --chart-3: 109 100% 35%;
+
+    --footer-ranking: 0 0% 100%;
+    --footer-ranking-foreground: 0 0% 0%;
+
+    --footer-betslip: 353 100% 44%;
+    --footer-betslip-foreground: 0 0% 100%;
+  }
+
+  .stanleybet {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 0%;
+    --card-header: 353 100% 25%;
+    --card-header-foreground: 0 0% 100%;
+
+    --primary: 0 0% 0%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 353 100% 32%;
+    --secondary-foreground: 0 0% 90%;
+
+    --tertiary: 353 100% 36%;
+    --tertiary-foreground: 0 0% 100%;
+
+    --muted: 353 100% 25%;
+    --muted-foreground: 220 12% 95%;
+
+    --accent: 353 100% 25%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 0 0% 100%;
+
+    --table-foreground: 0 0% 0%;
+
+    --badge-background: 211 34% 48%;
+    --badge-foreground: 0 0% 100%;
+
+    --betEntry-background: 0 0% 90%;
+    --betEntry-foreground: 0 0% 0%;
+    --betEntry-border: 0 0% 31%;
+
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 0 0% 20%;
+
+    --radius: 0.4rem;
+
+    --bet: 353 100% 44%;
+    --bet-foreground: 0 0% 100%;
+
+    --selected-event: 353 100% 44%;
+
+    --carousel-arrow: 353 100% 44%;
+
     --betSlip: 0 0% 62%;
     --betSlip-foreground: 0 0% 0%;
     --betSlip-header: 207 18% 76%;
@@ -400,20 +483,10 @@
   border-width: 0px;
 }
 
-div.bg-bet-foreground:nth-child(1)>div:nth-child(1)>div:nth-child(1)>div:nth-child(2)>button:nth-child(2)>svg:nth-child(1) {
-  width: 20px;
-  height: 20px;
-  position: relative;
-  left: 4px;
-}
 
 
-div.gap-1:nth-child(2)>div:nth-child(1)>div:nth-child(1)>div:nth-child(2)>button:nth-child(2)>svg:nth-child(1) {
-  width: 20px;
-  height: 20px;
-  position: relative;
-  left: 4px;
-}
+
+
 
 
 .left-\[243px\]>svg:nth-child(1) {
@@ -460,8 +533,3 @@ div.gap-1:nth-child(2)>div:nth-child(1)>div:nth-child(1)>div:nth-child(2)>button
 .data-\[state\=on\]\:bg-bet[data-state="on"]:hover {
   opacity: 1;
 }
-
-
-
-
-

@@ -974,7 +974,7 @@ export default function UpcomingRaceCard({
                 fixedSelection.length > 0) && (
                 <Button
                   variant="ghost"
-                  className="h-11 w-28 bg-secondary px-4 text-[16px] font-bold text-secondary-foreground"
+                  className="h-12 w-fit bg-secondary px-4 text-[15px] font-semibold text-secondary-foreground"
                   onClick={clearSelections}
                 >
                   {t('clear_all').toUpperCase()}
@@ -986,7 +986,7 @@ export default function UpcomingRaceCard({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-12 w-fit border-border bg-secondary px-[18px] pb-[1px] text-[15px] text-secondary-foreground hover:opacity-90"
+                className="h-12 w-fit border-border bg-secondary px-[18px] pb-[1px] text-[15px] font-semibold text-secondary-foreground hover:opacity-90"
                 onClick={() => setIsLatecomersDialogOpen(true)}
               >
                 <span>{t('latecomers').toUpperCase()}</span>

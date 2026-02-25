@@ -1,4 +1,6 @@
 import { BetsContext } from '@/retail-contexts/bets-context'
+import { RootContext } from '@/retail-contexts/root-context'
+import { getLayoutConfig } from '@/retail-lib/layout-config'
 import { BetEntry } from '@/retail-lib/types'
 import useTimeLeft from '@/retail-lib/use-time-left'
 import { format } from 'date-fns'
@@ -26,6 +28,9 @@ export default function EventBets(props: {
   const { betMode, eventKey, eventBets } = props
   const { removeBet, removeEventBets, toggleEventBetsFixed } =
     useContext(BetsContext)
+  const rootContext = useContext(RootContext)
+  const lang = rootContext?.userData?.lang || 'en'
+  const layout = getLayoutConfig(lang)
 
   const timeToMatchStart = useTimeLeft(eventBets[0].bet.event.startingAt)
 
@@ -109,7 +114,9 @@ export default function EventBets(props: {
               </span>
               <span className="text-[10px]">|</span>
 
-              <span className="relative mr-[255px] text-[13px] font-bold text-accent">
+              <span
+                className={`relative ${layout.eventBets.eventIdMargin} text-[13px] font-bold text-accent`}
+              >
                 ID {eventBets[0].bet.event.number}{' '}
                 {/* In case you want to translate ID in all the languages, don't forget to translate with i18n and add all in the jsons */}
               </span>
@@ -184,7 +191,7 @@ export default function EventBets(props: {
                 <span className="mr-[1px] w-[126px] text-[13px] capitalize">
                   {translatedMarket}
                 </span>
-                <span className="ml-[0px] w-[109px] text-center text-[13px] font-normal">
+                <span className="ml-[0px] w-[109px] text-left text-[13px] font-normal">
                   {outcomeDisplay}
                 </span>
                 <span className="relative right-[3px] grid w-[101px] justify-end break-all text-[13px] font-semibold leading-tight">
