@@ -176,6 +176,8 @@ function UpcomingEventItem(props: {
   const textOffset =
     layout.carousel.textOffset[event.discipline] ?? 'right-[3px]'
   const progressBarHeight = layout.carousel.progressBarHeight
+  const eventNameFontSize = layout.carousel.eventNameFontSize
+  const eventSubtitleFontSize = layout.carousel.eventSubtitleFontSize
 
   return (
     <CarouselItem
@@ -203,14 +205,14 @@ function UpcomingEventItem(props: {
         className={`relative size-14 object-contain ${imageOffset}`}
       />
       <div className={`relative ${textOffset} flex flex-col items-start`}>
-        <span className="relative bottom-[7px] whitespace-nowrap text-[14px] font-semibold uppercase">
+        <span className={`relative bottom-[7px] whitespace-nowrap ${eventNameFontSize} font-semibold uppercase`}>
           {event.discipline === 'SOCCER'
             ? event.name
             : event.discipline === 'HORSES'
               ? t('horse_races_label')
               : t('dog_races_label')}
         </span>
-        <span className="relative bottom-[5px] whitespace-nowrap text-[13px] font-normal uppercase">
+        <span className={`relative bottom-[5px] whitespace-nowrap ${eventSubtitleFontSize} font-normal uppercase`}>
           {event.discipline === 'SOCCER'
             ? `${t('round')} ${event.id}`
             : `${t('track')} ${(event.data as any)?.channel || 6}`}

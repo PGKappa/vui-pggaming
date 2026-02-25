@@ -3,6 +3,8 @@ type CarouselLayoutConfig = {
   imageOffset: Record<string, string>
   textOffset: Record<string, string>
   progressBarHeight: string
+  eventNameFontSize: string
+  eventSubtitleFontSize: string
 }
 type EventBetsLayoutConfig = {
   eventIdMargin: string
@@ -32,6 +34,8 @@ const layoutByLanguage: Record<string, LayoutConfig> = {
         DOGS8: 'right-[6px]',
       },
       progressBarHeight: 'h-[6px]',
+      eventNameFontSize: 'text-[14px]',
+      eventSubtitleFontSize: 'text-[13px]',
     },
     eventBets: {
       eventIdMargin: 'mr-[255px]',
@@ -55,7 +59,9 @@ const layoutByLanguage: Record<string, LayoutConfig> = {
         DOGS: 'right-[9px]',
         DOGS8: 'right-[8px]',
       },
-      progressBarHeight: 'h-[7px]',
+      progressBarHeight: 'h-[6px]',
+      eventNameFontSize: 'text-[13px]',
+      eventSubtitleFontSize: 'text-[12px]',
     },
     eventBets: {
       eventIdMargin: 'mr-[220px]',
@@ -80,6 +86,8 @@ const layoutByLanguage: Record<string, LayoutConfig> = {
         DOGS8: 'right-[6px]',
       },
       progressBarHeight: 'h-[6px]',
+      eventNameFontSize: 'text-[14px]',
+      eventSubtitleFontSize: 'text-[13px]',
     },
     eventBets: {
       eventIdMargin: 'mr-[215px]',
