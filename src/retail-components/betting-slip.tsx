@@ -45,6 +45,7 @@ import {
   TooltipTrigger,
 } from '@/retail-components/ui/tooltip'
 import { ScrollAreaB } from './ui/betting-slip-scroll-area'
+import { getLayoutConfig } from '@/retail-lib/layout-config'
 
 export type BetMode = 'SINGLE' | 'MULTIPLE' | 'SYSTEM'
 
@@ -130,6 +131,10 @@ export default function BettingSlip({
     {},
   )
   const [allGroupsSelected, setAllGroupsSelected] = useState(false)
+
+  // Layout config basato sulla lingua
+  const currentLanguage = rootContext?.userData?.lang || 'en'
+  const layoutConfig = getLayoutConfig(currentLanguage)
 
   const baseSystemGroups = useMemo(() => {
     if (betMode !== 'SYSTEM') {
@@ -1382,7 +1387,7 @@ export default function BettingSlip({
                         accordionOpen === 'combinations' ? '' : 'combinations',
                       )
                     }}
-                    className="relative left-[247px] top-[3px] transition-transform duration-200"
+                    className={`relative ${layoutConfig.bettingSlip.combinationsButtonLeft} top-[3px] transition-transform duration-200`}
                     style={{
                       transform:
                         accordionOpen === 'combinations'
@@ -1605,7 +1610,7 @@ export default function BettingSlip({
                                     height: '20px',
                                   }}
                                 >
-                                  <svg
+                                  <svg className='relative left-1'
                                     width="20"
                                     height="20"
                                     viewBox="0 0 24 24"
