@@ -175,6 +175,7 @@ function UpcomingEventItem(props: {
     layout.carousel.imageOffset[event.discipline] ?? 'bottom-[4px] right-[10px]'
   const textOffset =
     layout.carousel.textOffset[event.discipline] ?? 'right-[3px]'
+  const progressBarHeight = layout.carousel.progressBarHeight
 
   return (
     <CarouselItem
@@ -225,7 +226,7 @@ function UpcomingEventItem(props: {
       </div>
       <Progress
         value={progressValue}
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-[6px] rounded-none bg-navbarButton"
+        className={`pointer-events-none absolute inset-x-0 bottom-0 ${progressBarHeight} rounded-none bg-navbarButton`}
         indicatorClassName="bg-tertiary"
       />
     </CarouselItem>
