@@ -483,20 +483,10 @@
   border-width: 0px;
 }
 
-div.bg-bet-foreground:nth-child(1)>div:nth-child(1)>div:nth-child(1)>div:nth-child(2)>button:nth-child(2)>svg:nth-child(1) {
-  width: 20px;
-  height: 20px;
-  position: relative;
-  left: 4px;
-}
 
 
-div.gap-1:nth-child(2)>div:nth-child(1)>div:nth-child(1)>div:nth-child(2)>button:nth-child(2)>svg:nth-child(1) {
-  width: 20px;
-  height: 20px;
-  position: relative;
-  left: 4px;
-}
+
+
 
 
 .left-\[243px\]>svg:nth-child(1) {
