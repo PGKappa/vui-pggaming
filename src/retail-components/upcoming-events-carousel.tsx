@@ -178,6 +178,7 @@ function UpcomingEventItem(props: {
   const progressBarHeight = layout.carousel.progressBarHeight
   const eventNameFontSize = layout.carousel.eventNameFontSize
   const eventSubtitleFontSize = layout.carousel.eventSubtitleFontSize
+  const eventSubtitleBottom = layout.carousel.eventSubtitleBottom
 
   return (
     <CarouselItem
@@ -212,7 +213,7 @@ function UpcomingEventItem(props: {
               ? t('horse_races_label')
               : t('dog_races_label')}
         </span>
-        <span className={`relative bottom-[5px] whitespace-nowrap ${eventSubtitleFontSize} font-normal uppercase`}>
+        <span className={`relative ${eventSubtitleBottom} whitespace-nowrap ${eventSubtitleFontSize} font-normal uppercase`}>
           {event.discipline === 'SOCCER'
             ? `${t('round')} ${event.id}`
             : `${t('track')} ${(event.data as any)?.channel || 6}`}

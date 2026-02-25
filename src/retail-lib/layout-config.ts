@@ -5,6 +5,7 @@ type CarouselLayoutConfig = {
   progressBarHeight: string
   eventNameFontSize: string
   eventSubtitleFontSize: string
+  eventSubtitleBottom: string
 }
 type EventBetsLayoutConfig = {
   eventIdMargin: string
@@ -36,6 +37,7 @@ const layoutByLanguage: Record<string, LayoutConfig> = {
       progressBarHeight: 'h-[6px]',
       eventNameFontSize: 'text-[14px]',
       eventSubtitleFontSize: 'text-[13px]',
+      eventSubtitleBottom: 'bottom-[5px]',
     },
     eventBets: {
       eventIdMargin: 'mr-[255px]',
@@ -62,12 +64,13 @@ const layoutByLanguage: Record<string, LayoutConfig> = {
       progressBarHeight: 'h-[6px]',
       eventNameFontSize: 'text-[13px]',
       eventSubtitleFontSize: 'text-[12px]',
+      eventSubtitleBottom: 'bottom-[4px]',
     },
     eventBets: {
       eventIdMargin: 'mr-[220px]',
     },
     bettingSlip: {
-      combinationsButtonLeft: 'left-[237px]',
+      combinationsButtonLeft: 'left-[10px]',
     },
   },
   it: {
@@ -88,6 +91,7 @@ const layoutByLanguage: Record<string, LayoutConfig> = {
       progressBarHeight: 'h-[6px]',
       eventNameFontSize: 'text-[14px]',
       eventSubtitleFontSize: 'text-[13px]',
+      eventSubtitleBottom: 'bottom-[5px]',
     },
     eventBets: {
       eventIdMargin: 'mr-[215px]',
