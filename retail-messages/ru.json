@@ -220,7 +220,7 @@
   "operator_required": "Требуется оператор",
   "operator_not_found": "Требуется оператор, но не найден",
   "cashier_initialized": "Касса инициализирована",
-  "cashier_unavailable": "Касса недоступна - используется резерв",
+  "cashier_unavailable": "Касса недоступна",
   "retrying_cashier": "Повторная попытка подключения к кассе...",
   "stake_increment_error": "Сумма должна быть кратна {{increment}}"
 }
