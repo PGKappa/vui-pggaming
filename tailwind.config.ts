@@ -3,11 +3,21 @@ import tailwindCssAnimate from 'tailwindcss-animate'
 
 export default {
   darkMode: ['class'],
-  safelist: ['default', 'sportradar', 'dp', 'sc', 'retail-default'],
+  safelist: [
+    'default',
+    'sportradar',
+    'stanleybet',
+    'dp',
+    'sc',
+    'retail-default',
+    'basis-1/5',
+    'basis-1/6',
+  ],
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/retail-components/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/retail-lib/layout-config.ts',
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
@@ -138,6 +148,8 @@ export default {
             foreground: 'hsl(var(--footer-betslip-foreground))',
           },
         },
+        selectedEvent: 'hsl(var(--selected-event))',
+        carouselArrow: 'hsl(var(--carousel-arrow))',
       },
       borderRadius: {
         lg: 'var(--radius)',

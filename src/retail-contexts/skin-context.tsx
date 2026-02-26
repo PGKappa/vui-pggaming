@@ -8,6 +8,7 @@ export enum SkinType {
   SPORTRADAR = 'sportradar',
   DP = 'dp',
   SC = 'sc',
+  STANLEYBET = 'stanleybet',
 }
 
 export const SkinContext = createContext<[SkinType, (skin: SkinType) => void]>([

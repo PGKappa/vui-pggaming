@@ -24,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select'
+import { getLayoutConfig } from '@/retail-lib/layout-config'
 
 const dates = Array.from({ length: 10 }, (_, index) => {
   const date = new Date()
@@ -54,6 +55,11 @@ const SEARCH_CACHE_TTL_MS = 5 * 60 * 1000 // 5 minuti
 export default function SearchEventResults() {
   const { t } = useTranslation()
   const rootContext = useContext(RootContext)
+
+  const currentLanguage = rootContext?.userData?.lang || 'en'
+  const layoutConfig = getLayoutConfig(currentLanguage)
+  const { disciplineSelectLeft, disciplineSelectMinWidth } =
+    layoutConfig.searchEventResults
 
   // Stati per i parametri selezionati (UI)
   const [selectedDiscipline, setSelectedDiscipline] = useState<
@@ -722,7 +728,8 @@ export default function SearchEventResults() {
                 )
               }}
             >
-              <SelectTrigger className="relative left-5 ml-[-70px] h-[48px] min-w-[186px] border-none bg-background pl-[16px] pr-[5px] text-[16px] text-foreground">
+              
+              <SelectTrigger className={`relative ${disciplineSelectLeft} ml-[-70px] h-[48px] ${disciplineSelectMinWidth} border-none bg-background pl-[16px] pr-[5px] text-[16px] text-foreground`}>
                 <SelectValue placeholder={t('sport')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">

@@ -670,7 +670,7 @@ export default function RootContextProvider(props: {
 
     const params = new URLSearchParams(window.location.search)
     const initCode = params.get('init_code') || undefined
-    const operatorParam = params.get('operator') || 'pg'
+    const operatorParam = params.get('operator') || params.get('partner') || 'pg'
 
     console.log('🔐 RootContext Init:', {
       urlSearch: window.location.search,

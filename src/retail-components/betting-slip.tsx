@@ -9,7 +9,6 @@ declare global {
 
 import { Button } from '@/retail-components/ui/button'
 import { Card, CardContent, CardFooter } from '@/retail-components/ui/card'
-import { ScrollArea } from '@/retail-components/ui/scroll-area'
 import { BetsContext } from '@/retail-contexts/bets-context'
 import { RootContext } from '@/retail-contexts/root-context'
 import { generateSystemGroups } from '@/retail-lib/system-bets'
@@ -46,6 +45,7 @@ import {
   TooltipTrigger,
 } from '@/retail-components/ui/tooltip'
 import { ScrollAreaB } from './ui/betting-slip-scroll-area'
+import { getLayoutConfig } from '@/retail-lib/layout-config'
 
 export type BetMode = 'SINGLE' | 'MULTIPLE' | 'SYSTEM'
 
@@ -131,6 +131,10 @@ export default function BettingSlip({
     {},
   )
   const [allGroupsSelected, setAllGroupsSelected] = useState(false)
+
+  // Layout config basato sulla lingua
+  const currentLanguage = rootContext?.userData?.lang || 'en'
+  const layoutConfig = getLayoutConfig(currentLanguage)
 
   const baseSystemGroups = useMemo(() => {
     if (betMode !== 'SYSTEM') {
@@ -1336,7 +1340,7 @@ export default function BettingSlip({
             {/* IMPORTO section */}
             <div className="relative top-[17px] flex flex-row items-center justify-between px-4 py-[18px]">
               <div className="flex items-center gap-2">
-                <span className="pt-[1px] text-[16px] font-semibold">
+                <span className="pt-[1px] text-[15px] font-semibold">
                   {t('amount').toUpperCase()}
                 </span>
               </div>
@@ -1383,7 +1387,7 @@ export default function BettingSlip({
                         accordionOpen === 'combinations' ? '' : 'combinations',
                       )
                     }}
-                    className="relative left-[247px] top-[3px] transition-transform duration-200"
+                    className={`relative ${layoutConfig.bettingSlip.combinationsButtonLeft} top-[3px] transition-transform duration-200`}
                     style={{
                       transform:
                         accordionOpen === 'combinations'
@@ -1606,7 +1610,7 @@ export default function BettingSlip({
                                     height: '20px',
                                   }}
                                 >
-                                  <svg
+                                  <svg className='relative left-1'
                                     width="20"
                                     height="20"
                                     viewBox="0 0 24 24"
