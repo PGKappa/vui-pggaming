@@ -807,12 +807,39 @@ export default function BettingSlip({
               // Rimuovi " any" dall'outcome per i mercati boxed (quinella, boxedtrifecta)
               let cleanOutcome = entry.bet.option.outcome.replace(/ any$/, '')
 
-              // Normalizza outcome per Even/Odd e Under/Over in lowercase
+              // Normalizza outcome per Even/Odd e Under/Over in lowercase inglese
               if (
                 apiMarketName === 'evenodd' ||
                 apiMarketName === 'underover'
               ) {
-                cleanOutcome = cleanOutcome.toLowerCase()
+                const lowerOutcome = cleanOutcome.toLowerCase()
+                // Normalize translated values to English canonical form
+                if (
+                  lowerOutcome === 'par' ||
+                  lowerOutcome === 'pari' ||
+                  lowerOutcome === 'even'
+                ) {
+                  cleanOutcome = 'even'
+                } else if (
+                  lowerOutcome === 'impar' ||
+                  lowerOutcome === 'dispari' ||
+                  lowerOutcome === 'odd'
+                ) {
+                  cleanOutcome = 'odd'
+                } else if (
+                  lowerOutcome === 'menos' ||
+                  lowerOutcome === 'under'
+                ) {
+                  cleanOutcome = 'under'
+                } else if (
+                  lowerOutcome === 'más' ||
+                  lowerOutcome === 'mas' ||
+                  lowerOutcome === 'over'
+                ) {
+                  cleanOutcome = 'over'
+                } else {
+                  cleanOutcome = lowerOutcome
+                }
               }
 
               acc[apiMarketName].push({
@@ -1610,7 +1637,8 @@ export default function BettingSlip({
                                     height: '20px',
                                   }}
                                 >
-                                  <svg className='relative left-1'
+                                  <svg
+                                    className="relative left-1"
                                     width="20"
                                     height="20"
                                     viewBox="0 0 24 24"

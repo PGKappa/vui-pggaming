@@ -260,7 +260,6 @@ export default function RacingFastBet({
         rootContext.initCode || '',
         rootContext.getTrackName,
         rootContext.operator,
-        currentLanguage,
       )
 
       if (!bets || bets.length === 0) {
