@@ -105,7 +105,7 @@ function NavbarContent() {
             className="size-8 object-contain"
           />
         </Link>
-
+      {/** 
         <Link
           href={buildHref('/retail/calcio')}
           className={cn(
@@ -123,6 +123,7 @@ function NavbarContent() {
             className="size-8 object-contain brightness-0 invert filter"
           />
         </Link>
+        */}
       </div>
 
       <div className="relative right-2 flex w-full justify-end gap-[8px]">

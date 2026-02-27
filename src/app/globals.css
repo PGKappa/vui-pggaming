@@ -273,28 +273,28 @@
     --footer-betslip-foreground: 0 0% 100%;
   }
 
-  .retail-default {
+  .retail-default  {
     --background: 0 0% 100%;
     --foreground: 0 0% 0%;
 
     --card: 0 0% 100%;
     --card-foreground: 0 0% 0%;
-    --card-header: 212 63% 23%;
+    --card-header: 353 100% 25%;
     --card-header-foreground: 0 0% 100%;
 
     --primary: 0 0% 0%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 211 64% 26%;
+    --secondary: 353 100% 32%;
     --secondary-foreground: 0 0% 90%;
 
-    --tertiary: 212 58% 51%;
+    --tertiary: 353 100% 36%;
     --tertiary-foreground: 0 0% 100%;
 
-    --muted: 0 0% 74%;
+    --muted: 353 100% 25%;
     --muted-foreground: 220 12% 95%;
 
-    --accent: 212 62% 23%;
+    --accent: 353 100% 25%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 62% 30%;
@@ -318,9 +318,9 @@
     --bet: 353 100% 44%;
     --bet-foreground: 0 0% 100%;
 
-    --selected-event: 211 65% 37%;
-    
-    --carousel-arrow: 211 57% 51%;
+    --selected-event: 353 100% 44%;
+
+    --carousel-arrow: 353 100% 44%;
 
     --betSlip: 0 0% 62%;
     --betSlip-foreground: 0 0% 0%;
