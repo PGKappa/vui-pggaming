@@ -144,14 +144,12 @@ export default function BetsContextProvider(props: {
     if (betsContext.betEntries.length <= 1) return 'SINGLE'
 
     // Se ci sono multiple bet nello stesso evento → automaticamente SYSTEM
+    // (sia con un solo evento che con più eventi)
     const hasMultipleBetsInSameEvent = Object.values(
       betsContext.betsByEvent,
     ).some((bets) => bets.length > 1)
 
-    if (
-      Object.keys(betsContext.betsByEvent).length > 1 &&
-      hasMultipleBetsInSameEvent
-    ) {
+    if (hasMultipleBetsInSameEvent) {
       return 'SYSTEM'
     }
 
