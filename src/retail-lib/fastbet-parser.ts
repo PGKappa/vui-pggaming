@@ -229,11 +229,11 @@ export async function createBetFromFastCode(
     return null
   }
 
-  // Usa getTrackName se disponibile, altrimenti usa il nome dall'API o fallback
-  const channel = raceData.current?.channel
-  const trackName = getTrackName
-    ? getTrackName(channel)
-    : raceData.track?.name || `Track ${channel || '6'}`
+  // Usa trackName dall'evento (dal canale API) se disponibile, altrimenti fallback basato sulla disciplina
+  const trackName =
+    currentEvent.trackName ||
+    raceData.track?.name ||
+    (currentEvent.discipline === 'DOGS8' ? 'Track 8' : 'Track 6')
 
   // Helper per ottenere il nome del competitor dal numero
   const getCompetitorName = (number: number): string => {

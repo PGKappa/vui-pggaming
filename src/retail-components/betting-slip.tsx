@@ -1098,21 +1098,19 @@ export default function BettingSlip({
               }
             }
 
-            // Helper to get track number (6 or 8 runners) based on discipline
-            const getTrackNumber = (discipline: string) => {
-              switch (discipline) {
-                case 'DOGS':
-                case 'HORSES':
-                  return 6
-                default:
-                  return 6
+            // Helper to build trackName from bet entry track (from API) or translated fallback
+            const buildTrackName = (entry: (typeof betEntries)[0]) => {
+              // entry.bet.track contains the API track_name (e.g., "Track 8")
+              if (entry.bet.track) {
+                // Extract number from track_name and translate
+                const trackNum = entry.bet.track.match(/\d+/)?.[0]
+                if (trackNum) {
+                  return t(`track_${trackNum}`)
+                }
+                return entry.bet.track
               }
-            }
-
-            // Helper to build trackName with translation
-            const buildTrackName = (discipline: string) => {
-              const trackNumber = getTrackNumber(discipline)
-              return t(`track_${trackNumber}`)
+              // Fallback
+              return t('track_6')
             }
 
             // Prepare bet details for all modes - group by event
@@ -1121,7 +1119,7 @@ export default function BettingSlip({
                 const eventId = entry.bet.event.number
                 if (!groups[eventId]) {
                   const channelId = getChannelId(entry.bet.discipline)
-                  const trackName = buildTrackName(entry.bet.discipline)
+                  const trackName = buildTrackName(entry)
                   groups[eventId] = {
                     eventId: eventId,
                     eventName: getTranslatedEventName(entry.bet.discipline),

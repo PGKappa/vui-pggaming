@@ -209,17 +209,23 @@ function UpcomingEventItem(props: {
         className={`relative size-14 object-contain ${imageOffset}`}
       />
       <div className={`relative ${textOffset} flex flex-col items-start`}>
-        <span className={`relative bottom-[7px] whitespace-nowrap ${eventNameFontSize} font-semibold uppercase`}>
+        <span
+          className={`relative bottom-[7px] whitespace-nowrap ${eventNameFontSize} font-semibold uppercase`}
+        >
           {event.discipline === 'SOCCER'
             ? event.name
             : event.discipline === 'HORSES'
               ? t('horse_races_label')
-              : t('dog_races_label')}
+              : event.discipline === 'DOGS8'
+                ? t('dog8_races_label')
+                : t('dog_races_label')}
         </span>
-        <span className={`relative ${eventSubtitleBottom} whitespace-nowrap ${eventSubtitleFontSize} font-normal uppercase`}>
+        <span
+          className={`relative ${eventSubtitleBottom} whitespace-nowrap ${eventSubtitleFontSize} font-normal uppercase`}
+        >
           {event.discipline === 'SOCCER'
             ? `${t('round')} ${event.id}`
-            : `${t('track')} ${event.discipline === 'DOGS8' ? 8 : event.discipline === 'HORSES' ? 4 : 6}`}
+            : `${t('track')} ${event.trackName?.match(/\d+/)?.[0] || (event.discipline === 'DOGS8' ? '8' : '6')}`}
         </span>
         <div className="flex flex-row gap-2">
           <span className="relative bottom-[1px] text-[14px] font-semibold tabular-nums">

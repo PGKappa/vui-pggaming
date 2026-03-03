@@ -160,10 +160,12 @@ export default function SearchEventResults() {
       })
 
       if (existingResults.length > 0) {
-        // Assicura che tutti i risultati abbiano un track
+        // Assicura che tutti i risultati abbiano un track (derivato dalla disciplina)
+        const defaultTrack =
+          confirmedDiscipline === Discipline.DOGS8 ? '8' : '6'
         const resultsWithTrack = existingResults.map((r) => ({
           ...r,
-          track: r.track || '6',
+          track: r.track || defaultTrack,
         }))
         setFetchedResults(resultsWithTrack)
         // Salva in cache
@@ -276,7 +278,10 @@ export default function SearchEventResults() {
                   name: `${confirmedDiscipline === Discipline.DOGS || confirmedDiscipline === Discipline.DOGS8 ? 'Dog' : 'Horse'} Race ${event.int_event_id}`,
                   startTime: startTime,
                   discipline: confirmedDiscipline,
-                  track: event.track_name || event.track || '6',
+                  track:
+                    event.track_name ||
+                    event.track ||
+                    (confirmedDiscipline === Discipline.DOGS8 ? '8' : '6'),
                   result: detailedResult || {
                     podium:
                       event.arrival?.map((competitor: any, index: number) => ({
@@ -471,7 +476,10 @@ export default function SearchEventResults() {
               }
 
               const trackValue =
-                detailedResult?.track_name || result.track_name || result.track
+                detailedResult?.track_name ||
+                result.track_name ||
+                result.track ||
+                (discipline === Discipline.DOGS8 ? '8' : '6')
 
               return {
                 id: result.int_event_id,
@@ -479,7 +487,7 @@ export default function SearchEventResults() {
                 name:
                   detailedResult?.track_name ||
                   result.track_name ||
-                  `${discipline} Race ${result.int_event_id}`,
+                  `${discipline === Discipline.DOGS || discipline === Discipline.DOGS8 ? 'Dog' : 'Horse'} Race ${result.int_event_id}`,
                 startTime,
                 discipline: discipline,
                 track: trackValue,
@@ -938,17 +946,19 @@ export default function SearchEventResults() {
                                         {t('round')} {eventResult.jornada}
                                       </span>
                                     )
-                                  : (eventResult.track || '6') && (
+                                  : eventResult.track && (
                                       <span className="whitespace-nowrap border-l border-l-white pl-4">
                                         {(() => {
-                                          const trackValue =
-                                            eventResult.track || '6'
+                                          const trackValue = eventResult.track
                                           // Estrai il numero dalla stringa
                                           const numberMatch =
                                             trackValue.match(/\d+/)
                                           const trackNum = numberMatch
                                             ? numberMatch[0]
-                                            : '6'
+                                            : eventResult.discipline ===
+                                                Discipline.DOGS8
+                                              ? '8'
+                                              : '6'
                                           return `${t('track')} ${trackNum}`
                                         })()}
                                       </span>

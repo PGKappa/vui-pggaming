@@ -91,6 +91,7 @@ export type UpcomingEvent = {
   startTime: string
   time: Date
   duration: number
+  trackName?: string
   data?: UpcomingRound | UpcomingRace
 }
 

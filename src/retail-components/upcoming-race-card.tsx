@@ -65,8 +65,6 @@ export default function UpcomingRaceCard({
   // Aggiungi il context
   const { betEntries } = useContext(BetsContext)
   const rootContext = useContext(RootContext)
-  const getTrackName =
-    rootContext?.getTrackName || ((channel?: number) => `Track ${channel || 6}`)
 
   // Inizializzazione corretta del marketType basata su activeTab
   const [marketType, setMarketType] = useState<
@@ -548,7 +546,9 @@ export default function UpcomingRaceCard({
                     raceInfo?.odds?.winner?.[racer.number.toString()] || '0',
                   ),
                 },
-                track: getTrackName(6),
+                track:
+                  race.trackName ||
+                  (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
               }}
               variant="racecard"
               className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] tabular-nums text-betEntry-foreground hover:opacity-85"
@@ -577,7 +577,9 @@ export default function UpcomingRaceCard({
                     raceInfo?.odds?.placed?.[racer.number.toString()] || '0',
                   ),
                 },
-                track: getTrackName(6),
+                track:
+                  race.trackName ||
+                  (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
               }}
               variant="racecard"
               className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] tabular-nums text-betEntry-foreground hover:opacity-85"
@@ -607,7 +609,9 @@ export default function UpcomingRaceCard({
                     raceInfo?.odds?.show?.[racer.number.toString()] || '0',
                   ),
                 },
-                track: getTrackName(6),
+                track:
+                  race.trackName ||
+                  (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
               }}
               variant="racecard"
               className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] tabular-nums text-betEntry-foreground hover:opacity-85"
@@ -833,7 +837,9 @@ export default function UpcomingRaceCard({
                       outcome: 'even',
                       decPrice: parseFloat(raceInfo.odds.evenodd?.even || '0'),
                     },
-                    track: getTrackName(6),
+                    track:
+                      race.trackName ||
+                      (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
                   }}
                   variant="matchcard"
                   className="h-[49px] w-full text-[16px] text-black"
@@ -859,7 +865,9 @@ export default function UpcomingRaceCard({
                       outcome: 'odd',
                       decPrice: parseFloat(raceInfo.odds.evenodd?.odd || '0'),
                     },
-                    track: getTrackName(6),
+                    track:
+                      race.trackName ||
+                      (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
                   }}
                   variant="matchcard"
                   className="h-[49px] w-full text-[16px] text-black"
@@ -898,7 +906,9 @@ export default function UpcomingRaceCard({
                         raceInfo.odds.underover?.under || '0',
                       ),
                     },
-                    track: getTrackName(6),
+                    track:
+                      race.trackName ||
+                      (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
                   }}
                   variant="matchcard"
                   className="h-[49px] w-full text-[16px] text-black"
@@ -926,7 +936,9 @@ export default function UpcomingRaceCard({
                         raceInfo.odds.underover?.over || '0',
                       ),
                     },
-                    track: getTrackName(6),
+                    track:
+                      race.trackName ||
+                      (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
                   }}
                   variant="matchcard"
                   className="h-[49px] w-full text-[16px] text-black"
