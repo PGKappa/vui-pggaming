@@ -257,7 +257,7 @@
   "wrong_selection_count": "Se esperaban {{expected}} selecciones, se recibieron {{provided}}",
   "enter_selection": "Introducir selección",
   "no_selection_needed": "No se necesita selección para este mercado",
-  "no_selection": "Sin selección",
+  "no_selection": "Sin Selección",
   "details_not_available": "Detalles no disponibles",
   "date_hour": "Fecha / Hora",
   "divide": "Dividir",

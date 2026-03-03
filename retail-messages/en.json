@@ -280,7 +280,7 @@
   "wrong_selection_count": "Expected {{expected}} selections, got {{provided}}",
   "enter_selection": "Enter selection",
   "no_selection_needed": "No selection needed for this market",
-  "no_selection": "No selection",
+  "no_selection": "No Selection",
   "divide": "Divide",
   "add": "Add",
   "divide/add_amount": "Divide / Add Amount",

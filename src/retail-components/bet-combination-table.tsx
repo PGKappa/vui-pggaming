@@ -617,11 +617,12 @@ export default function BetCombinationsTable({
 
   return (
     <Card className="mt-2">
-      <CardHeader className="flex h-14 items-center justify-center bg-accent px-3 text-accent-foreground">
-        <CardTitle className="ml-[476px] items-center text-[16px] text-white">
-          {getTitle()}
-        </CardTitle>
-        <div className="relative flex gap-2">
+      <CardHeader className="grid h-14 grid-cols-3 items-center bg-accent px-3 text-accent-foreground">
+      <div />
+      <CardTitle className="flex items-center justify-center text-[16px] mr-[1px] text-white">
+      {getTitle()}
+      </CardTitle>
+      <div className="flex justify-end gap-2">
           <Button
             variant="navbar"
             className="h-10 w-fit rounded-[1px] px-[18px] pt-[1px] text-[15px] font-semibold text-white"

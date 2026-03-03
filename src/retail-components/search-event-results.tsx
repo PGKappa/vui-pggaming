@@ -58,7 +58,7 @@ export default function SearchEventResults() {
 
   const currentLanguage = rootContext?.userData?.lang || 'en'
   const layoutConfig = getLayoutConfig(currentLanguage)
-  const { disciplineSelectLeft, disciplineSelectMinWidth } =
+  const { disciplineSelectLeft, disciplineSelectMinWidth, searchBarPaddingRight } =
     layoutConfig.searchEventResults
 
   // Stati per i parametri selezionati (UI)
@@ -715,7 +715,7 @@ export default function SearchEventResults() {
 
   return (
     <div className="flex h-full flex-col gap-1">
-      <div className="flex h-16 flex-col items-center bg-accent p-2 pr-[161px]">
+      <div className="flex h-16 flex-col items-center bg-accent p-2" style={{ paddingRight: searchBarPaddingRight }}>
         <div className="flex flex-wrap items-center gap-8">
           <div className="mr-28 flex h-[48px] w-[0px] flex-row items-center gap-2 bg-badge text-background">
             <Select
