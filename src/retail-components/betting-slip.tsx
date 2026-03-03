@@ -886,13 +886,17 @@ export default function BettingSlip({
               ? 'horses6'
               : firstEntry.bet.discipline === 'DOGS'
                 ? 'dogs6'
-                : 'soccer'
+                : firstEntry.bet.discipline === 'DOGS8'
+                  ? 'dogs8'
+                  : 'soccer'
           const channelId =
             firstEntry.bet.discipline === 'HORSES'
               ? 3
               : firstEntry.bet.discipline === 'DOGS'
                 ? 4
-                : 1
+                : firstEntry.bet.discipline === 'DOGS8'
+                  ? 2
+                  : 1
 
           // DINAMICO: Prendi palimpsestId dall'evento se disponibile
           const eventAny = firstEntry.bet.event as any
@@ -1040,6 +1044,7 @@ export default function BettingSlip({
             const getTranslatedEventName = (discipline: string) => {
               switch (discipline) {
                 case 'DOGS':
+                case 'DOGS8':
                   return `${t('dog')} ${t('racing')}`
                 case 'HORSES':
                   return `${t('horse')} ${t('racing')}`

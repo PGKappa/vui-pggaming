@@ -150,6 +150,15 @@ export default function SearchEventResults() {
         (result) => result.discipline === confirmedDiscipline,
       )
 
+      console.log('[SearchEvents] Context snapshot:', {
+        discipline: confirmedDiscipline,
+        totalSnapshotResults: contextResultsSnapshot.length,
+        filteredCount: existingResults.length,
+        allDisciplines: [
+          ...new Set(contextResultsSnapshot.map((r) => r.discipline)),
+        ],
+      })
+
       if (existingResults.length > 0) {
         // Assicura che tutti i risultati abbiano un track
         const resultsWithTrack = existingResults.map((r) => ({
@@ -167,7 +176,8 @@ export default function SearchEventResults() {
 
       if (
         confirmedDiscipline === Discipline.HORSES ||
-        confirmedDiscipline === Discipline.DOGS
+        confirmedDiscipline === Discipline.DOGS ||
+        confirmedDiscipline === Discipline.DOGS8
       ) {
         const fetchRacingResults = async () => {
           setIsLoading(true)
@@ -185,13 +195,23 @@ export default function SearchEventResults() {
             const dateEnd = today.toLocaleDateString('it-IT')
 
             const gameIds =
-              confirmedDiscipline === Discipline.HORSES ? 'horses6' : 'dogs6'
+              confirmedDiscipline === Discipline.HORSES
+                ? 'horses6'
+                : confirmedDiscipline === Discipline.DOGS8
+                  ? 'dogs8'
+                  : 'dogs6'
 
             const requestBody = {
               gameIds: [gameIds],
               dateStart: dateStart,
               dateEnd: dateEnd,
             }
+
+            console.log('[SearchEvents] Fetching racing results:', {
+              discipline: confirmedDiscipline,
+              gameIds,
+              requestBody,
+            })
 
             const response = await createPGVirtualAPICall(
               '/api/event/results/list',
@@ -204,12 +224,22 @@ export default function SearchEventResults() {
             )
 
             if (!response.ok) {
+              console.error('[SearchEvents] Response not ok:', response.status)
               throw new Error('Failed to fetch racing events')
             }
 
             const data = await response.json()
+            console.log('[SearchEvents] API response data:', {
+              discipline: confirmedDiscipline,
+              itemsCount: data.items?.length,
+              data,
+            })
 
             if (!data.items || !Array.isArray(data.items)) {
+              console.warn(
+                '[SearchEvents] No items in response for',
+                confirmedDiscipline,
+              )
               setFetchedResults([])
               return
             }
@@ -243,7 +273,7 @@ export default function SearchEventResults() {
                 return {
                   id: event.int_event_id,
                   extId: event.ext_pal_id,
-                  name: `${confirmedDiscipline === Discipline.DOGS ? 'Dog' : 'Horse'} Race ${event.int_event_id}`,
+                  name: `${confirmedDiscipline === Discipline.DOGS || confirmedDiscipline === Discipline.DOGS8 ? 'Dog' : 'Horse'} Race ${event.int_event_id}`,
                   startTime: startTime,
                   discipline: confirmedDiscipline,
                   track: event.track_name || event.track || '6',
@@ -260,10 +290,19 @@ export default function SearchEventResults() {
               }),
             )
 
+            console.log('[SearchEvents] Processed results:', {
+              discipline: confirmedDiscipline,
+              resultsCount: results.length,
+              results,
+            })
             setFetchedResults(results)
             // Salva in cache
             searchResultsCache.set(cacheKey, { timestamp: Date.now(), results })
-          } catch {
+          } catch (error) {
+            console.error(
+              '[SearchEvents] Error fetching racing results:',
+              error,
+            )
             setFetchedResults([])
           } finally {
             setIsLoading(false)
@@ -301,7 +340,9 @@ export default function SearchEventResults() {
             ? 'horses6'
             : discipline === Discipline.DOGS
               ? 'dogs6'
-              : `${discipline.toLowerCase()}6`
+              : discipline === Discipline.DOGS8
+                ? 'dogs8'
+                : `${discipline.toLowerCase()}6`
 
         const requestBody = {
           gameIds: [gameIds],
@@ -334,7 +375,8 @@ export default function SearchEventResults() {
 
         if (
           discipline === Discipline.HORSES ||
-          discipline === Discipline.DOGS
+          discipline === Discipline.DOGS ||
+          discipline === Discipline.DOGS8
         ) {
           // OTTIMIZZAZIONE: Filtra per fascia oraria PRIMA di fare fetchDetailedEventResult
           let filteredItems = data.items
@@ -605,7 +647,7 @@ export default function SearchEventResults() {
   const handleSearch = () => {
     setContextResultsSnapshot(rootContext.eventResults || [])
     setConfirmedDiscipline(selectedDiscipline)
-    // Quando "Last 10 Games" è attivo, ignora data e fascia oraria 
+    // Quando "Last 10 Games" è attivo, ignora data e fascia oraria
     const effectiveDate = lastTenGames ? 'ALL' : selectedDate
     const effectiveTimeSlot = lastTenGames ? 'ALL' : selectedTimeSlot
     setConfirmedDate(effectiveDate)
@@ -728,21 +770,29 @@ export default function SearchEventResults() {
                 )
               }}
             >
-              
-              <SelectTrigger className={`relative ${disciplineSelectLeft} ml-[-70px] h-[48px] ${disciplineSelectMinWidth} border-none bg-background pl-[16px] pr-[5px] text-[16px] text-foreground`}>
+              <SelectTrigger
+                className={`relative ${disciplineSelectLeft} ml-[-70px] h-[48px] ${disciplineSelectMinWidth} border-none bg-background pl-[16px] pr-[5px] text-[16px] text-foreground`}
+              >
                 <SelectValue placeholder={t('sport')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
                 <SelectItem className="text-[14px]" value="NONE">
                   {t('discipline').toUpperCase()}
                 </SelectItem>
-                {Object.values(Discipline).map((d) => {
+                {[
+                  Discipline.DOGS,
+                  Discipline.DOGS8,
+                  Discipline.HORSES,
+                  Discipline.SOCCER,
+                ].map((d) => {
                   const translationKey =
                     d === 'DOGS'
                       ? 'dog_racing'
-                      : d === 'HORSES'
-                        ? 'horse_racing'
-                        : 'football'
+                      : d === 'DOGS8'
+                        ? 'dog8_racing'
+                        : d === 'HORSES'
+                          ? 'horse_racing'
+                          : 'football'
                   return (
                     <SelectItem className="text-[14px]" key={d} value={d}>
                       {t(translationKey).toUpperCase()}
@@ -872,11 +922,13 @@ export default function SearchEventResults() {
                                 <span className="whitespace-nowrap text-[16px]">
                                   {eventResult.discipline === 'DOGS'
                                     ? t('dog_races_label')
-                                    : eventResult.discipline === 'HORSES'
-                                      ? t('horse_races_label')
-                                      : eventResult.discipline === 'SOCCER'
-                                        ? t('football_label')
-                                        : eventResult.discipline}
+                                    : eventResult.discipline === 'DOGS8'
+                                      ? t('dog8_races_label')
+                                      : eventResult.discipline === 'HORSES'
+                                        ? t('horse_races_label')
+                                        : eventResult.discipline === 'SOCCER'
+                                          ? t('football_label')
+                                          : eventResult.discipline}
                                 </span>
 
                                 {/* Track/Jornada */}
@@ -988,7 +1040,8 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
 
   if (
     (eventResult.discipline === Discipline.HORSES ||
-      eventResult.discipline === Discipline.DOGS) &&
+      eventResult.discipline === Discipline.DOGS ||
+      eventResult.discipline === Discipline.DOGS8) &&
     detailedResult
   ) {
     if (
