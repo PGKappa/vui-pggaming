@@ -824,9 +824,9 @@ export default function UpcomingRaceCard({
                       number: race.id,
                       startingAt: race.time,
                     },
-                    competitors: t('even'),
+                    competitors: 'Even',
                     option: {
-                      outcome: t('even'),
+                      outcome: 'even',
                       decPrice: parseFloat(raceInfo.odds.evenodd?.even || '0'),
                     },
                     track: getTrackName(6),
@@ -850,9 +850,9 @@ export default function UpcomingRaceCard({
                       number: race.id,
                       startingAt: race.time,
                     },
-                    competitors: t('odd'),
+                    competitors: 'Odd',
                     option: {
-                      outcome: t('odd'),
+                      outcome: 'odd',
                       decPrice: parseFloat(raceInfo.odds.evenodd?.odd || '0'),
                     },
                     track: getTrackName(6),
@@ -887,9 +887,9 @@ export default function UpcomingRaceCard({
                       number: race.id,
                       startingAt: race.time,
                     },
-                    competitors: t('under_full'),
+                    competitors: 'Under',
                     option: {
-                      outcome: t('under_full'),
+                      outcome: 'under',
                       decPrice: parseFloat(
                         raceInfo.odds.underover?.under || '0',
                       ),
@@ -915,9 +915,9 @@ export default function UpcomingRaceCard({
                       number: race.id,
                       startingAt: race.time,
                     },
-                    competitors: t('over_full'),
+                    competitors: 'Over',
                     option: {
-                      outcome: t('over_full'),
+                      outcome: 'over',
                       decPrice: parseFloat(
                         raceInfo.odds.underover?.over || '0',
                       ),

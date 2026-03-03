@@ -274,5 +274,11 @@
   "cashier_initialized": "Cassa inizializzata",
   "cashier_unavailable": "Cassa non disponibile",
   "retrying_cashier": "Ritento connessione cassa...",
-  "stake_increment_error": "L'importo deve essere un multiplo di {{increment}}"
+  "stake_increment_error": "L'importo deve essere un multiplo di {{increment}}",
+  "event_started_single": "Evento iniziato. Scommessa non disponibile.",
+  "event_started_removed": "Rimossa {{count}} selezione: evento iniziato.",
+  "event_started_removed_plural": "Rimosse {{count}} selezioni: evento iniziato.",
+  "backend_event_started": "Evento iniziato. Scommessa non disponibile.",
+  "backend_market_closed": "Evento iniziato. Scommessa non disponibile.",
+  "cannot_bet_expired_events": "Evento iniziato. Scommessa non disponibile."
 }
