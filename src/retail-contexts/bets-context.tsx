@@ -218,7 +218,7 @@ export default function BetsContextProvider(props: {
 
       return true
     },
-    [betMode, betsContext.betEntries],
+    [betMode, betsContext.betEntries, t],
   )
 
   const addBet = useCallback(
