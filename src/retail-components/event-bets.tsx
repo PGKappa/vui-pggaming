@@ -110,7 +110,15 @@ export default function EventBets(props: {
           ) : (
             <div className="relative bottom-[1px] ml-[3px] flex items-center justify-between pb-[4px]">
               <span className="text-[13px] uppercase">
-                {eventBets[0].bet.track || t('track_6')}
+                {(() => {
+                  const track = eventBets[0].bet.track
+                  if (track) {
+                    const num = track.match(/\d+/)?.[0]
+                    if (num) return t(`track_${num}`)
+                    return track
+                  }
+                  return t('track_6')
+                })()}
               </span>
               <span className="text-[10px]">|</span>
 
