@@ -97,7 +97,7 @@ export default function RacingFastBet({
 
     // Validazione iniziale: assicurati che initCode e operator siano disponibili
     if (!rootContext?.initCode || !rootContext?.operator) {
-      toast.error(t('login_required') || 'Authentication required')
+      toast.error(t('login_required'))
       return
     }
 
@@ -181,10 +181,7 @@ export default function RacingFastBet({
         // Validazione: il codice deve essere nella lingua corrente
         const validCodes = getValidCodesForLanguage(currentLanguage)
         if (!validCodes.includes(letters)) {
-          toast.error(
-            t('invalid_code_for_language') ||
-              `Codice non valido per la lingua corrente. Usa: ${validCodes.join(', ')}`,
-          )
+          toast.error(t('invalid_code_for_language'))
           return
         }
 

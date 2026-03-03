@@ -199,9 +199,7 @@ export default function BetsContextProvider(props: {
 
       const totalEntries = betsContext.betEntries.length + newEntries.length
       if (totalEntries > 50) {
-        toast.error(
-          'Cannot add more bets: Maximum 50 bet entries allowed for system betting',
-        )
+        toast.error(t('max_bet_entries_system'))
         return false
       }
 
@@ -214,9 +212,7 @@ export default function BetsContextProvider(props: {
       const eventsNumber = eventsSet.size
 
       if (eventsNumber > 15) {
-        toast.error(
-          'Cannot add more bets: Maximum 15 unique events allowed for system betting',
-        )
+        toast.error(t('max_events_system'))
         return false
       }
 

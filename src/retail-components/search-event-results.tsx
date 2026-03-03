@@ -58,8 +58,11 @@ export default function SearchEventResults() {
 
   const currentLanguage = rootContext?.userData?.lang || 'en'
   const layoutConfig = getLayoutConfig(currentLanguage)
-  const { disciplineSelectLeft, disciplineSelectMinWidth, searchBarPaddingRight } =
-    layoutConfig.searchEventResults
+  const {
+    disciplineSelectLeft,
+    disciplineSelectMinWidth,
+    searchBarPaddingRight,
+  } = layoutConfig.searchEventResults
 
   // Stati per i parametri selezionati (UI)
   const [selectedDiscipline, setSelectedDiscipline] = useState<
@@ -581,7 +584,7 @@ export default function SearchEventResults() {
         searchResultsCache.set(cacheKey, { timestamp: Date.now(), results })
       } catch (error: unknown) {
         const message = error instanceof Error ? error.message : 'Unknown error'
-        toast.error(`Failed to fetch results: ${message}`)
+        toast.error(`${t('failed_fetch_results')}: ${message}`)
         setFetchedResults([])
       } finally {
         setIsLoading(false)
@@ -599,13 +602,14 @@ export default function SearchEventResults() {
     fetchDetailedEventResult,
     rootContext.initCode,
     rootContext.operator,
+    t,
   ])
 
   // Funzione per avviare la ricerca
   const handleSearch = () => {
     setContextResultsSnapshot(rootContext.eventResults || [])
     setConfirmedDiscipline(selectedDiscipline)
-    // Quando "Last 10 Games" è attivo, ignora data e fascia oraria 
+    // Quando "Last 10 Games" è attivo, ignora data e fascia oraria
     const effectiveDate = lastTenGames ? 'ALL' : selectedDate
     const effectiveTimeSlot = lastTenGames ? 'ALL' : selectedTimeSlot
     setConfirmedDate(effectiveDate)
@@ -715,7 +719,10 @@ export default function SearchEventResults() {
 
   return (
     <div className="flex h-full flex-col gap-1">
-      <div className="flex h-16 flex-col items-center bg-accent p-2" style={{ paddingRight: searchBarPaddingRight }}>
+      <div
+        className="flex h-16 flex-col items-center bg-accent p-2"
+        style={{ paddingRight: searchBarPaddingRight }}
+      >
         <div className="flex flex-wrap items-center gap-8">
           <div className="mr-28 flex h-[48px] w-[0px] flex-row items-center gap-2 bg-badge text-background">
             <Select
@@ -728,8 +735,9 @@ export default function SearchEventResults() {
                 )
               }}
             >
-              
-              <SelectTrigger className={`relative ${disciplineSelectLeft} ml-[-70px] h-[48px] ${disciplineSelectMinWidth} border-none bg-background pl-[16px] pr-[5px] text-[16px] text-foreground`}>
+              <SelectTrigger
+                className={`relative ${disciplineSelectLeft} ml-[-70px] h-[48px] ${disciplineSelectMinWidth} border-none bg-background pl-[16px] pr-[5px] text-[16px] text-foreground`}
+              >
                 <SelectValue placeholder={t('sport')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
