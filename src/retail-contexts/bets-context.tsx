@@ -144,14 +144,12 @@ export default function BetsContextProvider(props: {
     if (betsContext.betEntries.length <= 1) return 'SINGLE'
 
     // Se ci sono multiple bet nello stesso evento → automaticamente SYSTEM
+    // (sia con un solo evento che con più eventi)
     const hasMultipleBetsInSameEvent = Object.values(
       betsContext.betsByEvent,
     ).some((bets) => bets.length > 1)
 
-    if (
-      Object.keys(betsContext.betsByEvent).length > 1 &&
-      hasMultipleBetsInSameEvent
-    ) {
+    if (hasMultipleBetsInSameEvent) {
       return 'SYSTEM'
     }
 
@@ -182,15 +180,18 @@ export default function BetsContextProvider(props: {
           betEntries: activeBets,
           betsByEvent: getBetsByEvent(activeBets),
         }))
-        toast.info(
-          `Removed ${removedCount} expired bet${removedCount > 1 ? 's' : ''}`,
+        // Messaggio tradotto: "⚠️ Se eliminó X selección: evento iniciado."
+        toast.warning(
+          removedCount > 1
+            ? t('event_started_removed_plural', { count: removedCount })
+            : t('event_started_removed', { count: removedCount }),
         )
       }
     }
 
     const interval = setInterval(cleanupExpiredBets, 5000)
     return () => clearInterval(interval)
-  }, [betsContext.betEntries])
+  }, [betsContext.betEntries, t])
 
   const checkSystemLimits = useCallback(
     (newEntries: BetEntry[]): boolean => {

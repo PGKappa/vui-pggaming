@@ -192,6 +192,12 @@ export default function RacingFastBet({
         const normalizedCode = normalizeMarketCode(letters, currentLanguage)
         const currentMarket = markets[normalizedCode as keyof typeof markets]
 
+        // Mercati senza selezioni (EV, OD, U, O) non accettano numeri
+        if (currentMarket && currentMarket.selections === 0) {
+          toast.error(`${currentMarket.name}: ${t('no_selection_needed')}`)
+          return
+        }
+
         if (currentMarket && currentMarket.selections > 1) {
           // Check if it's an "any order" market (CT/BT = Boxed Trifecta, Q = Quinella)
           const isAnyOrderMarket = ['BT', 'Q'].includes(normalizedCode)
@@ -260,7 +266,6 @@ export default function RacingFastBet({
         rootContext.initCode || '',
         rootContext.getTrackName,
         rootContext.operator,
-        currentLanguage,
       )
 
       if (!bets || bets.length === 0) {

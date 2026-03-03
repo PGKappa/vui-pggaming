@@ -574,17 +574,24 @@ export default function BettingSlip({
       return
     }
 
-    const expiredEvents: string[] = []
-    betEntries.forEach((entry) => {
-      const eventStatus = getEventStatus(entry.bet.event)
+    // Controlla se ci sono eventi iniziati
+    const expiredEntries = betEntries.filter(
+      (entry) => getEventStatus(entry.bet.event) === 'expired',
+    )
 
-      if (eventStatus === 'expired') {
-        expiredEvents.push(entry.bet.event.name)
+    if (expiredEntries.length > 0) {
+      if (betEntries.length === expiredEntries.length) {
+        // Tutte le scommesse sono su eventi iniziati → messaggio singolo
+        toast.warning(t('event_started_single'))
+      } else {
+        // Solo alcune scommesse scadute → rimozione automatica con messaggio
+        const removedCount = expiredEntries.length
+        toast.warning(
+          removedCount > 1
+            ? t('event_started_removed_plural', { count: removedCount })
+            : t('event_started_removed', { count: removedCount }),
+        )
       }
-    })
-
-    if (expiredEvents.length > 0) {
-      toast.error(t('cannot_bet_expired_events'))
       return
     }
 
@@ -819,12 +826,39 @@ export default function BettingSlip({
               // Rimuovi " any" dall'outcome per i mercati boxed (quinella, boxedtrifecta)
               let cleanOutcome = entry.bet.option.outcome.replace(/ any$/, '')
 
-              // Normalizza outcome per Even/Odd e Under/Over in lowercase
+              // Normalizza outcome per Even/Odd e Under/Over in lowercase inglese
               if (
                 apiMarketName === 'evenodd' ||
                 apiMarketName === 'underover'
               ) {
-                cleanOutcome = cleanOutcome.toLowerCase()
+                const lowerOutcome = cleanOutcome.toLowerCase()
+                // Normalize translated values to English canonical form
+                if (
+                  lowerOutcome === 'par' ||
+                  lowerOutcome === 'pari' ||
+                  lowerOutcome === 'even'
+                ) {
+                  cleanOutcome = 'even'
+                } else if (
+                  lowerOutcome === 'impar' ||
+                  lowerOutcome === 'dispari' ||
+                  lowerOutcome === 'odd'
+                ) {
+                  cleanOutcome = 'odd'
+                } else if (
+                  lowerOutcome === 'menos' ||
+                  lowerOutcome === 'under'
+                ) {
+                  cleanOutcome = 'under'
+                } else if (
+                  lowerOutcome === 'más' ||
+                  lowerOutcome === 'mas' ||
+                  lowerOutcome === 'over'
+                ) {
+                  cleanOutcome = 'over'
+                } else {
+                  cleanOutcome = lowerOutcome
+                }
               }
 
               acc[apiMarketName].push({
@@ -936,13 +970,48 @@ export default function BettingSlip({
         try {
           const errorJson = JSON.parse(errorText)
           console.error('Parsed Error JSON:', errorJson)
-          if (errorJson.ret_msg) {
+
+          // Intercetta errori backend per evento iniziato / mercato chiuso
+          const errorMsg = (
+            errorJson.ret_msg ||
+            errorJson.message ||
+            errorJson.error ||
+            ''
+          ).toLowerCase()
+          if (
+            errorMsg.includes('event started') ||
+            errorMsg.includes('event_started') ||
+            errorMsg.includes('evento iniziato') ||
+            errorMsg.includes('evento iniciado') ||
+            errorMsg.includes('market closed') ||
+            errorMsg.includes('market_closed') ||
+            errorMsg.includes('mercato chiuso') ||
+            errorMsg.includes('mercado cerrado') ||
+            errorMsg.includes('not available') ||
+            errorMsg.includes('odds not found') ||
+            errorMsg.includes('event is closed') ||
+            errorMsg.includes('event closed')
+          ) {
+            toast.warning(t('backend_event_started'))
+          } else if (errorJson.ret_msg) {
             toast.error(errorJson.ret_msg)
           } else if (errorJson.message) {
             toast.error(errorJson.message)
           }
         } catch {
-          toast.error(`Error: ${response.status} - ${errorText}`)
+          // Controlla anche il testo grezzo per errori evento iniziato
+          const lowerError = errorText.toLowerCase()
+          if (
+            lowerError.includes('event started') ||
+            lowerError.includes('market closed') ||
+            lowerError.includes('odds not found') ||
+            lowerError.includes('not available') ||
+            lowerError.includes('event closed')
+          ) {
+            toast.warning(t('backend_event_started'))
+          } else {
+            toast.error(`Error: ${response.status} - ${errorText}`)
+          }
         }
 
         throw new Error(`HTTP error! status: ${response.status}`)
@@ -1155,7 +1224,25 @@ export default function BettingSlip({
 
         toast.success(t('bet_submitted_successfully'))
       } else {
-        toast.error(result.description || t('bet_submission_error'))
+        // Intercetta errori backend per evento iniziato / mercato chiuso anche nel body di risposta
+        const desc = (result.description || result.ret_msg || '').toLowerCase()
+        if (
+          desc.includes('event started') ||
+          desc.includes('event_started') ||
+          desc.includes('market closed') ||
+          desc.includes('market_closed') ||
+          desc.includes('odds not found') ||
+          desc.includes('not available') ||
+          desc.includes('event closed') ||
+          desc.includes('evento iniziato') ||
+          desc.includes('evento iniciado') ||
+          desc.includes('mercato chiuso') ||
+          desc.includes('mercado cerrado')
+        ) {
+          toast.warning(t('backend_event_started'))
+        } else {
+          toast.error(result.description || t('bet_submission_error'))
+        }
         setIsSubmitting(false)
         return
       }
@@ -1626,7 +1713,8 @@ export default function BettingSlip({
                                     height: '20px',
                                   }}
                                 >
-                                  <svg className='relative left-1'
+                                  <svg
+                                    className="relative left-1"
                                     width="20"
                                     height="20"
                                     viewBox="0 0 24 24"

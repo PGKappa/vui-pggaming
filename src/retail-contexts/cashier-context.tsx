@@ -275,11 +275,12 @@ export default function CashierContextProvider(props: {
   const [isLoading, setIsLoading] = useState(true)
   const [hasCashierError, setHasCashierError] = useState(false)
 
-  // Leggi initCode e operator da URL o localStorage
+  // Leggi initCode e operator/partner da URL o localStorage
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const urlInitCode = params.get('init_code')
-    const urlOperator = params.get('operator')
+    // Accetta sia 'operator' che 'partner' come parametro URL (operator ha precedenza)
+    const urlOperator = params.get('operator') || params.get('partner')
 
     if (urlInitCode) {
       // Se l'initCode è cambiato, pulisci la sessione precedente
@@ -289,7 +290,7 @@ export default function CashierContextProvider(props: {
         setOperator(urlOperator)
         localStorage.setItem('operator', urlOperator)
       } else {
-        console.error('Operator is required in URL params')
+        console.error('Operator/Partner is required in URL params')
         toast.error(t('operator_missing'))
         setHasCashierError(true)
         setIsLoading(false)

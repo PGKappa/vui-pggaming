@@ -5,8 +5,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-// Normalizes competitors/outcome for under/over markets to enable matching
-// between toggles (which use t('under') = "UN") and fast bet (which uses "Under")
+// Normalizes competitors/outcome for under/over markets to match toggles and fastBet 
 export function normalizeUnderOverValue(value: string): string {
   const v = value.toLowerCase().trim()
   // Map all variations of "under" to canonical form
@@ -25,9 +24,14 @@ export function normalizeMarketName(market: string): string {
 
   if (m.includes('winn') || m.includes('vinc') || m.includes('ganador'))
     return 'winner'
+  if (
+    m.includes('show') ||
+    m.includes('podi') ||
+    (m.includes('colocado') && m.includes('3'))
+  )
+    return 'show'
   if (m.includes('place') || m.includes('piazz') || m.includes('colocado'))
     return 'placed'
-  if (m.includes('show') || m.includes('podi')) return 'show'
   if (m.includes('exacta') || m.includes('accoppiata in ordine'))
     return 'exacta'
   if (m.includes('quinella') || m.includes('accoppiata a girare'))

@@ -212,7 +212,6 @@ export async function createBetFromFastCode(
   initCode: string,
   getTrackName?: (channel?: number) => string,
   operator?: string,
-  language: string = 'en',
 ): Promise<Bet[] | null> {
   if (!currentEvent) {
     return null
@@ -469,7 +468,6 @@ export async function createBetFromFastCode(
 
       case 'EV': // Even
         if (odds.evenodd?.even) {
-          const localizedEven = getLocalizedMarketValue('Even', language)
           const bet = {
             discipline: currentEvent.discipline,
             event: {
@@ -477,9 +475,9 @@ export async function createBetFromFastCode(
               number: currentEvent.id,
               startingAt: currentEvent.time,
             },
-            competitors: localizedEven,
+            competitors: 'Even',
             option: {
-              outcome: localizedEven,
+              outcome: 'even',
               decPrice: parseFloat(odds.evenodd.even),
             },
             track: trackName,
@@ -490,7 +488,6 @@ export async function createBetFromFastCode(
 
       case 'OD': // Dispari (Odd)
         if (odds.evenodd?.odd) {
-          const localizedOdd = getLocalizedMarketValue('Odd', language)
           const bet = {
             discipline: currentEvent.discipline,
             event: {
@@ -498,9 +495,9 @@ export async function createBetFromFastCode(
               number: currentEvent.id,
               startingAt: currentEvent.time,
             },
-            competitors: localizedOdd,
+            competitors: 'Odd',
             option: {
-              outcome: localizedOdd,
+              outcome: 'odd',
               decPrice: parseFloat(odds.evenodd.odd),
             },
             track: trackName,
@@ -511,7 +508,6 @@ export async function createBetFromFastCode(
 
       case 'U': // Under
         if (odds.underover?.under) {
-          const localizedUnder = getLocalizedMarketValue('Under', language)
           const bet = {
             discipline: currentEvent.discipline,
             event: {
@@ -519,9 +515,9 @@ export async function createBetFromFastCode(
               number: currentEvent.id,
               startingAt: currentEvent.time,
             },
-            competitors: localizedUnder,
+            competitors: 'Under',
             option: {
-              outcome: localizedUnder,
+              outcome: 'under',
               decPrice: parseFloat(odds.underover.under),
             },
             track: trackName,
@@ -532,7 +528,6 @@ export async function createBetFromFastCode(
 
       case 'O': // Over
         if (odds.underover?.over) {
-          const localizedOver = getLocalizedMarketValue('Over', language)
           const bet = {
             discipline: currentEvent.discipline,
             event: {
@@ -540,9 +535,9 @@ export async function createBetFromFastCode(
               number: currentEvent.id,
               startingAt: currentEvent.time,
             },
-            competitors: localizedOver,
+            competitors: 'Over',
             option: {
-              outcome: localizedOver,
+              outcome: 'over',
               decPrice: parseFloat(odds.underover.over),
             },
             track: trackName,

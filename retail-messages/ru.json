@@ -89,6 +89,8 @@
   "history": "История",
   "performance": "Производительность",
   "winner": "Победитель",
+  "placed": "Место (Топ 2)",
+  "show": "Показ (Топ 3)",
   "place_2": "Место (Топ 2)",
   "show_3": "Показ (Топ 3)",
   "first": "Первый",
@@ -220,7 +222,13 @@
   "operator_required": "Требуется оператор",
   "operator_not_found": "Требуется оператор, но не найден",
   "cashier_initialized": "Касса инициализирована",
-  "cashier_unavailable": "Касса недоступна - используется резерв",
+  "cashier_unavailable": "Касса недоступна",
   "retrying_cashier": "Повторная попытка подключения к кассе...",
-  "stake_increment_error": "Сумма должна быть кратна {{increment}}"
+  "stake_increment_error": "Сумма должна быть кратна {{increment}}",
+  "event_started_single": "Событие началось. Ставка недоступна.",
+  "event_started_removed": "Удалена {{count}} ставка: событие началось.",
+  "event_started_removed_plural": "Удалено {{count}} ставок: событие началось.",
+  "backend_event_started": "Событие началось. Ставка недоступна.",
+  "backend_market_closed": "Событие началось. Ставка недоступна.",
+  "cannot_bet_expired_events": "Событие началось. Ставка недоступна."
 }

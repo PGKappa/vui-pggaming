@@ -75,6 +75,12 @@ export default function BetEntryToggle(props: {
     const lower = outcome.toLowerCase()
     if (lower === 'yes') return t('yes') || 'Sí'.toUpperCase()
     if (lower === 'no') return t('no') || 'No'.toUpperCase()
+    // Translate even/odd outcomes to localized display
+    if (lower === 'even') return t('even')
+    if (lower === 'odd') return t('odd')
+    // Translate standalone under/over outcomes (racing markets)
+    if (lower === 'under') return underLabel
+    if (lower === 'over') return overLabel
 
     if (marketName === 'Half Time\/ Full Time') {
       if (outcome.length === 2) {

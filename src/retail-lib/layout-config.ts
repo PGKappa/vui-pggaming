@@ -13,10 +13,15 @@ type EventBetsLayoutConfig = {
 type BettingSlipLayoutConfig = {
   combinationsButtonLeft: string
 }
+type SearchEventResultsLayoutConfig = {
+  disciplineSelectLeft: string
+  disciplineSelectMinWidth: string
+}
 export type LayoutConfig = {
   carousel: CarouselLayoutConfig
   eventBets: EventBetsLayoutConfig
   bettingSlip: BettingSlipLayoutConfig
+  searchEventResults: SearchEventResultsLayoutConfig
 }
 const layoutByLanguage: Record<string, LayoutConfig> = {
   en: {
@@ -45,6 +50,10 @@ const layoutByLanguage: Record<string, LayoutConfig> = {
     bettingSlip: {
       combinationsButtonLeft: 'left-[247px]',
     },
+    searchEventResults: {
+      disciplineSelectLeft: 'left-5',
+      disciplineSelectMinWidth: 'min-w-[186px]',
+    },
   },
   es: {
     carousel: {
@@ -72,6 +81,10 @@ const layoutByLanguage: Record<string, LayoutConfig> = {
     bettingSlip: {
       combinationsButtonLeft: 'left-[238px]',
     },
+    searchEventResults: {
+      disciplineSelectLeft: 'right-12',
+      disciplineSelectMinWidth: 'min-w-[250px]',
+    },
   },
   it: {
     carousel: {
@@ -98,6 +111,10 @@ const layoutByLanguage: Record<string, LayoutConfig> = {
     },
     bettingSlip: {
       combinationsButtonLeft: 'left-[251px]',
+    },
+    searchEventResults: {
+      disciplineSelectLeft: 'left-5',
+      disciplineSelectMinWidth: 'min-w-[186px]',
     },
   },
 }
