@@ -336,5 +336,9 @@
   "event_started_removed": "Se eliminó {{count}} selección: evento iniciado.",
   "event_started_removed_plural": "Se eliminaron {{count}} selecciones: evento iniciado.",
   "backend_event_started": "Evento iniciado. Apuesta no disponible.",
-  "backend_market_closed": "Evento iniciado. Apuesta no disponible."
+  "backend_market_closed": "Evento iniciado. Apuesta no disponible.",
+  "max_bet_entries_system": "No se pueden añadir más apuestas: máximo 50 selecciones permitidas para apuesta de sistema",
+  "max_events_system": "No se pueden añadir más apuestas: máximo 15 eventos únicos permitidos para apuesta de sistema",
+  "failed_fetch_results": "Error al obtener los resultados",
+  "http_error": "Error"
 }

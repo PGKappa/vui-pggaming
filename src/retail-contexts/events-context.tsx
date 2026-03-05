@@ -293,6 +293,7 @@ export default function EventsContextProvider(props: {
                     startTime: event.start_time,
                     time: startTime,
                     discipline: Discipline.DOGS,
+                    trackName: dogChannel.track_name,
                   }
                 },
               )
@@ -331,6 +332,7 @@ export default function EventsContextProvider(props: {
                     startTime: event.start_time,
                     time: startTime,
                     discipline: Discipline.HORSES,
+                    trackName: horseChannel.track_name,
                   }
                 },
               )
@@ -474,6 +476,7 @@ export default function EventsContextProvider(props: {
                     startTime: event.start_time,
                     time: startTime,
                     discipline: Discipline.DOGS,
+                    trackName: dogChannel.track_name,
                   }
                 },
               )
@@ -512,6 +515,7 @@ export default function EventsContextProvider(props: {
                     startTime: event.start_time,
                     time: startTime,
                     discipline: Discipline.HORSES,
+                    trackName: horseChannel.track_name,
                   }
                 },
               )
@@ -716,7 +720,7 @@ export default function EventsContextProvider(props: {
           return
         }
         console.error('Error fetching events:', error)
-        toast.error('Error loading events')
+        toast.error(t('error_loading_events'))
         setIsLoadingEvents(false)
         isFetchingEvents = false
       }
