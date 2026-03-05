@@ -846,7 +846,7 @@ export default function EventsContextProvider(props: {
           return
         }
         console.error('Error fetching events:', error)
-        toast.error('Error loading events')
+        toast.error(t('error_loading_events'))
         setIsLoadingEvents(false)
         isFetchingEvents = false
       }

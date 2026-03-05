@@ -54,11 +54,6 @@ export default function AlphanumericKeypadDrawer(props: {
     }
   }
 
-  const handleClear = () => {
-    setValue('')
-    props.setValue('')
-  }
-
   const processKey = (rawKey: string, prevent: () => void) => {
     const key = rawKey.toUpperCase()
 
@@ -132,10 +127,6 @@ export default function AlphanumericKeypadDrawer(props: {
     }
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    processKey(e.key, () => e.preventDefault())
-  }
-
   const handleSubmit = () => {
     props.onSubmit()
     setActiveDrawer(undefined)
@@ -207,25 +198,6 @@ export default function AlphanumericKeypadDrawer(props: {
         </DrawerHeader>
 
         <div className="flex flex-col gap-3 p-3">
-          {/* Display Value */}
-          <div className="flex items-center gap-2">
-            <Input
-              value={value}
-              onChange={() => {}}
-              onKeyDown={handleKeyDown}
-              readOnly
-              className="h-12 flex-1 border pl-[17px] pr-2 text-left text-2xl font-normal uppercase"
-              autoFocus
-            />
-            <Button
-              variant="outline"
-              onClick={handleDelete}
-              className="h-12 w-[126px] px-1"
-            >
-              <Delete className="h-5 w-5" style={{ scale: 2 }} />
-            </Button>
-          </div>
-
           {/* Number Row */}
           <div className="grid grid-cols-11 gap-2">
             {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'].map((num) => (
@@ -241,11 +213,10 @@ export default function AlphanumericKeypadDrawer(props: {
             ))}
             <Button
               variant="outline"
-              size="lg"
-              className="h-12 text-[18px] font-semibold"
-              onClick={handleClear}
+              onClick={handleDelete}
+              className="h-12 w-[126px] px-1"
             >
-              {t('clear')}
+              <Delete className="h-5 w-5" style={{ scale: 2 }} />
             </Button>
           </div>
 

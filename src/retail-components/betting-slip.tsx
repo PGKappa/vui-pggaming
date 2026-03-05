@@ -235,10 +235,7 @@ export default function BettingSlip({
 
     // Validazione min_stake per singola scommessa
     if (systemDistributeStake < minStake) {
-      toast.error(
-        t('min_stake_error', { min: minStake }) ||
-          `Minimum stake is ${currencySymbol} ${minStake.toFixed(2)}`,
-      )
+      toast.error(t('min_stake_error', { min: minStake }))
       return
     }
 
@@ -369,10 +366,7 @@ export default function BettingSlip({
 
     // Validazione min_stake per singola scommessa
     if (systemDistributeStake < minStake) {
-      toast.error(
-        t('min_stake_error', { min: minStake }) ||
-          `Minimum stake is ${currencySymbol} ${minStake.toFixed(2)}`,
-      )
+      toast.error(t('min_stake_error', { min: minStake }))
       return
     }
 
@@ -606,8 +600,7 @@ export default function BettingSlip({
       const tolerance = 0.0001 // Tolleranza per errori floating point
       if (remainder > tolerance && remainder < minStakeIncrement - tolerance) {
         toast.error(
-          t('stake_increment_error', { increment: minStakeIncrement }) ||
-            `Stake must be a multiple of ${currencySymbol} ${minStakeIncrement}`,
+          t('stake_increment_error', { increment: minStakeIncrement }),
         )
         return
       }
@@ -618,10 +611,7 @@ export default function BettingSlip({
       betMode !== 'SYSTEM' &&
       Math.round(global * 100) < Math.round(minStake * 100)
     ) {
-      toast.error(
-        t('min_stake_error', { min: minStake }) ||
-          `Minimum stake is ${currencySymbol} ${minStake.toFixed(2)}`,
-      )
+      toast.error(t('min_stake_error', { min: minStake }))
       return
     }
 
@@ -641,19 +631,13 @@ export default function BettingSlip({
 
     // Validazione min_bet per il totale del ticket
     if (betMode !== 'SYSTEM' && minBet > 0 && global < minBet) {
-      toast.error(
-        t('min_bet_error', { min: minBet }) ||
-          `Minimum ticket amount is ${currencySymbol} ${minBet.toFixed(2)}`,
-      )
+      toast.error(t('min_bet_error', { min: minBet }))
       return
     }
 
     // Validazione max_win per single/multiple
     if (betMode !== 'SYSTEM' && potentialWinning > maxWin) {
-      toast.error(
-        t('max_win_error', { max: maxWin }) ||
-          `Maximum potential win is ${currencySymbol} ${maxWin.toFixed(2)}`,
-      )
+      toast.error(t('max_win_error', { max: maxWin }))
       return
     }
 
@@ -675,10 +659,7 @@ export default function BettingSlip({
           group.stake < minStake,
       )
       if (invalidGroups.length > 0) {
-        toast.error(
-          t('min_stake_error', { min: minStake }) ||
-            `Minimum stake per combination is ${currencySymbol} ${minStake.toFixed(2)}`,
-        )
+        toast.error(t('min_stake_error', { min: minStake }))
         return
       }
 
@@ -695,8 +676,7 @@ export default function BettingSlip({
         })
         if (invalidIncrementGroups.length > 0) {
           toast.error(
-            t('stake_increment_error', { increment: systemStakeIncrement }) ||
-              `Stake must be a multiple of ${currencySymbol} ${systemStakeIncrement}`,
+            t('stake_increment_error', { increment: systemStakeIncrement }),
           )
           return
         }
@@ -704,19 +684,13 @@ export default function BettingSlip({
 
       // Validazione min_bet per il totale del ticket sistema
       if (minBet > 0 && totalSystemStake < minBet) {
-        toast.error(
-          t('min_bet_error', { min: minBet }) ||
-            `Minimum ticket amount is ${currencySymbol} ${minBet.toFixed(2)}`,
-        )
+        toast.error(t('min_bet_error', { min: minBet }))
         return
       }
 
       // Validazione max_win per sistema
       if (totalSystemPotentialWin > maxWin) {
-        toast.error(
-          t('max_win_error', { max: maxWin }) ||
-            `Maximum potential win is ${currencySymbol} ${maxWin.toFixed(2)}`,
-        )
+        toast.error(t('max_win_error', { max: maxWin }))
         return
       }
     }
@@ -1014,7 +988,7 @@ export default function BettingSlip({
           ) {
             toast.warning(t('backend_event_started'))
           } else {
-            toast.error(`Error: ${response.status} - ${errorText}`)
+            toast.error(`${t('http_error')}: ${response.status} - ${errorText}`)
           }
         }
 
