@@ -280,15 +280,15 @@ export default function EventsContextProvider(props: {
               const dogEvents = dogChannel.next_events.map(
                 (event: any, idx: number): UpcomingEvent => {
                   let startTime: Date
-                  if (event.since && typeof event.since === 'number') {
-                    startTime = new Date(Date.now() + event.since * 1000)
-                  } else if (
+                  if (
                     event.start_time &&
                     typeof event.start_time === 'string'
                   ) {
                     const [hours, minutes] = event.start_time.split(':')
                     startTime = new Date()
                     startTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
+                  } else if (event.since && typeof event.since === 'number') {
+                    startTime = new Date(Date.now() + event.since * 1000)
                   } else {
                     startTime = parseAPIDate(event.time, timezone)
                   }
@@ -360,15 +360,15 @@ export default function EventsContextProvider(props: {
               const horseEvents = horseChannel.next_events.map(
                 (event: any, idx: number): UpcomingEvent => {
                   let startTime: Date
-                  if (event.since && typeof event.since === 'number') {
-                    startTime = new Date(Date.now() + event.since * 1000)
-                  } else if (
+                  if (
                     event.start_time &&
                     typeof event.start_time === 'string'
                   ) {
                     const [hours, minutes] = event.start_time.split(':')
                     startTime = new Date()
                     startTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
+                  } else if (event.since && typeof event.since === 'number') {
+                    startTime = new Date(Date.now() + event.since * 1000)
                   } else {
                     startTime = parseAPIDate(event.time, timezone)
                   }
@@ -524,15 +524,15 @@ export default function EventsContextProvider(props: {
               const dogEvents = dogChannel.next_events.map(
                 (event: any, idx: number): UpcomingEvent => {
                   let startTime: Date
-                  if (event.since && typeof event.since === 'number') {
-                    startTime = new Date(Date.now() + event.since * 1000)
-                  } else if (
+                  if (
                     event.start_time &&
                     typeof event.start_time === 'string'
                   ) {
                     const [hours, minutes] = event.start_time.split(':')
                     startTime = new Date()
                     startTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
+                  } else if (event.since && typeof event.since === 'number') {
+                    startTime = new Date(Date.now() + event.since * 1000)
                   } else {
                     startTime = parseAPIDate(event.time, timezone)
                   }
@@ -620,15 +620,15 @@ export default function EventsContextProvider(props: {
               const horseEvents = horseChannel.next_events.map(
                 (event: any, idx: number): UpcomingEvent => {
                   let startTime: Date
-                  if (event.since && typeof event.since === 'number') {
-                    startTime = new Date(Date.now() + event.since * 1000)
-                  } else if (
+                  if (
                     event.start_time &&
                     typeof event.start_time === 'string'
                   ) {
                     const [hours, minutes] = event.start_time.split(':')
                     startTime = new Date()
                     startTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
+                  } else if (event.since && typeof event.since === 'number') {
+                    startTime = new Date(Date.now() + event.since * 1000)
                   } else {
                     startTime = parseAPIDate(event.time, timezone)
                   }

@@ -596,9 +596,9 @@ export default function BettingSlip({
 
     // Validazione che lo stake sia multiplo di min_stake_increment_step (prima del min_stake)
     if (betMode !== 'SYSTEM' && minStakeIncrement > 0) {
-      const remainder = Math.abs(global % minStakeIncrement)
-      const tolerance = 0.0001 // Tolleranza per errori floating point
-      if (remainder > tolerance && remainder < minStakeIncrement - tolerance) {
+      const stakeSteps = Math.round(global / minStakeIncrement)
+      const reconstructed = stakeSteps * minStakeIncrement
+      if (Math.abs(global - reconstructed) > 0.0001) {
         toast.error(
           t('stake_increment_error', { increment: minStakeIncrement }),
         )
@@ -646,6 +646,7 @@ export default function BettingSlip({
         (sum, group) => sum + group.stake,
         0,
       )
+      
       if (totalSystemStake <= 0) {
         toast.error(t('enter_system_amount'))
         return
@@ -667,12 +668,9 @@ export default function BettingSlip({
       if (systemStakeIncrement > 0) {
         const invalidIncrementGroups = systemGroups.filter((group) => {
           if (!selectedGroups[group.name] || group.stake <= 0) return false
-          const remainder = Math.abs(group.stake % systemStakeIncrement)
-          const tolerance = 0.0001
-          return (
-            remainder > tolerance &&
-            remainder < systemStakeIncrement - tolerance
-          )
+          const stakeSteps = Math.round(group.stake / systemStakeIncrement)
+          const reconstructed = stakeSteps * systemStakeIncrement
+          return Math.abs(group.stake - reconstructed) > 0.0001
         })
         if (invalidIncrementGroups.length > 0) {
           toast.error(
@@ -915,7 +913,7 @@ export default function BettingSlip({
                     .filter((group) => group.stake > 0)
                     .map((group) => [
                       group.size.toString(),
-                      group.stake * group.combinations.length,
+                      Math.round(group.stake * group.combinations.length * 100) / 100,
                     ]),
                 ),
               }
@@ -1247,8 +1245,7 @@ export default function BettingSlip({
       removeAllBets()
       setGlobal(0)
       setSystemGroupStakes({})
-    } catch (error) {
-      console.error('Error submitting ticket:', error)
+    } catch {
       toast.error(t('bet_submission_error'))
     } finally {
       setIsSubmitting(false)
