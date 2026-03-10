@@ -457,68 +457,68 @@ export default function UpcomingRaceCard({
     })
   }
 
-  const renderTableHeader = () => {
-    return (
-      <TableHeader className="h-14 bg-card-header text-[16px] text-card-header-foreground">
-        <TableRow>
-          <TableHead className="w-[249px] text-center font-semibold">
-            {t('starters_list').toUpperCase()}
-          </TableHead>
-          <TableHead className="w-[1px] bg-border p-0" />
+ const renderTableHeader = () => {
+  return (
+    <TableHeader className="h-14 bg-card-header text-[16px] text-card-header-foreground">
+      <TableRow>
+        <TableHead className="w-[249px] min-w-[150px] text-center font-semibold">
+          {t('starters_list').toUpperCase()}
+        </TableHead>
+        <TableHead className="w-[1px] bg-border p-0" />
 
-          <TableHead className="w-[249px] text-center font-semibold">
-            {t('performance').toUpperCase()}
-          </TableHead>
-          <TableHead className="w-[1px] bg-border p-0" />
+        <TableHead className="w-[249px] min-w-[140px] text-center font-semibold">
+          {t('performance').toUpperCase()}
+        </TableHead>
+        <TableHead className="w-[1px] bg-border p-0" />
 
-          <TableHead className="w-[249px] text-center font-semibold">
-            {t('history').toUpperCase()}
-          </TableHead>
-          <TableHead className="w-[1px] bg-border p-0" />
+        <TableHead className="w-[249px] min-w-[130px] text-center font-semibold">
+          {t('history').toUpperCase()}
+        </TableHead>
+        <TableHead className="w-[1px] bg-border p-0" />
 
-          {activeTab === 'main' && (
-            <>
-              <TableHead className="w-249px] text-center font-bold">
-                {t('winner').toUpperCase()}
-              </TableHead>
-              <TableHead className="w-[1px] bg-border p-0" />
-              <TableHead className="w-[249px] text-center font-semibold">
-                {t('place_2').toUpperCase()}
-              </TableHead>
-              <TableHead className="w-[1px] bg-border p-0" />
-              <TableHead className="w-[249px] text-center font-semibold">
-                {t('show_3').toUpperCase()}
-              </TableHead>
-            </>
-          )}
+        {activeTab === 'main' && (
+          <>
+            <TableHead className="w-[249px] min-w-[100px] text-center font-bold">
+              {t('winner').toUpperCase()}
+            </TableHead>
+            <TableHead className="w-[1px] bg-border p-0" />
+            <TableHead className="w-[249px] min-w-[100px] text-center font-semibold">
+              {t('place_2').toUpperCase()}
+            </TableHead>
+            <TableHead className="w-[1px] bg-border p-0" />
+            <TableHead className="w-[249px] min-w-[100px] text-center font-semibold">
+              {t('show_3').toUpperCase()}
+            </TableHead>
+          </>
+        )}
 
-          {activeTab === 'couples' && (
-            <>
-              <TableHead className="text-center font-bold" colSpan={2}>
-                {t('exacta').toUpperCase()}
-              </TableHead>
-              <TableHead className="w-[1px] bg-border p-0" />
-              <TableHead className="text-center font-bold" colSpan={2}>
-                {t('quinella').toUpperCase()}
-              </TableHead>
-            </>
-          )}
+        {activeTab === 'couples' && (
+          <>
+            <TableHead className="text-center font-bold" colSpan={2}>
+              {t('exacta').toUpperCase()}
+            </TableHead>
+            <TableHead className="w-[1px] bg-border p-0" />
+            <TableHead className="text-center font-bold" colSpan={2}>
+              {t('quinella').toUpperCase()}
+            </TableHead>
+          </>
+        )}
 
-          {activeTab === 'triplets' && (
-            <>
-              <TableHead className="text-center font-bold" colSpan={3}>
-                {t('trifecta').toUpperCase()}
-              </TableHead>
-              <TableHead className="w-[1px] bg-border p-0" />
-              <TableHead className="text-center font-bold" colSpan={2}>
-                {t('boxed_trifecta').toUpperCase()}
-              </TableHead>
-            </>
-          )}
-        </TableRow>
-      </TableHeader>
-    )
-  }
+        {activeTab === 'triplets' && (
+          <>
+            <TableHead className="text-center font-bold" colSpan={3}>
+              {t('trifecta').toUpperCase()}
+            </TableHead>
+            <TableHead className="w-[1px] bg-border p-0" />
+            <TableHead className="text-center font-bold" colSpan={2}>
+              {t('boxed_trifecta').toUpperCase()}
+            </TableHead>
+          </>
+        )}
+      </TableRow>
+    </TableHeader>
+  )
+}
 
   const renderTabSpecificCells = (racer: UpcomingRace['racers'][number]) => {
     if (activeTab === 'main') {
