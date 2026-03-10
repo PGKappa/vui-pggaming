@@ -3,6 +3,8 @@
 import Navbar from '@/virtual-components/navbar'
 import { Toaster } from '@/virtual-components/ui/sonner'
 import BetsContextProvider from '@/virtual-contexts/bets-context'
+import CashierContextProvider from '@/virtual-contexts/cashier-context'
+import EventsContextProvider from '@/virtual-contexts/events-context'
 import RootContextProvider from '@/virtual-contexts/root-context'
 import SkinProvider, { SkinContext } from '@/virtual-contexts/skin-context'
 import { Geist, Geist_Mono } from 'next/font/google'
@@ -36,9 +38,13 @@ function AppContent({ children }: { children: React.ReactNode }) {
         <Navbar />
       </header>
       <main className="flex-1">
-        <RootContextProvider>
-          <BetsContextProvider>{children}</BetsContextProvider>
-        </RootContextProvider>
+        <CashierContextProvider>
+          <EventsContextProvider>
+            <RootContextProvider>
+              <BetsContextProvider>{children}</BetsContextProvider>
+            </RootContextProvider>
+          </EventsContextProvider>
+        </CashierContextProvider>
       </main>
 
       <Toaster
