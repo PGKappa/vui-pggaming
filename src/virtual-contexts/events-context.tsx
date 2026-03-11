@@ -85,15 +85,27 @@ function isCacheValid(key: string): boolean {
   return Date.now() - parseInt(lastFetch) < CACHE_DURATION
 }
 
+// Consente navigazione istantanea tra discipline senza spinner
+let moduleEventsCache: UpcomingEvent[] = []
+let moduleResultsCache: EventResult[] = []
+let moduleRoundsCache: UpcomingRound[] = []
+let moduleLiveRound: LiveRound | undefined = undefined
+let moduleHasLoadedOnce = false
+
 export default function EventsContextProvider(props: {
   children: React.ReactNode
 }) {
   const { initCode, apiRequest, isLoadingCashier } = useContext(CashierContext)
 
-  const [upcomingEvents, setUpcomingEvents] = useState<UpcomingEvent[]>([])
-  const [eventResults, setEventResults] = useState<EventResult[]>([])
-  const [upcomingRounds, setUpcomingRounds] = useState<UpcomingRound[]>([])
-  const [liveRound, setLiveRound] = useState<LiveRound | undefined>(undefined)
+  const [upcomingEvents, setUpcomingEvents] =
+    useState<UpcomingEvent[]>(moduleEventsCache)
+  const [eventResults, setEventResults] =
+    useState<EventResult[]>(moduleResultsCache)
+  const [upcomingRounds, setUpcomingRounds] =
+    useState<UpcomingRound[]>(moduleRoundsCache)
+  const [liveRound, setLiveRound] = useState<LiveRound | undefined>(
+    moduleLiveRound,
+  )
   // Placeholder state — setters will be used when API support is added
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [roundStatistics, setRoundStatistics] = useState<
@@ -103,9 +115,23 @@ export default function EventsContextProvider(props: {
   const [teamRankings, setTeamRankings] = useState<TeamRanking[]>([])
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [matchResult, setMatchResult] = useState<MatchResult[]>([])
-  const [isLoadingEvents, setIsLoadingEvents] = useState(true)
+  const [isLoadingEvents, setIsLoadingEvents] = useState(!moduleHasLoadedOnce)
 
   const processedRoundIdRef = useRef<number | undefined>(undefined)
+
+  // Sync state → module cache (sopravvive ai rimount)
+  useEffect(() => {
+    moduleEventsCache = upcomingEvents
+  }, [upcomingEvents])
+  useEffect(() => {
+    moduleResultsCache = eventResults
+  }, [eventResults])
+  useEffect(() => {
+    moduleRoundsCache = upcomingRounds
+  }, [upcomingRounds])
+  useEffect(() => {
+    moduleLiveRound = liveRound
+  }, [liveRound])
 
   // Round transition: promuovi round upcoming a liveRound
   useEffect(() => {
@@ -268,11 +294,13 @@ export default function EventsContextProvider(props: {
               time: event.time,
               discipline: Discipline.HORSES,
               result: {
-                podium: event.arrival.map((horse: any, index: number) => ({
-                  name: horse.name,
-                  number: horse.number,
-                  position: index + 1,
-                })),
+                podium: (event.arrival || []).map(
+                  (horse: any, index: number) => ({
+                    name: horse.name,
+                    number: horse.number,
+                    position: index + 1,
+                  }),
+                ),
                 odds: (detailedResult as any)?.odds || {},
               } as RaceResult,
             } as EventResult
@@ -369,11 +397,13 @@ export default function EventsContextProvider(props: {
               time: event.time,
               discipline: Discipline.DOGS,
               result: {
-                podium: event.arrival.map((dog: any, index: number) => ({
-                  name: dog.name,
-                  number: dog.number,
-                  position: index + 1,
-                })),
+                podium: (event.arrival || []).map(
+                  (dog: any, index: number) => ({
+                    name: dog.name,
+                    number: dog.number,
+                    position: index + 1,
+                  }),
+                ),
                 odds: (detailedResult as any)?.odds || {},
               } as RaceResult,
             } as EventResult
@@ -429,6 +459,7 @@ export default function EventsContextProvider(props: {
     }
 
     setIsLoadingEvents(false)
+    moduleHasLoadedOnce = true
 
     fetchUpcomingRounds()
     fetchUpcomingHorseEvents()
