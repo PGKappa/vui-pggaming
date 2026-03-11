@@ -179,7 +179,7 @@ export default function AlphanumericKeypadDrawer(props: {
         </div>
       </DrawerTrigger>
 
-      <DrawerContent className="ml-2 w-[1500px] border-0">
+      <DrawerContent className="w-[calc(100vw-415px)] border-0">
         <DrawerHeader className="relative bg-secondary text-accent-foreground">
           <DrawerTitle className="pt-1 text-center text-accent-foreground">
             {props.placeholder || 'FASTBET'}
@@ -214,7 +214,7 @@ export default function AlphanumericKeypadDrawer(props: {
             <Button
               variant="outline"
               onClick={handleDelete}
-              className="h-12 w-[126px] px-1"
+              className="h-12 w-full px-1"
             >
               <Delete className="h-5 w-5" style={{ scale: 2 }} />
             </Button>

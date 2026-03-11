@@ -95,7 +95,7 @@ const layoutByLanguage: Record<string, LayoutConfig> = {
       imageOffset: {
         SOCCER: 'bottom-[4px] right-[10px]',
         HORSES: 'bottom-[4px] right-[9px]',
-        DOGS: 'bottom-[4px] right-[11px]',
+        DOGS: 'bottom-[4px] right-[10px]',
         DOGS8: 'bottom-[4px] right-[11px]',
       },
       textOffset: {
