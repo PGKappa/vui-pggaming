@@ -8,10 +8,10 @@ import EventsContextProvider from '@/virtual-contexts/events-context'
 import RootContextProvider from '@/virtual-contexts/root-context'
 import SkinProvider, { SkinContext } from '@/virtual-contexts/skin-context'
 import { Geist, Geist_Mono } from 'next/font/google'
-import { useContext } from 'react'
+import { useContext, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import '../../globals.css'
-import '../../../virtual-lib/i18n'
+import '../globals.css'
+import '../../virtual-lib/i18n'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -30,6 +30,7 @@ const metadata = {
 
 function AppContent({ children }: { children: React.ReactNode }) {
   const [skin] = useContext(SkinContext)
+
   return (
     <body
       className={`${geistSans.variable} ${geistMono.variable} ${skin} flex h-screen flex-col antialiased`}
@@ -58,12 +59,16 @@ function AppContent({ children }: { children: React.ReactNode }) {
   )
 }
 
-export default function RootLayout({
+export default function VirtualLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
   const { i18n } = useTranslation()
+
+  useEffect(() => {
+    localStorage.clear()
+  }, [])
 
   return (
     <html lang={i18n.language}>
