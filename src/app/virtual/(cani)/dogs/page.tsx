@@ -9,29 +9,46 @@ import VideoStreamCard from '@/virtual-components/video-stream-card'
 import PreviousResultsCard from '@/virtual-components/previous-results-card'
 import { RootContext } from '@/virtual-contexts/root-context'
 import { Discipline, UpcomingEvent } from '@/virtual-lib/types'
+import {
+  getCarouselFilteredEvents,
+  getFutureEventsFromCarousel,
+} from '@/virtual-lib/carousel-sync'
 import previousResultsMock from '@/virtual-lib/previous-results-mock.json'
 import { t } from 'i18next'
 import { useContext, useEffect, useMemo, useState } from 'react'
 
 export default function Home() {
   const { upcomingEvents, liveRound } = useContext(RootContext)
-
-  // Filtra eventi per cani come in retail
-  const dogEvents = useMemo(() => {
-    return upcomingEvents?.filter((e) => e.discipline === Discipline.DOGS) || []
-  }, [upcomingEvents])
-
   const [selectedEvent, setSelectedEvent] = useState<
     UpcomingEvent | undefined
   >()
 
-  useEffect(() => {
-    if (!selectedEvent && dogEvents.length > 0) {
-      setSelectedEvent(dogEvents[0])
-    }
-  }, [dogEvents, selectedEvent])
+  // SINCRONIZZAZIONE PERFETTA CON CAROSELLO (pattern retail)
+  const carouselEvents = useMemo(
+    () => getCarouselFilteredEvents(upcomingEvents, [Discipline.DOGS]),
+    [upcomingEvents],
+  )
+  const futureEvents = useMemo(
+    () => getFutureEventsFromCarousel(carouselEvents),
+    [carouselEvents],
+  )
 
-  // AUTO-AGGIORNAMENTO: seleziona automaticamente il prossimo evento quando quello corrente scade
+  // AUTO-SELEZIONE: solo se non c'è evento selezionato o se non esiste più
+  useEffect(() => {
+    if (selectedEvent) {
+      const stillExists = carouselEvents.some((e) => e.id === selectedEvent.id)
+      if (stillExists) return
+    }
+    if (futureEvents.length > 0) {
+      setSelectedEvent(futureEvents[0])
+    } else if (carouselEvents.length > 0) {
+      setSelectedEvent(carouselEvents[0])
+    } else {
+      setSelectedEvent(undefined)
+    }
+  }, [futureEvents, carouselEvents, selectedEvent])
+
+  // AUTO-AGGIORNAMENTO: avanza al prossimo evento quando quello corrente scade
   useEffect(() => {
     const interval = setInterval(() => {
       if (selectedEvent) {
@@ -42,26 +59,24 @@ export default function Home() {
             : new Date(selectedEvent.time)
 
         if (eventTime <= now) {
-          // Filtra eventi futuri
-          const futureEvents = dogEvents.filter((e) => {
-            const eTime = e.time instanceof Date ? e.time : new Date(e.time)
-            return eTime > now
-          })
-
-          if (futureEvents.length > 0) {
-            setSelectedEvent(futureEvents[0])
+          const freshFuture = getFutureEventsFromCarousel(
+            getCarouselFilteredEvents(upcomingEvents, [Discipline.DOGS]),
+          )
+          if (freshFuture.length > 0) {
+            setSelectedEvent(freshFuture[0])
           } else {
-            // Nessun evento futuro, prendi il più recente
-            if (dogEvents.length > 0) {
-              setSelectedEvent(dogEvents[dogEvents.length - 1])
+            const allEvents = getCarouselFilteredEvents(upcomingEvents, [
+              Discipline.DOGS,
+            ])
+            if (allEvents.length > 0) {
+              setSelectedEvent(allEvents[allEvents.length - 1])
             }
           }
         }
       }
-    }, 5000)
-
+    }, 500)
     return () => clearInterval(interval)
-  }, [selectedEvent, dogEvents])
+  }, [selectedEvent, upcomingEvents])
 
   return (
     <>
@@ -89,7 +104,6 @@ export default function Home() {
           <UpcomingEventsCarousel
             selectedEvent={selectedEvent}
             setSelectedEvent={setSelectedEvent}
-            events={dogEvents}
           />
 
           <MatchEndBadge discipline={Discipline.DOGS} />

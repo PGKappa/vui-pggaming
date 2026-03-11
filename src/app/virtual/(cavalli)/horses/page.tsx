@@ -9,31 +9,46 @@ import VideoStreamCard from '@/virtual-components/video-stream-card'
 import PreviousResultsCard from '@/virtual-components/previous-results-card'
 import { RootContext } from '@/virtual-contexts/root-context'
 import { Discipline, UpcomingEvent } from '@/virtual-lib/types'
+import {
+  getCarouselFilteredEvents,
+  getFutureEventsFromCarousel,
+} from '@/virtual-lib/carousel-sync'
 import previousResultsMock from '@/virtual-lib/previous-results-mock.json'
 import { t } from 'i18next'
 import { useContext, useEffect, useMemo, useState } from 'react'
 
 export default function Home() {
   const { upcomingEvents, liveRound } = useContext(RootContext)
-
-  // Filtra eventi per cavalli
-  const horseEvents = useMemo(() => {
-    return (
-      upcomingEvents?.filter((e) => e.discipline === Discipline.HORSES) || []
-    )
-  }, [upcomingEvents])
-
   const [selectedEvent, setSelectedEvent] = useState<
     UpcomingEvent | undefined
   >()
 
-  useEffect(() => {
-    if (!selectedEvent && horseEvents.length > 0) {
-      setSelectedEvent(horseEvents[0])
-    }
-  }, [horseEvents, selectedEvent])
+  // SINCRONIZZAZIONE PERFETTA CON CAROSELLO (pattern retail)
+  const carouselEvents = useMemo(
+    () => getCarouselFilteredEvents(upcomingEvents, [Discipline.HORSES]),
+    [upcomingEvents],
+  )
+  const futureEvents = useMemo(
+    () => getFutureEventsFromCarousel(carouselEvents),
+    [carouselEvents],
+  )
 
-  // Auto-refresh: seleziona automaticamente il prossimo evento quando quello corrente scade
+  // AUTO-SELEZIONE: solo se non c'è evento selezionato o se non esiste più
+  useEffect(() => {
+    if (selectedEvent) {
+      const stillExists = carouselEvents.some((e) => e.id === selectedEvent.id)
+      if (stillExists) return
+    }
+    if (futureEvents.length > 0) {
+      setSelectedEvent(futureEvents[0])
+    } else if (carouselEvents.length > 0) {
+      setSelectedEvent(carouselEvents[0])
+    } else {
+      setSelectedEvent(undefined)
+    }
+  }, [futureEvents, carouselEvents, selectedEvent])
+
+  // AUTO-AGGIORNAMENTO: avanza al prossimo evento quando quello corrente scade
   useEffect(() => {
     const interval = setInterval(() => {
       if (selectedEvent) {
@@ -44,24 +59,24 @@ export default function Home() {
             : new Date(selectedEvent.time)
 
         if (eventTime <= now) {
-          // Filtra gli eventi futuri
-          const futureEvents = horseEvents.filter((e) => {
-            const time = e.time instanceof Date ? e.time : new Date(e.time)
-            return time > now
-          })
-
-          // Seleziona il primo evento futuro, o l'ultimo disponibile se non ce ne sono
-          if (futureEvents.length > 0) {
-            setSelectedEvent(futureEvents[0])
-          } else if (horseEvents.length > 0) {
-            setSelectedEvent(horseEvents[horseEvents.length - 1])
+          const freshFuture = getFutureEventsFromCarousel(
+            getCarouselFilteredEvents(upcomingEvents, [Discipline.HORSES]),
+          )
+          if (freshFuture.length > 0) {
+            setSelectedEvent(freshFuture[0])
+          } else {
+            const allEvents = getCarouselFilteredEvents(upcomingEvents, [
+              Discipline.HORSES,
+            ])
+            if (allEvents.length > 0) {
+              setSelectedEvent(allEvents[allEvents.length - 1])
+            }
           }
         }
       }
-    }, 5000)
-
+    }, 500)
     return () => clearInterval(interval)
-  }, [selectedEvent, horseEvents])
+  }, [selectedEvent, upcomingEvents])
 
   return (
     <>
@@ -89,7 +104,6 @@ export default function Home() {
           <UpcomingEventsCarousel
             selectedEvent={selectedEvent}
             setSelectedEvent={setSelectedEvent}
-            events={horseEvents}
           />
 
           <MatchEndBadge discipline={Discipline.HORSES} />
