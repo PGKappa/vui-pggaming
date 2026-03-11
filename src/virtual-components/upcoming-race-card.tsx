@@ -1,6 +1,7 @@
 import { BetsContext } from '@/virtual-contexts/bets-context'
+import { CashierContext } from '@/virtual-contexts/cashier-context'
 import { UpcomingEvent, UpcomingRace } from '@/virtual-lib/types'
-import { getRacerColors } from '@/virtual-lib/utils'
+import { createPGVirtualAPICall, getRacerColors } from '@/virtual-lib/utils'
 import { t } from 'i18next'
 import { useContext, useEffect, useState } from 'react'
 import BetCombinationsTable from './bet-combination-table'
@@ -11,6 +12,9 @@ import { Card, CardContent, CardHeader } from './ui/card'
 import { Progress } from './ui/progress'
 import { Toggle } from './ui/toggle'
 import { Check } from 'lucide-react'
+
+// Module-level cache: survives re-renders, no loading flash for already-fetched races
+const raceInfoCache = new Map<string, UpcomingRace>()
 
 type UpcomingRaceCardProps = {
   race: UpcomingEvent
@@ -29,7 +33,10 @@ export default function UpcomingRaceCard({
   race,
   onSelectionChange,
 }: UpcomingRaceCardProps) {
-  const [raceInfo, setRaceInfo] = useState<UpcomingRace>()
+  const cacheKey = `${race.extId}_${race.id}`
+  const [raceInfo, setRaceInfo] = useState<UpcomingRace | undefined>(() =>
+    raceInfoCache.get(cacheKey),
+  )
   const [activeTab, setActiveTab] = useState<TabType>('main')
 
   const [position1Selection, setPosition1Selection] = useState<number[]>([])
@@ -38,11 +45,8 @@ export default function UpcomingRaceCard({
   const [disorderSelection, setDisorderSelection] = useState<number[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
-  // Aggiungi i contexts
   const { betEntries } = useContext(BetsContext)
-
-  // Get initCode from localStorage (virtual pattern)
-  const getInitCode = () => localStorage.getItem('initCode')
+  const { initCode } = useContext(CashierContext)
 
   // Inizializzazione corretta del marketType basata su activeTab
   const [marketType, setMarketType] = useState<
@@ -146,24 +150,23 @@ export default function UpcomingRaceCard({
   }
 
   useEffect(() => {
-    const fetchEventInfo = async () => {
-      const initCode = getInitCode()
-      if (!initCode) return
+    const key = `${race.extId}_${race.id}`
+    const cached = raceInfoCache.get(key)
 
+    if (cached) {
+      setRaceInfo(cached)
+      setIsLoading(false)
+      return
+    }
+
+    if (!initCode) return
+
+    const fetchEventInfo = async () => {
       setIsLoading(true)
       try {
-        const response = await fetch(
-          `https://apidev.pgvirtual.eu/api/event/info/${race.extId}/${race.id}`,
-          {
-            headers: {
-              accept: 'application/json',
-              authorization: `Bearer ${initCode}`,
-              operator: 'sc',
-            },
-            method: 'GET',
-            mode: 'cors',
-            credentials: 'include',
-          },
+        const response = await createPGVirtualAPICall(
+          `/api/event/info/${race.extId}/${race.id}`,
+          initCode,
         )
 
         if (!response.ok) {
@@ -175,6 +178,7 @@ export default function UpcomingRaceCard({
           ...data.current,
           id: parseInt(data.int_event_id),
         }
+        raceInfoCache.set(key, upcomingRace)
         setRaceInfo(upcomingRace)
       } catch (error) {
         console.error('Error fetching event info:', error)
@@ -184,7 +188,7 @@ export default function UpcomingRaceCard({
     }
 
     fetchEventInfo()
-  }, [race.id, race.extId])
+  }, [race.id, race.extId, initCode])
 
   useEffect(() => {
     if (onSelectionChange) {
