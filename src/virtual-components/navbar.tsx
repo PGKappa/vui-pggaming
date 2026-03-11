@@ -30,7 +30,6 @@ function NavbarContent() {
             ? 'bg-accent text-accent-foreground hover:bg-accent/90'
             : 'hover:bg-accent/90',
         )}
-        prefetch={false}
       >
         <Image
           src="/dogs.png"
@@ -51,7 +50,6 @@ function NavbarContent() {
             ? 'bg-accent text-accent-foreground hover:bg-accent/90'
             : 'hover:bg-accent/90',
         )}
-        prefetch={false}
       >
         <Image
           src="/horses.png"
@@ -64,7 +62,7 @@ function NavbarContent() {
         <span className="text-xs font-medium">{t('horses')}</span>
       </Link>
 
-   {/**   <Link
+      {/**   <Link
         href={`/virtual/calcio${queryString}`}
         className={cn(
           'flex w-full flex-row items-center justify-center px-2 py-2',
@@ -84,7 +82,7 @@ function NavbarContent() {
         />
         <span className="pl-2 text-xs font-medium">{t('football')}</span>
       </Link>
-      */} 
+      */}
     </nav>
   )
 }
