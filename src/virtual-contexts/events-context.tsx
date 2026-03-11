@@ -13,7 +13,14 @@ import {
   UpcomingRound,
 } from '@/virtual-lib/types'
 import { createPGVirtualAPICall } from '@/virtual-lib/utils'
-import { createContext, useEffect, useRef, useState, useContext } from 'react'
+import {
+  createContext,
+  useEffect,
+  useRef,
+  useState,
+  useContext,
+  useCallback,
+} from 'react'
 import { CashierContext } from './cashier-context'
 
 export type EventsContextType = {
@@ -118,6 +125,13 @@ export default function EventsContextProvider(props: {
   const [isLoadingEvents, setIsLoadingEvents] = useState(!moduleHasLoadedOnce)
 
   const processedRoundIdRef = useRef<number | undefined>(undefined)
+  const isFetchingRef = useRef(false)
+  const upcomingEventsRef = useRef(upcomingEvents)
+  const lastForceFetchRef = useRef(0)
+
+  useEffect(() => {
+    upcomingEventsRef.current = upcomingEvents
+  }, [upcomingEvents])
 
   // Sync state → module cache (sopravvive ai rimount)
   useEffect(() => {
@@ -164,273 +178,274 @@ export default function EventsContextProvider(props: {
     return () => clearInterval(intervalId)
   }, [initCode, upcomingRounds])
 
-  // Fetch eventi quando cashier è pronto
+  // Fetch all events (dogs + horses + soccer) — richiamabile da qualsiasi punto
+  const fetchAllEvents = useCallback(
+    async (force = false) => {
+      if (!initCode || isLoadingCashier || isFetchingRef.current) return
+      isFetchingRef.current = true
+
+      try {
+        // --- Soccer ---
+        if (force || !isCacheValid(CACHE_KEYS.LAST_SOCCER_FETCH_TIME)) {
+          if (apiRequest) {
+            try {
+              const response = await apiRequest<{
+                schedules: { schedule: UpcomingRound[] }
+              }>('/football/20/', { method: 'GET' })
+
+              if (response?.schedules?.schedule?.length) {
+                const allEvents =
+                  response.schedules.schedule[0].mag_event.slice(4) || []
+
+                const eventsByGroup: Record<number, UpcomingMatch[]> = {}
+                allEvents.forEach((event) => {
+                  const groupId = event.eventIdentity?.groupId
+                  if (groupId !== undefined) {
+                    if (!eventsByGroup[groupId]) eventsByGroup[groupId] = []
+                    eventsByGroup[groupId].push(event)
+                  }
+                })
+
+                const rounds: UpcomingRound[] = Object.entries(
+                  eventsByGroup,
+                ).map(([groupId, events]) => {
+                  const firstEvent = events[0]
+                  return {
+                    ...response.schedules.schedule[0],
+                    scheduleId: Number(groupId),
+                    scheduleName:
+                      firstEvent.eventIdentity.scheduleType ??
+                      response.schedules.schedule[0].scheduleName,
+                    mag_event: events.map((event) => {
+                      const startTime = new Date()
+                      startTime.setMinutes(
+                        new Date(event.startTime).getMinutes(),
+                      )
+                      startTime.setSeconds(0)
+                      startTime.setMilliseconds(0)
+                      return { ...event, startTime: startTime.toISOString() }
+                    }),
+                  }
+                })
+
+                setUpcomingRounds(rounds)
+                saveToCache(CACHE_KEYS.SOCCER_EVENTS, rounds)
+                localStorage.setItem(
+                  CACHE_KEYS.LAST_SOCCER_FETCH_TIME,
+                  Date.now().toString(),
+                )
+              }
+            } catch (error) {
+              console.error('Soccer events fetch error:', error)
+            }
+          }
+        }
+
+        // --- Dogs + Horses (stessa API, canali diversi) ---
+        const needsDogs =
+          force || !isCacheValid(CACHE_KEYS.LAST_DOGS_FETCH_TIME)
+        const needsHorses =
+          force || !isCacheValid(CACHE_KEYS.LAST_HORSES_FETCH_TIME)
+
+        if (needsDogs || needsHorses) {
+          try {
+            const response = await createPGVirtualAPICall(
+              '/api/event/list',
+              initCode,
+            )
+
+            if (!response.ok) {
+              throw new Error(`Failed to fetch events: ${response.status}`)
+            }
+
+            const eventsData = await response.json()
+
+            // Dogs (channel 0)
+            if (needsDogs) {
+              const dogChannel = eventsData.channels?.[0]
+              if (dogChannel?.next_events) {
+                const upcomingDogEvents: UpcomingEvent[] =
+                  dogChannel.next_events.map(
+                    (event: any, index: number): UpcomingEvent => {
+                      let startTime: Date
+                      if (
+                        event.start_time &&
+                        typeof event.start_time === 'string'
+                      ) {
+                        const [hours, minutes] = event.start_time.split(':')
+                        startTime = new Date()
+                        startTime.setHours(
+                          parseInt(hours, 10),
+                          parseInt(minutes, 10),
+                          0,
+                          0,
+                        )
+                      } else {
+                        startTime = new Date(event.time)
+                      }
+                      return {
+                        id: parseInt(event.int_event_id),
+                        extId: event.ext_pal_id,
+                        duration: dogChannel.duration?.[index],
+                        discipline: Discipline.DOGS,
+                        name: 'Dog Race',
+                        startTime: event.start_time,
+                        time: startTime,
+                      }
+                    },
+                  )
+
+                const dogEventResults: EventResult[] = await Promise.all(
+                  (dogChannel.prev_events || []).map(async (event: any) => {
+                    const startTime = new Date(event.time)
+                    let detailedResult = null
+                    try {
+                      const res = await createPGVirtualAPICall(
+                        `/api/event/results/${event.ext_pal_id}/${event.int_event_id}`,
+                        initCode,
+                      )
+                      if (res.ok) detailedResult = await res.json()
+                    } catch (error) {
+                      console.warn('Failed to fetch detailed result:', error)
+                    }
+                    return {
+                      id: event.int_event_id,
+                      extId: event.ext_pal_id,
+                      name: `Dog Race ${event.int_event_id}`,
+                      startTime,
+                      time: event.time,
+                      discipline: Discipline.DOGS,
+                      result: {
+                        podium: (event.arrival || []).map(
+                          (dog: any, index: number) => ({
+                            name: dog.name,
+                            number: dog.number,
+                            position: index + 1,
+                          }),
+                        ),
+                        odds: (detailedResult as any)?.odds || {},
+                      } as RaceResult,
+                    } as EventResult
+                  }),
+                )
+
+                setUpcomingEvents((prev) => [
+                  ...prev.filter((e) => e.discipline !== Discipline.DOGS),
+                  ...upcomingDogEvents,
+                ])
+                setEventResults((prev) => [
+                  ...prev.filter((e) => e.discipline !== Discipline.DOGS),
+                  ...dogEventResults,
+                ])
+                saveToCache(CACHE_KEYS.DOGS_EVENTS, upcomingDogEvents)
+                saveToCache(CACHE_KEYS.DOGS_RESULTS, dogEventResults)
+                localStorage.setItem(
+                  CACHE_KEYS.LAST_DOGS_FETCH_TIME,
+                  Date.now().toString(),
+                )
+              }
+            }
+
+            // Horses (channel 1)
+            if (needsHorses) {
+              const horseChannel = eventsData.channels?.[1]
+              if (horseChannel?.next_events) {
+                const upcomingHorseEvents: UpcomingEvent[] =
+                  horseChannel.next_events.map(
+                    (event: any, index: number): UpcomingEvent => {
+                      let startTime: Date
+                      if (
+                        event.start_time &&
+                        typeof event.start_time === 'string'
+                      ) {
+                        const [hours, minutes] = event.start_time.split(':')
+                        startTime = new Date()
+                        startTime.setHours(
+                          parseInt(hours, 10),
+                          parseInt(minutes, 10),
+                          0,
+                          0,
+                        )
+                      } else {
+                        startTime = new Date(event.time)
+                      }
+                      return {
+                        id: parseInt(event.int_event_id),
+                        extId: event.ext_pal_id,
+                        duration: horseChannel.duration?.[index],
+                        discipline: Discipline.HORSES,
+                        name: 'Horse Race',
+                        startTime: event.start_time,
+                        time: startTime,
+                      }
+                    },
+                  )
+
+                const horseEventResults: EventResult[] = await Promise.all(
+                  (horseChannel.prev_events || []).map(async (event: any) => {
+                    const startTime = new Date(event.time)
+                    let detailedResult = null
+                    try {
+                      const res = await createPGVirtualAPICall(
+                        `/api/event/results/${event.ext_pal_id}/${event.int_event_id}`,
+                        initCode,
+                      )
+                      if (res.ok) detailedResult = await res.json()
+                    } catch (error) {
+                      console.warn('Failed to fetch detailed result:', error)
+                    }
+                    return {
+                      id: event.int_event_id,
+                      extId: event.ext_pal_id,
+                      name: `Horse Race ${event.int_event_id}`,
+                      startTime,
+                      time: event.time,
+                      discipline: Discipline.HORSES,
+                      result: {
+                        podium: (event.arrival || []).map(
+                          (horse: any, index: number) => ({
+                            name: horse.name,
+                            number: horse.number,
+                            position: index + 1,
+                          }),
+                        ),
+                        odds: (detailedResult as any)?.odds || {},
+                      } as RaceResult,
+                    } as EventResult
+                  }),
+                )
+
+                setUpcomingEvents((prev) => [
+                  ...prev.filter((e) => e.discipline !== Discipline.HORSES),
+                  ...upcomingHorseEvents,
+                ])
+                setEventResults((prev) => [
+                  ...prev.filter((e) => e.discipline !== Discipline.HORSES),
+                  ...horseEventResults,
+                ])
+                saveToCache(CACHE_KEYS.HORSES_EVENTS, upcomingHorseEvents)
+                saveToCache(CACHE_KEYS.HORSES_RESULTS, horseEventResults)
+                localStorage.setItem(
+                  CACHE_KEYS.LAST_HORSES_FETCH_TIME,
+                  Date.now().toString(),
+                )
+              }
+            }
+          } catch (error) {
+            console.error('Racing events fetch error:', error)
+          }
+        }
+      } finally {
+        isFetchingRef.current = false
+      }
+    },
+    [initCode, isLoadingCashier, apiRequest],
+  )
+
+  // Initial load: carica da cache, poi fetch
   useEffect(() => {
     if (!initCode || isLoadingCashier) return
 
-    // --- Soccer ---
-    const fetchUpcomingRounds = async () => {
-      if (isCacheValid(CACHE_KEYS.LAST_SOCCER_FETCH_TIME)) return
-      if (!apiRequest) return
-
-      const response = await apiRequest<{
-        schedules: { schedule: UpcomingRound[] }
-      }>('/football/20/', { method: 'GET' })
-
-      if (!response?.schedules?.schedule?.length) return
-
-      const allEvents = response.schedules.schedule[0].mag_event.slice(4) || [] //TODO: remove .slice(4) when the API is fixed
-
-      const eventsByGroup: Record<number, UpcomingMatch[]> = {}
-      allEvents.forEach((event) => {
-        const groupId = event.eventIdentity?.groupId
-        if (groupId !== undefined) {
-          if (!eventsByGroup[groupId]) eventsByGroup[groupId] = []
-          eventsByGroup[groupId].push(event)
-        }
-      })
-
-      const rounds: UpcomingRound[] = Object.entries(eventsByGroup).map(
-        ([groupId, events]) => {
-          const firstEvent = events[0]
-          return {
-            ...response.schedules.schedule[0],
-            scheduleId: Number(groupId),
-            scheduleName:
-              firstEvent.eventIdentity.scheduleType ??
-              response.schedules.schedule[0].scheduleName,
-            mag_event: events.map((event) => {
-              //TODO: replace this events.map() with events when the API is fixed
-              const startTime = new Date()
-              startTime.setMinutes(new Date(event.startTime).getMinutes())
-              startTime.setSeconds(0)
-              startTime.setMilliseconds(0)
-
-              return {
-                ...event,
-                startTime: startTime.toISOString(),
-              }
-            }),
-          }
-        },
-      )
-
-      setUpcomingRounds(rounds)
-      saveToCache(CACHE_KEYS.SOCCER_EVENTS, rounds)
-      localStorage.setItem(
-        CACHE_KEYS.LAST_SOCCER_FETCH_TIME,
-        Date.now().toString(),
-      )
-    }
-
-    // --- Horses ---
-    const fetchUpcomingHorseEvents = async () => {
-      if (isCacheValid(CACHE_KEYS.LAST_HORSES_FETCH_TIME)) return
-
-      try {
-        const response = await createPGVirtualAPICall(
-          '/api/event/list',
-          initCode,
-        )
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch horse events: ${response.status}`)
-        }
-
-        const horseEvents = await response.json()
-        const horseChannel = horseEvents.channels?.[1]
-
-        if (!horseChannel?.next_events) return
-
-        const upcomingHorseEvents: UpcomingEvent[] =
-          horseChannel.next_events.map(
-            (event: any, index: number): UpcomingEvent => {
-              let startTime: Date
-              if (event.start_time && typeof event.start_time === 'string') {
-                const [hours, minutes] = event.start_time.split(':')
-                startTime = new Date()
-                startTime.setHours(
-                  parseInt(hours, 10),
-                  parseInt(minutes, 10),
-                  0,
-                  0,
-                )
-              } else {
-                startTime = new Date(event.time)
-              }
-
-              return {
-                id: parseInt(event.int_event_id),
-                extId: event.ext_pal_id,
-                duration: horseChannel.duration?.[index],
-                discipline: Discipline.HORSES,
-                name: 'Horse Race',
-                startTime: event.start_time,
-                time: startTime,
-              }
-            },
-          )
-
-        const horseEventResults: EventResult[] = await Promise.all(
-          (horseChannel.prev_events || []).map(async (event: any) => {
-            const startTime = new Date(event.time)
-
-            let detailedResult = null
-            try {
-              const res = await createPGVirtualAPICall(
-                `/api/event/results/${event.ext_pal_id}/${event.int_event_id}`,
-                initCode,
-              )
-              if (res.ok) detailedResult = await res.json()
-            } catch (error) {
-              console.warn('Failed to fetch detailed result:', error)
-            }
-
-            return {
-              id: event.int_event_id,
-              extId: event.ext_pal_id,
-              name: `Horse Race ${event.int_event_id}`,
-              startTime,
-              time: event.time,
-              discipline: Discipline.HORSES,
-              result: {
-                podium: (event.arrival || []).map(
-                  (horse: any, index: number) => ({
-                    name: horse.name,
-                    number: horse.number,
-                    position: index + 1,
-                  }),
-                ),
-                odds: (detailedResult as any)?.odds || {},
-              } as RaceResult,
-            } as EventResult
-          }),
-        )
-
-        setUpcomingEvents((prev) => [
-          ...prev.filter((e) => e.discipline !== Discipline.HORSES),
-          ...upcomingHorseEvents,
-        ])
-        setEventResults((prev) => [
-          ...prev.filter((e) => e.discipline !== Discipline.HORSES),
-          ...horseEventResults,
-        ])
-
-        saveToCache(CACHE_KEYS.HORSES_EVENTS, upcomingHorseEvents)
-        saveToCache(CACHE_KEYS.HORSES_RESULTS, horseEventResults)
-        localStorage.setItem(
-          CACHE_KEYS.LAST_HORSES_FETCH_TIME,
-          Date.now().toString(),
-        )
-      } catch (error) {
-        console.error('Horse events fetch error:', error)
-      }
-    }
-
-    // --- Dogs ---
-    const fetchUpcomingDogEvents = async () => {
-      if (isCacheValid(CACHE_KEYS.LAST_DOGS_FETCH_TIME)) return
-
-      try {
-        const response = await createPGVirtualAPICall(
-          '/api/event/list',
-          initCode,
-        )
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch dog events: ${response.status}`)
-        }
-
-        const dogEvents = await response.json()
-        const dogChannel = dogEvents.channels?.[0]
-
-        if (!dogChannel?.next_events) return
-
-        const upcomingDogEvents: UpcomingEvent[] = dogChannel.next_events.map(
-          (event: any, index: number): UpcomingEvent => {
-            let startTime: Date
-            if (event.start_time && typeof event.start_time === 'string') {
-              const [hours, minutes] = event.start_time.split(':')
-              startTime = new Date()
-              startTime.setHours(
-                parseInt(hours, 10),
-                parseInt(minutes, 10),
-                0,
-                0,
-              )
-            } else {
-              startTime = new Date(event.time)
-            }
-
-            return {
-              id: parseInt(event.int_event_id),
-              extId: event.ext_pal_id,
-              duration: dogChannel.duration?.[index],
-              discipline: Discipline.DOGS,
-              name: 'Dog Race',
-              startTime: event.start_time,
-              time: startTime,
-            }
-          },
-        )
-
-        const dogEventResults: EventResult[] = await Promise.all(
-          (dogChannel.prev_events || []).map(async (event: any) => {
-            const startTime = new Date(event.time)
-
-            let detailedResult = null
-            try {
-              const res = await createPGVirtualAPICall(
-                `/api/event/results/${event.ext_pal_id}/${event.int_event_id}`,
-                initCode,
-              )
-              if (res.ok) detailedResult = await res.json()
-            } catch (error) {
-              console.warn('Failed to fetch detailed result:', error)
-            }
-
-            return {
-              id: event.int_event_id,
-              extId: event.ext_pal_id,
-              name: `Dog Race ${event.int_event_id}`,
-              startTime,
-              time: event.time,
-              discipline: Discipline.DOGS,
-              result: {
-                podium: (event.arrival || []).map(
-                  (dog: any, index: number) => ({
-                    name: dog.name,
-                    number: dog.number,
-                    position: index + 1,
-                  }),
-                ),
-                odds: (detailedResult as any)?.odds || {},
-              } as RaceResult,
-            } as EventResult
-          }),
-        )
-
-        setUpcomingEvents((prev) => [
-          ...prev.filter((e) => e.discipline !== Discipline.DOGS),
-          ...upcomingDogEvents,
-        ])
-        setEventResults((prev) => [
-          ...prev.filter((e) => e.discipline !== Discipline.DOGS),
-          ...dogEventResults,
-        ])
-
-        saveToCache(CACHE_KEYS.DOGS_EVENTS, upcomingDogEvents)
-        saveToCache(CACHE_KEYS.DOGS_RESULTS, dogEventResults)
-        localStorage.setItem(
-          CACHE_KEYS.LAST_DOGS_FETCH_TIME,
-          Date.now().toString(),
-        )
-      } catch (error) {
-        console.error('Dog events fetch error:', error)
-      }
-    }
-
-    // Carica cache first, poi fetch
     const cachedSoccer = loadFromCache(CACHE_KEYS.SOCCER_EVENTS)
     if (cachedSoccer) setUpcomingRounds(cachedSoccer)
 
@@ -461,36 +476,69 @@ export default function EventsContextProvider(props: {
     setIsLoadingEvents(false)
     moduleHasLoadedOnce = true
 
-    fetchUpcomingRounds()
-    fetchUpcomingHorseEvents()
-    fetchUpcomingDogEvents()
+    fetchAllEvents()
+  }, [initCode, isLoadingCashier, fetchAllEvents])
 
-    // Refresh automatico ogni 3 minuti
-    const refreshInterval = setInterval(
-      () => {
-        fetchUpcomingRounds()
-        fetchUpcomingHorseEvents()
-        fetchUpcomingDogEvents()
-      },
-      3 * 60 * 1000,
-    )
-
-    return () => clearInterval(refreshInterval)
-  }, [initCode, isLoadingCashier, apiRequest])
-
-  // Cleanup eventi scaduti ogni 30 secondi
+  // Cleanup + urgent check ogni 5s (usa ref per evitare reset del cooldown)
   useEffect(() => {
-    const cleanupExpiredEvents = () => {
+    if (!initCode || isLoadingCashier) return
+
+    const MIN_EVENTS_THRESHOLD = 10
+    const TICK_INTERVAL = 5 * 1000
+    const FORCE_COOLDOWN = 5 * 1000 // min 5s tra force-fetch
+
+    const tick = () => {
       const now = new Date()
-      setUpcomingEvents((prev) =>
-        prev.filter((event) => new Date(event.time) > now),
-      )
+
+      // 1. Cleanup: rimuovi eventi scaduti
+      setUpcomingEvents((prev) => {
+        const filtered = prev.filter((event) => {
+          const eventTime =
+            event.time instanceof Date ? event.time : new Date(event.time)
+          return eventTime > now
+        })
+        return filtered.length === prev.length ? prev : filtered
+      })
+
+      // 2. Conta eventi futuri (dal ref, sempre aggiornato)
+      const currentEvents = upcomingEventsRef.current
+      const futureEvents = currentEvents.filter((event) => {
+        const eventTime =
+          event.time instanceof Date ? event.time : new Date(event.time)
+        return eventTime > now
+      })
+
+      const futureDogs = futureEvents.filter(
+        (e) => e.discipline === Discipline.DOGS,
+      ).length
+      const futureHorses = futureEvents.filter(
+        (e) => e.discipline === Discipline.HORSES,
+      ).length
+
+      // 3. Se sotto soglia → force-fetch (con cooldown 5s)
+      if (
+        (futureDogs < MIN_EVENTS_THRESHOLD ||
+          futureHorses < MIN_EVENTS_THRESHOLD) &&
+        Date.now() - lastForceFetchRef.current > FORCE_COOLDOWN
+      ) {
+        lastForceFetchRef.current = Date.now()
+        localStorage.removeItem(CACHE_KEYS.LAST_DOGS_FETCH_TIME)
+        localStorage.removeItem(CACHE_KEYS.LAST_HORSES_FETCH_TIME)
+        fetchAllEvents(true)
+      }
     }
 
-    cleanupExpiredEvents()
-    const cleanupInterval = setInterval(cleanupExpiredEvents, 30000)
-    return () => clearInterval(cleanupInterval)
-  }, [])
+    tick() // esegui subito
+    const tickId = setInterval(tick, TICK_INTERVAL)
+    return () => clearInterval(tickId)
+  }, [initCode, isLoadingCashier, fetchAllEvents])
+
+  // Polling regolare ogni 45s (background refresh)
+  useEffect(() => {
+    if (!initCode || isLoadingCashier) return
+    const id = setInterval(() => fetchAllEvents(), 45 * 1000)
+    return () => clearInterval(id)
+  }, [initCode, isLoadingCashier, fetchAllEvents])
 
   const contextValue: EventsContextType = {
     upcomingEvents: upcomingEvents.length > 0 ? upcomingEvents : undefined,
