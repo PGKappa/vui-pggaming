@@ -46,8 +46,14 @@ export default function BettingSlip() {
 
   const rootContext = useContext(RootContext)
 
-  // Ottieni simbolo valuta dal context
+  // Ottieni simbolo valuta e limiti dal context (come retail)
   const currencySymbol = rootContext?.getCurrencySymbol?.() || '€'
+  const stakeButtons = rootContext?.getStakeButtons?.() || [5, 10, 20, 50, 100] // eslint-disable-line @typescript-eslint/no-unused-vars
+  const minStake = Number(rootContext?.getMinStake?.()) || 0.5
+  const minBet = Number(rootContext?.getMinBet?.()) || 0
+  const maxWin = Number(rootContext?.getMaxWin?.()) || 10000
+  const minStakeIncrement = Number(rootContext?.getMinStakeIncrement?.()) || 0.5
+  const systemStakeIncrement = Number(rootContext?.getSystemStakeIncrement?.()) || 0.5
 
   const totalOdds = betEntries.reduce(
     (total, betEntry) => total * betEntry.bet.option.decPrice,
@@ -211,9 +217,38 @@ export default function BettingSlip() {
     return API_MARKET_NAMES[normalized] || normalized
   }
 
+  // Helper per controllare se un evento è scaduto
+  const getEventStatus = (event: any): 'active' | 'expired' => {
+    const raw = event.startingAt || event.time
+    if (!raw) return 'active'
+    const eventTime = raw instanceof Date ? raw : new Date(raw)
+    if (isNaN(eventTime.getTime())) return 'active'
+    return eventTime <= new Date() ? 'expired' : 'active'
+  }
+
   const handleSubmitTicket = async () => {
+    if (!rootContext.initCode) {
+      toast.error(t('login_required'))
+      return
+    }
+
     if (betEntries.length === 0) {
       toast.error(t('no_bet_selected'))
+      return
+    }
+
+    // Controlla eventi scaduti
+    const expiredEntries = betEntries.filter(
+      (entry) => getEventStatus(entry.bet.event) === 'expired',
+    )
+    if (expiredEntries.length > 0) {
+      if (betEntries.length === expiredEntries.length) {
+        toast.warning(t('event_started_single'))
+      } else {
+        toast.warning(
+          t('event_started_removed', { count: expiredEntries.length }),
+        )
+      }
       return
     }
 
@@ -222,13 +257,70 @@ export default function BettingSlip() {
       return
     }
 
+    // Validazione increment step (single/multiple)
+    if (effectiveMode !== 'SYSTEM' && minStakeIncrement > 0) {
+      const stakeSteps = Math.round(global / minStakeIncrement)
+      const reconstructed = stakeSteps * minStakeIncrement
+      if (Math.abs(global - reconstructed) > 0.0001) {
+        toast.error(t('stake_increment_error', { increment: minStakeIncrement }))
+        return
+      }
+    }
+
+    // Validazione min_stake (single/multiple)
+    if (effectiveMode !== 'SYSTEM' && Math.round(global * 100) < Math.round(minStake * 100)) {
+      toast.error(t('min_stake_error', { min: minStake }))
+      return
+    }
+
+    // Validazione min_bet (single/multiple)
+    if (effectiveMode !== 'SYSTEM' && minBet > 0 && global < minBet) {
+      toast.error(t('min_bet_error', { min: minBet }))
+      return
+    }
+
+    // Validazione max_win (single/multiple)
+    if (effectiveMode !== 'SYSTEM' && potentialWinning > maxWin) {
+      toast.error(t('max_win_error', { max: maxWin }))
+      return
+    }
+
     if (effectiveMode === 'SYSTEM') {
       const totalSystemStake = systemGroups.reduce(
-        (sum, group) => sum + group.stake,
+        (sum, group) => sum + group.stake * group.combinations.length,
         0,
       )
       if (totalSystemStake <= 0) {
         toast.error(t('enter_system_amount'))
+        return
+      }
+
+      // Validazione min_stake per ogni gruppo sistema
+      const invalidGroups = systemGroups.filter(
+        (group) => group.stake > 0 && group.stake < minStake,
+      )
+      if (invalidGroups.length > 0) {
+        toast.error(t('min_stake_error', { min: minStake }))
+        return
+      }
+
+      // Validazione system increment
+      if (systemStakeIncrement > 0) {
+        const invalidIncrementGroups = systemGroups.filter((group) => {
+          if (group.stake <= 0) return false
+          const stakeSteps = Math.round(group.stake / systemStakeIncrement)
+          const reconstructed = stakeSteps * systemStakeIncrement
+          return Math.abs(group.stake - reconstructed) > 0.0001
+        })
+        if (invalidIncrementGroups.length > 0) {
+          toast.error(t('stake_increment_error', { increment: systemStakeIncrement }))
+          return
+        }
+      }
+
+      // Validazione min_bet per il totale del ticket sistema
+      if (minBet > 0 && totalSystemStake < minBet) {
+        toast.error(t('min_bet_error', { min: minBet }))
         return
       }
     }
@@ -236,6 +328,15 @@ export default function BettingSlip() {
     setIsSubmitting(true)
 
     try {
+      // Verifica cashier inizializzato
+      const retCodeRaw = rootContext?.cashierData?.ret_code
+      const cashierReady = retCodeRaw === 1024 || retCodeRaw === '1024'
+      if (!rootContext?.cashierData || !cashierReady) {
+        toast.error(t('cashier_not_initialized'))
+        console.error('❌ Cashier not ready. ret_code:', retCodeRaw)
+        setIsSubmitting(false)
+        return
+      }
       // Usa direttamente betsByEvent che già raggruppa per DISCIPLINE_NUMBER
       const groupedByEvent = betsByEvent
 
@@ -324,20 +425,27 @@ export default function BettingSlip() {
                 ? 4
                 : 1
 
-          // Prendi palimpsestId dall'evento
+          // Prendi palimpsestId dall'evento (con fallback da upcomingEvents)
           const eventAny = firstEntry.bet.event as any
+          const eventNumber = parseInt(eventId, 10)
+          const matchingEvent = rootContext?.upcomingEvents?.find(
+            (e) => e.id === eventNumber,
+          )
           const palimpsestId =
             eventAny.palimpsestId ||
             eventAny.extId ||
+            matchingEvent?.extId ||
             (firstEntry.bet.discipline === Discipline.HORSES
               ? '1000003504'
               : '1000003502')
+
+          console.log('🎯 palimpsestId resolved:', palimpsestId, '| extId:', eventAny.extId, '| fallback:', matchingEvent?.extId, '| eventNumber:', eventNumber)
 
           return {
             gameId: gameId,
             channelId: channelId,
             palimpsestId: palimpsestId,
-            eventId: eventId,
+            eventId: parseInt(eventId, 10),
             isBanker: false,
             markets: markets,
           }
@@ -349,9 +457,11 @@ export default function BettingSlip() {
       const ticketMode = getTicketMode(effectiveMode, betEntries)
 
       // Prepara il payload nel formato esatto dell'API
+      const terminalId = rootContext?.cashierData?.configs?.terminals?.[0]
       const ticketData = {
+        ...(terminalId ? { terminal_id: terminalId } : {}),
         placeBet: {
-          currency: rootContext?.getCurrencyCode?.() || 'USD',
+          currency: rootContext?.getCurrencyCode?.() || 'EUR',
           type: ticketType,
           mode: ticketMode,
           ...(effectiveMode === 'SYSTEM'
@@ -359,7 +469,10 @@ export default function BettingSlip() {
                 system: Object.fromEntries(
                   systemGroups
                     .filter((group) => group.stake > 0)
-                    .map((group) => [group.size.toString(), group.stake]),
+                    .map((group) => [
+                      group.size.toString(),
+                      Math.round(group.stake * group.combinations.length * 100) / 100,
+                    ]),
                 ),
               }
             : {
@@ -381,60 +494,127 @@ export default function BettingSlip() {
           },
           body: JSON.stringify(ticketData),
         },
+        rootContext.operator,
       )
 
       if (!response.ok) {
         const errorText = await response.text()
-        console.error('API Error:', response.status, errorText)
+        console.error('❌ API Error:', response.status, errorText)
+
+        try {
+          const errorJson = JSON.parse(errorText)
+          const errorMsg = (
+            errorJson.ret_msg || errorJson.message || errorJson.error || ''
+          ).toLowerCase()
+
+          if (
+            errorMsg.includes('event started') ||
+            errorMsg.includes('event_started') ||
+            errorMsg.includes('market closed') ||
+            errorMsg.includes('market_closed') ||
+            errorMsg.includes('not available') ||
+            errorMsg.includes('odds not found') ||
+            errorMsg.includes('event is closed') ||
+            errorMsg.includes('event closed')
+          ) {
+            toast.warning(t('backend_event_started'))
+          } else if (errorJson.ret_msg) {
+            toast.error(errorJson.ret_msg)
+          } else if (errorJson.message) {
+            toast.error(errorJson.message)
+          }
+        } catch {
+          const lowerError = errorText.toLowerCase()
+          if (
+            lowerError.includes('event started') ||
+            lowerError.includes('market closed') ||
+            lowerError.includes('odds not found') ||
+            lowerError.includes('event closed')
+          ) {
+            toast.warning(t('backend_event_started'))
+          } else {
+            toast.error(`${t('http_error')}: ${response.status}`)
+          }
+        }
+
         throw new Error(`HTTP error! status: ${response.status}`)
       }
 
       const result = await response.json()
-      console.log('Ticket submitted successfully:', result)
 
-      // Successo
-      toast.success(t('bet_submitted_successfully'))
+      // Check ret_code per successo (1024 = success)
+      const retCode = parseInt(result.ret_code) || 0
 
-      // Invia postMessage al parent con i dati del ticket
-      try {
-        const postMessageData = {
-          source: 'v-ui',
-          func: printFunctionName,
-          command: 'sell',
-          content: {
-            ticket: result.ticket || result.data?.ticket || {},
-            print: result.print || result.data?.print || '',
-          },
+      if (retCode === 1024) {
+        toast.success(t('bet_submitted_successfully'))
+
+        // Stampa / postMessage
+        if (result.print) {
+          try {
+            if (typeof window.Bubble === 'function') {
+              window.Bubble('sell', result.print)
+            }
+          } catch { /* silently fail */ }
         }
-        console.log('Sending postMessage:', postMessageData)
-        window.parent.postMessage(postMessageData, '*')
-      } catch (err) {
-        console.error('PostMessage error:', err)
+
+        try {
+          const postMessageData = {
+            source: 'v-ui',
+            func: printFunctionName,
+            command: 'sell',
+            content: {
+              ticket: result.ticket || result.data?.ticket || {},
+              print: result.print || result.data?.print || '',
+            },
+          }
+          window.parent.postMessage(postMessageData, '*')
+        } catch (err) {
+          console.error('PostMessage error:', err)
+        }
+
+        // Salva per storico
+        const newTicket: SubmittedTicket = {
+          date: new Date(),
+          amount:
+            effectiveMode === 'SYSTEM'
+              ? systemGroups.reduce(
+                  (sum, group) => sum + group.stake * group.combinations.length,
+                  0,
+                )
+              : global,
+          winning:
+            effectiveMode === 'SYSTEM'
+              ? systemGroups.reduce(
+                  (sum, group) => sum + group.maxWin * group.stake,
+                  0,
+                )
+              : potentialWinning,
+          betEntries: betEntries,
+        }
+
+        localStorage.setItem('lastSubmittedTicket', JSON.stringify(newTicket))
+
+        removeAllBets()
+        setGlobal(0)
+        setSystemGroupStakes({})
+      } else {
+        // ret_code diverso da 1024
+        const errMsg =
+          result.ret_msg ||
+          result.description ||
+          result.message ||
+          t('bet_submission_error')
+        const lowerErr = errMsg.toLowerCase()
+        if (
+          lowerErr.includes('event already started') ||
+          lowerErr.includes('event started') ||
+          lowerErr.includes('market closed')
+        ) {
+          toast.warning(t('backend_event_started'))
+        } else {
+          toast.error(errMsg)
+        }
       }
-
-      // Salva per storico
-      const newTicket: SubmittedTicket = {
-        date: new Date(),
-        amount:
-          effectiveMode === 'SYSTEM'
-            ? systemGroups.reduce((sum, group) => sum + group.stake, 0)
-            : global,
-        winning:
-          effectiveMode === 'SYSTEM'
-            ? systemGroups.reduce(
-                (sum, group) => sum + group.maxWin * group.stake,
-                0,
-              )
-            : potentialWinning,
-        betEntries: betEntries,
-      }
-
-      localStorage.setItem('lastSubmittedTicket', JSON.stringify(newTicket))
-
-      // Svuota la betting slip
-      removeAllBets()
-      setGlobal(0)
-      setSystemGroupStakes({})
     } catch (error) {
       console.error('Error submitting ticket:', error)
       toast.error(t('bet_submission_error'))
@@ -653,7 +833,7 @@ export default function BettingSlip() {
                   variant="ghost"
                   size="sm"
                   className="h-5 w-5 rounded-none bg-betSlip p-3"
-                  onClick={() => setGlobal((prev) => Math.max(prev - 1, 1))}
+                  onClick={() => setGlobal((prev) => Math.max(prev - minStakeIncrement, 0))}
                 >
                   -
                 </Button>
@@ -667,7 +847,7 @@ export default function BettingSlip() {
                   variant="ghost"
                   size="sm"
                   className="h-5 w-4 rounded-none bg-betSlip p-3"
-                  onClick={() => setGlobal((prev) => prev + 1)}
+                  onClick={() => setGlobal((prev) => prev + minStakeIncrement)}
                 >
                   +
                 </Button>
@@ -796,7 +976,7 @@ export default function BettingSlip() {
                                   onClick={() =>
                                     updateSystemGroupStake(
                                       group.name,
-                                      Math.max(group.stake - 0.05, 0),
+                                      Math.max(group.stake - systemStakeIncrement, 0),
                                     )
                                   }
                                 >
@@ -822,7 +1002,7 @@ export default function BettingSlip() {
                                   onClick={() =>
                                     updateSystemGroupStake(
                                       group.name,
-                                      group.stake + 0.05,
+                                      group.stake + systemStakeIncrement,
                                     )
                                   }
                                 >

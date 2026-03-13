@@ -8,6 +8,7 @@ import { toast } from 'sonner'
 
 export type CashierContextType = {
   initCode?: string
+  operator?: string
   userData?: User
   cashierData?: any
   hasCashierError?: boolean
@@ -20,20 +21,36 @@ export type CashierContextType = {
   getCurrencySymbol?: () => string
   getCurrencyCode?: () => string
   getMinStakeIncrement?: () => number
+  getSystemStakeIncrement?: () => number
+  getStakeButtons?: () => number[]
+  getMinStake?: () => number
+  getMinBet?: () => number
+  getMaxWin?: () => number
+  getTimezone?: () => string
   getChannels?: (type?: 'calcio' | 'dogs' | 'horses') => any[]
   getTrackName?: (channel?: number) => string
   getTranslation?: (key: string, fallback?: string) => string
+  getVersion?: () => string
+  getSplashscreen?: () => string
 }
 
 const defaultCashierContext: CashierContextType = {
   hasCashierError: false,
   isLoadingCashier: true,
-  getCurrencySymbol: () => '$',
-  getCurrencyCode: () => 'USD',
-  getMinStakeIncrement: () => 0.05,
+  getCurrencySymbol: () => '€',
+  getCurrencyCode: () => 'EUR',
+  getMinStakeIncrement: () => 0.5,
+  getSystemStakeIncrement: () => 0.1,
+  getStakeButtons: () => [5, 10, 20, 50, 100],
+  getMinStake: () => 0.5,
+  getMinBet: () => 0,
+  getMaxWin: () => 10000,
+  getTimezone: () => 'Europe/Rome',
   getChannels: () => [],
   getTrackName: () => '',
   getTranslation: (key: string, fallback?: string) => fallback || key,
+  getVersion: () => 'v1.0',
+  getSplashscreen: () => 'splashscreen.png',
 }
 
 export const CashierContext = createContext<CashierContextType>(
@@ -106,20 +123,74 @@ function createContextDataFromCashierData(
   }
 
   const getMinStakeIncrement = () => {
-    const increment = cashierData.configs?.min_stake_increment
-    return increment !== undefined ? increment : 0.05
+    const step = cashierData.intl?.min_stake_increment_step
+    if (step) {
+      const parsed = typeof step === 'string' ? parseFloat(step) : step
+      if (!isNaN(parsed) && parsed > 0) return parsed
+    }
+    return 0.5
   }
+  const getSystemStakeIncrement = () => {
+    const step = cashierData.intl?.min_stake_increment_step_sys
+    if (step) {
+      const parsed = typeof step === 'string' ? parseFloat(step) : step
+      if (!isNaN(parsed) && parsed > 0) return parsed
+    }
+    return 0.5
+  }
+  const getTimezone = () => cashierData.intl?.timezone || 'Europe/Rome'
+  const getStakeButtons = () => {
+    const buttons = cashierData.intl?.stake_buttons
+    return Array.isArray(buttons) ? buttons : [5, 10, 20, 50, 100]
+  }
+  const getMinStake = () => {
+    const minStake = cashierData.intl?.min_stake
+    if (minStake) {
+      const parsed =
+        typeof minStake === 'string' ? parseFloat(minStake) : minStake
+      if (!isNaN(parsed) && parsed >= 0) return parsed
+    }
+    return 0.5
+  }
+  const getMinBet = () => {
+    const minBet = cashierData.intl?.min_bet
+    if (minBet !== undefined) {
+      const parsed = typeof minBet === 'string' ? parseFloat(minBet) : minBet
+      if (!isNaN(parsed) && parsed >= 0) return parsed
+    }
+    return 0
+  }
+  const getMaxWin = () => {
+    const maxWin = cashierData.intl?.max_win
+    if (maxWin) {
+      const parsed = typeof maxWin === 'string' ? parseFloat(maxWin) : maxWin
+      if (!isNaN(parsed) && parsed > 0) return parsed
+    }
+    return 10000
+  }
+  const getVersion = () => cashierData.intl?.version || 'v1.0'
+  const getSplashscreen = () =>
+    cashierData.intl?.splashscreen || 'splashscreen.png'
 
   return {
     initCode,
+    operator: cashierData.configs?.operator_name,
     userData,
     cashierData,
     getCurrencySymbol,
     getCurrencyCode,
     getMinStakeIncrement,
+    getSystemStakeIncrement,
+    getStakeButtons,
+    getMinStake,
+    getMinBet,
+    getMaxWin,
+    getTimezone,
     getChannels,
     getTrackName,
     getTranslation,
+    getVersion,
+    getSplashscreen,
   }
 }
 

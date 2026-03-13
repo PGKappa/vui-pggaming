@@ -18,6 +18,7 @@ import { EventsContext } from './events-context'
 
 export type RootContextType = {
   initCode?: string
+  operator?: string
   userData?: User
   cashierData?: any
   apiRequest?: <T>(
@@ -36,9 +37,17 @@ export type RootContextType = {
   getCurrencySymbol?: () => string
   getCurrencyCode?: () => string
   getMinStakeIncrement?: () => number
+  getSystemStakeIncrement?: () => number
+  getStakeButtons?: () => number[]
+  getMinStake?: () => number
+  getMinBet?: () => number
+  getMaxWin?: () => number
+  getTimezone?: () => string
   getChannels?: (type?: 'calcio' | 'dogs' | 'horses') => any[]
   getTrackName?: (channel?: number) => string
   getTranslation?: (key: string, fallback?: string) => string
+  getVersion?: () => string
+  getSplashscreen?: () => string
 }
 
 const defaultRootContext: RootContextType = {
@@ -57,15 +66,24 @@ export default function RootContextProvider(props: {
     () => ({
       // Cashier data
       initCode: cashier.initCode,
+      operator: cashier.operator,
       userData: cashier.userData,
       cashierData: cashier.cashierData,
       apiRequest: cashier.apiRequest,
       getCurrencySymbol: cashier.getCurrencySymbol,
       getCurrencyCode: cashier.getCurrencyCode,
       getMinStakeIncrement: cashier.getMinStakeIncrement,
+      getSystemStakeIncrement: cashier.getSystemStakeIncrement,
+      getStakeButtons: cashier.getStakeButtons,
+      getMinStake: cashier.getMinStake,
+      getMinBet: cashier.getMinBet,
+      getMaxWin: cashier.getMaxWin,
+      getTimezone: cashier.getTimezone,
       getChannels: cashier.getChannels,
       getTrackName: cashier.getTrackName,
       getTranslation: cashier.getTranslation,
+      getVersion: cashier.getVersion,
+      getSplashscreen: cashier.getSplashscreen,
 
       // Events data
       upcomingEvents: events.upcomingEvents,
@@ -81,15 +99,24 @@ export default function RootContextProvider(props: {
     }),
     [
       cashier.initCode,
+      cashier.operator,
       cashier.userData,
       cashier.cashierData,
       cashier.apiRequest,
       cashier.getCurrencySymbol,
       cashier.getCurrencyCode,
       cashier.getMinStakeIncrement,
+      cashier.getSystemStakeIncrement,
+      cashier.getStakeButtons,
+      cashier.getMinStake,
+      cashier.getMinBet,
+      cashier.getMaxWin,
+      cashier.getTimezone,
       cashier.getChannels,
       cashier.getTrackName,
       cashier.getTranslation,
+      cashier.getVersion,
+      cashier.getSplashscreen,
       events.upcomingEvents,
       events.eventResults,
       events.upcomingRounds,

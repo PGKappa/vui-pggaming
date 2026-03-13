@@ -22,6 +22,7 @@ export function createPGVirtualAPICall(
   endpoint: string,
   initCode: string,
   options?: RequestInit,
+  operator?: string,
 ) {
   return fetch(`${PGVIRTUAL_API_URL}${endpoint}`, {
     ...options,
@@ -29,7 +30,7 @@ export function createPGVirtualAPICall(
       accept: 'application/json',
       'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
       authorization: `Bearer ${initCode}`,
-      operator: 'bingoal',
+      operator: operator || 'bingoal',
       ...options?.headers,
     },
     mode: 'cors',
@@ -38,13 +39,13 @@ export function createPGVirtualAPICall(
 }
 
 // Helper per l'inizializzazione cashier 
-export async function fetchCashierInit(initCode: string): Promise<any> {
+export async function fetchCashierInit(initCode: string, operator?: string): Promise<any> {
   const response = await fetch(API_URLS.CASHIER_INIT, {
     method: 'POST',
     headers: {
       accept: 'application/json',
       authorization: `Bearer ${initCode}`,
-      operator: 'bingoal',
+      operator: operator || 'bingoal',
     },
     mode: 'cors',
     credentials: 'include',
