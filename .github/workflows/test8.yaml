@@ -3,7 +3,7 @@ name: Deploy to S3 + CloudFront
 on:
   push:
     branches:
-      - test
+      - test8
 
 jobs:
   deploy:
@@ -39,10 +39,10 @@ jobs:
 
       - name: Sync dist to S3
         run: |
-          aws s3 sync out s3://supremagaming/startego/out --delete
+          aws s3 sync out s3://test8/startego/out --delete
 
       - name: Create CloudFront Invalidation
         run: |
           aws cloudfront create-invalidation \
-            --distribution-id EBVUJMJSYTHZM \
+            --distribution-id EXUVC400FY4N8 \
             --paths "/*"
