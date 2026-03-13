@@ -206,6 +206,7 @@ export type Bet = {
     name: string
     number: number
     startingAt: Date
+    extId?: string
   }
   discipline: Discipline
   competitors: string

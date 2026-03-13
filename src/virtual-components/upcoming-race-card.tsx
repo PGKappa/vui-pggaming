@@ -416,6 +416,7 @@ export default function UpcomingRaceCard({
                   name: race.name,
                   number: race.id,
                   startingAt: race.time,
+                  extId: race.extId,
                 },
                 competitors: racer.number.toString(),
                 option: {
@@ -441,6 +442,7 @@ export default function UpcomingRaceCard({
                   name: race.name,
                   number: race.id,
                   startingAt: race.time,
+                  extId: race.extId,
                 },
                 competitors: racer.number.toString(),
                 option: {
@@ -467,6 +469,7 @@ export default function UpcomingRaceCard({
                   name: race.name,
                   number: race.id,
                   startingAt: race.time,
+                  extId: race.extId,
                 },
                 competitors: racer.number.toString(),
                 option: {
@@ -669,6 +672,7 @@ export default function UpcomingRaceCard({
                       name: race.name,
                       number: race.id,
                       startingAt: race.time,
+                      extId: race.extId,
                     },
                     competitors: 'Even',
                     option: {
@@ -691,6 +695,7 @@ export default function UpcomingRaceCard({
                       name: race.name,
                       number: race.id,
                       startingAt: race.time,
+                      extId: race.extId,
                     },
                     competitors: 'Odd',
                     option: {
@@ -724,6 +729,7 @@ export default function UpcomingRaceCard({
                       name: race.name,
                       number: race.id,
                       startingAt: race.time,
+                      extId: race.extId,
                     },
                     competitors: 'Under',
                     option: {
@@ -748,6 +754,7 @@ export default function UpcomingRaceCard({
                       name: race.name,
                       number: race.id,
                       startingAt: race.time,
+                      extId: race.extId,
                     },
                     competitors: 'Over',
                     option: {
