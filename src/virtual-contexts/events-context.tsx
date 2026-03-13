@@ -102,7 +102,8 @@ let moduleHasLoadedOnce = false
 export default function EventsContextProvider(props: {
   children: React.ReactNode
 }) {
-  const { initCode, apiRequest, isLoadingCashier } = useContext(CashierContext)
+  const { initCode, operator, apiRequest, isLoadingCashier } =
+    useContext(CashierContext)
 
   const [upcomingEvents, setUpcomingEvents] =
     useState<UpcomingEvent[]>(moduleEventsCache)
@@ -252,6 +253,8 @@ export default function EventsContextProvider(props: {
             const response = await createPGVirtualAPICall(
               '/api/event/list',
               initCode,
+              undefined,
+              operator,
             )
 
             if (!response.ok) {
@@ -303,6 +306,8 @@ export default function EventsContextProvider(props: {
                       const res = await createPGVirtualAPICall(
                         `/api/event/results/${event.ext_pal_id}/${event.int_event_id}`,
                         initCode,
+                        undefined,
+                        operator,
                       )
                       if (res.ok) detailedResult = await res.json()
                     } catch (error) {
@@ -389,6 +394,8 @@ export default function EventsContextProvider(props: {
                       const res = await createPGVirtualAPICall(
                         `/api/event/results/${event.ext_pal_id}/${event.int_event_id}`,
                         initCode,
+                        undefined,
+                        operator,
                       )
                       if (res.ok) detailedResult = await res.json()
                     } catch (error) {
@@ -439,7 +446,7 @@ export default function EventsContextProvider(props: {
         isFetchingRef.current = false
       }
     },
-    [initCode, isLoadingCashier, apiRequest],
+    [initCode, operator, isLoadingCashier, apiRequest],
   )
 
   // Initial load: carica da cache, poi fetch

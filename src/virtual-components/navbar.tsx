@@ -8,13 +8,13 @@ import { Suspense } from 'react'
 function NavbarContent() {
   const searchParams = useSearchParams()
   const pathname = usePathname()
-  const initCode = searchParams.get('init_code')
-  const skin = searchParams.get('skin') || 'default'
 
-  const queryParams = new URLSearchParams()
-  if (initCode) queryParams.set('init_code', initCode)
-  if (skin) queryParams.set('skin', skin)
-  const queryString = queryParams.toString() ? `?${queryParams.toString()}` : ''
+  // Helper per creare link preservando TUTTI i parametri URL (init_code, operator, partner, skin, ecc.)
+  const buildHref = (path: string) => {
+    const params = new URLSearchParams(searchParams.toString())
+    const queryString = params.toString()
+    return `${path}${queryString ? `?${queryString}` : ''}`
+  }
 
   const isActive = (path: string) => {
     return pathname.includes(path)
@@ -23,7 +23,7 @@ function NavbarContent() {
   return (
     <nav className="flex w-full flex-row bg-primary-foreground p-0.5 text-black">
       <Link
-        href={`/virtual/dogs${queryString}`}
+        href={buildHref('/virtual/dogs')}
         className={cn(
           'flex w-full flex-row items-center justify-center gap-2 px-2 py-2',
           isActive('/virtual/dogs')
@@ -43,7 +43,7 @@ function NavbarContent() {
       </Link>
 
       <Link
-        href={`/virtual/horses${queryString}`}
+        href={buildHref('/virtual/horses')}
         className={cn(
           'flex w-full flex-row items-center justify-center gap-2 px-2 py-2',
           isActive('/virtual/horses')
@@ -63,7 +63,7 @@ function NavbarContent() {
       </Link>
 
       {/**   <Link
-        href={`/virtual/calcio${queryString}`}
+        href={buildHref('/virtual/calcio')}
         className={cn(
           'flex w-full flex-row items-center justify-center px-2 py-2',
           isActive('/virtual/calcio')

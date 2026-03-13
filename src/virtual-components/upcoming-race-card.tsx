@@ -46,7 +46,7 @@ export default function UpcomingRaceCard({
   const [isLoading, setIsLoading] = useState(true)
 
   const { betEntries } = useContext(BetsContext)
-  const { initCode } = useContext(CashierContext)
+  const { initCode, operator } = useContext(CashierContext)
 
   // Inizializzazione corretta del marketType basata su activeTab
   const [marketType, setMarketType] = useState<
@@ -167,6 +167,8 @@ export default function UpcomingRaceCard({
         const response = await createPGVirtualAPICall(
           `/api/event/info/${race.extId}/${race.id}`,
           initCode,
+          undefined,
+          operator,
         )
 
         if (!response.ok) {
@@ -188,7 +190,7 @@ export default function UpcomingRaceCard({
     }
 
     fetchEventInfo()
-  }, [race.id, race.extId, initCode])
+  }, [race.id, race.extId, initCode, operator])
 
   useEffect(() => {
     if (onSelectionChange) {

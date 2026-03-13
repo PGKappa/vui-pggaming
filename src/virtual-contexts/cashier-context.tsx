@@ -194,18 +194,27 @@ function createContextDataFromCashierData(
   }
 }
 
-function saveCashierToCache(initCode: string, cashierData: any) {
+function saveCashierToCache(
+  initCode: string,
+  operator: string,
+  cashierData: any,
+) {
   try {
+    const cacheKey = `virtual_cashier_cache_${initCode}_${operator}`
     localStorage.setItem(
-      `virtual_cashier_cache_${initCode}`,
+      cacheKey,
       JSON.stringify({ cashierData, timestamp: Date.now() }),
     )
   } catch {}
 }
 
-function loadCashierFromCache(initCode: string): CashierContextType | null {
+function loadCashierFromCache(
+  initCode: string,
+  operator: string,
+): CashierContextType | null {
   try {
-    const cached = localStorage.getItem(`virtual_cashier_cache_${initCode}`)
+    const cacheKey = `virtual_cashier_cache_${initCode}_${operator}`
+    const cached = localStorage.getItem(cacheKey)
     if (!cached) return null
 
     const { cashierData, timestamp } = JSON.parse(cached)
@@ -231,38 +240,57 @@ export default function CashierContextProvider(props: {
   children: React.ReactNode
 }) {
   const [initCode, setInitCode] = useState<string | undefined>(undefined)
+  const [operator, setOperator] = useState<string | undefined>(undefined)
   const [cashierContext, setCashierContext] = useState<CashierContextType>(
     defaultCashierContext,
   )
-  const { i18n } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [isLoading, setIsLoading] = useState(true)
   const [hasCashierError, setHasCashierError] = useState(false)
 
-  // Leggi initCode da URL o localStorage
+  // Leggi initCode e operator/partner da URL o localStorage
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const urlInitCode = params.get('init_code') || undefined
+    // Accetta sia 'operator' che 'partner' come parametro URL (operator ha precedenza)
+    const urlOperator = params.get('operator') || params.get('partner')
 
     if (urlInitCode) {
       clearSessionStorageForNewInitCode(urlInitCode)
       setInitCode(urlInitCode)
+      if (urlOperator) {
+        setOperator(urlOperator)
+        localStorage.setItem('operator', urlOperator)
+      } else {
+        console.error('Operator/Partner is required in URL params')
+        toast.error(t('operator_missing'))
+        setHasCashierError(true)
+        setIsLoading(false)
+        return
+      }
       localStorage.setItem('initCode', urlInitCode)
     } else {
       const storedInitCode = localStorage.getItem('initCode')
-      if (storedInitCode) {
+      const storedOperator = localStorage.getItem('operator')
+      if (storedInitCode && storedOperator) {
         setInitCode(storedInitCode)
+        setOperator(storedOperator)
       } else {
+        if (storedInitCode && !storedOperator) {
+          console.error('Operator is missing from localStorage')
+          setHasCashierError(true)
+        }
         setIsLoading(false)
       }
     }
-  }, [])
+  }, [t])
 
   // Fetch cashier data
   useEffect(() => {
-    if (!initCode) return
+    if (!initCode || !operator) return
 
     // Controlla cache prima
-    const cachedData = loadCashierFromCache(initCode)
+    const cachedData = loadCashierFromCache(initCode, operator)
     if (cachedData) {
       setCashierContext(cachedData)
       if (cachedData.userData?.lang) {
@@ -274,7 +302,7 @@ export default function CashierContextProvider(props: {
 
     const fetchUserData = async (retryCount = 0, maxRetries = 3) => {
       try {
-        const cashierData = await fetchCashierInit(initCode)
+        const cashierData = await fetchCashierInit(initCode, operator)
 
         if (cashierData?.ret_code === 1024) {
           const contextData = createContextDataFromCashierData(
@@ -283,7 +311,7 @@ export default function CashierContextProvider(props: {
           )
 
           setCashierContext(contextData)
-          saveCashierToCache(initCode, cashierData)
+          saveCashierToCache(initCode, operator, cashierData)
 
           const lang =
             cashierData.dictInfo?.lang || cashierData.intl?.lang || 'en-US'
@@ -311,7 +339,7 @@ export default function CashierContextProvider(props: {
     }
 
     fetchUserData()
-  }, [initCode, i18n])
+  }, [initCode, operator, i18n])
 
   const apiRequest = useCallback(
     async <T,>(
@@ -339,11 +367,19 @@ export default function CashierContextProvider(props: {
     () => ({
       ...cashierContext,
       initCode,
+      operator,
       apiRequest,
       hasCashierError,
       isLoadingCashier: isLoading,
     }),
-    [cashierContext, apiRequest, initCode, hasCashierError, isLoading],
+    [
+      cashierContext,
+      apiRequest,
+      initCode,
+      operator,
+      hasCashierError,
+      isLoading,
+    ],
   )
 
   return (
