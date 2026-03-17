@@ -77,9 +77,9 @@ export function UpcomingEventsCarousel(props: {
 
   return (
     <Carousel
-      className="w-full px-9 3xl:w-[1430px] 3xl:px-0"
-      opts={{ align: 'start', skipSnaps: false }}
-    >
+  className="w-full px-9"
+  opts={{ align: 'start', skipSnaps: false }}
+>
       <CarouselContent className="bg-white">
         {isLoadingEvents ? (
           Array.from({ length: 6 }).map((_, index) => (
