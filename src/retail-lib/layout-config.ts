@@ -16,6 +16,7 @@ type BettingSlipLayoutConfig = {
 type SearchEventResultsLayoutConfig = {
   disciplineSelectLeft: string
   disciplineSelectMinWidth: string
+  searchBarPaddingRight: string
 }
 export type LayoutConfig = {
   carousel: CarouselLayoutConfig
@@ -26,7 +27,7 @@ export type LayoutConfig = {
 const layoutByLanguage: Record<string, LayoutConfig> = {
   en: {
     carousel: {
-      itemBasis: 'basis-1/6',
+      itemBasis: 'basis-1/5 min-[1500px]:basis-1/6',
       imageOffset: {
         SOCCER: 'bottom-[4px] right-[10px]',
         HORSES: 'bottom-[4px] right-[9px]',
@@ -53,6 +54,7 @@ const layoutByLanguage: Record<string, LayoutConfig> = {
     searchEventResults: {
       disciplineSelectLeft: 'left-5',
       disciplineSelectMinWidth: 'min-w-[186px]',
+      searchBarPaddingRight: '161px',
     },
   },
   es: {
@@ -82,13 +84,14 @@ const layoutByLanguage: Record<string, LayoutConfig> = {
       combinationsButtonLeft: 'left-[238px]',
     },
     searchEventResults: {
-      disciplineSelectLeft: 'right-12',
+      disciplineSelectLeft: 'right-11',
       disciplineSelectMinWidth: 'min-w-[250px]',
+      searchBarPaddingRight: '95px',
     },
   },
   it: {
     carousel: {
-      itemBasis: 'basis-1/6',
+      itemBasis: 'basis-1/5 min-[1500px]:basis-1/6',
       imageOffset: {
         SOCCER: 'bottom-[4px] right-[10px]',
         HORSES: 'bottom-[4px] right-[9px]',
@@ -115,6 +118,7 @@ const layoutByLanguage: Record<string, LayoutConfig> = {
     searchEventResults: {
       disciplineSelectLeft: 'left-5',
       disciplineSelectMinWidth: 'min-w-[186px]',
+      searchBarPaddingRight: '161px',
     },
   },
 }

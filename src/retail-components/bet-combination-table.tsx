@@ -4,7 +4,6 @@ import BetEntryToggle from './bet-entry-toggle'
 import { Button } from './ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { BetsContext } from '@/retail-contexts/bets-context'
-import { RootContext } from '@/retail-contexts/root-context'
 import { useTranslation } from 'react-i18next'
 
 type BetCombinationsTableProps = {
@@ -29,13 +28,6 @@ export default function BetCombinationsTable({
   onBeforeToggle,
 }: BetCombinationsTableProps) {
   const { t } = useTranslation()
-  const rootContext = useContext(RootContext)
-  const getTrackName = useMemo(
-    () =>
-      rootContext?.getTrackName ||
-      ((channel?: number) => `Track ${channel || 6}`),
-    [rootContext?.getTrackName],
-  )
 
   const [sortMode, setSortMode] = useState<'default' | 'asc' | 'desc'>(
     'default',
@@ -101,7 +93,7 @@ export default function BetCombinationsTable({
                 outcome: `${racer1}-${racer2}`,
                 decPrice: parseFloat(odds),
               },
-              track: getTrackName(6),
+              track: race.trackName || 'Track 6',
             })
           }
         })
@@ -142,7 +134,7 @@ export default function BetCombinationsTable({
                           outcome: `${racer1}-${racer2}`,
                           decPrice: parseFloat(odds),
                         },
-                        track: getTrackName(6),
+                        track: race.trackName || 'Track 6',
                       })
                     }
                   }
@@ -181,7 +173,7 @@ export default function BetCombinationsTable({
                       outcome: `${racer1}-${racer2}`,
                       decPrice: parseFloat(odds),
                     },
-                    track: getTrackName(6),
+                    track: race.trackName || 'Track 6',
                   })
                 }
               }
@@ -216,7 +208,7 @@ export default function BetCombinationsTable({
                         outcome: `${racer1}-${racer2}`,
                         decPrice: parseFloat(odds),
                       },
-                      track: getTrackName(6),
+                      track: race.trackName || 'Track 6',
                     })
                   }
                 }
@@ -270,7 +262,7 @@ export default function BetCombinationsTable({
                   outcome: `${racer1}-${racer2}-${racer3}`,
                   decPrice: parseFloat(odds),
                 },
-                track: getTrackName(6),
+                track: race.trackName || 'Track 6',
               })
             }
           })
@@ -329,7 +321,7 @@ export default function BetCombinationsTable({
                               outcome: `${combinationKey}`,
                               decPrice: parseFloat(odds),
                             },
-                            track: getTrackName(6),
+                            track: race.trackName || 'Track 6',
                           })
                         }
                       }
@@ -389,7 +381,7 @@ export default function BetCombinationsTable({
                               outcome: `${combinationKey}`,
                               decPrice: parseFloat(odds),
                             },
-                            track: getTrackName(6),
+                            track: race.trackName || 'Track 6',
                           })
                         }
                       }
@@ -428,7 +420,7 @@ export default function BetCombinationsTable({
                         outcome: `${combinationKey}`,
                         decPrice: parseFloat(odds),
                       },
-                      track: getTrackName(6),
+                      track: race.trackName || 'Track 6',
                     })
                   }
                 }
@@ -478,7 +470,7 @@ export default function BetCombinationsTable({
                             outcome: `${combinationKey}`,
                             decPrice: parseFloat(odds),
                           },
-                          track: getTrackName(6),
+                          track: race.trackName || 'Track 6',
                         })
                       }
                     }
@@ -513,9 +505,9 @@ export default function BetCombinationsTable({
     race.id,
     race.name,
     race.time,
+    race.trackName,
     sortMode,
     marketType,
-    getTrackName,
   ])
 
   const getTitle = () => {
@@ -617,11 +609,12 @@ export default function BetCombinationsTable({
 
   return (
     <Card className="mt-2">
-      <CardHeader className="flex h-14 items-center justify-center bg-accent px-3 text-accent-foreground">
-        <CardTitle className="ml-[476px] items-center text-[16px] text-white">
+      <CardHeader className="grid h-14 grid-cols-3 items-center bg-accent px-3 text-accent-foreground">
+        <div />
+        <CardTitle className="mr-[1px] flex items-center justify-center text-[16px] text-white">
           {getTitle()}
         </CardTitle>
-        <div className="relative flex gap-2">
+        <div className="flex justify-end gap-2">
           <Button
             variant="navbar"
             className="h-10 w-fit rounded-[1px] px-[18px] pt-[1px] text-[15px] font-semibold text-white"

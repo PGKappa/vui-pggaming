@@ -254,8 +254,45 @@ export default function BettingSlip() {
               if (!acc[apiMarketName]) {
                 acc[apiMarketName] = []
               }
+
+              let cleanOutcome = entry.bet.option.outcome
+
+              // Normalizza outcome per Even/Odd e Under/Over in inglese lowercase
+              if (
+                apiMarketName === 'evenodd' ||
+                apiMarketName === 'underover'
+              ) {
+                const lowerOutcome = cleanOutcome.toLowerCase()
+                if (
+                  lowerOutcome === 'par' ||
+                  lowerOutcome === 'pari' ||
+                  lowerOutcome === 'even'
+                ) {
+                  cleanOutcome = 'even'
+                } else if (
+                  lowerOutcome === 'impar' ||
+                  lowerOutcome === 'dispari' ||
+                  lowerOutcome === 'odd'
+                ) {
+                  cleanOutcome = 'odd'
+                } else if (
+                  lowerOutcome === 'menos' ||
+                  lowerOutcome === 'under'
+                ) {
+                  cleanOutcome = 'under'
+                } else if (
+                  lowerOutcome === 'más' ||
+                  lowerOutcome === 'mas' ||
+                  lowerOutcome === 'over'
+                ) {
+                  cleanOutcome = 'over'
+                } else {
+                  cleanOutcome = lowerOutcome
+                }
+              }
+
               acc[apiMarketName].push({
-                description: entry.bet.option.outcome,
+                description: cleanOutcome,
                 odds: entry.bet.option.decPrice.toString(),
                 status: 1,
               })

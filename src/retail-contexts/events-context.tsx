@@ -272,15 +272,15 @@ export default function EventsContextProvider(props: {
               const dogEvents = dogChannel.next_events.map(
                 (event: any, idx: number): UpcomingEvent => {
                   let startTime: Date
-                  if (event.since && typeof event.since === 'number') {
-                    startTime = new Date(Date.now() + event.since * 1000)
-                  } else if (
+                  if (
                     event.start_time &&
                     typeof event.start_time === 'string'
                   ) {
                     const [hours, minutes] = event.start_time.split(':')
                     startTime = new Date()
                     startTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
+                  } else if (event.since && typeof event.since === 'number') {
+                    startTime = new Date(Date.now() + event.since * 1000)
                   } else {
                     startTime = parseAPIDate(event.time, timezone)
                   }
@@ -293,6 +293,7 @@ export default function EventsContextProvider(props: {
                     startTime: event.start_time,
                     time: startTime,
                     discipline: Discipline.DOGS,
+                    trackName: dogChannel.track_name,
                   }
                 },
               )
@@ -310,15 +311,15 @@ export default function EventsContextProvider(props: {
               const horseEvents = horseChannel.next_events.map(
                 (event: any, idx: number): UpcomingEvent => {
                   let startTime: Date
-                  if (event.since && typeof event.since === 'number') {
-                    startTime = new Date(Date.now() + event.since * 1000)
-                  } else if (
+                  if (
                     event.start_time &&
                     typeof event.start_time === 'string'
                   ) {
                     const [hours, minutes] = event.start_time.split(':')
                     startTime = new Date()
                     startTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
+                  } else if (event.since && typeof event.since === 'number') {
+                    startTime = new Date(Date.now() + event.since * 1000)
                   } else {
                     startTime = parseAPIDate(event.time, timezone)
                   }
@@ -331,6 +332,7 @@ export default function EventsContextProvider(props: {
                     startTime: event.start_time,
                     time: startTime,
                     discipline: Discipline.HORSES,
+                    trackName: horseChannel.track_name,
                   }
                 },
               )
@@ -453,15 +455,15 @@ export default function EventsContextProvider(props: {
               const dogEvents = dogChannel.next_events.map(
                 (event: any, idx: number): UpcomingEvent => {
                   let startTime: Date
-                  if (event.since && typeof event.since === 'number') {
-                    startTime = new Date(Date.now() + event.since * 1000)
-                  } else if (
+                  if (
                     event.start_time &&
                     typeof event.start_time === 'string'
                   ) {
                     const [hours, minutes] = event.start_time.split(':')
                     startTime = new Date()
                     startTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
+                  } else if (event.since && typeof event.since === 'number') {
+                    startTime = new Date(Date.now() + event.since * 1000)
                   } else {
                     startTime = parseAPIDate(event.time, timezone)
                   }
@@ -474,6 +476,7 @@ export default function EventsContextProvider(props: {
                     startTime: event.start_time,
                     time: startTime,
                     discipline: Discipline.DOGS,
+                    trackName: dogChannel.track_name,
                   }
                 },
               )
@@ -491,15 +494,15 @@ export default function EventsContextProvider(props: {
               const horseEvents = horseChannel.next_events.map(
                 (event: any, idx: number): UpcomingEvent => {
                   let startTime: Date
-                  if (event.since && typeof event.since === 'number') {
-                    startTime = new Date(Date.now() + event.since * 1000)
-                  } else if (
+                  if (
                     event.start_time &&
                     typeof event.start_time === 'string'
                   ) {
                     const [hours, minutes] = event.start_time.split(':')
                     startTime = new Date()
                     startTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
+                  } else if (event.since && typeof event.since === 'number') {
+                    startTime = new Date(Date.now() + event.since * 1000)
                   } else {
                     startTime = parseAPIDate(event.time, timezone)
                   }
@@ -512,6 +515,7 @@ export default function EventsContextProvider(props: {
                     startTime: event.start_time,
                     time: startTime,
                     discipline: Discipline.HORSES,
+                    trackName: horseChannel.track_name,
                   }
                 },
               )
@@ -716,7 +720,7 @@ export default function EventsContextProvider(props: {
           return
         }
         console.error('Error fetching events:', error)
-        toast.error('Error loading events')
+        toast.error(t('error_loading_events'))
         setIsLoadingEvents(false)
         isFetchingEvents = false
       }

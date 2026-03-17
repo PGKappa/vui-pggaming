@@ -180,15 +180,18 @@ export default function BetsContextProvider(props: {
           betEntries: activeBets,
           betsByEvent: getBetsByEvent(activeBets),
         }))
-        toast.info(
-          `Removed ${removedCount} expired bet${removedCount > 1 ? 's' : ''}`,
+        // Messaggio tradotto: "⚠️ Se eliminó X selección: evento iniciado."
+        toast.warning(
+          removedCount > 1
+            ? t('event_started_removed_plural', { count: removedCount })
+            : t('event_started_removed', { count: removedCount }),
         )
       }
     }
 
     const interval = setInterval(cleanupExpiredBets, 5000)
     return () => clearInterval(interval)
-  }, [betsContext.betEntries])
+  }, [betsContext.betEntries, t])
 
   const checkSystemLimits = useCallback(
     (newEntries: BetEntry[]): boolean => {
@@ -196,9 +199,7 @@ export default function BetsContextProvider(props: {
 
       const totalEntries = betsContext.betEntries.length + newEntries.length
       if (totalEntries > 50) {
-        toast.error(
-          'Cannot add more bets: Maximum 50 bet entries allowed for system betting',
-        )
+        toast.error(t('max_bet_entries_system'))
         return false
       }
 
@@ -211,15 +212,13 @@ export default function BetsContextProvider(props: {
       const eventsNumber = eventsSet.size
 
       if (eventsNumber > 15) {
-        toast.error(
-          'Cannot add more bets: Maximum 15 unique events allowed for system betting',
-        )
+        toast.error(t('max_events_system'))
         return false
       }
 
       return true
     },
-    [betMode, betsContext.betEntries],
+    [betMode, betsContext.betEntries, t],
   )
 
   const addBet = useCallback(
