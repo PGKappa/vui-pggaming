@@ -8,7 +8,6 @@ import LiveRoundScores from '@/virtual-components/live-round-scores'
 import LiveRoundStatistics from '@/virtual-components/live-round-statistics'
 import LoadingSpinner from '@/virtual-components/loading-spinner'
 import MatchBettingOptions from '@/virtual-components/match-betting-options'
-import MatchEndBadge from '@/virtual-components/match-end-badge'
 import MatchResult from '@/virtual-components/match-result'
 import MatchStatisticsCard from '@/virtual-components/match-statistics-card'
 import UpcomingRoundCard from '@/virtual-components/upcoming-round-card'
@@ -46,7 +45,6 @@ export default function Home() {
               discipline={Discipline.FOOTBALL}
             />
           </div>
-          <MatchEndBadge discipline={Discipline.FOOTBALL} />
           {matchBetOptions && (
             <MatchBettingOptions
               round={matchBetOptions.round}

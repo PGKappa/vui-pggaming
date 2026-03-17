@@ -2,7 +2,6 @@
 import BettingSlip from '@/virtual-components/betting-slip'
 import BettingSlipSheet from '@/virtual-components/betting-slip-sheet'
 import LiveMatchInfo from '@/virtual-components/live-match-info'
-import MatchEndBadge from '@/virtual-components/match-end-badge'
 import { UpcomingEventsCarousel } from '@/virtual-components/upcoming-events-carousel'
 import UpcomingRaceCard from '@/virtual-components/upcoming-race-card'
 import VideoStreamCard from '@/virtual-components/video-stream-card'
@@ -105,8 +104,6 @@ export default function Home() {
             selectedEvent={selectedEvent}
             setSelectedEvent={setSelectedEvent}
           />
-
-          <MatchEndBadge discipline={Discipline.DOGS} />
           {selectedEvent ? (
             <UpcomingRaceCard race={selectedEvent} />
           ) : (
