@@ -1,6 +1,14 @@
 import { BetsContext } from '@/virtual-contexts/bets-context'
 import { CashierContext } from '@/virtual-contexts/cashier-context'
 import { UpcomingEvent, UpcomingRace } from '@/virtual-lib/types'
+import {
+  raceInfoCache,
+  moduleHasLoadedOnce,
+  lastRaceInfo,
+  setModuleHasLoadedOnce,
+  setLastRaceInfo,
+  getCacheKey,
+} from '@/virtual-lib/race-info-cache'
 import { createPGVirtualAPICall, getRacerColors } from '@/virtual-lib/utils'
 import { t } from 'i18next'
 import { useContext, useEffect, useState } from 'react'
@@ -12,9 +20,6 @@ import { Card, CardContent, CardHeader } from './ui/card'
 import { Progress } from './ui/progress'
 import { Toggle } from './ui/toggle'
 import { Check } from 'lucide-react'
-
-// Module-level cache: survives re-renders, no loading flash for already-fetched races
-const raceInfoCache = new Map<string, UpcomingRace>()
 
 type UpcomingRaceCardProps = {
   race: UpcomingEvent
@@ -33,9 +38,9 @@ export default function UpcomingRaceCard({
   race,
   onSelectionChange,
 }: UpcomingRaceCardProps) {
-  const cacheKey = `${race.extId}_${race.id}`
-  const [raceInfo, setRaceInfo] = useState<UpcomingRace | undefined>(() =>
-    raceInfoCache.get(cacheKey),
+  const cacheKey = getCacheKey(race.extId!, race.id)
+  const [raceInfo, setRaceInfo] = useState<UpcomingRace | undefined>(
+    () => raceInfoCache.get(cacheKey) || lastRaceInfo,
   )
   const [activeTab, setActiveTab] = useState<TabType>('main')
 
@@ -43,7 +48,7 @@ export default function UpcomingRaceCard({
   const [position2Selection, setPosition2Selection] = useState<number[]>([])
   const [position3Selection, setPosition3Selection] = useState<number[]>([])
   const [disorderSelection, setDisorderSelection] = useState<number[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(!moduleHasLoadedOnce)
 
   const { betEntries } = useContext(BetsContext)
   const { initCode, operator } = useContext(CashierContext)
@@ -150,7 +155,7 @@ export default function UpcomingRaceCard({
   }
 
   useEffect(() => {
-    const key = `${race.extId}_${race.id}`
+    const key = getCacheKey(race.extId!, race.id)
     const cached = raceInfoCache.get(key)
 
     if (cached) {
@@ -162,7 +167,10 @@ export default function UpcomingRaceCard({
     if (!initCode) return
 
     const fetchEventInfo = async () => {
-      setIsLoading(true)
+      // Solo il primo caricamento mostra il loading — dopo mostra dati stale
+      if (!moduleHasLoadedOnce) {
+        setIsLoading(true)
+      }
       try {
         const response = await createPGVirtualAPICall(
           `/api/event/info/${race.extId}/${race.id}`,
@@ -181,6 +189,8 @@ export default function UpcomingRaceCard({
           id: parseInt(data.int_event_id),
         }
         raceInfoCache.set(key, upcomingRace)
+        setLastRaceInfo(upcomingRace)
+        setModuleHasLoadedOnce(true)
         setRaceInfo(upcomingRace)
       } catch (error) {
         console.error('Error fetching event info:', error)

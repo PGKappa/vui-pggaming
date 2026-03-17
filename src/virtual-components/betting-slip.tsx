@@ -53,7 +53,8 @@ export default function BettingSlip() {
   const minBet = Number(rootContext?.getMinBet?.()) || 0
   const maxWin = Number(rootContext?.getMaxWin?.()) || 10000
   const minStakeIncrement = Number(rootContext?.getMinStakeIncrement?.()) || 0.5
-  const systemStakeIncrement = Number(rootContext?.getSystemStakeIncrement?.()) || 0.5
+  const systemStakeIncrement =
+    Number(rootContext?.getSystemStakeIncrement?.()) || 0.5
 
   const totalOdds = betEntries.reduce(
     (total, betEntry) => total * betEntry.bet.option.decPrice,
@@ -262,13 +263,18 @@ export default function BettingSlip() {
       const stakeSteps = Math.round(global / minStakeIncrement)
       const reconstructed = stakeSteps * minStakeIncrement
       if (Math.abs(global - reconstructed) > 0.0001) {
-        toast.error(t('stake_increment_error', { increment: minStakeIncrement }))
+        toast.error(
+          t('stake_increment_error', { increment: minStakeIncrement }),
+        )
         return
       }
     }
 
     // Validazione min_stake (single/multiple)
-    if (effectiveMode !== 'SYSTEM' && Math.round(global * 100) < Math.round(minStake * 100)) {
+    if (
+      effectiveMode !== 'SYSTEM' &&
+      Math.round(global * 100) < Math.round(minStake * 100)
+    ) {
       toast.error(t('min_stake_error', { min: minStake }))
       return
     }
@@ -313,7 +319,9 @@ export default function BettingSlip() {
           return Math.abs(group.stake - reconstructed) > 0.0001
         })
         if (invalidIncrementGroups.length > 0) {
-          toast.error(t('stake_increment_error', { increment: systemStakeIncrement }))
+          toast.error(
+            t('stake_increment_error', { increment: systemStakeIncrement }),
+          )
           return
         }
       }
@@ -439,8 +447,6 @@ export default function BettingSlip() {
               ? '1000003504'
               : '1000003502')
 
-          console.log('🎯 palimpsestId resolved:', palimpsestId, '| extId:', eventAny.extId, '| fallback:', matchingEvent?.extId, '| eventNumber:', eventNumber)
-
           return {
             gameId: gameId,
             channelId: channelId,
@@ -471,7 +477,9 @@ export default function BettingSlip() {
                     .filter((group) => group.stake > 0)
                     .map((group) => [
                       group.size.toString(),
-                      Math.round(group.stake * group.combinations.length * 100) / 100,
+                      Math.round(
+                        group.stake * group.combinations.length * 100,
+                      ) / 100,
                     ]),
                 ),
               }
@@ -504,7 +512,10 @@ export default function BettingSlip() {
         try {
           const errorJson = JSON.parse(errorText)
           const errorMsg = (
-            errorJson.ret_msg || errorJson.message || errorJson.error || ''
+            errorJson.ret_msg ||
+            errorJson.message ||
+            errorJson.error ||
+            ''
           ).toLowerCase()
 
           if (
@@ -554,7 +565,9 @@ export default function BettingSlip() {
             if (typeof window.Bubble === 'function') {
               window.Bubble('sell', result.print)
             }
-          } catch { /* silently fail */ }
+          } catch {
+            /* silently fail */
+          }
         }
 
         try {
@@ -833,7 +846,9 @@ export default function BettingSlip() {
                   variant="ghost"
                   size="sm"
                   className="h-5 w-5 rounded-none bg-betSlip p-3"
-                  onClick={() => setGlobal((prev) => Math.max(prev - minStakeIncrement, 0))}
+                  onClick={() =>
+                    setGlobal((prev) => Math.max(prev - minStakeIncrement, 0))
+                  }
                 >
                   -
                 </Button>
@@ -976,7 +991,10 @@ export default function BettingSlip() {
                                   onClick={() =>
                                     updateSystemGroupStake(
                                       group.name,
-                                      Math.max(group.stake - systemStakeIncrement, 0),
+                                      Math.max(
+                                        group.stake - systemStakeIncrement,
+                                        0,
+                                      ),
                                     )
                                   }
                                 >

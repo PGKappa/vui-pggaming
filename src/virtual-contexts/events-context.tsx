@@ -13,6 +13,7 @@ import {
   UpcomingRound,
 } from '@/virtual-lib/types'
 import { createPGVirtualAPICall } from '@/virtual-lib/utils'
+import { prefetchRaceInfo } from '@/virtual-lib/race-info-cache'
 import {
   createContext,
   useEffect,
@@ -348,6 +349,9 @@ export default function EventsContextProvider(props: {
                   CACHE_KEYS.LAST_DOGS_FETCH_TIME,
                   Date.now().toString(),
                 )
+
+                // Pre-fetch race info per tutti i prossimi eventi cani (background)
+                prefetchRaceInfo(upcomingDogEvents, initCode, operator)
               }
             }
 
@@ -436,6 +440,9 @@ export default function EventsContextProvider(props: {
                   CACHE_KEYS.LAST_HORSES_FETCH_TIME,
                   Date.now().toString(),
                 )
+
+                // Pre-fetch race info per tutti i prossimi eventi cavalli (background)
+                prefetchRaceInfo(upcomingHorseEvents, initCode, operator)
               }
             }
           } catch (error) {
