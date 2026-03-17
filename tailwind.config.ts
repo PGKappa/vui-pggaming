@@ -12,6 +12,7 @@ export default {
     'retail-default',
     'basis-1/5',
     'basis-1/6',
+    'min-[1500px]:basis-1/6',
   ],
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
@@ -26,6 +27,9 @@ export default {
       padding: '0rem',
     },
     extend: {
+      screens: {
+        '3xl': '1920px',
+      },
       fontFamily: {
         sans: ['Arial', 'sans-serif'],
         inter: ['var(--font-inter)', 'sans-serif'],
@@ -158,20 +162,12 @@ export default {
       },
       keyframes: {
         'accordion-down': {
-          from: {
-            height: '0',
-          },
-          to: {
-            height: 'var(--radix-accordion-content-height)',
-          },
+          from: { height: '0' },
+          to: { height: 'var(--radix-accordion-content-height)' },
         },
         'accordion-up': {
-          from: {
-            height: 'var(--radix-accordion-content-height)',
-          },
-          to: {
-            height: '0',
-          },
+          from: { height: 'var(--radix-accordion-content-height)' },
+          to: { height: '0' },
         },
       },
       animation: {

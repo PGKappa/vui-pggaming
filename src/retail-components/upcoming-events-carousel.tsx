@@ -178,7 +178,7 @@ function UpcomingEventItem(props: {
         alt={event.discipline}
         width={40}
         height={20}
-        className={`relative size-14 object-contain ${imageOffset}`}
+         className={`relative hidden min-[1730px]:block size-14 object-contain ${imageOffset}`}
       />
 
       <div className={`relative ${textOffset} flex flex-col items-start`}>
