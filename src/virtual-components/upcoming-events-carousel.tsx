@@ -70,7 +70,7 @@ export function UpcomingEventsCarousel(props: {
     <div className="relative w-full bg-white">
       <Carousel className="mx-auto w-full max-w-[849px]">
         <CarouselContent
-          className={`ml-0 h-10 ${filteredAndSortedEvents.length > 0 ? 'pl-12' : ''}`}
+          className={`ml-0 h-12 ${filteredAndSortedEvents.length > 0 ? 'pl-12' : ''}`}
         >
           {filteredAndSortedEvents.length > 0 ? (
             <>
@@ -103,6 +103,7 @@ function UpcomingEventItem(props: {
   setSelectedEvent: (event: UpcomingEvent) => void
 }) {
   const { event } = props
+  const { t } = useTranslation()
   const timeToEventStart = useTimeLeft(event.time)
 
   if (timeToEventStart === '00:00') {
@@ -111,7 +112,7 @@ function UpcomingEventItem(props: {
 
   return (
     <CarouselItem
-      className={`flex h-10 min-w-[140px] flex-shrink-0 cursor-pointer flex-row items-center justify-center gap-4 rounded-md border px-3 ${
+      className={`flex h-12 min-w-[140px] flex-shrink-0 cursor-pointer flex-col items-center justify-center rounded-md border px-3 ${
         event.id === props.selectedEvent?.id &&
         event.discipline === props.selectedEvent?.discipline
           ? 'border-border bg-chart-1 text-background'
@@ -121,10 +122,17 @@ function UpcomingEventItem(props: {
         props.setSelectedEvent(event)
       }}
     >
-      <span className="text-center text-sm font-bold">{event.startTime}</span>
-      <span className="w-[50px] rounded-md bg-accent p-1 text-center font-mono text-xs font-bold text-accent-foreground">
-        {timeToEventStart}
+      <span className="text-center text-[10px] font-semibold uppercase leading-tight">
+        {event.discipline === Discipline.FOOTBALL
+          ? `${t('round')} ${event.id}`
+          : `${t('track')} ${event.trackName?.match(/\d+/)?.[0] || ''}`}
       </span>
+      <div className="flex flex-row items-center gap-2">
+        <span className="text-center text-sm font-bold">{event.startTime}</span>
+        <span className="w-[50px] rounded-md bg-accent p-1 text-center font-mono text-xs font-bold text-accent-foreground">
+          {timeToEventStart}
+        </span>
+      </div>
     </CarouselItem>
   )
 }

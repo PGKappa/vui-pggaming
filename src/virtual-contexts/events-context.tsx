@@ -295,6 +295,7 @@ export default function EventsContextProvider(props: {
                         name: 'Dog Race',
                         startTime: event.start_time,
                         time: startTime,
+                        trackName: dogChannel.track_name,
                       }
                     },
                   )
@@ -386,6 +387,7 @@ export default function EventsContextProvider(props: {
                         name: 'Horse Race',
                         startTime: event.start_time,
                         time: startTime,
+                        trackName: horseChannel.track_name,
                       }
                     },
                   )
