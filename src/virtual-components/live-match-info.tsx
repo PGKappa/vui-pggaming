@@ -4,13 +4,15 @@ import { RootContext } from '@/virtual-contexts/root-context'
 import { Discipline, UpcomingRace } from '@/virtual-lib/types'
 import { t } from 'i18next'
 import Image from 'next/image'
-import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { usePathname } from 'next/navigation'
+import { useContext, useEffect, useMemo, useState } from 'react'
 import LatecomersDialog from './latecomers-dialog'
 import { Button } from '@/retail-components/ui/button'
 import { Clock } from 'lucide-react'
 
 export default function LiveMatchInfo() {
   const { liveRound, upcomingEvents, upcomingRounds } = useContext(RootContext)
+  const pathname = usePathname()
   const [nextEventStartTime, setNextEventStartTime] = useState<Date | null>(
     null,
   )
@@ -19,23 +21,20 @@ export default function LiveMatchInfo() {
 
   const getInitCode = () => localStorage.getItem('initCode')
 
-  const getCurrentDiscipline = useCallback((): Discipline => {
-    if (typeof window === 'undefined') return Discipline.FOOTBALL
-
-    const path = window.location.pathname
-    if (path.includes('dogs')) {
+  const currentDiscipline = useMemo((): Discipline => {
+    if (pathname.includes('dogs')) {
       return Discipline.DOGS
-    } else if (path.includes('horses')) {
-      return Discipline.HORSES
-    } else {
-      return Discipline.FOOTBALL
     }
-  }, [])
+    if (pathname.includes('horses')) {
+      return Discipline.HORSES
+    }
+    return Discipline.FOOTBALL
+  }, [pathname])
 
   // Aggiorna il prossimo evento periodicamente
   useEffect(() => {
     const updateNextEvent = () => {
-      const discipline = getCurrentDiscipline()
+      const discipline = currentDiscipline
       const now = new Date()
 
       if (discipline === Discipline.FOOTBALL) {
@@ -71,11 +70,11 @@ export default function LiveMatchInfo() {
     const intervalId = setInterval(updateNextEvent, 1000)
 
     return () => clearInterval(intervalId)
-  }, [getCurrentDiscipline, liveRound, upcomingEvents, upcomingRounds])
+  }, [currentDiscipline, liveRound, upcomingEvents, upcomingRounds])
 
   // Trova il prossimo evento per i latecomers
   const nextEvent = useMemo(() => {
-    const discipline = getCurrentDiscipline()
+    const discipline = currentDiscipline
     if (discipline === Discipline.FOOTBALL) return null
 
     const now = new Date()
@@ -85,7 +84,7 @@ export default function LiveMatchInfo() {
       ?.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime())
 
     return disciplineEvents?.[0] || null
-  }, [getCurrentDiscipline, upcomingEvents])
+  }, [currentDiscipline, upcomingEvents])
 
   // Carica i dettagli della corsa quando cambia nextEvent
   useEffect(() => {
@@ -133,12 +132,12 @@ export default function LiveMatchInfo() {
   }, [nextEvent])
 
   const shouldShowLatecomersButton = useMemo(() => {
-    const discipline = getCurrentDiscipline()
+    const discipline = currentDiscipline
     return discipline === Discipline.DOGS || discipline === Discipline.HORSES
-  }, [getCurrentDiscipline])
+  }, [currentDiscipline])
 
   const disciplineInfo = useMemo(() => {
-    const discipline = getCurrentDiscipline()
+    const discipline = currentDiscipline
 
     switch (discipline) {
       case Discipline.DOGS:
@@ -181,7 +180,7 @@ export default function LiveMatchInfo() {
           name: t('football'),
         }
     }
-  }, [getCurrentDiscipline])
+  }, [currentDiscipline])
 
   if (!nextEventStartTime) return null
 
@@ -193,7 +192,7 @@ export default function LiveMatchInfo() {
 
   return (
     <>
-      {getCurrentDiscipline() === Discipline.FOOTBALL ? (
+      {currentDiscipline === Discipline.FOOTBALL ? (
         // Layout semplice per calcio
         <div className="flex h-12 w-full items-center justify-between">
           <div className="flex flex-row items-center gap-2">
@@ -213,8 +212,8 @@ export default function LiveMatchInfo() {
                 {disciplineInfo.icon}
                 <span>
                   {disciplineInfo.name}
-                  {(getCurrentDiscipline() === Discipline.DOGS ||
-                    getCurrentDiscipline() === Discipline.HORSES) &&
+                  {(currentDiscipline === Discipline.DOGS ||
+                    currentDiscipline === Discipline.HORSES) &&
                     ` ${t('race')}`}
                 </span>
               </div>
@@ -245,7 +244,7 @@ export default function LiveMatchInfo() {
         isOpen={isLatecomersOpen}
         onOpenChange={setIsLatecomersOpen}
         raceInfo={raceInfo}
-        discipline={getCurrentDiscipline() as 'DOGS' | 'HORSES'}
+        discipline={currentDiscipline as 'DOGS' | 'HORSES'}
       />
     </>
   )
