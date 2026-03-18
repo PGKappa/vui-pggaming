@@ -471,10 +471,10 @@ export default function UpcomingRaceCard({
         </TableHead>
         <TableHead className="w-[1px] bg-border p-0" />
 
-        <TableHead className="w-[249px] min-w-[130px] text-center font-semibold">
-          {t('history').toUpperCase()}
-        </TableHead>
-        <TableHead className="w-[1px] bg-border p-0" />
+        <TableHead className="hidden min-[1440px]:table-cell w-[249px] min-w-[130px] text-center font-semibold">
+  {t('history').toUpperCase()}
+</TableHead>
+<TableHead className="hidden min-[1440px]:table-cell w-[1px] bg-border p-0" />
 
         {activeTab === 'main' && (
           <>
@@ -1040,16 +1040,16 @@ export default function UpcomingRaceCard({
                       </div>
                     </TableCell>
 
-                    <TableCell className="w-[1px] bg-border p-0" />
+                    <TableCell className="hidden min-[1440px]:table-cell w-[1px] bg-border p-0" />
 
-                    {/* Storico */}
-                    <TableCell>
-                      <div className="flex items-center justify-center gap-2.5">
-                        <MedalsHistory history={racer.history} />
-                      </div>
-                    </TableCell>
+{/* Storico */}
+<TableCell className="hidden min-[1440px]:table-cell">
+  <div className="flex items-center justify-center gap-2.5">
+    <MedalsHistory history={racer.history} />
+  </div>
+</TableCell>
 
-                    <TableCell className="w-[1px] bg-border p-0" />
+<TableCell className="w-[1px] bg-border p-0" />
 
                     {renderTabSpecificCells(racer)}
                   </TableRow>

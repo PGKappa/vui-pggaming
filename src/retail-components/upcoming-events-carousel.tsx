@@ -77,9 +77,9 @@ export function UpcomingEventsCarousel(props: {
 
   return (
     <Carousel
-      className="w-full px-9 3xl:w-[1430px] 3xl:px-0"
-      opts={{ align: 'start', skipSnaps: false }}
-    >
+  className="w-full px-9"
+  opts={{ align: 'start', skipSnaps: false }}
+>
       <CarouselContent className="bg-white">
         {isLoadingEvents ? (
           Array.from({ length: 6 }).map((_, index) => (
@@ -178,7 +178,7 @@ function UpcomingEventItem(props: {
         alt={event.discipline}
         width={40}
         height={20}
-        className={`relative size-14 object-contain ${imageOffset}`}
+         className={`relative hidden min-[1730px]:block size-14 object-contain ${imageOffset}`}
       />
 
       <div className={`relative ${textOffset} flex flex-col items-start`}>
