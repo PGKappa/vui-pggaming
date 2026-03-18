@@ -97,7 +97,7 @@ export default function RacingFastBet({
 
     // Validazione iniziale: assicurati che initCode e operator siano disponibili
     if (!rootContext?.initCode || !rootContext?.operator) {
-      toast.error(t('login_required') || 'Authentication required')
+      toast.error(t('login_required'))
       return
     }
 
@@ -181,16 +181,19 @@ export default function RacingFastBet({
         // Validazione: il codice deve essere nella lingua corrente
         const validCodes = getValidCodesForLanguage(currentLanguage)
         if (!validCodes.includes(letters)) {
-          toast.error(
-            t('invalid_code_for_language') ||
-              `Codice non valido per la lingua corrente. Usa: ${validCodes.join(', ')}`,
-          )
+          toast.error(t('invalid_code_for_language'))
           return
         }
 
         // Normalizza il codice alla versione inglese per il processing
         const normalizedCode = normalizeMarketCode(letters, currentLanguage)
         const currentMarket = markets[normalizedCode as keyof typeof markets]
+
+        // Mercati senza selezioni (EV, OD, U, O) non accettano numeri
+        if (currentMarket && currentMarket.selections === 0) {
+          toast.error(`${currentMarket.name}: ${t('no_selection_needed')}`)
+          return
+        }
 
         if (currentMarket && currentMarket.selections > 1) {
           // Check if it's an "any order" market (CT/BT = Boxed Trifecta, Q = Quinella)
@@ -260,7 +263,6 @@ export default function RacingFastBet({
         rootContext.initCode || '',
         rootContext.getTrackName,
         rootContext.operator,
-        currentLanguage,
       )
 
       if (!bets || bets.length === 0) {
