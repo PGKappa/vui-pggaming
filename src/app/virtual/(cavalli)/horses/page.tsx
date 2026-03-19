@@ -82,22 +82,19 @@ export default function Home() {
       <div className="container mb-10 mt-1 grid grid-cols-1 justify-center gap-3 bg-columnL-background text-columnL-foreground lg:mb-4 lg:grid-cols-4">
         {/* First column - contenuto principale */}
         <div className="flex flex-col items-center gap-4 lg:col-span-3">
-          <div className="flex w-full flex-col gap-1">
-            <LiveMatchInfo />
-            {/* Video e Previous Results in due colonne affiancate */}
-            <div className="grid h-full grid-cols-1 gap-3 lg:grid-cols-3">
-              <div className="lg:col-span-2">
-                <VideoStreamCard
-                  streamUrl={liveRound?.streamUrl}
-                  discipline={Discipline.HORSES}
-                />
-              </div>
-              <div className="h-[425px] overflow-y-auto lg:col-span-1">
-                <PreviousResultsCard
-                  results={previousResultsMock.horses}
-                  discipline="HORSES"
-                />
-              </div>
+          <div className="grid w-full grid-cols-1 gap-3 lg:grid-cols-3">
+            <div className="flex flex-col gap-1 lg:col-span-2">
+              <LiveMatchInfo />
+              <VideoStreamCard
+                streamUrl={liveRound?.streamUrl}
+                discipline={Discipline.HORSES}
+              />
+            </div>
+            <div className="overflow-y-auto lg:col-span-1">
+              <PreviousResultsCard
+                results={previousResultsMock.horses}
+                discipline="HORSES"
+              />
             </div>
           </div>
           <UpcomingEventsCarousel

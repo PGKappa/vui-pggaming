@@ -120,38 +120,17 @@ export default function LiveMatchInfo() {
   })
 
   return (
-    <>
-      {currentDiscipline === Discipline.FOOTBALL ? (
-        // Layout semplice per calcio
-        <div className="flex h-12 w-full items-center justify-between">
-          <div className="flex flex-row items-center gap-2">
-            {disciplineInfo.icon}
-            <span>{disciplineInfo.name}</span>
-          </div>
-          <span className="text-xl">{formattedTime}</span>
-        </div>
-      ) : (
-        <div className="grid h-12 w-full grid-cols-1 lg:grid-cols-3">
-          <div className="lg:col-span-2">
-            <div
-              className="grid h-12 w-full items-center"
-              style={{ gridTemplateColumns: 'auto 1fr auto' }}
-            >
-              <div className="flex flex-row items-center gap-2">
-                {disciplineInfo.icon}
-                <span>
-                  {disciplineInfo.name}
-                  {(currentDiscipline === Discipline.DOGS ||
-                    currentDiscipline === Discipline.HORSES) &&
-                    ` ${t('race')}`}
-                </span>
-              </div>
-              <div></div>
-              <span className="text-xl">{formattedTime}</span>
-            </div>
-          </div>
-        </div>
-      )}
-    </>
+    <div className="flex h-12 w-full items-center justify-between">
+      <div className="flex flex-row items-center gap-2">
+        {disciplineInfo.icon}
+        <span>
+          {disciplineInfo.name}
+          {(currentDiscipline === Discipline.DOGS ||
+            currentDiscipline === Discipline.HORSES) &&
+            ` ${t('race')}`}
+        </span>
+      </div>
+      <span className="text-xl">{formattedTime}</span>
+    </div>
   )
 }
