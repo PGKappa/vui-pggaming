@@ -1,14 +1,11 @@
 'use client'
 
 import { RootContext } from '@/virtual-contexts/root-context'
-import { Discipline, UpcomingRace } from '@/virtual-lib/types'
+import { Discipline } from '@/virtual-lib/types'
 import { t } from 'i18next'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useContext, useEffect, useMemo, useState } from 'react'
-import LatecomersDialog from './latecomers-dialog'
-import { Button } from '@/retail-components/ui/button'
-import { Clock } from 'lucide-react'
 
 export default function LiveMatchInfo() {
   const { liveRound, upcomingEvents, upcomingRounds } = useContext(RootContext)
@@ -16,10 +13,6 @@ export default function LiveMatchInfo() {
   const [nextEventStartTime, setNextEventStartTime] = useState<Date | null>(
     null,
   )
-  const [isLatecomersOpen, setIsLatecomersOpen] = useState(false)
-  const [raceInfo, setRaceInfo] = useState<UpcomingRace>()
-
-  const getInitCode = () => localStorage.getItem('initCode')
 
   const currentDiscipline = useMemo((): Discipline => {
     if (pathname.includes('dogs')) {
@@ -71,70 +64,6 @@ export default function LiveMatchInfo() {
 
     return () => clearInterval(intervalId)
   }, [currentDiscipline, liveRound, upcomingEvents, upcomingRounds])
-
-  // Trova il prossimo evento per i latecomers
-  const nextEvent = useMemo(() => {
-    const discipline = currentDiscipline
-    if (discipline === Discipline.FOOTBALL) return null
-
-    const now = new Date()
-    const disciplineEvents = upcomingEvents
-      ?.filter((event) => event.discipline === discipline)
-      ?.filter((event) => new Date(event.time) > now)
-      ?.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime())
-
-    return disciplineEvents?.[0] || null
-  }, [currentDiscipline, upcomingEvents])
-
-  // Carica i dettagli della corsa quando cambia nextEvent
-  useEffect(() => {
-    const fetchEventInfo = async () => {
-      if (!nextEvent || nextEvent.discipline === Discipline.FOOTBALL) {
-        setRaceInfo(undefined)
-        return
-      }
-
-      const initCode = getInitCode()
-      if (!initCode) return
-
-      try {
-        const response = await fetch(
-          `https://apidev.pgvirtual.eu/api/event/info/${nextEvent.extId}/${nextEvent.id}`,
-          {
-            headers: {
-              accept: 'application/json',
-              authorization: `Bearer ${initCode}`,
-              operator: 'sc',
-            },
-            method: 'GET',
-            mode: 'cors',
-            credentials: 'include',
-          },
-        )
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
-        }
-
-        const data = await response.json()
-        const upcomingRace: UpcomingRace = {
-          ...data.current,
-          id: parseInt(data.int_event_id),
-        }
-        setRaceInfo(upcomingRace)
-      } catch (error) {
-        console.error('Error fetching event info:', error)
-        setRaceInfo(undefined)
-      }
-    }
-
-    fetchEventInfo()
-  }, [nextEvent])
-
-  const shouldShowLatecomersButton = useMemo(() => {
-    const discipline = currentDiscipline
-    return discipline === Discipline.DOGS || discipline === Discipline.HORSES
-  }, [currentDiscipline])
 
   const disciplineInfo = useMemo(() => {
     const discipline = currentDiscipline
@@ -221,31 +150,8 @@ export default function LiveMatchInfo() {
               <span className="text-xl">{formattedTime}</span>
             </div>
           </div>
-
-          <div className="lg:col-span-1">
-            <div className="flex h-12 items-center justify-end">
-              {shouldShowLatecomersButton && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-11 w-11 border-border text-secondary-foreground"
-                  onClick={() => setIsLatecomersOpen(true)}
-                  title="Late Comers"
-                >
-                  <Clock style={{ scale: 1.5 }} />
-                </Button>
-              )}
-            </div>
-          </div>
         </div>
       )}
-
-      <LatecomersDialog
-        isOpen={isLatecomersOpen}
-        onOpenChange={setIsLatecomersOpen}
-        raceInfo={raceInfo}
-        discipline={currentDiscipline as 'DOGS' | 'HORSES'}
-      />
     </>
   )
 }

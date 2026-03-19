@@ -11,9 +11,11 @@ import {
 } from '@/virtual-lib/race-info-cache'
 import { createPGVirtualAPICall, getRacerColors } from '@/virtual-lib/utils'
 import { t } from 'i18next'
+import { Discipline } from '@/virtual-lib/types'
 import { useContext, useEffect, useState } from 'react'
 import BetCombinationsTable from './bet-combination-table'
 import BetEntryToggle from './bet-entry-toggle'
+import LatecomersDialog from './latecomers-dialog'
 import MedalsHistory from './medals-history'
 import { Button } from './ui/button'
 import { Card, CardContent, CardHeader } from './ui/card'
@@ -49,6 +51,7 @@ export default function UpcomingRaceCard({
   const [position3Selection, setPosition3Selection] = useState<number[]>([])
   const [disorderSelection, setDisorderSelection] = useState<number[]>([])
   const [isLoading, setIsLoading] = useState(!moduleHasLoadedOnce)
+  const [isLatecomersDialogOpen, setIsLatecomersDialogOpen] = useState(false)
 
   const { betEntries } = useContext(BetsContext)
   const { initCode, operator } = useContext(CashierContext)
@@ -806,6 +809,11 @@ export default function UpcomingRaceCard({
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Event ID */}
+            <span className="text-sm font-semibold text-muted-foreground">
+              {'ID'} {race.id}
+            </span>
+
             {/* Pulsante Clear */}
             {(activeTab === 'couples' || activeTab === 'triplets') &&
               (position1Selection.length > 0 ||
@@ -820,6 +828,18 @@ export default function UpcomingRaceCard({
                   {t('clear_all').toUpperCase()}
                 </Button>
               )}
+
+            {/* Pulsante Latecomers (solo per cani e cavalli) */}
+            {(race.discipline === Discipline.DOGS ||
+              race.discipline === Discipline.HORSES) && (
+              <Button
+                variant="ghost"
+                className="h-11 bg-secondary px-4 text-[14px] font-bold text-secondary-foreground"
+                onClick={() => setIsLatecomersDialogOpen(true)}
+              >
+                {t('latecomers')}
+              </Button>
+            )}
           </div>
         </CardHeader>
 
@@ -930,6 +950,13 @@ export default function UpcomingRaceCard({
           {renderSpecialMarkets()}
         </CardContent>
       </Card>
+
+      <LatecomersDialog
+        isOpen={isLatecomersDialogOpen}
+        onOpenChange={setIsLatecomersDialogOpen}
+        raceInfo={raceInfo}
+        discipline={race.discipline as 'DOGS' | 'HORSES'}
+      />
     </>
   )
 }
