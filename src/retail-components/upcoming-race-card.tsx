@@ -940,7 +940,7 @@ export default function UpcomingRaceCard({
     <>
       <Card className="h-full w-full">
         <CardHeader className="flex h-[73px] flex-row items-center justify-between px-[12px]">
-          <div className="flex items-center gap-[8px]">
+          <div className="flex items-center space-x-2">
             {Object.entries(tabConfig).map(([key, config]) => (
               <Button
                 key={key}
@@ -1028,11 +1028,11 @@ export default function UpcomingRaceCard({
                     <TableCell className="p-3 text-[15px] font-bold">
                       <div className="flex items-center justify-center gap-3">
                         <div className="flex space-x-1">
-                          <div className="flex flex-col items-center justify-center gap-2">
+                          <div className="flex flex-col items-center justify-center">
                             {racer.performance}%
                             <Progress
                               value={racer.performance}
-                              className="relative bottom-[3px] w-[189px] [&>div]:rounded-r-full [&>div]:bg-tertiary"
+                              className="relative bottom-[0px] w-[189px] [&>div]:rounded-r-full [&>div]:bg-tertiary"
                               style={{ height: '8px' }}
                             />
                           </div>
@@ -1044,7 +1044,7 @@ export default function UpcomingRaceCard({
 
 {/* Storico */}
 <TableCell className="hidden min-[1440px]:table-cell">
-  <div className="flex items-center justify-center gap-2.5">
+  <div className="flex items-center justify-center space-x-[10px]">
     <MedalsHistory history={racer.history} />
   </div>
 </TableCell>
