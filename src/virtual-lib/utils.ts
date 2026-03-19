@@ -7,8 +7,8 @@ export function cn(...inputs: ClassValue[]) {
 
 // API URLs per Virtual
 export const API_URLS = {
-  PGVIRTUAL: 'https://apidev.pgvirtual.eu',
-  CASHIER_INIT: 'https://apidev.pgvirtual.eu/api/init/cashier',
+  PGVIRTUAL: 'https://api-prod.pgvirtual.eu',
+  CASHIER_INIT: 'https://api-prod.pgvirtual.eu/api/init/cashier',
   BASE: process.env.NEXT_PUBLIC_BASE_API_URL || 'https://retail.virtualsport.shop/proxy',
 } as const
 

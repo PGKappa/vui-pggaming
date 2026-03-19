@@ -100,7 +100,7 @@ export default function LiveMatchInfo() {
 
       try {
         const response = await fetch(
-          `https://apidev.pgvirtual.eu/api/event/info/${nextEvent.extId}/${nextEvent.id}`,
+          `https://api-prod.pgvirtual.eu/api/event/info/${nextEvent.extId}/${nextEvent.id}`,
           {
             headers: {
               accept: 'application/json',
