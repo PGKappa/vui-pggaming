@@ -533,3 +533,8 @@
 .data-\[state\=on\]\:bg-bet[data-state="on"]:hover {
   opacity: 1;
 }
+
+
+body > main > div > div > div.h-\[950px\].w-\[400px\].relative.right-1.shrink-0.bg-background.text-foreground > div > div.grid.grid-cols-2.text-center > div.relative.top-\[5px\].col-span-2.flex.h-\[52px\].w-full.flex-row.items-center.justify-between.bg-accent.px-5 > button{
+  background: transparent;
+}

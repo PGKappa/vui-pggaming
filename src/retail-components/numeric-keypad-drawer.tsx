@@ -259,7 +259,7 @@ export default function NumericKeypadDrawer(props: {
 
         <div className="flex flex-col gap-3 p-3">
           {/* Display Value */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center space-x-3">
             <Input
               value={drawerValue}
               onChange={() => {}}
@@ -278,7 +278,7 @@ export default function NumericKeypadDrawer(props: {
 
           {/* Preset Values */}
           <div
-            className="grid gap-2"
+            className="grid space-x-2"
             style={{
               gridTemplateColumns: `repeat(${Math.min(stakeButtons.length, 5)}, minmax(0, 1fr))`,
             }}
@@ -319,11 +319,11 @@ export default function NumericKeypadDrawer(props: {
           </div>
 
           {/* Keypad */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 space-x-3 space-y-3">
             <Button
               variant="outline"
               size="lg"
-              className="h-12 text-[20px] font-semibold tabular-nums"
+              className="h-12 text-[20px] font-semibold tabular-nums w-[112px] relative left-3 top-3"
               onClick={() => handleNumberClick('1')}
             >
               1

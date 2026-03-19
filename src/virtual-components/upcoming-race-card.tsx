@@ -824,7 +824,7 @@ export default function UpcomingRaceCard({
                     >
                       {/* Informazioni sul corridore */}
                       <div className="p-2">
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center space-x-3">
                           <div
                             className="flex h-8 w-8 items-center justify-center rounded-md text-xl font-bold"
                             style={
