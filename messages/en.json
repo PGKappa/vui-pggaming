@@ -114,6 +114,7 @@
   "result": "Result",
   "delay": "Delay",
   "no_latecomers": "No latecomers data available",
+  "game_rules": "Game Rules",
   "no_duplicates_added": "No bets added - selections already present in bet slip",
   "min_stake_error": "Minimum stake is {{min}}",
   "max_win_error": "Maximum potential win is {{max}}",

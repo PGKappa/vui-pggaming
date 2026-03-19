@@ -55,5 +55,6 @@
   "max": "最大",
   "stake": "赌注",
   "min_win": "最小赢额",
-  "max_win": "最大赢额"
+  "max_win": "最大赢额",
+  "game_rules": "游戏规则"
 }

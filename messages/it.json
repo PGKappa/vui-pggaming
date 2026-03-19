@@ -59,5 +59,6 @@
   "max": "Max",
   "stake": "Puntata",
   "min_win": "Vincita Min",
-  "max_win": "Vincita Max"
+  "max_win": "Vincita Max",
+  "game_rules": "Informazioni"
 }

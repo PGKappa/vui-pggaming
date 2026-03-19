@@ -53,5 +53,6 @@
   "max": "Máx",
   "stake": "Apuesta",
   "min_win": "Ganancia Mín",
-  "max_win": "Ganancia Máx"
+  "max_win": "Ganancia Máx",
+  "game_rules": "Reglas del Juego"
 }
