@@ -709,14 +709,14 @@ export default function BettingSlip({
           ...(betMode === 'SYSTEM'
             ? {
                 system: Object.fromEntries(
-                  systemGroups
-                    .filter((group) => group.stake > 0)
-                    .map((group) => [
-                      group.size.toString(),
-                      Math.round(
-                        group.stake * group.combinations.length * 100,
-                      ) / 100,
-                    ]),
+                  systemGroups.map((group) => [
+                    group.size.toString(),
+                    group.stake > 0
+                      ? Math.round(
+                          group.stake * group.combinations.length * 100,
+                        ) / 100
+                      : 0,
+                  ]),
                 ),
               }
             : { system: { [betEntries.length.toString()]: global } }),
