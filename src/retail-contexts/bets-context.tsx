@@ -470,8 +470,28 @@ export default function BetsContextProvider(props: {
     localStorage.setItem('betsContext', JSON.stringify(toSave))
   }, [betsContext])
 
+  // Merge computed values directly to avoid stale context between useEffect syncs.
+  // Without this, betMode from betsContext state can lag behind the useMemo computation
+  // by one render cycle, causing the wrong payload format when toggling modes.
+  const contextValue = useMemo(
+    () => ({
+      ...betsContext,
+      betMode,
+      isSystemToggleEnabled,
+      systemToggleMode,
+      setSystemToggleMode,
+    }),
+    [
+      betsContext,
+      betMode,
+      isSystemToggleEnabled,
+      systemToggleMode,
+      setSystemToggleMode,
+    ],
+  )
+
   return (
-    <BetsContext.Provider value={betsContext}>
+    <BetsContext.Provider value={contextValue}>
       {props.children}
     </BetsContext.Provider>
   )
