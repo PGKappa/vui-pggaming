@@ -470,8 +470,25 @@ export default function BetsContextProvider(props: {
     localStorage.setItem('betsContext', JSON.stringify(toSave))
   }, [betsContext])
 
+  const contextValue = useMemo(
+    () => ({
+      ...betsContext,
+      betMode,
+      isSystemToggleEnabled,
+      systemToggleMode,
+      setSystemToggleMode,
+    }),
+    [
+      betsContext,
+      betMode,
+      isSystemToggleEnabled,
+      systemToggleMode,
+      setSystemToggleMode,
+    ],
+  )
+
   return (
-    <BetsContext.Provider value={betsContext}>
+    <BetsContext.Provider value={contextValue}>
       {props.children}
     </BetsContext.Provider>
   )
