@@ -21,7 +21,6 @@ export function UpcomingEventsCarousel(props: {
   setSelectedEvent: (event: UpcomingEvent) => void
 }) {
   const { upcomingEvents, isLoadingEvents } = useContext(RootContext)
-
   const { t } = useTranslation()
   const pathname = usePathname()
 
@@ -43,17 +42,12 @@ export function UpcomingEventsCarousel(props: {
 
   const filteredAndSortedEvents = useMemo(() => {
     const events = upcomingEvents || []
-    const filtered = events.filter((event) =>
-      disciplines.includes(event.discipline),
-    )
-    const sorted = filtered.sort((a, b) => {
-      const timeA =
-        a.time instanceof Date ? a.time.getTime() : new Date(a.time).getTime()
-      const timeB =
-        b.time instanceof Date ? b.time.getTime() : new Date(b.time).getTime()
+    const filtered = events.filter((event) => disciplines.includes(event.discipline))
+    return filtered.sort((a, b) => {
+      const timeA = a.time instanceof Date ? a.time.getTime() : new Date(a.time).getTime()
+      const timeB = b.time instanceof Date ? b.time.getTime() : new Date(b.time).getTime()
       return timeA - timeB
     })
-    return sorted
   }, [upcomingEvents, disciplines])
 
   const [nowMs, setNowMs] = useState(() => Date.now())
@@ -70,10 +64,8 @@ export function UpcomingEventsCarousel(props: {
     }, 0)
   }, [filteredAndSortedEvents, nowMs])
 
-  // Auto-seleziona il primo evento quando quello corrente scade o non è più disponibile
   useEffect(() => {
     if (filteredAndSortedEvents.length === 0) return
-
     const selectedEventStillExists = props.selectedEvent
       ? filteredAndSortedEvents.some(
           (event) =>
@@ -81,8 +73,6 @@ export function UpcomingEventsCarousel(props: {
             event.discipline === props.selectedEvent?.discipline,
         )
       : false
-
-    // Se nessun evento è selezionato o l'evento selezionato è scaduto, seleziona il primo
     if (!props.selectedEvent || !selectedEventStillExists) {
       props.setSelectedEvent(filteredAndSortedEvents[0])
     }
@@ -90,15 +80,11 @@ export function UpcomingEventsCarousel(props: {
 
   return (
     <Carousel
-      className="w-[1430px]"
-      opts={{
-        align: 'start',
-        skipSnaps: false,
-      }}
-    >
+  className="w-full px-9"
+  opts={{ align: 'start', skipSnaps: false }}
+>
       <CarouselContent className="bg-white">
         {isLoadingEvents ? (
-          // Show skeleton loading
           Array.from({ length: 6 }).map((_, index) => (
             <div
               key={`skeleton-${index}`}
@@ -113,17 +99,15 @@ export function UpcomingEventsCarousel(props: {
             </div>
           ))
         ) : filteredAndSortedEvents.length > 0 ? (
-          filteredAndSortedEvents.map((event, index) => {
-            return (
-              <UpcomingEventItem
-                key={`${event.discipline}-${event.id}-${index}`}
-                event={event}
-                selectedEvent={props.selectedEvent}
-                setSelectedEvent={props.setSelectedEvent}
-                maxRemainingMs={maxRemainingMs}
-              />
-            )
-          })
+          filteredAndSortedEvents.map((event, index) => (
+            <UpcomingEventItem
+              key={`${event.discipline}-${event.id}-${index}`}
+              event={event}
+              selectedEvent={props.selectedEvent}
+              setSelectedEvent={props.setSelectedEvent}
+              maxRemainingMs={maxRemainingMs}
+            />
+          ))
         ) : (
           <div className="p-2 text-center text-background">
             {t('no_upcoming_events')}
@@ -143,7 +127,6 @@ function UpcomingEventItem(props: {
   maxRemainingMs: number
 }) {
   const { event } = props
-
   const { t } = useTranslation()
   const rootContext = useContext(RootContext)
   const lang = rootContext?.userData?.lang || 'en'
@@ -156,23 +139,17 @@ function UpcomingEventItem(props: {
       setProgressValue(0)
       return
     }
-
     const [mm, ss] = timeToEventStart.split(':')
     const remainingMs = (Number(mm) * 60 + Number(ss)) * 1000
-
     if (Number.isNaN(remainingMs)) {
       setProgressValue(0)
       return
     }
-
     const value = (remainingMs / props.maxRemainingMs) * 100
     setProgressValue(Math.max(0, Math.min(100, value)))
   }, [timeToEventStart, props.maxRemainingMs])
 
-  // Rimuovi quando scaduto
-  if (timeToEventStart === '00:00') {
-    return null
-  }
+  if (timeToEventStart === '00:00') return null
 
   const imageOffset =
     layout.carousel.imageOffset[event.discipline] ?? 'bottom-[4px] right-[10px]'
@@ -191,9 +168,7 @@ function UpcomingEventItem(props: {
           ? 'bg-selectedEvent/90 text-tertiary-foreground'
           : 'bg-secondary text-secondary-foreground'
       }`}
-      onClick={() => {
-        props.setSelectedEvent(event)
-      }}
+      onClick={() => props.setSelectedEvent(event)}
     >
       <Image
         src={
@@ -206,8 +181,9 @@ function UpcomingEventItem(props: {
         alt={event.discipline}
         width={40}
         height={20}
-        className={`relative size-14 object-contain ${imageOffset}`}
+         className={`relative hidden min-[1730px]:block size-14 object-contain ${imageOffset}`}
       />
+
       <div className={`relative ${textOffset} flex flex-col items-start`}>
         <span
           className={`relative bottom-[7px] whitespace-nowrap ${eventNameFontSize} font-semibold uppercase`}
@@ -236,6 +212,7 @@ function UpcomingEventItem(props: {
           </span>
         </div>
       </div>
+
       <Progress
         value={progressValue}
         className={`pointer-events-none absolute inset-x-0 bottom-0 ${progressBarHeight} rounded-none bg-navbarButton`}

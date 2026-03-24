@@ -412,7 +412,7 @@ export default function RootContextProvider(props: {
   // Helper per chiamate API PGVirtual
   const pgVirtualFetch = useCallback(
     (endpoint: string, options?: RequestInit) => {
-      return fetch(`https://apidev.pgvirtual.eu${endpoint}`, {
+      return fetch(`https://apisuprema.pgvirtual.eu${endpoint}`, {
         ...options,
         headers: {
           accept: 'application/json',
