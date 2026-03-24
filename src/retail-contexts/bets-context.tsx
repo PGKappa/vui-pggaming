@@ -470,7 +470,6 @@ export default function BetsContextProvider(props: {
     localStorage.setItem('betsContext', JSON.stringify(toSave))
   }, [betsContext])
 
-  // Merge computed values directly to avoid stale context between useEffect syncs.
   const contextValue = useMemo(
     () => ({
       ...betsContext,
