@@ -102,6 +102,30 @@ export default {
             foreground: 'hsl(var(--navbarButton-selected-foreground))',
           },
         },
+        navbarTop: {
+          DEFAULT: 'hsl(var(--navbarTop))',
+          foreground: 'hsl(var(--navbarTop-foreground))',
+        },
+        loading1: {
+          DEFAULT: 'hsl(var(--loading1))',
+          foreground: 'hsl(var(--loading1-foreground))',
+        },
+        loading2: {
+          DEFAULT: 'hsl(var(--loading2))',
+          foreground: 'hsl(var(--loading2-foreground))',
+        },
+        backgroundBetslip: {
+          DEFAULT: 'hsl(var(--backgroundBetslip))',
+          foreground: 'hsl(var(--backgroundBetslip-foreground))',
+        },
+        infoBackground: {
+          DEFAULT: 'hsl(var(--infoBackground))',
+          foreground: 'hsl(var(--infoBackground-foreground))',
+        },
+        betslipTitle: {
+          DEFAULT: 'hsl(var(--betslipTitle))',
+          foreground: 'hsl(var(--betslipTitle-foreground))',
+        },
         market: {
           DEFAULT: 'hsl(var(--market))',
           foreground: 'hsl(var(--market-foreground))',

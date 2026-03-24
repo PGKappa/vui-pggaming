@@ -22,7 +22,7 @@ const buttonVariants = cva(
         market: 'bg-secondary text-accent-foreground',
         marketSelected: 'bg-background text-secondary',
         history: 'bg-accent text-accent-foreground',
-        ticketButton: 'bg-navbarButton text-black font-bold',
+        ticketButton: 'bg-navbarButton text-navbarButton-foreground font-bold',
         ticketFilter: 'bg-background text-foreground',
         info: 'bg-chart-1 text-muted',
         action: 'rounded-[8px] text-black',

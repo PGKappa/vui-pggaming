@@ -202,7 +202,7 @@ export default function NumericKeypadDrawer(props: {
           <Input
             type="text"
             value={`${currencySymbol} ${displayValue.toFixed(2)}`}
-            className={`bg-background-foreground h-8 border-x text-center ${props.inputWidth || 'w-20'}`}
+            className={`bg-background-foreground h-8 border-x text-center text-black ${props.inputWidth || 'w-20'}`}
             readOnly
             onClick={openDrawer}
           />

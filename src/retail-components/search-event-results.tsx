@@ -422,8 +422,7 @@ export default function SearchEventResults() {
 
   return (
     <div className="flex h-full flex-col gap-1">
-      {/* SEARCH BAR - tutti gli elementi flex-1 con max-w uguale, si ridimensionano insieme */}
-      <div className="flex h-16 w-full items-center gap-2 bg-accent px-3">
+     <div className="flex h-16 w-full items-center gap-2 bg-accent px-[24px] min-[1400px]:px-[60px] min-[1600px]:px-[100px] min-[1750px]:px-[130px] min-[1920px]:px-[167px]">
 
         {/* DISCIPLINA */}
         <Select
@@ -450,8 +449,8 @@ export default function SearchEventResults() {
           </SelectContent>
         </Select>
 
-        {/* LAST 10 GAMES - shrink-0 perché il testo non deve mai tagliarsi */}
-        <div className="flex shrink-0 flex-row items-center">
+        {/* LAST 10 GAMES */}
+        <div className="flex shrink-0 flex-row items-center ml-1">
           <Checkbox
             id="last10"
             className="h-6 w-6 border-0 bg-background text-foreground"
@@ -465,7 +464,7 @@ export default function SearchEventResults() {
 
         {/* DATA */}
         <Select value={selectedDate} onValueChange={(value) => setSelectedDate(value)} disabled={lastTenGames}>
-          <SelectTrigger className="h-[48px] min-w-0 flex-1  border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground">
+          <SelectTrigger className="h-[48px] min-w-0 flex-1  border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground mr-[10px] ml-[2px]">
             <SelectValue placeholder={t('date')} />
           </SelectTrigger>
           <SelectContent className="bg-white p-0">
@@ -478,7 +477,7 @@ export default function SearchEventResults() {
 
         {/* FASCIA ORARIA */}
         <Select value={selectedTimeSlot} onValueChange={setSelectedTimeSlot} disabled={lastTenGames}>
-          <SelectTrigger className="h-[48px] min-w-0 flex-1  border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground">
+          <SelectTrigger className="h-[48px] min-w-0 flex-1  border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground mr-2">
             <SelectValue placeholder={t('time_slot')} />
           </SelectTrigger>
           <SelectContent className="bg-white p-0">
@@ -491,7 +490,7 @@ export default function SearchEventResults() {
 
         {/* CERCA */}
         <Button
-          className="h-[48px] min-w-0 flex-1  bg-tertiary text-[16px] font-bold text-bet-foreground hover:opacity-90"
+          className="h-[48px] min-w-0 flex-1  bg-tertiary text-[16px] font-bold text-bet-foreground hover:opacity-90 mr-4 ml-2"
           disabled={selectedDiscipline === 'NONE'}
           onClick={handleSearch}
         >

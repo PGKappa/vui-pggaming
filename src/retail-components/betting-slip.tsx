@@ -810,11 +810,11 @@ export default function BettingSlip({
             } ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'border-b-4 border-betSlip-header bg-accent pb-1 font-semibold text-betSlip-header' : 'font border-accent bg-accent text-white'}`}
             onClick={isSystemToggleEnabled ? () => setSystemToggleMode('MULTIPLE') : undefined}
           >
-            <span className={`pt-1 text-[14px] ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'font-semibold text-betSlip-header' : isSystemToggleEnabled ? 'pb-1 font-semibold text-white' : 'pb-1 font-normal text-white'}`}>
+            <span className={`pt-1 text-[14px] ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'font-semibold text-betslipTitle' : isSystemToggleEnabled ? 'pb-1 font-semibold text-white' : 'pb-1 font-normal text-white'}`}>
               {betMode === 'SINGLE' ? `${t('single').toUpperCase()}` : `${t('multiple').toUpperCase()} (${Object.entries(betsByEvent).length})`}
             </span>
             {betMode === 'SINGLE' || (betMode === 'MULTIPLE' && (
-              <div className="absolute bottom-0.5 h-[0px] w-[156px] bg-navbarButton text-betSlip-header"></div>
+              <div className="absolute bottom-0.5 h-[0px] w-[156px] bg-navbarButton text-betslipTitle"></div>
             ))}
           </div>
 
@@ -824,7 +824,7 @@ export default function BettingSlip({
             } ${betMode === 'SYSTEM' ? 'border-betSlip-header bg-accent font-semibold' : 'border-accent bg-accent text-betSlip-header'}`}
             onClick={isSystemToggleEnabled ? () => setSystemToggleMode('SYSTEM') : undefined}
           >
-            <span className={`pt-1 text-[14px] ${betMode === 'SYSTEM' ? 'font-semibold text-betSlip-header' : isSystemToggleEnabled ? 'font-semibold text-white' : 'font-normal text-white'}`}>
+            <span className={`pt-1 text-[14px] ${betMode === 'SYSTEM' ? 'font-semibold text-betslipTitle' : isSystemToggleEnabled ? 'font-semibold text-white' : 'font-normal text-white'}`}>
               {t('system').toUpperCase()}
             </span>
             {betMode === 'SYSTEM' && (
@@ -865,12 +865,12 @@ export default function BettingSlip({
 
       <Separator />
 
-      <CardFooter className="relative mb-[26px] flex flex-col bg-background">
+      <CardFooter className="relative mb-[26px] flex flex-col bg-backgroundBetslip">
         {betMode !== 'SYSTEM' ? (
           <>
             <div className="relative h-[30px] w-full bg-accent py-3"></div>
 
-            <div className="relative top-[12px] flex w-full flex-row items-center justify-between px-4 pt-[9px] text-foreground">
+            <div className="relative top-[12px] flex w-full flex-row items-center justify-between px-4 pt-[9px] text-backgroundBetslip-foreground">
               <span className="relative bottom-[3px] text-[15px] font-semibold">
                 {t('total_odd').toUpperCase()}
               </span>
@@ -904,7 +904,7 @@ export default function BettingSlip({
               })}
             </div>
 
-            <div className="relative top-[17px] flex w-full flex-row items-center justify-between px-4 py-[18px]">
+            <div className="relative top-[17px] flex w-full flex-row items-center justify-between px-4 py-[18px] text-backgroundBetslip-foreground">
               <div className="flex items-center gap-2">
                 <span className="pt-[1px] text-[15px] font-semibold">{t('amount').toUpperCase()}</span>
               </div>
@@ -921,7 +921,7 @@ export default function BettingSlip({
 
             <Separator />
 
-            <div className="relative top-[27px] flex w-full flex-row items-center justify-between px-4 py-[12px] pb-[16px] pt-0 text-foreground">
+            <div className="relative top-[27px] flex w-full flex-row items-center justify-between px-4 py-[12px] pb-[16px] pt-0 text-backgroundBetslip-foreground bg-backgroundBetslip">
               <span className="relative bottom-[1px] text-[17px] font-semibold">
                 {t('potential_win').toUpperCase()}
               </span>
@@ -1149,7 +1149,7 @@ export default function BettingSlip({
         )}
       </CardFooter>
 
-      <div className="bg-tertiary-foreground">
+      <div className="bg-backgroundBetslip">
         <div className="w-full p-[12px] pb-[24px] pt-[9px]">
           <Button
             variant="betNow"

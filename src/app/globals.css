@@ -70,6 +70,9 @@
     --betHistory-foreground: 0 0% 0%;
     --betHistory-header: 0 0% 100%;
 
+    --navbarTop: 0 0% 0%;
+    --navbarTop-foreground: 0 0% 100%;
+
     --chart-1: 0 0% 63%;
     --chart-2: 353 100% 44%;
     --chart-3: 0 0% 100%;
@@ -133,6 +136,9 @@
     --betHistory: 240 100% 11.8%;
     --betHistory-foreground: 0 0% 0%;
     --betHistory-header: 0 0% 100%;
+
+    --navbarTop: 240 100% 11.8%;
+    --navbarTop-foreground: 0 0% 100%;
 
     --chart-1: 0 0% 63%;
     --chart-2: 358 100% 62%;
@@ -198,6 +204,9 @@
     --betHistory-foreground: 0 0% 0%;
     --betHistory-header: 0 0% 100%;
 
+    --navbarTop: 213 61% 51%;
+    --navbarTop-foreground: 0 0% 100%;
+
     --chart-1: 0 0% 63%;
     --chart-2: 358 100% 62%;
     --chart-3: 218 80% 83%;
@@ -261,6 +270,9 @@
     --betHistory: 198 42% 15%;
     --betHistory-foreground: 0 0% 0%;
     --betHistory-header: 0 0% 100%;
+
+    --navbarTop: 198 42% 15%;
+    --navbarTop-foreground: 0 0% 100%;
 
     --chart-1: 0 0% 63%;
     --chart-2: 358 100% 62%;
@@ -332,10 +344,16 @@
     --betHistory-header: 0 0% 100%;
 
     --navbarButton: 207 18% 76%;
-    --navbarButton-foreground: 0 0% 100%;
+    --navbarButton-foreground: 0 0% 0%;
 
     --navbarButton-selected: 212 92% 13%;
     --navbarButton-selected-foreground: 0 0% 100%;
+
+    --navbarTop: 353 100% 25%;
+    --navbarTop-foreground: 0 0% 100%;
+
+    --loading2: 233 6% 5%;
+    --loading2-foreground: 0 0% 100%;
 
     --searchResult: 215 83% 68%;
     --searchResult-foreground: 0 0% 0%;
@@ -344,6 +362,12 @@
     --chart-1: 0 0% 63%;
     --chart-2: 0 68% 52%;
     --chart-3: 109 100% 35%;
+
+    --backgroundBetslip: 233 6% 25%;
+    --backgroundBetslip-foreground: 0 0% 0%;
+
+    --betslipTitle: 353 100% 44%;
+    --betslipTitle-foreground: 0 0% 100%;
 
     --footer-ranking: 0 0% 100%;
     --footer-ranking-foreground: 0 0% 0%;
@@ -358,13 +382,13 @@
 
     --card: 0 0% 100%;
     --card-foreground: 0 0% 0%;
-    --card-header: 353 100% 25%;
+    --card-header: 0 100% 40%;
     --card-header-foreground: 0 0% 100%;
 
     --primary: 0 0% 0%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 353 100% 32%;
+    --secondary: 233 6% 25%;
     --secondary-foreground: 0 0% 90%;
 
     --tertiary: 353 100% 36%;
@@ -373,7 +397,7 @@
     --muted: 353 100% 25%;
     --muted-foreground: 220 12% 95%;
 
-    --accent: 353 100% 25%;
+    --accent: 0 100% 40%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 62% 30%;
@@ -394,27 +418,46 @@
 
     --radius: 0.4rem;
 
-    --bet: 353 100% 44%;
+    --bet: 91, 100%, 35%;
     --bet-foreground: 0 0% 100%;
+
+    --infoBackground: 353 100% 44%;
+    --infoBackground-foreground: 0 0% 100%;
 
     --selected-event: 353 100% 44%;
 
-    --carousel-arrow: 353 100% 44%;
+    --betslipTitle: 353 100% 44%;
+    --betslipTitle-foreground: 0 0% 100%;
+
+
+    --carousel-arrow: 233 6% 25%;
 
     --betSlip: 0 0% 62%;
     --betSlip-foreground: 0 0% 0%;
-    --betSlip-header: 207 18% 76%;
+    --betSlip-header: 233 6% 25%;
     --betSlip-header-foreground: 0 0% 100%;
 
     --betHistory: 353 100% 44%;
     --betHistory-foreground: 0 0% 0%;
     --betHistory-header: 0 0% 100%;
 
-    --navbarButton: 207 18% 76%;
+    --navbarButton: 233 6% 25%;
     --navbarButton-foreground: 0 0% 100%;
 
     --navbarButton-selected: 212 92% 13%;
     --navbarButton-selected-foreground: 0 0% 100%;
+
+    --navbarTop: 0 0% 0%;
+    --navbarTop-foreground: 0 0% 100%;
+
+    --loading1: 233 6% 35%;
+    --loading1-foreground: 0 0% 0%;
+    
+    --loading2: 233 6% 25%;
+    --loading2-foreground: 0 0% 100%;
+
+    --backgroundBetslip: 233 6% 25%;
+    --backgroundBetslip-foreground: 0 0% 100%;
 
     --searchResult: 215 83% 68%;
     --searchResult-foreground: 0 0% 0%;
