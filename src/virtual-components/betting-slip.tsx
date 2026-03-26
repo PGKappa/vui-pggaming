@@ -830,6 +830,20 @@ export default function BettingSlip() {
       [groupName]: checked,
     }))
 
+    // Se deselezionato, azzera lo stake del gruppo
+    if (!checked) {
+      setSystemGroupStakes((prev) => ({
+        ...prev,
+        [groupName]: 0,
+      }))
+    } else {
+      // Se selezionato, imposta il valore minimo (systemStakeIncrement)
+      setSystemGroupStakes((prev) => ({
+        ...prev,
+        [groupName]: prev[groupName] || systemStakeIncrement,
+      }))
+    }
+
     // Aggiorna "tutti" se necessario
     const allSelected = systemGroups.every((group) =>
       group.name === groupName ? checked : selectedGroups[group.name],
@@ -980,6 +994,10 @@ export default function BettingSlip() {
                   value={global}
                   className="bg-background-foreground w-16 border-x text-center"
                   onChange={(e) => setGlobal(parseFloat(e.target.value))}
+                  onFocus={(e) => {
+                    const t = e.target
+                    setTimeout(() => t.select(), 0)
+                  }}
                 />
                 <Button
                   variant="ghost"
@@ -1057,7 +1075,10 @@ export default function BettingSlip() {
                                 parseFloat(e.target.value) || 0,
                               )
                             }
-                            onFocus={(e) => e.target.select()}
+                            onFocus={(e) => {
+                              const t = e.target
+                              setTimeout(() => t.select(), 0)
+                            }}
                             className="h-8 w-32 flex-1 rounded-none bg-white text-center text-[13px]"
                           />
                           <Button
@@ -1136,7 +1157,10 @@ export default function BettingSlip() {
                                         parseFloat(e.target.value) || 0,
                                       )
                                     }
-                                    onFocus={(e) => e.target.select()}
+                                    onFocus={(e) => {
+                                      const t = e.target
+                                      setTimeout(() => t.select(), 0)
+                                    }}
                                     className="h-8 w-32 flex-1 rounded-none bg-white text-center text-[13px]"
                                     step={systemStakeIncrement}
                                     min="0"
