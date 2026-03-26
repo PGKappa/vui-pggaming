@@ -807,10 +807,10 @@ export default function BettingSlip({
           <div
             className={`relative flex w-full flex-col items-center justify-center border-b-4 pb-0${
               isSystemToggleEnabled ? 'cursor-pointer' : ''
-            } ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'border-b-4 border-betSlip-header bg-accent pb-1 font-semibold text-betSlip-header' : 'font border-accent bg-accent text-white'}`}
+            } ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'border-b-4 border-betslipTitle bg-betslipTitleBackground pb-1 font-semibold text-betSlip-header' : 'font border-accent bg-betslipTitleBackground text-betslipTitle'}`}
             onClick={isSystemToggleEnabled ? () => setSystemToggleMode('MULTIPLE') : undefined}
           >
-            <span className={`pt-1 text-[14px] ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'font-semibold text-betslipTitle' : isSystemToggleEnabled ? 'pb-1 font-semibold text-white' : 'pb-1 font-normal text-white'}`}>
+            <span className={`pt-1 text-[14px] ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'font-semibold text-betslipTitle' : isSystemToggleEnabled ? 'pb-1 font-semibold text-betslipTitle' : 'pb-1 font-normal text-betslipTitle'}`}>
               {betMode === 'SINGLE' ? `${t('single').toUpperCase()}` : `${t('multiple').toUpperCase()} (${Object.entries(betsByEvent).length})`}
             </span>
             {betMode === 'SINGLE' || (betMode === 'MULTIPLE' && (
@@ -819,16 +819,16 @@ export default function BettingSlip({
           </div>
 
           <div
-            className={`relative flex w-full flex-col items-center justify-center border-b-4 ${
+            className={`relative flex w-full flex-col items-center justify-center border-b-4 border-betslipTitleBackground ${
               isSystemToggleEnabled ? 'cursor-pointer' : ''
-            } ${betMode === 'SYSTEM' ? 'border-betSlip-header bg-accent font-semibold' : 'border-accent bg-accent text-betSlip-header'}`}
+            } ${betMode === 'SYSTEM' ? 'border-betSlip-header bg-betslipTitleBackground font-semibold' : 'border-accent bg-betslipTitleBackground text-betSlip-header'}`}
             onClick={isSystemToggleEnabled ? () => setSystemToggleMode('SYSTEM') : undefined}
           >
-            <span className={`pt-1 text-[14px] ${betMode === 'SYSTEM' ? 'font-semibold text-betslipTitle' : isSystemToggleEnabled ? 'font-semibold text-white' : 'font-normal text-white'}`}>
+            <span className={`pt-1 text-[14px] ${betMode === 'SYSTEM' ? 'font-semibold text-betslipTitle' : isSystemToggleEnabled ? 'font-semibold text-betslipTitle' : 'font-normal text-betslipTitle'}`}>
               {t('system').toUpperCase()}
             </span>
             {betMode === 'SYSTEM' && (
-              <div className="absolute bottom-0.5 h-[0px] w-[156px] bg-navbarButton text-white"></div>
+              <div className="absolute bottom-0.5 h-[0px] w-[156px] bg-navbarButton text-betslipTitle"></div>
             )}
           </div>
         </div>
@@ -868,7 +868,6 @@ export default function BettingSlip({
       <CardFooter className="relative mb-[26px] flex flex-col bg-backgroundBetslip">
         {betMode !== 'SYSTEM' ? (
           <>
-            <div className="relative h-[30px] w-full bg-accent py-3"></div>
 
             <div className="relative top-[12px] flex w-full flex-row items-center justify-between px-4 pt-[9px] text-backgroundBetslip-foreground">
               <span className="relative bottom-[3px] text-[15px] font-semibold">

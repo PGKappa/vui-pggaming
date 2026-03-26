@@ -681,7 +681,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
         <div className="mb-[-48px] space-y-4">
           {detailedResult.arrival && Array.isArray(detailedResult.arrival) && detailedResult.arrival.length > 0 && (
             <div className="mb-[-8px] border-b">
-              <div className="mt-[7px] h-[45px] bg-accent py-2 text-center">
+              <div className="mt-[7px] h-[45px] bg-secondary py-2 text-center">
                 <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">
                   {t('arrival_order').toUpperCase()}
                 </div>
@@ -715,7 +715,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
           <div className="grid grid-cols-3">
             {raceResult.odds.winner && (
               <div className="border-b">
-                <div className="h-[45px] bg-accent py-2 text-center">
+                <div className="h-[45px] bg-secondary py-2 text-center">
                   <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">{t('winner').toUpperCase()}</div>
                 </div>
                 <div className="space-y-3 p-3">
@@ -732,7 +732,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
             )}
             {raceResult.odds.placed && (
               <div className="border-b border-l">
-                <div className="h-[45px] bg-accent py-2 text-center">
+                <div className="h-[45px] bg-secondary py-2 text-center">
                   <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">{t('place_2').toUpperCase()}</div>
                 </div>
                 <div className="space-y-3 p-3">
@@ -749,7 +749,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
             )}
             {raceResult.odds.show && (
               <div className="border-b border-l">
-                <div className="h-[45px] bg-accent py-2 text-center">
+                <div className="h-[45px] bg-secondary py-2 text-center">
                   <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">{t('show_3').toUpperCase()}</div>
                 </div>
                 <div className="space-y-3 p-3">
@@ -769,7 +769,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
           <div className="grid grid-cols-4">
             {raceResult.odds.exacta && (
               <div className="relative bottom-2 border-b">
-                <div className="h-[45px] bg-accent py-2 text-center">
+                <div className="h-[45px] bg-secondary py-2 text-center">
                   <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">{t('exacta').toUpperCase()}</div>
                 </div>
                 <div className="space-y-2 p-3">
@@ -788,7 +788,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
             )}
             {raceResult.odds.quinella && (
               <div className="relative bottom-2 border-b border-l">
-                <div className="h-[45px] bg-accent py-2 text-center">
+                <div className="h-[45px] bg-secondary py-2 text-center">
                   <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">{t('quinella').toUpperCase()}</div>
                 </div>
                 <div className="space-y-2 p-3">
@@ -807,7 +807,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
             )}
             {raceResult.odds.trifecta && (
               <div className="relative bottom-2 border-b border-l">
-                <div className="h-[45px] bg-accent py-2 text-center">
+                <div className="h-[45px] bg-secondary py-2 text-center">
                   <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">{t('trifecta').toUpperCase()}</div>
                 </div>
                 <div className="space-y-2 p-3">
@@ -826,7 +826,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
             )}
             {raceResult.odds.boxedtrifecta && (
               <div className="relative bottom-2 border-b border-l">
-                <div className="h-[45px] bg-accent py-2 text-center">
+                <div className="h-[45px] bg-secondary py-2 text-center">
                   <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">{t('boxed_trifecta').toUpperCase()}</div>
                 </div>
                 <div className="space-y-2 p-3">
@@ -848,7 +848,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
           <div className="grid grid-cols-2">
             {raceResult.odds.evenodd && (
               <div className="relative bottom-4 border-b">
-                <div className="h-[45px] bg-accent py-2 text-center">
+                <div className="h-[45px] bg-secondary py-2 text-center">
                   <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">{t('even_odd').toUpperCase()}</div>
                 </div>
                 <div className="flex items-center justify-center">
@@ -873,7 +873,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
             )}
             {raceResult.odds.underover && (
               <div className="relative bottom-4 border-b border-l">
-                <div className="h-[45px] bg-accent py-2 text-center">
+                <div className="h-[45px] bg-secondary py-2 text-center">
                   <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">{t('under_over')} 3.5</div>
                 </div>
                 <div className="flex items-center justify-center">

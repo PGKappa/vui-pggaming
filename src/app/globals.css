@@ -374,6 +374,9 @@
 
     --footer-betslip: 353 100% 44%;
     --footer-betslip-foreground: 0 0% 100%;
+
+    --betslipTitleBackground: 0, 0%, 93%;
+    --betslipTitleBackground-foreground: 0 0% 100%;
   }
 
   .stanleybet {
@@ -472,6 +475,9 @@
 
     --footer-betslip: 353 100% 44%;
     --footer-betslip-foreground: 0 0% 100%;
+
+    --betslipTitleBackground: 0, 0%, 93%;
+    --betslipTitleBackground-foreground: 0 0% 100%;
   }
 }
 
@@ -586,3 +592,5 @@ body > main > div > div > div.h-\[950px\].w-\[400px\].relative.right-1.shrink-0.
 #radix-\:r7\: > div.grid.gap-1\.5.p-4.text-center.sm\:text-left.h-\[45px\].relative.bg-secondary.text-accent-foreground > button{
   background: transparent;
 }
+
+

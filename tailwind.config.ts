@@ -126,6 +126,10 @@ export default {
           DEFAULT: 'hsl(var(--betslipTitle))',
           foreground: 'hsl(var(--betslipTitle-foreground))',
         },
+        betslipTitleBackground: {
+          DEFAULT: 'hsl(var(--betslipTitleBackground))',
+          foreground: 'hsl(var(--betslipTitleBackground-foreground))',
+        },
         market: {
           DEFAULT: 'hsl(var(--market))',
           foreground: 'hsl(var(--market-foreground))',
