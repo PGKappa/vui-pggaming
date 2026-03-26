@@ -117,6 +117,7 @@
   "game_rules": "Game Rules",
   "no_duplicates_added": "No bets added - selections already present in bet slip",
   "min_stake_error": "Minimum stake is {{min}}",
+  "min_stake_per_combination_not_met": "Minimum stake per combination not met. Increase by {{amount}} to continue",
   "max_win_error": "Maximum potential win is {{max}}",
   "min_bet_error": "Minimum ticket amount is {{min}}",
   "no_bet_selected": "No bet selected",

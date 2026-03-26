@@ -54,5 +54,6 @@
   "stake": "Mise",
   "min_win": "Gain Min",
   "max_win": "Gain Max",
-  "game_rules": "Règles du Jeu"
+  "game_rules": "Règles du Jeu",
+  "min_stake_per_combination_not_met": "Mise minimale par combinaison non atteinte. Augmentez de {{amount}} pour continuer"
 }

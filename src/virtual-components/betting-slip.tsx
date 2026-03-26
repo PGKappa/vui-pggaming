@@ -128,24 +128,27 @@ export default function BettingSlip() {
   }, [baseSystemGroups, systemGroupStakes])
 
   // Calcola i totali per la modalità SYSTEM
-  /* const systemTotals = useMemo(() => {
-    const totalStake = systemGroups.reduce((sum, group) => sum + group.stake, 0)
-    const minWin = systemGroups.reduce((sum, group) => {
-      if (group.stake === 0) return sum
-      return sum + group.minWin * group.stake
-    }, 0)
-    const maxWin = systemGroups.reduce((sum, group) => {
-      if (group.stake === 0) return sum
-      return sum + group.maxWin * group.stake
-    }, 0)
+  const actualTotalStake = useMemo(() => {
+    return systemGroups
+      .filter((group) => selectedGroups[group.name] && group.stake > 0)
+      .reduce((sum, group) => sum + group.stake * group.combinations.length, 0)
+  }, [systemGroups, selectedGroups])
 
-    const totalOdds = systemGroups.reduce((sum, group) => {
-      if (group.stake === 0) return sum
-      return sum + ((group.minWin + group.maxWin) / 2) * group.stake
-    }, 0)
+  const totalSystemPotentialWin = useMemo(() => {
+    return systemGroups
+      .filter((group) => selectedGroups[group.name])
+      .reduce((sum, group) => {
+        if (group.stake === 0) return sum
+        return sum + group.maxWin * group.stake
+      }, 0)
+  }, [systemGroups, selectedGroups])
 
-    return { totalStake, minWin, maxWin, totalOdds }
-  }, [systemGroups]) */
+  // Sincronizza global con il totale reale in SYSTEM mode
+  useEffect(() => {
+    if (effectiveMode === 'SYSTEM') {
+      setGlobal(actualTotalStake)
+    }
+  }, [actualTotalStake, effectiveMode])
 
   // Funzione per calcolare il type basato sulle discipline nel ticket
   const getTicketType = (entries: BetEntry[]): string => {
@@ -639,7 +642,7 @@ export default function BettingSlip() {
   const updateSystemGroupStake = (groupName: string, value: number) => {
     setSystemGroupStakes((prev) => ({
       ...prev,
-      [groupName]: value >= 0 ? value : 0,
+      [groupName]: value >= 0 ? Math.round(value * 100) / 100 : 0,
     }))
   }
 
@@ -649,6 +652,13 @@ export default function BettingSlip() {
       toast.error(t('enter_valid_amount'))
       return
     }
+
+    if (systemDistributeStake < minStake) {
+      toast.error(t('min_stake_error', { min: minStake }))
+      return
+    }
+
+    if (systemGroups.length === 0) return
 
     const selectedGroupsList = systemGroups.filter(
       (group) => selectedGroups[group.name],
@@ -663,14 +673,103 @@ export default function BettingSlip() {
       0,
     )
 
-    const stakePerCombination = systemDistributeStake / totalCombinations
-    const newStakes: Record<string, number> = {}
+    const minIncrement = systemStakeIncrement
+    const target = systemDistributeStake
 
+    // Divide per combinazioni totali, arrotonda al minIncrement
+    const baseStake =
+      Math.floor(target / totalCombinations / minIncrement) * minIncrement
+    const totalBaseUsed = baseStake * totalCombinations
+    let remaining = target - totalBaseUsed
+
+    const stakes: Record<string, number> = {}
     for (const group of selectedGroupsList) {
-      newStakes[group.name] = stakePerCombination
+      stakes[group.name] = Math.round(baseStake * 100) / 100
     }
 
-    setSystemGroupStakes((prev) => ({ ...prev, ...newStakes }))
+    // Ordina per numero combinazioni (gruppi più piccoli prima)
+    const groupsByPriority = [...selectedGroupsList].sort(
+      (a, b) => a.combinations.length - b.combinations.length,
+    )
+
+    // PRIMO GIRO: distribuisci il resto ai gruppi
+    for (const group of groupsByPriority) {
+      if (remaining <= 0) break
+      const additionalStakePerCombination =
+        remaining / group.combinations.length
+      const roundedAdditional =
+        Math.floor(additionalStakePerCombination / minIncrement) * minIncrement
+      if (roundedAdditional >= minIncrement) {
+        const totalCost = roundedAdditional * group.combinations.length
+        stakes[group.name] += roundedAdditional
+        remaining -= totalCost
+        remaining = Math.round(remaining / minIncrement) * minIncrement
+      }
+    }
+
+    // SECONDO GIRO: riprova se rimane ancora qualcosa
+    if (remaining >= minIncrement) {
+      for (const group of groupsByPriority) {
+        if (remaining < minIncrement) break
+        const additionalStakePerCombination =
+          remaining / group.combinations.length
+        const roundedAdditional =
+          Math.floor(additionalStakePerCombination / minIncrement) *
+          minIncrement
+        if (roundedAdditional >= minIncrement) {
+          const totalCost = roundedAdditional * group.combinations.length
+          stakes[group.name] += roundedAdditional
+          remaining -= totalCost
+          remaining = Math.round(remaining / minIncrement) * minIncrement
+        }
+      }
+    }
+
+    // Deseleziona gruppi che non hanno ricevuto stake
+    const newSelections: Record<string, boolean> = {}
+    const groupsWithoutStake: string[] = []
+
+    for (const group of selectedGroupsList) {
+      if (stakes[group.name] > 0) {
+        newSelections[group.name] = true
+      } else {
+        newSelections[group.name] = false
+        groupsWithoutStake.push(group.name)
+      }
+    }
+
+    setSystemGroupStakes((prev) => ({ ...prev, ...stakes }))
+    setSelectedGroups((prev) => ({ ...prev, ...newSelections }))
+
+    // Aggiorna il valore di divide con il totale effettivamente distribuito
+    const actualDistributed = Object.entries(stakes).reduce(
+      (sum, [name, stake]) => {
+        const group = selectedGroupsList.find((g) => g.name === name)
+        return sum + stake * (group?.combinations.length || 0)
+      },
+      0,
+    )
+    setSystemDistributeStake(Math.round(actualDistributed * 100) / 100)
+
+    // Notifica se alcuni gruppi non hanno ricevuto abbastanza
+    if (groupsWithoutStake.length > 0) {
+      const minNeededForAll = totalCombinations * minStake
+      const difference = minNeededForAll - systemDistributeStake
+      if (difference > 0) {
+        toast.error(
+          t('min_stake_per_combination_not_met', {
+            amount: `${currencySymbol}${difference}`,
+          }),
+        )
+      }
+    }
+
+    setTimeout(() => {
+      const allSelected = systemGroups.every(
+        (group) => newSelections[group.name] && stakes[group.name] > 0,
+      )
+      setAllGroupsSelected(allSelected)
+    }, 0)
   }
 
   // Funzione per aggiungere stake a tutti i gruppi selezionati
@@ -680,14 +779,38 @@ export default function BettingSlip() {
       return
     }
 
+    if (systemDistributeStake < minStake) {
+      toast.error(t('min_stake_error', { min: minStake }))
+      return
+    }
+
+    const hasSelectedGroups = systemGroups.some(
+      (group) => selectedGroups[group.name],
+    )
+    if (!hasSelectedGroups) {
+      toast.error(t('select_at_least_one_group'))
+      return
+    }
+
     const newStakes = { ...systemGroupStakes }
+    const newSelections = { ...selectedGroups }
+
     Object.keys(selectedGroups).forEach((groupName) => {
       if (selectedGroups[groupName]) {
         newStakes[groupName] = systemDistributeStake
+        newSelections[groupName] = true
       }
     })
 
     setSystemGroupStakes(newStakes)
+    setSelectedGroups(newSelections)
+
+    setTimeout(() => {
+      const allSelected = systemGroups.every(
+        (group) => newSelections[group.name] && newStakes[group.name] > 0,
+      )
+      setAllGroupsSelected(allSelected)
+    }, 0)
   }
 
   // Gestione checkbox "tutti"
@@ -934,6 +1057,7 @@ export default function BettingSlip() {
                                 parseFloat(e.target.value) || 0,
                               )
                             }
+                            onFocus={(e) => e.target.select()}
                             className="h-8 w-32 flex-1 rounded-none bg-white text-center text-[13px]"
                           />
                           <Button
@@ -957,115 +1081,119 @@ export default function BettingSlip() {
                     onValueChange={setSystemGroupsOpen}
                     className="w-full"
                   >
-                    {systemGroups.map((group) => (
-                      <AccordionItem
-                        key={group.name}
-                        value={group.name}
-                        className="bg-white"
-                      >
-                        <AccordionTrigger className="bg-betSlip-header px-3 py-2 hover:no-underline">
-                          <div className="flex w-full items-center justify-between pr-2">
-                            <div className="flex items-center gap-2">
-                              <Checkbox
-                                id={`group-${group.name}`}
-                                checked={selectedGroups[group.name] || false}
-                                onCheckedChange={(checked) =>
-                                  handleGroupToggle(
-                                    group.name,
-                                    checked as boolean,
-                                  )
-                                }
-                                onClick={(e) => e.stopPropagation()}
-                              />
-                              <span className="text-[13px] font-semibold">
-                                {group.name.toUpperCase()} (
-                                {group.combinations.length})
+                    {systemGroups
+                      .slice()
+                      .reverse()
+                      .map((group) => (
+                        <AccordionItem
+                          key={group.name}
+                          value={group.name}
+                          className="bg-white"
+                        >
+                          <AccordionTrigger className="bg-betSlip-header px-3 py-2 hover:no-underline">
+                            <div className="flex w-full items-center justify-between pr-2">
+                              <div className="flex items-center gap-2">
+                                <Checkbox
+                                  id={`group-${group.name}`}
+                                  checked={selectedGroups[group.name] || false}
+                                  onCheckedChange={(checked) =>
+                                    handleGroupToggle(
+                                      group.name,
+                                      checked as boolean,
+                                    )
+                                  }
+                                  onClick={(e) => e.stopPropagation()}
+                                />
+                                <span className="text-[13px] font-semibold">
+                                  {group.name.toUpperCase()} (
+                                  {group.combinations.length})
+                                </span>
+                              </div>
+                              <span className="relative flex items-center">
+                                <div className="flex items-center gap-0 border">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-8 w-7 rounded-none bg-accent px-3 text-white"
+                                    onClick={() =>
+                                      updateSystemGroupStake(
+                                        group.name,
+                                        Math.max(
+                                          group.stake - systemStakeIncrement,
+                                          0,
+                                        ),
+                                      )
+                                    }
+                                  >
+                                    <MinusIcon className="h-4 w-4" />
+                                  </Button>
+                                  <Input
+                                    type="number"
+                                    value={group.stake}
+                                    onChange={(e) =>
+                                      updateSystemGroupStake(
+                                        group.name,
+                                        parseFloat(e.target.value) || 0,
+                                      )
+                                    }
+                                    onFocus={(e) => e.target.select()}
+                                    className="h-8 w-32 flex-1 rounded-none bg-white text-center text-[13px]"
+                                    step={systemStakeIncrement}
+                                    min="0"
+                                  />
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-8 w-7 rounded-none bg-accent px-3 text-white"
+                                    onClick={() =>
+                                      updateSystemGroupStake(
+                                        group.name,
+                                        group.stake + systemStakeIncrement,
+                                      )
+                                    }
+                                  >
+                                    <PlusIcon className="h-4 w-4" />
+                                  </Button>
+                                </div>
                               </span>
                             </div>
-                            <span className="relative flex items-center">
-                              <div className="flex items-center gap-0 border">
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-8 w-7 rounded-none bg-accent px-3 text-white"
-                                  onClick={() =>
-                                    updateSystemGroupStake(
-                                      group.name,
-                                      Math.max(
-                                        group.stake - systemStakeIncrement,
-                                        0,
-                                      ),
-                                    )
-                                  }
-                                >
-                                  <MinusIcon className="h-4 w-4" />
-                                </Button>
-                                <Input
-                                  type="number"
-                                  value={group.stake}
-                                  onChange={(e) =>
-                                    updateSystemGroupStake(
-                                      group.name,
-                                      parseFloat(e.target.value) || 0,
-                                    )
-                                  }
-                                  className="h-8 w-32 flex-1 rounded-none bg-white text-center text-[13px]"
-                                  step="0.5"
-                                  min="0"
-                                />
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-8 w-7 rounded-none bg-accent px-3 text-white"
-                                  onClick={() =>
-                                    updateSystemGroupStake(
-                                      group.name,
-                                      group.stake + systemStakeIncrement,
-                                    )
-                                  }
-                                >
-                                  <PlusIcon className="h-4 w-4" />
-                                </Button>
+                          </AccordionTrigger>
+                          <AccordionContent className="border-b bg-white px-4">
+                            {/* Input stake per questo gruppo */}
+                            <div className="relative top-1.5 grid grid-cols-3">
+                              <div className="relative left-[1px] text-center">
+                                <div className="text-[11px] text-primary">
+                                  {t('min win').toUpperCase()}
+                                </div>
+                                <div className="relative top-[1px] text-[13px] font-semibold">
+                                  {currencySymbol}{' '}
+                                  {(group.minWin * group.stake).toFixed(2)}
+                                </div>
                               </div>
-                            </span>
-                          </div>
-                        </AccordionTrigger>
-                        <AccordionContent className="border-b bg-white px-4">
-                          {/* Input stake per questo gruppo */}
-                          <div className="relative top-1.5 grid grid-cols-3">
-                            <div className="relative left-[1px] text-center">
-                              <div className="text-[11px] text-primary">
-                                {t('min win').toUpperCase()}
+                              <div className="relative right-[16px] text-center text-[11px]">
+                                <div className="text-primary">
+                                  {t('max win').toUpperCase()}
+                                </div>
+                                <div className="relative top-[1px] text-[13px] font-semibold">
+                                  {currencySymbol}{' '}
+                                  {(group.maxWin * group.stake).toFixed(2)}
+                                </div>
                               </div>
-                              <div className="relative top-[1px] text-[13px] font-semibold">
-                                {currencySymbol}{' '}
-                                {(group.minWin * group.stake).toFixed(2)}
+                              <div className="relative right-[18px] text-center text-[11px]">
+                                <div className="text-primary">
+                                  {t('total_played').toUpperCase()}
+                                </div>
+                                <div className="relative top-[1px] text-[13px] font-semibold">
+                                  {currencySymbol}{' '}
+                                  {(
+                                    group.stake * group.combinations.length
+                                  ).toFixed(2)}
+                                </div>
                               </div>
                             </div>
-                            <div className="relative right-[16px] text-center text-[11px]">
-                              <div className="text-primary">
-                                {t('max win').toUpperCase()}
-                              </div>
-                              <div className="relative top-[1px] text-[13px] font-semibold">
-                                {currencySymbol}{' '}
-                                {(group.maxWin * group.stake).toFixed(2)}
-                              </div>
-                            </div>
-                            <div className="relative right-[18px] text-center text-[11px]">
-                              <div className="text-primary">
-                                {t('total_played').toUpperCase()}
-                              </div>
-                              <div className="relative top-[1px] text-[13px] font-semibold">
-                                {currencySymbol}{' '}
-                                {(
-                                  group.stake * group.combinations.length
-                                ).toFixed(2)}
-                              </div>
-                            </div>
-                          </div>
-                        </AccordionContent>
-                      </AccordionItem>
-                    ))}
+                          </AccordionContent>
+                        </AccordionItem>
+                      ))}
                   </Accordion>
                 </AccordionContent>
               </AccordionItem>
@@ -1094,33 +1222,19 @@ export default function BettingSlip() {
               <span className="text-[13px] font-semibold">
                 {t('amount').toUpperCase()}
               </span>
-              <div className="flex items-center bg-white">
-                <Input
-                  type="number"
-                  value={systemDistributeStake}
-                  onChange={(e) =>
-                    setSystemDistributeStake(parseFloat(e.target.value) || 0)
-                  }
-                  className="h-8 w-[240px] flex-1 rounded-none border bg-white text-center text-[13px]"
-                />
-              </div>
+              <span className="text-[13px] font-semibold">
+                {currencySymbol} {actualTotalStake.toFixed(2)}
+              </span>
             </div>
 
-            {/* GANANCIA POTENCIAL */}
+            {/* VINCITA POTENZIALE */}
             <div className="flex flex-row items-center justify-between px-3 pt-2">
               <span className="text-[13px] font-semibold">
                 {t('potential_win').toUpperCase()}
               </span>
-              <div className="flex items-center bg-white">
-                <Input
-                  type="number"
-                  value={systemDistributeStake}
-                  onChange={(e) =>
-                    setSystemDistributeStake(parseFloat(e.target.value) || 0)
-                  }
-                  className="h-8 w-[240px] flex-1 rounded-none border bg-white text-center text-[13px]"
-                />
-              </div>
+              <span className="text-[13px] font-semibold">
+                {currencySymbol} {totalSystemPotentialWin.toFixed(2)}
+              </span>
             </div>
           </div>
         )}

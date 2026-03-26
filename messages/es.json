@@ -54,5 +54,6 @@
   "stake": "Apuesta",
   "min_win": "Ganancia Mín",
   "max_win": "Ganancia Máx",
-  "game_rules": "Reglas del Juego"
+  "game_rules": "Reglas del Juego",
+  "min_stake_per_combination_not_met": "El valor mínimo por columna no se cumple. Auméntelo en {{amount}} para continuar"
 }

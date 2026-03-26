@@ -60,5 +60,6 @@
   "stake": "Puntata",
   "min_win": "Vincita Min",
   "max_win": "Vincita Max",
-  "game_rules": "Informazioni"
+  "game_rules": "Informazioni",
+  "min_stake_per_combination_not_met": "Valore minimo per combinazione non raggiunto. Aumentare di {{amount}} per continuare"
 }

@@ -56,5 +56,6 @@
   "stake": "赌注",
   "min_win": "最小赢额",
   "max_win": "最大赢额",
-  "game_rules": "游戏规则"
+  "game_rules": "游戏规则",
+  "min_stake_per_combination_not_met": "每组合最低投注额未达到。请增加 {{amount}} 以继续"
 }
