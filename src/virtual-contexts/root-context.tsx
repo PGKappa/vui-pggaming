@@ -194,7 +194,7 @@ export default function RootContextProvider(props: {
           timestamp: Date.now(),
         }),
       )
-    } catch {}
+    } catch { }
   }, [])
 
   // Funzioni specifiche per il caching cashier
@@ -412,7 +412,7 @@ export default function RootContextProvider(props: {
   // Helper per chiamate API PGVirtual
   const pgVirtualFetch = useCallback(
     (endpoint: string, options?: RequestInit) => {
-      return fetch(`https://apisuprema.pgvirtual.eu${endpoint}`, {
+      return fetch(`https://demo-pg.pgvirtual.eu${endpoint}`, {
         ...options,
         headers: {
           accept: 'application/json',

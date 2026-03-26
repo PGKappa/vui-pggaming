@@ -153,7 +153,7 @@ export default function UpcomingRaceCard({
       setIsLoading(true)
       try {
         const response = await fetch(
-          `https://apisuprema.pgvirtual.eu/api/event/info/${race.extId}/${race.id}`,
+          `https://demo-pg.pgvirtual.eu/api/event/info/${race.extId}/${race.id}`,
           {
             headers: {
               accept: 'application/json',
@@ -491,11 +491,10 @@ export default function UpcomingRaceCard({
               pressed={position1Selection.includes(racer.number)}
               onPressedChange={() => togglePosition1Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className={`h-11 w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
-                position1Selection.includes(racer.number)
+              className={`h-11 w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${position1Selection.includes(racer.number)
                   ? 'bg-accent text-accent-foreground'
                   : ''
-              }`}
+                }`}
             >
               <span className="text-md">1°</span>
             </Toggle>
@@ -509,11 +508,10 @@ export default function UpcomingRaceCard({
               pressed={position2Selection.includes(racer.number)}
               onPressedChange={() => togglePosition2Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className={`h-11 w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
-                position2Selection.includes(racer.number)
+              className={`h-11 w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${position2Selection.includes(racer.number)
                   ? 'bg-accent text-accent-foreground'
                   : ''
-              }`}
+                }`}
             >
               <span className="text-md">2°</span>
             </Toggle>
@@ -533,11 +531,10 @@ export default function UpcomingRaceCard({
                   pressed={disorderSelection.includes(racer.number)}
                   onPressedChange={() => toggleDisorderSelection(racer.number)}
                   onClick={(e) => e.stopPropagation()}
-                  className={`h-11 w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
-                    disorderSelection.includes(racer.number)
+                  className={`h-11 w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${disorderSelection.includes(racer.number)
                       ? 'bg-accent text-accent-foreground'
                       : ''
-                  }`}
+                    }`}
                 >
                   {disorderSelection.includes(racer.number) && (
                     <Check className="h-4 w-4 text-current" />
@@ -560,11 +557,10 @@ export default function UpcomingRaceCard({
               pressed={position1Selection.includes(racer.number)}
               onPressedChange={() => togglePosition1Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className={`h-11 w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
-                position1Selection.includes(racer.number)
+              className={`h-11 w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${position1Selection.includes(racer.number)
                   ? 'bg-accent text-accent-foreground'
                   : ''
-              }`}
+                }`}
             >
               <span className="text-md">1°</span>
             </Toggle>
@@ -578,11 +574,10 @@ export default function UpcomingRaceCard({
               pressed={position2Selection.includes(racer.number)}
               onPressedChange={() => togglePosition2Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className={`h-11 w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
-                position2Selection.includes(racer.number)
+              className={`h-11 w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${position2Selection.includes(racer.number)
                   ? 'bg-accent text-accent-foreground'
                   : ''
-              }`}
+                }`}
             >
               <span className="text-md">2°</span>
             </Toggle>
@@ -596,11 +591,10 @@ export default function UpcomingRaceCard({
               pressed={position3Selection.includes(racer.number)}
               onPressedChange={() => togglePosition3Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className={`h-11 w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
-                position3Selection.includes(racer.number)
+              className={`h-11 w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${position3Selection.includes(racer.number)
                   ? 'bg-accent text-accent-foreground'
                   : ''
-              }`}
+                }`}
             >
               <span className="text-md">3°</span>
             </Toggle>
@@ -620,11 +614,10 @@ export default function UpcomingRaceCard({
                   pressed={disorderSelection.includes(racer.number)}
                   onPressedChange={() => toggleDisorderSelection(racer.number)}
                   onClick={(e) => e.stopPropagation()}
-                  className={`h-11 w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
-                    disorderSelection.includes(racer.number)
+                  className={`h-11 w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${disorderSelection.includes(racer.number)
                       ? 'bg-accent text-accent-foreground'
                       : ''
-                  }`}
+                    }`}
                 >
                   {disorderSelection.includes(racer.number) && (
                     <Check className="h-4 w-4 text-current" />
@@ -807,8 +800,8 @@ export default function UpcomingRaceCard({
 
               <div className="">
                 {!isLoading &&
-                raceInfo?.racers &&
-                raceInfo.racers.length > 0 ? (
+                  raceInfo?.racers &&
+                  raceInfo.racers.length > 0 ? (
                   raceInfo.racers.map((racer) => (
                     <div
                       key={racer.number}
