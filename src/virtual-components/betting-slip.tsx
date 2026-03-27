@@ -646,6 +646,46 @@ export default function BettingSlip() {
     }))
   }
 
+  // Funzione per input diretto dell'amount in modalità SYSTEM
+  const handleDirectAmountInput = (value: number) => {
+    if (value <= 0) {
+      setGlobal(0)
+      setSystemGroupStakes({})
+      setSelectedGroups({})
+      setAllGroupsSelected(false)
+      return
+    }
+
+    // Trova il gruppo con il size più grande
+    const largestGroup = systemGroups.reduce((largest, current) => {
+      return current.size > largest.size ? current : largest
+    }, systemGroups[0])
+
+    if (!largestGroup) return
+
+    // Calcola stake per combinazione: valore totale / numero combinazioni del gruppo più grande
+    const stakePerCombination =
+      Math.round((value / largestGroup.combinations.length) * 100) / 100
+
+    const newSelectedGroups: Record<string, boolean> = {}
+    const newStakes: Record<string, number> = {}
+
+    systemGroups.forEach((group) => {
+      if (group.size === largestGroup.size) {
+        newSelectedGroups[group.name] = true
+        newStakes[group.name] = stakePerCombination
+      } else {
+        newSelectedGroups[group.name] = false
+        newStakes[group.name] = 0
+      }
+    })
+
+    setSelectedGroups(newSelectedGroups)
+    setSystemGroupStakes((prev) => ({ ...prev, ...newStakes }))
+    setAllGroupsSelected(false)
+    setGlobal(value)
+  }
+
   // Funzione per dividere lo stake tra i gruppi selezionati
   const handleDistributeStake = () => {
     if (systemDistributeStake <= 0) {
@@ -1246,9 +1286,43 @@ export default function BettingSlip() {
               <span className="text-[13px] font-semibold">
                 {t('amount').toUpperCase()}
               </span>
-              <span className="text-[13px] font-semibold">
-                {currencySymbol} {actualTotalStake.toFixed(2)}
-              </span>
+              <div className="flex items-center border border-border">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-5 w-5 rounded-none bg-betSlip p-3"
+                  onClick={() =>
+                    handleDirectAmountInput(
+                      Math.max(global - minStakeIncrement, 0),
+                    )
+                  }
+                >
+                  -
+                </Button>
+                <Input
+                  type="number"
+                  value={global}
+                  onChange={(e) =>
+                    handleDirectAmountInput(parseFloat(e.target.value) || 0)
+                  }
+                  onFocus={(e) => {
+                    const t = e.target
+                    setTimeout(() => t.select(), 0)
+                  }}
+                  className="bg-background-foreground w-16 border-x text-center"
+                  min="0"
+                />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-5 w-4 rounded-none bg-betSlip p-3"
+                  onClick={() =>
+                    handleDirectAmountInput(global + minStakeIncrement)
+                  }
+                >
+                  +
+                </Button>
+              </div>
             </div>
 
             {/* VINCITA POTENZIALE */}
