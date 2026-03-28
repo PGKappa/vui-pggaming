@@ -938,7 +938,7 @@ export default function BettingSlip({
               className="relative top-3 w-full"
             >
               <AccordionItem value="combinations" className="border-none">
-                <div className="relative bottom-[4px] h-[30px] w-full bg-accent px-4 text-[13px] text-accent-foreground hover:no-underline">
+                <div className="relative h-[30px] w-full bg-accent px-4 text-[13px] text-accent-foreground hover:no-underline ">
                   <span className="relative bottom-1">{t('combinations').toUpperCase()}</span>
                   <button
                     onClick={() => setAccordionOpen(accordionOpen === 'combinations' ? '' : 'combinations')}
@@ -949,7 +949,7 @@ export default function BettingSlip({
                   </button>
                 </div>
                 <AccordionContent className="pb-0">
-                  <div className="h-[50px] border-b px-4 pb-2">
+                  <div className="h-[50px] border-b px-4 pb-2 bg-white">
                     <div className="relative top-[2px] flex items-center justify-between gap-2">
                       <Checkbox checked={allGroupsSelected} onCheckedChange={handleAllGroupsToggle} />
                       <div className="relative top-[1px] mr-[3px] flex h-[33px] items-center gap-2">
@@ -959,7 +959,7 @@ export default function BettingSlip({
                             variant="ghost"
                             size="sm"
                             onClick={handleDistributeStake}
-                            className="h-8 w-7 bg-bet p-3 text-[19px] text-bet-foreground hover:opacity-90"
+                            className="h-8 w-7 bg-accent p-3 text-[19px] text-bet-foreground hover:opacity-90"
                           >
                             <DivideIcon className="h-4 w-4" />
                           </Button>
@@ -976,7 +976,7 @@ export default function BettingSlip({
                             variant="ghost"
                             size="sm"
                             onClick={handleAddStakeToAll}
-                            className="h-8 w-7 bg-bet p-3 text-[19px] text-bet-foreground hover:opacity-90"
+                            className="h-8 w-7 bg-secondary p-3 text-[19px] text-bet-foreground hover:opacity-90"
                           >
                             <CornerDownLeft className="h-4 w-4" />
                           </Button>
@@ -997,7 +997,7 @@ export default function BettingSlip({
                     >
                       {systemGroups.map((group) => (
                         <AccordionItem key={group.name} value={group.name} className="bg-bet-foreground">
-                          <div className={`relative h-[59px] border-b px-4 py-[7px] ${systemGroupsOpen.includes(group.name) ? 'bg' : 'bg-background'}`}>
+                          <div className={`relative h-[59px] bg-white text-black border-b px-4 py-[7px] ${systemGroupsOpen.includes(group.name) ? 'bg' : 'bg-secondary'}`}>
                             <div className="mt-[3px] flex w-full items-center justify-between">
                               <div className="flex items-center gap-2">
                                 <Checkbox
@@ -1028,7 +1028,7 @@ export default function BettingSlip({
                                       }
                                     }}
                                     disabled={group.stake <= 0}
-                                    className="h-8 w-7 bg-bet p-3 text-[19px] text-bet-foreground hover:opacity-90"
+                                    className="h-8 w-7 bg-accent p-3 text-[19px] text-bet-foreground hover:opacity-90"
                                   >
                                     <MinusIcon className="h-4 w-4" />
                                   </Button>
@@ -1056,7 +1056,7 @@ export default function BettingSlip({
                                         }, 0)
                                       }
                                     }}
-                                    className="h-8 w-7 bg-bet p-3 text-[19px] text-bet-foreground hover:opacity-90"
+                                    className="h-8 w-7 bg-secondary p-3 text-[19px] text-bet-foreground hover:opacity-90"
                                   >
                                     <PlusIcon className="h-4 w-4" />
                                   </Button>
@@ -1117,15 +1117,15 @@ export default function BettingSlip({
             <Separator />
 
             <div className="relative bottom-[1px] flex w-full flex-row items-center justify-between px-4 py-[27px] pb-[15px] text-foreground">
-              <span className="text-[15px] font-semibold">{t('total_combinations').toUpperCase()}</span>
-              <span className="text-[15px] font-semibold">{totalSystemCombinations}/{totalSystemCombinations}</span>
+              <span className="text-[15px] text-white font-semibold">{t('total_combinations').toUpperCase()}</span>
+              <span className="text-[15px] text-white font-semibold">{totalSystemCombinations}/{totalSystemCombinations}</span>
             </div>
 
             <Separator />
 
             <div className="relative top-[2px] flex w-full flex-row items-center justify-between px-4">
               <div className="flex items-center gap-2">
-                <span className="text-[16px] font-semibold">{t('amount').toUpperCase()}</span>
+                <span className="text-[16px] text-white font-semibold">{t('amount').toUpperCase()}</span>
               </div>
               <NumericKeypadDrawer
                 value={global}
@@ -1140,9 +1140,9 @@ export default function BettingSlip({
 
             <Separator />
 
-            <div className="relative top-[29px] flex w-full flex-row items-center justify-between px-4 pb-[19px] text-foreground">
-              <span className="text-[17px] font-semibold">{t('potential_win').toUpperCase()}</span>
-              <span className="text-[17px] font-semibold">{currencySymbol} {totalSystemPotentialWin.toFixed(2)}</span>
+            <div className="relative top-[29px] flex w-full flex-row items-center justify-between px-4 pb-[19px] text-foreground bg-secondary">
+              <span className="text-[17px] text-white font-semibold">{t('potential_win').toUpperCase()}</span>
+              <span className="text-[17px] text-white font-semibold">{currencySymbol} {totalSystemPotentialWin.toFixed(2)}</span>
             </div>
           </>
         )}
