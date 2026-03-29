@@ -40,7 +40,7 @@ function NavbarContent() {
 
   return (
     <div
-      className="flex h-16 w-full flex-row items-center justify-start bg-accent p-3"
+      className="flex h-16 w-full flex-row items-center justify-start bg-navbarTop p-3"
       suppressHydrationWarning={true}
     >
       <div className="relative left-[8px] flex flex-row items-center space-x-2">
@@ -191,7 +191,7 @@ function NavbarContent() {
 
 export default function Navbar() {
   return (
-    <Suspense fallback={<div className="flex h-16 w-full bg-accent" />}>
+    <Suspense fallback={<div className="flex h-16 w-full bg-navbarTop" />}>
       <NavbarContent />
     </Suspense>
   )

@@ -49,7 +49,7 @@ const layoutByLanguage: Record<string, LayoutConfig> = {
       eventIdMargin: 'mr-[255px]',
     },
     bettingSlip: {
-      combinationsButtonLeft: 'left-[247px]',
+      combinationsButtonLeft: 'left-[251px]',
     },
     searchEventResults: {
       disciplineSelectLeft: 'left-5',

@@ -52,7 +52,7 @@ const getImageConfig = (discipline: Discipline, language: string, skin: SkinType
 
   // Default inglese per racing
   return {
-    image: '/dogshorses-codes-image.png',
+    image: '/cani-cavalli-codes-image-rosso.png',
     alt: 'Dogs and horses betting codes',
     title: 'Racing Code List',
   }
@@ -322,7 +322,7 @@ export default function DraggableCodeList({
       <Button
         variant="ghost"
         size="icon"
-        className="h-12 w-12 bg-bet text-[18px] font-normal text-tertiary-foreground hover:opacity-90"
+        className="h-12 w-12 bg-infoBackground text-[18px] font-normal text-tertiary-foreground hover:opacity-90"
         onClick={() => setIsOpen(!isOpen)}
       >
         i
