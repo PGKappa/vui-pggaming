@@ -115,13 +115,13 @@ function NavbarContent() {
               : 'bg-secondary',
           )}
         >
-          <Image
+       {/**   <Image
             src="/soccer.png"
             alt="Calcio"
             width={40}
             height={20}
             className="size-8 object-contain brightness-0 invert filter"
-          />
+          />*/} 
         </Link>
       </div>
 
