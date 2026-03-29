@@ -52,7 +52,7 @@ const getImageConfig = (discipline: Discipline, language: string, skin: SkinType
 
   // Default inglese per racing
   return {
-    image: '/dogshorses-codes-image.png',
+    image: '/cani-cavalli-codes-image-rosso.png',
     alt: 'Dogs and horses betting codes',
     title: 'Racing Code List',
   }
