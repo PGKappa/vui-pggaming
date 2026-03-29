@@ -16,6 +16,7 @@ const buttonVariants = cva(
         ghost: '',
         link: 'text-primary underline-offset-4',
         betNow: 'font-bold text-lg bg-[#57b300] text-bet-foreground shadow',
+        betAgain: 'font-bold text-lg bg-accent text-bet-foreground shadow',
         navbar: 'bg-secondary text-accent-foreground',
         navbarSelected:
           'bg-navbarButton-selected text-navbarButton-selected-foreground',

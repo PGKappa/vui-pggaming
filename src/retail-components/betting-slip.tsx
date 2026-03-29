@@ -807,7 +807,7 @@ export default function BettingSlip({
           <div
             className={`relative flex w-full flex-col items-center justify-center border-b-4 pb-0${
               isSystemToggleEnabled ? 'cursor-pointer' : ''
-            } ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'border-b-4 border-betslipTitle bg-betslipTitleBackground pb-1 font-semibold text-betSlip-header' : 'font border-accent bg-betslipTitleBackground text-betslipTitle'}`}
+            } ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'border-b-4 border-betslipTitle bg-betslipTitleBackground pb-1 font-semibold text-betSlip-header' : 'font border-betslipTitleBackground bg-betslipTitleBackground text-betslipTitle'}`}
             onClick={isSystemToggleEnabled ? () => setSystemToggleMode('MULTIPLE') : undefined}
           >
             <span className={`pt-1 text-[14px] ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'font-semibold text-betslipTitle' : isSystemToggleEnabled ? 'pb-1 font-semibold text-betslipTitle' : 'pb-1 font-normal text-betslipTitle'}`}>
@@ -821,7 +821,7 @@ export default function BettingSlip({
           <div
             className={`relative flex w-full flex-col items-center justify-center border-b-4 border-betslipTitleBackground ${
               isSystemToggleEnabled ? 'cursor-pointer' : ''
-            } ${betMode === 'SYSTEM' ? 'border-betSlip-header bg-betslipTitleBackground font-semibold' : 'border-accent bg-betslipTitleBackground text-betSlip-header'}`}
+            } ${betMode === 'SYSTEM' ? 'border-[#e0001a] bg-betslipTitleBackground font-semibold' : 'border-accent bg-betslipTitleBackground text-betSlip-header'}`}
             onClick={isSystemToggleEnabled ? () => setSystemToggleMode('SYSTEM') : undefined}
           >
             <span className={`pt-1 text-[14px] ${betMode === 'SYSTEM' ? 'font-semibold text-betslipTitle' : isSystemToggleEnabled ? 'font-semibold text-betslipTitle' : 'font-normal text-betslipTitle'}`}>
@@ -839,7 +839,7 @@ export default function BettingSlip({
           <div className="relative flex h-full items-start justify-center pt-2">
             <span className="text-[15px] font-normal leading-none">{t('no_selection')}</span>
             <Button
-              variant="betNow"
+              variant="betAgain"
               size="icon-sm"
               className="absolute right-0 top-1 font-bold"
               onClick={restoreLastSubmittedTicket}
@@ -937,7 +937,7 @@ export default function BettingSlip({
               onValueChange={setAccordionOpen}
               className="relative top-3 w-full"
             >
-              <AccordionItem value="combinations" className="border-none">
+              <AccordionItem value="combinations" className="border-none relative bottom-3">
                 <div className="relative h-[30px] w-full bg-accent px-4 text-[13px] text-accent-foreground hover:no-underline ">
                   <span className="relative bottom-1">{t('combinations').toUpperCase()}</span>
                   <button
@@ -1116,7 +1116,7 @@ export default function BettingSlip({
 
             <Separator />
 
-            <div className="relative bottom-[1px] flex w-full flex-row items-center justify-between px-4 py-[27px] pb-[15px] text-foreground">
+            <div className="relative bottom-[5px] flex w-full flex-row items-center justify-between px-4 py-[27px] pb-[15px] text-foreground">
               <span className="text-[15px] text-white font-semibold">{t('total_combinations').toUpperCase()}</span>
               <span className="text-[15px] text-white font-semibold">{totalSystemCombinations}/{totalSystemCombinations}</span>
             </div>
