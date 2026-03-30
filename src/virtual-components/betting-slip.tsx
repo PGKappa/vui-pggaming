@@ -942,7 +942,7 @@ export default function BettingSlip() {
         className="m-1 w-full rounded-none text-[16px] font-bold"
         onClick={handleSubmitTicket}
       >
-        {isSubmitting ? t('submitting') || 'Submitting...' : t('bet_now')}
+        {isSubmitting ? t('submitting') : t('bet_now')}
       </Button>
     </Card>
   )
