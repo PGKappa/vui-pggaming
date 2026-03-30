@@ -188,10 +188,10 @@ export default function AlphanumericKeypadDrawer(props: {
             variant="ghost"
             size="icon"
             onClick={closeDrawer}
-            className="absolute right-2 top-2"
+            className="absolute right-2 top-2 bg-transparent"
           >
             <ChevronDown
-              className="relative bottom-1 h-5 w-5"
+              className="relative bottom-1 h-5 w-5 bg-transparent"
               style={{ scale: 1.7 }}
             />
           </Button>

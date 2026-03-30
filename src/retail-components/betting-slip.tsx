@@ -1070,11 +1070,11 @@ export default function BettingSlip({
                                       setSystemGroupsOpen((prev) => [...prev, group.name])
                                     }
                                   }}
-                                  className="ml-2 flex items-center justify-center"
+                                  className="ml-2 flex items-center justify-center bg-transparent"
                                   style={{ width: '20px', height: '20px' }}
                                 >
                                   <svg
-                                    className="relative left-1"
+                                    className="relative left-1 bg-transparent"
                                     width="20" height="20" viewBox="0 0 24 24"
                                     fill="none" stroke="currentColor" strokeWidth="2"
                                     strokeLinecap="round" strokeLinejoin="round"
