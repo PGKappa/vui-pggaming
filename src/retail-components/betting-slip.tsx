@@ -1033,7 +1033,7 @@ export default function BettingSlip({
           </div>
 
           <div
-            className={`relative flex w-full flex-col items-center justify-center border-b-4 border-betslipTitleBackground ${
+            className={`relative flex w-full flex-col items-center justify-center border-b-4 ${
               isSystemToggleEnabled ? 'cursor-pointer' : ''
             } ${betMode === 'SYSTEM' ? 'border-betSlip-header bg-accent font-semibold' : 'border-accent bg-accent text-betSlip-header'}`}
             onClick={
@@ -1048,7 +1048,7 @@ export default function BettingSlip({
               {t('system').toUpperCase()}
             </span>
             {betMode === 'SYSTEM' && (
-              <div className="absolute bottom-0.5 h-[0px] w-[156px] bg-navbarButton text-betslipTitle"></div>
+              <div className="absolute bottom-0.5 h-[0px] w-[156px] bg-navbarButton text-white"></div>
             )}
           </div>
         </div>
