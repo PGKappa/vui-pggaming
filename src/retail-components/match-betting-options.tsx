@@ -39,7 +39,7 @@ export default function MatchBettingOptions(props: {
 
   return (
     <div ref={ref} className="flex h-full w-full flex-col gap-4">
-      <div className="flex flex-row items-center justify-between bg-accent p-3 text-accent-foreground">
+      <div className="flex flex-row items-center justify-between bg-bet p-3 text-accent-foreground">
         <div className="flex flex-row items-center gap-2">
           <Button
             className="bg-accent text-tertiary-foreground"
