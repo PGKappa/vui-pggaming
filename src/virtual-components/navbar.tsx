@@ -102,10 +102,10 @@ export default function Navbar() {
             <div className="h-6 w-10 animate-pulse rounded bg-gray-200" />
             <span className="text-xs font-medium">{t('horses')}</span>
           </div>
-        {/**  <div className="flex w-full flex-row items-center justify-center px-2 py-2">
+       {/**  <div className="flex w-full flex-row items-center justify-center px-2 py-2">
             <div className="h-6 w-10 animate-pulse rounded bg-gray-200" />
             <span className="text-xs font-medium">{t('football')}</span>
-          </div> */}
+          </div>*/} 
         </nav>
       }
     >

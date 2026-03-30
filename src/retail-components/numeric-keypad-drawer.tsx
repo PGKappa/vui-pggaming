@@ -190,7 +190,7 @@ export default function NumericKeypadDrawer(props: {
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 w-7 bg-bet p-3 text-[19px] text-bet-foreground hover:opacity-90"
+            className="h-8 w-7 bg-accent p-3 text-[19px] text-bet-foreground hover:opacity-90"
             disabled={displayValue <= 0}
             onClick={(e) => {
               e.stopPropagation()
@@ -202,14 +202,14 @@ export default function NumericKeypadDrawer(props: {
           <Input
             type="text"
             value={`${currencySymbol} ${displayValue.toFixed(2)}`}
-            className={`bg-background-foreground h-8 border-x text-center ${props.inputWidth || 'w-20'}`}
+            className={`bg-background-foreground h-8 border-x text-center text-black ${props.inputWidth || 'w-20'}`}
             readOnly
             onClick={openDrawer}
           />
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 w-7 bg-bet p-3 text-[19px] text-bet-foreground hover:opacity-90"
+            className="h-8 w-7 bg-[#75787b] p-3 text-[19px] text-bet-foreground hover:opacity-90"
             onClick={(e) => {
               e.stopPropagation()
               handlePlusMinus(incrementValue)
@@ -259,7 +259,7 @@ export default function NumericKeypadDrawer(props: {
 
         <div className="flex flex-col gap-3 p-3">
           {/* Display Value */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center space-x-3">
             <Input
               value={drawerValue}
               onChange={() => {}}
@@ -278,7 +278,7 @@ export default function NumericKeypadDrawer(props: {
 
           {/* Preset Values */}
           <div
-            className="grid gap-2"
+            className="grid space-x-2"
             style={{
               gridTemplateColumns: `repeat(${Math.min(stakeButtons.length, 5)}, minmax(0, 1fr))`,
             }}
@@ -319,11 +319,11 @@ export default function NumericKeypadDrawer(props: {
           </div>
 
           {/* Keypad */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 space-x-3 space-y-3">
             <Button
               variant="outline"
               size="lg"
-              className="h-12 text-[20px] font-semibold tabular-nums"
+              className="h-12 text-[20px] font-semibold tabular-nums w-[112px] relative left-3 top-3"
               onClick={() => handleNumberClick('1')}
             >
               1

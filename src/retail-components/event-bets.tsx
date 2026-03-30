@@ -46,7 +46,7 @@ export default function EventBets(props: {
         <div className="flex h-[90px] flex-col gap-0 border border-betSlip-foreground p-1">
           <div className="flex flex-row justify-between">
             <div className={betMode === 'SYSTEM' ? 'visible' : 'invisible'}>
-              <div className="relative bottom-[1px] flex flex-row items-center gap-2 pl-1">
+              <div className="relative bottom-[1px] flex flex-row items-center space-x-2 pl-1">
                 <Checkbox
                   checked={eventBets[0].fixed}
                   onCheckedChange={() => toggleEventBetsFixed(eventKey)}
@@ -69,7 +69,7 @@ export default function EventBets(props: {
                     alt="Bin"
                     width={40}
                     height={20}
-                    className="mb-[4px] ml-[6px] size-[17px] object-contain"
+                    className="mb-[4px] ml-[6px] size-[17px] object-contain bg-transparent"
                   />
                 </Button>
               </TooltipTrigger>
@@ -86,7 +86,7 @@ export default function EventBets(props: {
                   : t('horse_races_label')}
             </span>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center space-x-2">
               <span className="relative left-[1px] text-[15px] font-bold tabular-nums">
                 {format(eventBets[0].bet.event.startingAt, 'HH:mm')}
               </span>
@@ -206,7 +206,7 @@ export default function EventBets(props: {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-[40px] w-[24px] flex-shrink-0 translate-x-[3px]"
+                  className="h-[40px] w-[24px] flex-shrink-0 translate-x-[3px] bg-transparent"
                   onClick={() => {
                     removeBet(
                       betEntry.market,

@@ -109,7 +109,7 @@ export default function LatecomersDialog({
                       {item.market}
                     </TableCell>
                     <TableCell className="w-1/3 border-r border-border bg-white p-4">
-                      <div className="flex flex-wrap gap-4 text-[16px] ml-[15px]">
+                      <div className="flex flex-wrap space-x-4 text-[16px] ml-[15px]">
                         {formatRacers(item.racers)}
                       </div>
                     </TableCell>

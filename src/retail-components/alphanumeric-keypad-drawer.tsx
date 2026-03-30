@@ -188,16 +188,16 @@ export default function AlphanumericKeypadDrawer(props: {
             variant="ghost"
             size="icon"
             onClick={closeDrawer}
-            className="absolute right-2 top-2"
+            className="absolute right-2 top-2 bg-transparent"
           >
             <ChevronDown
-              className="relative bottom-1 h-5 w-5"
+              className="relative bottom-1 h-5 w-5 bg-transparent"
               style={{ scale: 1.7 }}
             />
           </Button>
         </DrawerHeader>
 
-        <div className="flex flex-col gap-3 p-3">
+        <div className="flex flex-col space-x-3 space-y-3 p-3">
           {/* Number Row */}
           <div className="grid grid-cols-11 gap-2">
             {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'].map((num) => (
