@@ -821,7 +821,7 @@ export default function BettingSlip({
           <div
             className={`relative flex w-full flex-col items-center justify-center border-b-4 border-betslipTitleBackground ${
               isSystemToggleEnabled ? 'cursor-pointer' : ''
-            } ${betMode === 'SYSTEM' ? 'border-[#e0001a] bg-betslipTitleBackground font-semibold' : 'border-accent bg-betslipTitleBackground text-betSlip-header'}`}
+            } ${betMode === 'SYSTEM' ? 'border-[#e0001b] bg-betslipTitleBackground font-semibold' : 'border-accent bg-betslipTitleBackground text-betSlip-header'}`}
             onClick={isSystemToggleEnabled ? () => setSystemToggleMode('SYSTEM') : undefined}
           >
             <span className={`pt-1 text-[14px] ${betMode === 'SYSTEM' ? 'font-semibold text-betslipTitle' : isSystemToggleEnabled ? 'font-semibold text-betslipTitle' : 'font-normal text-betslipTitle'}`}>
@@ -849,7 +849,7 @@ export default function BettingSlip({
           </div>
         ) : (
           <ScrollAreaB className="h-full w-full">
-            <ul className="flex flex-col gap-2 bg-background">
+            <ul className="flex flex-col space-y-2 bg-background">
               {Object.entries(betsByEvent).map(([matchKey, matchBets]) => (
                 <EventBets
                   key={matchKey}
@@ -952,7 +952,7 @@ export default function BettingSlip({
                   <div className="h-[50px] border-b px-4 pb-2 bg-white">
                     <div className="relative top-[2px] flex items-center justify-between gap-2">
                       <Checkbox checked={allGroupsSelected} onCheckedChange={handleAllGroupsToggle} />
-                      <div className="relative top-[1px] mr-[3px] flex h-[33px] items-center gap-2">
+                      <div className="relative top-[1px] mr-[3px] flex h-[33px] items-center space-x-2">
                         <span className="mr-[4px] text-[12px] font-semibold">{t('divide').toUpperCase()}</span>
                         <div className="relative right-[3px] flex w-full items-center border border-border">
                           <Button
@@ -999,7 +999,7 @@ export default function BettingSlip({
                         <AccordionItem key={group.name} value={group.name} className="bg-bet-foreground">
                           <div className={`relative h-[59px] bg-white text-black border-b px-4 py-[7px] ${systemGroupsOpen.includes(group.name) ? 'bg' : 'bg-secondary'}`}>
                             <div className="mt-[3px] flex w-full items-center justify-between">
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center space-x-2">
                                 <Checkbox
                                   checked={selectedGroups[group.name] || false}
                                   onCheckedChange={(checked) => handleGroupToggle(group.name, checked as boolean)}
@@ -1164,7 +1164,7 @@ export default function BettingSlip({
           </Button>
         </div>
 
-        <div className="w-full bg-betSlip-header p-[12px] pb-[15px] pt-[9px]">
+        <div className="w-full bg-betSlip-header p-[12px] pb-[15px] pt-[9px] relative bottom-2">
           {selectedEvent?.discipline === 'SOCCER' ? (
             <SoccerFastBet selectedEvent={selectedEvent} />
           ) : (
