@@ -821,7 +821,7 @@ export default function BettingSlip({
           <div
             className={`relative flex w-full flex-col items-center justify-center border-b-4 border-betslipTitleBackground ${
               isSystemToggleEnabled ? 'cursor-pointer' : ''
-            } ${betMode === 'SYSTEM' ? 'border-[#e0001b] bg-betslipTitleBackground font-semibold' : 'border-accent bg-betslipTitleBackground text-betSlip-header'}`}
+            } ${betMode === 'SYSTEM' ? 'border-tertiary bg-betslipTitleBackground font-semibold' : 'border-accent bg-betslipTitleBackground text-betSlip-header'}`}
             onClick={isSystemToggleEnabled ? () => setSystemToggleMode('SYSTEM') : undefined}
           >
             <span className={`pt-1 text-[14px] ${betMode === 'SYSTEM' ? 'font-semibold text-betslipTitle' : isSystemToggleEnabled ? 'font-semibold text-betslipTitle' : 'font-normal text-betslipTitle'}`}>
@@ -949,7 +949,7 @@ export default function BettingSlip({
                   </button>
                 </div>
                 <AccordionContent className="pb-0">
-                  <div className="h-[50px] border-b px-4 pb-2 bg-white">
+                  <div className="h-[50px] border-b px-4 pb-2 bg-white relative top-1">
                     <div className="relative top-[2px] flex items-center justify-between gap-2">
                       <Checkbox checked={allGroupsSelected} onCheckedChange={handleAllGroupsToggle} />
                       <div className="relative top-[1px] mr-[3px] flex h-[33px] items-center space-x-2">
