@@ -162,7 +162,7 @@ function UpcomingEventItem(props: {
       className={`relative flex h-[88px] ${layout.carousel.itemBasis} cursor-pointer flex-row items-center justify-center gap-3 overflow-hidden border-l-8 border-l-background px-2 py-2 text-[15px] last:border-r-background ${
         event.id === props.selectedEvent?.id &&
         event.discipline === props.selectedEvent?.discipline
-          ? 'bg-selectedEvent/90 text-tertiary-foreground'
+          ? 'bg-selectedEvent text-tertiary-foreground'
           : 'bg-secondary text-secondary-foreground'
       }`}
       onClick={() => props.setSelectedEvent(event)}

@@ -1061,7 +1061,7 @@ export default function BettingSlip({
               {t('no_selection')}
             </span>
             <Button
-              variant="betNow"
+              variant="betAgain"
               size="icon-sm"
               className="absolute right-0 top-1 font-bold"
               onClick={restoreLastSubmittedTicket}
@@ -1071,7 +1071,7 @@ export default function BettingSlip({
           </div>
         ) : (
           <ScrollAreaB className="h-full w-full">
-            <ul className="flex flex-col gap-2 bg-background">
+            <ul className="flex flex-col space-y-2 bg-background">
               {Object.entries(betsByEvent).map(([matchKey, matchBets]) => (
                 <EventBets
                   key={matchKey}
@@ -1087,12 +1087,12 @@ export default function BettingSlip({
 
       <Separator />
 
-      <CardFooter className="relative mb-[26px] flex flex-col bg-background">
+      <CardFooter className="relative mb-[26px] flex flex-col bg-backgroundBetslip">
         {betMode !== 'SYSTEM' ? (
           <>
             <div className="relative h-[30px] w-full bg-accent py-3"></div>
-
-            <div className="relative top-[12px] flex w-full flex-row items-center justify-between px-4 pt-[9px] text-foreground">
+            
+            <div className="relative top-[12px] flex w-full flex-row items-center justify-between px-4 pt-[9px] text-backgroundBetslip-foreground">
               <span className="relative bottom-[3px] text-[15px] font-semibold">
                 {t('total_odd').toUpperCase()}
               </span>
@@ -1128,7 +1128,7 @@ export default function BettingSlip({
               })}
             </div>
 
-            <div className="relative top-[17px] flex w-full flex-row items-center justify-between px-4 py-[18px]">
+            <div className="relative top-[17px] flex w-full flex-row items-center justify-between px-4 py-[18px] text-backgroundBetslip-foreground">
               <div className="flex items-center gap-2">
                 <span className="pt-[1px] text-[15px] font-semibold">
                   {t('amount').toUpperCase()}
@@ -1147,7 +1147,7 @@ export default function BettingSlip({
 
             <Separator />
 
-            <div className="relative top-[27px] flex w-full flex-row items-center justify-between px-4 py-[12px] pb-[16px] pt-0 text-foreground">
+            <div className="relative top-[27px] flex w-full flex-row items-center justify-between px-4 py-[12px] pb-[16px] pt-0 text-backgroundBetslip-foreground bg-backgroundBetslip">
               <span className="relative bottom-[1px] text-[17px] font-semibold">
                 {t('potential_win').toUpperCase()}
               </span>
@@ -1187,7 +1187,7 @@ export default function BettingSlip({
                   </button>
                 </div>
                 <AccordionContent className="pb-0">
-                  <div className="h-[50px] border-b px-4 pb-2">
+                  <div className="h-[44px] border-b px-4 pb-2 bg-white">
                     <div className="relative top-[2px] flex items-center justify-between gap-2">
                       <Checkbox
                         checked={allGroupsSelected}
@@ -1253,7 +1253,7 @@ export default function BettingSlip({
                             className={`relative h-[59px] border-b px-4 py-[7px] ${systemGroupsOpen.includes(group.name) ? 'bg' : 'bg-background'}`}
                           >
                             <div className="mt-[3px] flex w-full items-center justify-between">
-                              <div className="flex items-center gap-2">
+                              <div className="flex items-center space-x-2">
                                 <Checkbox
                                   checked={selectedGroups[group.name] || false}
                                   onCheckedChange={(checked) =>
@@ -1376,7 +1376,7 @@ export default function BettingSlip({
                                       ])
                                     }
                                   }}
-                                  className="ml-2 flex items-center justify-center"
+                                  className="ml-2 flex items-center justify-center bg-transparent"
                                   style={{ width: '20px', height: '20px' }}
                                 >
                                   <svg
@@ -1488,7 +1488,7 @@ export default function BettingSlip({
         )}
       </CardFooter>
 
-      <div className="bg-tertiary-foreground">
+      <div className="bg-backgroundBetslip">
         <div className="w-full p-[12px] pb-[24px] pt-[9px]">
           <Button
             variant="betNow"
@@ -1504,7 +1504,7 @@ export default function BettingSlip({
           </Button>
         </div>
 
-        <div className="w-full bg-betSlip-header p-[12px] pb-[15px] pt-[9px]">
+        <div className="w-full bg-betSlip-header p-[12px] pb-[15px] pt-[9px] relative bottom-2">
           {selectedEvent?.discipline === 'SOCCER' ? (
             <SoccerFastBet selectedEvent={selectedEvent} />
           ) : (

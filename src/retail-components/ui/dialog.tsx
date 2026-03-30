@@ -41,8 +41,8 @@ const DialogContent = React.forwardRef<
       {...props}
     >
       {children}
-      <DialogPrimitive.Close className="absolute right-4 top-4">
-        <X className="h-6 w-6 text-primary-foreground" />
+      <DialogPrimitive.Close className="absolute right-4 top-5 bg-transparent">
+        <X className="h-6 w-6 text-primary-foreground bg-transparent" />
       </DialogPrimitive.Close>
     </DialogPrimitive.Content>
   </DialogPortal>
