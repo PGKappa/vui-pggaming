@@ -949,7 +949,7 @@ export default function BettingSlip({
                   </button>
                 </div>
                 <AccordionContent className="pb-0">
-                  <div className="h-[50px] border-b px-4 pb-2 bg-white relative top-1">
+                  <div className="h-[44px] border-b px-4 pb-2 bg-white">
                     <div className="relative top-[2px] flex items-center justify-between gap-2">
                       <Checkbox checked={allGroupsSelected} onCheckedChange={handleAllGroupsToggle} />
                       <div className="relative top-[1px] mr-[3px] flex h-[33px] items-center space-x-2">
