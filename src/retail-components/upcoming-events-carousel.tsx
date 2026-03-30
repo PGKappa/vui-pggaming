@@ -213,8 +213,8 @@ function UpcomingEventItem(props: {
 
       <Progress
         value={progressValue}
-        className={`pointer-events-none absolute inset-x-0 bottom-0 ${progressBarHeight} rounded-none bg-loading1`}
-        indicatorClassName="bg-loading2"
+        className={`pointer-events-none absolute inset-x-0 bottom-0 ${progressBarHeight} rounded-none bg-navbarButton`}
+        indicatorClassName="bg-tertiary"
       />
     </CarouselItem>
   )
