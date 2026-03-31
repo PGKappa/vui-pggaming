@@ -297,15 +297,24 @@ export default function CashierContextProvider(props: {
         setIsLoading(false)
         return
       }
-      // Salva shopID e terminalID se presenti
-      if (urlShopID) {
-        setShopID(urlShopID)
-        localStorage.setItem('shopID', urlShopID)
+      if (!urlShopID) {
+        console.error('shopID is required in URL params')
+        toast.error(t('shopid_missing'))
+        setHasCashierError(true)
+        setIsLoading(false)
+        return
       }
-      if (urlTerminalID) {
-        setTerminalID(urlTerminalID)
-        localStorage.setItem('terminalID', urlTerminalID)
+      if (!urlTerminalID) {
+        console.error('terminalID is required in URL params')
+        toast.error(t('terminalid_missing'))
+        setHasCashierError(true)
+        setIsLoading(false)
+        return
       }
+      setShopID(urlShopID)
+      localStorage.setItem('shopID', urlShopID)
+      setTerminalID(urlTerminalID)
+      localStorage.setItem('terminalID', urlTerminalID)
       localStorage.setItem('initCode', urlInitCode)
     } else {
       const storedInitCode = localStorage.getItem('initCode')
@@ -313,8 +322,17 @@ export default function CashierContextProvider(props: {
       if (storedInitCode && storedOperator) {
         setInitCode(storedInitCode)
         setOperator(storedOperator)
-        setShopID(localStorage.getItem('shopID') || undefined)
-        setTerminalID(localStorage.getItem('terminalID') || undefined)
+        const storedShopID = localStorage.getItem('shopID')
+        const storedTerminalID = localStorage.getItem('terminalID')
+        if (!storedShopID || !storedTerminalID) {
+          console.error('shopID or terminalID missing from localStorage')
+          toast.error(t('shopid_terminalid_not_found'))
+          setHasCashierError(true)
+          setIsLoading(false)
+          return
+        }
+        setShopID(storedShopID)
+        setTerminalID(storedTerminalID)
       } else {
         if (storedInitCode && !storedOperator) {
           console.error('Operator is missing from localStorage')
@@ -392,7 +410,7 @@ export default function CashierContextProvider(props: {
     }
 
     fetchUserData()
-  }, [initCode, operator, i18n, t])
+  }, [initCode, operator, shopID, terminalID, i18n, t])
 
   const apiRequest = useCallback(
     async <T,>(
