@@ -16,6 +16,8 @@ export type RootContextType = {
   // === Da CashierContext ===
   initCode?: string
   operator?: string
+  shopID?: string
+  terminalID?: string
   userData?: User
   cashierData?: any
   hasCashierError?: boolean
@@ -86,6 +88,8 @@ export default function RootContextProvider(props: {
     () => ({
       initCode: cashierContext.initCode,
       operator: cashierContext.operator,
+      shopID: cashierContext.shopID,
+      terminalID: cashierContext.terminalID,
       userData: cashierContext.userData,
       cashierData: cashierContext.cashierData,
       hasCashierError: cashierContext.hasCashierError,
@@ -117,6 +121,8 @@ export default function RootContextProvider(props: {
     [
       cashierContext.initCode,
       cashierContext.operator,
+      cashierContext.shopID,
+      cashierContext.terminalID,
       cashierContext.userData,
       cashierContext.cashierData,
       cashierContext.hasCashierError,
