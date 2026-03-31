@@ -136,6 +136,36 @@ function NavbarContent() {
       </div>
 
       <div className="relative right-2 flex w-full justify-end space-x-2">
+        <Link
+          href={buildHref(`${getDisciplineBase()}/ticket-list`)}
+          className={cn(
+            buttonVariants({
+              variant: 'ticketButton',
+              size: 'lg',
+            }),
+            'h-12 w-fit p-[18px] hover:opacity-95',
+          )}
+        >
+          <span className="text-[15px] font-semibold">
+            {t('ticket_list').toUpperCase()}
+          </span>
+        </Link>
+
+        <Link
+          href={buildHref(`${getDisciplineBase()}/ticket-check`)}
+          className={cn(
+            buttonVariants({
+              variant: 'ticketButton',
+              size: 'lg',
+            }),
+            'h-12 w-fit p-[18px] hover:opacity-95',
+          )}
+        >
+          <span className="text-[15px] font-semibold">
+            {t('ticket_check').toUpperCase()}
+          </span>
+        </Link>
+
         <Button
           className="h-12 w-fit p-[18px] hover:opacity-95"
           variant="ticketButton"
@@ -157,26 +187,6 @@ function NavbarContent() {
         >
           i
         </Button>
-
-        <Link
-          href={buildHref(`${getDisciplineBase()}/ticket-list`)}
-          className={buttonVariants({
-            variant: 'ticketButton',
-            size: 'lg',
-          })}
-        >
-          <span className="text-[15px] font-semibold">{t('ticket_list')}</span>
-        </Link>
-
-        <Link
-          href={buildHref(`${getDisciplineBase()}/ticket-check`)}
-          className={buttonVariants({
-            variant: 'ticketButton',
-            size: 'lg',
-          })}
-        >
-          <span className="text-[15px] font-semibold">{t('ticket_check')}</span>
-        </Link>
       </div>
 
       {/* Dialog per le informazioni sul gioco - cambia contenuto per disciplina */}
