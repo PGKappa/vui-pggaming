@@ -7,7 +7,7 @@ import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { Suspense, useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button } from './ui/button'
+import { Button, buttonVariants } from './ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog'
 
 function NavbarContent() {
@@ -25,6 +25,15 @@ function NavbarContent() {
     return `${path}${queryString ? `?${queryString}` : ''}`
   }
 
+  // Determine current discipline base path for ticket links
+  const getDisciplineBase = () => {
+    if (pathname.includes('/retail/dogs-horses')) return '/retail/dogs-horses'
+    if (pathname.includes('/retail/dogs')) return '/retail/dogs'
+    if (pathname.includes('/retail/horses')) return '/retail/horses'
+    if (pathname.includes('/retail/calcio')) return '/retail/calcio'
+    return '/retail/dogs-horses' // default
+  }
+
   // Helper per determinare il link info basato sulla pagina e lingua
   const getInfoLink = () => {
     const lang = i18n.language || 'en'
@@ -40,7 +49,7 @@ function NavbarContent() {
 
   return (
     <div
-      className="flex h-16 w-full flex-row items-center justify-start bg-navbarTop p-3"
+      className="bg-navbarTop flex h-16 w-full flex-row items-center justify-start p-3"
       suppressHydrationWarning={true}
     >
       <div className="relative left-[8px] flex flex-row items-center space-x-2">
@@ -105,7 +114,7 @@ function NavbarContent() {
             className="size-8 object-contain"
           />
         </Link>
-      {/** 
+        {/** 
         <Link
           href={buildHref('/retail/calcio')}
           className={cn(
@@ -149,25 +158,25 @@ function NavbarContent() {
           i
         </Button>
 
-        {/* <Link
-          href={`/retail/calcio/ticket-list${initCode ? `?init_code=${initCode}` : ''}`}
+        <Link
+          href={buildHref(`${getDisciplineBase()}/ticket-list`)}
           className={buttonVariants({
             variant: 'ticketButton',
             size: 'lg',
           })}
         >
-          <span className="text-[16px] font-bold">{t('ticket_list')}</span>
+          <span className="text-[15px] font-semibold">{t('ticket_list')}</span>
         </Link>
 
         <Link
-          href={`/retail/calcio/ticket-check${initCode ? `?init_code=${initCode}` : ''}`}
+          href={buildHref(`${getDisciplineBase()}/ticket-check`)}
           className={buttonVariants({
             variant: 'ticketButton',
             size: 'lg',
           })}
         >
-          <span className="text-[16px] font-bold">{t('ticket_check')}</span>
-        </Link> */}
+          <span className="text-[15px] font-semibold">{t('ticket_check')}</span>
+        </Link>
       </div>
 
       {/* Dialog per le informazioni sul gioco - cambia contenuto per disciplina */}
@@ -191,7 +200,7 @@ function NavbarContent() {
 
 export default function Navbar() {
   return (
-    <Suspense fallback={<div className="flex h-16 w-full bg-navbarTop" />}>
+    <Suspense fallback={<div className="bg-navbarTop flex h-16 w-full" />}>
       <NavbarContent />
     </Suspense>
   )
