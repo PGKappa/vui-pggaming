@@ -66,12 +66,12 @@ export function normalizeMarketName(market: string): string {
 
   return m
 }
-// https://api-btprod.pgvirtual.eu/api/event/info/1000003919/254
+// https://api-stanleybet.pgvirtual.eu/api/event/info/1000003919/254
 
 // API URLs - direttamente nel codice per evitare problemi con env online
 export const API_URLS = {
-  PGVIRTUAL: 'https://api-btprod.pgvirtual.eu',
-  CASHIER_INIT: 'https://api-btprod.pgvirtual.eu/api/init/cashier',
+  PGVIRTUAL: 'https://api-stanleybet.pgvirtual.eu',
+  CASHIER_INIT: 'https://api-stanleybet.pgvirtual.eu/api/init/cashier',
   SOCCER: 'https://cvgl.it/football/incoming.php',
   // Base per altre chiamate se necessario
   BASE: 'https://pg-gaming.stg.startegois.com/proxy',
