@@ -86,17 +86,21 @@ export default function RetailLayout({
                 border-radius: 50%;
                 animation: spin 1s linear infinite;
               }
-              #static-splash .splash-version {
+              #static-splash .splash-versions {
                 position: absolute;
                 bottom: 32px;
                 left: 50%;
                 transform: translateX(-50%);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 2px;
                 font-size: 14px;
                 color: #6b7280;
                 opacity: 0;
                 transition: opacity 0.2s ease-in;
               }
-              #static-splash .splash-version.loaded {
+              #static-splash .splash-versions.loaded {
                 opacity: 1;
               }
               @keyframes spin {
@@ -121,7 +125,10 @@ export default function RetailLayout({
           />
           <div className="splash-spinner"></div>
         </div>
-        <span className="splash-version"></span>
+        <div className="splash-versions">
+          <span className="splash-version-api"></span>
+          <span className="splash-version-fe"></span>
+        </div>
       </div>
       <SkinProvider>
         <SkinBody>{children}</SkinBody>
@@ -166,14 +173,22 @@ function RetailShell({ children }: { children: React.ReactNode }) {
     getSplashscreen,
   } = useContext(RootContext)
 
+  const feVersion = process.env.NEXT_PUBLIC_FE_VERSION || 'dev'
+
   // Update splash screen with API data
   useEffect(() => {
-    const version = getVersion?.() || 'v1.0'
+    const apiVersion = getVersion?.() || 'v1.0'
     const splashscreenImage = getSplashscreen?.() || 'splashscreen-empty.png'
 
     // Update version text
-    const versionElement = document.querySelector(
-      '#static-splash .splash-version',
+    const versionsContainer = document.querySelector(
+      '#static-splash .splash-versions',
+    )
+    const apiVersionEl = document.querySelector(
+      '#static-splash .splash-version-api',
+    )
+    const feVersionEl = document.querySelector(
+      '#static-splash .splash-version-fe',
     )
 
     // Update splash image
@@ -194,23 +209,20 @@ function RetailShell({ children }: { children: React.ReactNode }) {
       preloadImg.onload = () => {
         logoElement.src = imagePath
         logoElement.classList.add('loaded')
-        if (versionElement) {
-          versionElement.textContent = version
-          versionElement.classList.add('loaded')
-        }
+        if (apiVersionEl) apiVersionEl.textContent = `API: ${apiVersion}`
+        if (feVersionEl) feVersionEl.textContent = `FE: ${feVersion}`
+        if (versionsContainer) versionsContainer.classList.add('loaded')
       }
       preloadImg.onerror = () => {
-        if (versionElement) {
-          versionElement.textContent = version
-          versionElement.classList.add('loaded')
-        }
+        if (apiVersionEl) apiVersionEl.textContent = `API: ${apiVersion}`
+        if (feVersionEl) feVersionEl.textContent = `FE: ${feVersion}`
+        if (versionsContainer) versionsContainer.classList.add('loaded')
       }
       preloadImg.src = imagePath
     } else {
-      if (versionElement) {
-        versionElement.textContent = version
-        versionElement.classList.add('loaded')
-      }
+      if (apiVersionEl) apiVersionEl.textContent = `API: ${apiVersion}`
+      if (feVersionEl) feVersionEl.textContent = `FE: ${feVersion}`
+      if (versionsContainer) versionsContainer.classList.add('loaded')
     }
   }, [isLoadingCashier, getVersion, getSplashscreen])
 
@@ -239,12 +251,10 @@ function RetailShell({ children }: { children: React.ReactNode }) {
     <>
       <Navbar />
       <main className="h-full gap-2 overflow-hidden">
-  <div className="p-2 h-full">
-    <BetsContextProvider>
-      {children}
-    </BetsContextProvider>
-  </div>
-</main>
+        <div className="h-full p-2">
+          <BetsContextProvider>{children}</BetsContextProvider>
+        </div>
+      </main>
     </>
   )
 }
