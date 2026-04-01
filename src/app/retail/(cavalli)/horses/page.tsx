@@ -23,7 +23,7 @@ export default function Home() {
   )
 
   const carouselEvents = useMemo(
-    () => getCarouselFilteredEvents(upcomingEvents, [Discipline.DOGS]),
+    () => getCarouselFilteredEvents(upcomingEvents, [Discipline.HORSES]),
     [upcomingEvents],
   )
 
@@ -58,14 +58,14 @@ export default function Home() {
 
         if (eventTime <= now) {
           const freshFutureEvents = getFutureEventsFromCarousel(
-            getCarouselFilteredEvents(upcomingEvents, [Discipline.DOGS]),
+            getCarouselFilteredEvents(upcomingEvents, [Discipline.HORSES]),
           )
 
           if (freshFutureEvents.length > 0) {
             setSelectedEvent(freshFutureEvents[0])
           } else {
             const allEvents = getCarouselFilteredEvents(upcomingEvents, [
-              Discipline.DOGS,
+              Discipline.HORSES,
             ])
             if (allEvents.length > 0) {
               setSelectedEvent(allEvents[allEvents.length - 1])
@@ -108,7 +108,7 @@ export default function Home() {
       </div>
 
       {/* RIGHT COLUMN - larghezza fissa, sempre ancorata a destra */}
-      <div className="h-[950px] w-[400px] relative right-1 shrink-0 bg-background text-foreground">
+      <div className="relative right-1 h-[950px] w-[400px] shrink-0 bg-background text-foreground">
         <BettingSlip selectedEvent={selectedEvent} />
       </div>
     </div>

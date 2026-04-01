@@ -17,6 +17,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -102,7 +103,10 @@ export default function EventsContextProvider(props: {
   )
 
   // Get disciplines from current URL/page
-  const activeDisciplines = getDisciplinesFromUrl(pathname)
+  const activeDisciplines = useMemo(
+    () => getDisciplinesFromUrl(pathname),
+    [pathname],
+  )
   const [upcomingRounds] = useState<any[]>([])
   // NOTE: hasLoadedOnce and caches are now at MODULE LEVEL to persist across remounts
   const [currentEvent, setCurrentEvent] = useState<EventResult | undefined>(
@@ -818,22 +822,37 @@ export default function EventsContextProvider(props: {
     upcomingEvents,
   ])
 
+  const contextValue = useMemo(
+    () => ({
+      upcomingEvents,
+      eventResults,
+      searchEventResults,
+      setSearchEventResults: setSearchEventResultsCallback,
+      isLoadingEvents,
+      activeDrawerId,
+      setActiveDrawer,
+      upcomingRounds,
+      currentEvent,
+      fetchEventDetails,
+      isLoadingEventDetails,
+    }),
+    [
+      upcomingEvents,
+      eventResults,
+      searchEventResults,
+      setSearchEventResultsCallback,
+      isLoadingEvents,
+      activeDrawerId,
+      setActiveDrawer,
+      upcomingRounds,
+      currentEvent,
+      fetchEventDetails,
+      isLoadingEventDetails,
+    ],
+  )
+
   return (
-    <EventsContext.Provider
-      value={{
-        upcomingEvents,
-        eventResults,
-        searchEventResults,
-        setSearchEventResults: setSearchEventResultsCallback,
-        isLoadingEvents,
-        activeDrawerId,
-        setActiveDrawer,
-        upcomingRounds,
-        currentEvent,
-        fetchEventDetails,
-        isLoadingEventDetails,
-      }}
-    >
+    <EventsContext.Provider value={contextValue}>
       {props.children}
     </EventsContext.Provider>
   )
