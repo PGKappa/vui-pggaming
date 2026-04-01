@@ -9,6 +9,8 @@ import { toast } from 'sonner'
 export type CashierContextType = {
   initCode?: string
   operator?: string
+  shopID?: string
+  terminalID?: string
   userData?: User
   cashierData?: any
   hasCashierError?: boolean
@@ -263,6 +265,8 @@ export default function CashierContextProvider(props: {
 }) {
   const [initCode, setInitCode] = useState<string | undefined>(undefined)
   const [operator, setOperator] = useState<string | undefined>(undefined)
+  const [shopID, setShopID] = useState<string | undefined>(undefined)
+  const [terminalID, setTerminalID] = useState<string | undefined>(undefined)
   const [cashierContext, setCashierContext] = useState<CashierContextType>(
     defaultCashierContext,
   )
@@ -276,6 +280,8 @@ export default function CashierContextProvider(props: {
     const urlInitCode = params.get('init_code')
     // Accetta sia 'operator' che 'partner' come parametro URL (operator ha precedenza)
     const urlOperator = params.get('operator') || params.get('partner')
+    const urlShopID = params.get('shopID')
+    const urlTerminalID = params.get('terminalID')
 
     if (urlInitCode) {
       // Se l'initCode è cambiato, pulisci la sessione precedente
@@ -291,6 +297,24 @@ export default function CashierContextProvider(props: {
         setIsLoading(false)
         return
       }
+      if (!urlShopID) {
+        console.error('shopID is required in URL params')
+        toast.error(t('shopid_missing'))
+        setHasCashierError(true)
+        setIsLoading(false)
+        return
+      }
+      if (!urlTerminalID) {
+        console.error('terminalID is required in URL params')
+        toast.error(t('terminalid_missing'))
+        setHasCashierError(true)
+        setIsLoading(false)
+        return
+      }
+      setShopID(urlShopID)
+      localStorage.setItem('shopID', urlShopID)
+      setTerminalID(urlTerminalID)
+      localStorage.setItem('terminalID', urlTerminalID)
       localStorage.setItem('initCode', urlInitCode)
     } else {
       const storedInitCode = localStorage.getItem('initCode')
@@ -298,6 +322,17 @@ export default function CashierContextProvider(props: {
       if (storedInitCode && storedOperator) {
         setInitCode(storedInitCode)
         setOperator(storedOperator)
+        const storedShopID = localStorage.getItem('shopID')
+        const storedTerminalID = localStorage.getItem('terminalID')
+        if (!storedShopID || !storedTerminalID) {
+          console.error('shopID or terminalID missing from localStorage')
+          toast.error(t('shopid_terminalid_not_found'))
+          setHasCashierError(true)
+          setIsLoading(false)
+          return
+        }
+        setShopID(storedShopID)
+        setTerminalID(storedTerminalID)
       } else {
         if (storedInitCode && !storedOperator) {
           console.error('Operator is missing from localStorage')
@@ -325,7 +360,12 @@ export default function CashierContextProvider(props: {
 
     const fetchUserData = async (retryCount = 0, maxRetries = 3) => {
       try {
-        const cashierData = await fetchCashierInit(initCode, operator)
+        const cashierData = await fetchCashierInit(
+          initCode,
+          operator,
+          shopID,
+          terminalID,
+        )
 
         if (cashierData?.ret_code === 1024) {
           // Use the helper function to create context with all getter functions
@@ -370,7 +410,7 @@ export default function CashierContextProvider(props: {
     }
 
     fetchUserData()
-  }, [initCode, operator, i18n, t])
+  }, [initCode, operator, shopID, terminalID, i18n, t])
 
   const apiRequest = useCallback(
     async <T,>(
@@ -399,6 +439,8 @@ export default function CashierContextProvider(props: {
       ...cashierContext,
       initCode,
       operator,
+      shopID,
+      terminalID,
       apiRequest,
       hasCashierError,
       isLoadingCashier: isLoading,
@@ -408,6 +450,8 @@ export default function CashierContextProvider(props: {
       apiRequest,
       initCode,
       operator,
+      shopID,
+      terminalID,
       hasCashierError,
       isLoading,
     ],

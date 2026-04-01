@@ -5,7 +5,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-// Normalizes competitors/outcome for under/over markets to match toggles and fastBet 
+// Normalizes competitors/outcome for under/over markets to match toggles and fastBet
 export function normalizeUnderOverValue(value: string): string {
   const v = value.toLowerCase().trim()
   // Map all variations of "under" to canonical form
@@ -196,6 +196,7 @@ export function createPGVirtualAPICall(
   initCode: string,
   options?: RequestInit,
   operator?: string,
+  extraHeaders?: Record<string, string>,
 ) {
   if (!operator) {
     console.error(
@@ -213,6 +214,7 @@ export function createPGVirtualAPICall(
       authorization: `Bearer ${initCode}`,
       'content-type': 'application/json',
       operator: operator,
+      ...extraHeaders,
     },
     mode: 'cors' as const,
     credentials: 'include' as const,
@@ -270,20 +272,26 @@ export async function fetchEventsByDiscipline(
 export async function fetchCashierInit(
   initCode: string,
   operator?: string,
+  shopID?: string,
+  terminalID?: string,
 ): Promise<any> {
   if (!operator) {
     console.error('❌ Operator is required but not provided for Cashier Init')
     throw new Error('Operator is required for Cashier initialization')
   }
 
+  const headers: Record<string, string> = {
+    accept: 'application/json',
+    'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
+    authorization: `Bearer ${initCode}`,
+    operator: operator,
+    'Content-Type': 'application/json',
+  }
+  if (shopID) headers['shop-id'] = shopID
+  if (terminalID) headers['terminal-id'] = terminalID
+
   const response = await fetch(API_URLS.CASHIER_INIT, {
-    headers: {
-      accept: 'application/json',
-      'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
-      authorization: `Bearer ${initCode}`,
-      operator: operator,
-      'Content-Type': 'application/json',
-    },
+    headers,
     method: 'POST',
     mode: 'cors',
     credentials: 'include',
