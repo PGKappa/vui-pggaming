@@ -2,7 +2,14 @@
 
 import { User } from '@/retail-lib/types'
 import { BASE_API_URL, fetchCashierInit } from '@/retail-lib/utils'
-import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
+import {
+  createContext,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
@@ -271,6 +278,12 @@ export default function CashierContextProvider(props: {
     defaultCashierContext,
   )
   const { i18n, t } = useTranslation()
+  const tRef = useRef(t)
+  const i18nRef = useRef(i18n)
+  useEffect(() => {
+    tRef.current = t
+    i18nRef.current = i18n
+  })
   const [isLoading, setIsLoading] = useState(true)
   const [hasCashierError, setHasCashierError] = useState(false)
 
@@ -292,21 +305,21 @@ export default function CashierContextProvider(props: {
         localStorage.setItem('operator', urlOperator)
       } else {
         console.error('Operator/Partner is required in URL params')
-        toast.error(t('operator_missing'))
+        toast.error(tRef.current('operator_missing'))
         setHasCashierError(true)
         setIsLoading(false)
         return
       }
       if (!urlShopID) {
         console.error('shopID is required in URL params')
-        toast.error(t('shopid_missing'))
+        toast.error(tRef.current('shopid_missing'))
         setHasCashierError(true)
         setIsLoading(false)
         return
       }
       if (!urlTerminalID) {
         console.error('terminalID is required in URL params')
-        toast.error(t('terminalid_missing'))
+        toast.error(tRef.current('terminalid_missing'))
         setHasCashierError(true)
         setIsLoading(false)
         return
@@ -326,7 +339,7 @@ export default function CashierContextProvider(props: {
         const storedTerminalID = localStorage.getItem('terminalID')
         if (!storedShopID || !storedTerminalID) {
           console.error('shopID or terminalID missing from localStorage')
-          toast.error(t('shopid_terminalid_not_found'))
+          toast.error(tRef.current('shopid_terminalid_not_found'))
           setHasCashierError(true)
           setIsLoading(false)
           return
@@ -336,13 +349,14 @@ export default function CashierContextProvider(props: {
       } else {
         if (storedInitCode && !storedOperator) {
           console.error('Operator is missing from localStorage')
-          toast.error(t('operator_not_found'))
+          toast.error(tRef.current('operator_not_found'))
           setHasCashierError(true)
         }
         setIsLoading(false)
       }
     }
-  }, [t])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // Fetch cashier data (solo una volta, poi cache)
   useEffect(() => {
@@ -380,14 +394,14 @@ export default function CashierContextProvider(props: {
 
           // Aggiorna lingua e persisti per evitare fallback inattesi
           const lang = cashierData.dictInfo?.lang || 'it'
-          if (lang && i18n.language !== lang) {
-            i18n.changeLanguage(lang)
+          if (lang && i18nRef.current.language !== lang) {
+            i18nRef.current.changeLanguage(lang)
             try {
               localStorage.setItem('i18n.lang', lang)
             } catch {}
           }
 
-          toast.success(t('cashier_initialized'))
+          toast.success(tRef.current('cashier_initialized'))
           setIsLoading(false)
         } else {
           throw new Error(`Cashier error: ${cashierData?.message || 'Unknown'}`)
@@ -396,13 +410,13 @@ export default function CashierContextProvider(props: {
         console.error('Cashier error:', error)
         if (retryCount < maxRetries) {
           const delay = Math.pow(2, retryCount) * 1000
-          toast.loading(t('retrying_cashier'), {
+          toast.loading(tRef.current('retrying_cashier'), {
             id: 'retry-toast',
           })
           setTimeout(() => fetchUserData(retryCount + 1, maxRetries), delay)
         } else {
           toast.dismiss('retry-toast')
-          toast.error(t('cashier_unavailable'))
+          toast.error(tRef.current('cashier_unavailable'))
           setHasCashierError(true)
           setIsLoading(false)
         }
@@ -410,7 +424,8 @@ export default function CashierContextProvider(props: {
     }
 
     fetchUserData()
-  }, [initCode, operator, shopID, terminalID, i18n, t])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initCode, operator, shopID, terminalID])
 
   const apiRequest = useCallback(
     async <T,>(
