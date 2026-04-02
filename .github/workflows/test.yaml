@@ -29,6 +29,8 @@ jobs:
       - name: Build project
         run: pnpm build
         shell: bash
+        env:
+          NEXT_PUBLIC_FE_VERSION: v1.${{ github.run_number }}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
