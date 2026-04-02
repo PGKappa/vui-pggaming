@@ -397,6 +397,9 @@
     --betslipBorder2: 212 62% 23%;
     --betslipBorder2-foreground: 0 0% 0%;
 
+    --disabledButton: 353 100% 44%;
+    --disabledButton-foreground: 0 0% 0%;
+
   }
   
   .stanleybet {
@@ -516,6 +519,9 @@
 
     --betslipBorder2: 0, 0%, 93%;
     --betslipBorder2-foreground: 0 0% 0%;
+
+    --disabledButton: 210, 3%, 47%;
+    --disabledButton-foreground: 0 0% 0%;
   }
 }
 

@@ -158,6 +158,10 @@ export default {
           DEFAULT: 'hsl(var(--betslipBorder2))',
           foreground: 'hsl(var(--betslipBorder2-foreground))',
         },
+        disabledButton: {
+          DEFAULT: 'hsl(var(--disabledButton))',
+          foreground: 'hsl(var(--disabledButton-foreground))',
+        },
         market: {
           DEFAULT: 'hsl(var(--market))',
           foreground: 'hsl(var(--market-foreground))',
