@@ -190,7 +190,7 @@ export default function NumericKeypadDrawer(props: {
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 w-7 bg-bet p-3 text-[19px] text-bet-foreground hover:opacity-90"
+            className="h-8 w-7 bg-infoBackground p-3 text-[19px] text-bet-foreground hover:opacity-90"
             disabled={displayValue <= 0}
             onClick={(e) => {
               e.stopPropagation()
@@ -209,7 +209,7 @@ export default function NumericKeypadDrawer(props: {
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 w-7 bg-bet p-3 text-[19px] text-bet-foreground hover:opacity-90"
+            className="h-8 w-7 bg-infoBackground p-3 text-[19px] text-bet-foreground hover:opacity-90"
             onClick={(e) => {
               e.stopPropagation()
               handlePlusMinus(incrementValue)

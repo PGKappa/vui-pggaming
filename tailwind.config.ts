@@ -126,9 +126,37 @@ export default {
           DEFAULT: 'hsl(var(--betslipTitle))',
           foreground: 'hsl(var(--betslipTitle-foreground))',
         },
-        betslipTitleBackground: {
-          DEFAULT: 'hsl(var(--betslipTitleBackground))',
-          foreground: 'hsl(var(--betslipTitleBackground-foreground))',
+        navbarBg: {
+          DEFAULT: 'hsl(var(--navbarBg))',
+          foreground: 'hsl(var(--navbarBg-foreground))',
+        },
+        amountHeader: {
+          DEFAULT: 'hsl(var(--amountHeader))',
+          foreground: 'hsl(var(--amountHeader-foreground))',
+        },
+        searchResultText: {
+          DEFAULT: 'hsl(var(--searchResultText))',
+          foreground: 'hsl(var(--searchResultText-foreground))',
+        },
+         amountBg: {
+          DEFAULT: 'hsl(var(--amountBg))',
+          foreground: 'hsl(var(--amountBg-foreground))',
+        },
+        betslipTitleBackground1: {
+          DEFAULT: 'hsl(var(--betslipTitleBackground1))',
+          foreground: 'hsl(var(--betslipTitleBackground1-foreground))',
+        },
+        betslipTitleBackground2: {
+          DEFAULT: 'hsl(var(--betslipTitleBackground2))',
+          foreground: 'hsl(var(--betslipTitleBackground2-foreground))',
+        },
+        betslipBorder: {
+          DEFAULT: 'hsl(var(--betslipBorder))',
+          foreground: 'hsl(var(--betslipBorder-foreground))',
+        },
+        betslipBorder2: {
+          DEFAULT: 'hsl(var(--betslipBorder2))',
+          foreground: 'hsl(var(--betslipBorder2-foreground))',
         },
         market: {
           DEFAULT: 'hsl(var(--market))',

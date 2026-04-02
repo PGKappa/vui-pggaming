@@ -40,7 +40,7 @@ function NavbarContent() {
 
   return (
     <div
-      className="flex h-16 w-full flex-row items-center justify-start bg-accent p-3"
+      className="flex h-16 w-full flex-row items-center justify-start bg-navbarBg p-3"
       suppressHydrationWarning={true}
     >
       <div className="relative left-[8px] flex flex-row items-center space-x-2">
@@ -135,13 +135,13 @@ function NavbarContent() {
             setSearchEventResults(eventResults)
           }}
         >
-          <span className="text-[15px] font-semibold">
+          <span className="text-[15px] text-searchResultText font-semibold">
             {t('search_results').toUpperCase()}
           </span>
         </Button>
 
         <Button
-          className="h-12 w-12 text-[18px] hover:opacity-95"
+          className="h-12 w-12 text-[18px] text-searchResultText hover:opacity-95"
           variant="ticketButton"
           size="lg"
           onClick={() => setIsInfoDialogOpen(true)}

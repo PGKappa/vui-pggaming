@@ -336,6 +336,7 @@
 
     --betSlip: 0 0% 62%;
     --betSlip-foreground: 0 0% 0%;
+    
     --betSlip-header: 207 18% 76%;
     --betSlip-header-foreground: 0 0% 100%;
 
@@ -362,11 +363,54 @@
 
     --footer-betslip: 353 100% 44%;
     --footer-betslip-foreground: 0 0% 100%;
+
+    --navbarBg: 212 62% 23%;
+    --navbarBg-foreground: 0 0% 0%;
+
+    --amountHeader: 212 62% 23%;
+    --amountHeader-foreground: 0 0% 100%;
+    
+    --searchResultText: 0 0% 0%;
+    --searchResultText-foreground: 0 0% 100%;
+
+    --betslipTitleBackground1: 212 62% 23%;
+    --betslipTitleBackground1-foreground: 207 18% 76%;
+
+    --betslipTitleBackground2: 212 62% 23%;
+    --betslipTitleBackground2-foreground: 0 0% 100%;
+    
+    --backgroundBetslip: 0 0% 100%;
+    --backgroundBetslip-foreground: 0 0% 100%;
+
+    --loading1:  207 18% 76%;
+    --loading1-foreground: 0 0% 0%;
+    
+    --loading2: 212 58% 51%;
+    --loading2-foreground: 0 0% 100%;
+
+    --infoBackground: 353 100% 44%;
+    --infoBackground-foreground: 0 0% 100%;
+
+    --betslipBorder: 207 18% 76%;
+    --betslipBorder-foreground: 0 0% 0%;
+
+    --betslipBorder2: 212 62% 23%;
+    --betslipBorder2-foreground: 0 0% 0%;
+
   }
   
   .stanleybet {
     --background: 0 0% 100%;
     --foreground: 0 0% 0%;
+
+    --amountHeader: 0 0% 100%;
+    --amountHeader-foreground: 0 0% 100%;
+
+    --searchResultText:  0 0% 100%;
+    --searchResultText-foreground: 0 0% 100%;
+
+    --navbarBg:  0 0% 0%;
+    --navbarBg-foreground: 0 0% 0%;
 
     --card: 0 0% 100%;
     --card-foreground: 0 0% 0%;
@@ -461,8 +505,17 @@
     --footer-betslip: 353 100% 44%;
     --footer-betslip-foreground: 0 0% 100%;
 
-    --betslipTitleBackground: 0, 0%, 93%;
-    --betslipTitleBackground-foreground: 0 0% 100%;
+    --betslipTitleBackground1: 0, 0%, 93%;
+    --betslipTitleBackground1-foreground: 353 100% 44%;
+
+    --betslipTitleBackground2: 0, 0%, 93%;
+    --betslipTitleBackground2-foreground: 0 0% 0%;
+
+    --betslipBorder: 353 100% 44%;
+    --betslipBorder-foreground: 0 0% 0%;
+
+    --betslipBorder2: 0, 0%, 93%;
+    --betslipBorder2-foreground: 0 0% 0%;
   }
 }
 
@@ -581,5 +634,6 @@ body > main > div > div > div.h-\[950px\].w-\[400px\].relative.right-1.shrink-0.
 
 body > main > div > div > div.h-\[950px\].w-\[400px\].relative.right-1.shrink-0.bg-background.text-foreground > div > div.p-0.pt-0.relative.mb-\[26px\].flex.flex-col.bg-backgroundBetslip > div.relative.top-3.w-full > div{
   background-color: white;
-  
+  position: relative;
+  bottom: 8px;
 }
