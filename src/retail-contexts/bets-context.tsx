@@ -2,7 +2,14 @@
 
 import { Bet, BetEntry, Selection, SubmittedTicket } from '@/retail-lib/types'
 import { BetMode } from '@/retail-components/betting-slip'
-import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
+import {
+  createContext,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
@@ -122,6 +129,8 @@ export default function BetsContextProvider(props: {
   children: React.ReactNode
 }) {
   const { t } = useTranslation()
+  const tRef = useRef(t)
+  tRef.current = t
   const initialBetsContext = getBetsContext()
   const [betsContext, setBetsContext] =
     useState<BetsContextType>(initialBetsContext)
@@ -183,15 +192,17 @@ export default function BetsContextProvider(props: {
         // Messaggio tradotto: "⚠️ Se eliminó X selección: evento iniciado."
         toast.warning(
           removedCount > 1
-            ? t('event_started_removed_plural', { count: removedCount })
-            : t('event_started_removed', { count: removedCount }),
+            ? tRef.current('event_started_removed_plural', {
+                count: removedCount,
+              })
+            : tRef.current('event_started_removed', { count: removedCount }),
         )
       }
     }
 
     const interval = setInterval(cleanupExpiredBets, 5000)
     return () => clearInterval(interval)
-  }, [betsContext.betEntries, t])
+  }, [betsContext.betEntries])
 
   const checkSystemLimits = useCallback(
     (newEntries: BetEntry[]): boolean => {
@@ -199,7 +210,7 @@ export default function BetsContextProvider(props: {
 
       const totalEntries = betsContext.betEntries.length + newEntries.length
       if (totalEntries > 50) {
-        toast.error(t('max_bet_entries_system'))
+        toast.error(tRef.current('max_bet_entries_system'))
         return false
       }
 
@@ -212,13 +223,13 @@ export default function BetsContextProvider(props: {
       const eventsNumber = eventsSet.size
 
       if (eventsNumber > 15) {
-        toast.error(t('max_events_system'))
+        toast.error(tRef.current('max_events_system'))
         return false
       }
 
       return true
     },
-    [betMode, betsContext.betEntries, t],
+    [betMode, betsContext.betEntries],
   )
 
   const addBet = useCallback(
@@ -302,7 +313,7 @@ export default function BetsContextProvider(props: {
   const restoreLastSubmittedTicket = useCallback(() => {
     const stored = localStorage.getItem('lastSubmittedTicket')
     if (!stored) {
-      toast.error(t('no_last_ticket'))
+      toast.error(tRef.current('no_last_ticket'))
       return
     }
 
@@ -379,7 +390,7 @@ export default function BetsContextProvider(props: {
             entry.bet.option.outcome === bet.bet.option.outcome,
         )
         if (existingEntry) {
-          toast.error(t('duplicate_bet_found'))
+          toast.error(tRef.current('duplicate_bet_found'))
           return
         }
 
@@ -403,7 +414,7 @@ export default function BetsContextProvider(props: {
         }
       })
     },
-    [betsContext.betEntries, betsContext.lastId, checkSystemLimits, t],
+    [betsContext.betEntries, betsContext.lastId, checkSystemLimits],
   )
 
   const removeBets = useCallback(
