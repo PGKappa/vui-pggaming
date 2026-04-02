@@ -977,7 +977,7 @@ export default function UpcomingRaceCard({
           <DialogHeader className="bg-secondary text-secondary-foreground">
             <DialogTitle>{t('game_rules').toUpperCase()}</DialogTitle>
           </DialogHeader>
-          <div className="h-[1020px] w-full">
+          <div className="min-h-0 w-full flex-1">
             <iframe
               src={`https://d190050z3qr0m1.cloudfront.net/public/Gaming_manual_${i18n.language || 'en'}.html`}
               className="h-full w-full border-0"
