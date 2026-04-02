@@ -30,10 +30,10 @@
     "i18next": "^24.2.3",
     "lucide-react": "^0.474.0",
     "next": "15.1.6",
-    "react": "^19.2.4",
+    "react": "^18.3.1",
     "react-day-picker": "8.10.1",
     "react-detect-click-outside": "^1.1.7",
-    "react-dom": "^19.2.4",
+    "react-dom": "^18.3.1",
     "react-draggable": "^4.5.0",
     "react-i18next": "^15.7.4",
     "react-player": "^2.16.1",
@@ -46,8 +46,8 @@
     "@eslint/eslintrc": "^3.3.5",
     "@next/eslint-plugin-next": "^15.5.14",
     "@types/node": "^20.19.37",
-    "@types/react": "^19.2.14",
-    "@types/react-dom": "^19.2.3",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
     "eslint": "^9.39.4",
     "eslint-config-next": "^15.5.14",
     "eslint-config-prettier": "^10.1.8",
@@ -57,5 +57,8 @@
     "prettier-plugin-tailwindcss": "^0.6.14",
     "tailwindcss": "^3.4.19",
     "typescript": "^5.9.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": []
   }
 }
