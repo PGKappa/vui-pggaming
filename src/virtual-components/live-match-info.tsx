@@ -100,7 +100,7 @@ export default function LiveMatchInfo() {
 
       try {
         const response = await fetch(
-          `https://apisuprema.pgvirtual.eu/api/event/info/${nextEvent.extId}/${nextEvent.id}`,
+          `https://api-stanleybet.pgvirtual.eu/api/event/info/${nextEvent.extId}/${nextEvent.id}`,
           {
             headers: {
               accept: 'application/json',
