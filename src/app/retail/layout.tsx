@@ -109,20 +109,6 @@ export default function RetailLayout({
           }}
         />
       </head>
-      {/* Splash screen statico inline - appare ISTANTANEAMENTE */}
-      <div id="static-splash">
-        <div className="splash-content">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/splashscreen-empty.png"
-            alt="PGV Virtual"
-            className="splash-logo"
-            style={{ objectFit: 'contain', width: 400, height: 150 }}
-          />
-          <div className="splash-spinner"></div>
-        </div>
-        <span className="splash-version"></span>
-      </div>
       <SkinProvider>
         <SkinBody>{children}</SkinBody>
       </SkinProvider>
@@ -138,6 +124,20 @@ function SkinBody({ children }: { children: React.ReactNode }) {
     <body
       className={`${inter.variable} ${skin} flex h-screen flex-col overflow-hidden font-inter antialiased`}
     >
+      {/* Splash screen statico inline - appare ISTANTANEAMENTE */}
+      <div id="static-splash">
+        <div className="splash-content">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/splashscreen-empty.png"
+            alt="PGV Virtual"
+            className="splash-logo"
+            style={{ objectFit: 'contain', width: 400, height: 150 }}
+          />
+          <div className="splash-spinner"></div>
+        </div>
+        <span className="splash-version"></span>
+      </div>
       {/* Toaster globale - visibile anche durante lo splash screen */}
       <Toaster position="top-right" />
       <InactivityBridge />
@@ -239,12 +239,10 @@ function RetailShell({ children }: { children: React.ReactNode }) {
     <>
       <Navbar />
       <main className="h-full gap-2 overflow-hidden">
-  <div className="p-2 h-full">
-    <BetsContextProvider>
-      {children}
-    </BetsContextProvider>
-  </div>
-</main>
+        <div className="h-full p-2">
+          <BetsContextProvider>{children}</BetsContextProvider>
+        </div>
+      </main>
     </>
   )
 }
