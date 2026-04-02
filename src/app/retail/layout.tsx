@@ -224,7 +224,7 @@ function RetailShell({ children }: { children: React.ReactNode }) {
       if (feVersionEl) feVersionEl.textContent = `FE: ${feVersion}`
       if (versionsContainer) versionsContainer.classList.add('loaded')
     }
-  }, [isLoadingCashier, getVersion, getSplashscreen])
+  }, [isLoadingCashier, getVersion, getSplashscreen, feVersion])
 
   useEffect(() => {
     // Solo al primo caricamento
