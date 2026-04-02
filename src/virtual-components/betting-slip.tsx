@@ -33,6 +33,39 @@ import { Checkbox } from './ui/checkbox'
 
 export type BetMode = 'SINGLE' | 'MULTIPLE' | 'SYSTEM'
 
+function StakeInput({
+  value,
+  onCommit,
+  className,
+  ...props
+}: Omit<React.ComponentProps<typeof Input>, 'onChange' | 'value'> & {
+  value: number
+  onCommit: (v: number) => void
+}) {
+  const [editing, setEditing] = useState(false)
+  const [localValue, setLocalValue] = useState('')
+
+  return (
+    <Input
+      type="text"
+      inputMode="decimal"
+      value={editing ? localValue : value}
+      onChange={(e) => setLocalValue(e.target.value)}
+      onFocus={() => {
+        setEditing(true)
+        setLocalValue('')
+      }}
+      onBlur={() => {
+        setEditing(false)
+        const parsed = parseFloat(localValue)
+        onCommit(isNaN(parsed) || parsed < 0 ? 0 : parsed)
+      }}
+      className={className}
+      {...props}
+    />
+  )
+}
+
 export default function BettingSlip() {
   const {
     betEntries,
@@ -1029,15 +1062,10 @@ export default function BettingSlip() {
                 >
                   -
                 </Button>
-                <Input
-                  type="number"
+                <StakeInput
                   value={global}
                   className="bg-background-foreground w-16 border-x text-center"
-                  onChange={(e) => setGlobal(parseFloat(e.target.value))}
-                  onFocus={(e) => {
-                    const t = e.target
-                    setTimeout(() => t.select(), 0)
-                  }}
+                  onCommit={(v) => setGlobal(v)}
                 />
                 <Button
                   variant="ghost"
@@ -1107,18 +1135,9 @@ export default function BettingSlip() {
                           >
                             <DivideIcon className="h-4 w-4" />
                           </Button>
-                          <Input
-                            type="number"
+                          <StakeInput
                             value={systemDistributeStake}
-                            onChange={(e) =>
-                              setSystemDistributeStake(
-                                parseFloat(e.target.value) || 0,
-                              )
-                            }
-                            onFocus={(e) => {
-                              const t = e.target
-                              setTimeout(() => t.select(), 0)
-                            }}
+                            onCommit={(v) => setSystemDistributeStake(v)}
                             className="h-8 w-32 flex-1 rounded-none bg-white text-center text-[13px]"
                           />
                           <Button
@@ -1188,22 +1207,12 @@ export default function BettingSlip() {
                                   >
                                     <MinusIcon className="h-4 w-4" />
                                   </Button>
-                                  <Input
-                                    type="number"
+                                  <StakeInput
                                     value={group.stake}
-                                    onChange={(e) =>
-                                      updateSystemGroupStake(
-                                        group.name,
-                                        parseFloat(e.target.value) || 0,
-                                      )
+                                    onCommit={(v) =>
+                                      updateSystemGroupStake(group.name, v)
                                     }
-                                    onFocus={(e) => {
-                                      const t = e.target
-                                      setTimeout(() => t.select(), 0)
-                                    }}
                                     className="h-8 w-32 flex-1 rounded-none bg-white text-center text-[13px]"
-                                    step={systemStakeIncrement}
-                                    min="0"
                                   />
                                   <Button
                                     variant="ghost"
@@ -1299,18 +1308,10 @@ export default function BettingSlip() {
                 >
                   -
                 </Button>
-                <Input
-                  type="number"
+                <StakeInput
                   value={global}
-                  onChange={(e) =>
-                    handleDirectAmountInput(parseFloat(e.target.value) || 0)
-                  }
-                  onFocus={(e) => {
-                    const t = e.target
-                    setTimeout(() => t.select(), 0)
-                  }}
+                  onCommit={(v) => handleDirectAmountInput(v)}
                   className="bg-background-foreground w-16 border-x text-center"
-                  min="0"
                 />
                 <Button
                   variant="ghost"
