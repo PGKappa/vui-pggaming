@@ -438,7 +438,7 @@ export default function SearchEventResults() {
             <SelectItem className="text-[14px]" value="NONE">
               {t('discipline').toUpperCase()}
             </SelectItem>
-            {Object.values(Discipline).map((d) => {
+            {Object.values(Discipline).filter((d) => d !== Discipline.SOCCER).map((d) => {
               const translationKey = d === 'DOGS' ? 'dog_racing' : d === 'HORSES' ? 'horse_racing' : 'football'
               return (
                 <SelectItem className="text-[14px]" key={d} value={d}>
