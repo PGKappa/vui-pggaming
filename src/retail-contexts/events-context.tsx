@@ -17,6 +17,8 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
+  useRef,
   useState,
 } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -87,6 +89,8 @@ export default function EventsContextProvider(props: {
   children: React.ReactNode
 }) {
   const { t } = useTranslation()
+  const tRef = useRef(t)
+  tRef.current = t
   const pathname = usePathname()
   const cashierContext = useContext(CashierContext)
   const { initCode, operator, getTimezone } = cashierContext
@@ -101,8 +105,11 @@ export default function EventsContextProvider(props: {
     undefined,
   )
 
-  // Get disciplines from current URL/page
-  const activeDisciplines = getDisciplinesFromUrl(pathname)
+  // Get disciplines from current URL/page - memoized to avoid new array every render
+  const activeDisciplines = useMemo(
+    () => getDisciplinesFromUrl(pathname),
+    [pathname],
+  )
   const [upcomingRounds] = useState<any[]>([])
   // NOTE: hasLoadedOnce and caches are now at MODULE LEVEL to persist across remounts
   const [currentEvent, setCurrentEvent] = useState<EventResult | undefined>(
@@ -136,7 +143,7 @@ export default function EventsContextProvider(props: {
       }
 
       if (!operator) {
-        toast.error(t('operator_required'))
+        toast.error(tRef.current('operator_required'))
         return
       }
 
@@ -220,12 +227,12 @@ export default function EventsContextProvider(props: {
         }
       } catch (error) {
         console.error('Error fetching event details:', error)
-        toast.error(t('error_fetching_event_details'))
+        toast.error(tRef.current('error_fetching_event_details'))
       } finally {
         setIsLoadingEventDetails(false)
       }
     },
-    [effectiveInitCode, operator, getTimezone, t],
+    [effectiveInitCode, operator, getTimezone],
   )
 
   // Funzione per fetch in background (senza mostrare loading)
@@ -415,7 +422,7 @@ export default function EventsContextProvider(props: {
 
       try {
         if (!operator) {
-          toast.error(t('operator_required'))
+          toast.error(tRef.current('operator_required'))
           setIsLoadingEvents(false)
           isFetchingEvents = false
           return
@@ -720,7 +727,7 @@ export default function EventsContextProvider(props: {
           return
         }
         console.error('Error fetching events:', error)
-        toast.error(t('error_loading_events'))
+        toast.error(tRef.current('error_loading_events'))
         setIsLoadingEvents(false)
         isFetchingEvents = false
       }
@@ -740,7 +747,6 @@ export default function EventsContextProvider(props: {
     getTimezone,
     activeDisciplines,
     fetchEventsInBackground,
-    t,
   ])
 
   // Polling periodico per mantenere il carosello aggiornato

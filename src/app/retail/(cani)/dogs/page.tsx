@@ -33,28 +33,29 @@ export default function Home() {
   )
 
   useEffect(() => {
-    if (selectedEvent) {
-      const stillExists = carouselEvents.some((e) => e.id === selectedEvent.id)
-      if (stillExists) return
-    }
+    setSelectedEvent((prev) => {
+      if (prev) {
+        const stillExists = carouselEvents.some((e) => e.id === prev.id)
+        if (stillExists) return prev
+      }
 
-    if (futureEvents && futureEvents.length > 0 && futureEvents[0]) {
-      setSelectedEvent(futureEvents[0])
-    } else if (carouselEvents && carouselEvents.length > 0) {
-      setSelectedEvent(carouselEvents[0])
-    } else {
-      setSelectedEvent(undefined)
-    }
-  }, [futureEvents, carouselEvents, selectedEvent])
+      if (futureEvents && futureEvents.length > 0 && futureEvents[0]) {
+        return futureEvents[0]
+      } else if (carouselEvents && carouselEvents.length > 0) {
+        return carouselEvents[0]
+      } else {
+        return undefined
+      }
+    })
+  }, [futureEvents, carouselEvents])
 
   useEffect(() => {
     const interval = setInterval(() => {
-      if (selectedEvent) {
+      setSelectedEvent((prev) => {
+        if (!prev) return prev
         const now = new Date()
         const eventTime =
-          selectedEvent.time instanceof Date
-            ? selectedEvent.time
-            : new Date(selectedEvent.time)
+          prev.time instanceof Date ? prev.time : new Date(prev.time)
 
         if (eventTime <= now) {
           const freshFutureEvents = getFutureEventsFromCarousel(
@@ -62,21 +63,25 @@ export default function Home() {
           )
 
           if (freshFutureEvents.length > 0) {
-            setSelectedEvent(freshFutureEvents[0])
+            if (freshFutureEvents[0].id === prev.id) return prev
+            return freshFutureEvents[0]
           } else {
             const allEvents = getCarouselFilteredEvents(upcomingEvents, [
               Discipline.DOGS,
             ])
             if (allEvents.length > 0) {
-              setSelectedEvent(allEvents[allEvents.length - 1])
+              const last = allEvents[allEvents.length - 1]
+              if (last.id === prev.id) return prev
+              return last
             }
           }
         }
-      }
+        return prev
+      })
     }, 500)
 
     return () => clearInterval(interval)
-  }, [selectedEvent, upcomingEvents])
+  }, [upcomingEvents])
 
   return (
     <div className="relative bottom-[5px] flex h-full min-w-[1200px] flex-row overflow-hidden">
@@ -108,7 +113,7 @@ export default function Home() {
       </div>
 
       {/* RIGHT COLUMN - larghezza fissa, sempre ancorata a destra */}
-      <div className="h-[950px] w-[400px] relative right-1 shrink-0 bg-background text-foreground">
+      <div className="relative right-1 h-[950px] w-[400px] shrink-0 bg-background text-foreground">
         <BettingSlip selectedEvent={selectedEvent} />
       </div>
     </div>
