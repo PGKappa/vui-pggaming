@@ -49,7 +49,7 @@ function StakeInput({
     <Input
       type="text"
       inputMode="decimal"
-      value={editing ? localValue : value}
+      value={editing ? localValue : Number(value.toFixed(2))}
       onChange={(e) => setLocalValue(e.target.value)}
       onFocus={() => {
         setEditing(true)
@@ -162,9 +162,16 @@ export default function BettingSlip() {
 
   // Calcola i totali per la modalità SYSTEM
   const actualTotalStake = useMemo(() => {
-    return systemGroups
-      .filter((group) => selectedGroups[group.name] && group.stake > 0)
-      .reduce((sum, group) => sum + group.stake * group.combinations.length, 0)
+    return (
+      Math.round(
+        systemGroups
+          .filter((group) => selectedGroups[group.name] && group.stake > 0)
+          .reduce(
+            (sum, group) => sum + group.stake * group.combinations.length,
+            0,
+          ) * 100,
+      ) / 100
+    )
   }, [systemGroups, selectedGroups])
 
   const totalSystemPotentialWin = useMemo(() => {
