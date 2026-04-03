@@ -328,7 +328,7 @@ export default function BetsContextProvider(props: {
           ? Math.max(...lastTicket.betEntries.map((b) => b.id))
           : 0,
     }))
-  }, [t])
+  }, [])
 
   const addBets = useCallback(
     (market: string, bets: Bet[], apiMarket?: string) => {

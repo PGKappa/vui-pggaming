@@ -39,10 +39,14 @@ export function UpcomingEventsCarousel(props: {
 
   const filteredAndSortedEvents = useMemo(() => {
     const events = upcomingEvents || []
-    const filtered = events.filter((event) => disciplines.includes(event.discipline))
+    const filtered = events.filter((event) =>
+      disciplines.includes(event.discipline),
+    )
     return filtered.sort((a, b) => {
-      const timeA = a.time instanceof Date ? a.time.getTime() : new Date(a.time).getTime()
-      const timeB = b.time instanceof Date ? b.time.getTime() : new Date(b.time).getTime()
+      const timeA =
+        a.time instanceof Date ? a.time.getTime() : new Date(a.time).getTime()
+      const timeB =
+        b.time instanceof Date ? b.time.getTime() : new Date(b.time).getTime()
       return timeA - timeB
     })
   }, [upcomingEvents, disciplines])
@@ -61,25 +65,14 @@ export function UpcomingEventsCarousel(props: {
     }, 0)
   }, [filteredAndSortedEvents, nowMs])
 
-  useEffect(() => {
-    if (filteredAndSortedEvents.length === 0) return
-    const selectedEventStillExists = props.selectedEvent
-      ? filteredAndSortedEvents.some(
-          (event) =>
-            event.id === props.selectedEvent?.id &&
-            event.discipline === props.selectedEvent?.discipline,
-        )
-      : false
-    if (!props.selectedEvent || !selectedEventStillExists) {
-      props.setSelectedEvent(filteredAndSortedEvents[0])
-    }
-  }, [filteredAndSortedEvents, props])
+  // Auto-selezione RIMOSSA: la logica è gestita SOLO dalla pagina (pickEvent)
+  // per evitare competizione tra meccanismi multipli
 
   return (
     <Carousel
-  className="w-full px-9"
-  opts={{ align: 'start', skipSnaps: false }}
->
+      className="w-full px-9"
+      opts={{ align: 'start', skipSnaps: false }}
+    >
       <CarouselContent className="bg-white">
         {isLoadingEvents ? (
           Array.from({ length: 6 }).map((_, index) => (
@@ -178,7 +171,7 @@ function UpcomingEventItem(props: {
         alt={event.discipline}
         width={40}
         height={20}
-         className={`relative hidden min-[1730px]:block size-14 object-contain ${imageOffset}`}
+        className={`relative hidden size-14 object-contain min-[1730px]:block ${imageOffset}`}
       />
 
       <div className={`relative ${textOffset} flex flex-col items-start`}>

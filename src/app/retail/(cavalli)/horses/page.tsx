@@ -23,65 +23,38 @@ export default function Home() {
   )
 
   const carouselEvents = useMemo(
-    () => getCarouselFilteredEvents(upcomingEvents, [Discipline.DOGS]),
+    () => getCarouselFilteredEvents(upcomingEvents, [Discipline.HORSES]),
     [upcomingEvents],
   )
 
-  const futureEvents = useMemo(
-    () => getFutureEventsFromCarousel(carouselEvents),
-    [carouselEvents],
-  )
-
+  // SELEZIONE UNIFICATA: un solo meccanismo per evitare competizioni
   useEffect(() => {
-    setSelectedEvent((prev) => {
-      if (prev) {
-        const stillExists = carouselEvents.some((e) => e.id === prev.id)
-        if (stillExists) return prev
-      }
-
-      if (futureEvents && futureEvents.length > 0 && futureEvents[0]) {
-        return futureEvents[0]
-      } else if (carouselEvents && carouselEvents.length > 0) {
-        return carouselEvents[0]
-      } else {
-        return undefined
-      }
-    })
-  }, [futureEvents, carouselEvents])
-
-  useEffect(() => {
-    const interval = setInterval(() => {
+    const pickEvent = () => {
       setSelectedEvent((prev) => {
-        if (!prev) return prev
-        const now = new Date()
-        const eventTime =
-          prev.time instanceof Date ? prev.time : new Date(prev.time)
+        const futureEvts = getFutureEventsFromCarousel(carouselEvents)
 
-        if (eventTime <= now) {
-          const freshFutureEvents = getFutureEventsFromCarousel(
-            getCarouselFilteredEvents(upcomingEvents, [Discipline.DOGS]),
-          )
-
-          if (freshFutureEvents.length > 0) {
-            if (freshFutureEvents[0].id === prev.id) return prev
-            return freshFutureEvents[0]
-          } else {
-            const allEvents = getCarouselFilteredEvents(upcomingEvents, [
-              Discipline.DOGS,
-            ])
-            if (allEvents.length > 0) {
-              const last = allEvents[allEvents.length - 1]
-              if (last.id === prev.id) return prev
-              return last
-            }
+        if (prev) {
+          const stillInCarousel = carouselEvents.some((e) => e.id === prev.id)
+          if (stillInCarousel) {
+            const now = new Date()
+            const eventTime =
+              prev.time instanceof Date ? prev.time : new Date(prev.time)
+            if (eventTime > now) return prev // still valid and not expired
+            // Expired → pick next future
+            if (futureEvts.length > 0) return futureEvts[0]
+            return prev // nothing better available
           }
+          // Gone from carousel → pick new
         }
-        return prev
-      })
-    }, 500)
 
+        return futureEvts[0] ?? carouselEvents[0] ?? undefined
+      })
+    }
+
+    pickEvent()
+    const interval = setInterval(pickEvent, 500)
     return () => clearInterval(interval)
-  }, [upcomingEvents])
+  }, [carouselEvents])
 
   return (
     <div className="relative bottom-[5px] flex h-full min-w-[1200px] flex-row overflow-hidden">
