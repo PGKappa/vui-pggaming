@@ -1446,7 +1446,7 @@ export default function BettingSlip({
 
             <Separator />
 
-            <div className="relative bottom-[1px] flex w-full flex-row items-center justify-between px-4 py-[27px] pb-[15px] text-searchResultText">
+            <div className="relative bg-backgroundBetslip bottom-[1px] flex w-full flex-row items-center justify-between px-4 py-[27px] pb-[15px] text-searchResultText">
               <span className="text-[15px] font-semibold">
                 {t('total_combinations').toUpperCase()}
               </span>
