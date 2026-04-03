@@ -5,7 +5,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-// Normalizes competitors/outcome for under/over markets to match toggles and fastBet 
+// Normalizes competitors/outcome for under/over markets to match toggles and fastBet
 export function normalizeUnderOverValue(value: string): string {
   const v = value.toLowerCase().trim()
   // Map all variations of "under" to canonical form
@@ -189,6 +189,14 @@ export function parseAPIDate(
   }
 }
 
+// Module-level retail headers (Shop-Id, Terminal-Id) — set once at init
+const retailHeaders: Record<string, string> = {}
+
+export function setRetailHeaders(shopId?: string, terminalId?: string) {
+  if (shopId) retailHeaders['Shop-Id'] = shopId
+  if (terminalId) retailHeaders['Terminal-Id'] = terminalId
+}
+
 // Helper per chiamate API PGVirtual pulite
 export function createPGVirtualAPICall(
   endpoint: string,
@@ -212,6 +220,7 @@ export function createPGVirtualAPICall(
       authorization: `Bearer ${initCode}`,
       'content-type': 'application/json',
       operator: operator,
+      ...retailHeaders,
     },
     mode: 'cors' as const,
     credentials: 'include' as const,
@@ -282,6 +291,7 @@ export async function fetchCashierInit(
       authorization: `Bearer ${initCode}`,
       operator: operator,
       'Content-Type': 'application/json',
+      ...retailHeaders,
     },
     method: 'POST',
     mode: 'cors',
