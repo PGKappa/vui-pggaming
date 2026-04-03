@@ -673,10 +673,21 @@ export default function BettingSlip() {
   }
 
   const updateSystemGroupStake = (groupName: string, value: number) => {
+    const rounded = value >= 0 ? Math.round(value * 100) / 100 : 0
     setSystemGroupStakes((prev) => ({
       ...prev,
-      [groupName]: value >= 0 ? Math.round(value * 100) / 100 : 0,
+      [groupName]: rounded,
     }))
+    // Sync checkbox: value > 0 → selected, value === 0 → deselected
+    setSelectedGroups((prev) => ({
+      ...prev,
+      [groupName]: rounded > 0,
+    }))
+    // Update "all" checkbox
+    const allSelected = systemGroups.every((group) =>
+      group.name === groupName ? rounded > 0 : selectedGroups[group.name],
+    )
+    setAllGroupsSelected(allSelected)
   }
 
   // Funzione per input diretto dell'amount in modalità SYSTEM
@@ -890,10 +901,20 @@ export default function BettingSlip() {
   const handleAllGroupsToggle = (checked: boolean) => {
     setAllGroupsSelected(checked)
     const newSelections: Record<string, boolean> = {}
+    const newStakes: Record<string, number> = {}
     systemGroups.forEach((group) => {
       newSelections[group.name] = checked
+      if (checked) {
+        newStakes[group.name] = Math.max(
+          systemGroupStakes[group.name] || 0,
+          systemStakeIncrement,
+        )
+      } else {
+        newStakes[group.name] = 0
+      }
     })
     setSelectedGroups(newSelections)
+    setSystemGroupStakes((prev) => ({ ...prev, ...newStakes }))
   }
 
   // Gestione singolo checkbox gruppo
@@ -910,10 +931,10 @@ export default function BettingSlip() {
         [groupName]: 0,
       }))
     } else {
-      // Se selezionato, imposta il valore minimo (systemStakeIncrement)
+      // Se selezionato, garantisci almeno il minimo (systemStakeIncrement)
       setSystemGroupStakes((prev) => ({
         ...prev,
-        [groupName]: prev[groupName] || systemStakeIncrement,
+        [groupName]: Math.max(prev[groupName] || 0, systemStakeIncrement),
       }))
     }
 
