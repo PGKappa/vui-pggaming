@@ -427,7 +427,7 @@ export default function BettingSlip({
 
 const scrollAreaHeight = useMemo(() => {
   const groupHeight = 59
-  const expandedHeight = 57
+  const expandedHeight = 63
   const numGroups = systemGroups.length
   const groupsToShow = Math.min(Math.max(numGroups, 1), 3)
   const baseHeight = groupHeight * groupsToShow
@@ -1316,7 +1316,7 @@ const scrollAreaHeight = useMemo(() => {
                                       }
                                     }}
                                     disabled={group.stake <= 0}
-                                    className="h-8 w-7 bg-infoBackground disabled:bg-disabledButton p-3 text-[19px] text-bet-foreground hover:opacity-90"
+                                    className="h-8 w-7 bg-infoBackground p-3 text-[19px] text-bet-foreground hover:opacity-90"
                                   >
                                     <MinusIcon className="h-4 w-4" />
                                   </Button>

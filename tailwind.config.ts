@@ -122,6 +122,10 @@ export default {
           DEFAULT: 'hsl(var(--infoBackground))',
           foreground: 'hsl(var(--infoBackground-foreground))',
         },
+        searchResButton: {
+          DEFAULT: 'hsl(var(--searchResButton))',
+          foreground: 'hsl(var(--searchResButton-foreground))',
+        },
         betslipTitle: {
           DEFAULT: 'hsl(var(--betslipTitle))',
           foreground: 'hsl(var(--betslipTitle-foreground))',

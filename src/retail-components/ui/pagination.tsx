@@ -53,7 +53,7 @@ const PaginationLink = ({
         size,
       }),
       className,
-      `${isActive ? 'bg-[#BED62F] text-black' : ''}`,
+      `${isActive ? 'bg-secondary text-white' : ''}`,
     )}
     {...props}
   />
@@ -67,10 +67,10 @@ const PaginationPrevious = ({
   <PaginationLink
     aria-label="Go to previous page"
     size="icon"
-    className={cn('bg-[#BED62F]', className)}
+    className={cn('bg-secondary', className)}
     {...props}
   >
-    <ChevronLeft className="h-4 w-4 text-black" />
+    <ChevronLeft className="h-4 w-4 text-white" />
   </PaginationLink>
 )
 PaginationPrevious.displayName = 'PaginationPrevious'
@@ -82,10 +82,10 @@ const PaginationNext = ({
   <PaginationLink
     aria-label="Go to next page"
     size="icon"
-    className={cn('bg-[#BED62F]', className)}
+    className={cn('bg-secondary', className)}
     {...props}
   >
-    <ChevronRight className="h-4 w-4 text-black" />
+    <ChevronRight className="h-4 w-4 text-white" />
   </PaginationLink>
 )
 PaginationNext.displayName = 'PaginationNext'

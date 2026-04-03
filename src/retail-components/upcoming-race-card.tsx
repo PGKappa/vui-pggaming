@@ -684,7 +684,7 @@ export default function UpcomingRaceCard({
                 >
                   {disorderSelection.includes(racer.number) && (
                     <Check
-                      className="h-12 w-12 text-accent"
+                      className="h-12 w-12 text-background"
                       style={{ scale: 1.5 }}
                     />
                   )}
@@ -780,7 +780,7 @@ export default function UpcomingRaceCard({
                 >
                   {disorderSelection.includes(racer.number) && (
                     <Check
-                      className="h-12 w-12 text-accent"
+                      className="h-12 w-12 text-background"
                       style={{ scale: 1.5 }}
                     />
                   )}

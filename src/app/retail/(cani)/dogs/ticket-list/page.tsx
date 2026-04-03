@@ -45,10 +45,10 @@ export default function TicketListPage() {
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-accent text-accent-foreground">
       <div className="relative flex h-16 items-center justify-center bg-accent text-accent-foreground">
-        <h2 className="text-[20px] font-bold">{t('ticket_list')}</h2>
+        <h2 className="text-[16px] font-bold">{t('ticket_list')}</h2>
         <Button
           variant="ghost"
-          className="absolute right-4 bg-secondary text-xl text-secondary-foreground"
+          className="absolute right-4 bg-accent text-xl text-secondary-foreground"
           onClick={() => router.back()}
         >
           ✕
@@ -56,9 +56,9 @@ export default function TicketListPage() {
       </div>
 
       {/* Filter Bar */}
-      <div className="flex justify-center px-4 pb-8 pt-10">
-        <div className="flex flex-wrap items-center gap-10">
-          <div className="flex flex-row items-center gap-2 bg-badge text-background">
+      <div className="flex justify-center pb-5 bg-secondary">
+        <div className="flex flex-wrap items-center gap-10 relative top-2.5">
+          <div className="flex flex-row items-center gap-2 bg-accent text-background">
             <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
               {t('terminal')}
             </span>
@@ -74,7 +74,7 @@ export default function TicketListPage() {
             </Select>
           </div>
 
-          <div className="flex flex-row items-center gap-2 bg-badge text-background">
+          <div className="flex flex-row items-center gap-2 bg-accent text-background">
             <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
               {t('status')}
             </span>
@@ -91,7 +91,7 @@ export default function TicketListPage() {
             </Select>
           </div>
 
-          <div className="flex flex-row items-center gap-2 bg-badge text-background">
+          <div className="flex flex-row items-center gap-2 bg-accent text-background">
             <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
               {t('payment')}
             </span>
@@ -107,7 +107,7 @@ export default function TicketListPage() {
             </Select>
           </div>
 
-          <div className="flex flex-row items-center gap-2 bg-badge text-background">
+          <div className="flex flex-row items-center gap-2 bg-accent text-background">
             <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
               {t('from')}
             </span>
@@ -131,7 +131,7 @@ export default function TicketListPage() {
             </Popover>
           </div>
 
-          <div className="flex flex-row items-center gap-2 bg-badge text-background">
+          <div className="flex flex-row items-center gap-2 bg-accent text-background">
             <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
               {t('to')}
             </span>
@@ -155,7 +155,7 @@ export default function TicketListPage() {
             </Popover>
           </div>
 
-          <div className="flex flex-row items-center gap-2 bg-badge text-background">
+          <div className="flex flex-row items-center gap-2 bg-accent text-background">
             <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
               {t('page_size')}
             </span>
@@ -182,23 +182,23 @@ export default function TicketListPage() {
         <table className="w-full text-[12px]">
           <thead className="bg-secondary text-white">
             <tr>
-              <th className="bg-badge p-2 text-[16px]">{t('ticket_id')}</th>
+              <th className="bg-accent p-2 text-[16px]">{t('ticket_id')}</th>
               <th className="w-[1px] bg-card-header-foreground p-0"></th>
-              <th className="bg-badge p-2 text-[16px]">{t('terminal')}</th>
+              <th className="bg-accent p-2 text-[16px]">{t('terminal')}</th>
               <th className="w-[1px] bg-card-header-foreground p-0"></th>
-              <th className="bg-badge p-2 text-[16px]">{t('date_n_time')}</th>
+              <th className="bg-accent p-2 text-[16px]">{t('date_n_time')}</th>
               <th className="w-[1px] bg-card-header-foreground p-0"></th>
-              <th className="bg-badge p-2 text-[16px]">{t('staked_amount')}</th>
+              <th className="bg-accent p-2 text-[16px]">{t('staked_amount')}</th>
               <th className="w-[1px] bg-card-header-foreground p-0"></th>
-              <th className="bg-badge p-2 text-[16px]">{t('cancelled')}</th>
+              <th className="bg-accent p-2 text-[16px]">{t('cancelled')}</th>
               <th className="w-[1px] bg-card-header-foreground p-0"></th>
-              <th className="bg-badge p-2 text-[16px]">{t('won')}</th>
+              <th className="bg-accent p-2 text-[16px]">{t('won')}</th>
               <th className="w-[1px] bg-card-header-foreground p-0"></th>
-              <th className="bg-badge p-2 text-[16px]">{t('ticket_status')}</th>
+              <th className="bg-accent p-2 text-[16px]">{t('ticket_status')}</th>
               <th className="w-[1px] bg-card-header-foreground p-0"></th>
-              <th className="bg-badge p-2 text-[16px]">{t('payment')}</th>
+              <th className="bg-accent p-2 text-[16px]">{t('payment')}</th>
               <th className="w-[1px] bg-card-header-foreground p-0"></th>
-              <th className="bg-badge p-2 text-[16px]"></th>
+              <th className="bg-accent p-2 text-[16px]"></th>
             </tr>
           </thead>
           <tbody>
@@ -249,7 +249,7 @@ export default function TicketListPage() {
       </div>
 
       {/* Footer */}
-      <div className="grid grid-cols-9">
+      <div className="grid grid-cols-9 h-[122px]">
         {/* Pagination */}
         <div className="col-span-2 flex flex-row items-center bg-accent p-4">
           <Pagination className="justify-start">
@@ -272,48 +272,48 @@ export default function TicketListPage() {
         <table className="col-span-7 border-collapse">
           <tbody>
             <tr className="bg-accent text-xs font-medium text-white">
-              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle font-bold">
+              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle font-bold text-md">
                 {t('page_total')}
               </td>
-              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle">
+              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle text-md">
                 $ 86.50
               </td>
-              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle">
+              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle text-md">
                 $ 0.00
               </td>
-              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle">
+              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle text-md">
                 $ 47.28
               </td>
-              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle font-bold">
+              <td className="border border-muted bg-searchResButton px-3 py-2 text-center align-middle font-bold text-md">
                 {t('cash_total')}
               </td>
-              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle font-bold">
+              <td className="border border-muted bg-searchResButton px-3 py-2 text-center align-middle font-bold text-md">
                 {t('paid_won')}
               </td>
-              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle font-bold">
+              <td className="border border-muted bg-searchResButton px-3 py-2 text-center align-middle font-bold text-md">
                 {t('total_tickets')}
               </td>
             </tr>
             <tr className="bg-accent text-xs font-medium text-white">
-              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle font-bold">
+              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle font-bold text-md">
                 {t('totals')}
               </td>
-              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle">
+              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle text-md">
                 $ 86.50
               </td>
-              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle">
+              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle text-md">
                 $ 0.00
               </td>
-              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle">
+              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle text-md">
                 $ 47.28
               </td>
-              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle">
+              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle text-md">
                 $ 0.00
               </td>
-              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle">
+              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle text-md">
                 0 / 7
               </td>
-              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle">
+              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle text-md">
                 22
               </td>
             </tr>

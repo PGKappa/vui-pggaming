@@ -55,7 +55,7 @@ function NavbarContent() {
       className="bg-navbarBg flex h-16 w-full flex-row items-center justify-start p-3"
       suppressHydrationWarning={true}
     >
-      <div className="relative left-[8px] flex flex-row items-center space-x-2">
+      <div className="relative flex flex-row items-center space-x-2 right-1">
         <Link
           href={buildHref('/retail/dogs-horses')}
           className={cn(
@@ -138,12 +138,12 @@ function NavbarContent() {
         */}
       </div>
 
-      <div className="relative right-2 flex w-full justify-end space-x-2">
+      <div className="relative left-1 flex w-full justify-end space-x-2">
         <Link
           href={buildHref(`${getDisciplineBasePath(pathname)}/ticket-check`)}
           className={cn(
             buttonVariants({ variant: 'ticketButton', size: 'lg' }),
-            'h-12 w-fit p-[18px] hover:opacity-95',
+            'h-12 w-[168px] p-[18px] hover:opacity-95',
           )}
         >
           <span className="text-searchResultText text-[15px] font-semibold">
@@ -155,7 +155,7 @@ function NavbarContent() {
           href={buildHref(`${getDisciplineBasePath(pathname)}/ticket-list`)}
           className={cn(
             buttonVariants({ variant: 'ticketButton', size: 'lg' }),
-            'h-12 w-fit p-[18px] hover:opacity-95',
+            'h-12 w-[168px] p-[18px] hover:opacity-95',
           )}
         >
           <span className="text-searchResultText text-[15px] font-semibold">
@@ -189,10 +189,10 @@ function NavbarContent() {
       {/* Dialog per le informazioni sul gioco - cambia contenuto per disciplina */}
       <Dialog open={isInfoDialogOpen} onOpenChange={setIsInfoDialogOpen}>
         <DialogContent className="h-full w-full overflow-hidden bg-accent">
-          <DialogHeader className="bg-secondary text-secondary-foreground">
+          <DialogHeader className="bg-accent text-secondary-foreground">
             <DialogTitle>{t('game_rules').toUpperCase()}</DialogTitle>
           </DialogHeader>
-          <div className="h-[1020px] w-full">
+          <div className="h-[1020px] w-full bg-secondary">
             <iframe
               src={getInfoLink()}
               className="h-full w-full border-0"

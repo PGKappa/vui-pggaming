@@ -31,7 +31,7 @@ export default function TicketCheckPage() {
   }
 
   return (
-    <main className="fixed inset-0 z-50 flex flex-col justify-between bg-accent px-4 py-6 text-accent-foreground">
+    <main className="fixed inset-0 z-50 flex flex-col justify-between bg-black px-4 py-6 text-accent-foreground">
       <Button
         variant="navbar"
         onClick={() => router.back()}
@@ -44,7 +44,7 @@ export default function TicketCheckPage() {
         <p className="text-[22px] font-semibold">{t('scan_or_enter_code')}</p>
 
         <Input
-          className="mt-10 h-12 w-[480px] bg-muted text-center text-[20px] font-bold text-foreground"
+          className="mt-10 h-12 w-[480px] bg-white text-center text-[20px] font-bold text-foreground"
           readOnly
           value={code}
         />
@@ -55,7 +55,7 @@ export default function TicketCheckPage() {
               {row.map((key) => (
                 <Button
                   key={key}
-                  className="h-20 w-20 rounded-none bg-tertiary text-[22px] font-bold text-tertiary-foreground"
+                  className="h-20 w-20 rounded-none bg-secondary text-[22px] font-bold text-tertiary-foreground"
                   onClick={() => handleClick(key)}
                 >
                   {key}
@@ -68,7 +68,7 @@ export default function TicketCheckPage() {
 
       <div className="flex justify-center">
         <Button
-          className="h-16 w-[1200px] bg-green-600 text-[20px] font-bold text-white"
+          className="h-16 w-[1200px] bg-bet text-[20px] font-bold text-white"
           onClick={handleSubmit}
         >
           {t('confirm')}

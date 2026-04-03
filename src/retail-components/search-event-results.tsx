@@ -490,7 +490,7 @@ export default function SearchEventResults() {
 
         {/* CERCA */}
         <Button
-          className="h-[48px] min-w-0 flex-1  bg-tertiary text-[16px] font-bold text-bet-foreground hover:opacity-90 mr-4 ml-2"
+          className="h-[48px] min-w-0 flex-1  bg-searchResButton text-[16px] font-bold text-bet-foreground hover:opacity-90 mr-4 ml-2"
           disabled={selectedDiscipline === 'NONE'}
           onClick={handleSearch}
         >
@@ -499,7 +499,7 @@ export default function SearchEventResults() {
 
         {/* RESET */}
         <Button
-          className="h-[48px] min-w-0 flex-1  bg-tertiary text-[15px] text-tertiary-foreground"
+          className="h-[48px] min-w-0 flex-1  bg-searchResButton text-[15px] text-tertiary-foreground"
           disabled={!selectedDate && !selectedDiscipline && !selectedTimeSlot}
           onClick={handleReset}
         >
