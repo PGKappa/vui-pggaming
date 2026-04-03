@@ -10,7 +10,7 @@ import {
   getCacheKey,
 } from '@/virtual-lib/race-info-cache'
 import { createPGVirtualAPICall, getRacerColors } from '@/virtual-lib/utils'
-import i18n, { t } from 'i18next'
+import { t } from 'i18next'
 import { Discipline } from '@/virtual-lib/types'
 import { useContext, useEffect, useState } from 'react'
 import BetCombinationsTable from './bet-combination-table'
@@ -19,7 +19,6 @@ import LatecomersDialog from './latecomers-dialog'
 import MedalsHistory from './medals-history'
 import { Button } from './ui/button'
 import { Card, CardContent, CardHeader } from './ui/card'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog'
 import { Progress } from './ui/progress'
 import { Toggle } from './ui/toggle'
 import { Check } from 'lucide-react'
@@ -53,7 +52,6 @@ export default function UpcomingRaceCard({
   const [disorderSelection, setDisorderSelection] = useState<number[]>([])
   const [isLoading, setIsLoading] = useState(!moduleHasLoadedOnce)
   const [isLatecomersDialogOpen, setIsLatecomersDialogOpen] = useState(false)
-  const [isInfoDialogOpen, setIsInfoDialogOpen] = useState(false)
 
   const { betEntries } = useContext(BetsContext)
   const { initCode, operator } = useContext(CashierContext)
@@ -842,18 +840,6 @@ export default function UpcomingRaceCard({
                 {t('latecomers')}
               </Button>
             )}
-
-            {/* Pulsante Info (regole del gioco) */}
-            {(race.discipline === Discipline.DOGS ||
-              race.discipline === Discipline.HORSES) && (
-              <Button
-                variant="ghost"
-                className="h-11 w-11 bg-secondary text-[18px] font-semibold text-secondary-foreground"
-                onClick={() => setIsInfoDialogOpen(true)}
-              >
-                i
-              </Button>
-            )}
           </div>
         </CardHeader>
 
@@ -971,22 +957,6 @@ export default function UpcomingRaceCard({
         raceInfo={raceInfo}
         discipline={race.discipline as 'DOGS' | 'HORSES'}
       />
-
-      <Dialog open={isInfoDialogOpen} onOpenChange={setIsInfoDialogOpen}>
-        <DialogContent className="h-full w-full overflow-hidden bg-accent">
-          <DialogHeader className="bg-secondary text-secondary-foreground">
-            <DialogTitle>{t('game_rules').toUpperCase()}</DialogTitle>
-          </DialogHeader>
-          <div className="min-h-0 w-full flex-1">
-            <iframe
-              src={`https://d190050z3qr0m1.cloudfront.net/public/Gaming_manual_${i18n.language || 'en'}.html`}
-              className="h-full w-full border-0"
-              title="Game Rules"
-              sandbox="allow-same-origin allow-scripts"
-            />
-          </div>
-        </DialogContent>
-      </Dialog>
     </>
   )
 }
