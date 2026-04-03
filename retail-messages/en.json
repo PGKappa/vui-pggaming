@@ -294,6 +294,8 @@
   "operator_missing": "Operator parameter is missing in URL",
   "operator_required": "Operator is required",
   "operator_not_found": "Operator is required but not found in storage",
+  "shop_id_missing": "Shop ID is missing in URL",
+  "terminal_id_missing": "Terminal ID is missing in URL",
   "cashier_initialized": "Cashier initialized",
   "cashier_unavailable": "Cashier unavailable",
   "retrying_cashier": "Retrying cashier...",

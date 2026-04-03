@@ -1,7 +1,11 @@
 'use client'
 
 import { User } from '@/retail-lib/types'
-import { BASE_API_URL, fetchCashierInit } from '@/retail-lib/utils'
+import {
+  BASE_API_URL,
+  fetchCashierInit,
+  setRetailHeaders,
+} from '@/retail-lib/utils'
 import {
   createContext,
   useCallback,
@@ -287,11 +291,31 @@ export default function CashierContextProvider(props: {
     const urlInitCode = params.get('init_code')
     // Accetta sia 'operator' che 'partner' come parametro URL (operator ha precedenza)
     const urlOperator = params.get('operator') || params.get('partner')
+    const urlShopId = params.get('shopID')
+    const urlTerminalId = params.get('terminalID')
+
+    // Salva Shop-Id e Terminal-Id per tutte le API call
+    const effectiveShopId =
+      urlShopId || localStorage.getItem('shopId') || undefined
+    const effectiveTerminalId =
+      urlTerminalId || localStorage.getItem('terminalId') || undefined
+    setRetailHeaders(effectiveShopId, effectiveTerminalId)
+
+    if (!effectiveShopId) {
+      console.warn('Shop-Id is missing from URL and localStorage')
+      toast.warning(tRef.current('shop_id_missing'))
+    }
+    if (!effectiveTerminalId) {
+      console.warn('Terminal-Id is missing from URL and localStorage')
+      toast.warning(tRef.current('terminal_id_missing'))
+    }
 
     if (urlInitCode) {
       // Se l'initCode è cambiato, pulisci la sessione precedente
       clearSessionStorageForNewInitCode(urlInitCode)
       setInitCode(urlInitCode)
+      if (urlShopId) localStorage.setItem('shopId', urlShopId)
+      if (urlTerminalId) localStorage.setItem('terminalId', urlTerminalId)
       if (urlOperator) {
         setOperator(urlOperator)
         localStorage.setItem('operator', urlOperator)

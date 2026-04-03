@@ -272,6 +272,8 @@
   "operator_missing": "Operatore mancante nell'URL",
   "operator_required": "Operatore richiesto",
   "operator_not_found": "Operatore richiesto ma non trovato",
+  "shop_id_missing": "Shop ID mancante nell'URL",
+  "terminal_id_missing": "Terminal ID mancante nell'URL",
   "cashier_initialized": "Cassa inizializzata",
   "cashier_unavailable": "Cassa non disponibile",
   "retrying_cashier": "Ritento connessione cassa...",

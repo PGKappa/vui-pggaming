@@ -223,6 +223,8 @@
   "operator_missing": "Параметр оператора отсутствует в URL",
   "operator_required": "Требуется оператор",
   "operator_not_found": "Требуется оператор, но не найден",
+  "shop_id_missing": "Shop ID отсутствует в URL",
+  "terminal_id_missing": "Terminal ID отсутствует в URL",
   "cashier_initialized": "Касса инициализирована",
   "cashier_unavailable": "Касса недоступна",
   "retrying_cashier": "Повторная попытка подключения к кассе...",
