@@ -316,6 +316,8 @@
   "operator_missing": "Falta el operador",
   "operator_required": "Se requiere operador para enviar el ticket",
   "operator_not_found": "Se requiere operador pero no se encontró en el almacenamiento",
+  "shop_id_missing": "Falta el Shop ID en la URL",
+  "terminal_id_missing": "Falta el Terminal ID en la URL",
   "cashier_initialized": "Cajero inicializado",
   "cashier_unavailable": "Cajero no disponible",
   "retrying_cashier": "Reintentando cajero...",

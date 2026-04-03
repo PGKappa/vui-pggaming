@@ -295,10 +295,20 @@ export default function CashierContextProvider(props: {
     const urlTerminalId = params.get('terminalID')
 
     // Salva Shop-Id e Terminal-Id per tutte le API call
-    setRetailHeaders(
-      urlShopId || localStorage.getItem('shopId') || undefined,
-      urlTerminalId || localStorage.getItem('terminalId') || undefined,
-    )
+    const effectiveShopId =
+      urlShopId || localStorage.getItem('shopId') || undefined
+    const effectiveTerminalId =
+      urlTerminalId || localStorage.getItem('terminalId') || undefined
+    setRetailHeaders(effectiveShopId, effectiveTerminalId)
+
+    if (!effectiveShopId) {
+      console.warn('Shop-Id is missing from URL and localStorage')
+      toast.warning(tRef.current('shop_id_missing'))
+    }
+    if (!effectiveTerminalId) {
+      console.warn('Terminal-Id is missing from URL and localStorage')
+      toast.warning(tRef.current('terminal_id_missing'))
+    }
 
     if (urlInitCode) {
       // Se l'initCode è cambiato, pulisci la sessione precedente
