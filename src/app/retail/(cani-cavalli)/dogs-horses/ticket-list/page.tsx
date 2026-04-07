@@ -43,7 +43,7 @@ export default function TicketListPage() {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-accent text-accent-foreground">
+    <div className="fixed inset-0 z-50 flex flex-col bg-accent text-accent-foreground w-[1870px] h-[970px]">
       <div className="relative flex h-16 items-center justify-center bg-accent text-accent-foreground">
         <h2 className="text-[16px] font-bold">{t('ticket_list')}</h2>
         <Button
