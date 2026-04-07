@@ -749,6 +749,10 @@ export default function EventsContextProvider(props: {
     fetchEventsInBackground,
   ])
 
+  // Ref per accedere a upcomingEvents nel polling senza causare re-esecuzione
+  const upcomingEventsRef = useRef(upcomingEvents)
+  upcomingEventsRef.current = upcomingEvents
+
   // Polling periodico per mantenere il carosello aggiornato
   useEffect(() => {
     const POLLING_INTERVAL_MS = 45 * 1000 // 45 secondi
@@ -782,7 +786,7 @@ export default function EventsContextProvider(props: {
       const now = new Date()
 
       // Conta gli eventi futuri (non ancora scaduti)
-      const futureEvents = upcomingEvents.filter((event) => {
+      const futureEvents = upcomingEventsRef.current.filter((event) => {
         const eventTime =
           event.time instanceof Date ? event.time : new Date(event.time)
         return eventTime > now
@@ -816,13 +820,7 @@ export default function EventsContextProvider(props: {
       clearInterval(checkIntervalId)
       clearInterval(pollingIntervalId)
     }
-  }, [
-    pathname,
-    effectiveInitCode,
-    operator,
-    fetchEventsInBackground,
-    upcomingEvents,
-  ])
+  }, [pathname, effectiveInitCode, operator, fetchEventsInBackground])
 
   return (
     <EventsContext.Provider

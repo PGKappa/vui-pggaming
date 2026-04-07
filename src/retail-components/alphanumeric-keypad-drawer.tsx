@@ -179,8 +179,8 @@ export default function AlphanumericKeypadDrawer(props: {
         </div>
       </DrawerTrigger>
 
-      <DrawerContent className="w-[calc(100vw-420px)] ml-[8px] border-0">
-        <DrawerHeader className="relative bg-secondary text-accent-foreground">
+      <DrawerContent className="w-[calc(100vw-420px)] pt-10 mt-[150px] ml-[8px] border-0">
+        <DrawerHeader className="relative bg-accent text-accent-foreground">
           <DrawerTitle className="pt-1 text-center text-accent-foreground">
             {props.placeholder || 'FASTBET'}
           </DrawerTitle>
@@ -197,7 +197,7 @@ export default function AlphanumericKeypadDrawer(props: {
           </Button>
         </DrawerHeader>
 
-        <div className="flex flex-col space-x-3 space-y-3 p-3">
+        <div className="flex flex-col gap-3 p-3">
           {/* Number Row */}
           <div className="grid grid-cols-11 gap-2">
             {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'].map((num) => (
@@ -284,7 +284,7 @@ export default function AlphanumericKeypadDrawer(props: {
             <Button
               variant="outline"
               size="lg"
-              className="col-span-2 h-12 bg-tertiary text-[18px] font-semibold text-accent-foreground hover:opacity-95 border-0"
+              className="col-span-2 h-12 bg-secondary text-[18px] font-semibold text-accent-foreground hover:opacity-95 border-0"
               onClick={handleSubmit}
             >
               {t('enter')}
