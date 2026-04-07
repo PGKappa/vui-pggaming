@@ -313,9 +313,17 @@ export default function CashierContextProvider(props: {
 
     if (!effectiveShopId) {
       console.warn('Shop-Id is missing from URL and localStorage')
+      toast.error(t('shop_id_missing'))
+      setHasCashierError(true)
+      setIsLoading(false)
+      return
     }
     if (!effectiveTerminalId) {
       console.warn('Terminal-Id is missing from URL and localStorage')
+      toast.error(t('terminal_id_missing'))
+      setHasCashierError(true)
+      setIsLoading(false)
+      return
     }
 
     if (urlInitCode) {

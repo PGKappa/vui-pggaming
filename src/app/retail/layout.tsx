@@ -140,7 +140,10 @@ function SkinBody({ children }: { children: React.ReactNode }) {
           />
           <div className="splash-spinner"></div>
         </div>
-        <span className="splash-version"></span>
+        <div className="splash-versions">
+          <span className="splash-version-api"></span>
+          <span className="splash-version-fe"></span>
+        </div>
       </div>
       {/* Toaster globale - visibile anche durante lo splash screen */}
       <Toaster position="top-right" />
@@ -164,6 +167,7 @@ function RetailShell({ children }: { children: React.ReactNode }) {
   const {
     isLoadingEvents,
     isLoadingCashier,
+    hasCashierError,
     upcomingEvents,
     eventResults,
     getVersion,
@@ -193,6 +197,12 @@ function RetailShell({ children }: { children: React.ReactNode }) {
       '#static-splash .splash-logo',
     ) as HTMLImageElement
 
+    const showVersions = () => {
+      if (apiVersionEl) apiVersionEl.textContent = `API: ${apiVersion}`
+      if (feVersionEl) feVersionEl.textContent = `FE: ${feVersion}`
+      if (versionsContainer) versionsContainer.classList.add('loaded')
+    }
+
     // Check if we have a non-empty splashscreen image
     const hasRealImage =
       splashscreenImage && !splashscreenImage.includes('empty')
@@ -206,24 +216,30 @@ function RetailShell({ children }: { children: React.ReactNode }) {
       preloadImg.onload = () => {
         logoElement.src = imagePath
         logoElement.classList.add('loaded')
-        if (apiVersionEl) apiVersionEl.textContent = `API: ${apiVersion}`
-        if (feVersionEl) feVersionEl.textContent = `FE: ${feVersion}`
-        if (versionsContainer) versionsContainer.classList.add('loaded')
+        showVersions()
       }
       preloadImg.onerror = () => {
-        if (apiVersionEl) apiVersionEl.textContent = `API: ${apiVersion}`
-        if (feVersionEl) feVersionEl.textContent = `FE: ${feVersion}`
-        if (versionsContainer) versionsContainer.classList.add('loaded')
+        logoElement.classList.add('loaded')
+        showVersions()
       }
       preloadImg.src = imagePath
     } else {
-      if (apiVersionEl) apiVersionEl.textContent = `API: ${apiVersion}`
-      if (feVersionEl) feVersionEl.textContent = `FE: ${feVersion}`
-      if (versionsContainer) versionsContainer.classList.add('loaded')
+      // Mostra immagine di default e versioni
+      if (logoElement) logoElement.classList.add('loaded')
+      showVersions()
     }
-  }, [isLoadingCashier, getVersion, getSplashscreen, feVersion])
+  }, [
+    isLoadingCashier,
+    hasCashierError,
+    getVersion,
+    getSplashscreen,
+    feVersion,
+  ])
 
   useEffect(() => {
+    // Se c'è un errore cashier, lo splash resta sempre visibile
+    if (hasCashierError) return
+
     // Solo al primo caricamento
     if (
       !hasAppLoaded &&
@@ -242,7 +258,13 @@ function RetailShell({ children }: { children: React.ReactNode }) {
         }
       }, 900) // 900ms per dare tempo di vedere versione e logo
     }
-  }, [isLoadingEvents, isLoadingCashier, upcomingEvents, eventResults])
+  }, [
+    isLoadingEvents,
+    isLoadingCashier,
+    hasCashierError,
+    upcomingEvents,
+    eventResults,
+  ])
 
   return (
     <>
