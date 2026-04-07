@@ -179,7 +179,7 @@ export default function AlphanumericKeypadDrawer(props: {
         </div>
       </DrawerTrigger>
 
-      <DrawerContent className="w-[calc(100vw-420px)] ml-[8px] border-0">
+      <DrawerContent className="w-[calc(100vw-420px)] pt-10 mt-[150px] ml-[8px] border-0">
         <DrawerHeader className="relative bg-accent text-accent-foreground">
           <DrawerTitle className="pt-1 text-center text-accent-foreground">
             {props.placeholder || 'FASTBET'}
