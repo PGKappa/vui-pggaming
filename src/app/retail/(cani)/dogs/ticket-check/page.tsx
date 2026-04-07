@@ -30,7 +30,7 @@ export default function TicketCheckPage() {
   }
 
   return (
-    <main className="fixed inset-0 z-50 flex flex-col justify-between bg-black px-4 py-6 text-accent-foreground">
+    <main className="fixed inset-0 z-50 flex flex-col justify-between bg-black px-4 py-6 text-accent-foreground w-full h-full">
       
       {/* Title Bar */}
       <div className="flex items-center justify-between border-b border-white/10 pb-4 relative bottom-[24px] right-[16px] bg-accent h-[64px] w-[1885px]">
