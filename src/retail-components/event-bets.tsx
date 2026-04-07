@@ -86,7 +86,7 @@ export default function EventBets(props: {
                   : t('horse_races_label')}
             </span>
 
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 mr-1">
               <span className="relative left-[1px] text-[15px] font-bold tabular-nums">
                 {format(eventBets[0].bet.event.startingAt, 'HH:mm')}
               </span>

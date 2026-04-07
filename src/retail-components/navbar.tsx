@@ -7,7 +7,7 @@ import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { Suspense, useContext, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Button } from './ui/button'
+import { Button, buttonVariants } from './ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog'
 
 function NavbarContent() {
@@ -25,6 +25,18 @@ function NavbarContent() {
     return `${path}${queryString ? `?${queryString}` : ''}`
   }
 
+  // Helper per ottenere il base path della disciplina corrente
+  const getDisciplineBasePath = (path: string) => {
+    const p = path.toLowerCase()
+    if (p.includes('dogs-horses') || p.includes('cani-cavalli'))
+      return '/retail/dogs-horses'
+    if (p.includes('dogs') || p.includes('cani')) return '/retail/dogs'
+    if (p.includes('horses') || p.includes('cavalli')) return '/retail/horses'
+    if (p.includes('calcio') || p.includes('football') || p.includes('soccer'))
+      return '/retail/calcio'
+    return '/retail/dogs-horses'
+  }
+
   // Helper per determinare il link info basato sulla pagina e lingua
   const getInfoLink = () => {
     const lang = i18n.language || 'en'
@@ -40,10 +52,10 @@ function NavbarContent() {
 
   return (
     <div
-      className="flex h-16 w-full flex-row items-center justify-start bg-navbarBg p-3"
+      className="bg-navbarBg flex h-16 w-full flex-row items-center justify-start p-3"
       suppressHydrationWarning={true}
     >
-      <div className="relative left-[8px] flex flex-row items-center space-x-2">
+      <div className="relative flex flex-row items-center space-x-2 right-1">
         <Link
           href={buildHref('/retail/dogs-horses')}
           className={cn(
@@ -105,7 +117,7 @@ function NavbarContent() {
             className="size-8 object-contain"
           />
         </Link>
-      {/** 
+        {/** 
         <Link
           href={buildHref('/retail/calcio')}
           className={cn(
@@ -126,7 +138,31 @@ function NavbarContent() {
         */}
       </div>
 
-      <div className="relative right-2 flex w-full justify-end space-x-2">
+      <div className="relative left-1 flex w-full justify-end space-x-2">
+        <Link
+          href={buildHref(`${getDisciplineBasePath(pathname)}/ticket-check`)}
+          className={cn(
+            buttonVariants({ variant: 'ticketButton', size: 'lg' }),
+            'h-12 w-[168px] p-[18px] hover:opacity-95',
+          )}
+        >
+          <span className="text-searchResultText text-[15px] font-semibold">
+            {t('ticket_check').toUpperCase()}
+          </span>
+        </Link>
+
+        <Link
+          href={buildHref(`${getDisciplineBasePath(pathname)}/ticket-list`)}
+          className={cn(
+            buttonVariants({ variant: 'ticketButton', size: 'lg' }),
+            'h-12 w-[168px] p-[18px] hover:opacity-95',
+          )}
+        >
+          <span className="text-searchResultText text-[15px] font-semibold">
+            {t('ticket_list').toUpperCase()}
+          </span>
+        </Link>
+
         <Button
           className="h-12 w-fit p-[18px] hover:opacity-95"
           variant="ticketButton"
@@ -135,48 +171,28 @@ function NavbarContent() {
             setSearchEventResults(eventResults)
           }}
         >
-          <span className="text-[15px] text-searchResultText font-semibold">
+          <span className="text-searchResultText text-[15px] font-semibold">
             {t('search_results').toUpperCase()}
           </span>
         </Button>
 
         <Button
-          className="h-12 w-12 text-[18px] text-searchResultText hover:opacity-95"
+          className="text-searchResultText h-12 w-12 text-[18px] hover:opacity-95"
           variant="ticketButton"
           size="lg"
           onClick={() => setIsInfoDialogOpen(true)}
         >
           i
         </Button>
-
-        {/* <Link
-          href={`/retail/calcio/ticket-list${initCode ? `?init_code=${initCode}` : ''}`}
-          className={buttonVariants({
-            variant: 'ticketButton',
-            size: 'lg',
-          })}
-        >
-          <span className="text-[16px] font-bold">{t('ticket_list')}</span>
-        </Link>
-
-        <Link
-          href={`/retail/calcio/ticket-check${initCode ? `?init_code=${initCode}` : ''}`}
-          className={buttonVariants({
-            variant: 'ticketButton',
-            size: 'lg',
-          })}
-        >
-          <span className="text-[16px] font-bold">{t('ticket_check')}</span>
-        </Link> */}
       </div>
 
       {/* Dialog per le informazioni sul gioco - cambia contenuto per disciplina */}
       <Dialog open={isInfoDialogOpen} onOpenChange={setIsInfoDialogOpen}>
         <DialogContent className="h-full w-full overflow-hidden bg-accent">
-          <DialogHeader className="bg-secondary text-secondary-foreground">
+          <DialogHeader className="bg-accent text-secondary-foreground">
             <DialogTitle>{t('game_rules').toUpperCase()}</DialogTitle>
           </DialogHeader>
-          <div className="h-[1020px] w-full">
+          <div className="h-[1020px] w-full bg-secondary">
             <iframe
               src={getInfoLink()}
               className="h-full w-full border-0"

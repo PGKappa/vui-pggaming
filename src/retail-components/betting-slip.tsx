@@ -425,12 +425,22 @@ export default function BettingSlip({
       }, 0)
   }, [systemGroups, selectedGroups])
 
-  const scrollAreaHeight = useMemo(() => {
-    const numGroups = systemGroups.length
-    const groupHeight = 59
-    const groupsToShow = Math.min(Math.max(numGroups, 1), 3)
-    return groupHeight * groupsToShow
-  }, [systemGroups.length])
+const scrollAreaHeight = useMemo(() => {
+  const groupHeight = 59
+  const expandedHeight = 63
+  const numGroups = systemGroups.length
+  const groupsToShow = Math.min(Math.max(numGroups, 1), 3)
+  const baseHeight = groupHeight * groupsToShow
+
+  // Espande solo se c'è un solo gruppo e questo è aperto
+  const lastVisibleGroupName = systemGroups[groupsToShow - 1]?.name
+  const isLastGroupOpen = lastVisibleGroupName ? systemGroupsOpen.includes(lastVisibleGroupName) : false
+  const isSingleGroup = numGroups === 1
+
+  return baseHeight + (isSingleGroup && isLastGroupOpen ? expandedHeight : 0)
+}, [systemGroups, systemGroupsOpen])
+
+
 
   useEffect(() => {
     if (betMode === 'SYSTEM') {
@@ -1306,7 +1316,7 @@ export default function BettingSlip({
                                       }
                                     }}
                                     disabled={group.stake <= 0}
-                                    className="h-8 w-7 bg-infoBackground disabled:bg-disabledButton p-3 text-[19px] text-bet-foreground hover:opacity-90"
+                                    className="h-8 w-7 bg-infoBackground p-3 text-[19px] text-bet-foreground hover:opacity-90"
                                   >
                                     <MinusIcon className="h-4 w-4" />
                                   </Button>

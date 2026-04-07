@@ -400,6 +400,9 @@
     --disabledButton: 353 100% 44%;
     --disabledButton-foreground: 0 0% 0%;
 
+    --searchResButton:  212 58% 51%;
+    --searchResButton-foreground: 0 0% 100%;
+
   }
   
   .stanleybet {
@@ -426,8 +429,11 @@
     --secondary: 233 6% 25%;
     --secondary-foreground: 0 0% 90%;
 
-    --tertiary: 353 100% 36%;
+    --tertiary: 0 100% 40%;
     --tertiary-foreground: 0 0% 100%;
+
+    --searchResButton: 0, 100%, 50%;
+    --searchResButton-foreground: 0 0% 100%;
 
     --muted: 353 100% 25%;
     --muted-foreground: 220 12% 95%;
@@ -488,7 +494,7 @@
     --loading1: 210, 3%, 47%;
     --loading1-foreground: 0 0% 0%;
     
-    --loading2: 233 6% 25%;
+    --loading2: 0 0% 10%;
     --loading2-foreground: 0 0% 100%;
 
     --backgroundBetslip: 233 6% 25%;
@@ -642,4 +648,26 @@ body > main > div > div > div.h-\[950px\].w-\[400px\].relative.right-1.shrink-0.
   background-color: white;
   position: relative;
   bottom: 8px;
+}
+
+
+
+
+
+
+
+
+[data-vaul-drawer][data-vaul-snap-points="false"][data-vaul-drawer-direction="bottom"][data-state="open"]{
+  top: 456px;
+}
+
+
+
+#radix-\:reg\:{
+  margin-top: 150px;
+}
+
+
+[data-vaul-drawer][data-vaul-drawer-direction=bottom]::after{
+  visibility: hidden;
 }

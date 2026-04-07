@@ -190,7 +190,7 @@ export default function NumericKeypadDrawer(props: {
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 w-7 bg-infoBackground disabled:bg-disabledButton p-3 text-[19px] text-bet-foreground hover:opacity-90"
+            className="h-8 w-7 bg-infoBackground p-3 text-[19px] text-bet-foreground hover:opacity-90"
             disabled={displayValue <= 0}
             onClick={(e) => {
               e.stopPropagation()
@@ -243,7 +243,7 @@ export default function NumericKeypadDrawer(props: {
       <DrawerTrigger asChild>{renderTrigger()}</DrawerTrigger>
 
       <DrawerContent className="ml-auto mr-2 h-[475px] w-[396px] border-0">
-        <DrawerHeader className="relative h-[45px] bg-secondary text-accent-foreground">
+        <DrawerHeader className="relative h-[45px] bg-accent text-accent-foreground">
           <DrawerTitle className="relative bottom-[1px] text-center text-accent-foreground">
             {props.triggerLabel || t('enter_stake_amount')}
           </DrawerTitle>
@@ -319,11 +319,11 @@ export default function NumericKeypadDrawer(props: {
           </div>
 
           {/* Keypad */}
-          <div className="grid grid-cols-3 space-x-3 space-y-3">
+          <div className="grid grid-cols-3 gap-3">
             <Button
               variant="outline"
               size="lg"
-              className="h-12 text-[20px] font-semibold tabular-nums w-[112px] relative left-3 top-3"
+              className="h-12 text-[20px] font-semibold tabular-nums w-[112px]"
               onClick={() => handleNumberClick('1')}
             >
               1
@@ -423,7 +423,7 @@ export default function NumericKeypadDrawer(props: {
 
           <Button
             onClick={handleConfirm}
-            className="h-12 w-full bg-tertiary text-[18px] tabular-nums text-accent-foreground hover:opacity-95"
+            className="h-12 w-full bg-secondary text-[18px] tabular-nums text-accent-foreground hover:opacity-95"
           >
             {t('ok')}
           </Button>
