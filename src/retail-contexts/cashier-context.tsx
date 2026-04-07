@@ -342,7 +342,7 @@ export default function CashierContextProvider(props: {
         setIsLoading(false)
       }
     }
-  }, [])
+  }, [t])
 
   // Fetch cashier data (solo una volta, poi cache)
   useEffect(() => {
