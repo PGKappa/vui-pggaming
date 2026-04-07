@@ -55,5 +55,16 @@
   "min_win": "Ganancia Mín",
   "max_win": "Ganancia Máx",
   "game_rules": "Reglas del Juego",
-  "min_stake_per_combination_not_met": "El valor mínimo por columna no se cumple. Auméntelo en {{amount}} para continuar"
+  "min_stake_per_combination_not_met": "El valor mínimo por columna no se cumple. Auméntelo en {{amount}} para continuar",
+  "search_results": "Buscar Resultados",
+  "dog_racing": "Carreras de Galgos",
+  "horse_racing": "Carreras de Caballos",
+  "all_disciplines": "Todos",
+  "accept": "Aceptar",
+  "date": "Fecha",
+  "no_results_found": "No se encontraron resultados",
+  "dog_races_label": "Carreras de Galgos",
+  "horse_races_label": "Carreras de Caballos",
+  "place_2_short": "Colocado (2°)",
+  "show_3_short": "Colocado (3°)"
 }

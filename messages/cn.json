@@ -57,5 +57,16 @@
   "min_win": "最小赢额",
   "max_win": "最大赢额",
   "game_rules": "游戏规则",
-  "min_stake_per_combination_not_met": "每组合最低投注额未达到。请增加 {{amount}} 以继续"
+  "min_stake_per_combination_not_met": "每组合最低投注额未达到。请增加 {{amount}} 以继续",
+  "search_results": "搜索结果",
+  "dog_racing": "赛狗",
+  "horse_racing": "赛马",
+  "all_disciplines": "全部",
+  "accept": "确认",
+  "date": "日期",
+  "no_results_found": "未找到结果",
+  "dog_races_label": "赛狗",
+  "horse_races_label": "赛马",
+  "place_2_short": "第二名",
+  "show_3_short": "第三名"
 }

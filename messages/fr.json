@@ -55,5 +55,16 @@
   "min_win": "Gain Min",
   "max_win": "Gain Max",
   "game_rules": "Règles du Jeu",
-  "min_stake_per_combination_not_met": "Mise minimale par combinaison non atteinte. Augmentez de {{amount}} pour continuer"
+  "min_stake_per_combination_not_met": "Mise minimale par combinaison non atteinte. Augmentez de {{amount}} pour continuer",
+  "search_results": "Rechercher Résultats",
+  "dog_racing": "Courses de Lévriers",
+  "horse_racing": "Courses de Chevaux",
+  "all_disciplines": "Tous",
+  "accept": "Accepter",
+  "date": "Date",
+  "no_results_found": "Aucun résultat trouvé",
+  "dog_races_label": "Courses de Lévriers",
+  "horse_races_label": "Courses de Chevaux",
+  "place_2_short": "Placé (2ème)",
+  "show_3_short": "Placé (3ème)"
 }

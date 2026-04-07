@@ -57,5 +57,16 @@
   "min_win": "Мин выигрыш",
   "max_win": "Макс выигрыш",
   "game_rules": "Правила игры",
-  "min_stake_per_combination_not_met": "Минимальная ставка на комбинацию не соблюдена. Увеличьте на {{amount}} чтобы продолжить"
+  "min_stake_per_combination_not_met": "Минимальная ставка на комбинацию не соблюдена. Увеличьте на {{amount}} чтобы продолжить",
+  "search_results": "Поиск Результатов",
+  "dog_racing": "Собачьи Бега",
+  "horse_racing": "Скачки",
+  "all_disciplines": "Все",
+  "accept": "Принять",
+  "date": "Дата",
+  "no_results_found": "Результаты не найдены",
+  "dog_races_label": "Собачьи Бега",
+  "horse_races_label": "Скачки",
+  "place_2_short": "Место (2-е)",
+  "show_3_short": "Место (3-е)"
 }

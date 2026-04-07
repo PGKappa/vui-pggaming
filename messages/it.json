@@ -61,5 +61,16 @@
   "min_win": "Vincita Min",
   "max_win": "Vincita Max",
   "game_rules": "Informazioni",
-  "min_stake_per_combination_not_met": "Valore minimo per combinazione non raggiunto. Aumentare di {{amount}} per continuare"
+  "min_stake_per_combination_not_met": "Valore minimo per combinazione non raggiunto. Aumentare di {{amount}} per continuare",
+  "search_results": "Ricerca Risultati",
+  "dog_racing": "Corsa di Levrieri",
+  "horse_racing": "Corsa di Cavalli",
+  "all_disciplines": "Tutti",
+  "accept": "Accetta",
+  "date": "Data",
+  "no_results_found": "Nessun risultato trovato",
+  "dog_races_label": "Corsa Cani",
+  "horse_races_label": "Corsa Cavalli",
+  "place_2_short": "Piazzato (2°)",
+  "show_3_short": "Piazzato (3°)"
 }

@@ -6,8 +6,10 @@ import i18n, { t } from 'i18next'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useContext, useEffect, useMemo, useState } from 'react'
+import SearchResultsDialog from './search-results-dialog'
 import { Button } from './ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog'
+import { SearchIcon } from 'lucide-react'
 
 export default function LiveMatchInfo() {
   const { liveRound, upcomingEvents, upcomingRounds } = useContext(RootContext)
@@ -17,6 +19,7 @@ export default function LiveMatchInfo() {
   )
 
   const [isInfoDialogOpen, setIsInfoDialogOpen] = useState(false)
+  const [isSearchDialogOpen, setIsSearchDialogOpen] = useState(false)
 
   const currentDiscipline = useMemo((): Discipline => {
     if (pathname.includes('dogs')) {
@@ -139,16 +142,30 @@ export default function LiveMatchInfo() {
           <span className="text-xl">{formattedTime}</span>
           {(currentDiscipline === Discipline.DOGS ||
             currentDiscipline === Discipline.HORSES) && (
-            <Button
-              variant="ghost"
-              className="h-9 w-9 bg-secondary text-[18px] font-semibold text-secondary-foreground"
-              onClick={() => setIsInfoDialogOpen(true)}
-            >
-              i
-            </Button>
+            <>
+              <Button
+                variant="ghost"
+                className="h-9 w-9 bg-secondary text-secondary-foreground"
+                onClick={() => setIsSearchDialogOpen(true)}
+              >
+                <SearchIcon className="h-5 w-5" />
+              </Button>
+              <Button
+                variant="ghost"
+                className="h-9 w-9 bg-secondary text-[18px] font-semibold text-secondary-foreground"
+                onClick={() => setIsInfoDialogOpen(true)}
+              >
+                i
+              </Button>
+            </>
           )}
         </div>
       </div>
+
+      <SearchResultsDialog
+        open={isSearchDialogOpen}
+        onOpenChange={setIsSearchDialogOpen}
+      />
 
       <Dialog open={isInfoDialogOpen} onOpenChange={setIsInfoDialogOpen}>
         <DialogContent className="h-full w-full overflow-hidden bg-accent">

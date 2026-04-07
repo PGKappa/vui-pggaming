@@ -125,5 +125,16 @@
   "enter_system_amount": "Please enter a valid system amount",
   "bet_submitted_successfully": "Bet submitted successfully",
   "bet_submission_error": "Error submitting bet",
-  "submitting": "Submitting..."
+  "submitting": "Submitting...",
+  "search_results": "Search Results",
+  "dog_racing": "Dog Racing",
+  "horse_racing": "Horse Racing",
+  "all_disciplines": "All",
+  "accept": "Accept",
+  "date": "Date",
+  "no_results_found": "No results found",
+  "dog_races_label": "Dogs Race",
+  "horse_races_label": "Horses Race",
+  "place_2_short": "Place (2nd)",
+  "show_3_short": "Show (3rd)"
 }
