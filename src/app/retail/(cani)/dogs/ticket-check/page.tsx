@@ -30,7 +30,7 @@ export default function TicketCheckPage() {
   }
 
   return (
-    <main className="fixed inset-0 z-50 flex flex-col justify-between bg-black px-4 py-6 text-accent-foreground w-[1870px] h-[990px]">
+    <main className="fixed inset-0 z-50 flex flex-col justify-between bg-black px-4 py-6 text-accent-foreground w-[1870px] h-[980px]">
       
       {/* Title Bar */}
       <div className="flex items-center justify-between border-b border-white/10 pb-4 relative bottom-[24px] right-[16px] bg-accent h-[64px] w-[1870px]">
@@ -54,9 +54,9 @@ export default function TicketCheckPage() {
           readOnly
           value={code}
         />
-        <div className="mt-10 flex flex-col gap-1">
+        <div className="mt-10 flex flex-col space-y-2">
           {KEY_LAYOUT.map((row, rowIdx) => (
-            <div key={rowIdx} className="flex justify-center gap-2">
+            <div key={rowIdx} className="flex justify-center space-x-2">
               {row.map((key) => (
                 <Button
                   key={key}
