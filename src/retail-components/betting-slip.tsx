@@ -1000,7 +1000,7 @@ const scrollAreaHeight = useMemo(() => {
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="group size-7"
+                  className="group size-7 bg-transparent"
                   size="icon"
                   onClick={removeAllBets}
                 >
