@@ -403,6 +403,9 @@
     --searchResButton:  212 58% 51%;
     --searchResButton-foreground: 0 0% 100%;
 
+    --plusButton: 353 100% 44%;
+    --plusButton-foreground: 0 0% 100%;
+
   }
   
   .stanleybet {
@@ -528,6 +531,9 @@
 
     --disabledButton: 210, 3%, 47%;
     --disabledButton-foreground: 0 0% 0%;
+
+    --plusButton: 184, 100%, 33%;
+    --plusButton-foreground: 0 0% 100%;
   }
 }
 
