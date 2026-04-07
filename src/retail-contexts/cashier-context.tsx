@@ -1,19 +1,8 @@
 'use client'
 
 import { User } from '@/retail-lib/types'
-import {
-  BASE_API_URL,
-  fetchCashierInit,
-  setRetailHeaders,
-} from '@/retail-lib/utils'
-import {
-  createContext,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
+import { BASE_API_URL, fetchCashierInit } from '@/retail-lib/utils'
+import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
@@ -147,7 +136,28 @@ function createContextDataFromCashierData(
   const getTimezone = () => cashierData.intl?.timezone || 'Europe/Rome'
   const getStakeButtons = () => {
     const buttons = cashierData.intl?.stake_buttons
-    return Array.isArray(buttons) ? buttons : [1, 2, 5, 10]
+    if (Array.isArray(buttons)) {
+      return buttons
+        .map((v: string | number) =>
+          typeof v === 'number'
+            ? v
+            : parseFloat(
+                String(v)
+                  .replace(/[^0-9.,]/g, '')
+                  .replace(',', '.'),
+              ),
+        )
+        .filter((n: number) => !isNaN(n) && n > 0)
+    }
+    if (typeof buttons === 'string') {
+      return buttons
+        .split(',')
+        .map((s: string) =>
+          parseFloat(s.replace(/[^0-9.,]/g, '').replace(',', '.')),
+        )
+        .filter((n: number) => !isNaN(n) && n > 0)
+    }
+    return [1, 2, 5, 10]
   }
   const getMinStake = () => {
     const minStake = cashierData.intl?.min_stake
@@ -278,10 +288,6 @@ export default function CashierContextProvider(props: {
     defaultCashierContext,
   )
   const { i18n, t } = useTranslation()
-  const tRef = useRef(t)
-  tRef.current = t
-  const i18nRef = useRef(i18n)
-  i18nRef.current = i18n
   const [isLoading, setIsLoading] = useState(true)
   const [hasCashierError, setHasCashierError] = useState(false)
 
@@ -291,37 +297,17 @@ export default function CashierContextProvider(props: {
     const urlInitCode = params.get('init_code')
     // Accetta sia 'operator' che 'partner' come parametro URL (operator ha precedenza)
     const urlOperator = params.get('operator') || params.get('partner')
-    const urlShopId = params.get('shopID')
-    const urlTerminalId = params.get('terminalID')
-
-    // Salva Shop-Id e Terminal-Id per tutte le API call
-    const effectiveShopId =
-      urlShopId || localStorage.getItem('shopId') || undefined
-    const effectiveTerminalId =
-      urlTerminalId || localStorage.getItem('terminalId') || undefined
-    setRetailHeaders(effectiveShopId, effectiveTerminalId)
-
-    if (!effectiveShopId) {
-      console.warn('Shop-Id is missing from URL and localStorage')
-      toast.warning(tRef.current('shop_id_missing'))
-    }
-    if (!effectiveTerminalId) {
-      console.warn('Terminal-Id is missing from URL and localStorage')
-      toast.warning(tRef.current('terminal_id_missing'))
-    }
 
     if (urlInitCode) {
       // Se l'initCode è cambiato, pulisci la sessione precedente
       clearSessionStorageForNewInitCode(urlInitCode)
       setInitCode(urlInitCode)
-      if (urlShopId) localStorage.setItem('shopId', urlShopId)
-      if (urlTerminalId) localStorage.setItem('terminalId', urlTerminalId)
       if (urlOperator) {
         setOperator(urlOperator)
         localStorage.setItem('operator', urlOperator)
       } else {
         console.error('Operator/Partner is required in URL params')
-        toast.error(tRef.current('operator_missing'))
+        toast.error(t('operator_missing'))
         setHasCashierError(true)
         setIsLoading(false)
         return
@@ -375,14 +361,14 @@ export default function CashierContextProvider(props: {
 
           // Aggiorna lingua e persisti per evitare fallback inattesi
           const lang = cashierData.dictInfo?.lang || 'it'
-          if (lang && i18nRef.current.language !== lang) {
-            i18nRef.current.changeLanguage(lang)
+          if (lang && i18n.language !== lang) {
+            i18n.changeLanguage(lang)
             try {
               localStorage.setItem('i18n.lang', lang)
             } catch {}
           }
 
-          toast.success(tRef.current('cashier_initialized'))
+          toast.success(t('cashier_initialized'))
           setIsLoading(false)
         } else {
           throw new Error(`Cashier error: ${cashierData?.message || 'Unknown'}`)
@@ -391,13 +377,13 @@ export default function CashierContextProvider(props: {
         console.error('Cashier error:', error)
         if (retryCount < maxRetries) {
           const delay = Math.pow(2, retryCount) * 1000
-          toast.loading(tRef.current('retrying_cashier'), {
+          toast.loading(t('retrying_cashier'), {
             id: 'retry-toast',
           })
           setTimeout(() => fetchUserData(retryCount + 1, maxRetries), delay)
         } else {
           toast.dismiss('retry-toast')
-          toast.error(tRef.current('cashier_unavailable'))
+          toast.error(t('cashier_unavailable'))
           setHasCashierError(true)
           setIsLoading(false)
         }
@@ -405,7 +391,7 @@ export default function CashierContextProvider(props: {
     }
 
     fetchUserData()
-  }, [initCode, operator])
+  }, [initCode, operator, i18n, t])
 
   const apiRequest = useCallback(
     async <T,>(

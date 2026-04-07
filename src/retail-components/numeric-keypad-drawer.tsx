@@ -284,17 +284,9 @@ export default function NumericKeypadDrawer(props: {
             }}
           >
             {stakeButtons.map((amount, idx) => {
-              // Converti amount in numero se è stringa
-              let numericAmount: number
-              if (typeof amount === 'number') {
-                numericAmount = amount
-              } else {
-                numericAmount = parseFloat(
-                  String(amount)
-                    .replace(',', '.')
-                    .replace(/[^\d.]/g, ''),
-                )
-              }
+             
+             const numericAmount = typeof amount === 'number' ? amount : parseFloat(String(amount).replace(',', '.').replace(/[^\d.]/g, ''))
+
 
               if (
                 isNaN(numericAmount) ||
@@ -312,7 +304,7 @@ export default function NumericKeypadDrawer(props: {
                   className="h-10 text-[16px] font-semibold tabular-nums"
                   onClick={() => handlePresetValue(numericAmount)}
                 >
-                  {amount}
+                  {numericAmount} {currencySymbol}
                 </Button>
               )
             })}

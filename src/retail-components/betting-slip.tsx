@@ -1114,14 +1114,8 @@ const scrollAreaHeight = useMemo(() => {
 
             <div className="relative top-[19px] grid w-full grid-cols-5 gap-2 p-2">
               {stakeButtons.map((amount, index) => {
-                let numericAmount = 0
-                if (typeof amount === 'string') {
-                  numericAmount = parseFloat(
-                    (amount as string).replace(/[^\d.]/g, ''),
-                  )
-                } else if (typeof amount === 'number') {
-                  numericAmount = amount as number
-                }
+                  const numericAmount = typeof amount === 'number' ? amount : parseFloat(String(amount).replace(/[^\d.]/g, ''))
+             
                 if (isNaN(numericAmount) || numericAmount <= 0) return null
 
                 return (
@@ -1132,7 +1126,7 @@ const scrollAreaHeight = useMemo(() => {
                     className="h-8 bg-muted-foreground text-[14px] tabular-nums"
                     onClick={() => setGlobal((prev) => prev + numericAmount)}
                   >
-                    {amount}
+                   {numericAmount} {currencySymbol}
                   </Button>
                 )
               })}
