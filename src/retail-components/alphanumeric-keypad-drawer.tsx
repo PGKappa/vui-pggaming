@@ -197,7 +197,7 @@ export default function AlphanumericKeypadDrawer(props: {
           </Button>
         </DrawerHeader>
 
-        <div className="flex flex-col gap-3 p-3">
+        <div className="flex flex-col space-y-3 p-3">
           {/* Number Row */}
           <div className="grid grid-cols-11 gap-2">
             {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'].map((num) => (
@@ -216,7 +216,7 @@ export default function AlphanumericKeypadDrawer(props: {
               onClick={handleDelete}
               className="h-12 w-full px-1"
             >
-              <Delete className="h-5 w-5" style={{ scale: 2 }} />
+              <Delete className="h-5 w-5 bg-transparent" style={{ scale: 2 }} />
             </Button>
           </div>
 
