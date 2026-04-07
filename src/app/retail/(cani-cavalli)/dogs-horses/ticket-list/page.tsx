@@ -1,93 +1,324 @@
 'use client'
-import BettingSlip from '@/retail-components/betting-slip'
-import SearchEventResults from '@/retail-components/search-event-results'
-import { ScrollArea } from '@/retail-components/ui/scroll-area'
-import { UpcomingEventsCarousel } from '@/retail-components/upcoming-events-carousel'
-import UpcomingRaceCard from '@/retail-components/upcoming-race-card'
-import { RootContext } from '@/retail-contexts/root-context'
-import { UpcomingEvent, Discipline } from '@/retail-lib/types'
+
+import { Button } from '@/retail-components/ui/button'
+import { Calendar } from '@/retail-components/ui/calendar'
 import {
-  getCarouselFilteredEvents,
-  getFutureEventsFromCarousel,
-} from '@/retail-lib/carousel-sync'
-import { useContext, useEffect, useState, useMemo } from 'react'
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/retail-components/ui/pagination'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/retail-components/ui/popover'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/retail-components/ui/select'
+import { cn } from '@/retail-lib/utils'
+import { format } from 'date-fns'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-export default function Home() {
+export default function TicketListPage() {
   const { t } = useTranslation()
-  const { upcomingEvents, searchEventResults, setSearchEventResults } =
-    useContext(RootContext)
+  const [terminal, setTerminal] = useState('all')
+  const [status, setStatus] = useState('all')
+  const [payment, setPayment] = useState('all')
+  const [from, setFrom] = useState<Date | undefined>(new Date())
+  const [to, setTo] = useState<Date | undefined>(new Date())
+  const [pageSize, setPageSize] = useState('15')
+  const router = useRouter()
 
-  const [selectedEvent, setSelectedEvent] = useState<UpcomingEvent | undefined>(
-    undefined,
-  )
-
-  const carouselEvents = useMemo(
-    () => getCarouselFilteredEvents(upcomingEvents, [Discipline.DOGS]),
-    [upcomingEvents],
-  )
-
-  // SELEZIONE UNIFICATA: un solo meccanismo per evitare competizioni
-  useEffect(() => {
-    const pickEvent = () => {
-      setSelectedEvent((prev) => {
-        const futureEvts = getFutureEventsFromCarousel(carouselEvents)
-
-        if (prev) {
-          const stillInCarousel = carouselEvents.some((e) => e.id === prev.id)
-          if (stillInCarousel) {
-            const now = new Date()
-            const eventTime =
-              prev.time instanceof Date ? prev.time : new Date(prev.time)
-            if (eventTime > now) return prev // still valid and not expired
-            // Expired → pick next future
-            if (futureEvts.length > 0) return futureEvts[0]
-            return prev // nothing better available
-          }
-          // Gone from carousel → pick new
-        }
-
-        return futureEvts[0] ?? carouselEvents[0] ?? undefined
-      })
-    }
-
-    pickEvent()
-    const interval = setInterval(pickEvent, 500)
-    return () => clearInterval(interval)
-  }, [carouselEvents])
+  const handleDetailsClick = (ticketId: number) => {
+    console.log('Details for ticket:', ticketId)
+  }
 
   return (
-    <div className="relative bottom-[5px] flex h-full min-w-[1200px] flex-row overflow-hidden">
-      {/* LEFT COLUMN - si allarga/stringe in base alla risoluzione */}
-      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-        <div className="bg-betslip flex h-[99px] w-full flex-row items-center justify-center pb-[2px] pr-2">
-          <UpcomingEventsCarousel
-            selectedEvent={selectedEvent}
-            setSelectedEvent={(event) => {
-              setSelectedEvent(event)
-              setSearchEventResults(undefined)
-            }}
-          />
-        </div>
+    <div className="fixed inset-0 z-50 flex flex-col bg-accent text-accent-foreground">
+      <div className="relative flex h-16 items-center justify-center bg-accent text-accent-foreground">
+        <h2 className="text-[16px] font-bold">{t('ticket_list')}</h2>
+        <Button
+          variant="ghost"
+          className="absolute right-4 bg-accent text-xl text-secondary-foreground"
+          onClick={() => router.back()}
+        >
+          ✕
+        </Button>
+      </div>
 
-        <div className="bg-betslip flex flex-1 flex-row gap-2 overflow-hidden pr-2 pt-[2px]">
-          <ScrollArea className="h-full w-full">
-            {!!searchEventResults ? (
-              <SearchEventResults />
-            ) : selectedEvent ? (
-              <UpcomingRaceCard race={selectedEvent} />
-            ) : (
-              <div className="flex h-full items-center justify-center">
-                {t('no_event_selected')}
-              </div>
-            )}
-          </ScrollArea>
+      {/* Filter Bar */}
+      <div className="flex justify-center pb-5 bg-secondary">
+        <div className="flex flex-wrap items-center gap-10 relative top-2.5">
+          <div className="flex flex-row items-center gap-2 bg-accent text-background">
+            <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
+              {t('terminal')}
+            </span>
+            <Select value={terminal} onValueChange={setTerminal}>
+              <SelectTrigger className="w-[100px] bg-background text-[12px] text-foreground">
+                <SelectValue placeholder={t('terminal')} />
+              </SelectTrigger>
+              <SelectContent className="bg-white p-0">
+                <SelectItem value="all">{t('all')}</SelectItem>
+                <SelectItem value="203">203</SelectItem>
+                <SelectItem value="205">205</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex flex-row items-center gap-2 bg-accent text-background">
+            <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
+              {t('status')}
+            </span>
+            <Select value={status} onValueChange={setStatus}>
+              <SelectTrigger className="w-[100px] bg-background text-[12px] text-foreground">
+                <SelectValue placeholder={t('status')} />
+              </SelectTrigger>
+              <SelectContent className="bg-white p-0">
+                <SelectItem value="all">{t('all')}</SelectItem>
+                <SelectItem value="won">{t('won')}</SelectItem>
+                <SelectItem value="lost">{t('lost')}</SelectItem>
+                <SelectItem value="cancelled">{t('cancelled')}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex flex-row items-center gap-2 bg-accent text-background">
+            <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
+              {t('payment')}
+            </span>
+            <Select value={payment} onValueChange={setPayment}>
+              <SelectTrigger className="w-[100px] bg-background text-[12px] text-foreground">
+                <SelectValue placeholder={t('payment')} />
+              </SelectTrigger>
+              <SelectContent className="bg-white p-0">
+                <SelectItem value="all">{t('all')}</SelectItem>
+                <SelectItem value="paid">{t('paid')}</SelectItem>
+                <SelectItem value="unpaid">{t('unpaid')}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex flex-row items-center gap-2 bg-accent text-background">
+            <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
+              {t('from')}
+            </span>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="ticketFilter"
+                  className="w-[100px] justify-center text-[12px]"
+                >
+                  {from ? format(from, 'dd/MM/yyyy') : 'Da'}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="bg-white">
+                <Calendar
+                  mode="single"
+                  selected={from}
+                  onSelect={setFrom}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+
+          <div className="flex flex-row items-center gap-2 bg-accent text-background">
+            <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
+              {t('to')}
+            </span>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="ticketFilter"
+                  className="w-[100px] justify-center text-[12px]"
+                >
+                  {to ? format(to, 'dd/MM/yyyy') : 'A'}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="bg-white">
+                <Calendar
+                  mode="single"
+                  selected={to}
+                  onSelect={setTo}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+
+          <div className="flex flex-row items-center gap-2 bg-accent text-background">
+            <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
+              {t('page_size')}
+            </span>
+            <Select value={pageSize} onValueChange={setPageSize}>
+              <SelectTrigger className="w-[80px] bg-background text-[12px] text-foreground">
+                <SelectValue placeholder="Dimensione Pagina" />
+              </SelectTrigger>
+              <SelectContent className="bg-white p-0">
+                <SelectItem value="15">15</SelectItem>
+                <SelectItem value="50">50</SelectItem>
+                <SelectItem value="100">100</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <Button className="text-bold w-[80px] bg-tertiary text-[14px] text-tertiary-foreground">
+            {t('reload')}
+          </Button>
         </div>
       </div>
 
-      {/* RIGHT COLUMN - larghezza fissa, sempre ancorata a destra */}
-      <div className="relative right-1 h-[950px] w-[400px] shrink-0 bg-background text-foreground">
-        <BettingSlip selectedEvent={selectedEvent} />
+      {/* Table Content */}
+      <div className="flex-1 overflow-auto bg-white text-black">
+        <table className="w-full text-[12px]">
+          <thead className="bg-secondary text-white">
+            <tr>
+              <th className="bg-accent p-2 text-[16px]">{t('ticket_id')}</th>
+              <th className="w-[1px] bg-card-header-foreground p-0"></th>
+              <th className="bg-accent p-2 text-[16px]">{t('terminal')}</th>
+              <th className="w-[1px] bg-card-header-foreground p-0"></th>
+              <th className="bg-accent p-2 text-[16px]">{t('date_n_time')}</th>
+              <th className="w-[1px] bg-card-header-foreground p-0"></th>
+              <th className="bg-accent p-2 text-[16px]">{t('staked_amount')}</th>
+              <th className="w-[1px] bg-card-header-foreground p-0"></th>
+              <th className="bg-accent p-2 text-[16px]">{t('cancelled')}</th>
+              <th className="w-[1px] bg-card-header-foreground p-0"></th>
+              <th className="bg-accent p-2 text-[16px]">{t('won')}</th>
+              <th className="w-[1px] bg-card-header-foreground p-0"></th>
+              <th className="bg-accent p-2 text-[16px]">{t('ticket_status')}</th>
+              <th className="w-[1px] bg-card-header-foreground p-0"></th>
+              <th className="bg-accent p-2 text-[16px]">{t('payment')}</th>
+              <th className="w-[1px] bg-card-header-foreground p-0"></th>
+              <th className="bg-accent p-2 text-[16px]"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {Array.from({ length: parseInt(pageSize) }).map((_, i) => (
+              <tr key={i} className="border-b text-center text-[16px]">
+                <td className="p-2">{1400 - i}</td>
+                <td className="w-[1px] bg-muted p-0"></td>
+                <td className="p-2">203</td>
+                <td className="w-[1px] bg-muted p-0"></td>
+                <td className="p-2">21/05/2025 10:00</td>
+                <td className="w-[1px] bg-muted p-0"></td>
+                <td className="p-2">$ {(5 + i).toFixed(2)}</td>
+                <td className="w-[1px] bg-muted p-0"></td>
+                <td className="p-2">$ 0.00</td>
+                <td className="w-[1px] bg-muted p-0"></td>
+                <td className="p-2">
+                  $ {(i % 2 === 0 ? 3.2 : 0.0).toFixed(2)}
+                </td>
+                <td className="w-[1px] bg-muted p-0"></td>
+                <td className="p-2">
+                  <div className="flex items-center justify-center gap-2">
+                    <div
+                      className={cn(
+                        'h-3 w-3 rounded-sm',
+                        i % 2 === 0 ? 'bg-green-600' : 'bg-red-600',
+                      )}
+                    />
+                    <span className="text-[16px] font-medium">
+                      {i % 2 === 0 ? t('won') : t('lost')}
+                    </span>
+                  </div>
+                </td>
+                <td className="w-[1px] bg-muted p-0"></td>
+                <td className="p-2">{t('paid')}</td>
+                <td className="w-[1px] bg-muted p-0"></td>
+                <td className="p-2">
+                  <Button
+                    onClick={() => handleDetailsClick(1400 - i)}
+                    className="h-8 w-20 bg-tertiary text-[16px] text-tertiary-foreground"
+                  >
+                    {t('details')}
+                  </Button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Footer */}
+      <div className="grid grid-cols-9 h-[122px]">
+        {/* Pagination */}
+        <div className="col-span-2 flex flex-row items-center bg-accent p-4">
+          <Pagination className="justify-start">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious href="#" />
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationLink href="#" isActive={true}>
+                  1
+                </PaginationLink>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationNext href="#" />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+        {/* Totals Table */}
+        <table className="col-span-7 border-collapse">
+          <tbody>
+            <tr className="bg-accent text-xs font-medium text-white">
+              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle font-bold text-md">
+                {t('page_total')}
+              </td>
+              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle text-md">
+                $ 86.50
+              </td>
+              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle text-md">
+                $ 0.00
+              </td>
+              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle text-md">
+                $ 47.28
+              </td>
+              <td className="border border-muted bg-searchResButton px-3 py-2 text-center align-middle font-bold text-md">
+                {t('cash_total')}
+              </td>
+              <td className="border border-muted bg-searchResButton px-3 py-2 text-center align-middle font-bold text-md">
+                {t('paid_won')}
+              </td>
+              <td className="border border-muted bg-searchResButton px-3 py-2 text-center align-middle font-bold text-md">
+                {t('total_tickets')}
+              </td>
+            </tr>
+            <tr className="bg-accent text-xs font-medium text-white">
+              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle font-bold text-md">
+                {t('totals')}
+              </td>
+              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle text-md">
+                $ 86.50
+              </td>
+              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle text-md">
+                $ 0.00
+              </td>
+              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle text-md">
+                $ 47.28
+              </td>
+              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle text-md">
+                $ 0.00
+              </td>
+              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle text-md">
+                0 / 7
+              </td>
+              <td className="border border-muted bg-accent px-3 py-2 text-center align-middle text-md">
+                22
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   )

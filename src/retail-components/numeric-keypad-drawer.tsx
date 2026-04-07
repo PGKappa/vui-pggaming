@@ -257,7 +257,7 @@ export default function NumericKeypadDrawer(props: {
           </Button>
         </DrawerHeader>
 
-        <div className="flex flex-col gap-3 p-3">
+        <div className="flex flex-col space-y-3 p-2">
           {/* Display Value */}
           <div className="flex items-center space-x-3">
             <Input
@@ -316,7 +316,7 @@ export default function NumericKeypadDrawer(props: {
           </div>
 
           {/* Keypad */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 space-x-3 space-y-3">
             <Button
               variant="outline"
               size="lg"
