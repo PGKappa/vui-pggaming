@@ -147,7 +147,28 @@ function createContextDataFromCashierData(
   const getTimezone = () => cashierData.intl?.timezone || 'Europe/Rome'
   const getStakeButtons = () => {
     const buttons = cashierData.intl?.stake_buttons
-    return Array.isArray(buttons) ? buttons : [1, 2, 5, 10]
+    if (Array.isArray(buttons)) {
+      return buttons
+        .map((v: string | number) =>
+          typeof v === 'number'
+            ? v
+            : parseFloat(
+                String(v)
+                  .replace(/[^0-9.,]/g, '')
+                  .replace(',', '.'),
+              ),
+        )
+        .filter((n: number) => !isNaN(n) && n > 0)
+    }
+    if (typeof buttons === 'string') {
+      return buttons
+        .split(',')
+        .map((s: string) =>
+          parseFloat(s.replace(/[^0-9.,]/g, '').replace(',', '.')),
+        )
+        .filter((n: number) => !isNaN(n) && n > 0)
+    }
+    return [1, 2, 5, 10]
   }
   const getMinStake = () => {
     const minStake = cashierData.intl?.min_stake

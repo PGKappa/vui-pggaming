@@ -190,7 +190,7 @@ export default function NumericKeypadDrawer(props: {
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 w-7 bg-infoBackground disabled:bg-disabledButton p-3 text-[19px] text-bet-foreground hover:opacity-90"
+            className="disabled:bg-disabledButton h-8 w-7 bg-infoBackground p-3 text-[19px] text-bet-foreground hover:opacity-90"
             disabled={displayValue <= 0}
             onClick={(e) => {
               e.stopPropagation()
@@ -284,17 +284,14 @@ export default function NumericKeypadDrawer(props: {
             }}
           >
             {stakeButtons.map((amount, idx) => {
-              // Converti amount in numero se è stringa
-              let numericAmount: number
-              if (typeof amount === 'number') {
-                numericAmount = amount
-              } else {
-                numericAmount = parseFloat(
-                  String(amount)
-                    .replace(',', '.')
-                    .replace(/[^\d.]/g, ''),
-                )
-              }
+              const numericAmount =
+                typeof amount === 'number'
+                  ? amount
+                  : parseFloat(
+                      String(amount)
+                        .replace(',', '.')
+                        .replace(/[^\d.]/g, ''),
+                    )
 
               if (
                 isNaN(numericAmount) ||
@@ -312,7 +309,7 @@ export default function NumericKeypadDrawer(props: {
                   className="h-10 text-[16px] font-semibold tabular-nums"
                   onClick={() => handlePresetValue(numericAmount)}
                 >
-                  {amount}
+                  {numericAmount} {currencySymbol}
                 </Button>
               )
             })}
@@ -323,7 +320,7 @@ export default function NumericKeypadDrawer(props: {
             <Button
               variant="outline"
               size="lg"
-              className="h-12 text-[20px] font-semibold tabular-nums w-[112px] relative left-3 top-3"
+              className="relative left-3 top-3 h-12 w-[112px] text-[20px] font-semibold tabular-nums"
               onClick={() => handleNumberClick('1')}
             >
               1
