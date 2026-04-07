@@ -1022,7 +1022,7 @@ const scrollAreaHeight = useMemo(() => {
           <div
             className={`relative flex w-full flex-col items-center justify-center border-b-4 pb-0${
               isSystemToggleEnabled ? 'cursor-pointer' : ''
-            } ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'border-b-4 border-betslipBorder bg-betslipTitleBackground1 pb-1 font-semibold text-betSlip-header' : 'font border-betslipBorder2 bg-betslipTitleBackground1 text-betslipTitleBackground-foreground'}`}
+            } ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'border-betslipBorder bg-betslipTitleBackground1 border-b-4 pb-1 font-semibold text-betSlip-header' : 'font border-betslipBorder2 bg-betslipTitleBackground1 text-betslipTitleBackground-foreground'}`}
             onClick={
               isSystemToggleEnabled
                 ? () => setSystemToggleMode('MULTIPLE')
@@ -1030,7 +1030,7 @@ const scrollAreaHeight = useMemo(() => {
             }
           >
             <span
-              className={`pt-1 text-[14px] ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'font-semibold text-betslipTitleBackground1-foreground' : isSystemToggleEnabled ? 'pb-1 font-semibold text-betslipTitleBackground2-foreground' : 'pb-1 font-normal text-betslipTitleBackground2-foreground'}`}
+              className={`pt-1 text-[14px] ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'text-betslipTitleBackground1-foreground font-semibold' : isSystemToggleEnabled ? 'text-betslipTitleBackground2-foreground pb-1 font-semibold' : 'text-betslipTitleBackground2-foreground pb-1 font-normal'}`}
             >
               {betMode === 'SINGLE'
                 ? `${t('single').toUpperCase()}`
@@ -1053,7 +1053,7 @@ const scrollAreaHeight = useMemo(() => {
             }
           >
             <span
-              className={`pt-1 text-[14px] ${betMode === 'SYSTEM' ? 'font-semibold text-betslipTitleBackground1-foreground' : isSystemToggleEnabled ? 'font-semibold text-betslipTitleBackground2-foreground' : 'font-normal text-betslipTitleBackground2-foreground'}`}
+              className={`pt-1 text-[14px] ${betMode === 'SYSTEM' ? 'text-betslipTitleBackground1-foreground font-semibold' : isSystemToggleEnabled ? 'text-betslipTitleBackground2-foreground font-semibold' : 'text-betslipTitleBackground2-foreground font-normal'}`}
             >
               {t('system').toUpperCase()}
             </span>
@@ -1100,9 +1100,9 @@ const scrollAreaHeight = useMemo(() => {
       <CardFooter className="relative mb-[26px] flex flex-col bg-backgroundBetslip">
         {betMode !== 'SYSTEM' ? (
           <>
-            <div className="relative h-[30px] w-full bg-amountHeader py-3"></div>
-            
-            <div className="relative top-[12px] flex w-full flex-row items-center justify-between px-4 pt-[9px] text-searchResultText">
+            <div className="bg-amountHeader relative h-[30px] w-full py-3"></div>
+
+            <div className="text-searchResultText relative top-[12px] flex w-full flex-row items-center justify-between px-4 pt-[9px]">
               <span className="relative bottom-[3px] text-[15px] font-semibold">
                 {t('total_odd').toUpperCase()}
               </span>
@@ -1114,8 +1114,10 @@ const scrollAreaHeight = useMemo(() => {
 
             <div className="relative top-[19px] grid w-full grid-cols-5 gap-2 p-2">
               {stakeButtons.map((amount, index) => {
-                  const numericAmount = typeof amount === 'number' ? amount : parseFloat(String(amount).replace(/[^\d.]/g, ''))
-             
+                const numericAmount =
+                  typeof amount === 'number'
+                    ? amount
+                    : parseFloat(String(amount).replace(/[^\d.]/g, ''))
                 if (isNaN(numericAmount) || numericAmount <= 0) return null
 
                 return (
@@ -1126,13 +1128,13 @@ const scrollAreaHeight = useMemo(() => {
                     className="h-8 bg-muted-foreground text-[14px] tabular-nums"
                     onClick={() => setGlobal((prev) => prev + numericAmount)}
                   >
-                   {numericAmount} {currencySymbol}
+                    {numericAmount} {currencySymbol}
                   </Button>
                 )
               })}
             </div>
 
-            <div className="relative top-[17px] flex w-full flex-row items-center justify-between px-4 py-[18px] text-searchResultText">
+            <div className="text-searchResultText relative top-[17px] flex w-full flex-row items-center justify-between px-4 py-[18px]">
               <div className="flex items-center gap-2">
                 <span className="pt-[1px] text-[15px] font-semibold">
                   {t('amount').toUpperCase()}
@@ -1151,7 +1153,7 @@ const scrollAreaHeight = useMemo(() => {
 
             <Separator />
 
-            <div className="relative top-[27px] flex w-full flex-row items-center justify-between px-4 py-[12px] pb-[16px] pt-0 text-searchResultText bg-backgroundBetslip">
+            <div className="text-searchResultText relative top-[27px] flex w-full flex-row items-center justify-between bg-backgroundBetslip px-4 py-[12px] pb-[16px] pt-0">
               <span className="relative bottom-[1px] text-[17px] font-semibold">
                 {t('potential_win').toUpperCase()}
               </span>
@@ -1191,7 +1193,7 @@ const scrollAreaHeight = useMemo(() => {
                   </button>
                 </div>
                 <AccordionContent className="pb-0">
-                  <div className="h-[44px]  border-b px-4 pb-2 bg-white">
+                  <div className="h-[44px] border-b bg-white px-4 pb-2">
                     <div className="relative top-[0px] flex items-center justify-between gap-2">
                       <Checkbox
                         checked={allGroupsSelected}
@@ -1310,7 +1312,7 @@ const scrollAreaHeight = useMemo(() => {
                                       }
                                     }}
                                     disabled={group.stake <= 0}
-                                    className="h-8 w-7 bg-infoBackground p-3 text-[19px] text-bet-foreground hover:opacity-90"
+                                    className="disabled:bg-disabledButton h-8 w-7 bg-infoBackground p-3 text-[19px] text-bet-foreground hover:opacity-90"
                                   >
                                     <MinusIcon className="h-4 w-4" />
                                   </Button>
@@ -1450,7 +1452,7 @@ const scrollAreaHeight = useMemo(() => {
 
             <Separator />
 
-            <div className="relative bg-backgroundBetslip bottom-[1px] flex w-full flex-row items-center justify-between px-4 py-[27px] pb-[15px] text-searchResultText">
+            <div className="text-searchResultText relative bottom-[1px] flex w-full flex-row items-center justify-between bg-backgroundBetslip px-4 py-[27px] pb-[15px]">
               <span className="text-[15px] font-semibold">
                 {t('total_combinations').toUpperCase()}
               </span>
@@ -1461,7 +1463,7 @@ const scrollAreaHeight = useMemo(() => {
 
             <Separator />
 
-            <div className="relative top-[2px] flex w-full flex-row items-center justify-between px-4 text-searchResultText">
+            <div className="text-searchResultText relative top-[2px] flex w-full flex-row items-center justify-between px-4">
               <div className="flex items-center gap-2">
                 <span className="text-[16px] font-semibold">
                   {t('amount').toUpperCase()}
@@ -1480,7 +1482,7 @@ const scrollAreaHeight = useMemo(() => {
 
             <Separator />
 
-            <div className="relative top-[29px] flex w-full flex-row items-center justify-between px-4 pb-[19px] text-searchResultText bg-backgroundBetslip">
+            <div className="text-searchResultText relative top-[29px] flex w-full flex-row items-center justify-between bg-backgroundBetslip px-4 pb-[19px]">
               <span className="text-[17px] font-semibold">
                 {t('potential_win').toUpperCase()}
               </span>
@@ -1508,7 +1510,7 @@ const scrollAreaHeight = useMemo(() => {
           </Button>
         </div>
 
-        <div className="w-full bg-betSlip-header p-[12px] pb-[15px] pt-[9px] relative bottom-2">
+        <div className="relative bottom-2 w-full bg-betSlip-header p-[12px] pb-[15px] pt-[9px]">
           {selectedEvent?.discipline === 'SOCCER' ? (
             <SoccerFastBet selectedEvent={selectedEvent} />
           ) : (
