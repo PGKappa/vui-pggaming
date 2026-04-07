@@ -425,22 +425,22 @@ export default function BettingSlip({
       }, 0)
   }, [systemGroups, selectedGroups])
 
-const scrollAreaHeight = useMemo(() => {
-  const groupHeight = 59
-  const expandedHeight = 63
-  const numGroups = systemGroups.length
-  const groupsToShow = Math.min(Math.max(numGroups, 1), 3)
-  const baseHeight = groupHeight * groupsToShow
+  const scrollAreaHeight = useMemo(() => {
+    const groupHeight = 59
+    const expandedHeight = 63
+    const numGroups = systemGroups.length
+    const groupsToShow = Math.min(Math.max(numGroups, 1), 3)
+    const baseHeight = groupHeight * groupsToShow
 
-  // Espande solo se c'è un solo gruppo e questo è aperto
-  const lastVisibleGroupName = systemGroups[groupsToShow - 1]?.name
-  const isLastGroupOpen = lastVisibleGroupName ? systemGroupsOpen.includes(lastVisibleGroupName) : false
-  const isSingleGroup = numGroups === 1
+    // Espande solo se c'è un solo gruppo e questo è aperto
+    const lastVisibleGroupName = systemGroups[groupsToShow - 1]?.name
+    const isLastGroupOpen = lastVisibleGroupName
+      ? systemGroupsOpen.includes(lastVisibleGroupName)
+      : false
+    const isSingleGroup = numGroups === 1
 
-  return baseHeight + (isSingleGroup && isLastGroupOpen ? expandedHeight : 0)
-}, [systemGroups, systemGroupsOpen])
-
-
+    return baseHeight + (isSingleGroup && isLastGroupOpen ? expandedHeight : 0)
+  }, [systemGroups, systemGroupsOpen])
 
   useEffect(() => {
     if (betMode === 'SYSTEM') {
@@ -582,9 +582,9 @@ const scrollAreaHeight = useMemo(() => {
 
       const groupedByEvent = betEntries.reduce(
         (acc, entry) => {
-          const eventId = entry.bet.event.number.toString()
-          if (!acc[eventId]) acc[eventId] = []
-          acc[eventId].push(entry)
+          const key = `${entry.bet.discipline}-${entry.bet.event.number}`
+          if (!acc[key]) acc[key] = []
+          acc[key].push(entry)
           return acc
         },
         {} as Record<string, typeof betEntries>,
@@ -630,7 +630,7 @@ const scrollAreaHeight = useMemo(() => {
       }
 
       const selections = Object.entries(groupedByEvent).map(
-        ([eventId, entries]) => {
+        ([groupKey, entries]) => {
           const marketGroups = entries.reduce(
             (acc, entry) => {
               const apiMarketName = getAPIMarketName(
@@ -673,33 +673,37 @@ const scrollAreaHeight = useMemo(() => {
           )
 
           const firstEntry = entries[0]
+          const eventId = firstEntry.bet.event.number
+
+          // Resolve palimpsestId: bet entry → live event lookup → fallback
+          const liveEvent = rootContext?.upcomingEvents?.find(
+            (e) =>
+              e.id === eventId && e.discipline === firstEntry.bet.discipline,
+          )
+          const palimpsestId =
+            firstEntry.bet.event.palimpsestId ||
+            firstEntry.bet.event.extId ||
+            liveEvent?.palimpsestId ||
+            liveEvent?.extId
+
           const gameId =
-            firstEntry.bet.discipline === 'HORSES'
+            firstEntry.bet.discipline === Discipline.HORSES
               ? 'horses6'
-              : firstEntry.bet.discipline === 'DOGS'
+              : firstEntry.bet.discipline === Discipline.DOGS
                 ? 'dogs6'
                 : 'soccer'
           const channelId =
-            firstEntry.bet.discipline === 'HORSES'
+            firstEntry.bet.discipline === Discipline.HORSES
               ? 3
-              : firstEntry.bet.discipline === 'DOGS'
+              : firstEntry.bet.discipline === Discipline.DOGS
                 ? 4
                 : 1
-          const eventAny = firstEntry.bet.event as any
-          const palimpsestId =
-            eventAny.palimpsestId ||
-            eventAny.extId ||
-            selectedEvent?.extId ||
-            selectedEvent?.palimpsestId ||
-            (firstEntry.bet.discipline === 'HORSES'
-              ? '1000003504'
-              : '1000003502')
 
           return {
             gameId,
             channelId,
             palimpsestId,
-            eventId: parseInt(eventId, 10),
+            eventId,
             isBanker: false,
             markets,
           }

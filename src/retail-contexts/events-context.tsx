@@ -334,6 +334,7 @@ export default function EventsContextProvider(props: {
                   return {
                     id: parseInt(event.int_event_id),
                     extId: event.ext_pal_id,
+                    palimpsestId: event.ext_pal_id || event.int_pal_id,
                     duration: horseChannel.duration?.[idx] || 3,
                     name: 'Horse',
                     startTime: event.start_time,
@@ -451,7 +452,6 @@ export default function EventsContextProvider(props: {
               ? racingData.channels
               : []
 
-            // Dogs - solo next_events
             const dogChannel =
               channels.find(
                 (c: any) =>
@@ -478,6 +478,7 @@ export default function EventsContextProvider(props: {
                   return {
                     id: parseInt(event.int_event_id),
                     extId: event.ext_pal_id,
+                    palimpsestId: event.ext_pal_id || event.int_pal_id,
                     duration: dogChannel.duration?.[idx] || 3,
                     name: 'Dog',
                     startTime: event.start_time,
@@ -517,6 +518,7 @@ export default function EventsContextProvider(props: {
                   return {
                     id: parseInt(event.int_event_id),
                     extId: event.ext_pal_id,
+                    palimpsestId: event.ext_pal_id || event.int_pal_id,
                     duration: horseChannel.duration?.[idx] || 3,
                     name: 'Horse',
                     startTime: event.start_time,

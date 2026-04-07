@@ -265,6 +265,8 @@ export async function createBetFromFastCode(
                   name: currentEvent.name,
                   number: currentEvent.id,
                   startingAt: currentEvent.time,
+                  extId: currentEvent.extId,
+                  palimpsestId: currentEvent.palimpsestId,
                 },
                 competitors: competitorName,
                 option: {
@@ -291,6 +293,8 @@ export async function createBetFromFastCode(
                   name: currentEvent.name,
                   number: currentEvent.id,
                   startingAt: currentEvent.time,
+                  extId: currentEvent.extId,
+                  palimpsestId: currentEvent.palimpsestId,
                 },
                 competitors: competitorName,
                 option: {
@@ -317,6 +321,8 @@ export async function createBetFromFastCode(
                   name: currentEvent.name,
                   number: currentEvent.id,
                   startingAt: currentEvent.time,
+                  extId: currentEvent.extId,
+                  palimpsestId: currentEvent.palimpsestId,
                 },
                 competitors: competitorName,
                 option: {
@@ -349,6 +355,8 @@ export async function createBetFromFastCode(
                 name: currentEvent.name,
                 number: currentEvent.id,
                 startingAt: currentEvent.time,
+                extId: currentEvent.extId,
+                palimpsestId: currentEvent.palimpsestId,
               },
               competitors: `${firstName}-${secondName}`,
               option: {
@@ -380,6 +388,8 @@ export async function createBetFromFastCode(
                 name: currentEvent.name,
                 number: currentEvent.id,
                 startingAt: currentEvent.time,
+                extId: currentEvent.extId,
+                palimpsestId: currentEvent.palimpsestId,
               },
               competitors: `${firstName}-${secondName}`,
               option: {
@@ -415,6 +425,8 @@ export async function createBetFromFastCode(
                 name: currentEvent.name,
                 number: currentEvent.id,
                 startingAt: currentEvent.time,
+                extId: currentEvent.extId,
+                palimpsestId: currentEvent.palimpsestId,
               },
               competitors: `${firstName}-${secondName}-${thirdName}`,
               option: {
@@ -451,6 +463,8 @@ export async function createBetFromFastCode(
                 name: currentEvent.name,
                 number: currentEvent.id,
                 startingAt: currentEvent.time,
+                extId: currentEvent.extId,
+                palimpsestId: currentEvent.palimpsestId,
               },
               competitors: `${firstName}-${secondName}-${thirdName}`,
               option: {
@@ -472,6 +486,8 @@ export async function createBetFromFastCode(
               name: currentEvent.name,
               number: currentEvent.id,
               startingAt: currentEvent.time,
+              extId: currentEvent.extId,
+              palimpsestId: currentEvent.palimpsestId,
             },
             competitors: 'Even',
             option: {
@@ -492,6 +508,8 @@ export async function createBetFromFastCode(
               name: currentEvent.name,
               number: currentEvent.id,
               startingAt: currentEvent.time,
+              extId: currentEvent.extId,
+              palimpsestId: currentEvent.palimpsestId,
             },
             competitors: 'Odd',
             option: {
@@ -512,6 +530,8 @@ export async function createBetFromFastCode(
               name: currentEvent.name,
               number: currentEvent.id,
               startingAt: currentEvent.time,
+              extId: currentEvent.extId,
+              palimpsestId: currentEvent.palimpsestId,
             },
             competitors: 'Under',
             option: {
@@ -532,6 +552,8 @@ export async function createBetFromFastCode(
               name: currentEvent.name,
               number: currentEvent.id,
               startingAt: currentEvent.time,
+              extId: currentEvent.extId,
+              palimpsestId: currentEvent.palimpsestId,
             },
             competitors: 'Over',
             option: {
