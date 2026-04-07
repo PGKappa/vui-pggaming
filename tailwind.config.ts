@@ -154,6 +154,10 @@ export default {
           DEFAULT: 'hsl(var(--betslipTitleBackground2))',
           foreground: 'hsl(var(--betslipTitleBackground2-foreground))',
         },
+        plusButton: {
+          DEFAULT: 'hsl(var(--plusButton))',
+          foreground: 'hsl(var(--plusButton-foreground))',
+        },
         betslipBorder: {
           DEFAULT: 'hsl(var(--betslipBorder))',
           foreground: 'hsl(var(--betslipBorder-foreground))',
