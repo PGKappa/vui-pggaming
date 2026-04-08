@@ -85,7 +85,7 @@ export type UpcomingMatch = {
 export type UpcomingEvent = {
   id: number
   extId?: string
-  palimpsestId?: number
+  palimpsestId?: string
   discipline: Discipline
   name: string
   startTime: string
@@ -200,6 +200,8 @@ export type Bet = {
     number: number
     startingAt: Date
     roundId?: number
+    extId?: string
+    palimpsestId?: string
   }
   discipline: Discipline
   competitors: string

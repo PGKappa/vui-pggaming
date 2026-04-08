@@ -425,22 +425,22 @@ export default function BettingSlip({
       }, 0)
   }, [systemGroups, selectedGroups])
 
-const scrollAreaHeight = useMemo(() => {
-  const groupHeight = 59
-  const expandedHeight = 63
-  const numGroups = systemGroups.length
-  const groupsToShow = Math.min(Math.max(numGroups, 1), 3)
-  const baseHeight = groupHeight * groupsToShow
+  const scrollAreaHeight = useMemo(() => {
+    const groupHeight = 59
+    const expandedHeight = 63
+    const numGroups = systemGroups.length
+    const groupsToShow = Math.min(Math.max(numGroups, 1), 3)
+    const baseHeight = groupHeight * groupsToShow
 
-  // Espande solo se c'è un solo gruppo e questo è aperto
-  const lastVisibleGroupName = systemGroups[groupsToShow - 1]?.name
-  const isLastGroupOpen = lastVisibleGroupName ? systemGroupsOpen.includes(lastVisibleGroupName) : false
-  const isSingleGroup = numGroups === 1
+    // Espande solo se c'è un solo gruppo e questo è aperto
+    const lastVisibleGroupName = systemGroups[groupsToShow - 1]?.name
+    const isLastGroupOpen = lastVisibleGroupName
+      ? systemGroupsOpen.includes(lastVisibleGroupName)
+      : false
+    const isSingleGroup = numGroups === 1
 
-  return baseHeight + (isSingleGroup && isLastGroupOpen ? expandedHeight : 0)
-}, [systemGroups, systemGroupsOpen])
-
-
+    return baseHeight + (isSingleGroup && isLastGroupOpen ? expandedHeight : 0)
+  }, [systemGroups, systemGroupsOpen])
 
   useEffect(() => {
     if (betMode === 'SYSTEM') {
@@ -582,9 +582,9 @@ const scrollAreaHeight = useMemo(() => {
 
       const groupedByEvent = betEntries.reduce(
         (acc, entry) => {
-          const eventId = entry.bet.event.number.toString()
-          if (!acc[eventId]) acc[eventId] = []
-          acc[eventId].push(entry)
+          const key = `${entry.bet.discipline}-${entry.bet.event.number}`
+          if (!acc[key]) acc[key] = []
+          acc[key].push(entry)
           return acc
         },
         {} as Record<string, typeof betEntries>,
@@ -629,82 +629,80 @@ const scrollAreaHeight = useMemo(() => {
         return API_MARKET_NAMES[normalized] || normalized
       }
 
-      const selections = Object.entries(groupedByEvent).map(
-        ([eventId, entries]) => {
-          const marketGroups = entries.reduce(
-            (acc, entry) => {
-              const apiMarketName = getAPIMarketName(
-                entry.apiMarket || entry.market,
-              )
-              if (!acc[apiMarketName]) acc[apiMarketName] = []
-              let cleanOutcome = entry.bet.option.outcome.replace(/ any$/, '')
+      const selections = Object.entries(groupedByEvent).map(([, entries]) => {
+        const marketGroups = entries.reduce(
+          (acc, entry) => {
+            const apiMarketName = getAPIMarketName(
+              entry.apiMarket || entry.market,
+            )
+            if (!acc[apiMarketName]) acc[apiMarketName] = []
+            let cleanOutcome = entry.bet.option.outcome.replace(/ any$/, '')
 
-              if (
-                apiMarketName === 'evenodd' ||
-                apiMarketName === 'underover'
-              ) {
-                const lowerOutcome = cleanOutcome.toLowerCase()
-                if (['par', 'pari', 'even'].includes(lowerOutcome))
-                  cleanOutcome = 'even'
-                else if (['impar', 'dispari', 'odd'].includes(lowerOutcome))
-                  cleanOutcome = 'odd'
-                else if (['menos', 'under'].includes(lowerOutcome))
-                  cleanOutcome = 'under'
-                else if (['más', 'mas', 'over'].includes(lowerOutcome))
-                  cleanOutcome = 'over'
-                else cleanOutcome = lowerOutcome
-              }
+            if (apiMarketName === 'evenodd' || apiMarketName === 'underover') {
+              const lowerOutcome = cleanOutcome.toLowerCase()
+              if (['par', 'pari', 'even'].includes(lowerOutcome))
+                cleanOutcome = 'even'
+              else if (['impar', 'dispari', 'odd'].includes(lowerOutcome))
+                cleanOutcome = 'odd'
+              else if (['menos', 'under'].includes(lowerOutcome))
+                cleanOutcome = 'under'
+              else if (['más', 'mas', 'over'].includes(lowerOutcome))
+                cleanOutcome = 'over'
+              else cleanOutcome = lowerOutcome
+            }
 
-              acc[apiMarketName].push({
-                description: cleanOutcome,
-                odds: entry.bet.option.decPrice.toString(),
-                status: 1,
-              })
-              return acc
-            },
-            {} as Record<string, any[]>,
-          )
+            acc[apiMarketName].push({
+              description: cleanOutcome,
+              odds: entry.bet.option.decPrice.toString(),
+              status: 1,
+            })
+            return acc
+          },
+          {} as Record<string, any[]>,
+        )
 
-          const markets = Object.entries(marketGroups).map(
-            ([marketName, selections]) => ({
-              description: marketName,
-              selections: selections,
-            }),
-          )
+        const markets = Object.entries(marketGroups).map(
+          ([marketName, selections]) => ({
+            description: marketName,
+            selections: selections,
+          }),
+        )
 
-          const firstEntry = entries[0]
-          const gameId =
-            firstEntry.bet.discipline === 'HORSES'
-              ? 'horses6'
-              : firstEntry.bet.discipline === 'DOGS'
-                ? 'dogs6'
-                : 'soccer'
-          const channelId =
-            firstEntry.bet.discipline === 'HORSES'
-              ? 3
-              : firstEntry.bet.discipline === 'DOGS'
-                ? 4
-                : 1
-          const eventAny = firstEntry.bet.event as any
-          const palimpsestId =
-            eventAny.palimpsestId ||
-            eventAny.extId ||
-            selectedEvent?.extId ||
-            selectedEvent?.palimpsestId ||
-            (firstEntry.bet.discipline === 'HORSES'
-              ? '1000003504'
-              : '1000003502')
+        const firstEntry = entries[0]
+        const eventId = firstEntry.bet.event.number
 
-          return {
-            gameId,
-            channelId,
-            palimpsestId,
-            eventId: parseInt(eventId, 10),
-            isBanker: false,
-            markets,
-          }
-        },
-      )
+        // Resolve palimpsestId: bet entry → live event lookup → fallback
+        const liveEvent = rootContext?.upcomingEvents?.find(
+          (e) => e.id === eventId && e.discipline === firstEntry.bet.discipline,
+        )
+        const palimpsestId =
+          firstEntry.bet.event.palimpsestId ||
+          firstEntry.bet.event.extId ||
+          liveEvent?.palimpsestId ||
+          liveEvent?.extId
+
+        const gameId =
+          firstEntry.bet.discipline === Discipline.HORSES
+            ? 'horses6'
+            : firstEntry.bet.discipline === Discipline.DOGS
+              ? 'dogs6'
+              : 'soccer'
+        const channelId =
+          firstEntry.bet.discipline === Discipline.HORSES
+            ? 3
+            : firstEntry.bet.discipline === Discipline.DOGS
+              ? 4
+              : 1
+
+        return {
+          gameId,
+          channelId,
+          palimpsestId,
+          eventId,
+          isBanker: false,
+          markets,
+        }
+      })
 
       const ticketType = getTicketType(betEntries)
       const ticketMode = getTicketMode(betMode, betEntries)
