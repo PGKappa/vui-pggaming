@@ -60,7 +60,7 @@ export default function EventBets(props: {
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="group size-7"
+                  className="group size-7 bg-transparent"
                   size="icon"
                   onClick={() => removeEventBets(eventKey)}
                 >

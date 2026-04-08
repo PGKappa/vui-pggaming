@@ -1110,7 +1110,7 @@ export default function BettingSlip({
             </div>
             <Separator />
 
-            <div className="relative top-[19px] grid w-full grid-cols-5 gap-2 p-2">
+            <div className="relative top-[19px] grid w-full grid-cols-5 space-x-2 p-2">
               {stakeButtons.map((amount, index) => {
                 const numericAmount =
                   typeof amount === 'number'
@@ -1133,7 +1133,7 @@ export default function BettingSlip({
             </div>
 
             <div className="text-searchResultText relative top-[17px] flex w-full flex-row items-center justify-between px-4 py-[18px]">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center space-x-2">
                 <span className="pt-[1px] text-[15px] font-semibold">
                   {t('amount').toUpperCase()}
                 </span>
@@ -1192,12 +1192,12 @@ export default function BettingSlip({
                 </div>
                 <AccordionContent className="pb-0">
                   <div className="h-[44px] border-b bg-white px-4 pb-2">
-                    <div className="relative top-[0px] flex items-center justify-between gap-2">
+                    <div className="relative top-[0px] flex items-center justify-between space-x-2">
                       <Checkbox
                         checked={allGroupsSelected}
                         onCheckedChange={handleAllGroupsToggle}
                       />
-                      <div className="relative top-[1px] mr-[3px] flex h-[33px] items-center gap-2">
+                      <div className="relative top-[1px] mr-[3px] flex h-[33px] items-center space-x-2">
                         <span className="mr-[4px] text-[12px] font-semibold">
                           {t('divide').toUpperCase()}
                         </span>
@@ -1275,7 +1275,7 @@ export default function BettingSlip({
                                 </span>
                               </div>
                               <div className="relative flex items-center">
-                                <div className="mr-[12px] mt-[2px] flex items-center gap-0 border">
+                                <div className="mr-[12px] mt-[2px] flex items-center space-x-0 border">
                                   <Button
                                     variant="ghost"
                                     size="sm"
@@ -1462,7 +1462,7 @@ export default function BettingSlip({
             <Separator />
 
             <div className="text-searchResultText relative top-[2px] flex w-full flex-row items-center justify-between px-4">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center space-x-2">
                 <span className="text-[16px] font-semibold">
                   {t('amount').toUpperCase()}
                 </span>
