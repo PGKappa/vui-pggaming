@@ -30,8 +30,7 @@ export default function TicketCheckPage() {
   }
 
   return (
-    <main className="fixed top-[60px] w-full h-[calc(100%-60px)] z-50 flex flex-col justify-between bg-black py-6 text-accent-foreground">
-      
+    <main className="fixed top-[60px] left-[40px] right-0 bottom-0 z-50 flex flex-col justify-between bg-black py-6 text-accent-foreground">
       {/* Title Bar */}
       <div className="flex items-center justify-between border-b border-white/10 pb-4 mt-4 bg-accent h-[64px] w-full">
         <div className="w-10" /> {/* spacer per centrare il titolo */}
