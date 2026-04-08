@@ -136,6 +136,8 @@
   "ticket_status": "Estado del Ticket",
   "won": "Ganado",
   "lost": "Perdido",
+  "active": "Activo",
+  "pending": "Pendiente",
   "cancelled": "Cancelado",
   "payment": "Pago",
   "paid": "Pagado",
@@ -342,5 +344,6 @@
   "max_bet_entries_system": "No se pueden añadir más apuestas: máximo 50 selecciones permitidas para apuesta de sistema",
   "max_events_system": "No se pueden añadir más apuestas: máximo 15 eventos únicos permitidos para apuesta de sistema",
   "failed_fetch_results": "Error al obtener los resultados",
-  "http_error": "Error"
+  "http_error": "Error",
+  "no_tickets_found": "No se encontraron tickets"
 }

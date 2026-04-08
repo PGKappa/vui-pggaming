@@ -45,18 +45,27 @@ export function getStatusDisplay(status: number): {
     case 1:
       return {
         label: 'Active',
-        colorClass: 'bg-yellow-500',
+        colorClass: 'bg-ticket-active',
         translationKey: 'active',
       }
     case 4:
-      return { label: 'Won', colorClass: 'bg-green-600', translationKey: 'won' }
+      return {
+        label: 'Won',
+        colorClass: 'bg-ticket-won',
+        translationKey: 'won',
+      }
     case 5:
-      return { label: 'Lost', colorClass: 'bg-red-600', translationKey: 'lost' }
+    case 9:
+      return {
+        label: 'Lost',
+        colorClass: 'bg-ticket-lost',
+        translationKey: 'lost',
+      }
     default:
       return {
         label: String(status),
-        colorClass: 'bg-gray-400',
-        translationKey: 'unknown',
+        colorClass: 'bg-ticket-active',
+        translationKey: 'pending',
       }
   }
 }
@@ -93,7 +102,8 @@ export function useTicketList() {
     setLoading(true)
     try {
       const perPage = parseInt(pageSize)
-      const offset = (currentPage - 1) * perPage
+      // API offset is page-based (0-indexed page number), not item offset
+      const offset = currentPage - 1
 
       const body = {
         dateStart: from

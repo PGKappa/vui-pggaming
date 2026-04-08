@@ -132,6 +132,8 @@
   "ticket_status": "Статус билета",
   "won": "Выиграл",
   "lost": "Проиграл",
+  "active": "Активный",
+  "pending": "Ожидание",
   "cancelled": "Отменен",
   "payment": "Оплата",
   "paid": "Оплачен",
@@ -241,5 +243,6 @@
   "http_error": "Ошибка",
   "min_stake_error": "Минимальная ставка {{min}}",
   "min_bet_error": "Минимальная сумма билета {{min}}",
-  "max_win_error": "Максимальный выигрыш {{max}}"
+  "max_win_error": "Максимальный выигрыш {{max}}",
+  "no_tickets_found": "Билеты не найдены"
 }
