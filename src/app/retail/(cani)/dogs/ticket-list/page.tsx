@@ -59,9 +59,9 @@ export default function TicketListPage() {
 
       {/* Filter Bar */}
       <div className="flex justify-center pb-3 lg:pb-5 bg-secondary shrink-0">
-        <div className="flex flex-wrap items-center space-x-5 lg:gap-10 relative top-2 lg:top-2.5">
+        <div className="flex flex-wrap items-center space-x-5 lg:space-x-10 relative top-2 lg:top-2.5">
 
-          <div className="flex flex-row items-center gap-1 lg:gap-2 bg-accent text-background">
+          <div className="flex flex-row items-center space-x-1 lg:space-x-2 bg-accent text-background">
             <span className="whitespace-nowrap pl-1 lg:pl-2 text-[10px] lg:text-[12px] font-semibold">
               {t('terminal')}
             </span>
@@ -77,7 +77,7 @@ export default function TicketListPage() {
             </Select>
           </div>
 
-          <div className="flex flex-row items-center gap-1 lg:gap-2 bg-accent text-background">
+          <div className="flex flex-row items-center space-x-1 lg:space-x-2 bg-accent text-background">
             <span className="whitespace-nowrap pl-1 lg:pl-2 text-[10px] lg:text-[12px] font-semibold">
               {t('status')}
             </span>
@@ -94,7 +94,7 @@ export default function TicketListPage() {
             </Select>
           </div>
 
-          <div className="flex flex-row items-center gap-1 lg:gap-2 bg-accent text-background">
+          <div className="flex flex-row items-center space-x-1 lg:space-x-2 bg-accent text-background">
             <span className="whitespace-nowrap pl-1 lg:pl-2 text-[10px] lg:text-[12px] font-semibold">
               {t('payment')}
             </span>
@@ -110,7 +110,7 @@ export default function TicketListPage() {
             </Select>
           </div>
 
-          <div className="flex flex-row items-center gap-1 lg:gap-2 bg-accent text-background">
+          <div className="flex flex-row items-center space-x-1 lg:space-x-2 bg-accent text-background">
             <span className="whitespace-nowrap pl-1 lg:pl-2 text-[10px] lg:text-[12px] font-semibold">
               {t('from')}
             </span>
@@ -129,7 +129,7 @@ export default function TicketListPage() {
             </Popover>
           </div>
 
-          <div className="flex flex-row items-center gap-1 lg:gap-2 bg-accent text-background">
+          <div className="flex flex-row items-center space-x-1 lg:space-x-2 bg-accent text-background">
             <span className="whitespace-nowrap pl-1 lg:pl-2 text-[10px] lg:text-[12px] font-semibold">
               {t('to')}
             </span>
@@ -148,7 +148,7 @@ export default function TicketListPage() {
             </Popover>
           </div>
 
-          <div className="flex flex-row items-center gap-1 lg:gap-2 bg-accent text-background">
+          <div className="flex flex-row items-center space-x-1 lg:space-x-2 bg-accent text-background">
             <span className="whitespace-nowrap pl-1 lg:pl-2 text-[10px] lg:text-[12px] font-semibold">
               {t('page_size')}
             </span>
@@ -211,7 +211,7 @@ export default function TicketListPage() {
                 <td className="p-1 lg:p-2">$ {(i % 2 === 0 ? 3.2 : 0.0).toFixed(2)}</td>
                 <td className="w-[1px] bg-muted p-0"></td>
                 <td className="p-1 lg:p-2">
-                  <div className="flex items-center justify-center gap-1 lg:gap-2">
+                  <div className="flex items-center justify-center space-x-1 lg:space-x-2">
                     <div className={cn('h-2 w-2 lg:h-3 lg:w-3 rounded-sm', i % 2 === 0 ? 'bg-green-600' : 'bg-red-600')} />
                     <span className="font-medium">{i % 2 === 0 ? t('won') : t('lost')}</span>
                   </div>
