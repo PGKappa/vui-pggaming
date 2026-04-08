@@ -8,7 +8,7 @@ import {
 } from '@/retail-lib/types'
 import { createPGVirtualAPICall } from '@/retail-lib/utils'
 import { format } from 'date-fns'
-import { useCallback, useContext, useEffect, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
 
 const STATUS_MAP: Record<string, number> = {
   all: 0,
@@ -97,26 +97,28 @@ export function useTicketList() {
 
   const currencySymbol = rootContext.getCurrencySymbol?.() ?? '€'
 
-  // Fetch ALL items from API (terminal filter is client-side only).
-  // Status and payment filters work server-side.
-  // We fetch everything (itemsPerPage=9999) and paginate client-side.
+  // Refs to read current filter values without causing re-renders
+  const filtersRef = React.useRef({ from, to, status, payment })
+  filtersRef.current = { from, to, status, payment }
+
+  // Only called explicitly by the user clicking the reload button.
   const fetchTickets = useCallback(async () => {
     if (!rootContext.initCode || !rootContext.operator) return
+
+    const { from: f, to: t, status: s, payment: p } = filtersRef.current
 
     setLoading(true)
     try {
       const body = {
-        dateStart: from
-          ? format(from, 'dd-MM-yyyy')
+        dateStart: f
+          ? format(f, 'dd-MM-yyyy')
           : format(new Date(), 'dd-MM-yyyy'),
-        dateEnd: to
-          ? format(to, 'dd-MM-yyyy')
-          : format(new Date(), 'dd-MM-yyyy'),
+        dateEnd: t ? format(t, 'dd-MM-yyyy') : format(new Date(), 'dd-MM-yyyy'),
         offset: 0,
         itemsPerPage: 9999,
         terminal: -1,
-        status: STATUS_MAP[status] ?? 0,
-        payment: PAYMENT_MAP[payment] ?? 0,
+        status: STATUS_MAP[s] ?? 0,
+        payment: PAYMENT_MAP[p] ?? 0,
         enablePagination: true,
         accountingMode: false,
       }
@@ -157,10 +159,15 @@ export function useTicketList() {
     } finally {
       setLoading(false)
     }
-  }, [rootContext.initCode, rootContext.operator, from, to, status, payment])
+  }, [rootContext.initCode, rootContext.operator])
 
+  // Initial fetch on mount only
+  const didMount = React.useRef(false)
   useEffect(() => {
-    fetchTickets()
+    if (!didMount.current) {
+      didMount.current = true
+      fetchTickets()
+    }
   }, [fetchTickets])
 
   // Client-side: filter by terminal, then paginate
