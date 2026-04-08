@@ -59,7 +59,7 @@ export default function TicketListPage() {
 
       {/* Filter Bar */}
       <div className="flex justify-center pb-3 lg:pb-5 bg-secondary shrink-0">
-        <div className="flex flex-wrap items-center space-x-3 lg:gap-10 relative top-2 lg:top-2.5">
+        <div className="flex flex-wrap items-center space-x-5 lg:gap-10 relative top-2 lg:top-2.5">
 
           <div className="flex flex-row items-center gap-1 lg:gap-2 bg-accent text-background">
             <span className="whitespace-nowrap pl-1 lg:pl-2 text-[10px] lg:text-[12px] font-semibold">
