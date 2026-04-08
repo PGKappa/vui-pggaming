@@ -1007,7 +1007,7 @@ export default function BettingSlip({
                     alt="Bin"
                     width={40}
                     height={20}
-                    className="relative bottom-1 ml-[18px] h-[20px] w-6 object-contain brightness-0 invert filter"
+                    className="relative bottom-1 ml-[6px] h-[20px] w-6 object-contain brightness-0 invert filter"
                   />
                 </Button>
               </TooltipTrigger>

@@ -113,7 +113,7 @@ const layoutByLanguage: Record<string, LayoutConfig> = {
       eventIdMargin: 'mr-[215px]',
     },
     bettingSlip: {
-      combinationsButtonLeft: 'left-[251px] bg-transparent',
+      combinationsButtonLeft: 'left-[255px] bg-transparent',
     },
     searchEventResults: {
       disciplineSelectLeft: 'left-5',
