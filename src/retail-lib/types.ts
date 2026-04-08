@@ -303,3 +303,53 @@ export type TeamRanking = {
   goalDifference: number
   last8: Array<'W' | 'L' | 'D'>
 }
+
+// === Ticket List API Types ===
+
+export type TicketListRequest = {
+  dateStart: string 
+  dateEnd: string 
+  offset: number
+  itemsPerPage: number
+  terminal: number 
+  status: number 
+  payment: number 
+  enablePagination: boolean
+  accountingMode: boolean
+}
+
+export type TicketListItem = {
+  ticket_id: number
+  time: [string, number, string, string, string, string] 
+  amount: string
+  amount_won: string
+  intl: {
+    currency: string
+    locale: string
+    timezone: string
+  }
+  terminal_id: string
+  status: number
+}
+
+export type TicketListInfo = {
+  count: number
+  count_paid: number
+  count_won: number
+  tot_in: string
+  tot_cancelled: number | string
+  tot_out: string
+  tot_profit: number
+  grandtotal: {
+    in: number
+    cancelled: number | string
+    out: string
+  }
+}
+
+export type TicketListResponse = {
+  ret_code: number 
+  description: string
+  info: TicketListInfo
+  items: TicketListItem[]
+}
