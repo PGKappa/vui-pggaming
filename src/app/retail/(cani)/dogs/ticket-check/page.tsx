@@ -30,10 +30,10 @@ export default function TicketCheckPage() {
   }
 
   return (
-    <main className="fixed inset-0 z-50 flex flex-col justify-between bg-black  py-6 text-accent-foreground h-[calc(100%-60px)] w-[calc(100%-40px)]">
+    <main className="fixed top-[60px] left-[40px] w-[calc(100%-40px)] h-[calc(100%-60px)] z-50 flex flex-col justify-between bg-black py-6 text-accent-foreground">
       
       {/* Title Bar */}
-      <div className="flex items-center justify-between border-b border-white/10 pb-4 relative bottom-[24px] bg-accent h-[64px] w-full">
+      <div className="flex items-center justify-between border-b border-white/10 pb-4 mt-4 bg-accent h-[64px] w-full">
         <div className="w-10" /> {/* spacer per centrare il titolo */}
         <h1 className="text-[16px] pt-3 font-bold uppercase tracking-widest text-white">
           {t('ticket_check', 'Ticket Check')}
