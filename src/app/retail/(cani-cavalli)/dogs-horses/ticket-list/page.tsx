@@ -22,21 +22,32 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/retail-components/ui/select'
+import {
+  useTicketList,
+  parseTicketTime,
+  getStatusDisplay,
+  formatCurrency,
+} from '@/retail-lib/use-ticket-list'
 import { cn } from '@/retail-lib/utils'
 import { format } from 'date-fns'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 export default function TicketListPage() {
   const { t } = useTranslation()
-  const [terminal, setTerminal] = useState('all')
-  const [status, setStatus] = useState('all')
-  const [payment, setPayment] = useState('all')
-  const [from, setFrom] = useState<Date | undefined>(new Date())
-  const [to, setTo] = useState<Date | undefined>(new Date())
-  const [pageSize, setPageSize] = useState('15')
   const router = useRouter()
+  const {
+    terminal, setTerminal,
+    status, setStatus,
+    payment, setPayment,
+    from, setFrom,
+    to, setTo,
+    pageSize, setPageSize,
+    currentPage, setCurrentPage, totalPages,
+    items, info, loading,
+    currencySymbol,
+    fetchTickets,
+  } = useTicketList()
 
   const handleDetailsClick = (ticketId: number) => {
     console.log('Details for ticket:', ticketId)
@@ -71,8 +82,6 @@ export default function TicketListPage() {
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
                 <SelectItem value="all">{t('all')}</SelectItem>
-                <SelectItem value="203">203</SelectItem>
-                <SelectItem value="205">205</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -87,6 +96,7 @@ export default function TicketListPage() {
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
                 <SelectItem value="all">{t('all')}</SelectItem>
+                <SelectItem value="active">{t('active')}</SelectItem>
                 <SelectItem value="won">{t('won')}</SelectItem>
                 <SelectItem value="lost">{t('lost')}</SelectItem>
                 <SelectItem value="cancelled">{t('cancelled')}</SelectItem>
@@ -120,7 +130,7 @@ export default function TicketListPage() {
                   variant="ticketFilter"
                   className="w-[80px] lg:w-[100px] justify-center text-[10px] lg:text-[12px] h-7 lg:h-9"
                 >
-                  {from ? format(from, 'dd/MM/yyyy') : 'Da'}
+                  {from ? format(from, 'dd/MM/yyyy') : '-'}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="bg-white">
@@ -139,7 +149,7 @@ export default function TicketListPage() {
                   variant="ticketFilter"
                   className="w-[80px] lg:w-[100px] justify-center text-[10px] lg:text-[12px] h-7 lg:h-9"
                 >
-                  {to ? format(to, 'dd/MM/yyyy') : 'A'}
+                  {to ? format(to, 'dd/MM/yyyy') : '-'}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="bg-white">
@@ -164,7 +174,7 @@ export default function TicketListPage() {
             </Select>
           </div>
 
-          <Button className="text-bold w-[60px] lg:w-[80px] h-7 lg:h-9 bg-tertiary text-[10px] lg:text-[14px] text-tertiary-foreground">
+          <Button onClick={fetchTickets} className="text-bold w-[60px] lg:w-[80px] h-7 lg:h-9 bg-tertiary text-[10px] lg:text-[14px] text-tertiary-foreground">
             {t('reload')}
           </Button>
 
@@ -196,39 +206,53 @@ export default function TicketListPage() {
             </tr>
           </thead>
           <tbody>
-            {Array.from({ length: parseInt(pageSize) }).map((_, i) => (
-              <tr key={i} className="border-b text-center text-[12px] lg:text-[16px]">
-                <td className="p-1 lg:p-2">{1400 - i}</td>
-                <td className="w-[1px] bg-muted p-0"></td>
-                <td className="p-1 lg:p-2">203</td>
-                <td className="w-[1px] bg-muted p-0"></td>
-                <td className="p-1 lg:p-2">21/05/2025 10:00</td>
-                <td className="w-[1px] bg-muted p-0"></td>
-                <td className="p-1 lg:p-2">$ {(5 + i).toFixed(2)}</td>
-                <td className="w-[1px] bg-muted p-0"></td>
-                <td className="p-1 lg:p-2">$ 0.00</td>
-                <td className="w-[1px] bg-muted p-0"></td>
-                <td className="p-1 lg:p-2">$ {(i % 2 === 0 ? 3.2 : 0.0).toFixed(2)}</td>
-                <td className="w-[1px] bg-muted p-0"></td>
-                <td className="p-1 lg:p-2">
-                  <div className="flex items-center justify-center space-x-1 lg:space-x-2">
-                    <div className={cn('h-2 w-2 lg:h-3 lg:w-3 rounded-sm', i % 2 === 0 ? 'bg-green-600' : 'bg-red-600')} />
-                    <span className="font-medium">{i % 2 === 0 ? t('won') : t('lost')}</span>
-                  </div>
-                </td>
-                <td className="w-[1px] bg-muted p-0"></td>
-                <td className="p-1 lg:p-2">{t('paid')}</td>
-                <td className="w-[1px] bg-muted p-0"></td>
-                <td className="p-1 lg:p-2">
-                  <Button
-                    onClick={() => handleDetailsClick(1400 - i)}
-                    className="h-6 lg:h-8 w-14 lg:w-20 bg-tertiary text-[10px] lg:text-[16px] text-tertiary-foreground"
-                  >
-                    {t('details')}
-                  </Button>
-                </td>
+            {loading ? (
+              <tr>
+                <td colSpan={17} className="p-8 text-center text-gray-400">{t('loading')}...</td>
               </tr>
-            ))}
+            ) : items.length === 0 ? (
+              <tr>
+                <td colSpan={17} className="p-8 text-center text-gray-400">{t('no_tickets_found')}</td>
+              </tr>
+            ) : (
+              items.map((item) => {
+                const date = parseTicketTime(item.time)
+                const statusInfo = getStatusDisplay(item.status)
+                return (
+                  <tr key={item.ticket_id} className="border-b text-center text-[12px] lg:text-[16px]">
+                    <td className="p-1 lg:p-2">{item.ticket_id}</td>
+                    <td className="w-[1px] bg-muted p-0"></td>
+                    <td className="p-1 lg:p-2">{item.terminal_id}</td>
+                    <td className="w-[1px] bg-muted p-0"></td>
+                    <td className="p-1 lg:p-2">{format(date, 'dd/MM/yy')} - {format(date, 'HH:mm:ss')}</td>
+                    <td className="w-[1px] bg-muted p-0"></td>
+                    <td className="p-1 lg:p-2">{formatCurrency(item.amount, currencySymbol)}</td>
+                    <td className="w-[1px] bg-muted p-0"></td>
+                    <td className="p-1 lg:p-2">{formatCurrency('0.00', currencySymbol)}</td>
+                    <td className="w-[1px] bg-muted p-0"></td>
+                    <td className="p-1 lg:p-2">{formatCurrency(item.amount_won, currencySymbol)}</td>
+                    <td className="w-[1px] bg-muted p-0"></td>
+                    <td className="p-1 lg:p-2">
+                      <div className="flex items-center justify-center space-x-1 lg:space-x-2">
+                        <div className={cn('h-2 w-2 lg:h-3 lg:w-3 rounded-sm', statusInfo.colorClass)} />
+                        <span className="font-medium">{t(statusInfo.translationKey)}</span>
+                      </div>
+                    </td>
+                    <td className="w-[1px] bg-muted p-0"></td>
+                    <td className="p-1 lg:p-2">{parseFloat(item.amount_won) > 0 && item.status === 4 ? t('unpaid') : '-'}</td>
+                    <td className="w-[1px] bg-muted p-0"></td>
+                    <td className="p-1 lg:p-2">
+                      <Button
+                        onClick={() => handleDetailsClick(item.ticket_id)}
+                        className="h-6 lg:h-8 w-14 lg:w-20 bg-tertiary text-[10px] lg:text-[16px] text-tertiary-foreground"
+                      >
+                        {t('details')}
+                      </Button>
+                    </td>
+                  </tr>
+                )
+              })
+            )}
           </tbody>
         </table>
       </div>
@@ -238,9 +262,26 @@ export default function TicketListPage() {
         <div className="col-span-2 flex flex-row items-center bg-accent p-2 lg:p-4">
           <Pagination className="justify-start">
             <PaginationContent>
-              <PaginationItem><PaginationPrevious href="#" /></PaginationItem>
-              <PaginationItem><PaginationLink href="#" isActive={true}>1</PaginationLink></PaginationItem>
-              <PaginationItem><PaginationNext href="#" /></PaginationItem>
+              <PaginationItem>
+                <PaginationPrevious href="#" onClick={(e) => { e.preventDefault(); if (currentPage > 1) setCurrentPage(currentPage - 1) }} />
+              </PaginationItem>
+              {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                let pageNum: number
+                if (totalPages <= 5) pageNum = i + 1
+                else if (currentPage <= 3) pageNum = i + 1
+                else if (currentPage >= totalPages - 2) pageNum = totalPages - 4 + i
+                else pageNum = currentPage - 2 + i
+                return (
+                  <PaginationItem key={pageNum}>
+                    <PaginationLink href="#" isActive={pageNum === currentPage} onClick={(e) => { e.preventDefault(); setCurrentPage(pageNum) }}>
+                      {pageNum}
+                    </PaginationLink>
+                  </PaginationItem>
+                )
+              })}
+              <PaginationItem>
+                <PaginationNext href="#" onClick={(e) => { e.preventDefault(); if (currentPage < totalPages) setCurrentPage(currentPage + 1) }} />
+              </PaginationItem>
             </PaginationContent>
           </Pagination>
         </div>
@@ -250,21 +291,21 @@ export default function TicketListPage() {
               <td className="border border-muted bg-accent px-1 lg:px-3 py-1 lg:py-2 text-center align-middle font-bold text-[10px] lg:text-md">
                 {t('page_total')}
               </td>
-              <td className="border border-muted bg-accent px-1 lg:px-3 py-1 lg:py-2 text-center align-middle text-[10px] lg:text-md">$ 86.50</td>
-              <td className="border border-muted bg-accent px-1 lg:px-3 py-1 lg:py-2 text-center align-middle text-[10px] lg:text-md">$ 0.00</td>
-              <td className="border border-muted bg-accent px-1 lg:px-3 py-1 lg:py-2 text-center align-middle text-[10px] lg:text-md">$ 47.28</td>
+              <td className="border border-muted bg-accent px-1 lg:px-3 py-1 lg:py-2 text-center align-middle text-[10px] lg:text-md">{formatCurrency(info?.tot_in ?? '0.00', currencySymbol)}</td>
+              <td className="border border-muted bg-accent px-1 lg:px-3 py-1 lg:py-2 text-center align-middle text-[10px] lg:text-md">{formatCurrency(info?.tot_cancelled ?? '0.00', currencySymbol)}</td>
+              <td className="border border-muted bg-accent px-1 lg:px-3 py-1 lg:py-2 text-center align-middle text-[10px] lg:text-md">{formatCurrency(info?.tot_out ?? '0.00', currencySymbol)}</td>
               <td className="border border-muted bg-searchResButton px-1 lg:px-3 py-1 lg:py-2 text-center align-middle font-bold text-[10px] lg:text-md">{t('cash_total')}</td>
               <td className="border border-muted bg-searchResButton px-1 lg:px-3 py-1 lg:py-2 text-center align-middle font-bold text-[10px] lg:text-md">{t('paid_won')}</td>
               <td className="border border-muted bg-searchResButton px-1 lg:px-3 py-1 lg:py-2 text-center align-middle font-bold text-[10px] lg:text-md">{t('total_tickets')}</td>
             </tr>
             <tr className="bg-accent text-xs font-medium text-white">
               <td className="border border-muted bg-accent px-1 lg:px-3 py-1 lg:py-2 text-center align-middle font-bold text-[10px] lg:text-md">{t('totals')}</td>
-              <td className="border border-muted bg-accent px-1 lg:px-3 py-1 lg:py-2 text-center align-middle text-[10px] lg:text-md">$ 86.50</td>
-              <td className="border border-muted bg-accent px-1 lg:px-3 py-1 lg:py-2 text-center align-middle text-[10px] lg:text-md">$ 0.00</td>
-              <td className="border border-muted bg-accent px-1 lg:px-3 py-1 lg:py-2 text-center align-middle text-[10px] lg:text-md">$ 47.28</td>
-              <td className="border border-muted bg-accent px-1 lg:px-3 py-1 lg:py-2 text-center align-middle text-[10px] lg:text-md">$ 0.00</td>
-              <td className="border border-muted bg-accent px-1 lg:px-3 py-1 lg:py-2 text-center align-middle text-[10px] lg:text-md">0 / 7</td>
-              <td className="border border-muted bg-accent px-1 lg:px-3 py-1 lg:py-2 text-center align-middle text-[10px] lg:text-md">22</td>
+              <td className="border border-muted bg-accent px-1 lg:px-3 py-1 lg:py-2 text-center align-middle text-[10px] lg:text-md">{formatCurrency(info?.grandtotal?.in ?? 0, currencySymbol)}</td>
+              <td className="border border-muted bg-accent px-1 lg:px-3 py-1 lg:py-2 text-center align-middle text-[10px] lg:text-md">{formatCurrency(info?.grandtotal?.cancelled ?? '0.00', currencySymbol)}</td>
+              <td className="border border-muted bg-accent px-1 lg:px-3 py-1 lg:py-2 text-center align-middle text-[10px] lg:text-md">{formatCurrency(info?.grandtotal?.out ?? '0.00', currencySymbol)}</td>
+              <td className="border border-muted bg-accent px-1 lg:px-3 py-1 lg:py-2 text-center align-middle text-[10px] lg:text-md">{formatCurrency('0.00', currencySymbol)}</td>
+              <td className="border border-muted bg-accent px-1 lg:px-3 py-1 lg:py-2 text-center align-middle text-[10px] lg:text-md">{info?.count_paid ?? 0} / {info?.count_won ?? 0}</td>
+              <td className="border border-muted bg-accent px-1 lg:px-3 py-1 lg:py-2 text-center align-middle text-[10px] lg:text-md">{info?.count ?? 0}</td>
             </tr>
           </tbody>
         </table>
