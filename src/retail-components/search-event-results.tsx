@@ -421,8 +421,8 @@ export default function SearchEventResults() {
   }
 
   return (
-    <div className="flex h-full flex-col gap-1">
-     <div className="flex h-16 w-full items-center gap-2 bg-accent px-[24px] min-[1400px]:px-[60px] min-[1600px]:px-[100px] min-[1750px]:px-[130px] min-[1920px]:px-[167px]">
+    <div className="flex h-full flex-col space-y-1">
+     <div className="flex h-16 w-full items-center space-x-2 bg-accent px-[24px] min-[1400px]:px-[60px] min-[1600px]:px-[100px] min-[1750px]:px-[130px] min-[1920px]:px-[167px]">
 
         {/* DISCIPLINA */}
         <Select
@@ -450,7 +450,7 @@ export default function SearchEventResults() {
         </Select>
 
         {/* LAST 10 GAMES */}
-        <div className="flex shrink-0 flex-row items-center ml-1">
+        <div className="flex shrink-0 flex-row items-center ml-1.5">
           <Checkbox
             id="last10"
             className="h-6 w-6 border-0 bg-background text-foreground"
@@ -527,8 +527,8 @@ export default function SearchEventResults() {
                   return (
                     <AccordionItem key={uniqueKey} value={uniqueKey} className="gap-0">
                       <AccordionTrigger className="pointer-events-none border-b-0 bg-accent p-0 pl-2 text-base text-accent-foreground hover:no-underline [&[data-state=open]>svg]:-rotate-90">
-                        <div className="relative top-1.5 mb-[7px] flex h-[46px] w-full flex-row items-center justify-between gap-4 pl-[9px] uppercase tabular-nums text-white">
-                          <div className="flex flex-row items-center gap-4 pb-[5px] text-[16px] font-semibold">
+                        <div className="relative top-1.5 mb-[7px] flex h-[46px] w-full flex-row items-center justify-between space-x-4 pl-[9px] uppercase tabular-nums text-white">
+                          <div className="flex flex-row items-center space-x-4 pb-[5px] text-[16px] font-semibold">
                             <span className="whitespace-nowrap text-[16px]">
                               {eventResult.discipline === 'DOGS'
                                 ? t('dog_races_label')
@@ -691,7 +691,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                   const imageSrc = index === 0 ? '/cockade_gold.png' : index === 1 ? '/cockade_silver.png' : '/cockade_bronze.png'
                   const medalNumber = String(index + 1)
                   return (
-                    <div key={competitor.number || index} className="flex items-center gap-3">
+                    <div key={competitor.number || index} className="flex items-center space-x-3">
                       <div className="relative flex h-11 w-11 items-center justify-center">
                         <Image src={imageSrc} alt={medalNumber} width={48} height={48} className="absolute" />
                         <div className="relative pb-[11px] text-[23px] font-bold">{medalNumber}</div>

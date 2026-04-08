@@ -349,7 +349,7 @@ export default function DraggableCodeList({
               {t('code_list').toUpperCase()}
             </h2>
 
-            <div className="absolute right-4 flex items-center gap-2">
+            <div className="absolute right-4 flex items-center space-x-2 bg-transparent">
               <Button
                 variant={'ghost'}
                 size="icon"
