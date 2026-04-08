@@ -98,14 +98,33 @@ export function useTicketList() {
   const currencySymbol = rootContext.getCurrencySymbol?.() ?? '€'
 
   // Refs to read current filter values without causing re-renders
-  const filtersRef = React.useRef({ from, to, status, payment })
-  filtersRef.current = { from, to, status, payment }
+  const filtersRef = React.useRef({ from, to, status, payment, terminal })
+  filtersRef.current = { from, to, status, payment, terminal }
+
+  // Applied filters: only updated when user clicks search button
+  const [appliedFilters, setAppliedFilters] = useState({
+    from,
+    to,
+    status,
+    payment,
+    terminal,
+  })
 
   // Only called explicitly by the user clicking the reload button.
   const fetchTickets = useCallback(async () => {
     if (!rootContext.initCode || !rootContext.operator) return
 
-    const { from: f, to: t, status: s, payment: p } = filtersRef.current
+    const {
+      from: f,
+      to: t,
+      status: s,
+      payment: p,
+      terminal: term,
+    } = filtersRef.current
+
+    // Snapshot current filters so the UI reflects what was searched
+    setAppliedFilters({ from: f, to: t, status: s, payment: p, terminal: term })
+    setCurrentPage(1)
 
     setLoading(true)
     try {
@@ -170,11 +189,13 @@ export function useTicketList() {
     }
   }, [fetchTickets])
 
-  // Client-side: filter by terminal, then paginate
+  // Client-side: filter by applied terminal, then paginate
   const filteredItems =
-    terminal === 'all'
+    appliedFilters.terminal === 'all'
       ? allItems
-      : allItems.filter((i) => String(i.terminal_id) === terminal)
+      : allItems.filter(
+          (i) => String(i.terminal_id) === appliedFilters.terminal,
+        )
 
   const perPage = parseInt(pageSize)
   const totalPages = Math.max(1, Math.ceil(filteredItems.length / perPage))
@@ -183,26 +204,6 @@ export function useTicketList() {
     currentPage * perPage,
   )
 
-  const setTerminalAndReset = useCallback((v: string) => {
-    setTerminal(v)
-    setCurrentPage(1)
-  }, [])
-  const setStatusAndReset = useCallback((v: string) => {
-    setStatus(v)
-    setCurrentPage(1)
-  }, [])
-  const setPaymentAndReset = useCallback((v: string) => {
-    setPayment(v)
-    setCurrentPage(1)
-  }, [])
-  const setFromAndReset = useCallback((v: Date | undefined) => {
-    setFrom(v)
-    setCurrentPage(1)
-  }, [])
-  const setToAndReset = useCallback((v: Date | undefined) => {
-    setTo(v)
-    setCurrentPage(1)
-  }, [])
   const setPageSizeAndReset = useCallback((v: string) => {
     setPageSize(v)
     setCurrentPage(1)
@@ -211,15 +212,15 @@ export function useTicketList() {
   return {
     // Filter state
     terminal,
-    setTerminal: setTerminalAndReset,
+    setTerminal,
     status,
-    setStatus: setStatusAndReset,
+    setStatus,
     payment,
-    setPayment: setPaymentAndReset,
+    setPayment,
     from,
-    setFrom: setFromAndReset,
+    setFrom,
     to,
-    setTo: setToAndReset,
+    setTo,
     pageSize,
     setPageSize: setPageSizeAndReset,
     // Pagination
