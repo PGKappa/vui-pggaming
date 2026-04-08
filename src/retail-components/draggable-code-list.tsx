@@ -355,7 +355,7 @@ export default function DraggableCodeList({
                 size="icon"
                 onClick={handlePrint}
                 title="Print"
-                className="hover:bg-accent/20"
+                className="hover:bg-accent/20 bg-transparent"
               >
                 <Printer
                   className="h-4 w-4 text-accent-foreground"
@@ -367,7 +367,7 @@ export default function DraggableCodeList({
                 size="icon"
                 onClick={handleClose}
                 title="Close"
-                className="hover:bg-accent/20"
+                className="hover:bg-accent/20 bg-transparent"
               >
                 <X
                   className="h-4 w-4 text-accent-foreground"
