@@ -13,6 +13,7 @@ import { toast } from 'sonner'
 export type CashierContextType = {
   initCode?: string
   operator?: string
+  terminalId?: string
   userData?: User
   cashierData?: any
   hasCashierError?: boolean
@@ -288,6 +289,7 @@ export default function CashierContextProvider(props: {
 }) {
   const [initCode, setInitCode] = useState<string | undefined>(undefined)
   const [operator, setOperator] = useState<string | undefined>(undefined)
+  const [terminalId, setTerminalId] = useState<string | undefined>(undefined)
   const [cashierContext, setCashierContext] = useState<CashierContextType>(
     defaultCashierContext,
   )
@@ -310,6 +312,7 @@ export default function CashierContextProvider(props: {
     const effectiveTerminalId =
       urlTerminalId || localStorage.getItem('terminalId') || undefined
     setRetailHeaders(effectiveShopId, effectiveTerminalId)
+    setTerminalId(effectiveTerminalId)
 
     if (!effectiveShopId) {
       console.warn('Shop-Id is missing from URL and localStorage')
@@ -442,6 +445,7 @@ export default function CashierContextProvider(props: {
       ...cashierContext,
       initCode,
       operator,
+      terminalId,
       apiRequest,
       hasCashierError,
       isLoadingCashier: isLoading,
@@ -451,6 +455,7 @@ export default function CashierContextProvider(props: {
       apiRequest,
       initCode,
       operator,
+      terminalId,
       hasCashierError,
       isLoading,
     ],

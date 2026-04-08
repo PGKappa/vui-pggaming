@@ -55,6 +55,7 @@ export default function TicketListPage() {
     items,
     info,
     loading,
+    availableTerminals,
     currencySymbol,
     fetchTickets,
   } = useTicketList()
@@ -92,6 +93,11 @@ export default function TicketListPage() {
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
                 <SelectItem value="all">{t('all')}</SelectItem>
+                {availableTerminals.map((tid) => (
+                  <SelectItem key={tid} value={tid}>
+                    {tid}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

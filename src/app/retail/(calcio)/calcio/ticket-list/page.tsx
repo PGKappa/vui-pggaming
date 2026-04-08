@@ -37,14 +37,25 @@ export default function TicketListPage() {
   const { t } = useTranslation()
   const router = useRouter()
   const {
-    terminal, setTerminal,
-    status, setStatus,
-    payment, setPayment,
-    from, setFrom,
-    to, setTo,
-    pageSize, setPageSize,
-    currentPage, setCurrentPage, totalPages,
-    items, info, loading,
+    terminal,
+    setTerminal,
+    status,
+    setStatus,
+    payment,
+    setPayment,
+    from,
+    setFrom,
+    to,
+    setTo,
+    pageSize,
+    setPageSize,
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    items,
+    info,
+    loading,
+    availableTerminals,
     currencySymbol,
     fetchTickets,
   } = useTicketList()
@@ -80,6 +91,11 @@ export default function TicketListPage() {
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
                 <SelectItem value="all">{t('all')}</SelectItem>
+                {availableTerminals.map((tid) => (
+                  <SelectItem key={tid} value={tid}>
+                    {tid}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -190,7 +206,10 @@ export default function TicketListPage() {
           </div>
 
           {/* Reload */}
-          <Button onClick={fetchTickets} className="text-bold w-[80px] bg-tertiary text-[14px] text-tertiary-foreground">
+          <Button
+            onClick={fetchTickets}
+            className="text-bold w-[80px] bg-tertiary text-[14px] text-tertiary-foreground"
+          >
             {t('reload')}
           </Button>
         </div>
@@ -223,29 +242,44 @@ export default function TicketListPage() {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={17} className="p-8 text-center text-gray-400">{t('loading')}...</td>
+                <td colSpan={17} className="p-8 text-center text-gray-400">
+                  {t('loading')}...
+                </td>
               </tr>
             ) : items.length === 0 ? (
               <tr>
-                <td colSpan={17} className="p-8 text-center text-gray-400">{t('no_tickets_found')}</td>
+                <td colSpan={17} className="p-8 text-center text-gray-400">
+                  {t('no_tickets_found')}
+                </td>
               </tr>
             ) : (
               items.map((item) => {
                 const date = parseTicketTime(item.time)
                 const statusInfo = getStatusDisplay(item.status)
                 return (
-                  <tr key={item.ticket_id} className="border-b text-center text-[16px]">
+                  <tr
+                    key={item.ticket_id}
+                    className="border-b text-center text-[16px]"
+                  >
                     <td className="p-2">{item.ticket_id}</td>
                     <td className="w-[1px] bg-muted p-0"></td>
                     <td className="p-2">{item.terminal_id}</td>
                     <td className="w-[1px] bg-muted p-0"></td>
-                    <td className="p-2">{format(date, 'dd/MM/yy')} - {format(date, 'HH:mm:ss')}</td>
+                    <td className="p-2">
+                      {format(date, 'dd/MM/yy')} - {format(date, 'HH:mm:ss')}
+                    </td>
                     <td className="w-[1px] bg-muted p-0"></td>
-                    <td className="p-2">{formatCurrency(item.amount, currencySymbol)}</td>
+                    <td className="p-2">
+                      {formatCurrency(item.amount, currencySymbol)}
+                    </td>
                     <td className="w-[1px] bg-muted p-0"></td>
-                    <td className="p-2">{formatCurrency('0.00', currencySymbol)}</td>
+                    <td className="p-2">
+                      {formatCurrency('0.00', currencySymbol)}
+                    </td>
                     <td className="w-[1px] bg-muted p-0"></td>
-                    <td className="p-2">{formatCurrency(item.amount_won, currencySymbol)}</td>
+                    <td className="p-2">
+                      {formatCurrency(item.amount_won, currencySymbol)}
+                    </td>
                     <td className="w-[1px] bg-muted p-0"></td>
                     <td className="p-2">
                       <div className="flex items-center justify-center gap-2">
@@ -261,7 +295,11 @@ export default function TicketListPage() {
                       </div>
                     </td>
                     <td className="w-[1px] bg-muted p-0"></td>
-                    <td className="p-2">{parseFloat(item.amount_won) > 0 && item.status === 4 ? t('unpaid') : '-'}</td>
+                    <td className="p-2">
+                      {parseFloat(item.amount_won) > 0 && item.status === 4
+                        ? t('unpaid')
+                        : '-'}
+                    </td>
                     <td className="w-[1px] bg-muted p-0"></td>
                     <td className="p-2">
                       <Button
@@ -286,24 +324,45 @@ export default function TicketListPage() {
           <Pagination className="justify-start">
             <PaginationContent>
               <PaginationItem>
-                <PaginationPrevious href="#" onClick={(e) => { e.preventDefault(); if (currentPage > 1) setCurrentPage(currentPage - 1) }} />
+                <PaginationPrevious
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    if (currentPage > 1) setCurrentPage(currentPage - 1)
+                  }}
+                />
               </PaginationItem>
               {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
                 let pageNum: number
                 if (totalPages <= 5) pageNum = i + 1
                 else if (currentPage <= 3) pageNum = i + 1
-                else if (currentPage >= totalPages - 2) pageNum = totalPages - 4 + i
+                else if (currentPage >= totalPages - 2)
+                  pageNum = totalPages - 4 + i
                 else pageNum = currentPage - 2 + i
                 return (
                   <PaginationItem key={pageNum}>
-                    <PaginationLink href="#" isActive={pageNum === currentPage} onClick={(e) => { e.preventDefault(); setCurrentPage(pageNum) }}>
+                    <PaginationLink
+                      href="#"
+                      isActive={pageNum === currentPage}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        setCurrentPage(pageNum)
+                      }}
+                    >
                       {pageNum}
                     </PaginationLink>
                   </PaginationItem>
                 )
               })}
               <PaginationItem>
-                <PaginationNext href="#" onClick={(e) => { e.preventDefault(); if (currentPage < totalPages) setCurrentPage(currentPage + 1) }} />
+                <PaginationNext
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    if (currentPage < totalPages)
+                      setCurrentPage(currentPage + 1)
+                  }}
+                />
               </PaginationItem>
             </PaginationContent>
           </Pagination>
@@ -342,10 +401,16 @@ export default function TicketListPage() {
                 {formatCurrency(info?.grandtotal?.in ?? 0, currencySymbol)}
               </td>
               <td className="border border-muted bg-accent px-3 py-2 text-center align-middle">
-                {formatCurrency(info?.grandtotal?.cancelled ?? '0.00', currencySymbol)}
+                {formatCurrency(
+                  info?.grandtotal?.cancelled ?? '0.00',
+                  currencySymbol,
+                )}
               </td>
               <td className="border border-muted bg-accent px-3 py-2 text-center align-middle">
-                {formatCurrency(info?.grandtotal?.out ?? '0.00', currencySymbol)}
+                {formatCurrency(
+                  info?.grandtotal?.out ?? '0.00',
+                  currencySymbol,
+                )}
               </td>
               <td className="border border-muted bg-accent px-3 py-2 text-center align-middle">
                 {formatCurrency('0.00', currencySymbol)}

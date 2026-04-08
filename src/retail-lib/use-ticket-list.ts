@@ -90,21 +90,21 @@ export function useTicketList() {
   const [pageSize, setPageSize] = useState('15')
   const [currentPage, setCurrentPage] = useState(1)
 
-  const [items, setItems] = useState<TicketListItem[]>([])
+  const [allItems, setAllItems] = useState<TicketListItem[]>([])
   const [info, setInfo] = useState<TicketListInfo | null>(null)
   const [loading, setLoading] = useState(false)
+  const [availableTerminals, setAvailableTerminals] = useState<string[]>([])
 
   const currencySymbol = rootContext.getCurrencySymbol?.() ?? '€'
 
+  // Fetch ALL items from API (terminal filter is client-side only).
+  // Status and payment filters work server-side.
+  // We fetch everything (itemsPerPage=9999) and paginate client-side.
   const fetchTickets = useCallback(async () => {
     if (!rootContext.initCode || !rootContext.operator) return
 
     setLoading(true)
     try {
-      const perPage = parseInt(pageSize)
-      // API offset is page-based (0-indexed page number), not item offset
-      const offset = currentPage - 1
-
       const body = {
         dateStart: from
           ? format(from, 'dd-MM-yyyy')
@@ -112,9 +112,9 @@ export function useTicketList() {
         dateEnd: to
           ? format(to, 'dd-MM-yyyy')
           : format(new Date(), 'dd-MM-yyyy'),
-        offset,
-        itemsPerPage: perPage,
-        terminal: terminal === 'all' ? -1 : parseInt(terminal),
+        offset: 0,
+        itemsPerPage: 9999,
+        terminal: -1,
         status: STATUS_MAP[status] ?? 0,
         payment: PAYMENT_MAP[payment] ?? 0,
         enablePagination: true,
@@ -131,34 +131,50 @@ export function useTicketList() {
       const data: TicketListResponse = await response.json()
 
       if (data.ret_code === 1024) {
-        setItems(data.items ?? [])
+        const rawItems = data.items ?? []
+        setAllItems(rawItems)
         setInfo(data.info ?? null)
+        // Extract unique terminal IDs from the full result
+        if (rawItems.length) {
+          const terminalIds = [
+            ...new Set(rawItems.map((i) => String(i.terminal_id))),
+          ].sort((a, b) => parseInt(a) - parseInt(b))
+          setAvailableTerminals((prev) => {
+            const merged = [...new Set([...prev, ...terminalIds])].sort(
+              (a, b) => parseInt(a) - parseInt(b),
+            )
+            return merged
+          })
+        }
       } else {
-        setItems([])
+        setAllItems([])
         setInfo(data.info ?? null)
       }
     } catch (err) {
       console.error('Failed to fetch ticket list:', err)
-      setItems([])
+      setAllItems([])
       setInfo(null)
     } finally {
       setLoading(false)
     }
-  }, [
-    rootContext.initCode,
-    rootContext.operator,
-    pageSize,
-    currentPage,
-    from,
-    to,
-    terminal,
-    status,
-    payment,
-  ])
+  }, [rootContext.initCode, rootContext.operator, from, to, status, payment])
 
   useEffect(() => {
     fetchTickets()
   }, [fetchTickets])
+
+  // Client-side: filter by terminal, then paginate
+  const filteredItems =
+    terminal === 'all'
+      ? allItems
+      : allItems.filter((i) => String(i.terminal_id) === terminal)
+
+  const perPage = parseInt(pageSize)
+  const totalPages = Math.max(1, Math.ceil(filteredItems.length / perPage))
+  const items = filteredItems.slice(
+    (currentPage - 1) * perPage,
+    currentPage * perPage,
+  )
 
   const setTerminalAndReset = useCallback((v: string) => {
     setTerminal(v)
@@ -185,10 +201,6 @@ export function useTicketList() {
     setCurrentPage(1)
   }, [])
 
-  const totalPages = info
-    ? Math.max(1, Math.ceil(info.count / parseInt(pageSize)))
-    : 1
-
   return {
     // Filter state
     terminal,
@@ -211,6 +223,7 @@ export function useTicketList() {
     items,
     info,
     loading,
+    availableTerminals,
     // Helpers
     currencySymbol,
     fetchTickets,
