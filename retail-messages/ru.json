@@ -244,5 +244,11 @@
   "min_stake_error": "Минимальная ставка {{min}}",
   "min_bet_error": "Минимальная сумма билета {{min}}",
   "max_win_error": "Максимальный выигрыш {{max}}",
-  "no_tickets_found": "Билеты не найдены"
+  "no_tickets_found": "Билеты не найдены",
+  "ticket": "Билет",
+  "ticket_not_found": "Билет не найден",
+  "amount_by_type": "Сумма по типу",
+  "pay": "Оплатить",
+  "pay_error": "Ошибка оплаты",
+  "pay_success": "Оплата произведена"
 }

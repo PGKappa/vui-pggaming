@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Button } from '@/retail-components/ui/button'
 import { Input } from '@/retail-components/ui/input'
+import TicketCheckDialog from '@/retail-components/ticket-check-dialog'
 import { useRouter } from 'next/navigation'
 import { XIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -16,6 +17,8 @@ const KEY_LAYOUT = [
 export default function TicketCheckPage() {
   const { t } = useTranslation()
   const [code, setCode] = useState('')
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [ticketId, setTicketId] = useState<number | null>(null)
   const router = useRouter()
 
   const handleClick = (val: string) => {
@@ -27,7 +30,11 @@ export default function TicketCheckPage() {
   }
 
   const handleSubmit = () => {
-    console.log('[TicketCheck] Submitted code:', code)
+    const id = parseInt(code, 10)
+    if (!isNaN(id) && id > 0) {
+      setTicketId(id)
+      setDialogOpen(true)
+    }
   }
 
   return (
@@ -80,6 +87,12 @@ export default function TicketCheckPage() {
           {t('confirm')}
         </Button>
       </div>
+
+      <TicketCheckDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        ticketId={ticketId}
+      />
 
     </main>
   )

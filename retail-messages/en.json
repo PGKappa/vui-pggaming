@@ -323,5 +323,11 @@
   "max_events_system": "Cannot add more bets: maximum 15 unique events allowed for system betting",
   "failed_fetch_results": "Failed to fetch results",
   "http_error": "Error",
-  "no_tickets_found": "No tickets found"
+  "no_tickets_found": "No tickets found",
+  "ticket": "Ticket",
+  "ticket_not_found": "Ticket not found",
+  "amount_by_type": "Amount by Type",
+  "pay": "Pay",
+  "pay_error": "Payment error",
+  "pay_success": "Payment successful"
 }

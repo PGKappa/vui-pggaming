@@ -345,5 +345,11 @@
   "max_events_system": "No se pueden añadir más apuestas: máximo 15 eventos únicos permitidos para apuesta de sistema",
   "failed_fetch_results": "Error al obtener los resultados",
   "http_error": "Error",
-  "no_tickets_found": "No se encontraron tickets"
+  "no_tickets_found": "No se encontraron tickets",
+  "ticket": "Ticket",
+  "ticket_not_found": "Ticket no encontrado",
+  "amount_by_type": "Importe por Tipo",
+  "pay": "Pagar",
+  "pay_error": "Error en el pago",
+  "pay_success": "Pago realizado"
 }
