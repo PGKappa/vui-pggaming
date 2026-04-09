@@ -304,23 +304,21 @@ export type TeamRanking = {
   last8: Array<'W' | 'L' | 'D'>
 }
 
-// === Ticket List API Types ===
-
 export type TicketListRequest = {
-  dateStart: string 
-  dateEnd: string 
+  dateStart: string
+  dateEnd: string
   offset: number
   itemsPerPage: number
-  terminal: number 
-  status: number 
-  payment: number 
+  terminal: number
+  status: number
+  payment: number
   enablePagination: boolean
   accountingMode: boolean
 }
 
 export type TicketListItem = {
   ticket_id: number
-  time: [string, number, string, string, string, string] 
+  time: [string, number, string, string, string, string]
   amount: string
   amount_won: string
   intl: {
@@ -348,8 +346,62 @@ export type TicketListInfo = {
 }
 
 export type TicketListResponse = {
-  ret_code: number 
+  ret_code: number
   description: string
   info: TicketListInfo
   items: TicketListItem[]
+}
+
+export type TicketDetailSelection = {
+  game: {
+    dict: {
+      misc: { name: string }
+      markets: Record<string, string>
+    }
+    constraints: Record<string, string>
+  }
+  trackName: string
+  channelName: string
+  gameDuration: number
+  startTime: string
+  gameId: string
+  channelId: number
+  palimpsestId: string
+  eventId: number
+  isBanker: string
+  status: string
+  markets: {
+    description: string
+    selections: {
+      description: string
+      odds: string
+      status: number
+    }[]
+  }[]
+}
+
+export type TicketDetailInfo = {
+  betType: string
+  ticket_id: number
+  time: [number, number, number, number, number, number]
+  intl: {
+    currency: string
+    locale: string
+    timezone: string
+  }
+  amount: string
+  amount_won: string
+  status: number
+  selections: TicketDetailSelection[]
+  system: Record<string, string>
+}
+
+export type TicketDetailResponse = {
+  ret_code: number
+  info: TicketDetailInfo
+}
+
+export type TicketPayResponse = {
+  ret_code: string | number
+  description: string
 }
