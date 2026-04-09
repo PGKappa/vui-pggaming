@@ -31,11 +31,15 @@ import {
 import { cn } from '@/retail-lib/utils'
 import { format } from 'date-fns'
 import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import TicketCheckDialog from '@/retail-components/ticket-check-dialog'
 
 export default function TicketListPage() {
   const { t } = useTranslation()
   const router = useRouter()
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null)
   const {
     terminal,
     setTerminal,
@@ -61,7 +65,8 @@ export default function TicketListPage() {
   } = useTicketList()
 
   const handleDetailsClick = (ticketId: number) => {
-    console.log('Details for ticket:', ticketId)
+    setSelectedTicketId(ticketId)
+    setDialogOpen(true)
   }
 
   return (
@@ -425,6 +430,12 @@ export default function TicketListPage() {
           </tbody>
         </table>
       </div>
+
+      <TicketCheckDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        ticketId={selectedTicketId}
+      />
     </div>
   )
 }
