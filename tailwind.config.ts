@@ -18,6 +18,7 @@ export default {
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/retail-components/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/retail-lib/**/*.{js,ts,jsx,tsx}',
     './src/retail-lib/layout-config.ts',
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
@@ -89,6 +90,11 @@ export default {
           DEFAULT: 'hsl(var(--badge-background))',
           foreground: 'hsl(var(--badge-foreground))',
         },
+        ticket: {
+          won: 'hsl(var(--ticket-won))',
+          lost: 'hsl(var(--ticket-lost))',
+          active: 'hsl(var(--ticket-active))',
+        },
         betEntry: {
           DEFAULT: 'hsl(var(--betEntry-background))',
           foreground: 'hsl(var(--betEntry-foreground))',
@@ -142,7 +148,7 @@ export default {
           DEFAULT: 'hsl(var(--searchResultText))',
           foreground: 'hsl(var(--searchResultText-foreground))',
         },
-         amountBg: {
+        amountBg: {
           DEFAULT: 'hsl(var(--amountBg))',
           foreground: 'hsl(var(--amountBg-foreground))',
         },

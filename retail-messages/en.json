@@ -142,6 +142,8 @@
   "ticket_status": "Ticket Status",
   "won": "Won",
   "lost": "Lost",
+  "active": "Active",
+  "pending": "Pending",
   "cancelled": "Cancelled",
   "payment": "Payment",
   "paid": "Paid",
@@ -320,5 +322,6 @@
   "max_bet_entries_system": "Cannot add more bets: maximum 50 entries allowed for system betting",
   "max_events_system": "Cannot add more bets: maximum 15 unique events allowed for system betting",
   "failed_fetch_results": "Failed to fetch results",
-  "http_error": "Error"
+  "http_error": "Error",
+  "no_tickets_found": "No tickets found"
 }

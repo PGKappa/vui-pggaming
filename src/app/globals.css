@@ -82,6 +82,10 @@
 
     --footer-betslip: 353 100% 44%;
     --footer-betslip-foreground: 0 0% 100%;
+
+    --ticket-won: 142 71% 45%;
+    --ticket-lost: 0 72% 51%;
+    --ticket-active: 48 96% 53%;
   }
 
   .sportradar {
@@ -149,6 +153,10 @@
 
     --footer-betslip: 358 100% 62%;
     --footer-betslip-foreground: 0 0% 100%;
+
+    --ticket-won: 142 71% 45%;
+    --ticket-lost: 0 72% 51%;
+    --ticket-active: 48 96% 53%;
   }
 
   .dp {
@@ -216,6 +224,10 @@
 
     --footer-betslip: 358 100% 62%;
     --footer-betslip-foreground: 0 0% 100%;
+
+    --ticket-won: 142 71% 45%;
+    --ticket-lost: 0 72% 51%;
+    --ticket-active: 48 96% 53%;
   }
 
   .sc {
@@ -283,6 +295,10 @@
 
     --footer-betslip: 358 100% 62%;
     --footer-betslip-foreground: 0 0% 100%;
+
+    --ticket-won: 142 71% 45%;
+    --ticket-lost: 0 72% 51%;
+    --ticket-active: 48 96% 53%;
   }
 
   .retail-default {
@@ -331,12 +347,12 @@
     --bet-foreground: 0 0% 100%;
 
     --selected-event: 211 65% 37%;
-    
+
     --carousel-arrow: 211 57% 51%;
 
     --betSlip: 0 0% 62%;
     --betSlip-foreground: 0 0% 0%;
-    
+
     --betSlip-header: 207 18% 76%;
     --betSlip-header-foreground: 0 0% 100%;
 
@@ -369,7 +385,7 @@
 
     --amountHeader: 212 62% 23%;
     --amountHeader-foreground: 0 0% 100%;
-    
+
     --searchResultText: 0 0% 0%;
     --searchResultText-foreground: 0 0% 100%;
 
@@ -378,13 +394,13 @@
 
     --betslipTitleBackground2: 212 62% 23%;
     --betslipTitleBackground2-foreground: 0 0% 100%;
-    
+
     --backgroundBetslip: 0 0% 100%;
     --backgroundBetslip-foreground: 0 0% 100%;
 
-    --loading1:  207 18% 76%;
+    --loading1: 207 18% 76%;
     --loading1-foreground: 0 0% 0%;
-    
+
     --loading2: 212 58% 51%;
     --loading2-foreground: 0 0% 100%;
 
@@ -400,14 +416,17 @@
     --disabledButton: 353 100% 44%;
     --disabledButton-foreground: 0 0% 0%;
 
-    --searchResButton:  212 58% 51%;
+    --searchResButton: 212 58% 51%;
     --searchResButton-foreground: 0 0% 100%;
 
     --plusButton: 353 100% 44%;
     --plusButton-foreground: 0 0% 100%;
 
+    --ticket-won: 142 71% 45%;
+    --ticket-lost: 0 72% 51%;
+    --ticket-active: 48 96% 53%;
   }
-  
+
   .stanleybet {
     --background: 0 0% 100%;
     --foreground: 0 0% 0%;
@@ -415,10 +434,10 @@
     --amountHeader: 0 0% 100%;
     --amountHeader-foreground: 0 0% 100%;
 
-    --searchResultText:  0 0% 100%;
+    --searchResultText: 0 0% 100%;
     --searchResultText-foreground: 0 0% 100%;
 
-    --navbarBg:  0 0% 0%;
+    --navbarBg: 0 0% 0%;
     --navbarBg-foreground: 0 0% 0%;
 
     --card: 0 0% 100%;
@@ -496,7 +515,7 @@
 
     --loading1: 210, 3%, 47%;
     --loading1-foreground: 0 0% 0%;
-    
+
     --loading2: 0 0% 10%;
     --loading2-foreground: 0 0% 100%;
 
@@ -534,6 +553,10 @@
 
     --plusButton: 184, 100%, 33%;
     --plusButton-foreground: 0 0% 100%;
+
+    --ticket-won: 142 71% 45%;
+    --ticket-lost: 0 72% 51%;
+    --ticket-active: 48 96% 53%;
   }
 }
 
@@ -640,17 +663,17 @@
 }
 
 
-body > main > div > div > div.h-\[950px\].w-\[400px\].relative.right-1.shrink-0.bg-background.text-foreground > div > div.grid.grid-cols-2.text-center > div.relative.top-\[5px\].col-span-2.flex.h-\[52px\].w-full.flex-row.items-center.justify-between.bg-accent.px-5 > button{
+body>main>div>div>div.h-\[950px\].w-\[400px\].relative.right-1.shrink-0.bg-background.text-foreground>div>div.grid.grid-cols-2.text-center>div.relative.top-\[5px\].col-span-2.flex.h-\[52px\].w-full.flex-row.items-center.justify-between.bg-accent.px-5>button {
   background: transparent;
 }
 
 
-#radix-\:r7\: > div.grid.gap-1\.5.p-4.text-center.sm\:text-left.h-\[45px\].relative.bg-secondary.text-accent-foreground > button{
+#radix-\:r7\:>div.grid.gap-1\.5.p-4.text-center.sm\:text-left.h-\[45px\].relative.bg-secondary.text-accent-foreground>button {
   background: transparent;
 }
 
 
-body > main > div > div > div.h-\[950px\].w-\[400px\].relative.right-1.shrink-0.bg-background.text-foreground > div > div.p-0.pt-0.relative.mb-\[26px\].flex.flex-col.bg-backgroundBetslip > div.relative.top-3.w-full > div{
+body>main>div>div>div.h-\[950px\].w-\[400px\].relative.right-1.shrink-0.bg-background.text-foreground>div>div.p-0.pt-0.relative.mb-\[26px\].flex.flex-col.bg-backgroundBetslip>div.relative.top-3.w-full>div {
   background-color: white;
   position: relative;
   bottom: 8px;
@@ -663,17 +686,17 @@ body > main > div > div > div.h-\[950px\].w-\[400px\].relative.right-1.shrink-0.
 
 
 
-[data-vaul-drawer][data-vaul-snap-points="false"][data-vaul-drawer-direction="bottom"][data-state="open"]{
+[data-vaul-drawer][data-vaul-snap-points="false"][data-vaul-drawer-direction="bottom"][data-state="open"] {
   top: 456px;
 }
 
 
 
-#radix-\:reg\:{
+#radix-\:reg\: {
   margin-top: 150px;
 }
 
 
-[data-vaul-drawer][data-vaul-drawer-direction=bottom]::after{
+[data-vaul-drawer][data-vaul-drawer-direction=bottom]::after {
   visibility: hidden;
 }

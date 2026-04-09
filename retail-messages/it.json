@@ -134,6 +134,8 @@
   "ticket_status": "Stato Biglietto",
   "won": "Vinto",
   "lost": "Perso",
+  "active": "Attivo",
+  "pending": "In Attesa",
   "cancelled": "Annullato",
   "payment": "Pagamento",
   "paid": "Pagato",
@@ -290,5 +292,6 @@
   "http_error": "Errore",
   "min_stake_error": "L'importo minimo della scommessa è {{min}}",
   "min_bet_error": "L'importo minimo del ticket è {{min}}",
-  "max_win_error": "La vincita massima potenziale è {{max}}"
+  "max_win_error": "La vincita massima potenziale è {{max}}",
+  "no_tickets_found": "Nessun biglietto trovato"
 }
