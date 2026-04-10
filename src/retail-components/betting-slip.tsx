@@ -656,7 +656,7 @@ export default function BettingSlip({
 
             acc[apiMarketName].push({
               description: cleanOutcome,
-              odds: entry.bet.option.decPrice.toString(),
+              odds: (entry.bet.option.decPrice / 100).toFixed(2),
               status: 1,
             })
             return acc
@@ -692,16 +692,14 @@ export default function BettingSlip({
               : 'soccer'
 
         // Resolve channelId dynamically from cashier_init channels
-        const matchedChannel = channels.find(
-          (ch: any) => ch.game_id === gameId,
-        )
-        const channelId = matchedChannel?.id ?? (
-          firstEntry.bet.discipline === Discipline.HORSES
+        const matchedChannel = channels.find((ch: any) => ch.game_id === gameId)
+        const channelId =
+          matchedChannel?.id ??
+          (firstEntry.bet.discipline === Discipline.HORSES
             ? 3
             : firstEntry.bet.discipline === Discipline.DOGS
               ? 1
-              : 4
-        )
+              : 4)
 
         return {
           gameId,
