@@ -48,7 +48,7 @@ export default function TicketCheckPage() {
         </h1>
         <Button
           variant="navbar"
-          onClick={() => router.back()}
+          onClick={() => router.push('/retail/dogs-horses')}
           className="h-8 w-8 lg:h-10 lg:w-10 bg-accent"
         >
           <XIcon className="h-8 w-8 lg:h-10 lg:w-10" />

@@ -76,7 +76,7 @@ export default function TicketListPage() {
         <Button
           variant="ghost"
           className="absolute right-4 bg-secondary text-xl text-secondary-foreground"
-          onClick={() => router.back()}
+          onClick={() => router.push('/retail/calcio')}
         >
           ✕
         </Button>
