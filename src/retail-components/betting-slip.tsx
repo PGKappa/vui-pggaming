@@ -590,6 +590,9 @@ export default function BettingSlip({
         {} as Record<string, typeof betEntries>,
       )
 
+      // Resolve channels from cashier_init for dynamic channel mapping
+      const channels = rootContext?.getChannels?.() || []
+
       const getAPIMarketName = (marketName: string): string => {
         const normalized = marketName.toLowerCase().trim()
         const API_MARKET_NAMES: Record<string, string> = {
@@ -687,12 +690,18 @@ export default function BettingSlip({
             : firstEntry.bet.discipline === Discipline.DOGS
               ? 'dogs6'
               : 'soccer'
-        const channelId =
+
+        // Resolve channelId dynamically from cashier_init channels
+        const matchedChannel = channels.find(
+          (ch: any) => ch.game_id === gameId,
+        )
+        const channelId = matchedChannel?.id ?? (
           firstEntry.bet.discipline === Discipline.HORSES
             ? 3
             : firstEntry.bet.discipline === Discipline.DOGS
-              ? 4
-              : 1
+              ? 1
+              : 4
+        )
 
         return {
           gameId,
@@ -836,13 +845,23 @@ export default function BettingSlip({
             }
 
             const getChannelId = (discipline: string) => {
+              const gameIdMap: Record<string, string> = {
+                DOGS: 'dogs6',
+                HORSES: 'horses6',
+                SOCCER: 'soccer',
+              }
+              const gId = gameIdMap[discipline]
+              if (gId) {
+                const ch = channels.find((c: any) => c.game_id === gId)
+                if (ch) return ch.id
+              }
               switch (discipline) {
                 case 'DOGS':
-                  return 4
+                  return 1
                 case 'HORSES':
                   return 3
                 case 'DOGS8':
-                  return 2
+                  return 4
                 case 'SOCCER':
                   return 1
                 default:
