@@ -75,7 +75,7 @@ function createContextDataFromCashierData(
     playerId: `${cashierData.configs?.user_type}-${cashierData.configs?.terminals?.[0] || 'unknown'}`,
     currency: cashierData.intl?.currency || 'EUR',
     lang: cashierData.dictInfo?.lang || 'it',
-    level: 1,
+    level: cashierData.configs?.user_type === 'operator' ? 1 : 2,
     group: [cashierData.configs?.ui_type || 'retail'],
   } as User
 
