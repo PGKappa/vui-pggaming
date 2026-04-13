@@ -15,7 +15,9 @@ function NavbarContent() {
   const searchParams = useSearchParams()
   const pathname = usePathname()
 
-  const { eventResults, setSearchEventResults } = useContext(RootContext)
+  const { eventResults, setSearchEventResults, userData } =
+    useContext(RootContext)
+  const isOperator = userData?.level === 1
   const [isInfoDialogOpen, setIsInfoDialogOpen] = useState(false)
 
   // Helper per creare link preservando TUTTI i parametri URL
@@ -52,10 +54,10 @@ function NavbarContent() {
 
   return (
     <div
-      className="bg-navbarBg flex h-16 w-full flex-row items-center justify-start p-3"
+      className="flex h-16 w-full flex-row items-center justify-start bg-navbarBg p-3"
       suppressHydrationWarning={true}
     >
-      <div className="relative flex flex-row items-center space-x-2 right-1">
+      <div className="relative right-1 flex flex-row items-center space-x-2">
         <Link
           href={buildHref('/retail/dogs-horses')}
           className={cn(
@@ -139,29 +141,33 @@ function NavbarContent() {
       </div>
 
       <div className="relative left-1 flex w-full justify-end space-x-2">
-        <Link
-          href={buildHref(`${getDisciplineBasePath(pathname)}/ticket-check`)}
-          className={cn(
-            buttonVariants({ variant: 'ticketButton', size: 'lg' }),
-            'h-12 w-[168px] p-[18px] hover:opacity-95',
-          )}
-        >
-          <span className="text-searchResultText text-[15px] font-semibold">
-            {t('ticket_check').toUpperCase()}
-          </span>
-        </Link>
+        {isOperator && (
+          <Link
+            href={buildHref(`${getDisciplineBasePath(pathname)}/ticket-check`)}
+            className={cn(
+              buttonVariants({ variant: 'ticketButton', size: 'lg' }),
+              'h-12 w-[168px] p-[18px] hover:opacity-95',
+            )}
+          >
+            <span className="text-[15px] font-semibold text-searchResultText">
+              {t('ticket_check').toUpperCase()}
+            </span>
+          </Link>
+        )}
 
-        <Link
-          href={buildHref(`${getDisciplineBasePath(pathname)}/ticket-list`)}
-          className={cn(
-            buttonVariants({ variant: 'ticketButton', size: 'lg' }),
-            'h-12 w-[168px] p-[18px] hover:opacity-95',
-          )}
-        >
-          <span className="text-searchResultText text-[15px] font-semibold">
-            {t('ticket_list').toUpperCase()}
-          </span>
-        </Link>
+        {isOperator && (
+          <Link
+            href={buildHref(`${getDisciplineBasePath(pathname)}/ticket-list`)}
+            className={cn(
+              buttonVariants({ variant: 'ticketButton', size: 'lg' }),
+              'h-12 w-[168px] p-[18px] hover:opacity-95',
+            )}
+          >
+            <span className="text-[15px] font-semibold text-searchResultText">
+              {t('ticket_list').toUpperCase()}
+            </span>
+          </Link>
+        )}
 
         <Button
           className="h-12 w-fit p-[18px] hover:opacity-95"
@@ -171,13 +177,13 @@ function NavbarContent() {
             setSearchEventResults(eventResults)
           }}
         >
-          <span className="text-searchResultText text-[15px] font-semibold">
+          <span className="text-[15px] font-semibold text-searchResultText">
             {t('search_results').toUpperCase()}
           </span>
         </Button>
 
         <Button
-          className="text-searchResultText h-12 w-12 text-[18px] hover:opacity-95"
+          className="h-12 w-12 text-[18px] text-searchResultText hover:opacity-95"
           variant="ticketButton"
           size="lg"
           onClick={() => setIsInfoDialogOpen(true)}
