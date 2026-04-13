@@ -548,11 +548,14 @@
     --betslipBorder2: 0, 0%, 93%;
     --betslipBorder2-foreground: 0 0% 0%;
 
-    --disabledButton: 210, 3%, 47%;
+    --disabledButton: 210, 3%, 80%;
     --disabledButton-foreground: 0 0% 0%;
 
     --plusButton: 184, 100%, 33%;
     --plusButton-foreground: 0 0% 100%;
+
+    --minusButton: 0, 0%, 37%;
+    --minusButton-foreground: 0 0% 100%;
 
     --ticket-won: 142 71% 45%;
     --ticket-lost: 0 72% 51%;
@@ -687,7 +690,7 @@ body>main>div>div>div.h-\[950px\].w-\[400px\].relative.right-1.shrink-0.bg-backg
 
 
 [data-vaul-drawer][data-vaul-snap-points="false"][data-vaul-drawer-direction="bottom"][data-state="open"] {
-  top: 456px;
+  top: 451px;
 }
 
 

@@ -1026,7 +1026,7 @@ export default function BettingSlip({
                     alt="Bin"
                     width={40}
                     height={20}
-                    className="relative bottom-1 ml-[6px] h-[20px] w-6 object-contain brightness-0 invert filter"
+                    className="relative bottom-1 ml-[4px] h-[20px] w-6 object-contain brightness-0 invert filter"
                   />
                 </Button>
               </TooltipTrigger>
@@ -1329,7 +1329,7 @@ export default function BettingSlip({
                                       }
                                     }}
                                     disabled={group.stake <= 0}
-                                    className="h-8 w-7 bg-infoBackground p-3 text-[19px] text-bet-foreground hover:opacity-90 disabled:bg-disabledButton"
+                                    className="h-8 w-7 bg-minusButton p-3 text-[19px] text-bet-foreground hover:opacity-90 disabled:bg-disabledButton"
                                   >
                                     <MinusIcon className="h-4 w-4" />
                                   </Button>
@@ -1376,7 +1376,7 @@ export default function BettingSlip({
                                         }, 0)
                                       }
                                     }}
-                                    className="h-8 w-7 bg-infoBackground p-3 text-[19px] text-bet-foreground hover:opacity-90"
+                                    className="h-8 w-7 bg-plusButton p-3 text-[19px] text-bet-foreground hover:opacity-90"
                                   >
                                     <PlusIcon className="h-4 w-4" />
                                   </Button>

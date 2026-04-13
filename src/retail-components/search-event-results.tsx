@@ -464,7 +464,7 @@ export default function SearchEventResults() {
 
         {/* DATA */}
         <Select value={selectedDate} onValueChange={(value) => setSelectedDate(value)} disabled={lastTenGames}>
-          <SelectTrigger className="h-[48px] min-w-0 flex-1  border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground mr-[10px] ml-[2px]">
+          <SelectTrigger className="h-[48px] min-w-0 flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground mr-[10px] ml-[2px] relative right-1">
             <SelectValue placeholder={t('date')} />
           </SelectTrigger>
           <SelectContent className="bg-white p-0">
@@ -490,7 +490,7 @@ export default function SearchEventResults() {
 
         {/* CERCA */}
         <Button
-          className="h-[48px] min-w-0 flex-1  bg-searchResButton text-[16px] font-bold text-bet-foreground hover:opacity-90 mr-4 ml-2"
+          className="h-[48px] min-w-0 flex-1 relative left-4 bg-searchResButton text-[16px] font-bold text-bet-foreground hover:opacity-90 mr-4 ml-2"
           disabled={selectedDiscipline === 'NONE'}
           onClick={handleSearch}
         >
@@ -499,7 +499,7 @@ export default function SearchEventResults() {
 
         {/* RESET */}
         <Button
-          className="h-[48px] min-w-0 flex-1  bg-searchResButton text-[15px] text-tertiary-foreground"
+          className="h-[48px] min-w-0 flex-1 relative left-8 bg-searchResButton text-[15px] text-tertiary-foreground"
           disabled={!selectedDate && !selectedDiscipline && !selectedTimeSlot}
           onClick={handleReset}
         >

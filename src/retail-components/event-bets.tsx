@@ -69,7 +69,7 @@ export default function EventBets(props: {
                     alt="Bin"
                     width={40}
                     height={20}
-                    className="mb-[4px] ml-[6px] size-[17px] object-contain bg-transparent"
+                    className="mb-[4px] mr-[10px] size-[17px] object-contain bg-transparent"
                   />
                 </Button>
               </TooltipTrigger>
@@ -200,13 +200,13 @@ export default function EventBets(props: {
                 <span className="ml-[0px] w-[109px] text-left text-[13px] font-normal">
                   {outcomeDisplay}
                 </span>
-                <span className="relative right-[3px] grid w-[101px] justify-end break-all text-[13px] font-semibold leading-tight">
+                <span className="relative right-[5px] grid w-[101px] justify-end break-all text-[13px] font-semibold leading-tight">
                   {betEntry.bet.option.decPrice.toFixed(2)}
                 </span>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-[40px] w-[24px] flex-shrink-0 translate-x-[3px] bg-transparent"
+                  className="h-[40px] w-[24px] flex-shrink-0 translate-x-[2px] bg-transparent"
                   onClick={() => {
                     removeBet(
                       betEntry.market,

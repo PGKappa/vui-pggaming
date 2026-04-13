@@ -624,7 +624,7 @@ export default function BetCombinationsTable({
           </Button>
           <Button
             variant="navbar"
-            className="h-10 w-[148px] rounded-[1px] px-[18px] pt-[1px] text-[15px] font-semibold text-white"
+            className="h-10 w-[183px] rounded-[1px] px-[18px] pt-[1px] text-[15px] font-semibold text-white"
             onClick={() => {
               if (onBeforeToggle) onBeforeToggle()
               if (allBetsSelected) {

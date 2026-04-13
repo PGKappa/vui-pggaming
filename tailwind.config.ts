@@ -164,6 +164,10 @@ export default {
           DEFAULT: 'hsl(var(--plusButton))',
           foreground: 'hsl(var(--plusButton-foreground))',
         },
+        minusButton: {
+          DEFAULT: 'hsl(var(--minusButton))',
+          foreground: 'hsl(var(--minusButton-foreground))',
+        },
         betslipBorder: {
           DEFAULT: 'hsl(var(--betslipBorder))',
           foreground: 'hsl(var(--betslipBorder-foreground))',
