@@ -656,7 +656,7 @@ export default function BettingSlip({
 
             acc[apiMarketName].push({
               description: cleanOutcome,
-              odds: (entry.bet.option.decPrice / 100).toFixed(2),
+              odds: entry.bet.option.decPrice.toFixed(2),
               status: 1,
             })
             return acc
