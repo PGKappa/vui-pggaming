@@ -38,37 +38,41 @@ export default function TicketCheckPage() {
   }
 
   return (
-    <main className="fixed top-[60px] left-0 right-0 bottom-0 z-50 flex flex-col justify-between bg-black py-4 lg:py-6 text-accent-foreground">
-
+    <main className="fixed bottom-0 left-0 right-0 top-[60px] z-50 flex flex-col justify-between bg-black py-4 text-accent-foreground lg:py-6">
       {/* Title Bar */}
-      <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-5 relative bottom-[20px] bg-accent h-[48px] lg:h-[64px] w-full">
+      <div className="relative bottom-[20px] mb-5 flex h-[48px] w-full items-center justify-between border-b border-white/10 bg-accent pb-4 lg:h-[64px]">
         <div className="w-10" />
-        <h1 className="text-[13px] lg:text-[16px] pt-3 font-bold uppercase tracking-widest text-white">
+        <h1 className="pt-3 text-[13px] font-bold uppercase tracking-widest text-white lg:text-[16px]">
           {t('ticket_check', 'Ticket Check')}
         </h1>
         <Button
           variant="navbar"
-          onClick={() => router.back()}
-          className="h-8 w-8 lg:h-10 lg:w-10 bg-accent"
+          onClick={() => router.push('/retail/horses')}
+          className="h-8 w-8 bg-accent lg:h-10 lg:w-10"
         >
           <XIcon className="h-8 w-8 lg:h-10 lg:w-10" />
         </Button>
       </div>
 
       <div className="flex flex-1 flex-col items-center justify-center">
-        <p className="text-[16px] lg:text-[22px] font-semibold">{t('scan_or_enter_code')}</p>
+        <p className="text-[16px] font-semibold lg:text-[22px]">
+          {t('scan_or_enter_code')}
+        </p>
         <Input
-          className="mt-6 lg:mt-10 h-10 lg:h-12 w-[320px] lg:w-[480px] bg-white text-center text-[16px] lg:text-[20px] font-bold text-foreground"
+          className="mt-6 h-10 w-[320px] bg-white text-center text-[16px] font-bold text-foreground lg:mt-10 lg:h-12 lg:w-[480px] lg:text-[20px]"
           readOnly
           value={code}
         />
-        <div className="mt-6 lg:mt-10 flex flex-col space-y-1 lg:space-y-2">
+        <div className="mt-6 flex flex-col space-y-1 lg:mt-10 lg:space-y-2">
           {KEY_LAYOUT.map((row, rowIdx) => (
-            <div key={rowIdx} className="flex justify-center space-x-1 lg:space-x-2">
+            <div
+              key={rowIdx}
+              className="flex justify-center space-x-1 lg:space-x-2"
+            >
               {row.map((key) => (
                 <Button
                   key={key}
-                  className="h-12 w-12 lg:h-20 lg:w-20 rounded-none bg-secondary text-[16px] lg:text-[22px] font-bold text-tertiary-foreground"
+                  className="h-12 w-12 rounded-none bg-secondary text-[16px] font-bold text-tertiary-foreground lg:h-20 lg:w-20 lg:text-[22px]"
                   onClick={() => handleClick(key)}
                 >
                   {key}
@@ -81,7 +85,7 @@ export default function TicketCheckPage() {
 
       <div className="flex justify-center">
         <Button
-          className="h-12 lg:h-16 w-[90vw] lg:w-[1200px] bg-bet text-[16px] lg:text-[20px] font-bold text-white"
+          className="h-12 w-[90vw] bg-bet text-[16px] font-bold text-white lg:h-16 lg:w-[1200px] lg:text-[20px]"
           onClick={handleSubmit}
         >
           {t('confirm')}
@@ -93,7 +97,6 @@ export default function TicketCheckPage() {
         onOpenChange={setDialogOpen}
         ticketId={ticketId}
       />
-
     </main>
   )
 }

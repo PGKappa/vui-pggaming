@@ -79,7 +79,7 @@ export default function TicketListPage() {
         <Button
           variant="ghost"
           className="absolute right-2 bg-accent text-base text-secondary-foreground lg:right-4 lg:text-xl"
-          onClick={() => router.back()}
+          onClick={() => router.push('/retail/dogs-horses')}
         >
           ✕
         </Button>
