@@ -976,6 +976,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                 autoPlay
                 playsInline
                 className="h-full w-full object-contain"
+                onEnded={() => setShowReplay(false)}
                 onError={(e) => console.error('Video error:', e)}
               />
             </div>
