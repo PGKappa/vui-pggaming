@@ -25,10 +25,17 @@ import {
   SelectValue,
 } from './ui/select'
 
+function formatDateForAPI(date: Date) {
+  const day = String(date.getDate()).padStart(2, '0')
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const year = date.getFullYear()
+  return `${day}/${month}/${year}`
+}
+
 const dates = Array.from({ length: 10 }, (_, index) => {
   const date = new Date()
   date.setDate(date.getDate() - index)
-  return date.toLocaleDateString('it-IT')
+  return formatDateForAPI(date)
 })
 
 const timeSlots = [
@@ -148,8 +155,8 @@ export default function SearchEventResults() {
             const today = new Date()
             const sevenDaysAgo = new Date(today)
             sevenDaysAgo.setDate(today.getDate() - 7)
-            const dateStart = sevenDaysAgo.toLocaleDateString('it-IT')
-            const dateEnd = today.toLocaleDateString('it-IT')
+            const dateStart = formatDateForAPI(sevenDaysAgo)
+            const dateEnd = formatDateForAPI(today)
             const gameIds =
               confirmedDiscipline === Discipline.HORSES ? 'horses6' : 'dogs6'
             const requestBody = { gameIds: [gameIds], dateStart, dateEnd }
