@@ -1004,12 +1004,12 @@ export default function BettingSlip({
 
   return (
     <Card
-      className="ml-2 flex h-full w-full flex-col overflow-hidden bg-primary-foreground text-betSlip-foreground"
+      className="ml-1 flex h-full w-full flex-col overflow-hidden bg-primary-foreground text-betSlip-foreground"
       data-testid="betting-slip"
     >
       <div className="grid grid-cols-2 text-center">
-        <div className="relative top-[5px] col-span-2 flex h-[52px] w-full flex-row items-center justify-between bg-accent px-5">
-          <span className="items-start pb-1 pl-[135px] text-[14px] font-semibold text-accent-foreground">
+        <div className="relative top-[5px] col-span-2 flex h-[52px] pb-0.5 w-full flex-row items-center justify-between bg-accent px-5">
+          <span className="items-start pb-[3px] pl-[132px] text-[14px] font-semibold text-accent-foreground">
             {t('bet_slip').toUpperCase()} ({betEntries.length})
           </span>
           <TooltipProvider>
@@ -1026,7 +1026,7 @@ export default function BettingSlip({
                     alt="Bin"
                     width={40}
                     height={20}
-                    className="relative bottom-1 ml-[4px] h-[20px] w-6 object-contain brightness-0 invert filter"
+                    className="relative bottom-1 ml-[5px] h-[17px] w-6 object-contain brightness-0 invert filter left-[7px]"
                   />
                 </Button>
               </TooltipTrigger>
@@ -1035,7 +1035,7 @@ export default function BettingSlip({
           </TooltipProvider>
         </div>
 
-        <div className="flex h-[41px] w-[396px] flex-row">
+        <div className="flex h-[41px] w-[400px] flex-row">
           <div
             className={`relative flex w-full flex-col items-center justify-center border-b-4 pb-0${
               isSystemToggleEnabled ? 'cursor-pointer' : ''
@@ -1428,7 +1428,7 @@ export default function BettingSlip({
                           </div>
                           <AccordionContent className="h-[55px] border-b px-4">
                             <div className="relative top-1.5 grid grid-cols-3 text-[13px]">
-                              <div className="relative left-[4px] text-center">
+                              <div className="text-center">
                                 <div className="relative bottom-[2px] text-[12px] font-semibold capitalize text-foreground">
                                   {t('min')} {t('win')}
                                 </div>
@@ -1447,10 +1447,10 @@ export default function BettingSlip({
                                 </div>
                               </div>
                               <div className="relative right-[16px] text-center text-[12px] font-semibold">
-                                <div className="relative bottom-[2px] capitalize text-foreground">
+                                <div className="relative bottom-[2px] capitalize text-foreground left-1">
                                   {t('total_played')}
                                 </div>
-                                <div className="relative top-[0px] text-[13px] font-normal">
+                                <div className="relative top-[0px] text-[13px] font-normal left-1">
                                   {currencySymbol}{' '}
                                   {(
                                     group.stake * group.combinations.length
@@ -1469,7 +1469,7 @@ export default function BettingSlip({
 
             <Separator />
 
-            <div className="relative bottom-[1px] flex w-full flex-row items-center justify-between bg-backgroundBetslip px-4 py-[27px] pb-[15px] text-searchResultText">
+            <div className="relative bottom-[1px]  flex w-full flex-row items-center justify-between bg-backgroundBetslip px-3 py-[27px] pb-[15px] text-searchResultText">
               <span className="text-[15px] font-semibold">
                 {t('total_combinations').toUpperCase()}
               </span>
@@ -1480,7 +1480,7 @@ export default function BettingSlip({
 
             <Separator />
 
-            <div className="relative top-[2px] flex w-full flex-row items-center justify-between px-4 text-searchResultText">
+            <div className="relative top-[2px] flex w-full flex-row items-center justify-between px-3 text-searchResultText">
               <div className="flex items-center space-x-2">
                 <span className="text-[16px] font-semibold">
                   {t('amount').toUpperCase()}
@@ -1489,7 +1489,7 @@ export default function BettingSlip({
               <NumericKeypadDrawer
                 value={global}
                 setValue={handleDirectAmountInput}
-                inputWidth="w-[220px] border text-[16px] relative left-[4px] text-black"
+                inputWidth="w-[220px] border text-[16px]  text-black"
                 triggerLabel={t('amount')}
                 showPlusMinus={false}
                 drawerId="system-amount"
@@ -1499,7 +1499,7 @@ export default function BettingSlip({
 
             <Separator />
 
-            <div className="relative top-[29px] flex w-full flex-row items-center justify-between bg-backgroundBetslip px-4 pb-[19px] text-searchResultText">
+            <div className="relative top-[29px] flex w-full flex-row items-center justify-between bg-backgroundBetslip px-3 pb-[19px] text-searchResultText">
               <span className="text-[17px] font-semibold">
                 {t('potential_win').toUpperCase()}
               </span>
@@ -1512,7 +1512,7 @@ export default function BettingSlip({
       </CardFooter>
 
       <div className="bg-backgroundBetslip">
-        <div className="w-full p-[12px] pb-[24px] pt-[9px]">
+        <div className="w-full p-3 pb-[24px] pt-[9px]">
           <Button
             variant="betNow"
             onClick={handleBetNow}
@@ -1527,7 +1527,7 @@ export default function BettingSlip({
           </Button>
         </div>
 
-        <div className="relative bottom-2 w-full bg-betSlip-header p-[12px] pb-[15px] pt-[9px]">
+        <div className="relative bottom-2 w-full bg-betSlip-header p-3 pb-[15px] pt-[9px]">
           {selectedEvent?.discipline === 'SOCCER' ? (
             <SoccerFastBet selectedEvent={selectedEvent} />
           ) : (
