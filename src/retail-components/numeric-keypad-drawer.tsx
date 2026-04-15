@@ -190,7 +190,7 @@ export default function NumericKeypadDrawer(props: {
           <Button
             variant="ghost"
             size="sm"
-            className="disabled:bg-disabledButton disabled:text-white h-8 w-7 bg-minusButton p-3 text-[19px] text-bet-foreground hover:opacity-90"
+            className="disabled:bg-disabledButton disabled:text-white h-8 w-7 bg-minusButton p-3 text-[19px] text-white hover:opacity-90"
             disabled={displayValue <= 0}
             onClick={(e) => {
               e.stopPropagation()

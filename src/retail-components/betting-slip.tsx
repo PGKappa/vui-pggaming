@@ -1160,7 +1160,7 @@ export default function BettingSlip({
               <NumericKeypadDrawer
                 value={global}
                 setValue={setGlobal}
-                inputWidth="w-[174px] text-[16px] tabular-nums"
+                inputWidth="w-[174px] text-[16px] tabular-nums border-0"
                 triggerLabel={t('amount').toUpperCase()}
                 showPlusMinus={true}
                 drawerId="global-amount"
@@ -1225,7 +1225,7 @@ export default function BettingSlip({
                             variant="ghost"
                             size="sm"
                             onClick={handleDistributeStake}
-                            className="h-8 w-7 bg-infoBackground p-3 text-[19px] text-bet-foreground hover:opacity-90"
+                            className="h-8 w-7 bg-minusButtonDark opacity-50 p-3 text-[19px] text-bet-foreground hover:opacity-90"
                           >
                             <DivideIcon className="h-4 w-4" />
                           </Button>
@@ -1242,7 +1242,7 @@ export default function BettingSlip({
                             variant="ghost"
                             size="sm"
                             onClick={handleAddStakeToAll}
-                            className="h-8 w-7 bg-infoBackground p-3 text-[19px] text-bet-foreground hover:opacity-90"
+                            className="h-8 w-7 bg-plusButton p-3 text-[19px] text-bet-foreground hover:opacity-90"
                           >
                             <CornerDownLeft className="h-4 w-4" />
                           </Button>
@@ -1329,7 +1329,7 @@ export default function BettingSlip({
                                       }
                                     }}
                                     disabled={group.stake <= 0}
-                                    className="h-8 w-7 bg-minusButton p-3 text-[19px] text-bet-foreground hover:opacity-90 disabled:bg-disabledButton"
+                                    className="h-8 w-7 bg-minusButton p-3 text-[19px] text-bet-foreground hover:opacity-90 disabled:bg-minusButtonDark"
                                   >
                                     <MinusIcon className="h-4 w-4" />
                                   </Button>
