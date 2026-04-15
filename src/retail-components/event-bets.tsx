@@ -87,7 +87,7 @@ export default function EventBets(props: {
             </span>
 
             <div className="flex items-center space-x-2 mr-1">
-              <span className="relative left-[1px] text-[15px] font-bold tabular-nums">
+              <span className="text-[15px] font-bold tabular-nums">
                 {format(eventBets[0].bet.event.startingAt, 'HH:mm')}
               </span>
               <Badge className="mr-[4px] h-[27px] w-[61px] items-center justify-center bg-accent text-[14px] tabular-nums text-[#99a6b1]">
