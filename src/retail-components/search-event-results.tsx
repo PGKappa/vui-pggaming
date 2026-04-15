@@ -4,6 +4,7 @@ import { getRacerColors, createPGVirtualAPICall } from '@/retail-lib/utils'
 import { format } from 'date-fns'
 import { t } from 'i18next'
 import Image from 'next/image'
+import { X } from 'lucide-react'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -25,10 +26,17 @@ import {
   SelectValue,
 } from './ui/select'
 
+function formatDateForAPI(date: Date) {
+  const day = String(date.getDate()).padStart(2, '0')
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const year = date.getFullYear()
+  return `${day}/${month}/${year}`
+}
+
 const dates = Array.from({ length: 10 }, (_, index) => {
   const date = new Date()
   date.setDate(date.getDate() - index)
-  return date.toLocaleDateString('it-IT')
+  return formatDateForAPI(date)
 })
 
 const timeSlots = [
@@ -148,8 +156,8 @@ export default function SearchEventResults() {
             const today = new Date()
             const sevenDaysAgo = new Date(today)
             sevenDaysAgo.setDate(today.getDate() - 7)
-            const dateStart = sevenDaysAgo.toLocaleDateString('it-IT')
-            const dateEnd = today.toLocaleDateString('it-IT')
+            const dateStart = formatDateForAPI(sevenDaysAgo)
+            const dateEnd = formatDateForAPI(today)
             const gameIds =
               confirmedDiscipline === Discipline.HORSES ? 'horses6' : 'dogs6'
             const requestBody = { gameIds: [gameIds], dateStart, dateEnd }
@@ -967,8 +975,14 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
 
       if (showReplay && replayUrl) {
         return (
-          <div className="mb-[-48px] flex flex-col items-center">
-            <div className="flex h-[600px] w-full items-center justify-center bg-black">
+          <div className="relative mb-[-48px] flex flex-col items-center">
+            <button
+              onClick={() => setShowReplay(false)}
+              className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-background/60 text-foreground hover:bg-background/80"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <div className="flex h-[660px] w-full items-center justify-center bg-black">
               <video
                 key={replayUrl}
                 src={replayUrl}
@@ -979,14 +993,6 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                 onEnded={() => setShowReplay(false)}
                 onError={(e) => console.error('Video error:', e)}
               />
-            </div>
-            <div className="flex w-full justify-center pb-10 pt-2">
-              <Button
-                onClick={() => setShowReplay(false)}
-                className="h-[50px] w-[300px] bg-ticket-won text-[18px] font-bold text-white shadow-lg hover:bg-green-700"
-              >
-                {t('show_results')}
-              </Button>
             </div>
           </div>
         )
