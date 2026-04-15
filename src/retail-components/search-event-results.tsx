@@ -242,10 +242,15 @@ export default function SearchEventResults() {
             : discipline === Discipline.DOGS
               ? 'dogs6'
               : `${discipline.toLowerCase()}6`
-        const requestBody = {
+        const requestBody: Record<string, any> = {
           gameIds: [gameIds],
           dateStart: date,
           dateEnd: date,
+        }
+        if (confirmedTimeSlot !== 'ALL') {
+          const [startTimeStr, endTimeStr] = confirmedTimeSlot.split(' | ')
+          requestBody.timeStart = startTimeStr.trim()
+          requestBody.timeEnd = endTimeStr.trim()
         }
         const response = await createPGVirtualAPICall(
           '/api/event/results/list',
@@ -268,15 +273,23 @@ export default function SearchEventResults() {
           discipline === Discipline.DOGS
         ) {
           let filteredItems = data.items
-          if (confirmedTimeSlot !== 'ALL') {
+          // Client-side fallback filter in case backend doesn't support timeStart/timeEnd yet
+          if (
+            confirmedTimeSlot !== 'ALL' &&
+            filteredItems.length === data.items.length
+          ) {
             const [startTimeStr, endTimeStr] = confirmedTimeSlot.split(' | ')
             const [startHours, startMinutes] = startTimeStr
+              .trim()
               .split(':')
               .map(Number)
-            const [endHours, endMinutes] = endTimeStr.split(':').map(Number)
+            const [endHours, endMinutes] = endTimeStr
+              .trim()
+              .split(':')
+              .map(Number)
             const startInMinutes = startHours * 60 + startMinutes
             const endInMinutes = endHours * 60 + endMinutes
-            filteredItems = data.items.filter((item: any) => {
+            const filtered = data.items.filter((item: any) => {
               if (!item.start_time || !item.start_time.includes(':'))
                 return false
               const [hours, minutes] = item.start_time.split(':').map(Number)
@@ -285,6 +298,9 @@ export default function SearchEventResults() {
                 timeInMinutes >= startInMinutes && timeInMinutes <= endInMinutes
               )
             })
+            if (filtered.length < data.items.length) {
+              filteredItems = filtered
+            }
           }
 
           results = await Promise.all(
@@ -495,6 +511,20 @@ export default function SearchEventResults() {
   ])
 
   const handleSearch = () => {
+    if (!lastTenGames) {
+      if (selectedDate === 'ALL' && selectedTimeSlot === 'ALL') {
+        toast.error(t('select_date_and_time_slot'))
+        return
+      }
+      if (selectedDate === 'ALL') {
+        toast.error(t('select_date'))
+        return
+      }
+      if (selectedTimeSlot === 'ALL') {
+        toast.error(t('select_time_slot'))
+        return
+      }
+    }
     setContextResultsSnapshot(rootContext.eventResults || [])
     setConfirmedDiscipline(selectedDiscipline)
     const effectiveDate = lastTenGames ? 'ALL' : selectedDate
