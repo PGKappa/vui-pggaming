@@ -93,7 +93,7 @@ export default function EventsContextProvider(props: {
   tRef.current = t
   const pathname = usePathname()
   const cashierContext = useContext(CashierContext)
-  const { initCode, operator, getTimezone } = cashierContext
+  const { initCode, operator, getTimezone, isLoadingCashier } = cashierContext
 
   const [upcomingEvents, setUpcomingEvents] = useState<UpcomingEvent[]>([])
   const [eventResults, setEventResults] = useState<EventResult[]>([])
@@ -372,7 +372,7 @@ export default function EventsContextProvider(props: {
       ? disciplines
       : [Discipline.DOGS, Discipline.HORSES]
 
-    if (!effectiveInitCode || disciplines.length === 0) {
+    if (!effectiveInitCode || disciplines.length === 0 || isLoadingCashier) {
       setIsLoadingEvents(false)
       return
     }
@@ -743,6 +743,7 @@ export default function EventsContextProvider(props: {
     pathname,
     operator,
     effectiveInitCode,
+    isLoadingCashier,
     getTimezone,
     activeDisciplines,
     fetchEventsInBackground,
