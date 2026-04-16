@@ -3,6 +3,7 @@
 import InactivityBridge from '@/retail-components/inactivity-bridge'
 import Navbar from '@/retail-components/navbar'
 import { Toaster } from '@/retail-components/ui/sonner'
+import UrlDebugBar from '@/retail-components/url-debug-bar'
 import ZoomBlocker from '@/retail-components/zoom-blocker'
 import BetsContextProvider from '@/retail-contexts/bets-context'
 import CashierContextProvider from '@/retail-contexts/cashier-context'
@@ -147,6 +148,11 @@ function SkinBody({ children }: { children: React.ReactNode }) {
       <InactivityBridge />
       <ZoomBlocker />
       <CashierContextProvider>
+        {/* Barra di debug URL sempre visibile - serve in produzione quando il
+            browser e' nascosto per monitorare il parametro init_code e i
+            valori restituiti da cash_init. Deve stare DENTRO
+            CashierContextProvider per leggerne il contesto. */}
+        <UrlDebugBar />
         <EventsContextProvider key={pathname}>
           <RootContextProvider>
             <RetailShell>{children}</RetailShell>
