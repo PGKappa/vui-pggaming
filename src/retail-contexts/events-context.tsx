@@ -117,11 +117,8 @@ export default function EventsContextProvider(props: {
   )
   const [isLoadingEventDetails, setIsLoadingEventDetails] = useState(false)
 
-  // Se initCode non è ancora disponibile da CashierContext, prova localStorage
-  const effectiveInitCode =
-    initCode ||
-    (typeof window !== 'undefined' ? localStorage.getItem('initCode') : null) ||
-    undefined
+  // Usa solo initCode dal CashierContext
+  const effectiveInitCode = initCode || undefined
 
   const setActiveDrawer = useCallback((drawerId?: string) => {
     setActiveDrawerId(drawerId)
