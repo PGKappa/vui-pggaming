@@ -43,10 +43,10 @@ export default function EventBets(props: {
   return (
     <TooltipProvider>
       <li>
-        <div className="flex h-[90px] flex-col gap-0 border border-betSlip-foreground p-1">
+        <div className="flex h-[89px] flex-col gap-0 border border-betSlip-foreground p-1">
           <div className="flex flex-row justify-between">
             <div className={betMode === 'SYSTEM' ? 'visible' : 'invisible'}>
-              <div className="relative bottom-[1px] flex flex-row items-center space-x-2 pl-1">
+              <div className="relative bottom-[2px] flex flex-row items-center space-x-2 pl-1">
                 <Checkbox
                   checked={eventBets[0].fixed}
                   onCheckedChange={() => toggleEventBetsFixed(eventKey)}
@@ -69,7 +69,7 @@ export default function EventBets(props: {
                     alt="Bin"
                     width={40}
                     height={20}
-                    className="mb-[4px] ml-[6px] size-[17px] object-contain bg-transparent"
+                    className="mb-[4px] ml-[5px] size-[17px] object-contain bg-transparent"
                   />
                 </Button>
               </TooltipTrigger>
@@ -87,7 +87,7 @@ export default function EventBets(props: {
             </span>
 
             <div className="flex items-center space-x-2 mr-1">
-              <span className="relative left-[1px] text-[15px] font-bold tabular-nums">
+              <span className="text-[15px] font-bold tabular-nums">
                 {format(eventBets[0].bet.event.startingAt, 'HH:mm')}
               </span>
               <Badge className="mr-[4px] h-[27px] w-[61px] items-center justify-center bg-accent text-[14px] tabular-nums text-[#99a6b1]">
@@ -132,7 +132,7 @@ export default function EventBets(props: {
           )}
         </div>
 
-        <div className="-space-y-[8px] border border-t-0 border-betSlip-foreground bg-primary-foreground pb-[3px] pl-2 pr-[1px] pt-[1px] tabular-nums">
+        <div className="-space-y-[8px] border border-t-0 border-betSlip-foreground bg-primary-foreground pt-[2px] pl-[7px] pr-2 tabular-nums">
           {eventBets.map((betEntry) => {
             // Usa normalizeMarketName per riconoscere mercati principali
             const normalized = normalizeMarketName(betEntry.market)
@@ -192,21 +192,21 @@ export default function EventBets(props: {
             return (
               <div
                 key={betEntry.id}
-                className="flex items-center pr-[8px] text-sm"
+                className="flex items-center  text-sm"
               >
-                <span className="mr-[1px] w-[126px] text-[13px] capitalize">
+                <span className="mr-[1px] w-[126px] text-[13px] capitalize break-all">
                   {translatedMarket}
                 </span>
-                <span className="ml-[0px] w-[109px] text-left text-[13px] font-normal">
+                <span className="ml-[0px] w-[118px] text-left text-[13px] font-normal break-all">
                   {outcomeDisplay}
                 </span>
-                <span className="relative right-[3px] grid w-[101px] justify-end break-all text-[13px] font-semibold leading-tight">
+                <span className="relative right-1 grid w-[96px] justify-end break-all text-[13px] font-semibold">
                   {betEntry.bet.option.decPrice.toFixed(2)}
                 </span>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-[40px] w-[24px] flex-shrink-0 translate-x-[3px] bg-transparent"
+                  className="h-[40px] w-[24px] flex-shrink-0 translate-x-[3px] translate-y-[-2px] bg-transparent"
                   onClick={() => {
                     removeBet(
                       betEntry.market,

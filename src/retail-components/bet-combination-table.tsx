@@ -624,7 +624,7 @@ export default function BetCombinationsTable({
           </Button>
           <Button
             variant="navbar"
-            className="h-10 w-[148px] rounded-[1px] px-[18px] pt-[1px] text-[15px] font-semibold text-white"
+            className="h-10 w-[183px] rounded-[1px] px-[18px] pt-[1px] text-[15px] font-semibold text-white"
             onClick={() => {
               if (onBeforeToggle) onBeforeToggle()
               if (allBetsSelected) {
@@ -645,15 +645,15 @@ export default function BetCombinationsTable({
               : `${t('select_all').toUpperCase()}`}
           </Button>
 
-          <div className="flex h-10 min-w-fit items-center justify-center rounded-[1px] bg-background px-[18px] text-accent">
+          <div className="flex h-10 min-w-[63px] items-center justify-center rounded-[1px] bg-background px-[18px] text-accent">
             <span className="pt-[1px] text-[16px] font-semibold">
               {combinations.length}
             </span>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="p-2">
-        <div className="grid grid-cols-12 gap-2 pb-16">
+      <CardContent className="p-0 pr-2">
+        <div className="grid grid-cols-12 gap-2 pt-2">
           {combinations.map((bet) => (
             <BetEntryToggle
               key={bet.option.outcome}

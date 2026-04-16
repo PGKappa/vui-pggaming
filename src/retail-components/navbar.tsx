@@ -195,7 +195,7 @@ function NavbarContent() {
       {/* Dialog per le informazioni sul gioco - cambia contenuto per disciplina */}
       <Dialog open={isInfoDialogOpen} onOpenChange={setIsInfoDialogOpen}>
         <DialogContent className="h-full w-full overflow-hidden bg-accent">
-          <DialogHeader className="bg-accent text-secondary-foreground">
+          <DialogHeader className="bg-black text-secondary-foreground">
             <DialogTitle>{t('game_rules').toUpperCase()}</DialogTitle>
           </DialogHeader>
           <div className="h-[1020px] w-full bg-secondary">
