@@ -192,7 +192,7 @@ export default function AlphanumericKeypadDrawer(props: {
           >
             <ChevronDown
               className="relative bottom-1 h-5 w-5 bg-transparent"
-              style={{ zoom: 1.2 }}
+              style={{ zoom: 2 }}
             />
           </Button>
         </DrawerHeader>
