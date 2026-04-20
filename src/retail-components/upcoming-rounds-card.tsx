@@ -42,7 +42,7 @@ export default function UpcomingRoundsCard({
         <Button
           variant="ghost"
           className="text-background"
-          style={{ scale: 2 }}
+          style={{ zoom: 2 }}
         >
           <CalendarIcon />
         </Button>

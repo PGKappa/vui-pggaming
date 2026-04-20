@@ -331,9 +331,9 @@ export default function Leaderboard({
             </CardTitle>
             <Button variant="ghost" size="icon-lg">
               {isExpanded ? (
-                <ChevronDown style={{ scale: 1.7, marginLeft: '27px' }} />
+                <ChevronDown style={{ zoom: 1.2, marginLeft: '27px' }} />
               ) : (
-                <ChevronUp style={{ scale: 1.7, marginLeft: '27px' }} />
+                <ChevronUp style={{ zoom: 1.2, marginLeft: '27px' }} />
               )}
             </Button>
           </CardHeader>

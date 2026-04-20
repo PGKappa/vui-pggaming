@@ -272,7 +272,7 @@ export default function NumericKeypadDrawer(props: {
               onClick={handleDelete}
               className="h-12 w-[115.34px] px-1"
             >
-              <Delete className="h-5 w-5" style={{ scale: 2 }} />
+              <Delete className="h-5 w-5" style={{ zoom: 2 }} />
             </Button>
           </div>
 

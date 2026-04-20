@@ -217,7 +217,7 @@ const CarouselPrevious = React.forwardRef<
       {...props}
     >
       <ChevronLeft
-        style={{ scale: 1.7 }}
+        style={{ zoom: 1.2 }}
         className={cn(!canScrollPrev && '!opacity-70')}
       />
       <span className="sr-only">Previous slide</span>
@@ -249,7 +249,7 @@ const CarouselNext = React.forwardRef<
       {...props}
     >
       <ChevronRight
-        style={{ scale: 1.7 }}
+        style={{ zoom: 1.2 }}
         className={cn(!canScrollNext && '!opacity-70')}
       />
       <span className="sr-only">Next slide</span>

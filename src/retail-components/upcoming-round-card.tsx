@@ -568,7 +568,7 @@ export default function UpcomingRoundCard(props: {
                           })
                         }
                       >
-                        <ChevronRight style={{ scale: 1.7 }} />
+                        <ChevronRight style={{ zoom: 1.2 }} />
                       </Button>
                     </TableCell>
                   </TableRow>
