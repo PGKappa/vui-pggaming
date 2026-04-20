@@ -192,7 +192,7 @@ export default function AlphanumericKeypadDrawer(props: {
           >
             <ChevronDown
               className="relative bottom-1 h-5 w-5 bg-transparent"
-              style={{ scale: 1.7 }}
+              style={{ zoom: 1.2 }}
             />
           </Button>
         </DrawerHeader>
@@ -216,7 +216,7 @@ export default function AlphanumericKeypadDrawer(props: {
               onClick={handleDelete}
               className="h-12 w-full px-1"
             >
-              <Delete className="h-5 w-5 bg-transparent" style={{ scale: 2 }} />
+              <Delete className="h-5 w-5 bg-transparent" style={{ zoom: 2 }} />
             </Button>
           </div>
 
