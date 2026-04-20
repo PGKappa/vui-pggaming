@@ -584,7 +584,7 @@ export default function UpcomingRaceCard({
                   className="relative right-[4px] h-12 w-[117px] border-betEntry-border pt-[2px]"
                 >
                   {disorderSelection.includes(racer.number) && (
-                    <Check className="h-12 w-12 text-background" style={{ scale: 1.5 }} />
+                    <Check className="h-12 w-12 text-background" style={{ zoom: 1.3 }} />
                   )}
                 </Toggle>
               </div>
@@ -671,7 +671,7 @@ export default function UpcomingRaceCard({
                   className="relative left-[3px] h-12 w-[116px] border-betEntry-border pt-[2px] tabular-nums"
                 >
                   {disorderSelection.includes(racer.number) && (
-                    <Check className="h-12 w-12 text-background" style={{ scale: 1.5 }} />
+                    <Check className="h-12 w-12 text-background" style={{ zoom: 1.3 }} />
                   )}
                 </Toggle>
               </div>

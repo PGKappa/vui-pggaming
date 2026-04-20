@@ -359,7 +359,7 @@ export default function DraggableCodeList({
               >
                 <Printer
                   className="h-4 w-4 text-accent-foreground"
-                  style={{ scale: 1.5 }}
+                  style={{ zoom: 1.3 }}
                 />
               </Button>
               <Button
@@ -371,7 +371,7 @@ export default function DraggableCodeList({
               >
                 <X
                   className="h-4 w-4 text-accent-foreground"
-                  style={{ scale: 1.5 }}
+                  style={{ zoom: 1.3 }}
                 />
               </Button>
             </div>
