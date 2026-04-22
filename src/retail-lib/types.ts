@@ -398,6 +398,7 @@ export type TicketDetailInfo = {
 
 export type TicketDetailResponse = {
   ret_code: number
+  description?: string
   info: TicketDetailInfo
 }
 
