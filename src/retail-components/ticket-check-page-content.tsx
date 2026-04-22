@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Button } from '@/retail-components/ui/button'
 import { Input } from '@/retail-components/ui/input'
 import TicketCheckDialog from '@/retail-components/ticket-check-dialog'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 
 const KEY_LAYOUT = [
@@ -25,6 +25,12 @@ export default function TicketCheckPageContent({
   const [dialogOpen, setDialogOpen] = useState(false)
   const [ticketId, setTicketId] = useState<number | null>(null)
   const router = useRouter()
+  const searchParams = useSearchParams()
+
+  const buildReturnHref = () => {
+    const queryString = searchParams.toString()
+    return `${returnPath}${queryString ? `?${queryString}` : ''}`
+  }
 
   const handleClick = (val: string) => {
     if (val === '⌫') {
@@ -51,7 +57,7 @@ export default function TicketCheckPageContent({
         </h1>
         <Button
           variant="ghost"
-          onClick={() => router.push(returnPath)}
+          onClick={() => router.push(buildReturnHref())}
           className="absolute right-2 bg-accent text-base text-secondary-foreground lg:right-4 lg:text-xl"
         >
           ✕

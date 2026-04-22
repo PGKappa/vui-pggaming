@@ -30,7 +30,7 @@ import {
 } from '@/retail-lib/use-ticket-list'
 import { cn } from '@/retail-lib/utils'
 import { format } from 'date-fns'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import TicketCheckDialog from '@/retail-components/ticket-check-dialog'
@@ -46,6 +46,7 @@ export default function TicketListPageContent({
 }: TicketListPageContentProps) {
   const { t } = useTranslation()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [dialogOpen, setDialogOpen] = useState(false)
   const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null)
   const [selectedTicketCandidates, setSelectedTicketCandidates] = useState<
@@ -112,6 +113,11 @@ export default function TicketListPageContent({
 
   const isCalcio = variant === 'calcio'
 
+  const buildReturnHref = () => {
+    const queryString = searchParams.toString()
+    return `${returnPath}${queryString ? `?${queryString}` : ''}`
+  }
+
   return (
     <div
       className={cn(
@@ -142,7 +148,7 @@ export default function TicketListPageContent({
               ? 'right-4 bg-secondary text-xl'
               : 'right-2 bg-accent text-base lg:right-4 lg:text-xl',
           )}
-          onClick={() => router.push(returnPath)}
+          onClick={() => router.push(buildReturnHref())}
         >
           ✕
         </Button>
