@@ -100,7 +100,7 @@ const layoutByLanguage: Record<string, LayoutConfig> = {
       },
       textOffset: {
         SOCCER: 'right-[3px]',
-        HORSES: 'left-[4px]',
+        HORSES: 'left-[5px]',
         DOGS: 'left-[4px]',
         DOGS8: 'right-[6px]',
       },
