@@ -386,15 +386,15 @@ export default function UpcomingRaceCard({
 
           {activeTab === 'main' && (
             <>
-              <TableHead className="w-[249px] min-w-[100px] relative bottom-1 text-center font-bold">
-                {t('winner').toUpperCase()}
+              <TableHead className="w-[249px] min-w-[100px] text-center font-bold">
+                <div className='pb-1'>{t('winner').toUpperCase()}</div>
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
-              <TableHead className="w-[249px] min-w-[100px] relative bottom-1 text-center font-semibold">
+              <TableHead className="w-[249px] min-w-[100px] text-center font-semibold">
                 {t('place_2').toUpperCase()}
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
-              <TableHead className="w-[249px] min-w-[100px] relative bottom-1 text-center font-semibold">
+              <TableHead className="w-[249px] min-w-[100px] text-center font-semibold">
                 {t('show_3').toUpperCase()}
               </TableHead>
             </>
