@@ -387,7 +387,9 @@ export default function UpcomingRaceCard({
           {activeTab === 'main' && (
             <>
               <TableHead className="w-[249px] min-w-[100px] text-center font-bold">
-                {t('winner').toUpperCase()}
+                <span className='inline-block w-full h-full leading-[54px] align-middle'>
+                  {t('winner').toUpperCase()}
+                </span>
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
               <TableHead className="w-[249px] min-w-[100px] text-center font-semibold">
