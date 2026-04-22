@@ -64,10 +64,12 @@ export default function TicketCheckDialog({
   open,
   onOpenChange,
   ticketId,
+  ticketCandidates,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   ticketId: number | null
+  ticketCandidates?: Array<string | number>
 }) {
   const { t } = useTranslation()
   const rootContext = useContext(RootContext)
@@ -80,25 +82,44 @@ export default function TicketCheckDialog({
   const [payResult, setPayResult] = useState<string | null>(null)
 
   const fetchTicket = useCallback(
-    async (id: number) => {
+    async (id: number, candidates: Array<string | number> = []) => {
       if (!rootContext?.initCode || !rootContext?.operator) return
       setLoading(true)
       setError(null)
       setTicketInfo(null)
       setPayResult(null)
+
+      const idsToTry = Array.from(
+        new Set<string | number>([...candidates, id].filter(Boolean)),
+      )
+
       try {
-        const response = await createPGVirtualAPICall(
-          `/api/ticket/${id}`,
-          rootContext.initCode,
-          undefined,
-          rootContext.operator,
-        )
-        const data: TicketDetailResponse = await response.json()
-        if (data.ret_code === 1024 && data.info) {
-          setTicketInfo(data.info)
-        } else {
-          setError(t('ticket_not_found', 'Ticket non trovato'))
+        for (const currentId of idsToTry) {
+          const response = await createPGVirtualAPICall(
+            `/api/ticket/${currentId}`,
+            rootContext.initCode,
+            undefined,
+            rootContext.operator,
+          )
+          const data: TicketDetailResponse = await response.json()
+          if (data.ret_code === 1024 && data.info) {
+            setTicketInfo(data.info)
+            return
+          }
+
+          if (data.description) {
+            console.warn('Ticket detail lookup failed', {
+              currentId,
+              retCode: data.ret_code,
+              description: data.description,
+            })
+          }
         }
+
+        setError(
+          t('ticket_not_found', 'Ticket non trovato') +
+            (idsToTry.length ? ` (${idsToTry.join(', ')})` : ''),
+        )
       } catch {
         setError(t('ticket_not_found', 'Ticket non trovato'))
       } finally {
@@ -137,14 +158,14 @@ export default function TicketCheckDialog({
   // Fetch ticket when dialog opens with a ticketId
   useEffect(() => {
     if (open && ticketId) {
-      fetchTicket(ticketId)
+      fetchTicket(ticketId, ticketCandidates)
     }
     if (!open) {
       setTicketInfo(null)
       setError(null)
       setPayResult(null)
     }
-  }, [open, ticketId, fetchTicket])
+  }, [open, ticketId, ticketCandidates, fetchTicket])
 
   const fmt = (amount: string | number) => {
     const num = typeof amount === 'string' ? parseFloat(amount) : amount
