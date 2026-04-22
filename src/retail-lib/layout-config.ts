@@ -94,14 +94,14 @@ const layoutByLanguage: Record<string, LayoutConfig> = {
       itemBasis: 'basis-1/5 min-[1500px]:basis-1/6',
       imageOffset: {
         SOCCER: 'bottom-[4px] right-[10px]',
-        HORSES: 'bottom-[4px] right-[7px]',
-        DOGS: 'bottom-[4px] right-[7px]',
+        HORSES: 'bottom-[4px] right-[13px]',
+        DOGS: 'bottom-[4px] right-[13px]',
         DOGS8: 'bottom-[4px] right-[11px]',
       },
       textOffset: {
         SOCCER: 'right-[3px]',
-        HORSES: 'right-[1px]',
-        DOGS: 'right-[2px]',
+        HORSES: 'left-[4px]',
+        DOGS: 'left-[4px]',
         DOGS8: 'right-[6px]',
       },
       progressBarHeight: 'h-[6px]',
