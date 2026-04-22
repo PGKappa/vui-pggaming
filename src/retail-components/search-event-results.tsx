@@ -58,6 +58,14 @@ const searchResultsCache = new Map<
 >()
 const SEARCH_CACHE_TTL_MS = 5 * 60 * 1000
 
+function getPalId(item: any): string {
+  return String(item?.ext_pal_id ?? item?.int_pal_id ?? item?.pal_id ?? '')
+}
+
+function getEventId(item: any): string {
+  return String(item?.int_event_id ?? item?.event_id ?? item?.id ?? '')
+}
+
 export default function SearchEventResults() {
   const { t } = useTranslation()
   const rootContext = useContext(RootContext)
@@ -160,7 +168,7 @@ export default function SearchEventResults() {
             const dateEnd = formatDateForAPI(today)
             const gameIds =
               confirmedDiscipline === Discipline.HORSES ? 'horses6' : 'dogs6'
-            const requestBody = { gameIds: [gameIds], dateStart, dateEnd }
+            const requestBody = { gameIds: [gameIds], dateStart, dateEnd, timezone: rootContext.getTimezone?.() || 'Europe/Rome' }
             const response = await createPGVirtualAPICall(
               '/api/event/results/list',
               rootContext.initCode,
@@ -176,9 +184,11 @@ export default function SearchEventResults() {
             const limitedItems = data.items.slice(0, 10)
             const results: EventResult[] = await Promise.all(
               limitedItems.map(async (event: any) => {
+                const palId = getPalId(event)
+                const eventId = getEventId(event)
                 const detailedResult = await fetchDetailedEventResult(
-                  event.ext_pal_id,
-                  event.int_event_id.toString(),
+                  palId,
+                  eventId,
                 )
                 let startTime: Date
                 try {
@@ -193,9 +203,9 @@ export default function SearchEventResults() {
                   startTime = new Date()
                 }
                 return {
-                  id: event.int_event_id,
-                  extId: event.ext_pal_id,
-                  name: `${confirmedDiscipline === Discipline.DOGS ? 'Dog' : 'Horse'} Race ${event.int_event_id}`,
+                  id: Number(eventId),
+                  extId: palId,
+                  name: `${confirmedDiscipline === Discipline.DOGS ? 'Dog' : 'Horse'} Race ${eventId}`,
                   startTime,
                   discipline: confirmedDiscipline,
                   track: event.track_name || event.track || '6',
@@ -246,6 +256,7 @@ export default function SearchEventResults() {
           gameIds: [gameIds],
           dateStart: date,
           dateEnd: date,
+          timezone: rootContext.getTimezone?.() || 'Europe/Rome',
         }
         if (confirmedTimeSlot !== 'ALL') {
           const [startTimeStr, endTimeStr] = confirmedTimeSlot.split(' | ')
@@ -305,9 +316,11 @@ export default function SearchEventResults() {
 
           results = await Promise.all(
             filteredItems.map(async (result: any) => {
+              const palId = getPalId(result)
+              const eventId = getEventId(result)
               const detailedResult = await fetchDetailedEventResult(
-                result.ext_pal_id,
-                result.int_event_id.toString(),
+                palId,
+                eventId,
               )
               let startTime: Date
               try {
@@ -326,7 +339,6 @@ export default function SearchEventResults() {
 
               let raceResult = detailedResult
               if (!detailedResult) {
-                if (!result.arrival || result.arrival.length === 0) return null
                 raceResult = {
                   arrival:
                     (
@@ -355,12 +367,12 @@ export default function SearchEventResults() {
               }
 
               return {
-                id: result.int_event_id,
-                extId: result.ext_pal_id,
+                id: Number(eventId),
+                extId: palId,
                 name:
                   detailedResult?.track_name ||
                   result.track_name ||
-                  `${discipline} Race ${result.int_event_id}`,
+                  `${discipline} Race ${eventId}`,
                 startTime,
                 discipline,
                 track:
@@ -416,9 +428,9 @@ export default function SearchEventResults() {
               startTime = new Date()
             }
             return {
-              id: result.int_event_id,
-              extId: result.ext_pal_id,
-              name: result.round_name || `Soccer Match ${result.int_event_id}`,
+              id: Number(getEventId(result)),
+              extId: getPalId(result),
+              name: result.round_name || `Soccer Match ${getEventId(result)}`,
               startTime,
               discipline: Discipline.SOCCER,
               jornada: result.round_number,
@@ -476,9 +488,9 @@ export default function SearchEventResults() {
               startTime = new Date()
             }
             return {
-              id: result.int_event_id,
-              extId: result.ext_pal_id,
-              name: result.name || `${discipline} Event ${result.int_event_id}`,
+              id: Number(getEventId(result)),
+              extId: getPalId(result),
+              name: result.name || `${discipline} Event ${getEventId(result)}`,
               startTime,
               discipline,
             } as EventResult
