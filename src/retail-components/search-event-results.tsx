@@ -635,7 +635,7 @@ export default function SearchEventResults() {
             )
           }}
         >
-          <SelectTrigger className="h-[48px] min-w-0 flex-1 border-none bg-background pl-[16px] pr-[5px] text-[16px] text-foreground">
+          <SelectTrigger className="h-[48px] min-w-0 flex-1 border-none bg-background pl-[16px] pr-[5px] text-[16px] mr-1 text-foreground">
             <SelectValue placeholder={t('sport')} />
           </SelectTrigger>
           <SelectContent className="bg-white p-0">
@@ -670,7 +670,7 @@ export default function SearchEventResults() {
           />
           <label
             htmlFor="last10"
-            className="whitespace-nowrap px-2 py-3 text-[15px] font-semibold text-background"
+            className="whitespace-nowrap px-2 py-3 text-[15px] font-semibold text-background mr-[-4px]"
           >
             {t('last_10_games')}
           </label>
@@ -682,7 +682,7 @@ export default function SearchEventResults() {
           onValueChange={(value) => setSelectedDate(value)}
           disabled={lastTenGames}
         >
-          <SelectTrigger className="ml-[2px] mr-[10px] h-[48px] min-w-0 flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground">
+          <SelectTrigger className="h-[48px] min-w-0 flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground">
             <SelectValue placeholder={t('date')} />
           </SelectTrigger>
           <SelectContent className="bg-white p-0">
@@ -703,7 +703,7 @@ export default function SearchEventResults() {
           onValueChange={setSelectedTimeSlot}
           disabled={lastTenGames}
         >
-          <SelectTrigger className="mr-2 h-[48px] min-w-0 flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground">
+          <SelectTrigger className="h-[48px] min-w-0 flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground relative left-2">
             <SelectValue placeholder={t('time_slot')} />
           </SelectTrigger>
           <SelectContent className="bg-white p-0">
@@ -720,7 +720,7 @@ export default function SearchEventResults() {
 
         {/* CERCA */}
         <Button
-          className="ml-2 mr-4 h-[48px] min-w-0 flex-1 bg-searchResButton text-[16px] font-bold text-bet-foreground hover:opacity-90"
+          className="ml-2 mr-4 h-[48px] min-w-0 flex-1 bg-searchResButton text-[16px] font-bold text-bet-foreground hover:opacity-90 relative left-6"
           disabled={selectedDiscipline === 'NONE'}
           onClick={handleSearch}
         >
@@ -729,7 +729,7 @@ export default function SearchEventResults() {
 
         {/* RESET */}
         <Button
-          className="h-[48px] min-w-0 flex-1 bg-searchResButton text-[15px] text-tertiary-foreground"
+          className="h-[48px] min-w-0 flex-1 bg-searchResButton text-[15px] text-tertiary-foreground relative left-10"
           disabled={!selectedDate && !selectedDiscipline && !selectedTimeSlot}
           onClick={handleReset}
         >

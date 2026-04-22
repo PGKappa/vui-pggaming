@@ -370,17 +370,23 @@ export default function UpcomingRaceCard({
       <TableHeader className="h-14 bg-card-header text-[16px] text-card-header-foreground">
         <TableRow>
           <TableHead className="w-[249px] min-w-[150px] text-center font-semibold">
-            {t('starters_list').toUpperCase()}
+            <span className='inline-block w-full h-full leading-[54px] align-middle'>
+              {t('starters_list').toUpperCase()}
+            </span>
           </TableHead>
           <TableHead className="w-[1px] bg-border p-0" />
 
           <TableHead className="w-[249px] min-w-[140px] text-center font-semibold">
-            {t('performance').toUpperCase()}
+            <span className='inline-block w-full h-full leading-[54px] align-middle'>
+              {t('performance').toUpperCase()}
+            </span>
           </TableHead>
           <TableHead className="w-[1px] bg-border p-0" />
 
           <TableHead className="hidden w-[249px] min-w-[130px] text-center font-semibold min-[1440px]:table-cell">
-            {t('history').toUpperCase()}
+            <span className='inline-block w-full h-full leading-[54px] align-middle'>
+              {t('history').toUpperCase()}
+              </span>
           </TableHead>
           <TableHead className="hidden w-[1px] bg-border p-0 min-[1440px]:table-cell" />
 
@@ -393,11 +399,15 @@ export default function UpcomingRaceCard({
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
               <TableHead className="w-[249px] min-w-[100px] text-center font-semibold">
-                {t('place_2').toUpperCase()}
+                <span className='inline-block w-full h-full leading-[54px] align-middle'>
+                  {t('place_2').toUpperCase()}
+                </span>
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
               <TableHead className="w-[249px] min-w-[100px] text-center font-semibold">
-                {t('show_3').toUpperCase()}
+                <span className='inline-block w-full h-full leading-[54px] align-middle'>
+                  {t('show_3').toUpperCase()}
+                </span>
               </TableHead>
             </>
           )}
@@ -405,11 +415,15 @@ export default function UpcomingRaceCard({
           {activeTab === 'couples' && (
             <>
               <TableHead className="text-center font-bold" colSpan={2}>
-                {t('exacta').toUpperCase()}
+                <span className='inline-block w-full h-full leading-[54px] align-middle'>
+                  {t('exacta').toUpperCase()}
+                </span>
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
               <TableHead className="text-center font-bold" colSpan={2}>
-                {t('quinella').toUpperCase()}
+                <span className='inline-block w-full h-full leading-[54px] align-middle'>
+                  {t('quinella').toUpperCase()}
+                </span>
               </TableHead>
             </>
           )}
@@ -417,11 +431,15 @@ export default function UpcomingRaceCard({
           {activeTab === 'triplets' && (
             <>
               <TableHead className="text-center font-bold" colSpan={3}>
-                {t('trifecta').toUpperCase()}
+                <span className='inline-block w-full h-full leading-[54px] align-middle'>
+                  {t('trifecta').toUpperCase()}
+                </span>
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
               <TableHead className="text-center font-bold" colSpan={2}>
-                {t('boxed_trifecta').toUpperCase()}
+                <span className='inline-block w-full h-full leading-[54px] align-middle'>
+                  {t('boxed_trifecta').toUpperCase()}
+                </span>
               </TableHead>
             </>
           )}
