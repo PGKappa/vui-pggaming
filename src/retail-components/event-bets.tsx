@@ -90,7 +90,7 @@ export default function EventBets(props: {
               <span className="text-[15px] font-bold tabular-nums">
                 {format(eventBets[0].bet.event.startingAt, 'HH:mm')}
               </span>
-              <Badge className="mr-[4px] h-[27px] w-[61px] items-center justify-center bg-accent text-[14px] tabular-nums text-[#99a6b1]">
+              <Badge className="mr-[4px] h-[27px] w-[61px] items-center justify-center bg-accent text-[14px] tabular-nums text-white">
                 {timeToMatchStart}
               </Badge>
             </div>
@@ -194,7 +194,7 @@ export default function EventBets(props: {
                 key={betEntry.id}
                 className="flex items-center  text-sm"
               >
-                <span className="mr-[1px] w-[126px] text-[13px] capitalize break-all">
+                <span className="mr-[1px] w-[126px] text-[12px] capitalize break-all">
                   {translatedMarket}
                 </span>
                 <span className="ml-[0px] w-[118px] text-left text-[13px] font-normal break-all">

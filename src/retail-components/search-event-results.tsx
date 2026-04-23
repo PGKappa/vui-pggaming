@@ -682,7 +682,7 @@ export default function SearchEventResults() {
           onValueChange={(value) => setSelectedDate(value)}
           disabled={lastTenGames}
         >
-          <SelectTrigger className="h-[48px] min-w-0 flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground">
+          <SelectTrigger className="h-[48px] min-w-0 flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground disabled:opacity-85">
             <SelectValue placeholder={t('date')} />
           </SelectTrigger>
           <SelectContent className="bg-white p-0">
@@ -703,7 +703,7 @@ export default function SearchEventResults() {
           onValueChange={setSelectedTimeSlot}
           disabled={lastTenGames}
         >
-          <SelectTrigger className="h-[48px] min-w-0 flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground relative left-2">
+          <SelectTrigger className="h-[48px] min-w-0 flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground relative left-2 disabled:opacity-85">
             <SelectValue placeholder={t('time_slot')} />
           </SelectTrigger>
           <SelectContent className="bg-white p-0">
@@ -720,7 +720,7 @@ export default function SearchEventResults() {
 
         {/* CERCA */}
         <Button
-          className="ml-2 mr-4 h-[48px] min-w-0 flex-1 bg-searchResButton text-[16px] font-bold text-bet-foreground hover:opacity-90 relative left-6"
+          className="ml-2 mr-4 h-[48px] min-w-0 flex-1 bg-searchResButton text-[16px] font-bold text-bet-foreground hover:opacity-90 relative left-6 disabled:opacity-85"
           disabled={selectedDiscipline === 'NONE'}
           onClick={handleSearch}
         >

@@ -61,10 +61,10 @@ function NavbarContent() {
         <Link
           href={buildHref('/retail/dogs-horses')}
           className={cn(
-            'flex h-12 w-28 flex-row items-center justify-between px-4 py-1 text-foreground transition-colors hover:opacity-90',
+            'flex h-12 w-28 flex-row items-center justify-between px-4 py-1 text-foreground transition-colors',
             pathname.includes('/retail/dogs-horses')
               ? 'bg-tertiary'
-              : 'bg-secondary',
+              : 'bg-secondary hover:bg-[#46474d]',
           )}
         >
           <Image
@@ -86,11 +86,11 @@ function NavbarContent() {
         <Link
           href={buildHref('/retail/dogs')}
           className={cn(
-            'flex h-12 w-24 flex-row items-center justify-center px-4 py-1 text-foreground transition-colors hover:opacity-90',
+            'flex h-12 w-24 flex-row items-center justify-center px-4 py-1 text-foreground transition-colors',
             pathname.includes('/retail/dogs') &&
               !pathname.includes('/retail/dogs-horses')
               ? 'bg-tertiary'
-              : 'bg-secondary',
+              : 'bg-secondary hover:bg-[#46474d]',
           )}
         >
           <Image
@@ -105,10 +105,10 @@ function NavbarContent() {
         <Link
           href={buildHref('/retail/horses')}
           className={cn(
-            'hover:*opacity-90 flex h-12 w-24 flex-row items-center justify-center px-4 py-1 text-foreground transition-colors',
+            'flex h-12 w-24 flex-row items-center justify-center px-4 py-1 text-foreground transition-colors',
             pathname.includes('/retail/horses')
               ? 'bg-tertiary'
-              : 'bg-secondary',
+              : 'bg-secondary hover:bg-[#46474d]',
           )}
         >
           <Image
@@ -146,10 +146,10 @@ function NavbarContent() {
             href={buildHref(`${getDisciplineBasePath(pathname)}/ticket-check`)}
             className={cn(
               buttonVariants({ variant: 'ticketButton', size: 'lg' }),
-              'h-12 w-[168px] p-[18px] hover:opacity-95',
+              'h-12 w-[168px] p-[18px] pb-5 hover:bg-[#46474d]',
             )}
           >
-            <span className="text-[15px] font-semibold text-searchResultText">
+            <span className="text-[14px] font-semibold text-searchResultText">
               {t('ticket_check').toUpperCase()}
             </span>
           </Link>
@@ -160,30 +160,30 @@ function NavbarContent() {
             href={buildHref(`${getDisciplineBasePath(pathname)}/ticket-list`)}
             className={cn(
               buttonVariants({ variant: 'ticketButton', size: 'lg' }),
-              'h-12 w-[168px] p-[18px] hover:opacity-95',
+              'h-12 w-[168px] p-[18px] pb-5 hover:bg-[#46474d]',
             )}
           >
-            <span className="text-[15px] font-semibold text-searchResultText">
+            <span className="text-[14px] font-semibold text-searchResultText">
               {t('ticket_list').toUpperCase()}
             </span>
           </Link>
         )}
 
         <Button
-          className="h-12 w-fit p-[18px] hover:opacity-95"
+          className="h-12 w-fit p-[17px] pb-5 hover:bg-[#46474d]"
           variant="ticketButton"
           size="lg"
           onClick={() => {
             setSearchEventResults(eventResults)
           }}
         >
-          <span className="text-[15px] font-semibold text-searchResultText">
+          <span className="text-[14px] font-semibold text-searchResultText">
             {t('search_results').toUpperCase()}
           </span>
         </Button>
 
         <Button
-          className="h-12 w-12 text-[18px] text-searchResultText hover:opacity-95"
+          className="h-12 w-12 text-[18px]  text-searchResultText hover:bg-[#46474d]"
           variant="ticketButton"
           size="lg"
           onClick={() => setIsInfoDialogOpen(true)}

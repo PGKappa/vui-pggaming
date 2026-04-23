@@ -5,6 +5,7 @@ import {
   getRacerColors,
   createPGVirtualAPICall,
   normalizeMarketName,
+  cn,
 } from '@/retail-lib/utils'
 import { t } from 'i18next'
 import { useContext, useEffect, useRef, useState } from 'react'
@@ -820,17 +821,24 @@ export default function UpcomingRaceCard({
       <Card className="h-full w-full">
         <CardHeader className="flex h-[73px] flex-row items-center justify-between px-[12px]">
           <div className="flex items-center space-x-2">
-            {Object.entries(tabConfig).map(([key, config]) => (
-              <Button
-                key={key}
-                variant={activeTab === key ? 'marketSelected' : 'market'}
-                className="h-12 w-[140px] px-[18px] pb-0 text-[16px] font-semibold uppercase hover:opacity-90"
-                onClick={() => handleTabChange(key as TabType)}
-              >
-                {config.name}
-              </Button>
-            ))}
-          </div>
+  {Object.entries(tabConfig).map(([key, config]) => {
+    const isActive = activeTab === key;
+
+    return (
+      <Button
+        key={key}
+        variant={isActive ? 'marketSelected' : 'market'}
+        className={cn(
+          "h-12 w-[140px] px-[18px] pb-0 text-[16px] font-semibold uppercase transition-colors",
+          !isActive && "hover:bg-[#46474d]" // L'hover viene applicato solo se NON è attivo
+        )}
+        onClick={() => handleTabChange(key as TabType)}
+      >
+        {config.name}
+      </Button>
+    );
+  })}
+</div>
 
           <div className="flex items-center gap-2">
             <span className="p-[10px] text-[15px] font-semibold text-tertiary-foreground">
@@ -856,7 +864,7 @@ export default function UpcomingRaceCard({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-12 w-fit border-border bg-secondary px-[18px] pb-[1px] text-[15px] font-semibold text-secondary-foreground hover:opacity-90"
+                className="h-12 w-fit border-border bg-secondary px-[18px] pb-[1px] text-[15px] font-semibold text-secondary-foreground hover:bg-[#46474d]"
                 onClick={() => setIsLatecomersDialogOpen(true)}
               >
                 <span>{t('latecomers').toUpperCase()}</span>
