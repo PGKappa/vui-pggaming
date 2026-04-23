@@ -617,14 +617,14 @@ export default function BetCombinationsTable({
         <div className="flex justify-end space-x-2">
           <Button
             variant="navbar"
-            className="h-10 w-fit rounded-[1px] px-[18px] pt-[1px] text-[15px] font-semibold text-white active:bg-white/10"
+            className="h-10 w-fit rounded-[1px] px-[18px] pt-[1px] text-[15px] font-semibold text-white active:bg-white hover:opacity-90"
             onClick={handleSortClick}
           >
             {getSortButtonText()}
           </Button>
           <Button
             variant="navbar"
-            className="h-10 w-[183px] rounded-[1px] px-[18px] pt-[1px] text-[15px] font-semibold text-white active:bg-white/10"
+            className="h-10 w-[183px] rounded-[1px] px-[18px] pt-[1px] text-[15px] font-semibold text-white active:bg-white hover:opacity-90"
             onClick={() => {
               if (onBeforeToggle) onBeforeToggle()
               if (allBetsSelected) {
