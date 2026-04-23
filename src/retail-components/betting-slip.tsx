@@ -18,7 +18,7 @@ import {
   SubmittedTicket,
   UpcomingEvent,
 } from '@/retail-lib/types'
-import { createPGVirtualAPICall } from '@/retail-lib/utils'
+import { createPGVirtualAPICall, normalizeMarketName } from '@/retail-lib/utils'
 import {
   ChevronDown,
   CornerDownLeft,
@@ -825,6 +825,56 @@ export default function BettingSlip({
               }
             }
 
+            const getPrintSelection = (entry: BetEntry) => {
+              const normalizedMarket = normalizeMarketName(
+                entry.apiMarket || entry.market,
+              )
+              const outcome = (entry.bet.option.outcome || '')
+                .toLowerCase()
+                .trim()
+
+              if (normalizedMarket === 'underover') {
+                if (outcome === 'under' || outcome === 'menos')
+                  return t('under_full')
+                if (
+                  outcome === 'over' ||
+                  outcome === 'más' ||
+                  outcome === 'mas'
+                )
+                  return t('over_full')
+              }
+
+              if (normalizedMarket === 'even_odd') {
+                if (
+                  outcome === 'even' ||
+                  outcome === 'par' ||
+                  outcome === 'pari'
+                )
+                  return t('even')
+                if (
+                  outcome === 'odd' ||
+                  outcome === 'impar' ||
+                  outcome === 'dispari'
+                )
+                  return t('odd')
+              }
+
+              return entry.bet.option.outcome
+            }
+
+            const getPrintCompetitorName = (entry: BetEntry) => {
+              const normalizedMarket = normalizeMarketName(
+                entry.apiMarket || entry.market,
+              )
+              if (
+                normalizedMarket === 'underover' ||
+                normalizedMarket === 'even_odd'
+              ) {
+                return ''
+              }
+              return entry.bet.competitors || ''
+            }
+
             const getChannelId = (discipline: string) => {
               switch (discipline) {
                 case 'DOGS':
@@ -866,8 +916,8 @@ export default function BettingSlip({
                 }
                 groups[eventId].markets.push({
                   market: getTranslatedMarket(entry.market),
-                  competitorName: entry.bet.competitors || '',
-                  selection: entry.bet.option.outcome,
+                  competitorName: getPrintCompetitorName(entry),
+                  selection: getPrintSelection(entry),
                   odds: entry.bet.option.decPrice,
                 })
                 return groups
@@ -898,8 +948,8 @@ export default function BettingSlip({
                           potentialWin: comboOdds * group.stake,
                           entries: combo.map((entry) => ({
                             eventName: entry.bet.event.name || '',
-                            competitorName: entry.bet.competitors || '',
-                            selection: entry.bet.option.outcome,
+                            competitorName: getPrintCompetitorName(entry),
+                            selection: getPrintSelection(entry),
                             odds: entry.bet.option.decPrice,
                           })),
                         }
@@ -1091,7 +1141,7 @@ export default function BettingSlip({
         {betMode !== 'SYSTEM' ? (
           <>
             <div className="relative h-[30px] w-full bg-accent py-3"></div>
-            
+
             <div className="relative top-[12px] flex w-full flex-row items-center justify-between px-4 pt-[9px] text-backgroundBetslip-foreground">
               <span className="relative bottom-[3px] text-[15px] font-semibold">
                 {t('total_odd').toUpperCase()}
@@ -1104,7 +1154,10 @@ export default function BettingSlip({
 
             <div className="relative top-[19px] grid w-full grid-cols-5 gap-2 p-2">
               {stakeButtons.map((amount, index) => {
-                const numericAmount = typeof amount === 'number' ? amount : parseFloat(String(amount).replace(/[^\d.]/g, ''))
+                const numericAmount =
+                  typeof amount === 'number'
+                    ? amount
+                    : parseFloat(String(amount).replace(/[^\d.]/g, ''))
                 if (isNaN(numericAmount) || numericAmount <= 0) return null
 
                 return (
@@ -1140,7 +1193,7 @@ export default function BettingSlip({
 
             <Separator />
 
-            <div className="relative top-[27px] flex w-full flex-row items-center justify-between px-4 py-[12px] pb-[16px] pt-0 text-backgroundBetslip-foreground bg-backgroundBetslip">
+            <div className="relative top-[27px] flex w-full flex-row items-center justify-between bg-backgroundBetslip px-4 py-[12px] pb-[16px] pt-0 text-backgroundBetslip-foreground">
               <span className="relative bottom-[1px] text-[17px] font-semibold">
                 {t('potential_win').toUpperCase()}
               </span>
@@ -1180,7 +1233,7 @@ export default function BettingSlip({
                   </button>
                 </div>
                 <AccordionContent className="pb-0">
-                  <div className="h-[44px] border-b px-4 pb-2 bg-white">
+                  <div className="h-[44px] border-b bg-white px-4 pb-2">
                     <div className="relative top-[2px] flex items-center justify-between gap-2">
                       <Checkbox
                         checked={allGroupsSelected}
@@ -1497,7 +1550,7 @@ export default function BettingSlip({
           </Button>
         </div>
 
-        <div className="w-full bg-betSlip-header p-[12px] pb-[15px] pt-[9px] relative bottom-2">
+        <div className="relative bottom-2 w-full bg-betSlip-header p-[12px] pb-[15px] pt-[9px]">
           {selectedEvent?.discipline === 'SOCCER' ? (
             <SoccerFastBet selectedEvent={selectedEvent} />
           ) : (
