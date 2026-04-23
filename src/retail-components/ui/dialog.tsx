@@ -19,14 +19,14 @@ const DialogOverlay = React.forwardRef<
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Overlay
-  ref={ref}
-  className={cn('fixed inset-0 z-50 bg-[#3c3e44]', className)}
-  style={{
-    filter: 'alpha(opacity=60)', // Vecchio standard IE/Chromium legacy
-    opacity: 0.6
-  }}
-  {...props}
-/>
+    ref={ref}
+    className={cn(
+  'fixed inset-0 z-50',
+  'bg-[url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InJnYmEoNjAsIDYyLCA2OCwgMC42KSIgLz48L3N2Zz4=")]',
+  className
+)}
+    {...props}
+  />
 ))
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 
