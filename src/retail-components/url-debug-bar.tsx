@@ -19,6 +19,32 @@ type ConsoleEntry = {
   message: string
 }
 
+
+const getCircularReplacer = () => {
+  const seen = new WeakSet()
+  return (_: string, value: any) => {
+    if (typeof value === 'object' && value !== null) {
+      if (seen.has(value)) return '[Circular]'
+      seen.add(value)
+    }
+    return value
+  }
+}
+
+
+const safeStringify = (a: any): string => {
+  if (typeof a === 'string') return a
+  try {
+    return JSON.stringify(a, getCircularReplacer())?.slice(0, 200) ?? String(a)
+  } catch {
+    try {
+      return String(a)
+    } catch {
+      return '[unserializable]'
+    }
+  }
+}
+
 /**
  * Barra di debug fissa in basso — visibile SOLO con `debug=1` nell'URL.
  *
@@ -115,11 +141,7 @@ export default function UrlDebugBar() {
       (level: 'error' | 'warn') =>
       (...args: any[]) => {
         const msg = args
-          .map((a) =>
-            typeof a === 'string'
-              ? a
-              : (JSON.stringify(a)?.slice(0, 200) ?? String(a)),
-          )
+          .map(safeStringify)
           .join(' ')
           .slice(0, 300)
         setConsoleErrors((prev) =>

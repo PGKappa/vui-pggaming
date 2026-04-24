@@ -195,10 +195,10 @@ function NavbarContent() {
       {/* Dialog per le informazioni sul gioco - cambia contenuto per disciplina */}
       <Dialog open={isInfoDialogOpen} onOpenChange={setIsInfoDialogOpen}>
         <DialogContent className="h-full w-full overflow-hidden bg-accent">
-          <DialogHeader className="bg-black text-secondary-foreground">
+          <DialogHeader className="bg-secondary text-secondary-foreground">
             <DialogTitle>{t('game_rules').toUpperCase()}</DialogTitle>
           </DialogHeader>
-          <div className="h-[1020px] w-full bg-secondary">
+          <div className="h-[1020px] w-full bg-black">
             <iframe
               src={getInfoLink()}
               className="h-full w-full border-0"

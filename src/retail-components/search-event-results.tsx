@@ -1050,7 +1050,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
       }
 
       return (
-        <div className="mb-[-48px] space-y-4">
+        <div className="mb-[-40px] space-y-4">
           {detailedResult.arrival &&
             Array.isArray(detailedResult.arrival) &&
             detailedResult.arrival.length > 0 && (
@@ -1471,7 +1471,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
 
           {(eventResult.discipline === Discipline.DOGS ||
             eventResult.discipline === Discipline.HORSES) && (
-            <div className="flex justify-center pb-10 pt-2">
+            <div className="flex justify-center pb-11 ">
               <Button
                 onClick={fetchReplay}
                 disabled={loadingReplay}

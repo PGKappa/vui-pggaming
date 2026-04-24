@@ -51,14 +51,14 @@ export default function TicketCheckPageContent({
   return (
     <main className="fixed bottom-0 left-0 right-0 top-[60px] z-50 flex flex-col justify-between bg-black py-4 text-accent-foreground lg:py-6">
       {/* Title Bar */}
-      <div className="relative flex h-10 shrink-0 items-center justify-center bg-accent text-accent-foreground lg:h-16">
+      <div className="relative flex h-10 shrink-0 bottom-[20px] items-center justify-center bg-secondary text-accent-foreground lg:h-16">
         <h1 className="text-[12px] font-bold lg:text-[16px]">
           {t('ticket_check', 'Ticket Check')}
         </h1>
         <Button
           variant="ghost"
           onClick={() => router.push(buildReturnHref())}
-          className="absolute right-2 bg-accent text-base text-secondary-foreground lg:right-4 lg:text-xl"
+          className="absolute right-2 bg-secondary text-base text-secondary-foreground lg:right-4 lg:text-xl"
         >
           ✕
         </Button>
