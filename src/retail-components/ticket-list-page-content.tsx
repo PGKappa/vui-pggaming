@@ -128,7 +128,7 @@ export default function TicketListPageContent({
       {/* Header Bar */}
       <div
         className={cn(
-          'relative flex items-center justify-center bg-accent text-accent-foreground',
+          'relative flex items-center justify-center bg-secondary text-accent-foreground',
           isCalcio ? 'h-16' : 'h-10 shrink-0 lg:h-16',
         )}
       >
@@ -146,7 +146,7 @@ export default function TicketListPageContent({
             'absolute text-secondary-foreground',
             isCalcio
               ? 'right-4 bg-secondary text-xl'
-              : 'right-2 bg-accent text-base lg:right-4 lg:text-xl',
+              : 'right-2 bg-secondary text-base lg:right-4 lg:text-xl',
           )}
           onClick={() => router.push(buildReturnHref())}
         >
