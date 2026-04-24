@@ -69,6 +69,9 @@ function getEventId(item: any): string {
 export default function SearchEventResults() {
   const { t } = useTranslation()
   const rootContext = useContext(RootContext)
+  const initCode = rootContext.initCode
+  const operator = rootContext.operator
+  const timezone = rootContext.getTimezone?.() || 'Europe/Rome'
 
   const [selectedDiscipline, setSelectedDiscipline] = useState<
     Discipline | 'NONE'
@@ -96,13 +99,13 @@ export default function SearchEventResults() {
 
   const fetchDetailedEventResult = useCallback(
     async (extId: string, eventId: string) => {
-      if (!rootContext.initCode || !rootContext.operator) return null
+      if (!initCode || !operator) return null
       try {
         const response = await createPGVirtualAPICall(
           `/api/event/results/${extId}/${eventId}`,
-          rootContext.initCode,
+          initCode,
           undefined,
-          rootContext.operator,
+          operator,
         )
         if (!response.ok) {
           console.warn('Response not ok:', response.status)
@@ -116,7 +119,7 @@ export default function SearchEventResults() {
         return null
       }
     },
-    [rootContext.initCode, rootContext.operator],
+    [initCode, operator],
   )
 
   useEffect(() => {
@@ -157,7 +160,7 @@ export default function SearchEventResults() {
         const fetchRacingResults = async () => {
           setIsLoading(true)
           try {
-            if (!rootContext.initCode || !rootContext.operator) {
+            if (!initCode || !operator) {
               setIsLoading(false)
               return
             }
@@ -168,12 +171,17 @@ export default function SearchEventResults() {
             const dateEnd = formatDateForAPI(today)
             const gameIds =
               confirmedDiscipline === Discipline.HORSES ? 'horses6' : 'dogs6'
-            const requestBody = { gameIds: [gameIds], dateStart, dateEnd, timezone: rootContext.getTimezone?.() || 'Europe/Rome' }
+            const requestBody = {
+              gameIds: [gameIds],
+              dateStart,
+              dateEnd,
+              timezone,
+            }
             const response = await createPGVirtualAPICall(
               '/api/event/results/list',
-              rootContext.initCode,
+              initCode,
               { method: 'POST', body: JSON.stringify(requestBody) },
-              rootContext.operator,
+              operator,
             )
             if (!response.ok) throw new Error('Failed to fetch racing events')
             const data = await response.json()
@@ -242,7 +250,7 @@ export default function SearchEventResults() {
     const fetchEventResults = async (discipline: Discipline, date: string) => {
       setIsLoading(true)
       try {
-        if (!rootContext.initCode || !rootContext.operator) {
+        if (!initCode || !operator) {
           setIsLoading(false)
           return
         }
@@ -256,7 +264,7 @@ export default function SearchEventResults() {
           gameIds: [gameIds],
           dateStart: date,
           dateEnd: date,
-          timezone: rootContext.getTimezone?.() || 'Europe/Rome',
+          timezone,
         }
         if (confirmedTimeSlot !== 'ALL') {
           const [startTimeStr, endTimeStr] = confirmedTimeSlot.split(' | ')
@@ -265,9 +273,9 @@ export default function SearchEventResults() {
         }
         const response = await createPGVirtualAPICall(
           '/api/event/results/list',
-          rootContext.initCode,
+          initCode,
           { method: 'POST', body: JSON.stringify(requestBody) },
-          rootContext.operator,
+          operator,
         )
         if (!response.ok)
           throw new Error(`HTTP error! status: ${response.status}`)
@@ -517,8 +525,9 @@ export default function SearchEventResults() {
     confirmedTimeSlot,
     contextResultsSnapshot,
     fetchDetailedEventResult,
-    rootContext.initCode,
-    rootContext.operator,
+    initCode,
+    operator,
+    timezone,
     t,
   ])
 
@@ -635,7 +644,7 @@ export default function SearchEventResults() {
             )
           }}
         >
-          <SelectTrigger className="h-[48px] min-w-0 flex-1 border-none bg-background pl-[16px] pr-[5px] text-[16px] mr-1 text-foreground">
+          <SelectTrigger className="mr-1 h-[48px] min-w-0 flex-1 border-none bg-background pl-[16px] pr-[5px] text-[16px] text-foreground">
             <SelectValue placeholder={t('sport')} />
           </SelectTrigger>
           <SelectContent className="bg-white p-0">
@@ -670,7 +679,7 @@ export default function SearchEventResults() {
           />
           <label
             htmlFor="last10"
-            className="whitespace-nowrap px-2 py-3 text-[15px] font-semibold text-background mr-[-4px]"
+            className="mr-[-4px] whitespace-nowrap px-2 py-3 text-[15px] font-semibold text-background"
           >
             {t('last_10_games')}
           </label>
@@ -703,7 +712,7 @@ export default function SearchEventResults() {
           onValueChange={setSelectedTimeSlot}
           disabled={lastTenGames}
         >
-          <SelectTrigger className="h-[48px] min-w-0 flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground relative left-2 disabled:opacity-85">
+          <SelectTrigger className="relative left-2 h-[48px] min-w-0 flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground disabled:opacity-85">
             <SelectValue placeholder={t('time_slot')} />
           </SelectTrigger>
           <SelectContent className="bg-white p-0">
@@ -720,7 +729,7 @@ export default function SearchEventResults() {
 
         {/* CERCA */}
         <Button
-          className="ml-2 mr-4 h-[48px] min-w-0 flex-1 bg-searchResButton text-[16px] font-bold text-bet-foreground hover:opacity-90 relative left-6 disabled:opacity-85"
+          className="relative left-6 ml-2 mr-4 h-[48px] min-w-0 flex-1 bg-searchResButton text-[16px] font-bold text-bet-foreground hover:opacity-90 disabled:opacity-85"
           disabled={selectedDiscipline === 'NONE'}
           onClick={handleSearch}
         >
@@ -729,7 +738,7 @@ export default function SearchEventResults() {
 
         {/* RESET */}
         <Button
-          className="h-[48px] min-w-0 flex-1 bg-searchResButton text-[15px] text-tertiary-foreground relative left-10"
+          className="relative left-10 h-[48px] min-w-0 flex-1 bg-searchResButton text-[15px] text-tertiary-foreground"
           disabled={!selectedDate && !selectedDiscipline && !selectedTimeSlot}
           onClick={handleReset}
         >
