@@ -3,6 +3,7 @@
 import InactivityBridge from '@/retail-components/inactivity-bridge'
 import Navbar from '@/retail-components/navbar'
 import { Toaster } from '@/retail-components/ui/sonner'
+import UrlDebugBar from '@/retail-components/url-debug-bar'
 import ZoomBlocker from '@/retail-components/zoom-blocker'
 import BetsContextProvider from '@/retail-contexts/bets-context'
 import CashierContextProvider from '@/retail-contexts/cashier-context'
@@ -148,6 +149,7 @@ function SkinBody({ children }: { children: React.ReactNode }) {
       <ZoomBlocker />
       <CashierContextProvider>
         <EventsContextProvider key={pathname}>
+          <UrlDebugBar />
           <RootContextProvider>
             <RetailShell>{children}</RetailShell>
           </RootContextProvider>
