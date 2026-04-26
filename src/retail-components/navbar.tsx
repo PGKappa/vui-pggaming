@@ -52,7 +52,6 @@ function NavbarContent() {
 
   return (
     <>
-      {/* NAVBAR — z-50 così rimane sempre sopra il pannello info */}
       <div
         className="relative z-50 flex h-16 w-full flex-row items-center justify-start bg-navbarBg p-3"
         suppressHydrationWarning={true}
@@ -197,14 +196,8 @@ function NavbarContent() {
         </div>
       </div>
 
-      {/*
-        PANNELLO INFO — fixed sotto la navbar, senza nessun overlay.
-        z-40 < z-50 della navbar: la navbar rimane completamente cliccabile.
-        Nessun backdrop/overlay → i click sulla navbar passano normalmente.
-      */}
       {isInfoOpen && (
         <div className="fixed inset-x-0 bottom-0 top-16 z-40 flex flex-col bg-accent">
-          {/* Header con titolo e tasto chiudi */}
           <div className="flex h-12 flex-shrink-0 items-center justify-center bg-secondary px-4 text-secondary-foreground">
             <span className="text-[14px] font-semibold">
               {t('game_rules').toUpperCase()}
