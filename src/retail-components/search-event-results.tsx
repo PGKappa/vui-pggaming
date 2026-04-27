@@ -644,7 +644,7 @@ export default function SearchEventResults() {
             )
           }}
         >
-          <SelectTrigger className="mr-1 h-[48px] min-w-0 flex-1 border-none bg-background pl-[16px] pr-[5px] text-[16px] text-foreground">
+          <SelectTrigger className="mr-1 h-[48px] min-w-0 flex-1 border-none bg-background pl-[16px] pr-[5px] text-[16px] text-foreground tabular-nums">
             <SelectValue placeholder={t('sport')} />
           </SelectTrigger>
           <SelectContent className="bg-white p-0">
@@ -691,7 +691,7 @@ export default function SearchEventResults() {
           onValueChange={(value) => setSelectedDate(value)}
           disabled={lastTenGames}
         >
-          <SelectTrigger className="h-[48px] min-w-0 flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground disabled:opacity-85">
+          <SelectTrigger className="h-[48px] min-w-0 flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground tabular-nums disabled:opacity-85">
             <SelectValue placeholder={t('date')} />
           </SelectTrigger>
           <SelectContent className="bg-white p-0">
@@ -699,7 +699,7 @@ export default function SearchEventResults() {
               {t('date').toUpperCase()}
             </SelectItem>
             {dates.map((date) => (
-              <SelectItem className="text-[14px]" key={date} value={date}>
+              <SelectItem className="text-[14px] tabular-nums" key={date} value={date}>
                 {date}
               </SelectItem>
             ))}
@@ -712,7 +712,7 @@ export default function SearchEventResults() {
           onValueChange={setSelectedTimeSlot}
           disabled={lastTenGames}
         >
-          <SelectTrigger className="relative left-2 h-[48px] min-w-0 flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground disabled:opacity-85">
+          <SelectTrigger className="relative left-2 h-[48px] min-w-0 flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground tabular-nums disabled:opacity-85">
             <SelectValue placeholder={t('time_slot')} />
           </SelectTrigger>
           <SelectContent className="bg-white p-0">
@@ -720,7 +720,7 @@ export default function SearchEventResults() {
               {t('time_slot').toUpperCase()}
             </SelectItem>
             {timeSlots.map((slot) => (
-              <SelectItem className="text-[14px]" key={slot} value={slot}>
+              <SelectItem className="text-[14px] tabular-nums" key={slot} value={slot}>
                 {slot}
               </SelectItem>
             ))}
@@ -772,7 +772,7 @@ export default function SearchEventResults() {
                       value={uniqueKey}
                       className="gap-0"
                     >
-                      <AccordionTrigger className="pointer-events-none border-b-0 bg-accent p-0 pl-2 text-base text-accent-foreground hover:no-underline [&[data-state=open]>svg]:-rotate-90">
+                      <AccordionTrigger className="pointer-events-none border-b-0 bg-black p-0 pl-2 text-base text-accent-foreground hover:no-underline [&[data-state=open]>svg]:-rotate-90">
                         <div className="relative top-1.5 mb-[7px] flex h-[46px] w-full flex-row items-center justify-between space-x-4 pl-[9px] uppercase tabular-nums text-white">
                           <div className="flex flex-row items-center space-x-4 pb-[5px] text-[16px] font-semibold">
                             <span className="whitespace-nowrap text-[16px]">
@@ -1050,7 +1050,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
       }
 
       return (
-        <div className="mb-[-40px] space-y-4">
+        <div className="mb-[-40px] space-y-4 tabular-nums">
           {detailedResult.arrival &&
             Array.isArray(detailedResult.arrival) &&
             detailedResult.arrival.length > 0 && (
@@ -1076,7 +1076,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                           key={competitor.number || index}
                           className="flex items-center space-x-3"
                         >
-                          <div className="relative flex h-11 w-11 items-center justify-center">
+                          <div className="relative flex h-11 w-11 items-center justify-center tabular-nums">
                             <Image
                               src={imageSrc}
                               alt={medalNumber}
@@ -1471,7 +1471,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
 
           {(eventResult.discipline === Discipline.DOGS ||
             eventResult.discipline === Discipline.HORSES) && (
-            <div className="flex justify-center pb-11 ">
+            <div className="flex justify-center pb-11 relative bottom-[10px] ">
               <Button
                 onClick={fetchReplay}
                 disabled={loadingReplay}

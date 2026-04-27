@@ -841,7 +841,7 @@ export default function UpcomingRaceCard({
 </div>
 
           <div className="flex items-center gap-2">
-            <span className="p-[10px] text-[15px] font-semibold text-tertiary-foreground">
+            <span className="p-[10px] text-[15px] font-semibold text-tertiary-foreground tabular-nums">
               {'ID'} {race.id}
             </span>
 

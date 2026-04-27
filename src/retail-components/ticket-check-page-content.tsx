@@ -55,13 +55,6 @@ export default function TicketCheckPageContent({
         <h1 className="text-[12px] font-bold lg:text-[16px]">
           {t('ticket_check', 'Ticket Check')}
         </h1>
-        <Button
-          variant="ghost"
-          onClick={() => router.push(buildReturnHref())}
-          className="absolute right-2 bg-secondary text-base text-secondary-foreground lg:right-4 lg:text-xl"
-        >
-          ✕
-        </Button>
       </div>
 
       <div className="flex flex-1 flex-col items-center justify-center">
