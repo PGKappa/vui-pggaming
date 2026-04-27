@@ -1173,7 +1173,7 @@ export default function BettingSlip({
               <span className="relative bottom-[3px] text-[15px] font-semibold">
                 {t('total_odd').toUpperCase()}
               </span>
-              <span className="relative bottom-[3px] text-[15px] font-bold">
+              <span className="relative bottom-[3px] text-[15px] font-bold tabular-nums">
                 {totalOdds.toFixed(2)}
               </span>
             </div>
@@ -1224,7 +1224,7 @@ export default function BettingSlip({
               <span className="relative bottom-[1px] text-[17px] font-semibold">
                 {t('potential_win').toUpperCase()}
               </span>
-              <span className="text-[17px] font-semibold">
+              <span className="text-[17px] font-semibold tabular-nums">
                 {currencySymbol} {potentialWinning.toFixed(2)}
               </span>
             </div>
@@ -1550,10 +1550,10 @@ export default function BettingSlip({
             <Separator />
 
             <div className="relative top-[29px] flex w-full flex-row items-center justify-between bg-backgroundBetslip px-3 pb-[19px] text-searchResultText">
-              <span className="text-[17px] font-semibold">
+              <span className="text-[17px] font-semibold tabular-nums">
                 {t('potential_win').toUpperCase()}
               </span>
-              <span className="text-[17px] font-semibold">
+              <span className="text-[17px] font-semibold tabular-nums">
                 {currencySymbol} {totalSystemPotentialWin.toFixed(2)}
               </span>
             </div>

@@ -140,18 +140,7 @@ export default function TicketListPageContent({
         >
           {t('ticket_list')}
         </h2>
-        <Button
-          variant="ghost"
-          className={cn(
-            'absolute text-secondary-foreground',
-            isCalcio
-              ? 'right-4 bg-secondary text-xl'
-              : 'right-2 bg-secondary text-base lg:right-4 lg:text-xl',
-          )}
-          onClick={() => router.push(buildReturnHref())}
-        >
-          ✕
-        </Button>
+        
       </div>
 
       {/* Filter Bar */}
