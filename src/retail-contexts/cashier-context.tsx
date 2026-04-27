@@ -175,9 +175,9 @@ function createContextDataFromCashierData(
   }
   const getMinBet = () => {
     const minBet = cashierData.intl?.min_bet
-    if (minBet) {
+    if (minBet !== undefined && minBet !== null) {
       const parsed = typeof minBet === 'string' ? parseFloat(minBet) : minBet
-      if (!isNaN(parsed) && parsed > 0) return parsed
+      if (!isNaN(parsed) && parsed >= 0) return parsed
     }
     return 0.05
   }
