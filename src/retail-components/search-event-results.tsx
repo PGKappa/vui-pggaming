@@ -1060,7 +1060,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                     {t('arrival_order').toUpperCase()}
                   </div>
                 </div>
-                <div className="mr-[40px] flex h-[79px] items-center justify-center gap-[147px] p-4">
+                <div className="mr-[40px] flex h-[79px] items-center justify-center space-x-[147px] p-4">
                   {detailedResult.arrival
                     .slice(0, 3)
                     .map((competitor: any, index: number) => {
@@ -1124,7 +1124,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                         key={number}
                         className="flex items-center justify-between"
                       >
-                        <span className="ml-3 flex items-center gap-3">
+                        <span className="ml-3 flex items-center space-x-3">
                           <div
                             className="flex h-[33px] w-[33px] items-center justify-center rounded-md text-[21px] font-semibold"
                             style={
@@ -1160,7 +1160,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                         key={number}
                         className="flex items-center justify-between"
                       >
-                        <span className="ml-3 flex items-center gap-3">
+                        <span className="ml-3 flex items-center space-x-3">
                           <div
                             className="flex h-[33px] w-[33px] items-center justify-center rounded-md text-[21px] font-semibold"
                             style={
@@ -1196,7 +1196,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                         key={number}
                         className="flex items-center justify-between"
                       >
-                        <span className="ml-3 flex items-center gap-3">
+                        <span className="ml-3 flex items-center space-x-3">
                           <div
                             className="flex h-[33px] w-[33px] items-center justify-center rounded-md text-[21px] font-semibold"
                             style={
@@ -1235,7 +1235,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                         key={combination}
                         className="flex items-center justify-between"
                       >
-                        <span className="ml-3 flex items-center gap-3">
+                        <span className="ml-3 flex items-center space-x-3">
                           {combination.split('-').map((num, idx) => (
                             <div
                               key={idx}
@@ -1274,7 +1274,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                         key={combination}
                         className="flex items-center justify-between"
                       >
-                        <span className="ml-3 flex items-center gap-3">
+                        <span className="ml-3 flex items-center space-x-3">
                           {combination.split('-').map((num, idx) => (
                             <div
                               key={idx}
@@ -1313,7 +1313,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                         key={combination}
                         className="flex items-center justify-between"
                       >
-                        <span className="ml-3 flex items-center gap-3">
+                        <span className="ml-3 flex items-center space-x-3">
                           {combination.split('-').map((num, idx) => (
                             <div
                               key={idx}
@@ -1352,7 +1352,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                         key={combination}
                         className="flex items-center justify-between"
                       >
-                        <span className="ml-3 flex items-center justify-center gap-3">
+                        <span className="ml-3 flex items-center justify-center space-x-3">
                           {combination.split('-').map((num, idx) => (
                             <div
                               key={idx}
@@ -1452,7 +1452,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
             )}
           </div>
 
-          <div className="grid grid-cols-1 gap-1">
+          <div className="grid grid-cols-1 space-x-1">
             {raceResult.raceDuration && (
               <div className="border">
                 <div className="bg-accent py-2 text-center">
@@ -1513,7 +1513,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
             </div>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-y-2">
+        <div className="grid grid-cols-2 space-y-2">
           {detailedResult.odds?.oneXTwo && (
             <div className="border border-l-0 border-r-0">
               <div className="bg-accent py-2 text-center">
