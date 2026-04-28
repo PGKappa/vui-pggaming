@@ -772,7 +772,7 @@ export default function SearchEventResults() {
                       value={uniqueKey}
                       className="gap-0"
                     >
-                      <AccordionTrigger className="pointer-events-none border-b-0 bg-black p-0 pl-2 text-base text-accent-foreground hover:no-underline [&[data-state=open]>svg]:-rotate-90">
+                      <AccordionTrigger className="pointer-events-none border-b-0 bg-accent p-0 pl-2 text-base text-accent-foreground hover:no-underline [&[data-state=open]>svg]:-rotate-90">
                         <div className="relative top-1.5 mb-[7px] flex h-[46px] w-full flex-row items-center justify-between space-x-4 pl-[9px] uppercase tabular-nums text-white">
                           <div className="flex flex-row items-center space-x-4 pb-[5px] text-[16px] font-semibold">
                             <span className="whitespace-nowrap text-[16px]">
