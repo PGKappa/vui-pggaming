@@ -43,37 +43,18 @@ export function getStatusDisplay(status: number): {
 } {
   switch (status) {
     case 1:
-      return {
-        label: 'Active',
-        colorClass: 'bg-ticket-active',
-        translationKey: 'active',
-      }
+      return { label: 'Active', colorClass: 'bg-ticket-active', translationKey: 'active' }
     case 4:
-      return {
-        label: 'Won',
-        colorClass: 'bg-ticket-won',
-        translationKey: 'won',
-      }
+      return { label: 'Won', colorClass: 'bg-ticket-won', translationKey: 'won' }
     case 5:
     case 9:
-      return {
-        label: 'Lost',
-        colorClass: 'bg-ticket-lost',
-        translationKey: 'lost',
-      }
+      return { label: 'Lost', colorClass: 'bg-ticket-lost', translationKey: 'lost' }
     default:
-      return {
-        label: String(status),
-        colorClass: 'bg-ticket-active',
-        translationKey: 'pending',
-      }
+      return { label: String(status), colorClass: 'bg-ticket-active', translationKey: 'pending' }
   }
 }
 
-export function formatCurrency(
-  amount: string | number,
-  currencySymbol: string,
-): string {
+export function formatCurrency(amount: string | number, currencySymbol: string): string {
   const num = typeof amount === 'string' ? parseFloat(amount) : amount
   if (isNaN(num)) return `${currencySymbol} 0.00`
   return `${currencySymbol} ${num.toFixed(2)}`
@@ -85,8 +66,8 @@ export function useTicketList() {
   const [terminal, setTerminal] = useState('all')
   const [status, setStatus] = useState('all')
   const [payment, setPayment] = useState('all')
-  const [from, setFrom] = useState<Date | undefined>(new Date())
-  const [to, setTo] = useState<Date | undefined>(new Date())
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(new Date())
+  const [dateTo, setDateTo] = useState<Date | undefined>(new Date())
   const [pageSize, setPageSize] = useState('15')
   const [currentPage, setCurrentPage] = useState(1)
 
@@ -97,42 +78,30 @@ export function useTicketList() {
 
   const currencySymbol = rootContext.getCurrencySymbol?.() ?? '€'
 
-  // Refs to read current filter values without causing re-renders
-  const filtersRef = React.useRef({ from, to, status, payment, terminal })
-  filtersRef.current = { from, to, status, payment, terminal }
+  const filtersRef = React.useRef({ dateFrom, dateTo, status, payment, terminal })
+  filtersRef.current = { dateFrom, dateTo, status, payment, terminal }
 
-  // Applied filters: only updated when user clicks search button
   const [appliedFilters, setAppliedFilters] = useState({
-    from,
-    to,
+    dateFrom,
+    dateTo,
     status,
     payment,
     terminal,
   })
 
-  // Only called explicitly by the user clicking the reload button.
   const fetchTickets = useCallback(async () => {
     if (!rootContext.initCode || !rootContext.operator) return
 
-    const {
-      from: f,
-      to: t,
-      status: s,
-      payment: p,
-      terminal: term,
-    } = filtersRef.current
+    const { dateFrom: df, dateTo: dt, status: s, payment: p, terminal: term } = filtersRef.current
 
-    // Snapshot current filters so the UI reflects what was searched
-    setAppliedFilters({ from: f, to: t, status: s, payment: p, terminal: term })
+    setAppliedFilters({ dateFrom: df, dateTo: dt, status: s, payment: p, terminal: term })
     setCurrentPage(1)
-
     setLoading(true)
+
     try {
       const body = {
-        dateStart: f
-          ? format(f, 'dd-MM-yyyy')
-          : format(new Date(), 'dd-MM-yyyy'),
-        dateEnd: t ? format(t, 'dd-MM-yyyy') : format(new Date(), 'dd-MM-yyyy'),
+        dateStart: df ? format(df, 'dd-MM-yyyy') : format(new Date(), 'dd-MM-yyyy'),
+        dateEnd: dt ? format(dt, 'dd-MM-yyyy') : format(new Date(), 'dd-MM-yyyy'),
         offset: 0,
         itemsPerPage: 9999,
         terminal: -1,
@@ -155,11 +124,10 @@ export function useTicketList() {
         const rawItems = data.items ?? []
         setAllItems(rawItems)
         setInfo(data.info ?? null)
-        // Extract unique terminal IDs from the full result
         if (rawItems.length) {
-          const terminalIds = [
-            ...new Set(rawItems.map((i) => String(i.terminal_id))),
-          ].sort((a, b) => parseInt(a) - parseInt(b))
+          const terminalIds = [...new Set(rawItems.map((i) => String(i.terminal_id)))].sort(
+            (a, b) => parseInt(a) - parseInt(b),
+          )
           setAvailableTerminals((prev) => {
             const merged = [...new Set([...prev, ...terminalIds])].sort(
               (a, b) => parseInt(a) - parseInt(b),
@@ -180,7 +148,6 @@ export function useTicketList() {
     }
   }, [rootContext.initCode, rootContext.operator])
 
-  // Initial fetch on mount only
   const didMount = React.useRef(false)
   useEffect(() => {
     if (!didMount.current) {
@@ -189,20 +156,14 @@ export function useTicketList() {
     }
   }, [fetchTickets])
 
-  // Client-side: filter by applied terminal, then paginate
   const filteredItems =
     appliedFilters.terminal === 'all'
       ? allItems
-      : allItems.filter(
-          (i) => String(i.terminal_id) === appliedFilters.terminal,
-        )
+      : allItems.filter((i) => String(i.terminal_id) === appliedFilters.terminal)
 
   const perPage = parseInt(pageSize)
   const totalPages = Math.max(1, Math.ceil(filteredItems.length / perPage))
-  const items = filteredItems.slice(
-    (currentPage - 1) * perPage,
-    currentPage * perPage,
-  )
+  const items = filteredItems.slice((currentPage - 1) * perPage, currentPage * perPage)
 
   const setPageSizeAndReset = useCallback((v: string) => {
     setPageSize(v)
@@ -210,29 +171,19 @@ export function useTicketList() {
   }, [])
 
   return {
-    // Filter state
-    terminal,
-    setTerminal,
-    status,
-    setStatus,
-    payment,
-    setPayment,
-    from,
-    setFrom,
-    to,
-    setTo,
+    terminal, setTerminal,
+    status, setStatus,
+    payment, setPayment,
+    dateFrom, setDateFrom,
+    dateTo, setDateTo,
     pageSize,
     setPageSize: setPageSizeAndReset,
-    // Pagination
-    currentPage,
-    setCurrentPage,
+    currentPage, setCurrentPage,
     totalPages,
-    // Data
     items,
     info,
     loading,
     availableTerminals,
-    // Helpers
     currencySymbol,
     fetchTickets,
   }
