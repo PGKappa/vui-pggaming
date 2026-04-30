@@ -1,5 +1,12 @@
 'use client'
 
+// Declare window.Bubble type
+declare global {
+  interface Window {
+    Bubble?: (command: string, content: any) => void
+  }
+}
+
 import {
   Dialog,
   DialogContent,
@@ -8,6 +15,7 @@ import {
 } from '@/retail-components/ui/dialog'
 import { Button } from '@/retail-components/ui/button'
 import { ScrollArea } from '@radix-ui/react-scroll-area'
+import { Delete } from 'lucide-react'
 import {
   TicketDetailInfo,
   TicketDetailResponse,
@@ -80,6 +88,14 @@ export default function TicketCheckDialog({
   const [error, setError] = useState<string | null>(null)
   const [paying, setPaying] = useState(false)
   const [payResult, setPayResult] = useState<string | null>(null)
+  const [cddXml, setCddXml] = useState<string | null>(null)
+  const [pinMode, setPinMode] = useState(false)
+  const [pinInput, setPinInput] = useState('')
+  const [pinError, setPinError] = useState<string | null>(null)
+
+  const isDebug =
+    typeof window !== 'undefined' &&
+    new URLSearchParams(window.location.search).get('debug') === '1'
 
   const fetchTicket = useCallback(
     async (id: number, candidates: Array<string | number> = []) => {
@@ -129,6 +145,13 @@ export default function TicketCheckDialog({
     [rootContext?.initCode, rootContext?.operator, t],
   )
 
+  const handlePrintCdd = useCallback((xml: string) => {
+    if (typeof window.Bubble === 'function') {
+      window.Bubble('printcdd', xml)
+    }
+    setCddXml(xml)
+  }, [])
+
   const handlePay = useCallback(async () => {
     if (!ticketInfo || !rootContext?.initCode || !rootContext?.operator) return
     setPaying(true)
@@ -141,9 +164,19 @@ export default function TicketCheckDialog({
         rootContext.operator,
       )
       const data: TicketPayResponse = await response.json()
+
+      // CDD required (vincita > 2000€): API returns printcdd XML
+      if (data.printcdd) {
+        handlePrintCdd(data.printcdd)
+        return
+      }
+
+      // Normal pay success
       if (String(data.ret_code) === '1024') {
+        if (data.print && typeof window.Bubble === 'function') {
+          window.Bubble('pay', data.print)
+        }
         setPayResult('success')
-        // Refresh ticket to update status
         fetchTicket(ticketInfo.ticket_id)
       } else {
         setPayResult(data.description || t('pay_error', 'Errore nel pagamento'))
@@ -153,7 +186,60 @@ export default function TicketCheckDialog({
     } finally {
       setPaying(false)
     }
-  }, [ticketInfo, rootContext?.initCode, rootContext?.operator, fetchTicket, t])
+  }, [
+    ticketInfo,
+    rootContext?.initCode,
+    rootContext?.operator,
+    fetchTicket,
+    handlePrintCdd,
+    t,
+  ])
+
+  const handlePayWithPin = useCallback(async () => {
+    if (
+      !ticketInfo ||
+      !rootContext?.initCode ||
+      !rootContext?.operator ||
+      !pinInput
+    )
+      return
+    setPaying(true)
+    setPinError(null)
+    try {
+      const response = await createPGVirtualAPICall(
+        `/api/ticket/pay/${ticketInfo.ticket_id}?pin=${encodeURIComponent(pinInput)}`,
+        rootContext.initCode,
+        undefined,
+        rootContext.operator,
+      )
+      const data: TicketPayResponse = await response.json()
+      if (String(data.ret_code) === '1024') {
+        if (data.print && typeof window.Bubble === 'function') {
+          window.Bubble('pay', data.print)
+        }
+        setPayResult('success')
+        setPinMode(false)
+        setPinInput('')
+        fetchTicket(ticketInfo.ticket_id)
+      } else {
+        // 1028 = PIN errato, 1027 = PIN mancante, qualsiasi altro errore
+        setPinError(data.description || t('pin_error', 'PIN non corretto'))
+        setPinInput('')
+      }
+    } catch {
+      setPinError(t('pay_error', 'Errore nel pagamento'))
+      setPinInput('')
+    } finally {
+      setPaying(false)
+    }
+  }, [
+    ticketInfo,
+    rootContext?.initCode,
+    rootContext?.operator,
+    pinInput,
+    fetchTicket,
+    t,
+  ])
 
   // Fetch ticket when dialog opens with a ticketId
   useEffect(() => {
@@ -164,6 +250,10 @@ export default function TicketCheckDialog({
       setTicketInfo(null)
       setError(null)
       setPayResult(null)
+      setCddXml(null)
+      setPinMode(false)
+      setPinInput('')
+      setPinError(null)
     }
   }, [open, ticketId, ticketCandidates, fetchTicket])
 
@@ -267,16 +357,141 @@ export default function TicketCheckDialog({
               </div>
             </div>
 
-            {/* Pay button for unpaid winning tickets */}
+            {/* Pay / CDD / PIN section */}
             {statusInfo.isWinner && !statusInfo.isPaid && (
-              <div className="flex justify-center py-3">
-                <Button
-                  className="h-12 w-48 bg-ticket-won text-lg font-bold text-white"
-                  onClick={handlePay}
-                  disabled={paying}
-                >
-                  {paying ? '...' : t('pay', 'Paga')}
-                </Button>
+              <div className="flex flex-col items-center gap-2 py-3">
+                {/* DEBUG: simulate CDD response */}
+                {isDebug && !cddXml && (
+                  <button
+                    className="mb-1 rounded border border-dashed border-amber-500 px-3 py-1 text-xs text-amber-600"
+                    onClick={() =>
+                      handlePrintCdd(
+                        `<printCDDTicket><body><CDDData TransactionId="TEST-${ticketInfo.ticket_id}" TransactionType="P" Amount="${ticketInfo.amount_won}" Pin="" WinCode="TEST-${ticketInfo.ticket_id}" /></body></printCDDTicket>`,
+                      )
+                    }
+                  >
+                    [DEBUG] Simula CDD
+                  </button>
+                )}
+                {cddXml ? (
+                  pinMode ? (
+                    // PIN keypad — styled like numeric-keypad-drawer
+                    <div className="w-full">
+                      {/* Red header bar */}
+                      <div className="flex h-[45px] items-center justify-center bg-accent">
+                        <span className="font-semibold text-accent-foreground">
+                          {t('insert_pin_cdd', 'Inserisci PIN CDD')}
+                        </span>
+                      </div>
+                      <div className="flex flex-col gap-3 p-3">
+                        {/* Display row: masked input + backspace */}
+                        <div className="flex items-center gap-2">
+                          <div className="flex h-12 flex-1 items-center justify-end rounded border px-3 text-[22px] font-bold tracking-widest">
+                            {pinInput.length > 0 ? (
+                              '●'.repeat(pinInput.length)
+                            ) : (
+                              <span className="w-full text-center text-sm text-foreground/40">
+                                PIN CDD
+                              </span>
+                            )}
+                          </div>
+                          <Button
+                            variant="outline"
+                            className="h-12 w-[90px]"
+                            onClick={() => setPinInput((p) => p.slice(0, -1))}
+                          >
+                            <Delete className="h-5 w-5" style={{ zoom: 2 }} />
+                          </Button>
+                        </div>
+                        {pinError && (
+                          <p className="text-center text-sm text-destructive">
+                            {pinError}
+                          </p>
+                        )}
+                        {/* Keypad grid */}
+                        <div className="grid grid-cols-3 gap-2">
+                          {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(
+                            (d) => (
+                              <Button
+                                key={d}
+                                variant="outline"
+                                size="lg"
+                                className="h-12 text-[20px] font-semibold tabular-nums"
+                                onClick={() => setPinInput((p) => p + d)}
+                              >
+                                {d}
+                              </Button>
+                            ),
+                          )}
+                          <Button
+                            variant="outline"
+                            size="lg"
+                            className="h-12 text-[20px] font-semibold tabular-nums"
+                            onClick={() => setPinInput('')}
+                          >
+                            C
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="lg"
+                            className="h-12 text-[20px] font-semibold tabular-nums"
+                            onClick={() => setPinInput((p) => p + '0')}
+                          >
+                            0
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="lg"
+                            className="h-12 text-[20px] font-semibold tabular-nums"
+                            onClick={() => {
+                              setPinMode(false)
+                              setPinInput('')
+                              setPinError(null)
+                            }}
+                          >
+                            {t('close', 'Chiudi')}
+                          </Button>
+                        </div>
+                        {/* Confirm button */}
+                        <Button
+                          className="h-12 w-full bg-secondary text-[18px] tabular-nums text-accent-foreground hover:opacity-95"
+                          onClick={handlePayWithPin}
+                          disabled={paying || !pinInput}
+                        >
+                          {paying ? '...' : t('confirm', 'Conferma')}
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    // CDD active: ristampa + inserisci PIN
+                    <>
+                      <Button
+                        className="h-12 w-56 bg-amber-600 text-lg font-bold text-white"
+                        onClick={() => handlePrintCdd(cddXml)}
+                      >
+                        {t('reprint_cdd', 'Ristampa CDD')}
+                      </Button>
+                      <Button
+                        className="h-12 w-56 text-lg font-bold"
+                        onClick={() => {
+                          setPinMode(true)
+                          setPinInput('')
+                          setPinError(null)
+                        }}
+                      >
+                        {t('insert_pin_cdd', 'Inserisci PIN CDD')}
+                      </Button>
+                    </>
+                  )
+                ) : (
+                  <Button
+                    className="h-12 w-48 bg-ticket-won text-lg font-bold text-white"
+                    onClick={handlePay}
+                    disabled={paying}
+                  >
+                    {paying ? '...' : t('pay', 'Paga')}
+                  </Button>
+                )}
               </div>
             )}
 
