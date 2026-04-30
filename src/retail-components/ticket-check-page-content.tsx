@@ -1,5 +1,4 @@
 'use client'
-
 import { useState } from 'react'
 import { Button } from '@/retail-components/ui/button'
 import { Input } from '@/retail-components/ui/input'
@@ -7,10 +6,16 @@ import TicketCheckDialog from '@/retail-components/ticket-check-dialog'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 
-const KEY_LAYOUT = [
-  ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', '7', '8', '9', '-'],
-  ['J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', '4', '5', '6', '0'],
-  ['S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'WWW', '1', '2', '3', '⌫'],
+const LETTER_LAYOUT = [
+  ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'],
+  ['J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R'],
+  ['S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'WWW'],
+]
+
+const NUMPAD_LAYOUT = [
+  ['7', '8', '9', '-'],
+  ['4', '5', '6', '0'],
+  ['1', '2', '3', '⌫'],
 ]
 
 interface TicketCheckPageContentProps {
@@ -51,8 +56,8 @@ export default function TicketCheckPageContent({
   return (
     <main className="fixed bottom-0 left-0 right-0 top-[60px] z-50 flex flex-col justify-between bg-black py-4 text-accent-foreground lg:py-6">
       {/* Title Bar */}
-      <div className="relative flex h-10 shrink-0 bottom-[20px] items-center justify-center bg-secondary text-accent-foreground lg:h-16">
-        <h1 className="text-[12px] font-bold lg:text-[16px]">
+      <div className="relative bottom-[20px] flex h-10 shrink-0 items-center justify-center bg-secondary text-accent-foreground lg:h-16">
+        <h1 className="text-[12px] font-bold uppercase lg:text-[16px]">
           {t('ticket_check', 'Ticket Check')}
         </h1>
       </div>
@@ -61,28 +66,47 @@ export default function TicketCheckPageContent({
         <p className="text-[16px] font-semibold lg:text-[22px]">
           {t('scan_or_enter_code')}
         </p>
+
         <Input
           className="mt-6 h-10 w-[320px] bg-white text-center text-[16px] font-bold text-foreground lg:mt-10 lg:h-12 lg:w-[480px] lg:text-[20px]"
           readOnly
           value={code}
         />
-        <div className="mt-6 flex flex-col space-y-1 lg:mt-10 lg:space-y-2">
-          {KEY_LAYOUT.map((row, rowIdx) => (
-            <div
-              key={rowIdx}
-              className="flex justify-center space-x-1 lg:space-x-2"
-            >
-              {row.map((key) => (
-                <Button
-                  key={key}
-                  className="h-12 w-12 rounded-none bg-secondary text-[16px] font-bold text-tertiary-foreground lg:h-20 lg:w-20 lg:text-[22px]"
-                  onClick={() => handleClick(key)}
-                >
-                  {key}
-                </Button>
-              ))}
-            </div>
-          ))}
+
+        <div className="mt-6 flex flex-row items-start gap-4 lg:mt-10 lg:gap-6">
+          {/* Lettere */}
+          <div className="flex flex-col space-y-1 lg:space-y-2">
+            {LETTER_LAYOUT.map((row, rowIdx) => (
+              <div key={rowIdx} className="flex justify-center space-x-1 lg:space-x-2">
+                {row.map((key) => (
+                  <Button
+                    key={key}
+                    className="h-12 w-12 rounded-none bg-secondary text-[16px] font-bold text-tertiary-foreground lg:h-20 lg:w-20 lg:text-[23px]"
+                    onClick={() => handleClick(key)}
+                  >
+                    {key}
+                  </Button>
+                ))}
+              </div>
+            ))}
+          </div>
+
+          {/* Numpad */}
+          <div className="flex flex-col space-y-1 lg:space-y-2">
+            {NUMPAD_LAYOUT.map((row, rowIdx) => (
+              <div key={rowIdx} className="flex justify-center space-x-1 lg:space-x-2">
+                {row.map((key) => (
+                  <Button
+                    key={key}
+                    className="h-12 w-12 rounded-none bg-secondary text-[16px] font-bold text-tertiary-foreground lg:h-20 lg:w-20 lg:text-[23px]"
+                    onClick={() => handleClick(key)}
+                  >
+                    {key}
+                  </Button>
+                ))}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 

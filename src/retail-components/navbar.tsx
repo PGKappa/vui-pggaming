@@ -94,7 +94,7 @@
       if (pathname.includes('/calcio')) {
         return `https://d190050z3qr0m1.cloudfront.net/public/Soccer_Gaming_manual_${lang}.html`
       } else {
-        return `https://d190050z3qr0m1.cloudfront.net/public/Gaming_manual_${lang}.html`
+        return `https://stanleybet-test.pgvirtual.eu/Gaming+manual_${lang}.html`
       }
     }
 
@@ -207,8 +207,8 @@
 
         {isInfoOpen && (
           <div className="fixed inset-x-0 bottom-0 top-16 z-40 flex flex-col bg-accent">
-            <div className="flex h-12 flex-shrink-0 items-center justify-center bg-secondary px-4 text-secondary-foreground">
-              <span className="text-[14px]">
+            <div className="flex h-16 flex-shrink-0 items-center justify-center bg-secondary px-4 text-secondary-foreground">
+              <span className="text-[16px] uppercase font-semibold">
                 {t('game_rules').toUpperCase()}
               </span>
             </div>
