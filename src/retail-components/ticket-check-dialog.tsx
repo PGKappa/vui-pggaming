@@ -1,5 +1,12 @@
 'use client'
 
+// Declare window.Bubble type
+declare global {
+  interface Window {
+    Bubble?: (command: string, content: any) => void
+  }
+}
+
 import {
   Dialog,
   DialogContent,
@@ -80,6 +87,7 @@ export default function TicketCheckDialog({
   const [error, setError] = useState<string | null>(null)
   const [paying, setPaying] = useState(false)
   const [payResult, setPayResult] = useState<string | null>(null)
+  const [cddXml, setCddXml] = useState<string | null>(null)
 
   const fetchTicket = useCallback(
     async (id: number, candidates: Array<string | number> = []) => {
@@ -129,6 +137,13 @@ export default function TicketCheckDialog({
     [rootContext?.initCode, rootContext?.operator, t],
   )
 
+  const handlePrintCdd = useCallback((xml: string) => {
+    if (typeof window.Bubble === 'function') {
+      window.Bubble('printcdd', xml)
+    }
+    setCddXml(xml)
+  }, [])
+
   const handlePay = useCallback(async () => {
     if (!ticketInfo || !rootContext?.initCode || !rootContext?.operator) return
     setPaying(true)
@@ -141,9 +156,19 @@ export default function TicketCheckDialog({
         rootContext.operator,
       )
       const data: TicketPayResponse = await response.json()
+
+      // CDD required (vincita > 2000€): API returns printcdd XML
+      if (data.printcdd) {
+        handlePrintCdd(data.printcdd)
+        return
+      }
+
+      // Normal pay success
       if (String(data.ret_code) === '1024') {
+        if (data.print && typeof window.Bubble === 'function') {
+          window.Bubble('pay', data.print)
+        }
         setPayResult('success')
-        // Refresh ticket to update status
         fetchTicket(ticketInfo.ticket_id)
       } else {
         setPayResult(data.description || t('pay_error', 'Errore nel pagamento'))
@@ -153,7 +178,14 @@ export default function TicketCheckDialog({
     } finally {
       setPaying(false)
     }
-  }, [ticketInfo, rootContext?.initCode, rootContext?.operator, fetchTicket, t])
+  }, [
+    ticketInfo,
+    rootContext?.initCode,
+    rootContext?.operator,
+    fetchTicket,
+    handlePrintCdd,
+    t,
+  ])
 
   // Fetch ticket when dialog opens with a ticketId
   useEffect(() => {
@@ -164,6 +196,7 @@ export default function TicketCheckDialog({
       setTicketInfo(null)
       setError(null)
       setPayResult(null)
+      setCddXml(null)
     }
   }, [open, ticketId, ticketCandidates, fetchTicket])
 
@@ -269,14 +302,24 @@ export default function TicketCheckDialog({
 
             {/* Pay button for unpaid winning tickets */}
             {statusInfo.isWinner && !statusInfo.isPaid && (
-              <div className="flex justify-center py-3">
-                <Button
-                  className="h-12 w-48 bg-ticket-won text-lg font-bold text-white"
-                  onClick={handlePay}
-                  disabled={paying}
-                >
-                  {paying ? '...' : t('pay', 'Paga')}
-                </Button>
+              <div className="flex flex-col items-center gap-2 py-3">
+                {/* CDD active: show re-print CDD + normal pay hidden */}
+                {cddXml ? (
+                  <Button
+                    className="h-12 w-48 bg-amber-600 text-lg font-bold text-white"
+                    onClick={() => handlePrintCdd(cddXml)}
+                  >
+                    {t('reprint_cdd', 'Ristampa CDD')}
+                  </Button>
+                ) : (
+                  <Button
+                    className="h-12 w-48 bg-ticket-won text-lg font-bold text-white"
+                    onClick={handlePay}
+                    disabled={paying}
+                  >
+                    {paying ? '...' : t('pay', 'Paga')}
+                  </Button>
+                )}
               </div>
             )}
 

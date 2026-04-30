@@ -405,4 +405,6 @@ export type TicketDetailResponse = {
 export type TicketPayResponse = {
   ret_code: string | number
   description: string
+  print?: string
+  printcdd?: string
 }
