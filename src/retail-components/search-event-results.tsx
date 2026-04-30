@@ -752,7 +752,7 @@ export default function SearchEventResults() {
           (confirmedLastTenGames && rootContext.isLoadingEvents) ? (
             <div className="flex h-full flex-col items-center justify-center pt-4">
               <LoadingSpinner />
-              <p className="mt-4 text-[16px] text-muted-foreground">
+              <p className="mt-4 text-[16px] text-black">
                 {t('loading')}...
               </p>
             </div>
@@ -1050,7 +1050,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
       }
 
       return (
-        <div className="mb-[-40px] space-y-4 tabular-nums">
+        <div className="mb-[-70px] space-y-4 tabular-nums">
           {detailedResult.arrival &&
             Array.isArray(detailedResult.arrival) &&
             detailedResult.arrival.length > 0 && (
@@ -1471,7 +1471,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
 
           {(eventResult.discipline === Discipline.DOGS ||
             eventResult.discipline === Discipline.HORSES) && (
-            <div className="flex justify-center pb-11 relative bottom-[10px] ">
+            <div className="flex justify-center pb-11 relative bottom-[23px] ">
               <Button
                 onClick={fetchReplay}
                 disabled={loadingReplay}

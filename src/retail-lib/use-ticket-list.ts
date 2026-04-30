@@ -75,6 +75,7 @@ export function useTicketList() {
   const [info, setInfo] = useState<TicketListInfo | null>(null)
   const [loading, setLoading] = useState(false)
   const [availableTerminals, setAvailableTerminals] = useState<string[]>([])
+  const [disciplineMap, setDisciplineMap] = useState<Record<number, string>>({})
 
   const currencySymbol = rootContext.getCurrencySymbol?.() ?? '€'
 
@@ -89,6 +90,50 @@ export function useTicketList() {
     terminal,
   })
 
+  const fetchDisciplines = useCallback(async (items: TicketListItem[]) => {
+    if (!rootContext.initCode || !rootContext.operator) return
+
+    const BATCH_SIZE = 10
+
+    for (let i = 0; i < items.length; i += BATCH_SIZE) {
+      const batch = items.slice(i, i + BATCH_SIZE)
+      const batchMap: Record<number, string> = {}
+
+      await Promise.all(
+        batch.map(async (item) => {
+          try {
+            const response = await createPGVirtualAPICall(
+              `/api/ticket/${item.ticket_id}`,
+              rootContext.initCode!,
+              undefined,
+              rootContext.operator,
+            )
+            const data = await response.json()
+            if (data.ret_code === 1024 && data.info?.selections?.length > 0) {
+              const gameIds = data.info.selections.map((s: any) => s.gameId ?? '')
+              const hasDogs = gameIds.some((g: string) => g.startsWith('dogs'))
+              const hasHorses = gameIds.some((g: string) => g.startsWith('horse'))
+              const hasSoccer = gameIds.some((g: string) => g.startsWith('soccer') || g.startsWith('calcio'))
+
+              if (hasDogs && hasHorses && hasSoccer) batchMap[item.ticket_id] = 'dogs,horses,soccer'
+              else if (hasDogs && hasHorses) batchMap[item.ticket_id] = 'dogs,horses'
+              else if (hasDogs && hasSoccer) batchMap[item.ticket_id] = 'dogs,soccer'
+              else if (hasHorses && hasSoccer) batchMap[item.ticket_id] = 'horses,soccer'
+              else if (hasDogs) batchMap[item.ticket_id] = 'dogs'
+              else if (hasHorses) batchMap[item.ticket_id] = 'horses'
+              else if (hasSoccer) batchMap[item.ticket_id] = 'soccer'
+              else batchMap[item.ticket_id] = 'other'
+            }
+          } catch {
+            // skip silently
+          }
+        })
+      )
+
+      setDisciplineMap((prev) => ({ ...prev, ...batchMap }))
+    }
+  }, [rootContext.initCode, rootContext.operator])
+
   const fetchTickets = useCallback(async () => {
     if (!rootContext.initCode || !rootContext.operator) return
 
@@ -97,6 +142,7 @@ export function useTicketList() {
     setAppliedFilters({ dateFrom: df, dateTo: dt, status: s, payment: p, terminal: term })
     setCurrentPage(1)
     setLoading(true)
+    setDisciplineMap({})
 
     try {
       const body = {
@@ -134,6 +180,7 @@ export function useTicketList() {
             )
             return merged
           })
+          fetchDisciplines(rawItems)
         }
       } else {
         setAllItems([])
@@ -146,7 +193,7 @@ export function useTicketList() {
     } finally {
       setLoading(false)
     }
-  }, [rootContext.initCode, rootContext.operator])
+  }, [rootContext.initCode, rootContext.operator, fetchDisciplines])
 
   const didMount = React.useRef(false)
   useEffect(() => {
@@ -186,5 +233,6 @@ export function useTicketList() {
     availableTerminals,
     currencySymbol,
     fetchTickets,
+    disciplineMap,
   }
 }

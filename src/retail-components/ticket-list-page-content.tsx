@@ -63,6 +63,7 @@ export default function TicketListPageContent({
     availableTerminals,
     currencySymbol,
     fetchTickets,
+    disciplineMap,
   } = useTicketList()
 
   const buildTicketCandidates = (item: { ticket_id: number }) => {
@@ -144,6 +145,17 @@ export default function TicketListPageContent({
     </Popover>
   )
 
+  const getDisciplineLabel = (ticketId: number) => {
+    const d = disciplineMap[ticketId]
+    if (!d) return '...'
+    return d.split(',').map((discipline) => {
+      if (discipline === 'dogs') return t('dog_racing')
+      if (discipline === 'horses') return t('horse_racing')
+      if (discipline === 'soccer') return t('soccer')
+      return discipline
+    }).join(' / ')
+  }
+
   return (
     <div
       className={cn(
@@ -223,6 +235,9 @@ export default function TicketListPageContent({
             <div className="mr-20 flex flex-row items-center gap-2 bg-badge text-background">
               <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">{t('from')}</span>
               {dateFromButton('w-[120px] justify-center text-[12px]')}
+            </div>
+
+            <div className="mr-20 flex flex-row items-center gap-2 bg-badge text-background">
               <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">{t('to')}</span>
               {dateToButton('w-[120px] justify-center text-[12px]')}
             </div>
@@ -296,14 +311,14 @@ export default function TicketListPageContent({
             </div>
 
             <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
-  <span className="whitespace-nowrap pl-1 text-[10px] font-semibold lg:pl-2 lg:text-[12px]">{t('from')}</span>
-  {dateFromButton('h-7 w-[80px] justify-center text-[10px] lg:h-9 lg:w-[100px] lg:text-[12px]')}
-</div>
+              <span className="whitespace-nowrap pl-1 text-[10px] font-semibold lg:pl-2 lg:text-[12px]">{t('from')}</span>
+              {dateFromButton('h-7 w-[80px] justify-center text-[10px] lg:h-9 lg:w-[100px] lg:text-[12px]')}
+            </div>
 
-<div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
-  <span className="whitespace-nowrap pl-1 text-[10px] font-semibold lg:pl-2 lg:text-[12px]">{t('to')}</span>
-  {dateToButton('h-7 w-[80px] justify-center text-[10px] lg:h-9 lg:w-[100px] lg:text-[12px]')}
-</div>
+            <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
+              <span className="whitespace-nowrap pl-1 text-[10px] font-semibold lg:pl-2 lg:text-[12px]">{t('to')}</span>
+              {dateToButton('h-7 w-[80px] justify-center text-[10px] lg:h-9 lg:w-[100px] lg:text-[12px]')}
+            </div>
 
             <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
               <span className="whitespace-nowrap pl-1 text-[10px] font-semibold lg:pl-2 lg:text-[12px]">{t('page_size')}</span>
@@ -367,9 +382,9 @@ export default function TicketListPageContent({
                     <td className="w-[1px] bg-muted p-0"></td>
                     <td className={cn(isCalcio ? 'p-2' : 'p-1 lg:p-2')}>{item.terminal_id}</td>
                     <td className="w-[1px] bg-muted p-0"></td>
-                    <td className={cn(isCalcio ? 'p-2' : 'p-1 lg:p-2')}>{formatCurrency(item.amount, currencySymbol)}</td>
+                    <td className={cn(isCalcio ? 'p-2' : 'p-1 lg:p-2')}>{getDisciplineLabel(item.ticket_id)}</td>
                     <td className="w-[1px] bg-muted p-0"></td>
-                    <td className={cn(isCalcio ? 'p-2' : 'p-1 lg:p-2')}>{formatCurrency('0.00', currencySymbol)}</td>
+                    <td className={cn(isCalcio ? 'p-2' : 'p-1 lg:p-2')}>{formatCurrency(item.amount, currencySymbol)}</td>
                     <td className="w-[1px] bg-muted p-0"></td>
                     <td className={cn(isCalcio ? 'p-2' : 'p-1 lg:p-2')}>{formatCurrency(item.amount_won, currencySymbol)}</td>
                     <td className="w-[1px] bg-muted p-0"></td>
@@ -401,7 +416,7 @@ export default function TicketListPageContent({
       </div>
 
       {/* Footer */}
-      <div className={cn(isCalcio ? 'grid grid-cols-9' : 'grid h-[90px] shrink-0 grid-cols-9 lg:h-[122px]')}>
+      <div className={cn(isCalcio ? 'grid grid-cols-9' : 'grid h-[90px] shrink-0 grid-cols-9 lg:h-[110px]')}>
         <div className={cn(isCalcio ? 'col-span-2 flex flex-row items-center bg-accent p-4' : 'col-span-2 flex flex-row items-center bg-accent p-2 lg:p-4')}>
           <Pagination className="justify-start">
             <PaginationContent>
@@ -430,15 +445,6 @@ export default function TicketListPageContent({
         </div>
         <table className={cn(isCalcio ? 'col-span-7 border-collapse' : 'col-span-7 h-full border-collapse')}>
           <tbody>
-            <tr className="bg-accent text-xs font-medium text-white">
-              <td className={cn('border border-muted bg-accent text-center align-middle font-bold', isCalcio ? 'px-3 py-2' : 'px-1 py-1 text-[10px] lg:px-3 lg:py-2 lg:text-md')}>{t('page_total')}</td>
-              <td className={cn('border border-muted bg-accent text-center align-middle', isCalcio ? 'px-3 py-2' : 'px-1 py-1 text-[10px] lg:px-3 lg:py-2 lg:text-md')}>{formatCurrency(info?.tot_in ?? '0.00', currencySymbol)}</td>
-              <td className={cn('border border-muted bg-accent text-center align-middle', isCalcio ? 'px-3 py-2' : 'px-1 py-1 text-[10px] lg:px-3 lg:py-2 lg:text-md')}>{formatCurrency(info?.tot_cancelled ?? '0.00', currencySymbol)}</td>
-              <td className={cn('border border-muted bg-accent text-center align-middle', isCalcio ? 'px-3 py-2' : 'px-1 py-1 text-[10px] lg:px-3 lg:py-2 lg:text-md')}>{formatCurrency(info?.tot_out ?? '0.00', currencySymbol)}</td>
-              <td className={cn('border border-muted text-center align-middle font-bold', isCalcio ? 'bg-accent px-3 py-2' : 'bg-searchResButton px-1 py-1 text-[10px] lg:px-3 lg:py-2 lg:text-md')}>{t('cash_total')}</td>
-              <td className={cn('border border-muted text-center align-middle font-bold', isCalcio ? 'bg-accent px-3 py-2' : 'bg-searchResButton px-1 py-1 text-[10px] lg:px-3 lg:py-2 lg:text-md')}>{t('paid_won')}</td>
-              <td className={cn('border border-muted text-center align-middle font-bold', isCalcio ? 'bg-accent px-3 py-2' : 'bg-searchResButton px-1 py-1 text-[10px] lg:px-3 lg:py-2 lg:text-md')}>{t('total_tickets')}</td>
-            </tr>
             <tr className="bg-accent text-xs font-medium text-white">
               <td className={cn('border border-muted bg-accent text-center align-middle font-bold', isCalcio ? 'px-3 py-2' : 'px-1 py-1 text-[10px] lg:px-3 lg:py-2 lg:text-md')}>{t('totals')}</td>
               <td className={cn('border border-muted bg-accent text-center align-middle', isCalcio ? 'px-3 py-2' : 'px-1 py-1 text-[10px] lg:px-3 lg:py-2 lg:text-md')}>{formatCurrency(info?.grandtotal?.in ?? 0, currencySymbol)}</td>
