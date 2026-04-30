@@ -165,9 +165,9 @@ export default function TicketCheckDialog({
       )
       const data: TicketPayResponse = await response.json()
 
-      // CDD required (vincita > 2000€): API returns printcdd XML
-      if (data.printcdd) {
-        handlePrintCdd(data.printcdd)
+      // CDD required: API returns ret_code 1027 with print field containing CDD XML
+      if (String(data.ret_code) === '1027' && data.print) {
+        handlePrintCdd(data.print)
         return
       }
 
