@@ -15,6 +15,7 @@ import {
 } from '@/retail-components/ui/dialog'
 import { Button } from '@/retail-components/ui/button'
 import { ScrollArea } from '@radix-ui/react-scroll-area'
+import { Delete } from 'lucide-react'
 import {
   TicketDetailInfo,
   TicketDetailResponse,
@@ -91,6 +92,10 @@ export default function TicketCheckDialog({
   const [pinMode, setPinMode] = useState(false)
   const [pinInput, setPinInput] = useState('')
   const [pinError, setPinError] = useState<string | null>(null)
+
+  const isDebug =
+    typeof window !== 'undefined' &&
+    new URLSearchParams(window.location.search).get('debug') === '1'
 
   const fetchTicket = useCallback(
     async (id: number, candidates: Array<string | number> = []) => {
@@ -355,73 +360,101 @@ export default function TicketCheckDialog({
             {/* Pay / CDD / PIN section */}
             {statusInfo.isWinner && !statusInfo.isPaid && (
               <div className="flex flex-col items-center gap-2 py-3">
+                {/* DEBUG: simulate CDD response */}
+                {isDebug && !cddXml && (
+                  <button
+                    className="mb-1 rounded border border-dashed border-amber-500 px-3 py-1 text-xs text-amber-600"
+                    onClick={() =>
+                      handlePrintCdd(
+                        `<printCDDTicket><body><CDDData TransactionId="TEST-${ticketInfo.ticket_id}" TransactionType="P" Amount="${ticketInfo.amount_won}" Pin="" WinCode="TEST-${ticketInfo.ticket_id}" /></body></printCDDTicket>`,
+                      )
+                    }
+                  >
+                    [DEBUG] Simula CDD
+                  </button>
+                )}
                 {cddXml ? (
                   pinMode ? (
-                    // PIN keypad
-                    <div className="w-full px-4">
-                      <div className="mb-3 flex h-12 items-center justify-center rounded border-2 border-primary bg-black/10 text-2xl tracking-[0.5em]">
-                        {pinInput.length > 0 ? (
-                          '●'.repeat(pinInput.length)
-                        ) : (
-                          <span className="text-sm text-foreground/40">
-                            PIN CDD
-                          </span>
-                        )}
+                    // PIN keypad — styled like numeric-keypad-drawer
+                    <div className="w-full">
+                      {/* Red header bar */}
+                      <div className="flex h-[45px] items-center justify-center bg-accent">
+                        <span className="font-semibold text-accent-foreground">
+                          {t('insert_pin_cdd', 'Inserisci PIN CDD')}
+                        </span>
                       </div>
-                      {pinError && (
-                        <p className="mb-2 text-center text-sm text-destructive">
-                          {pinError}
-                        </p>
-                      )}
-                      <div className="grid grid-cols-3 gap-2">
-                        {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(
-                          (d) => (
-                            <Button
-                              key={d}
-                              variant="outline"
-                              className="h-12 text-xl font-bold"
-                              onClick={() => setPinInput((p) => p + d)}
-                            >
-                              {d}
-                            </Button>
-                          ),
+                      <div className="flex flex-col gap-3 p-3">
+                        {/* Display row: masked input + backspace */}
+                        <div className="flex items-center gap-2">
+                          <div className="flex h-12 flex-1 items-center justify-end rounded border px-3 text-[22px] font-bold tracking-widest">
+                            {pinInput.length > 0 ? (
+                              '●'.repeat(pinInput.length)
+                            ) : (
+                              <span className="w-full text-center text-sm text-foreground/40">
+                                PIN CDD
+                              </span>
+                            )}
+                          </div>
+                          <Button
+                            variant="outline"
+                            className="h-12 w-[90px]"
+                            onClick={() => setPinInput((p) => p.slice(0, -1))}
+                          >
+                            <Delete className="h-5 w-5" style={{ zoom: 2 }} />
+                          </Button>
+                        </div>
+                        {pinError && (
+                          <p className="text-center text-sm text-destructive">
+                            {pinError}
+                          </p>
                         )}
+                        {/* Keypad grid */}
+                        <div className="grid grid-cols-3 gap-2">
+                          {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(
+                            (d) => (
+                              <Button
+                                key={d}
+                                variant="outline"
+                                size="lg"
+                                className="h-12 text-[20px] font-semibold tabular-nums"
+                                onClick={() => setPinInput((p) => p + d)}
+                              >
+                                {d}
+                              </Button>
+                            ),
+                          )}
+                          <Button
+                            variant="outline"
+                            size="lg"
+                            className="h-12 text-[20px] font-semibold tabular-nums"
+                            onClick={() => setPinInput('')}
+                          >
+                            C
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="lg"
+                            className="h-12 text-[20px] font-semibold tabular-nums"
+                            onClick={() => setPinInput((p) => p + '0')}
+                          >
+                            0
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="lg"
+                            className="h-12 text-[20px] font-semibold tabular-nums"
+                            onClick={() => {
+                              setPinMode(false)
+                              setPinInput('')
+                              setPinError(null)
+                            }}
+                          >
+                            {t('close', 'Chiudi')}
+                          </Button>
+                        </div>
+                        {/* Confirm button */}
                         <Button
-                          variant="outline"
-                          className="h-12 text-xl font-bold"
-                          onClick={() => setPinInput('')}
-                        >
-                          C
-                        </Button>
-                        <Button
-                          variant="outline"
-                          className="h-12 text-xl font-bold"
-                          onClick={() => setPinInput((p) => p + '0')}
-                        >
-                          0
-                        </Button>
-                        <Button
-                          variant="outline"
-                          className="h-12 text-xl font-bold"
-                          onClick={() => setPinInput((p) => p.slice(0, -1))}
-                        >
-                          ←
-                        </Button>
-                      </div>
-                      <div className="mt-3 flex gap-2">
-                        <Button
-                          variant="outline"
-                          className="h-12 flex-1"
-                          onClick={() => {
-                            setPinMode(false)
-                            setPinInput('')
-                            setPinError(null)
-                          }}
-                        >
-                          {t('close', 'Chiudi')}
-                        </Button>
-                        <Button
-                          className="h-12 flex-1 font-bold"
+                          className="h-12 w-full bg-secondary text-[18px] tabular-nums text-accent-foreground hover:opacity-95"
                           onClick={handlePayWithPin}
                           disabled={paying || !pinInput}
                         >
