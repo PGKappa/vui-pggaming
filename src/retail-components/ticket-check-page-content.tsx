@@ -3,7 +3,6 @@ import { useState } from 'react'
 import { Button } from '@/retail-components/ui/button'
 import { Input } from '@/retail-components/ui/input'
 import TicketCheckDialog from '@/retail-components/ticket-check-dialog'
-import { useRouter, useSearchParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 
 const LETTER_LAYOUT = [
@@ -19,23 +18,16 @@ const NUMPAD_LAYOUT = [
 ]
 
 interface TicketCheckPageContentProps {
-  returnPath: string
+  returnPath?: string
 }
 
-export default function TicketCheckPageContent({
-  returnPath,
-}: TicketCheckPageContentProps) {
+export default function TicketCheckPageContent(
+  _props: TicketCheckPageContentProps,
+) {
   const { t } = useTranslation()
   const [code, setCode] = useState('')
   const [dialogOpen, setDialogOpen] = useState(false)
   const [ticketId, setTicketId] = useState<number | null>(null)
-  const router = useRouter()
-  const searchParams = useSearchParams()
-
-  const buildReturnHref = () => {
-    const queryString = searchParams.toString()
-    return `${returnPath}${queryString ? `?${queryString}` : ''}`
-  }
 
   const handleClick = (val: string) => {
     if (val === '⌫') {
@@ -77,7 +69,10 @@ export default function TicketCheckPageContent({
           {/* Lettere */}
           <div className="flex flex-col space-y-1 lg:space-y-2">
             {LETTER_LAYOUT.map((row, rowIdx) => (
-              <div key={rowIdx} className="flex justify-center space-x-1 lg:space-x-2">
+              <div
+                key={rowIdx}
+                className="flex justify-center space-x-1 lg:space-x-2"
+              >
                 {row.map((key) => (
                   <Button
                     key={key}
@@ -94,7 +89,10 @@ export default function TicketCheckPageContent({
           {/* Numpad */}
           <div className="flex flex-col space-y-1 lg:space-y-2">
             {NUMPAD_LAYOUT.map((row, rowIdx) => (
-              <div key={rowIdx} className="flex justify-center space-x-1 lg:space-x-2">
+              <div
+                key={rowIdx}
+                className="flex justify-center space-x-1 lg:space-x-2"
+              >
                 {row.map((key) => (
                   <Button
                     key={key}
