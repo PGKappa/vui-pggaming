@@ -14,8 +14,10 @@ const STATUS_MAP: Record<string, number> = {
   all: 0,
   active: 1,
   cancelled: 2,
-  won: 3,
-  lost: 4,
+  void: 3,
+  won: 4,
+  lost: 5,
+  paid: 6,
 }
 
 const PAYMENT_MAP: Record<string, number> = {
@@ -42,19 +44,60 @@ export function getStatusDisplay(status: number): {
   translationKey: string
 } {
   switch (status) {
-    case 1:
-      return { label: 'Active', colorClass: 'bg-ticket-active', translationKey: 'active' }
-    case 4:
-      return { label: 'Won', colorClass: 'bg-ticket-won', translationKey: 'won' }
-    case 5:
-    case 9:
-      return { label: 'Lost', colorClass: 'bg-ticket-lost', translationKey: 'lost' }
+    case 0: // CREATED
+      return {
+        label: 'Created',
+        colorClass: 'bg-ticket-active',
+        translationKey: 'pending',
+      }
+    case 1: // ACTIVE
+      return {
+        label: 'Active',
+        colorClass: 'bg-ticket-active',
+        translationKey: 'active',
+      }
+    case 2: // CANCELLED
+      return {
+        label: 'Cancelled',
+        colorClass: 'bg-muted',
+        translationKey: 'cancelled',
+      }
+    case 3: // VOID
+      return { label: 'Void', colorClass: 'bg-muted', translationKey: 'void' }
+    case 4: // WON (unpaid)
+      return {
+        label: 'Won',
+        colorClass: 'bg-ticket-won',
+        translationKey: 'won',
+      }
+    case 5: // LOST
+      return {
+        label: 'Lost',
+        colorClass: 'bg-ticket-lost',
+        translationKey: 'lost',
+      }
+    case 6: // PAID
+      return {
+        label: 'Paid',
+        colorClass: 'bg-ticket-won',
+        translationKey: 'paid',
+      }
     default:
-      return { label: String(status), colorClass: 'bg-ticket-active', translationKey: 'pending' }
+      console.warn(
+        `[TicketList] Unknown status code: ${status} — add to getStatusDisplay()`,
+      )
+      return {
+        label: String(status),
+        colorClass: 'bg-ticket-active',
+        translationKey: 'pending',
+      }
   }
 }
 
-export function formatCurrency(amount: string | number, currencySymbol: string): string {
+export function formatCurrency(
+  amount: string | number,
+  currencySymbol: string,
+): string {
   const num = typeof amount === 'string' ? parseFloat(amount) : amount
   if (isNaN(num)) return `${currencySymbol} 0.00`
   return `${currencySymbol} ${num.toFixed(2)}`
@@ -79,7 +122,13 @@ export function useTicketList() {
 
   const currencySymbol = rootContext.getCurrencySymbol?.() ?? '€'
 
-  const filtersRef = React.useRef({ dateFrom, dateTo, status, payment, terminal })
+  const filtersRef = React.useRef({
+    dateFrom,
+    dateTo,
+    status,
+    payment,
+    terminal,
+  })
   filtersRef.current = { dateFrom, dateTo, status, payment, terminal }
 
   const [appliedFilters, setAppliedFilters] = useState({
@@ -90,64 +139,96 @@ export function useTicketList() {
     terminal,
   })
 
-  const fetchDisciplines = useCallback(async (items: TicketListItem[]) => {
-    if (!rootContext.initCode || !rootContext.operator) return
+  const fetchDisciplines = useCallback(
+    async (items: TicketListItem[]) => {
+      if (!rootContext.initCode || !rootContext.operator) return
 
-    const BATCH_SIZE = 10
+      const BATCH_SIZE = 10
 
-    for (let i = 0; i < items.length; i += BATCH_SIZE) {
-      const batch = items.slice(i, i + BATCH_SIZE)
-      const batchMap: Record<number, string> = {}
+      for (let i = 0; i < items.length; i += BATCH_SIZE) {
+        const batch = items.slice(i, i + BATCH_SIZE)
+        const batchMap: Record<number, string> = {}
 
-      await Promise.all(
-        batch.map(async (item) => {
-          try {
-            const response = await createPGVirtualAPICall(
-              `/api/ticket/${item.ticket_id}`,
-              rootContext.initCode!,
-              undefined,
-              rootContext.operator,
-            )
-            const data = await response.json()
-            if (data.ret_code === 1024 && data.info?.selections?.length > 0) {
-              const gameIds = data.info.selections.map((s: any) => s.gameId ?? '')
-              const hasDogs = gameIds.some((g: string) => g.startsWith('dogs'))
-              const hasHorses = gameIds.some((g: string) => g.startsWith('horse'))
-              const hasSoccer = gameIds.some((g: string) => g.startsWith('soccer') || g.startsWith('calcio'))
+        await Promise.all(
+          batch.map(async (item) => {
+            try {
+              const response = await createPGVirtualAPICall(
+                `/api/ticket/${item.ticket_id}`,
+                rootContext.initCode!,
+                undefined,
+                rootContext.operator,
+              )
+              const data = await response.json()
+              if (data.ret_code === 1024 && data.info?.selections?.length > 0) {
+                const gameIds = data.info.selections.map(
+                  (s: any) => s.gameId ?? '',
+                )
+                const hasDogs = gameIds.some((g: string) =>
+                  g.startsWith('dogs'),
+                )
+                const hasHorses = gameIds.some((g: string) =>
+                  g.startsWith('horse'),
+                )
+                const hasSoccer = gameIds.some(
+                  (g: string) =>
+                    g.startsWith('soccer') || g.startsWith('calcio'),
+                )
 
-              if (hasDogs && hasHorses && hasSoccer) batchMap[item.ticket_id] = 'dogs,horses,soccer'
-              else if (hasDogs && hasHorses) batchMap[item.ticket_id] = 'dogs,horses'
-              else if (hasDogs && hasSoccer) batchMap[item.ticket_id] = 'dogs,soccer'
-              else if (hasHorses && hasSoccer) batchMap[item.ticket_id] = 'horses,soccer'
-              else if (hasDogs) batchMap[item.ticket_id] = 'dogs'
-              else if (hasHorses) batchMap[item.ticket_id] = 'horses'
-              else if (hasSoccer) batchMap[item.ticket_id] = 'soccer'
-              else batchMap[item.ticket_id] = 'other'
+                if (hasDogs && hasHorses && hasSoccer)
+                  batchMap[item.ticket_id] = 'dogs,horses,soccer'
+                else if (hasDogs && hasHorses)
+                  batchMap[item.ticket_id] = 'dogs,horses'
+                else if (hasDogs && hasSoccer)
+                  batchMap[item.ticket_id] = 'dogs,soccer'
+                else if (hasHorses && hasSoccer)
+                  batchMap[item.ticket_id] = 'horses,soccer'
+                else if (hasDogs) batchMap[item.ticket_id] = 'dogs'
+                else if (hasHorses) batchMap[item.ticket_id] = 'horses'
+                else if (hasSoccer) batchMap[item.ticket_id] = 'soccer'
+                else batchMap[item.ticket_id] = 'other'
+              }
+            } catch {
+              // skip silently
             }
-          } catch {
-            // skip silently
-          }
-        })
-      )
+          }),
+        )
 
-      setDisciplineMap((prev) => ({ ...prev, ...batchMap }))
-    }
-  }, [rootContext.initCode, rootContext.operator])
+        setDisciplineMap((prev) => ({ ...prev, ...batchMap }))
+      }
+    },
+    [rootContext.initCode, rootContext.operator],
+  )
 
   const fetchTickets = useCallback(async () => {
     if (!rootContext.initCode || !rootContext.operator) return
 
-    const { dateFrom: df, dateTo: dt, status: s, payment: p, terminal: term } = filtersRef.current
+    const {
+      dateFrom: df,
+      dateTo: dt,
+      status: s,
+      payment: p,
+      terminal: term,
+    } = filtersRef.current
 
-    setAppliedFilters({ dateFrom: df, dateTo: dt, status: s, payment: p, terminal: term })
+    setAppliedFilters({
+      dateFrom: df,
+      dateTo: dt,
+      status: s,
+      payment: p,
+      terminal: term,
+    })
     setCurrentPage(1)
     setLoading(true)
     setDisciplineMap({})
 
     try {
       const body = {
-        dateStart: df ? format(df, 'dd-MM-yyyy') : format(new Date(), 'dd-MM-yyyy'),
-        dateEnd: dt ? format(dt, 'dd-MM-yyyy') : format(new Date(), 'dd-MM-yyyy'),
+        dateStart: df
+          ? format(df, 'dd-MM-yyyy')
+          : format(new Date(), 'dd-MM-yyyy'),
+        dateEnd: dt
+          ? format(dt, 'dd-MM-yyyy')
+          : format(new Date(), 'dd-MM-yyyy'),
         offset: 0,
         itemsPerPage: 9999,
         terminal: -1,
@@ -168,12 +249,28 @@ export function useTicketList() {
 
       if (data.ret_code === 1024) {
         const rawItems = data.items ?? []
+        // Diagnostic: log any status codes not yet handled in getStatusDisplay
+        const knownStatuses = new Set([1, 4, 5, 6, 9])
+        const unknownStatuses = [
+          ...new Set(rawItems.map((i) => i.status)),
+        ].filter((s) => !knownStatuses.has(s))
+        if (unknownStatuses.length > 0) {
+          console.warn(
+            '[TicketList] Unknown status codes in response:',
+            unknownStatuses,
+          )
+        } else {
+          console.log(
+            '[TicketList] All status codes known:',
+            [...new Set(rawItems.map((i) => i.status))].sort(),
+          )
+        }
         setAllItems(rawItems)
         setInfo(data.info ?? null)
         if (rawItems.length) {
-          const terminalIds = [...new Set(rawItems.map((i) => String(i.terminal_id)))].sort(
-            (a, b) => parseInt(a) - parseInt(b),
-          )
+          const terminalIds = [
+            ...new Set(rawItems.map((i) => String(i.terminal_id))),
+          ].sort((a, b) => parseInt(a) - parseInt(b))
           setAvailableTerminals((prev) => {
             const merged = [...new Set([...prev, ...terminalIds])].sort(
               (a, b) => parseInt(a) - parseInt(b),
@@ -206,11 +303,16 @@ export function useTicketList() {
   const filteredItems =
     appliedFilters.terminal === 'all'
       ? allItems
-      : allItems.filter((i) => String(i.terminal_id) === appliedFilters.terminal)
+      : allItems.filter(
+          (i) => String(i.terminal_id) === appliedFilters.terminal,
+        )
 
   const perPage = parseInt(pageSize)
   const totalPages = Math.max(1, Math.ceil(filteredItems.length / perPage))
-  const items = filteredItems.slice((currentPage - 1) * perPage, currentPage * perPage)
+  const items = filteredItems.slice(
+    (currentPage - 1) * perPage,
+    currentPage * perPage,
+  )
 
   const setPageSizeAndReset = useCallback((v: string) => {
     setPageSize(v)
@@ -218,14 +320,20 @@ export function useTicketList() {
   }, [])
 
   return {
-    terminal, setTerminal,
-    status, setStatus,
-    payment, setPayment,
-    dateFrom, setDateFrom,
-    dateTo, setDateTo,
+    terminal,
+    setTerminal,
+    status,
+    setStatus,
+    payment,
+    setPayment,
+    dateFrom,
+    setDateFrom,
+    dateTo,
+    setDateTo,
     pageSize,
     setPageSize: setPageSizeAndReset,
-    currentPage, setCurrentPage,
+    currentPage,
+    setCurrentPage,
     totalPages,
     items,
     info,
