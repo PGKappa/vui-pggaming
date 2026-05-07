@@ -69,5 +69,6 @@
   "horse_races_label": "赛马",
   "place_2_short": "第二名",
   "show_3_short": "第三名",
-  "show_results": "显示结果"
+  "show_results": "显示结果",
+  "time_slot": "时间段"
 }
