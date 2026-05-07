@@ -3,7 +3,6 @@
 import { RootContext } from '@/virtual-contexts/root-context'
 import { Discipline, EventResult, RaceResult } from '@/virtual-lib/types'
 import { createPGVirtualAPICall, getRacerColors } from '@/virtual-lib/utils'
-import { format } from 'date-fns'
 import Image from 'next/image'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -16,12 +15,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select'
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from './ui/accordion'
 import { ScrollArea } from './ui/scroll-area'
 import LoadingSpinner from './loading-spinner'
 
@@ -55,7 +48,7 @@ export default function SearchResultsDialog({
   const [fetchedResults, setFetchedResults] = useState<EventResult[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [hasSearched, setHasSearched] = useState(false)
-  const [openResults, setOpenResults] = useState<string[]>([])
+  const [selectedResult, setSelectedResult] = useState<EventResult | null>(null)
 
   const fetchDetailedEventResult = useCallback(
     async (extId: string, eventId: string) => {
@@ -81,7 +74,6 @@ export default function SearchResultsDialog({
   const handleSearch = async () => {
     setHasSearched(true)
     setFetchedResults([])
-    setOpenResults([])
 
     const disciplines: Discipline[] =
       selectedDiscipline === 'ALL'
@@ -184,30 +176,20 @@ export default function SearchResultsDialog({
     if (!open) {
       setHasSearched(false)
       setFetchedResults([])
-      setOpenResults([])
+      setSelectedResult(null)
     }
   }, [open])
 
-  const formatSafeDate = (date: any): string => {
-    try {
-      const d = date instanceof Date ? date : new Date(date)
-      if (!isNaN(d.getTime())) return format(d, 'dd/MM/yyyy HH:mm')
-      return 'Invalid Date'
-    } catch {
-      return 'Invalid Date'
-    }
-  }
-
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex max-h-[80vh] w-[90vw] max-w-[600px] flex-col overflow-hidden bg-white p-0">
-        <DialogHeader className="bg-secondary p-4 text-secondary-foreground">
-          <DialogTitle>{t('search_results')}</DialogTitle>
-        </DialogHeader>
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="flex max-h-[85vh] w-[350px] !max-w-[440px] flex-col overflow-hidden bg-white p-0">
+          <DialogHeader className="bg-accent p-4 text-accent-foreground">
+            <DialogTitle>{t('search_results')}</DialogTitle>
+          </DialogHeader>
 
-        {/* Filtri */}
-        <div className="flex flex-col gap-4 px-6 pt-4">
-          <div className="flex items-center gap-4">
+          {/* Filtri */}
+          <div className="flex items-center gap-3 px-4 pt-4">
             {/* Disciplina */}
             <Select
               value={selectedDiscipline}
@@ -215,10 +197,13 @@ export default function SearchResultsDialog({
                 setSelectedDiscipline(v === 'ALL' ? 'ALL' : (v as Discipline))
               }
             >
-              <SelectTrigger className="h-12 flex-1 border border-gray-300 bg-white text-sm">
+              <SelectTrigger
+                className="h-10 flex-1 border border-gray-300 bg-white text-sm"
+                style={{ color: '#111827' }}
+              >
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-white">
+              <SelectContent className="bg-white" style={{ color: '#111827' }}>
                 <SelectItem value={Discipline.DOGS}>
                   {t('dog_racing')}
                 </SelectItem>
@@ -231,10 +216,13 @@ export default function SearchResultsDialog({
 
             {/* Data */}
             <Select value={selectedDate} onValueChange={setSelectedDate}>
-              <SelectTrigger className="h-12 flex-1 border border-gray-300 bg-white text-sm">
+              <SelectTrigger
+                className="h-10 flex-1 border border-gray-300 bg-white text-sm"
+                style={{ color: '#111827' }}
+              >
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-white">
+              <SelectContent className="bg-white" style={{ color: '#111827' }}>
                 {dates.map((d) => (
                   <SelectItem key={d} value={d}>
                     {d}
@@ -243,69 +231,128 @@ export default function SearchResultsDialog({
               </SelectContent>
             </Select>
           </div>
-        </div>
 
-        {/* Risultati */}
-        <div className="flex min-h-0 flex-1 flex-col px-6 pb-4">
-          {hasSearched && (
-            <ScrollArea className="mt-4 flex-1">
-              {isLoading ? (
-                <div className="flex flex-col items-center justify-center py-8">
-                  <LoadingSpinner />
-                </div>
-              ) : fetchedResults.length > 0 ? (
-                <Accordion
-                  type="multiple"
-                  className="space-y-1"
-                  value={openResults}
-                  onValueChange={setOpenResults}
-                >
-                  {fetchedResults.map((eventResult, index) => {
-                    const uniqueKey = `${eventResult.discipline}-${eventResult.id}-${index}`
-                    return (
-                      <AccordionItem
-                        key={uniqueKey}
-                        value={uniqueKey}
-                        className="gap-0 border-none"
-                      >
-                        <AccordionTrigger className="bg-secondary px-3 py-2 text-sm text-secondary-foreground hover:no-underline">
-                          <div className="flex w-full items-center justify-between pr-2 text-xs">
-                            <span className="font-semibold">
-                              {eventResult.discipline === Discipline.DOGS
-                                ? t('dog_races_label')
-                                : t('horse_races_label')}
-                            </span>
-                            <span>ID {eventResult.id}</span>
-                            <span>{formatSafeDate(eventResult.startTime)}</span>
+          {/* Risultati */}
+          <div className="flex min-h-0 flex-1 flex-col px-4 pb-2">
+            {hasSearched && (
+              <ScrollArea className="mt-3 flex-1">
+                {isLoading ? (
+                  <div className="flex flex-col items-center justify-center py-8">
+                    <LoadingSpinner />
+                  </div>
+                ) : fetchedResults.length > 0 ? (
+                  <div className="space-y-1">
+                    {fetchedResults.map((eventResult, index) => {
+                      const uniqueKey = `${eventResult.discipline}-${eventResult.id}-${index}`
+                      const timeStr =
+                        eventResult.startTime instanceof Date &&
+                        !isNaN(eventResult.startTime.getTime())
+                          ? eventResult.startTime.toLocaleTimeString('it-IT', {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })
+                          : '--:--'
+                      const icon =
+                        eventResult.discipline === Discipline.DOGS
+                          ? '/dog-image.png'
+                          : '/horse-image.png'
+                      return (
+                        <div
+                          key={uniqueKey}
+                          className="flex items-center justify-between border-b border-gray-100 px-2 py-2"
+                        >
+                          <div className="flex items-center gap-2">
+                            <Image
+                              src={icon}
+                              alt={eventResult.discipline}
+                              width={22}
+                              height={22}
+                              className="object-contain"
+                            />
+                            <div>
+                              <p
+                                className="text-xs font-semibold"
+                                style={{ color: '#111827' }}
+                              >
+                                {eventResult.discipline === Discipline.DOGS
+                                  ? t('dog_races_label')
+                                  : t('horse_races_label')}
+                              </p>
+                              <p
+                                className="text-xs"
+                                style={{ color: '#6b7280' }}
+                              >
+                                ID {eventResult.id}
+                              </p>
+                            </div>
                           </div>
-                        </AccordionTrigger>
-                        <AccordionContent className="p-0">
-                          <EventResultDetails eventResult={eventResult} />
-                        </AccordionContent>
-                      </AccordionItem>
-                    )
-                  })}
-                </Accordion>
-              ) : (
-                <p className="py-8 text-center text-sm text-gray-500">
-                  {t('no_results_found')}
-                </p>
-              )}
-            </ScrollArea>
-          )}
-        </div>
+                          <div className="flex items-center gap-2">
+                            <span
+                              className="text-xs font-semibold"
+                              style={{ color: '#111827' }}
+                            >
+                              {timeStr}
+                            </span>
+                            <Button
+                              size="sm"
+                              className="h-8 bg-secondary px-3 text-xs text-secondary-foreground hover:bg-secondary/90"
+                              onClick={() => setSelectedResult(eventResult)}
+                            >
+                              {t('show_results')}
+                            </Button>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                ) : (
+                  <p
+                    className="py-8 text-center text-sm"
+                    style={{ color: '#6b7280' }}
+                  >
+                    {t('no_results_found')}
+                  </p>
+                )}
+              </ScrollArea>
+            )}
+          </div>
 
-        {/* Pulsante Accetta */}
-        <div className="flex justify-center px-6 pb-6">
-          <Button
-            className="h-12 w-48 bg-secondary text-secondary-foreground hover:bg-secondary/90"
-            onClick={handleSearch}
-          >
-            {t('accept').toUpperCase()}
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+          {/* Pulsante Cerca */}
+          <div className="flex justify-center px-4 pb-4 pt-2">
+            <Button
+              className="h-10 w-40 bg-accent text-accent-foreground hover:bg-accent/90"
+              onClick={handleSearch}
+            >
+              {t('accept').toUpperCase()}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog dettaglio risultato */}
+      <Dialog
+        open={!!selectedResult}
+        onOpenChange={(o) => {
+          if (!o) setSelectedResult(null)
+        }}
+      >
+        <DialogContent className="flex max-h-[85vh] w-full !max-w-[440px] flex-col overflow-hidden bg-white p-0">
+          <DialogHeader className="bg-secondary p-4 text-secondary-foreground">
+            <DialogTitle>
+              {selectedResult?.discipline === Discipline.DOGS
+                ? t('dog_races_label')
+                : t('horse_races_label')}{' '}
+              — ID {selectedResult?.id}
+            </DialogTitle>
+          </DialogHeader>
+          <ScrollArea className="flex-1">
+            {selectedResult && (
+              <EventResultDetails eventResult={selectedResult} />
+            )}
+          </ScrollArea>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }
 
