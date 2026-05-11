@@ -18,6 +18,9 @@ export default {
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/retail-components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/retail-lib/layout-config.ts',
+    './src/virtual-components/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/virtual-lib/**/*.{js,ts,tsx}',
+    './src/virtual-contexts/**/*.{js,ts,tsx}',
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {

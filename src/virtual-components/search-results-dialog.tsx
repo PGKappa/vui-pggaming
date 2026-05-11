@@ -18,18 +18,24 @@ import {
 import { ScrollArea } from './ui/scroll-area'
 import LoadingSpinner from './loading-spinner'
 
-const dates = Array.from({ length: 10 }, (_, index) => {
-  const date = new Date()
-  date.setDate(date.getDate() - index)
-  return date.toLocaleDateString('it-IT')
-})
-
-// Cache a livello modulo
 const searchResultsCache = new Map<
   string,
   { timestamp: number; results: EventResult[] }
 >()
 const SEARCH_CACHE_TTL_MS = 5 * 60 * 1000
+
+const timeSlots = [
+  '00:00 | 03:00',
+  '03:00 | 07:00',
+  '07:00 | 09:00',
+  '09:00 | 11:00',
+  '11:00 | 13:00',
+  '13:00 | 15:00',
+  '15:00 | 17:00',
+  '17:00 | 19:00',
+  '19:00 | 21:00',
+  '21:00 | 23:59',
+]
 
 export default function SearchResultsDialog({
   open,
@@ -41,10 +47,27 @@ export default function SearchResultsDialog({
   const { t } = useTranslation()
   const rootContext = useContext(RootContext)
 
+  const timezone = rootContext.getTimezone?.() || 'Europe/Rome'
+  const dates = useMemo(
+    () =>
+      Array.from({ length: 10 }, (_, index) => {
+        const d = new Date()
+        d.setDate(d.getDate() - index)
+        return new Intl.DateTimeFormat('it-IT', {
+          timeZone: timezone,
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+        }).format(d)
+      }),
+    [timezone],
+  )
+
   const [selectedDiscipline, setSelectedDiscipline] = useState<
     Discipline | 'ALL'
   >('ALL')
-  const [selectedDate, setSelectedDate] = useState<string>(dates[0])
+  const [selectedDate, setSelectedDate] = useState<string>('')
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>('ALL')
   const [fetchedResults, setFetchedResults] = useState<EventResult[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [hasSearched, setHasSearched] = useState(false)
@@ -80,7 +103,7 @@ export default function SearchResultsDialog({
         ? [Discipline.DOGS, Discipline.HORSES]
         : [selectedDiscipline]
 
-    const cacheKey = `${selectedDiscipline}:${selectedDate}`
+    const cacheKey = `${selectedDiscipline}:${selectedDate}:${selectedTimeSlot}`
     const cached = searchResultsCache.get(cacheKey)
     if (cached && Date.now() - cached.timestamp < SEARCH_CACHE_TTL_MS) {
       setFetchedResults(cached.results)
@@ -103,8 +126,18 @@ export default function SearchResultsDialog({
             method: 'POST',
             body: JSON.stringify({
               gameIds: [gameIds],
-              dateStart: selectedDate,
-              dateEnd: selectedDate,
+              dateStart: selectedDate || dates[0],
+              dateEnd: selectedDate || dates[0],
+              ...(selectedTimeSlot !== 'ALL'
+                ? (() => {
+                    const [startTimeStr, endTimeStr] =
+                      selectedTimeSlot.split(' | ')
+                    return {
+                      timeStart: startTimeStr.trim(),
+                      timeEnd: endTimeStr.trim(),
+                    }
+                  })()
+                : {}),
             }),
           },
           rootContext.operator,
@@ -114,8 +147,27 @@ export default function SearchResultsDialog({
         const data = await response.json()
         if (!data.items || !Array.isArray(data.items)) continue
 
+        const filteredItems =
+          selectedTimeSlot !== 'ALL'
+            ? data.items.filter((item: any) => {
+                if (!item.start_time || !item.start_time.includes(':'))
+                  return true
+                const [startTimeStr, endTimeStr] = selectedTimeSlot.split(' | ')
+                const [sh, sm] = startTimeStr.trim().split(':').map(Number)
+                const [eh, em] = endTimeStr.trim().split(':').map(Number)
+                const startInMinutes = sh * 60 + sm
+                const endInMinutes = eh * 60 + em
+                const [hours, minutes] = item.start_time.split(':').map(Number)
+                const timeInMinutes = hours * 60 + minutes
+                return (
+                  timeInMinutes >= startInMinutes &&
+                  timeInMinutes <= endInMinutes
+                )
+              })
+            : data.items
+
         const results: EventResult[] = await Promise.all(
-          data.items.map(async (event: any) => {
+          filteredItems.map(async (event: any) => {
             const detailedResult = await fetchDetailedEventResult(
               event.ext_pal_id,
               event.int_event_id.toString(),
@@ -177,19 +229,23 @@ export default function SearchResultsDialog({
       setHasSearched(false)
       setFetchedResults([])
       setSelectedResult(null)
+      setSelectedTimeSlot('ALL')
     }
   }, [open])
 
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="flex max-h-[85vh] w-[350px] !max-w-[440px] flex-col overflow-hidden bg-white p-0">
+        <DialogContent
+          className="flex max-h-[85vh] flex-col overflow-hidden bg-white p-0"
+          style={{ width: 'min(440px, 95vw)', maxWidth: '440px' }}
+        >
           <DialogHeader className="bg-accent p-4 text-accent-foreground">
             <DialogTitle>{t('search_results')}</DialogTitle>
           </DialogHeader>
 
           {/* Filtri */}
-          <div className="flex items-center gap-3 px-4 pt-4">
+          <div className="flex items-center gap-2 px-4 pt-4">
             {/* Disciplina */}
             <Select
               value={selectedDiscipline}
@@ -198,12 +254,15 @@ export default function SearchResultsDialog({
               }
             >
               <SelectTrigger
-                className="h-10 flex-1 border border-gray-300 bg-white text-sm"
-                style={{ color: '#111827' }}
+                className="h-9 min-w-0 flex-1 border border-gray-300 bg-white px-2 text-sm"
+                style={{ color: 'hsl(var(--table-foreground))' }}
               >
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-white" style={{ color: '#111827' }}>
+              <SelectContent
+                className="bg-white"
+                style={{ color: 'hsl(var(--table-foreground))' }}
+              >
                 <SelectItem value={Discipline.DOGS}>
                   {t('dog_racing')}
                 </SelectItem>
@@ -217,15 +276,42 @@ export default function SearchResultsDialog({
             {/* Data */}
             <Select value={selectedDate} onValueChange={setSelectedDate}>
               <SelectTrigger
-                className="h-10 flex-1 border border-gray-300 bg-white text-sm"
-                style={{ color: '#111827' }}
+                className="h-9 min-w-0 flex-1 border border-gray-300 bg-white px-2 text-sm"
+                style={{ color: 'hsl(var(--table-foreground))' }}
               >
-                <SelectValue />
+                <SelectValue placeholder={t('date')} />
               </SelectTrigger>
-              <SelectContent className="bg-white" style={{ color: '#111827' }}>
+              <SelectContent
+                className="bg-white"
+                style={{ color: 'hsl(var(--table-foreground))' }}
+              >
                 {dates.map((d) => (
                   <SelectItem key={d} value={d}>
                     {d}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* Fascia Oraria */}
+            <Select
+              value={selectedTimeSlot}
+              onValueChange={setSelectedTimeSlot}
+            >
+              <SelectTrigger
+                className="h-9 min-w-0 flex-1 border border-gray-300 bg-white px-2 text-sm"
+                style={{ color: 'hsl(var(--table-foreground))' }}
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent
+                className="bg-white"
+                style={{ color: 'hsl(var(--table-foreground))' }}
+              >
+                <SelectItem value="ALL">{t('time_slot')}</SelectItem>
+                {timeSlots.map((slot) => (
+                  <SelectItem key={slot} value={slot}>
+                    {slot}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -270,27 +356,18 @@ export default function SearchResultsDialog({
                               className="object-contain"
                             />
                             <div>
-                              <p
-                                className="text-xs font-semibold"
-                                style={{ color: '#111827' }}
-                              >
+                              <p className="text-xs font-semibold text-gray-900">
                                 {eventResult.discipline === Discipline.DOGS
                                   ? t('dog_races_label')
                                   : t('horse_races_label')}
                               </p>
-                              <p
-                                className="text-xs"
-                                style={{ color: '#6b7280' }}
-                              >
+                              <p className="text-xs text-gray-500">
                                 ID {eventResult.id}
                               </p>
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
-                            <span
-                              className="text-xs font-semibold"
-                              style={{ color: '#111827' }}
-                            >
+                            <span className="text-xs font-semibold text-gray-900">
                               {timeStr}
                             </span>
                             <Button
@@ -306,10 +383,7 @@ export default function SearchResultsDialog({
                     })}
                   </div>
                 ) : (
-                  <p
-                    className="py-8 text-center text-sm"
-                    style={{ color: '#6b7280' }}
-                  >
+                  <p className="py-8 text-center text-sm text-gray-500">
                     {t('no_results_found')}
                   </p>
                 )}
@@ -336,7 +410,10 @@ export default function SearchResultsDialog({
           if (!o) setSelectedResult(null)
         }}
       >
-        <DialogContent className="flex max-h-[85vh] w-full !max-w-[440px] flex-col overflow-hidden bg-white p-0">
+        <DialogContent
+          className="flex max-h-[85vh] flex-col overflow-hidden bg-white p-0"
+          style={{ width: 'min(440px, 95vw)', maxWidth: '440px' }}
+        >
           <DialogHeader className="bg-secondary p-4 text-secondary-foreground">
             <DialogTitle>
               {selectedResult?.discipline === Discipline.DOGS

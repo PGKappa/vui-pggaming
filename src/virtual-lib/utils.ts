@@ -9,7 +9,9 @@ export function cn(...inputs: ClassValue[]) {
 export const API_URLS = {
   PGVIRTUAL: 'https://apidev.pgvirtual.eu',
   CASHIER_INIT: 'https://apidev.pgvirtual.eu/api/init/cashier',
-  BASE: process.env.NEXT_PUBLIC_BASE_API_URL || 'https://retail.virtualsport.shop/proxy',
+  BASE:
+    process.env.NEXT_PUBLIC_BASE_API_URL ||
+    'https://retail.virtualsport.shop/proxy',
 } as const
 
 // Backwards compatibility
@@ -29,6 +31,7 @@ export function createPGVirtualAPICall(
     headers: {
       accept: 'application/json',
       'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
+      'content-type': 'application/json',
       authorization: `Bearer ${initCode}`,
       operator: operator || 'bingoal',
       ...options?.headers,
@@ -38,8 +41,11 @@ export function createPGVirtualAPICall(
   })
 }
 
-// Helper per l'inizializzazione cashier 
-export async function fetchCashierInit(initCode: string, operator?: string): Promise<any> {
+// Helper per l'inizializzazione cashier
+export async function fetchCashierInit(
+  initCode: string,
+  operator?: string,
+): Promise<any> {
   const response = await fetch(API_URLS.CASHIER_INIT, {
     method: 'POST',
     headers: {
