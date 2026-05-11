@@ -20,7 +20,7 @@ export default function PreviousResultsCard({
         </CardTitle>
       </CardHeader>
       <CardContent className="flex h-full flex-col p-0">
-        <div className="bg-gray-100 px-1 py-2 text-sm font-bold text-white">
+        <div className="bg-card-header px-1 py-2 text-sm font-bold text-card-header-foreground">
           <div className="flex text-center">
             <span className="w-10 shrink-0">{t('time').toUpperCase()}</span>
             <span className="w-8 shrink-0">{t('id').toUpperCase()}</span>
