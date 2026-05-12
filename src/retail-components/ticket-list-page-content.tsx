@@ -684,7 +684,7 @@ export default function TicketListPageContent({
                   'border border-muted bg-accent text-center align-middle font-bold',
                   isCalcio
                     ? 'px-3 py-2'
-                    : 'px-1 py-1 text-[10px] lg:px-3 lg:py-2 lg:text-md',
+                    : 'px-1 py-1 text-[10px] lg:px-3 lg:pb-14 lg:text-md',
                 )}
               >
                 {t('totals')}
@@ -694,7 +694,7 @@ export default function TicketListPageContent({
                   'border border-muted bg-accent text-center align-middle',
                   isCalcio
                     ? 'px-3 py-2'
-                    : 'px-1 py-1 text-[10px] lg:px-3 lg:py-2 lg:text-md',
+                    : 'px-1 py-1 text-[10px] lg:px-3 lg:pb-14 lg:text-md',
                 )}
               >
                 {formatCurrency(info?.grandtotal?.in ?? 0, currencySymbol)}
@@ -704,7 +704,7 @@ export default function TicketListPageContent({
                   'border border-muted bg-accent text-center align-middle',
                   isCalcio
                     ? 'px-3 py-2'
-                    : 'px-1 py-1 text-[10px] lg:px-3 lg:py-2 lg:text-md',
+                    : 'px-1 py-1 text-[10px] lg:px-3 lg:pb-14 lg:text-md',
                 )}
               >
                 {formatCurrency(
@@ -717,7 +717,7 @@ export default function TicketListPageContent({
                   'border border-muted bg-accent text-center align-middle',
                   isCalcio
                     ? 'px-3 py-2'
-                    : 'px-1 py-1 text-[10px] lg:px-3 lg:py-2 lg:text-md',
+                    : 'px-1 py-1 text-[10px] lg:px-3 lg:pb-14 lg:text-md',
                 )}
               >
                 {formatCurrency(
@@ -730,7 +730,7 @@ export default function TicketListPageContent({
                   'border border-muted bg-accent text-center align-middle',
                   isCalcio
                     ? 'px-3 py-2'
-                    : 'px-1 py-1 text-[10px] lg:px-3 lg:py-2 lg:text-md',
+                    : 'px-1 py-1 text-[10px] lg:px-3 lg:pb-14 lg:text-md',
                 )}
               >
                 {formatCurrency('0.00', currencySymbol)}
@@ -740,7 +740,7 @@ export default function TicketListPageContent({
                   'border border-muted bg-accent text-center align-middle',
                   isCalcio
                     ? 'px-3 py-2'
-                    : 'px-1 py-1 text-[10px] lg:px-3 lg:py-2 lg:text-md',
+                    : 'px-1 py-1 text-[10px] lg:px-3 lg:pb-14 lg:text-md',
                 )}
               >
                 {info?.count_paid ?? 0} / {info?.count_won ?? 0}
@@ -750,7 +750,7 @@ export default function TicketListPageContent({
                   'border border-muted bg-accent text-center align-middle',
                   isCalcio
                     ? 'px-3 py-2'
-                    : 'px-1 py-1 text-[10px] lg:px-3 lg:py-2 lg:text-md',
+                    : 'px-1 py-1 text-[10px] lg:px-3 lg:pb-14 lg:text-md',
                 )}
               >
                 {info?.count ?? 0}
