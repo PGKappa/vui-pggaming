@@ -11,13 +11,6 @@ import useTimeLeft from '@/virtual-lib/use-time-left'
 import { usePathname } from 'next/navigation'
 import { useContext, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-
-/**
- * Carousel component — esatto pattern retail.
- * Legge upcomingEvents dal context, filtra per disciplina dal pathname.
- * Auto-seleziona il primo evento se quello corrente non è più nella lista.
- * NON gestisce auto-advance (lo fa la pagina con il suo interval).
- */
 export function UpcomingEventsCarousel(props: {
   selectedEvent?: UpcomingEvent
   setSelectedEvent: (event: UpcomingEvent) => void
@@ -68,13 +61,12 @@ export function UpcomingEventsCarousel(props: {
 
   return (
     <div className="relative w-full bg-white">
-      <Carousel className="mx-auto w-full max-w-[849px]">
+      <Carousel className="mx-auto w-full">
         <CarouselContent
-          className={`ml-0 h-12 ${filteredAndSortedEvents.length > 0 ? 'pl-12' : ''}`}
+          className={`ml-0 h-12 ${filteredAndSortedEvents.length > 0 ? 'px-12' : ''}`}
         >
           {filteredAndSortedEvents.length > 0 ? (
             <>
-              <CarouselItem className="min-w-10 flex-shrink-0" />
               {filteredAndSortedEvents.map((event, index) => (
                 <UpcomingEventItem
                   key={`${event.discipline}-${event.id}-${index}`}
@@ -112,7 +104,7 @@ function UpcomingEventItem(props: {
 
   return (
     <CarouselItem
-      className={`flex h-12 min-w-[140px] flex-shrink-0 cursor-pointer flex-col items-center justify-center rounded-md border px-3 ${
+      className={`flex h-12 flex-shrink-0 basis-1/3 cursor-pointer items-center justify-center gap-1.5 rounded-md border px-1 sm:h-12 sm:min-w-[80px] sm:basis-auto sm:flex-col sm:gap-0 sm:px-3 ${
         event.id === props.selectedEvent?.id &&
         event.discipline === props.selectedEvent?.discipline
           ? 'border-border bg-chart-1 text-background'
@@ -122,14 +114,16 @@ function UpcomingEventItem(props: {
         props.setSelectedEvent(event)
       }}
     >
-      <span className="text-center text-[10px] font-semibold uppercase leading-tight">
+      {/* Label: solo sm+ */}
+      <span className="hidden text-center text-[10px] font-semibold uppercase leading-tight sm:block">
         {event.discipline === Discipline.FOOTBALL
           ? `${t('round')} ${event.id}`
           : `${t('track')} ${event.trackName?.match(/\d+/)?.[0] || ''}`}
       </span>
-      <div className="flex flex-row items-center gap-2">
+      {/* Riga orario + badge: sempre visibile */}
+      <div className="flex flex-row items-center gap-1 sm:gap-2">
         <span className="text-center text-sm font-bold">{event.startTime}</span>
-        <span className="w-[50px] rounded-md bg-accent p-1 text-center font-mono text-xs font-bold text-accent-foreground">
+        <span className="w-[44px] rounded-md bg-accent p-1 text-center font-mono text-xs font-bold text-accent-foreground">
           {timeToEventStart}
         </span>
       </div>
