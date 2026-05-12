@@ -53,9 +53,12 @@ const getImageConfig = (
   if (language === 'it') {
     const isStanleybet = skin === SkinType.STANLEYBET
     return {
-      image: isStanleybet
-        ? '/cani-cavalli-codes-image-rosso.png'
-        : '/cani-cavalli-codes-image.png',
+      image:
+        racingDiscipline === 'DOGS8'
+          ? '/cani-cavalli-8-codes-image.png'
+          : isStanleybet
+            ? '/cani-cavalli-codes-image-rosso.png'
+            : '/cani-cavalli-codes-image.png',
       alt: 'Codici scommesse cani e cavalli',
       title: 'Elenco Codici Corse',
     }
@@ -63,7 +66,10 @@ const getImageConfig = (
 
   // Default inglese per racing
   return {
-    image: '/dogshorses-codes-image.png',
+    image:
+      racingDiscipline === 'DOGS8'
+        ? '/dogshorses-8-codes-image.png'
+        : '/dogshorses-codes-image.png',
     alt: 'Dogs and horses betting codes',
     title: 'Racing Code List',
   }
