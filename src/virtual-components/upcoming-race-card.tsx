@@ -12,7 +12,7 @@ import {
 import { createPGVirtualAPICall, getRacerColors } from '@/virtual-lib/utils'
 import { t } from 'i18next'
 import { Discipline } from '@/virtual-lib/types'
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import BetCombinationsTable from './bet-combination-table'
 import BetEntryToggle from './bet-entry-toggle'
 import LatecomersDialog from './latecomers-dialog'
@@ -52,8 +52,8 @@ export default function UpcomingRaceCard({
   const [disorderSelection, setDisorderSelection] = useState<number[]>([])
   const [isLoading, setIsLoading] = useState(!moduleHasLoadedOnce)
   const [isLatecomersDialogOpen, setIsLatecomersDialogOpen] = useState(false)
-  const [showPerformance, setShowPerformance] = useState(true)
-  const [showHistory, setShowHistory] = useState(true)
+  const tableContainerRef = useRef<HTMLDivElement>(null)
+  const [containerWidth, setContainerWidth] = useState(1200)
 
   const { betEntries } = useContext(BetsContext)
   const { initCode, operator } = useContext(CashierContext)
@@ -228,13 +228,13 @@ export default function UpcomingRaceCard({
   ])
 
   useEffect(() => {
-    const updateBreakpoints = () => {
-      setShowPerformance(window.innerWidth >= 640)
-      setShowHistory(window.innerWidth >= 768)
-    }
-    updateBreakpoints()
-    window.addEventListener('resize', updateBreakpoints)
-    return () => window.removeEventListener('resize', updateBreakpoints)
+    const el = tableContainerRef.current
+    if (!el) return
+    const observer = new ResizeObserver((entries) => {
+      setContainerWidth(entries[0].contentRect.width)
+    })
+    observer.observe(el)
+    return () => observer.disconnect()
   }, [])
 
   const handleTabChange = (tab: TabType) => {
@@ -354,21 +354,86 @@ export default function UpcomingRaceCard({
     setDisorderSelection([])
   }
 
-  const getGridColumns = () => {
+  // breakpoints basati sulla larghezza reale del container (non viewport)
+  // >= 700px → mostra HISTORY, >= 450px → mostra PERFORMANCE
+  const showHistory = containerWidth >= 700
+  const showPerformance = containerWidth >= 450
+
+  const getGridColumns = (): string => {
     if (activeTab === 'main') {
-      if (!showPerformance) return '140px 1px 90px 1px 90px 1px 90px'
-      if (!showHistory) return '160px 1px 150px 1px 100px 1px 100px 1px 100px'
-      return '200px 1px 200px 1px 200px 1px 181px 1px 181px 1px 181px'
+      // S | W | P | SH  (3 separatori)
+      if (!showPerformance) {
+        const avail = containerWidth - 3
+        const s = Math.round(avail * 0.35)
+        const b = Math.round((avail - s) / 3)
+        return `${s}px 1px ${b}px 1px ${b}px 1px ${b}px`
+      }
+      // S | PERF | W | P | SH  (4 separatori)
+      if (!showHistory) {
+        const avail = containerWidth - 4
+        const s = Math.round(avail * 0.28)
+        const p = Math.round(avail * 0.22)
+        const b = Math.round((avail - s - p) / 3)
+        return `${s}px 1px ${p}px 1px ${b}px 1px ${b}px 1px ${b}px`
+      }
+      // S | PERF | HIST | W | P | SH  (5 separatori)
+      const avail = containerWidth - 5
+      const s = Math.round(avail * 0.22)
+      const p = Math.round(avail * 0.17)
+      const h = Math.round(avail * 0.17)
+      const b = Math.round((avail - s - p - h) / 3)
+      return `${s}px 1px ${p}px 1px ${h}px 1px ${b}px 1px ${b}px 1px ${b}px`
     }
     if (activeTab === 'couples') {
-      if (!showPerformance) return '140px 1px 75px 75px 1px 90px'
-      if (!showHistory) return '160px 1px 150px 1px 80px 80px 1px 100px'
-      return '200px 1px 200px 1px 200px 1px 180px 180px 1px 183px'
+      // S | 1° 2° | DUO
+      if (!showPerformance) {
+        const avail = containerWidth - 2
+        const s = Math.round(avail * 0.35)
+        const b = Math.round(avail * 0.22)
+        const ao = avail - s - 2 * b
+        return `${s}px 1px ${b}px ${b}px 1px ${ao}px`
+      }
+      // S | PERF | 1° 2° | DUO
+      if (!showHistory) {
+        const avail = containerWidth - 3
+        const s = Math.round(avail * 0.26)
+        const p = Math.round(avail * 0.2)
+        const b = Math.round(avail * 0.18)
+        const ao = avail - s - p - 2 * b
+        return `${s}px 1px ${p}px 1px ${b}px ${b}px 1px ${ao}px`
+      }
+      // S | PERF | HIST | 1° 2° | DUO
+      const avail = containerWidth - 4
+      const s = Math.round(avail * 0.2)
+      const p = Math.round(avail * 0.16)
+      const h = Math.round(avail * 0.16)
+      const b = Math.round(avail * 0.16)
+      const ao = avail - s - p - h - 2 * b
+      return `${s}px 1px ${p}px 1px ${h}px 1px ${b}px ${b}px 1px ${ao}px`
     }
-    // triplets
-    if (!showPerformance) return '140px 1px 65px 65px 65px 1px 80px'
-    if (!showHistory) return '160px 1px 150px 1px 65px 65px 65px 1px 90px'
-    return '200px 1px 200px 1px 200px 1px 130px 130px 130px 1px 155px'
+    // triplets — S | 1° 2° 3° | TRIO
+    if (!showPerformance) {
+      const avail = containerWidth - 2
+      const s = Math.round(avail * 0.33)
+      const b = Math.round(avail * 0.18)
+      const ao = avail - s - 3 * b
+      return `${s}px 1px ${b}px ${b}px ${b}px 1px ${ao}px`
+    }
+    if (!showHistory) {
+      const avail = containerWidth - 3
+      const s = Math.round(avail * 0.25)
+      const p = Math.round(avail * 0.19)
+      const b = Math.round(avail * 0.155)
+      const ao = avail - s - p - 3 * b
+      return `${s}px 1px ${p}px 1px ${b}px ${b}px ${b}px 1px ${ao}px`
+    }
+    const avail = containerWidth - 4
+    const s = Math.round(avail * 0.19)
+    const p = Math.round(avail * 0.155)
+    const h = Math.round(avail * 0.155)
+    const b = Math.round(avail * 0.135)
+    const ao = avail - s - p - h - 3 * b
+    return `${s}px 1px ${p}px 1px ${h}px 1px ${b}px ${b}px ${b}px 1px ${ao}px`
   }
 
   const renderTableHeader = () => {
@@ -544,7 +609,7 @@ export default function UpcomingRaceCard({
               pressed={position1Selection.includes(racer.number)}
               onPressedChange={() => togglePosition1Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className={`h-9 w-12 sm:h-11 sm:w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
+              className={`h-9 w-12 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground sm:h-11 sm:w-16 ${
                 position1Selection.includes(racer.number)
                   ? 'bg-accent text-accent-foreground'
                   : ''
@@ -562,7 +627,7 @@ export default function UpcomingRaceCard({
               pressed={position2Selection.includes(racer.number)}
               onPressedChange={() => togglePosition2Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className={`h-9 w-12 sm:h-11 sm:w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
+              className={`h-9 w-12 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground sm:h-11 sm:w-16 ${
                 position2Selection.includes(racer.number)
                   ? 'bg-accent text-accent-foreground'
                   : ''
@@ -586,7 +651,7 @@ export default function UpcomingRaceCard({
                   pressed={disorderSelection.includes(racer.number)}
                   onPressedChange={() => toggleDisorderSelection(racer.number)}
                   onClick={(e) => e.stopPropagation()}
-                  className={`h-9 w-12 sm:h-11 sm:w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
+                  className={`h-9 w-12 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground sm:h-11 sm:w-16 ${
                     disorderSelection.includes(racer.number)
                       ? 'bg-accent text-accent-foreground'
                       : ''
@@ -613,7 +678,7 @@ export default function UpcomingRaceCard({
               pressed={position1Selection.includes(racer.number)}
               onPressedChange={() => togglePosition1Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className={`h-9 w-12 sm:h-11 sm:w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
+              className={`h-9 w-12 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground sm:h-11 sm:w-16 ${
                 position1Selection.includes(racer.number)
                   ? 'bg-accent text-accent-foreground'
                   : ''
@@ -631,7 +696,7 @@ export default function UpcomingRaceCard({
               pressed={position2Selection.includes(racer.number)}
               onPressedChange={() => togglePosition2Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className={`h-9 w-12 sm:h-11 sm:w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
+              className={`h-9 w-12 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground sm:h-11 sm:w-16 ${
                 position2Selection.includes(racer.number)
                   ? 'bg-accent text-accent-foreground'
                   : ''
@@ -649,7 +714,7 @@ export default function UpcomingRaceCard({
               pressed={position3Selection.includes(racer.number)}
               onPressedChange={() => togglePosition3Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className={`h-9 w-12 sm:h-11 sm:w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
+              className={`h-9 w-12 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground sm:h-11 sm:w-16 ${
                 position3Selection.includes(racer.number)
                   ? 'bg-accent text-accent-foreground'
                   : ''
@@ -673,7 +738,7 @@ export default function UpcomingRaceCard({
                   pressed={disorderSelection.includes(racer.number)}
                   onPressedChange={() => toggleDisorderSelection(racer.number)}
                   onClick={(e) => e.stopPropagation()}
-                  className={`h-9 w-12 sm:h-11 sm:w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
+                  className={`h-9 w-12 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground sm:h-11 sm:w-16 ${
                     disorderSelection.includes(racer.number)
                       ? 'bg-accent text-accent-foreground'
                       : ''
@@ -875,7 +940,7 @@ export default function UpcomingRaceCard({
         </CardHeader>
 
         <CardContent>
-          <div className="overflow-x-auto">
+          <div ref={tableContainerRef}>
             <div>
               {renderTableHeader()}
 
@@ -915,19 +980,13 @@ export default function UpcomingRaceCard({
                         <>
                           <div className="bg-border" />
                           {/* Performance */}
-                          <div className="p-2">
-                            <div className="flex items-center justify-center gap-3">
-                              <div className="flex space-x-1">
-                                <div className="flex flex-col items-center justify-center gap-1">
-                                  {racer.performance}%
-                                  <Progress
-                                    value={racer.performance}
-                                    className="w-28 sm:w-36 [&>div]:rounded-r-full [&>div]:bg-accent"
-                                    style={{ height: '8px' }}
-                                  />
-                                </div>
-                              </div>
-                            </div>
+                          <div className="flex flex-col items-center justify-center gap-1 px-3 py-2">
+                            {racer.performance}%
+                            <Progress
+                              value={racer.performance}
+                              className="w-full [&>div]:rounded-r-full [&>div]:bg-accent"
+                              style={{ height: '8px' }}
+                            />
                           </div>
                         </>
                       )}
