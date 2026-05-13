@@ -52,6 +52,8 @@ export default function UpcomingRaceCard({
   const [disorderSelection, setDisorderSelection] = useState<number[]>([])
   const [isLoading, setIsLoading] = useState(!moduleHasLoadedOnce)
   const [isLatecomersDialogOpen, setIsLatecomersDialogOpen] = useState(false)
+  const [showPerformance, setShowPerformance] = useState(true)
+  const [showHistory, setShowHistory] = useState(true)
 
   const { betEntries } = useContext(BetsContext)
   const { initCode, operator } = useContext(CashierContext)
@@ -225,6 +227,16 @@ export default function UpcomingRaceCard({
     onSelectionChange,
   ])
 
+  useEffect(() => {
+    const updateBreakpoints = () => {
+      setShowPerformance(window.innerWidth >= 640)
+      setShowHistory(window.innerWidth >= 768)
+    }
+    updateBreakpoints()
+    window.addEventListener('resize', updateBreakpoints)
+    return () => window.removeEventListener('resize', updateBreakpoints)
+  }, [])
+
   const handleTabChange = (tab: TabType) => {
     setActiveTab(tab)
   }
@@ -342,45 +354,64 @@ export default function UpcomingRaceCard({
     setDisorderSelection([])
   }
 
+  const getGridColumns = () => {
+    if (activeTab === 'main') {
+      if (!showPerformance) return '140px 1px 90px 1px 90px 1px 90px'
+      if (!showHistory) return '160px 1px 150px 1px 100px 1px 100px 1px 100px'
+      return '200px 1px 200px 1px 200px 1px 181px 1px 181px 1px 181px'
+    }
+    if (activeTab === 'couples') {
+      if (!showPerformance) return '140px 1px 75px 75px 1px 90px'
+      if (!showHistory) return '160px 1px 150px 1px 80px 80px 1px 100px'
+      return '200px 1px 200px 1px 200px 1px 180px 180px 1px 183px'
+    }
+    // triplets
+    if (!showPerformance) return '140px 1px 65px 65px 65px 1px 80px'
+    if (!showHistory) return '160px 1px 150px 1px 65px 65px 65px 1px 90px'
+    return '200px 1px 200px 1px 200px 1px 130px 130px 130px 1px 155px'
+  }
+
   const renderTableHeader = () => {
     return (
       <div
-        className="grid h-12 items-center bg-card-header text-sm text-card-header-foreground"
-        style={{
-          gridTemplateColumns:
-            activeTab === 'main'
-              ? '200px 1px 200px 1px 200px 1px 181px 1px 181px 1px 181px'
-              : activeTab === 'couples'
-                ? '200px 1px 200px 1px 200px 1px 180px 180px 1px 183px'
-                : '200px 1px 200px 1px 200px 1px 130px 130px 130px 1px 155px',
-        }}
+        className="grid h-12 items-center bg-card-header text-card-header-foreground"
+        style={{ gridTemplateColumns: getGridColumns() }}
       >
-        <div className="text-center font-bold">
+        <div className="text-center text-xs font-bold sm:text-sm">
           {t('starters').toUpperCase()}
         </div>
-        <div className="bg-border" />
 
-        <div className="text-center font-bold">
-          {t('performance').toUpperCase()}
-        </div>
-        <div className="bg-border" />
+        {showPerformance && (
+          <>
+            <div className="bg-border" />
+            <div className="text-center text-xs font-bold sm:text-sm">
+              {t('performance').toUpperCase()}
+            </div>
+          </>
+        )}
 
-        <div className="text-center font-bold">
-          {t('history').toUpperCase()}
-        </div>
+        {showHistory && (
+          <>
+            <div className="bg-border" />
+            <div className="text-center text-xs font-bold sm:text-sm">
+              {t('history').toUpperCase()}
+            </div>
+          </>
+        )}
+
         <div className="bg-border" />
 
         {activeTab === 'main' && (
           <>
-            <div className="text-center font-bold">
+            <div className="text-center text-xs font-bold sm:text-sm">
               {t('winner').toUpperCase()}
             </div>
             <div className="bg-border" />
-            <div className="text-center font-bold">
+            <div className="text-center text-xs font-bold sm:text-sm">
               {t('place_2').toUpperCase()}
             </div>
             <div className="bg-border" />
-            <div className="text-center font-bold">
+            <div className="text-center text-xs font-bold sm:text-sm">
               {t('show_3').toUpperCase()}
             </div>
           </>
@@ -389,13 +420,13 @@ export default function UpcomingRaceCard({
         {activeTab === 'couples' && (
           <>
             <div
-              className="text-center font-bold"
+              className="text-center text-xs font-bold sm:text-sm"
               style={{ gridColumn: 'span 2' }}
             >
               {t('exacta').toUpperCase()}
             </div>
             <div className="bg-border" />
-            <div className="text-center font-bold">
+            <div className="text-center text-xs font-bold sm:text-sm">
               {t('any_order').toUpperCase()}
             </div>
           </>
@@ -403,13 +434,13 @@ export default function UpcomingRaceCard({
 
         {activeTab === 'triplets' && (
           <>
-            <div className="text-center font-bold"></div>
-            <div className="text-center font-bold">
+            <div className="text-center text-xs font-bold sm:text-sm"></div>
+            <div className="text-center text-xs font-bold sm:text-sm">
               {t('trifecta').toUpperCase()}
             </div>
-            <div className="text-center font-bold"></div>
+            <div className="text-center text-xs font-bold sm:text-sm"></div>
             <div className="bg-border" />
-            <div className="text-center font-bold">
+            <div className="text-center text-xs font-bold sm:text-sm">
               {t('any_order').toUpperCase()}
             </div>
           </>
@@ -443,7 +474,7 @@ export default function UpcomingRaceCard({
                 track: `${t('track')} 6`,
               }}
               variant="racecard"
-              className="h-11 w-16 text-md"
+              className="h-9 w-12 text-sm sm:h-11 sm:w-16 sm:text-md"
             />
           </div>
           <div className="bg-border" />
@@ -469,7 +500,7 @@ export default function UpcomingRaceCard({
                 track: `${t('track')} 6`,
               }}
               variant="racecard"
-              className="h-11 w-16 text-md"
+              className="h-9 w-12 text-sm sm:h-11 sm:w-16 sm:text-md"
             />
           </div>
 
@@ -496,7 +527,7 @@ export default function UpcomingRaceCard({
                 track: `${t('track')} 6`,
               }}
               variant="racecard"
-              className="h-11 w-16 text-md"
+              className="h-9 w-12 text-sm sm:h-11 sm:w-16 sm:text-md"
             />
           </div>
         </>
@@ -513,7 +544,7 @@ export default function UpcomingRaceCard({
               pressed={position1Selection.includes(racer.number)}
               onPressedChange={() => togglePosition1Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className={`h-11 w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
+              className={`h-9 w-12 sm:h-11 sm:w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
                 position1Selection.includes(racer.number)
                   ? 'bg-accent text-accent-foreground'
                   : ''
@@ -531,7 +562,7 @@ export default function UpcomingRaceCard({
               pressed={position2Selection.includes(racer.number)}
               onPressedChange={() => togglePosition2Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className={`h-11 w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
+              className={`h-9 w-12 sm:h-11 sm:w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
                 position2Selection.includes(racer.number)
                   ? 'bg-accent text-accent-foreground'
                   : ''
@@ -555,7 +586,7 @@ export default function UpcomingRaceCard({
                   pressed={disorderSelection.includes(racer.number)}
                   onPressedChange={() => toggleDisorderSelection(racer.number)}
                   onClick={(e) => e.stopPropagation()}
-                  className={`h-11 w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
+                  className={`h-9 w-12 sm:h-11 sm:w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
                     disorderSelection.includes(racer.number)
                       ? 'bg-accent text-accent-foreground'
                       : ''
@@ -582,7 +613,7 @@ export default function UpcomingRaceCard({
               pressed={position1Selection.includes(racer.number)}
               onPressedChange={() => togglePosition1Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className={`h-11 w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
+              className={`h-9 w-12 sm:h-11 sm:w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
                 position1Selection.includes(racer.number)
                   ? 'bg-accent text-accent-foreground'
                   : ''
@@ -600,7 +631,7 @@ export default function UpcomingRaceCard({
               pressed={position2Selection.includes(racer.number)}
               onPressedChange={() => togglePosition2Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className={`h-11 w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
+              className={`h-9 w-12 sm:h-11 sm:w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
                 position2Selection.includes(racer.number)
                   ? 'bg-accent text-accent-foreground'
                   : ''
@@ -618,7 +649,7 @@ export default function UpcomingRaceCard({
               pressed={position3Selection.includes(racer.number)}
               onPressedChange={() => togglePosition3Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className={`h-11 w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
+              className={`h-9 w-12 sm:h-11 sm:w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
                 position3Selection.includes(racer.number)
                   ? 'bg-accent text-accent-foreground'
                   : ''
@@ -642,7 +673,7 @@ export default function UpcomingRaceCard({
                   pressed={disorderSelection.includes(racer.number)}
                   onPressedChange={() => toggleDisorderSelection(racer.number)}
                   onClick={(e) => e.stopPropagation()}
-                  className={`h-11 w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
+                  className={`h-9 w-12 sm:h-11 sm:w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
                     disorderSelection.includes(racer.number)
                       ? 'bg-accent text-accent-foreground'
                       : ''
@@ -795,12 +826,12 @@ export default function UpcomingRaceCard({
     <>
       <Card className="h-full w-full">
         <CardHeader className="flex h-12 flex-row items-center justify-between rounded-sm pr-2">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             {Object.entries(tabConfig).map(([key, config]) => (
               <Button
                 key={key}
                 variant={activeTab === key ? 'marketSelected' : 'market'}
-                className="h-10 w-24 border text-md font-semibold"
+                className="h-8 w-[68px] border text-xs font-semibold sm:h-10 sm:w-24 sm:text-md"
                 onClick={() => handleTabChange(key as TabType)}
               >
                 {config.name}
@@ -808,9 +839,9 @@ export default function UpcomingRaceCard({
             ))}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             {/* Event ID */}
-            <span className="text-sm font-semibold text-muted-foreground">
+            <span className="text-xs font-semibold text-muted-foreground sm:text-sm">
               {'ID'} {race.id}
             </span>
 
@@ -822,7 +853,7 @@ export default function UpcomingRaceCard({
                 disorderSelection.length > 0) && (
                 <Button
                   variant="ghost"
-                  className="h-11 w-28 bg-secondary px-4 text-[14px] font-bold text-secondary-foreground"
+                  className="h-8 bg-secondary px-2 text-xs font-bold text-secondary-foreground sm:h-11 sm:w-28 sm:px-4 sm:text-[14px]"
                   onClick={clearSelections}
                 >
                   {t('clear_all').toUpperCase()}
@@ -834,7 +865,7 @@ export default function UpcomingRaceCard({
               race.discipline === Discipline.HORSES) && (
               <Button
                 variant="ghost"
-                className="h-11 bg-secondary px-4 text-[14px] font-bold text-secondary-foreground"
+                className="h-8 bg-secondary px-2 text-xs font-bold text-secondary-foreground sm:h-11 sm:px-4 sm:text-[14px]"
                 onClick={() => setIsLatecomersDialogOpen(true)}
               >
                 {t('latecomers')}
@@ -845,7 +876,7 @@ export default function UpcomingRaceCard({
 
         <CardContent>
           <div className="overflow-x-auto">
-            <div className="min-w-[800px]">
+            <div>
               {renderTableHeader()}
 
               <div className="">
@@ -856,20 +887,13 @@ export default function UpcomingRaceCard({
                     <div
                       key={racer.number}
                       className="grid items-center border-b border-border text-md"
-                      style={{
-                        gridTemplateColumns:
-                          activeTab === 'main'
-                            ? '200px 1px 200px 1px 200px 1px 181px 1px 181px 1px 181px'
-                            : activeTab === 'couples'
-                              ? '200px 1px 200px 1px 200px 1px 180px 180px 1px 183px'
-                              : '200px 1px 200px 1px 200px 1px 130px 130px 130px 1px 155px',
-                      }}
+                      style={{ gridTemplateColumns: getGridColumns() }}
                     >
                       {/* Informazioni sul corridore */}
-                      <div className="p-2">
-                        <div className="flex items-center gap-3">
+                      <div className="p-1 sm:p-2">
+                        <div className="flex items-center gap-1 sm:gap-3">
                           <div
-                            className="flex h-8 w-8 items-center justify-center rounded-md text-xl font-bold"
+                            className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md text-base font-bold sm:h-8 sm:w-8 sm:text-xl"
                             style={
                               getRacerColors(
                                 racer.number,
@@ -879,38 +903,46 @@ export default function UpcomingRaceCard({
                           >
                             {racer.number}
                           </div>
-                          <div>
-                            <div className="font-semibold">{racer.name}</div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="bg-border" />
-
-                      {/* Performance */}
-                      <div className="p-2">
-                        <div className="flex items-center justify-center gap-3">
-                          <div className="flex space-x-1">
-                            <div className="flex flex-col items-center justify-center gap-1">
-                              {racer.performance}%
-                              <Progress
-                                value={racer.performance}
-                                className="w-36 [&>div]:rounded-r-full [&>div]:bg-accent"
-                                style={{ height: '8px' }}
-                              />
+                          <div className="min-w-0">
+                            <div className="truncate text-sm font-semibold sm:text-base">
+                              {racer.name}
                             </div>
                           </div>
                         </div>
                       </div>
 
-                      <div className="bg-border" />
+                      {showPerformance && (
+                        <>
+                          <div className="bg-border" />
+                          {/* Performance */}
+                          <div className="p-2">
+                            <div className="flex items-center justify-center gap-3">
+                              <div className="flex space-x-1">
+                                <div className="flex flex-col items-center justify-center gap-1">
+                                  {racer.performance}%
+                                  <Progress
+                                    value={racer.performance}
+                                    className="w-28 sm:w-36 [&>div]:rounded-r-full [&>div]:bg-accent"
+                                    style={{ height: '8px' }}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </>
+                      )}
 
-                      {/* Storico */}
-                      <div>
-                        <div className="flex items-center justify-center gap-1">
-                          <MedalsHistory history={racer.history} />
-                        </div>
-                      </div>
+                      {showHistory && (
+                        <>
+                          <div className="bg-border" />
+                          {/* Storico */}
+                          <div>
+                            <div className="flex items-center justify-center gap-1">
+                              <MedalsHistory history={racer.history} />
+                            </div>
+                          </div>
+                        </>
+                      )}
 
                       <div className="bg-border" />
 
