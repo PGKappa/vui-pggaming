@@ -38,7 +38,7 @@ function AppContent({ children }: { children: React.ReactNode }) {
       <header className="container">
         <Navbar />
       </header>
-      <main className="flex-1">
+      <main className="relative flex-1 overflow-y-auto">
         <CashierContextProvider>
           <EventsContextProvider>
             <RootContextProvider>

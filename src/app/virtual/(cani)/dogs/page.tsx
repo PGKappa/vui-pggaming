@@ -79,7 +79,7 @@ export default function Home() {
 
   return (
     <>
-      <div className="container mb-10 mt-1 grid grid-cols-1 justify-center gap-3 bg-columnL-background text-columnL-foreground lg:mb-4 lg:grid-cols-4">
+      <div className="container mb-10 mt-1 grid grid-cols-1 justify-center gap-3 bg-columnL-background pb-16 text-columnL-foreground lg:mb-4 lg:grid-cols-4 lg:pb-0">
         {/* First column - contenuto principale */}
         <div className="flex flex-col items-center gap-4 lg:col-span-3">
           <div className="grid w-full grid-cols-1 gap-3 lg:grid-cols-3">
@@ -117,7 +117,7 @@ export default function Home() {
           </div>
         </div>
       </div>
-      <div className="fixed bottom-0 flex w-full justify-center gap-2 lg:hidden">
+      <div className="fixed bottom-0 z-50 flex w-full justify-center gap-2 lg:hidden">
         <BettingSlipSheet />
       </div>
     </>
