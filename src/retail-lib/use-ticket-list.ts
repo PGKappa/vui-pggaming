@@ -249,7 +249,6 @@ export function useTicketList() {
 
       if (data.ret_code === 1024) {
         const rawItems = data.items ?? []
-        // Diagnostic: log any status codes not yet handled in getStatusDisplay
         const knownStatuses = new Set([1, 4, 5, 6, 9])
         const unknownStatuses = [
           ...new Set(rawItems.map((i) => i.status)),

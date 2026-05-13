@@ -504,19 +504,30 @@ export default function TicketListPageContent({
                     ? 'bg-badge p-2'
                     : 'bg-accent p-1 text-[12px] lg:p-2 lg:text-[16px]',
                 )}
+              >
+                {t('balance')}
+              </th>
+              <th className="w-[1px] bg-card-header-foreground p-0"></th>
+              <th
+                className={cn(
+                  'text-[16px]',
+                  isCalcio
+                    ? 'bg-badge p-2'
+                    : 'bg-accent p-1 text-[12px] lg:p-2 lg:text-[16px]',
+                )}
               ></th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={17} className="p-8 text-center text-gray-400">
+                <td colSpan={19} className="p-8 text-center text-gray-400">
                   {t('loading')}...
                 </td>
               </tr>
             ) : items.length === 0 ? (
               <tr>
-                <td colSpan={17} className="p-8 text-center text-gray-400">
+                <td colSpan={19} className="p-8 text-center text-gray-400">
                   {t('no_tickets_found')}
                 </td>
               </tr>
@@ -586,6 +597,30 @@ export default function TicketListPageContent({
                       {parseFloat(item.amount_won) > 0 && item.status === 4
                         ? t('unpaid')
                         : '-'}
+                    </td>
+                    <td className="w-[1px] bg-muted p-0"></td>
+                    <td className={cn(isCalcio ? 'p-2' : 'p-1 lg:p-2')}>
+                      {(() => {
+                        const saldo =
+                          item.saldo !== undefined
+                            ? parseFloat(item.saldo)
+                            : parseFloat(item.amount_won || '0') -
+                              parseFloat(item.amount || '0')
+                        return (
+                          <span
+                            className={cn(
+                              'font-medium tabular-nums',
+                              saldo > 0
+                                ? 'text-ticket-won'
+                                : saldo < 0
+                                  ? 'text-ticket-lost'
+                                  : '',
+                            )}
+                          >
+                            {formatCurrency(saldo, currencySymbol)}
+                          </span>
+                        )
+                      })()}
                     </td>
                     <td className="w-[1px] bg-muted p-0"></td>
                     <td className={cn(isCalcio ? 'p-2' : 'p-1 lg:p-2')}>
@@ -733,7 +768,11 @@ export default function TicketListPageContent({
                     : 'px-1 py-1 text-[10px] lg:px-3 lg:py-2 lg:text-md',
                 )}
               >
-                {formatCurrency('0.00', currencySymbol)}
+                {formatCurrency(
+                  parseFloat(String(info?.grandtotal?.out ?? '0')) -
+                    (info?.grandtotal?.in ?? 0),
+                  currencySymbol,
+                )}
               </td>
               <td
                 className={cn(

@@ -321,6 +321,7 @@ export type TicketListItem = {
   time: [string, number, string, string, string, string]
   amount: string
   amount_won: string
+  saldo?: string
   intl: {
     currency: string
     locale: string
