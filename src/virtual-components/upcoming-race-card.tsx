@@ -767,7 +767,12 @@ export default function UpcomingRaceCard({
 
     return (
       <div className="mt-4 w-full">
-        <div className="grid grid-cols-2 gap-0.5">
+        <div
+          className="grid gap-0.5"
+          style={{
+            gridTemplateColumns: containerWidth >= 500 ? '1fr 1fr' : '1fr',
+          }}
+        >
           {/* Even/Odd Market */}
           <div>
             <div className="bg-card-header text-card-header-foreground">
