@@ -378,19 +378,21 @@ export default function BetCombinationsTable({
 
   return (
     <Card className="mt-4">
-      <CardHeader className="flex h-12 flex-row items-center justify-between bg-card-header px-4 text-accent-foreground">
-        <CardTitle className="text-md text-white">{getTitle()}</CardTitle>
-        <div className="flex gap-2">
+      <CardHeader className="flex h-12 flex-row items-center justify-between gap-2 bg-card-header px-3 text-accent-foreground">
+        <CardTitle className="min-w-0 shrink truncate text-md text-white">
+          {getTitle()}
+        </CardTitle>
+        <div className="flex shrink-0 gap-2">
           <Button
             variant="secondary"
-            className="h-8 w-32 px-3 text-xs font-bold text-white"
+            className="h-7 px-2 text-[10px] font-bold text-white sm:h-8 sm:px-3 sm:text-xs"
             onClick={handleSortClick}
           >
             {getSortButtonText()}
           </Button>
           <Button
             variant="secondary"
-            className="h-8 w-32 px-3 text-xs font-bold"
+            className="h-7 px-2 text-[10px] font-bold sm:h-8 sm:px-3 sm:text-xs"
             onClick={() => {
               if (allBetsSelected) {
                 removeBets(
@@ -410,13 +412,18 @@ export default function BetCombinationsTable({
               : `${t('select_all').toUpperCase()}`}
           </Button>
 
-          <div className="flex h-8 min-w-[48px] items-center justify-center rounded bg-accent-foreground px-3 text-accent">
+          <div className="flex h-7 min-w-[36px] items-center justify-center rounded bg-accent-foreground px-2 text-accent sm:h-8 sm:min-w-[48px] sm:px-3">
             <span className="text-xs font-bold">{combinations.length}</span>
           </div>
         </div>
       </CardHeader>
       <CardContent className="bg-muted-g p-4">
-        <div className="grid grid-cols-12 gap-2">
+        <div
+          className="grid gap-2"
+          style={{
+            gridTemplateColumns: 'repeat(auto-fill, minmax(62px, 1fr))',
+          }}
+        >
           {combinations.map((bet) => (
             <BetEntryToggle
               key={bet.option.outcome}
