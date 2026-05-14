@@ -41,7 +41,7 @@ export default function MedalsHistory(props: { history: number[] }) {
           height={64}
           className="absolute"
         />
-        <span className="relative inset-0 pb-[8px] text-[14px] font-bold text-black">
+        <span className="absolute inset-0 z-10 flex items-center justify-center pb-[4px] text-[14px] font-bold text-black">
           {position}
         </span>
       </div>
