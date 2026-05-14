@@ -385,55 +385,55 @@ export default function UpcomingRaceCard({
       return `${s}px 1px ${p}px 1px ${h}px 1px ${b}px 1px ${b}px 1px ${b}px`
     }
     if (activeTab === 'couples') {
-      // S | 1° 2° | DUO
+      // S | 1° | 2° | DUO  (separatore tra ogni colonna)
       if (!showPerformance) {
-        const avail = containerWidth - 2
+        const avail = containerWidth - 3
         const s = Math.round(avail * 0.35)
         const b = Math.round(avail * 0.22)
         const ao = avail - s - 2 * b
-        return `${s}px 1px ${b}px ${b}px 1px ${ao}px`
+        return `${s}px 1px ${b}px 1px ${b}px 1px ${ao}px`
       }
-      // S | PERF | 1° 2° | DUO
+      // S | PERF | 1° | 2° | DUO
       if (!showHistory) {
-        const avail = containerWidth - 3
+        const avail = containerWidth - 4
         const s = Math.round(avail * 0.26)
         const p = Math.round(avail * 0.2)
         const b = Math.round(avail * 0.18)
         const ao = avail - s - p - 2 * b
-        return `${s}px 1px ${p}px 1px ${b}px ${b}px 1px ${ao}px`
+        return `${s}px 1px ${p}px 1px ${b}px 1px ${b}px 1px ${ao}px`
       }
-      // S | PERF | HIST | 1° 2° | DUO
-      const avail = containerWidth - 4
+      // S | PERF | HIST | 1° | 2° | DUO
+      const avail = containerWidth - 5
       const s = Math.round(avail * 0.2)
       const p = Math.round(avail * 0.16)
       const h = Math.round(avail * 0.16)
       const b = Math.round(avail * 0.16)
       const ao = avail - s - p - h - 2 * b
-      return `${s}px 1px ${p}px 1px ${h}px 1px ${b}px ${b}px 1px ${ao}px`
+      return `${s}px 1px ${p}px 1px ${h}px 1px ${b}px 1px ${b}px 1px ${ao}px`
     }
-    // triplets — S | 1° 2° 3° | TRIO
+    // triplets — S | 1° | 2° | 3° | TRIO  (separatore tra ogni colonna)
     if (!showPerformance) {
-      const avail = containerWidth - 2
+      const avail = containerWidth - 4
       const s = Math.round(avail * 0.33)
       const b = Math.round(avail * 0.18)
       const ao = avail - s - 3 * b
-      return `${s}px 1px ${b}px ${b}px ${b}px 1px ${ao}px`
+      return `${s}px 1px ${b}px 1px ${b}px 1px ${b}px 1px ${ao}px`
     }
     if (!showHistory) {
-      const avail = containerWidth - 3
+      const avail = containerWidth - 5
       const s = Math.round(avail * 0.25)
       const p = Math.round(avail * 0.19)
       const b = Math.round(avail * 0.155)
       const ao = avail - s - p - 3 * b
-      return `${s}px 1px ${p}px 1px ${b}px ${b}px ${b}px 1px ${ao}px`
+      return `${s}px 1px ${p}px 1px ${b}px 1px ${b}px 1px ${b}px 1px ${ao}px`
     }
-    const avail = containerWidth - 4
+    const avail = containerWidth - 6
     const s = Math.round(avail * 0.19)
     const p = Math.round(avail * 0.155)
     const h = Math.round(avail * 0.155)
     const b = Math.round(avail * 0.135)
     const ao = avail - s - p - h - 3 * b
-    return `${s}px 1px ${p}px 1px ${h}px 1px ${b}px ${b}px ${b}px 1px ${ao}px`
+    return `${s}px 1px ${p}px 1px ${h}px 1px ${b}px 1px ${b}px 1px ${b}px 1px ${ao}px`
   }
 
   const renderTableHeader = () => {
@@ -484,12 +484,9 @@ export default function UpcomingRaceCard({
 
         {activeTab === 'couples' && (
           <>
-            <div
-              className="text-center text-xs font-bold sm:text-sm"
-              style={{ gridColumn: 'span 2' }}
-            >
-              {t('exacta').toUpperCase()}
-            </div>
+            <div className="text-center text-xs font-bold sm:text-sm">1°</div>
+            <div className="bg-border" />
+            <div className="text-center text-xs font-bold sm:text-sm">2°</div>
             <div className="bg-border" />
             <div className="text-center text-xs font-bold sm:text-sm">
               {t('any_order').toUpperCase()}
@@ -499,11 +496,11 @@ export default function UpcomingRaceCard({
 
         {activeTab === 'triplets' && (
           <>
-            <div className="text-center text-xs font-bold sm:text-sm"></div>
-            <div className="text-center text-xs font-bold sm:text-sm">
-              {t('trifecta').toUpperCase()}
-            </div>
-            <div className="text-center text-xs font-bold sm:text-sm"></div>
+            <div className="text-center text-xs font-bold sm:text-sm">1°</div>
+            <div className="bg-border" />
+            <div className="text-center text-xs font-bold sm:text-sm">2°</div>
+            <div className="bg-border" />
+            <div className="text-center text-xs font-bold sm:text-sm">3°</div>
             <div className="bg-border" />
             <div className="text-center text-xs font-bold sm:text-sm">
               {t('any_order').toUpperCase()}
@@ -609,15 +606,17 @@ export default function UpcomingRaceCard({
               pressed={position1Selection.includes(racer.number)}
               onPressedChange={() => togglePosition1Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className={`h-9 w-12 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground sm:h-11 sm:w-16 ${
+              className={`h-9 w-12 text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground sm:h-11 sm:w-16 sm:text-md ${
                 position1Selection.includes(racer.number)
                   ? 'bg-accent text-accent-foreground'
                   : ''
               }`}
             >
-              <span className="text-md">1°</span>
+              1°
             </Toggle>
           </div>
+
+          <div className="bg-border" />
 
           <div
             className={`flex cursor-pointer items-center justify-center text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
@@ -627,13 +626,13 @@ export default function UpcomingRaceCard({
               pressed={position2Selection.includes(racer.number)}
               onPressedChange={() => togglePosition2Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className={`h-9 w-12 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground sm:h-11 sm:w-16 ${
+              className={`h-9 w-12 text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground sm:h-11 sm:w-16 sm:text-md ${
                 position2Selection.includes(racer.number)
                   ? 'bg-accent text-accent-foreground'
                   : ''
               }`}
             >
-              <span className="text-md">2°</span>
+              2°
             </Toggle>
           </div>
 
@@ -651,7 +650,7 @@ export default function UpcomingRaceCard({
                   pressed={disorderSelection.includes(racer.number)}
                   onPressedChange={() => toggleDisorderSelection(racer.number)}
                   onClick={(e) => e.stopPropagation()}
-                  className={`h-9 w-12 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground sm:h-11 sm:w-16 ${
+                  className={`h-9 w-12 text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground sm:h-11 sm:w-16 sm:text-md ${
                     disorderSelection.includes(racer.number)
                       ? 'bg-accent text-accent-foreground'
                       : ''
@@ -678,15 +677,17 @@ export default function UpcomingRaceCard({
               pressed={position1Selection.includes(racer.number)}
               onPressedChange={() => togglePosition1Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className={`h-9 w-12 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground sm:h-11 sm:w-16 ${
+              className={`h-9 w-12 text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground sm:h-11 sm:w-16 sm:text-md ${
                 position1Selection.includes(racer.number)
                   ? 'bg-accent text-accent-foreground'
                   : ''
               }`}
             >
-              <span className="text-md">1°</span>
+              1°
             </Toggle>
           </div>
+
+          <div className="bg-border" />
 
           <div
             className={`flex cursor-pointer items-center justify-center text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
@@ -696,15 +697,17 @@ export default function UpcomingRaceCard({
               pressed={position2Selection.includes(racer.number)}
               onPressedChange={() => togglePosition2Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className={`h-9 w-12 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground sm:h-11 sm:w-16 ${
+              className={`h-9 w-12 text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground sm:h-11 sm:w-16 sm:text-md ${
                 position2Selection.includes(racer.number)
                   ? 'bg-accent text-accent-foreground'
                   : ''
               }`}
             >
-              <span className="text-md">2°</span>
+              2°
             </Toggle>
           </div>
+
+          <div className="bg-border" />
 
           <div
             className={`flex cursor-pointer items-center justify-center text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
@@ -714,13 +717,13 @@ export default function UpcomingRaceCard({
               pressed={position3Selection.includes(racer.number)}
               onPressedChange={() => togglePosition3Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className={`h-9 w-12 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground sm:h-11 sm:w-16 ${
+              className={`h-9 w-12 text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground sm:h-11 sm:w-16 sm:text-md ${
                 position3Selection.includes(racer.number)
                   ? 'bg-accent text-accent-foreground'
                   : ''
               }`}
             >
-              <span className="text-md">3°</span>
+              3°
             </Toggle>
           </div>
 
@@ -738,7 +741,7 @@ export default function UpcomingRaceCard({
                   pressed={disorderSelection.includes(racer.number)}
                   onPressedChange={() => toggleDisorderSelection(racer.number)}
                   onClick={(e) => e.stopPropagation()}
-                  className={`h-9 w-12 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground sm:h-11 sm:w-16 ${
+                  className={`h-9 w-12 text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground sm:h-11 sm:w-16 sm:text-md ${
                     disorderSelection.includes(racer.number)
                       ? 'bg-accent text-accent-foreground'
                       : ''
