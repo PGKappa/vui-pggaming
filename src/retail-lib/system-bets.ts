@@ -140,7 +140,7 @@ export function generateSystemGroups(entries: BetEntry[]): SystemGroup[] {
     }
   })
 
-  for (let size = 1; size <= eventsNumber; size++) {
+  for (let size = 1; size <= Math.min(eventsNumber, 10); size++) {
     const combos = getCombinations(nonFixedEntries, size, fixedEntries)
     if (combos.length === 0) continue
     const minWin = Math.min(
