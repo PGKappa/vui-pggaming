@@ -245,77 +245,83 @@ export default function SearchResultsDialog({
           </DialogHeader>
 
           {/* Filtri */}
-          <div className="flex items-center gap-2 px-4 pt-4">
+          <div className="grid grid-cols-2 gap-2 px-4 pt-4 sm:flex sm:items-center sm:gap-2">
             {/* Disciplina */}
-            <Select
-              value={selectedDiscipline}
-              onValueChange={(v) =>
-                setSelectedDiscipline(v === 'ALL' ? 'ALL' : (v as Discipline))
-              }
-            >
-              <SelectTrigger
-                className="h-9 min-w-0 flex-1 border border-gray-300 bg-white px-2 text-sm"
-                style={{ color: 'hsl(var(--table-foreground))' }}
+            <div className="min-w-0">
+              <Select
+                value={selectedDiscipline}
+                onValueChange={(v) =>
+                  setSelectedDiscipline(v === 'ALL' ? 'ALL' : (v as Discipline))
+                }
               >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent
-                className="bg-white"
-                style={{ color: 'hsl(var(--table-foreground))' }}
-              >
-                <SelectItem value={Discipline.DOGS}>
-                  {t('dog_racing')}
-                </SelectItem>
-                <SelectItem value={Discipline.HORSES}>
-                  {t('horse_racing')}
-                </SelectItem>
-                <SelectItem value="ALL">{t('all_disciplines')}</SelectItem>
-              </SelectContent>
-            </Select>
+                <SelectTrigger
+                  className="h-9 w-full border border-gray-300 bg-white px-2 text-sm"
+                  style={{ color: 'hsl(var(--table-foreground))' }}
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent
+                  className="bg-white"
+                  style={{ color: 'hsl(var(--table-foreground))' }}
+                >
+                  <SelectItem value={Discipline.DOGS}>
+                    {t('dog_racing')}
+                  </SelectItem>
+                  <SelectItem value={Discipline.HORSES}>
+                    {t('horse_racing')}
+                  </SelectItem>
+                  <SelectItem value="ALL">{t('all_disciplines')}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
             {/* Data */}
-            <Select value={selectedDate} onValueChange={setSelectedDate}>
-              <SelectTrigger
-                className="h-9 min-w-0 flex-1 border border-gray-300 bg-white px-2 text-sm"
-                style={{ color: 'hsl(var(--table-foreground))' }}
-              >
-                <SelectValue placeholder={t('date')} />
-              </SelectTrigger>
-              <SelectContent
-                className="bg-white"
-                style={{ color: 'hsl(var(--table-foreground))' }}
-              >
-                {dates.map((d) => (
-                  <SelectItem key={d} value={d}>
-                    {d}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="min-w-0">
+              <Select value={selectedDate} onValueChange={setSelectedDate}>
+                <SelectTrigger
+                  className="h-9 w-full border border-gray-300 bg-white px-2 text-sm"
+                  style={{ color: 'hsl(var(--table-foreground))' }}
+                >
+                  <SelectValue placeholder={t('date')} />
+                </SelectTrigger>
+                <SelectContent
+                  className="bg-white"
+                  style={{ color: 'hsl(var(--table-foreground))' }}
+                >
+                  {dates.map((d) => (
+                    <SelectItem key={d} value={d}>
+                      {d}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
             {/* Fascia Oraria */}
-            <Select
-              value={selectedTimeSlot}
-              onValueChange={setSelectedTimeSlot}
-            >
-              <SelectTrigger
-                className="h-9 min-w-0 flex-1 border border-gray-300 bg-white px-2 text-sm"
-                style={{ color: 'hsl(var(--table-foreground))' }}
+            <div className="col-span-2 min-w-0 sm:flex-1">
+              <Select
+                value={selectedTimeSlot}
+                onValueChange={setSelectedTimeSlot}
               >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent
-                className="bg-white"
-                style={{ color: 'hsl(var(--table-foreground))' }}
-              >
-                <SelectItem value="ALL">{t('time_slot')}</SelectItem>
-                {timeSlots.map((slot) => (
-                  <SelectItem key={slot} value={slot}>
-                    {slot}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+                <SelectTrigger
+                  className="h-9 w-full border border-gray-300 bg-white px-2 text-sm"
+                  style={{ color: 'hsl(var(--table-foreground))' }}
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent
+                  className="bg-white"
+                  style={{ color: 'hsl(var(--table-foreground))' }}
+                >
+                  <SelectItem value="ALL">{t('time_slot')}</SelectItem>
+                  {timeSlots.map((slot) => (
+                    <SelectItem key={slot} value={slot}>
+                      {slot}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           {/* Risultati */}

@@ -75,7 +75,7 @@ export default function LatecomersDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-xl bg-red-600 p-0">
+      <DialogContent className="w-full max-w-xl bg-red-600 p-0">
         {/* Header */}
         <DialogHeader className="flex h-14 flex-row items-center justify-center bg-accent px-6 text-white">
           <DialogTitle className="text-center text-lg font-bold text-white">
@@ -93,15 +93,15 @@ export default function LatecomersDialog({
         <div className="bg-white">
           {latecomersData.length > 0 ? (
             <Table>
-              <TableHeader className="h-12 bg-gray-200">
+              <TableHeader className="h-10 bg-gray-200 sm:h-12">
                 <TableRow>
-                  <TableHead className="w-1/3 border-r border-gray-300 text-center text-md font-bold text-black">
+                  <TableHead className="w-1/3 border-r border-gray-300 text-center text-sm font-bold text-black sm:text-md">
                     {t('market')}
                   </TableHead>
-                  <TableHead className="w-1/3 border-r border-gray-300 text-center text-md font-bold text-black">
+                  <TableHead className="w-1/3 border-r border-gray-300 text-center text-sm font-bold text-black sm:text-md">
                     {t('result')}
                   </TableHead>
-                  <TableHead className="w-1/3 text-center text-md font-bold text-black">
+                  <TableHead className="w-1/3 text-center text-sm font-bold text-black sm:text-md">
                     {t('delay')}
                   </TableHead>
                 </TableRow>
@@ -109,15 +109,15 @@ export default function LatecomersDialog({
               <TableBody>
                 {latecomersData.map((item, index) => (
                   <TableRow key={index} className="border-b border-gray-200">
-                    <TableCell className="border-r border-gray-300 p-4 text-center text-md font-medium text-black">
+                    <TableCell className="border-r border-gray-300 p-2 text-center text-sm font-medium text-black sm:p-4 sm:text-md">
                       {item.market}
                     </TableCell>
-                    <TableCell className="border-r border-gray-300 p-4">
-                      <div className="flex flex-wrap justify-start gap-2">
+                    <TableCell className="border-r border-gray-300 p-2 sm:p-4">
+                      <div className="flex flex-wrap justify-start gap-1 sm:gap-2">
                         {formatRacers(item.racers)}
                       </div>
                     </TableCell>
-                    <TableCell className="p-4 text-center text-md font-bold text-black">
+                    <TableCell className="p-2 text-center text-sm font-bold text-black sm:p-4 sm:text-md">
                       {item.delay}
                     </TableCell>
                   </TableRow>
