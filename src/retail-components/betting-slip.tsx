@@ -28,7 +28,7 @@ import {
   RotateCcwIcon,
 } from 'lucide-react'
 import Image from 'next/image'
-import { useContext, useEffect, useMemo, useState } from 'react'
+import { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import EventBets from './event-bets'
@@ -126,6 +126,17 @@ export default function BettingSlip({
     )
     return eventsSet.size
   }, [betMode, betEntries])
+
+  const isMountedRef = useRef(false)
+  useEffect(() => {
+    if (!isMountedRef.current) {
+      isMountedRef.current = true
+      return
+    }
+    if (betMode === 'SYSTEM' && systemEventsCount > 10) {
+      toast.error(t('max_tuple_error'))
+    }
+  }, [betMode, systemEventsCount, t])
 
   const systemGroups = useMemo(() => {
     return baseSystemGroups
@@ -1588,9 +1599,7 @@ export default function BettingSlip({
             disabled={
               isSubmitting ||
               (betMode !== 'SYSTEM' && global <= 0) ||
-              (betMode === 'SYSTEM' && totalSystemStake <= 0) ||
-              (betMode === 'SYSTEM' && systemEventsCount > 10) ||
-              (betMode === 'SYSTEM' && totalSystemCombinations > 2048)
+              (betMode === 'SYSTEM' && totalSystemStake <= 0)
             }
             className="h-12 w-full text-[18px] font-bold"
           >
