@@ -255,6 +255,7 @@
   "no_bet_selected": "No bet selected",
   "enter_valid_amount": "Enter a valid amount",
   "enter_system_amount": "Enter at least one amount for the system",
+  "max_tuple_error": "Maximum system bet is 10-ple",
   "select_at_least_one_group": "Select at least one group to distribute the amount",
   "submitting": "Submitting...",
   "bet_submitted_successfully": "Bet submitted successfully!",
