@@ -306,6 +306,8 @@
   "any Order": "Cualquier Orden",
   "no_bet_selected": "Sin apuesta seleccionada",
   "enter_system_amount": "Introduce al menos un importe para el sistema",
+  "max_tuple_error": "El máximo para las apuestas del sistema es la 10-pla",
+  "max_combinations_error": "Máximo 2048 combinaciones por apuesta de sistema",
   "submitting": "Enviando...",
   "bet_submitted_successfully": "Apuesta enviada correctamente!",
   "bet_submission_error": "Error al enviar la apuesta. Inténtalo de nuevo.",
