@@ -275,22 +275,6 @@ export default function TicketListPageContent({
               {dateToButton('w-[120px] justify-center text-[12px]')}
             </div>
 
-            <div className="mr-20 flex flex-row items-center gap-2 bg-badge text-background">
-              <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
-                {t('page_size')}
-              </span>
-              <Select value={pageSize} onValueChange={setPageSize}>
-                <SelectTrigger className="w-[80px] bg-background text-[12px] text-foreground">
-                  <SelectValue placeholder="Dim." />
-                </SelectTrigger>
-                <SelectContent className="bg-white p-0">
-                  <SelectItem value="15">15</SelectItem>
-                  <SelectItem value="50">50</SelectItem>
-                  <SelectItem value="100">100</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
             <Button
               onClick={fetchTickets}
               className="text-bold w-[80px] bg-tertiary text-[14px] text-tertiary-foreground"
@@ -371,22 +355,6 @@ export default function TicketListPageContent({
               {dateToButton(
                 'h-7 w-[80px] justify-center text-[10px] lg:h-9 lg:w-[100px] lg:text-[12px]',
               )}
-            </div>
-
-            <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
-              <span className="whitespace-nowrap pl-1 text-[10px] font-semibold lg:pl-2 lg:text-[12px]">
-                {t('page_size')}
-              </span>
-              <Select value={pageSize} onValueChange={setPageSize}>
-                <SelectTrigger className="h-7 w-[55px] bg-background text-[10px] text-foreground lg:h-9 lg:w-[80px] lg:text-[12px]">
-                  <SelectValue placeholder="Dim." />
-                </SelectTrigger>
-                <SelectContent className="bg-white p-0">
-                  <SelectItem value="15">15</SelectItem>
-                  <SelectItem value="50">50</SelectItem>
-                  <SelectItem value="100">100</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
 
             <Button
@@ -610,150 +578,138 @@ export default function TicketListPageContent({
       </div>
 
       {/* Footer */}
-      <div
-        className={cn(
-          isCalcio
-            ? 'grid grid-cols-9'
-            : 'grid h-[90px] shrink-0 grid-cols-9 lg:h-[110px]',
-        )}
-      >
-        <div
-          className={cn(
-            isCalcio
-              ? 'col-span-2 flex flex-row items-center bg-accent p-4'
-              : 'col-span-2 flex flex-row items-center bg-accent p-2 lg:p-4',
-          )}
-        >
-          <Pagination className="justify-start">
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault()
-                    if (currentPage > 1) setCurrentPage(currentPage - 1)
-                  }}
-                />
-              </PaginationItem>
-              {Array.from({ length: Math.min(5, totalPages) }).map((_, i) => {
-                let pageNum: number
-                if (totalPages <= 5) pageNum = i + 1
-                else if (currentPage <= 3) pageNum = i + 1
-                else if (currentPage >= totalPages - 2)
-                  pageNum = totalPages - 4 + i
-                else pageNum = currentPage - 2 + i
-                return (
-                  <PaginationItem key={pageNum}>
-                    <PaginationLink
-                      href="#"
-                      isActive={pageNum === currentPage}
-                      onClick={(e) => {
-                        e.preventDefault()
-                        setCurrentPage(pageNum)
-                      }}
-                    >
-                      {pageNum}
-                    </PaginationLink>
-                  </PaginationItem>
-                )
-              })}
-              <PaginationItem>
-                <PaginationNext
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault()
-                    if (currentPage < totalPages)
-                      setCurrentPage(currentPage + 1)
-                  }}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
-        <table
-          className={cn(
-            isCalcio
-              ? 'col-span-7 border-collapse'
-              : 'col-span-7 h-full border-collapse',
-          )}
-        >
+      <div className={cn(isCalcio ? 'grid grid-cols-9' : 'grid shrink-0 grid-cols-9 h-[121px]')}>
+        <div className={cn(isCalcio ? 'col-span-2 bg-accent' : 'col-span-2 bg-accent')} />
+        <table className="col-span-7 border-collapse">
           <tbody>
-            <tr className="bg-accent text-xs font-medium text-white">
+            {/* Riga superiore: Totali + valori */}
+            <tr className="bg-accent text-lg font-medium text-white h-[60px] border-b border-muted border-l ">
               <td
                 className={cn(
-                  'border border-muted bg-accent text-center align-middle font-bold',
-                  isCalcio
-                    ? 'px-3 py-2'
-                    : 'px-1 py-1 text-[10px] lg:px-3 lg:pb-14 lg:text-md',
+                  'border-r border-t border-muted bg-accent text-center align-middle font-bold',
+                  isCalcio ? 'px-3 py-2' : 'px-1 py-1 text-[10px] lg:px-3 lg:text-md',
                 )}
               >
                 {t('totals')}
               </td>
               <td
                 className={cn(
-                  'border border-muted bg-accent text-center align-middle',
-                  isCalcio
-                    ? 'px-3 py-2'
-                    : 'px-1 py-1 text-[10px] lg:px-3 lg:pb-14 lg:text-md',
+                  'border-r border-t border-muted bg-accent text-center align-middle',
+                  isCalcio ? 'px-3 py-2' : 'px-1 py-1 text-[10px] lg:px-3 lg:text-md',
                 )}
               >
                 {formatCurrency(info?.grandtotal?.in ?? 0, currencySymbol)}
               </td>
               <td
                 className={cn(
-                  'border border-muted bg-accent text-center align-middle',
-                  isCalcio
-                    ? 'px-3 py-2'
-                    : 'px-1 py-1 text-[10px] lg:px-3 lg:pb-14 lg:text-md',
+                  'border-r border-t border-muted bg-accent text-center align-middle',
+                  isCalcio ? 'px-3 py-2' : 'px-1 py-1 text-[10px] lg:px-3 lg:text-md',
                 )}
               >
-                {formatCurrency(
-                  info?.grandtotal?.cancelled ?? '0.00',
-                  currencySymbol,
-                )}
+                {formatCurrency(info?.grandtotal?.cancelled ?? '0.00', currencySymbol)}
               </td>
               <td
                 className={cn(
-                  'border border-muted bg-accent text-center align-middle',
-                  isCalcio
-                    ? 'px-3 py-2'
-                    : 'px-1 py-1 text-[10px] lg:px-3 lg:pb-14 lg:text-md',
+                  'border-r border-t border-muted bg-accent text-center align-middle',
+                  isCalcio ? 'px-3 py-2' : 'px-1 py-1 text-[10px] lg:px-3 lg:text-md',
                 )}
               >
-                {formatCurrency(
-                  info?.grandtotal?.out ?? '0.00',
-                  currencySymbol,
-                )}
+                {formatCurrency(info?.grandtotal?.out ?? '0.00', currencySymbol)}
               </td>
               <td
                 className={cn(
-                  'border border-muted bg-accent text-center align-middle',
-                  isCalcio
-                    ? 'px-3 py-2'
-                    : 'px-1 py-1 text-[10px] lg:px-3 lg:pb-14 lg:text-md',
+                  'border-r border-t border-muted bg-accent text-center align-middle',
+                  isCalcio ? 'px-3 py-2' : 'px-1 py-1 text-[10px] lg:px-3 lg:text-md',
                 )}
               >
                 {formatCurrency('0.00', currencySymbol)}
               </td>
               <td
                 className={cn(
-                  'border border-muted bg-accent text-center align-middle',
-                  isCalcio
-                    ? 'px-3 py-2'
-                    : 'px-1 py-1 text-[10px] lg:px-3 lg:pb-14 lg:text-md',
+                  'border-r border-t border-muted bg-accent text-center align-middle',
+                  isCalcio ? 'px-3 py-2' : 'px-1 py-1 text-[10px] lg:px-3 lg:text-md',
                 )}
               >
                 {info?.count_paid ?? 0} / {info?.count_won ?? 0}
               </td>
               <td
                 className={cn(
-                  'border border-muted bg-accent text-center align-middle',
-                  isCalcio
-                    ? 'px-3 py-2'
-                    : 'px-1 py-1 text-[10px] lg:px-3 lg:pb-14 lg:text-md',
+                  'border-t border-muted bg-accent text-center align-middle',
+                  isCalcio ? 'px-3 py-2' : 'px-1 py-1 text-[10px] lg:px-3 lg:text-md',
                 )}
               >
                 {info?.count ?? 0}
+              </td>
+            </tr>
+
+            {/* Riga inferiore: page size + paginazione a destra */}
+            <tr className="bg-accent">
+              <td colSpan={6} className="bg-accent p-0" />
+              <td className="bg-accent px-2 py-1">
+                <div className="flex items-center justify-end gap-0">
+                  <Select value={pageSize} onValueChange={setPageSize}>
+                    <SelectTrigger
+                      className={cn(
+                        'bg-background text-foreground',
+                        isCalcio
+                          ? 'h-8 w-[80px] text-[12px]'
+                          : 'h-7 w-[55px] text-[10px] lg:h-9 lg:w-[80px] lg:text-[12px]',
+                      )}
+                    >
+                      <SelectValue placeholder="Dim." />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white p-0">
+                      <SelectItem value="15">15</SelectItem>
+                      <SelectItem value="50">50</SelectItem>
+                      <SelectItem value="100">100</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Pagination className="w-[130px] relative left-10">
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious
+                          href="#"
+                          onClick={(e) => {
+                            e.preventDefault()
+                            if (currentPage > 1) setCurrentPage(currentPage - 1)
+                          }}
+                        />
+                      </PaginationItem>
+                      {Array.from({ length: Math.min(5, totalPages) }).map((_, i) => {
+                        let pageNum: number
+                        if (totalPages <= 5) pageNum = i + 1
+                        else if (currentPage <= 3) pageNum = i + 1
+                        else if (currentPage >= totalPages - 2)
+                          pageNum = totalPages - 4 + i
+                        else pageNum = currentPage - 2 + i
+                        return (
+                          <PaginationItem key={pageNum}>
+                            <PaginationLink
+                              href="#"
+                              isActive={pageNum === currentPage}
+                              onClick={(e) => {
+                                e.preventDefault()
+                                setCurrentPage(pageNum)
+                              }}
+                            >
+                              {pageNum}
+                            </PaginationLink>
+                          </PaginationItem>
+                        )
+                      })}
+                      <PaginationItem>
+                        <PaginationNext
+                          href="#"
+                          onClick={(e) => {
+                            e.preventDefault()
+                            if (currentPage < totalPages)
+                              setCurrentPage(currentPage + 1)
+                          }}
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                </div>
               </td>
             </tr>
           </tbody>
