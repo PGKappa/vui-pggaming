@@ -28,7 +28,7 @@ import {
   RotateCcwIcon,
 } from 'lucide-react'
 import Image from 'next/image'
-import { useContext, useEffect, useMemo, useState } from 'react'
+import { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import EventBets from './event-bets'
@@ -416,6 +416,25 @@ export default function BettingSlip({
       .reduce((sum, group) => sum + group.combinations.length, 0)
   }, [systemGroups, selectedGroups])
 
+  const systemEventsCount = useMemo(() => {
+    if (betMode !== 'SYSTEM') return 0
+    const eventsSet = new Set(
+      betEntries.map((e) => `${e.bet.discipline}-${e.bet.event.number}`),
+    )
+    return eventsSet.size
+  }, [betMode, betEntries])
+
+  const isMountedRef = useRef(false)
+  useEffect(() => {
+    if (!isMountedRef.current) {
+      isMountedRef.current = true
+      return
+    }
+    if (betMode === 'SYSTEM' && systemEventsCount > 10) {
+      toast.error(t('max_tuple_error'))
+    }
+  }, [betMode, systemEventsCount, t])
+
   const totalSystemPotentialWin = useMemo(() => {
     return systemGroups
       .filter((group) => selectedGroups[group.name])
@@ -466,6 +485,11 @@ export default function BettingSlip({
       return
     }
 
+    if (betMode === 'SYSTEM' && systemEventsCount > 10) {
+      toast.error(t('max_tuple_error'))
+      return
+    }
+
     if (betMode !== 'SYSTEM' && global <= 0) {
       toast.error(t('enter_valid_amount'))
       return
@@ -505,6 +529,10 @@ export default function BettingSlip({
         (sum, group) => sum + group.stake,
         0,
       )
+      if (totalSystemCombinations > 2048) {
+        toast.error(t('max_combinations_error'))
+        return
+      }
       if (totalSystemStake <= 0) {
         toast.error(t('enter_system_amount'))
         return
@@ -1496,8 +1524,8 @@ export default function BettingSlip({
               <span className="text-[15px] font-semibold">
                 {t('total_combinations').toUpperCase()}
               </span>
-              <span className="text-[15px] font-semibold">
-                {totalSystemCombinations}/{totalSystemCombinations}
+              <span className={`text-[15px] font-semibold${totalSystemCombinations > 2048 ? ' text-chart-2' : ''}`}>
+                {totalSystemCombinations}/2048
               </span>
             </div>
 
