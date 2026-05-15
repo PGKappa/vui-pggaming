@@ -151,6 +151,7 @@
   "pending": "Pending",
   "cancelled": "Cancelled",
   "payment": "Payment",
+  "balance": "Balance",
   "paid": "Paid",
   "unpaid": "Unpaid",
   "from": "From",
