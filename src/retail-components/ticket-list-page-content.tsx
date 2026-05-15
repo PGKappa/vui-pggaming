@@ -613,15 +613,38 @@ export default function TicketListPageContent({
       </div>
 
       {/* Footer */}
-      <div className={cn(isCalcio ? 'grid grid-cols-9' : 'grid shrink-0 grid-cols-9 h-[121px]')}>
-        <div className={cn(isCalcio ? 'col-span-2 bg-accent' : 'col-span-2 bg-accent')} />
-        <table className="col-span-7 border-collapse">
+      <div className={cn('relative', isCalcio ? 'grid grid-cols-9' : 'grid shrink-0 grid-cols-9 h-[121px]')}>
+        {/* Legend — bottom-left */}
+        <div className="col-span-2 bg-secondary flex items-end justify-start px-3 pb-3">
+          <div className="flex flex-row gap-3">
+            <div className="flex items-center gap-1.5">
+              <div className="h-4 w-4 rounded-sm bg-ticket-won" />
+              <span className={cn('text-white', isCalcio ? 'text-[11px]' : 'text-[9px] lg:text-[11px]')}>
+                {t('collected')}
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="h-4 w-4 rounded-sm" style={{ backgroundColor: '#f97316' }} />
+              <span className={cn('text-white', isCalcio ? 'text-[11px]' : 'text-[9px] lg:text-[11px]')}>
+                {t('not_collected')}
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <div className="h-4 w-4 rounded-sm bg-ticket-lost" />
+              <span className={cn('text-white', isCalcio ? 'text-[11px]' : 'text-[9px] lg:text-[11px]')}>
+                {t('cancelled')}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <table className="col-span-7 border-collapse table-fixed w-full">
           <tbody>
             {/* Riga superiore: Totali + valori */}
-            <tr className="bg-accent text-lg font-medium text-white h-[60px] border-b border-muted border-l ">
+            <tr className="bg-secondary text-lg font-medium text-white h-[60px] border-b border-secondary border-l ">
               <td
                 className={cn(
-                  'border-r border-t border-muted bg-accent text-center align-middle font-bold',
+                  'border-r border-t border-secondary bg-secondary text-center align-middle font-bold w-[22%]',
                   isCalcio ? 'px-3 py-2' : 'px-1 py-1 text-[10px] lg:px-3 lg:text-md',
                 )}
               >
@@ -629,7 +652,7 @@ export default function TicketListPageContent({
               </td>
               <td
                 className={cn(
-                  'border-r border-t border-muted bg-accent text-center align-middle',
+                  'border-r border-t border-secondary bg-secondary text-center align-middle w-[26%]',
                   isCalcio ? 'px-3 py-2' : 'px-1 py-1 text-[10px] lg:px-3 lg:text-md',
                 )}
               >
@@ -637,15 +660,7 @@ export default function TicketListPageContent({
               </td>
               <td
                 className={cn(
-                  'border-r border-t border-muted bg-accent text-center align-middle',
-                  isCalcio ? 'px-3 py-2' : 'px-1 py-1 text-[10px] lg:px-3 lg:text-md',
-                )}
-              >
-                {formatCurrency(info?.grandtotal?.cancelled ?? '0.00', currencySymbol)}
-              </td>
-              <td
-                className={cn(
-                  'border-r border-t border-muted bg-accent text-center align-middle',
+                  'border-r border-t border-secondary bg-secondary text-center align-middle w-[26%]',
                   isCalcio ? 'px-3 py-2' : 'px-1 py-1 text-[10px] lg:px-3 lg:text-md',
                 )}
               >
@@ -653,7 +668,7 @@ export default function TicketListPageContent({
               </td>
               <td
                 className={cn(
-                  'border-r border-t border-muted bg-accent text-center align-middle',
+                  'border-t border-secondary bg-secondary text-center align-middle w-[26%]',
                   isCalcio ? 'px-3 py-2' : 'px-1 py-1 text-[10px] lg:px-3 lg:text-md',
                 )}
               >
@@ -663,96 +678,80 @@ export default function TicketListPageContent({
                   currencySymbol,
                 )}
               </td>
-              <td
-                className={cn(
-                  'border-r border-t border-muted bg-accent text-center align-middle',
-                  isCalcio ? 'px-3 py-2' : 'px-1 py-1 text-[10px] lg:px-3 lg:text-md',
-                )}
-              >
-                {info?.count_paid ?? 0} / {info?.count_won ?? 0}
-              </td>
-              <td
-                className={cn(
-                  'border-t border-muted bg-accent text-center align-middle',
-                  isCalcio ? 'px-3 py-2' : 'px-1 py-1 text-[10px] lg:px-3 lg:text-md',
-                )}
-              >
-                {info?.count ?? 0}
-              </td>
             </tr>
 
-            {/* Riga inferiore: page size + paginazione a destra */}
-            <tr className="bg-accent">
-              <td colSpan={6} className="bg-accent p-0" />
-              <td className="bg-accent px-2 py-1">
-                <div className="flex items-center justify-end gap-0">
-                  <Select value={pageSize} onValueChange={setPageSize}>
-                    <SelectTrigger
-                      className={cn(
-                        'bg-background text-foreground',
-                        isCalcio
-                          ? 'h-8 w-[80px] text-[12px]'
-                          : 'h-7 w-[55px] text-[10px] lg:h-9 lg:w-[80px] lg:text-[12px]',
-                      )}
-                    >
-                      <SelectValue placeholder="Dim." />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white p-0">
-                      <SelectItem value="15">15</SelectItem>
-                      <SelectItem value="50">50</SelectItem>
-                      <SelectItem value="100">100</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Pagination className="w-[130px] relative left-10">
-                    <PaginationContent>
-                      <PaginationItem>
-                        <PaginationPrevious
-                          href="#"
-                          onClick={(e) => {
-                            e.preventDefault()
-                            if (currentPage > 1) setCurrentPage(currentPage - 1)
-                          }}
-                        />
-                      </PaginationItem>
-                      {Array.from({ length: Math.min(5, totalPages) }).map((_, i) => {
-                        let pageNum: number
-                        if (totalPages <= 5) pageNum = i + 1
-                        else if (currentPage <= 3) pageNum = i + 1
-                        else if (currentPage >= totalPages - 2)
-                          pageNum = totalPages - 4 + i
-                        else pageNum = currentPage - 2 + i
-                        return (
-                          <PaginationItem key={pageNum}>
-                            <PaginationLink
-                              href="#"
-                              isActive={pageNum === currentPage}
-                              onClick={(e) => {
-                                e.preventDefault()
-                                setCurrentPage(pageNum)
-                              }}
-                            >
-                              {pageNum}
-                            </PaginationLink>
-                          </PaginationItem>
-                        )
-                      })}
-                      <PaginationItem>
-                        <PaginationNext
-                          href="#"
-                          onClick={(e) => {
-                            e.preventDefault()
-                            if (currentPage < totalPages)
-                              setCurrentPage(currentPage + 1)
-                          }}
-                        />
-                      </PaginationItem>
-                    </PaginationContent>
-                  </Pagination>
-                </div>
-              </td>
+            {/* Riga inferiore vuota per altezza */}
+            <tr className="bg-secondary">
+              <td colSpan={4} className="bg-secondary p-0 h-[61px]" />
             </tr>
           </tbody>
         </table>
+
+        {/* Paginazione assoluta in basso a destra */}
+        <div className="absolute bottom-1.5 right-0 flex items-center gap-2 px-2 py-1 bg-secondary">
+          <Select value={pageSize} onValueChange={setPageSize}>
+            <SelectTrigger
+              className={cn(
+                'bg-background text-foreground',
+                isCalcio
+                  ? 'h-8 w-[80px] text-[12px]'
+                  : 'h-7 w-[55px] text-[10px] lg:h-9 lg:w-[80px] lg:text-[12px]',
+              )}
+            >
+              <SelectValue placeholder="Dim." />
+            </SelectTrigger>
+            <SelectContent className="bg-white p-0">
+              <SelectItem value="15">15</SelectItem>
+              <SelectItem value="50">50</SelectItem>
+              <SelectItem value="100">100</SelectItem>
+            </SelectContent>
+          </Select>
+          <Pagination className="w-auto">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    if (currentPage > 1) setCurrentPage(currentPage - 1)
+                  }}
+                />
+              </PaginationItem>
+              {Array.from({ length: Math.min(5, totalPages) }).map((_, i) => {
+                let pageNum: number
+                if (totalPages <= 5) pageNum = i + 1
+                else if (currentPage <= 3) pageNum = i + 1
+                else if (currentPage >= totalPages - 2)
+                  pageNum = totalPages - 4 + i
+                else pageNum = currentPage - 2 + i
+                return (
+                  <PaginationItem key={pageNum}>
+                    <PaginationLink
+                      href="#"
+                      isActive={pageNum === currentPage}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        setCurrentPage(pageNum)
+                      }}
+                    >
+                      {pageNum}
+                    </PaginationLink>
+                  </PaginationItem>
+                )
+              })}
+              <PaginationItem>
+                <PaginationNext
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    if (currentPage < totalPages)
+                      setCurrentPage(currentPage + 1)
+                  }}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
       </div>
 
       <TicketCheckDialog

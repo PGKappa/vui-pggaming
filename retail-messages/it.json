@@ -298,6 +298,8 @@
   "max_events_system": "Non è possibile aggiungere altre scommesse: massimo 15 eventi unici per scommessa di sistema",
   "failed_fetch_results": "Errore nel recupero dei risultati",
   "http_error": "Errore",
+  "collected": "Riscosso",
+  "not_collected": "Non riscorsso",
   "min_stake_error": "L'importo minimo della scommessa è {{min}}",
   "min_bet_error": "L'importo minimo del ticket è {{min}}",
   "max_win_error": "La vincita massima potenziale è {{max}}",

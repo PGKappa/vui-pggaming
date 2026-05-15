@@ -53,7 +53,7 @@ const PaginationLink = ({
         size,
       }),
       className,
-      `${isActive ? 'bg-secondary text-white' : ''}`,
+      `${isActive ? 'bg-accent text-white' : ''}`,
     )}
     {...props}
   />
@@ -67,7 +67,7 @@ const PaginationPrevious = ({
   <PaginationLink
     aria-label="Go to previous page"
     size="icon"
-    className={cn('bg-secondary', className)}
+    className={cn('bg-accent', className)}
     {...props}
   >
     <ChevronLeft className="h-4 w-4 text-white" />
@@ -82,7 +82,7 @@ const PaginationNext = ({
   <PaginationLink
     aria-label="Go to next page"
     size="icon"
-    className={cn('bg-secondary', className)}
+    className={cn('bg-accent', className)}
     {...props}
   >
     <ChevronRight className="h-4 w-4 text-white" />
