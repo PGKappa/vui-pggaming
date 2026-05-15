@@ -317,6 +317,8 @@
   "backend_market_closed": "Event started. Bet not available.",
   "max_bet_entries_system": "Cannot add more bets: maximum 50 entries allowed for system betting",
   "max_events_system": "Cannot add more bets: maximum 15 unique events allowed for system betting",
+  "max_tuple_error": "Maximum system bet is 10-fold",
+  "max_combinations_error": "Maximum 2048 combinations per system bet",
   "failed_fetch_results": "Failed to fetch results",
   "http_error": "Error"
 }

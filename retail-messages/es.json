@@ -339,6 +339,8 @@
   "backend_market_closed": "Evento iniciado. Apuesta no disponible.",
   "max_bet_entries_system": "No se pueden añadir más apuestas: máximo 50 selecciones permitidas para apuesta de sistema",
   "max_events_system": "No se pueden añadir más apuestas: máximo 15 eventos únicos permitidos para apuesta de sistema",
+  "max_tuple_error": "El máximo para las apuestas del sistema es la 10-pla",
+  "max_combinations_error": "Máximo 2048 combinaciones por apuesta de sistema",
   "failed_fetch_results": "Error al obtener los resultados",
   "http_error": "Error"
 }

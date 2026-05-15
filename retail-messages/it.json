@@ -288,5 +288,7 @@
   "http_error": "Errore",
   "min_stake_error": "L'importo minimo della scommessa è {{min}}",
   "min_bet_error": "L'importo minimo del ticket è {{min}}",
-  "max_win_error": "La vincita massima potenziale è {{max}}"
+  "max_win_error": "La vincita massima potenziale è {{max}}",
+  "max_tuple_error": "Il massimo per le scommesse sistema è la 10-pla",
+  "max_combinations_error": "Massimo 2048 combinazioni per scommessa sistema"
 }
