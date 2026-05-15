@@ -222,6 +222,11 @@ export default function BetsContextProvider(props: {
       })
       const eventsNumber = eventsSet.size
 
+      if (eventsNumber > 10) {
+        toast.error(tRef.current('max_tuple_error'))
+        return false
+      }
+
       if (eventsNumber > 15) {
         toast.error(tRef.current('max_events_system'))
         return false
