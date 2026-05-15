@@ -288,6 +288,24 @@ export default function TicketListPageContent({
           <div className="relative top-2 flex flex-wrap items-center space-x-5 lg:top-2.5 lg:space-x-10">
             <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
               <span className="whitespace-nowrap pl-1 text-[10px] font-semibold lg:pl-2 lg:text-[12px]">
+                {t('from')}
+              </span>
+              {dateFromButton(
+                'h-7 w-[80px] justify-center text-[10px] lg:h-9 lg:w-[100px] lg:text-[12px]',
+              )}
+            </div>
+
+            <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
+              <span className="whitespace-nowrap pl-1 text-[10px] font-semibold lg:pl-2 lg:text-[12px]">
+                {t('to')}
+              </span>
+              {dateToButton(
+                'h-7 w-[80px] justify-center text-[10px] lg:h-9 lg:w-[100px] lg:text-[12px]',
+              )}
+            </div>
+
+            <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
+              <span className="whitespace-nowrap pl-1 text-[10px] font-semibold lg:pl-2 lg:text-[12px]">
                 {t('terminal')}
               </span>
               <Select value={terminal} onValueChange={setTerminal}>
@@ -337,24 +355,6 @@ export default function TicketListPageContent({
                   <SelectItem value="unpaid">{t('unpaid')}</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
-
-            <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
-              <span className="whitespace-nowrap pl-1 text-[10px] font-semibold lg:pl-2 lg:text-[12px]">
-                {t('from')}
-              </span>
-              {dateFromButton(
-                'h-7 w-[80px] justify-center text-[10px] lg:h-9 lg:w-[100px] lg:text-[12px]',
-              )}
-            </div>
-
-            <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
-              <span className="whitespace-nowrap pl-1 text-[10px] font-semibold lg:pl-2 lg:text-[12px]">
-                {t('to')}
-              </span>
-              {dateToButton(
-                'h-7 w-[80px] justify-center text-[10px] lg:h-9 lg:w-[100px] lg:text-[12px]',
-              )}
             </div>
 
             <Button
