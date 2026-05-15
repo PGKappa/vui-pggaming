@@ -528,6 +528,10 @@ export default function BettingSlip({
         (sum, group) => sum + group.stake,
         0,
       )
+      if (totalSystemCombinations > 2048) {
+        toast.error(t('max_combinations_error'))
+        return
+      }
       if (totalSystemStake <= 0) {
         toast.error(t('enter_system_amount'))
         return
@@ -1536,8 +1540,10 @@ export default function BettingSlip({
               <span className="text-[15px] font-semibold">
                 {t('total_combinations').toUpperCase()}
               </span>
-              <span className="text-[15px] font-semibold">
-                {totalSystemCombinations}/{totalSystemCombinations}
+              <span
+                className={`text-[15px] font-semibold${totalSystemCombinations > 2048 ? 'text-chart-2' : ''}`}
+              >
+                {totalSystemCombinations}/2048
               </span>
             </div>
 
@@ -1583,7 +1589,8 @@ export default function BettingSlip({
               isSubmitting ||
               (betMode !== 'SYSTEM' && global <= 0) ||
               (betMode === 'SYSTEM' && totalSystemStake <= 0) ||
-              (betMode === 'SYSTEM' && systemEventsCount > 10)
+              (betMode === 'SYSTEM' && systemEventsCount > 10) ||
+              (betMode === 'SYSTEM' && totalSystemCombinations > 2048)
             }
             className="h-12 w-full text-[18px] font-bold"
           >
