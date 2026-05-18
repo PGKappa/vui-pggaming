@@ -46,7 +46,14 @@ export default function TicketCheckPageContent(
   }
 
   return (
-    <main className="fixed bottom-0 left-0 right-0 top-[60px] z-50 flex flex-col justify-between bg-black py-4 text-accent-foreground lg:py-6">
+          <main
+          className="fixed bottom-0 left-0 right-0 top-[60px] z-50 flex flex-col justify-between py-4 text-accent-foreground lg:py-6"
+          style={{
+            backgroundImage: "url('/bg-stadium.png')",
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        >
       {/* Title Bar */}
       <div className="relative bottom-[20px] flex h-10 shrink-0 items-center justify-center bg-secondary text-accent-foreground lg:h-16">
         <h1 className="text-[12px] font-bold uppercase lg:text-[16px]">
@@ -55,17 +62,17 @@ export default function TicketCheckPageContent(
       </div>
 
       <div className="flex flex-1 flex-col items-center justify-center">
-        <p className="text-[16px] font-semibold lg:text-[22px]">
+        <p className="text-[16px] font-semibold lg:text-[22px] relative bottom-[80px]">
           {t('scan_or_enter_code')}
         </p>
 
         <Input
-          className="mt-6 h-10 w-[320px] bg-white text-center text-[16px] font-bold text-foreground lg:mt-10 lg:h-12 lg:w-[480px] lg:text-[20px]"
+          className="mt-6 h-10 w-[320px] bg-white text-center text-[16px] font-bold text-foreground lg:mt-10 lg:h-12 lg:w-[480px] lg:text-[20px] relative bottom-[100px]"
           readOnly
           value={code}
         />
 
-        <div className="mt-6 flex flex-row items-start gap-4 lg:mt-10 lg:gap-6">
+        <div className="mt-6 flex flex-row items-start gap-4 lg:mt-40 lg:gap-6">
           {/* Lettere */}
           <div className="flex flex-col space-y-1 lg:space-y-2">
             {LETTER_LAYOUT.map((row, rowIdx) => (
@@ -76,7 +83,7 @@ export default function TicketCheckPageContent(
                 {row.map((key) => (
                   <Button
                     key={key}
-                    className="h-12 w-12 rounded-none bg-secondary text-[16px] font-bold text-tertiary-foreground lg:h-20 lg:w-20 lg:text-[23px]"
+                    className="h-12 w-12 rounded-md bg-secondary text-[16px] font-bold text-tertiary-foreground lg:h-[60px] lg:w-[76px] lg:text-[23px]"
                     onClick={() => handleClick(key)}
                   >
                     {key}
@@ -96,7 +103,7 @@ export default function TicketCheckPageContent(
                 {row.map((key) => (
                   <Button
                     key={key}
-                    className="h-12 w-12 rounded-none bg-secondary text-[16px] font-bold text-tertiary-foreground lg:h-20 lg:w-20 lg:text-[23px]"
+                    className="h-12 w-12 rounded-md bg-secondary text-[16px] font-bold text-tertiary-foreground lg:h-[60px] lg:w-[76px] lg:text-[23px]"
                     onClick={() => handleClick(key)}
                   >
                     {key}

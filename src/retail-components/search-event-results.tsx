@@ -537,8 +537,14 @@ export default function SearchEventResults() {
         toast.error(t('select_date_and_time_slot'))
         return
       }
-      
-      
+      if (selectedDate === 'ALL') {
+        toast.error(t('select_date'))
+        return
+      }
+      if (selectedTimeSlot === 'ALL') {
+        toast.error(t('select_time_slot'))
+        return
+      }
     }
     setContextResultsSnapshot(rootContext.eventResults || [])
     setConfirmedDiscipline(selectedDiscipline)
