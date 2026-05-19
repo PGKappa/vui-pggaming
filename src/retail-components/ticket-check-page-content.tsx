@@ -67,7 +67,7 @@ export default function TicketCheckPageContent(
         </p>
 
         <Input
-          className="mt-6 h-10 w-[320px] bg-white text-center text-[16px] font-bold text-foreground lg:mt-10 lg:h-12 lg:w-[480px] lg:text-[20px] relative bottom-[100px]"
+          className="mt-6 h-10 w-[320px] bg-white text-center text-[16px] font-bold text-foreground lg:mt-10 lg:h-12 lg:w-[480px] lg:text-[20px] relative bottom-[110px] rounded-md"
           readOnly
           value={code}
         />
@@ -117,7 +117,7 @@ export default function TicketCheckPageContent(
 
       <div className="flex justify-center">
         <Button
-          className="h-12 w-[90vw] bg-bet text-[16px] font-bold text-white lg:h-16 lg:w-[1200px] lg:text-[20px]"
+          className="h-12 w-[90vw] bg-bet text-[16px] font-bold text-white lg:h-16 lg:w-[1865px] rounded-md lg:text-[23px] uppercase"
           onClick={handleSubmit}
         >
           {t('confirm')}

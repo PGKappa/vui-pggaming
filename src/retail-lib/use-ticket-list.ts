@@ -47,13 +47,13 @@ export function getStatusDisplay(status: number): {
     case 0: // CREATED
       return {
         label: 'Created',
-        colorClass: 'bg-orange-500',
+        colorClass: 'bg-notCollected',
         translationKey: 'pending',
       }
     case 1: // ACTIVE
       return {
         label: 'Active',
-        colorClass: 'bg-orange-500',
+        colorClass: 'bg-notCollected',
         translationKey: 'active',
       }
     case 2: // CANCELLED
@@ -71,7 +71,7 @@ export function getStatusDisplay(status: number): {
     case 4: // WON (unpaid)
       return {
         label: 'Won',
-        colorClass: 'bg-orange-500',
+        colorClass: 'bg-notCollected',
         translationKey: 'won',
       }
     case 5: // LOST
