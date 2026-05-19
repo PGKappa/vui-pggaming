@@ -47,27 +47,31 @@ export function getStatusDisplay(status: number): {
     case 0: // CREATED
       return {
         label: 'Created',
-        colorClass: 'bg-ticket-active',
+        colorClass: 'bg-orange-500',
         translationKey: 'pending',
       }
     case 1: // ACTIVE
       return {
         label: 'Active',
-        colorClass: 'bg-ticket-active',
+        colorClass: 'bg-orange-500',
         translationKey: 'active',
       }
     case 2: // CANCELLED
       return {
         label: 'Cancelled',
-        colorClass: 'bg-muted',
+        colorClass: 'bg-ticket-lost',
         translationKey: 'cancelled',
       }
     case 3: // VOID
-      return { label: 'Void', colorClass: 'bg-muted', translationKey: 'void' }
+      return {
+        label: 'Void',
+        colorClass: 'bg-ticket-lost',
+        translationKey: 'void',
+      }
     case 4: // WON (unpaid)
       return {
         label: 'Won',
-        colorClass: 'bg-ticket-won',
+        colorClass: 'bg-orange-500',
         translationKey: 'won',
       }
     case 5: // LOST
