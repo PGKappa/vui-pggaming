@@ -220,7 +220,7 @@ export default function TicketListPageContent({
   const totalCellClass = (extra?: string) =>
     cn(
       'bg-secondary text-center align-middle',
-      isCalcio ? 'px-3 py-2 text-[14px]' : 'px-1 py-1 text-[9px] lg:px-3 lg:text-[16px]',
+      isCalcio ? 'px-3 py-2 text-[14px]' : 'px-1 py-1 text-[9px] lg:px-3 lg:text-[17px]',
       extra,
     )
 
@@ -321,7 +321,7 @@ export default function TicketListPageContent({
                 {t('from')}
               </span>
               {dateFromButton(
-                'h-7 w-[80px] justify-center text-[10px] lg:h-9 lg:w-[100px] lg:text-[12px]',
+                'h-7 w-[80px] justify-center text-[10px] lg:h-9 lg:w-[210px] lg:text-[12px]',
               )}
             </div>
 
@@ -330,7 +330,7 @@ export default function TicketListPageContent({
                 {t('to')}
               </span>
               {dateToButton(
-                'h-7 w-[80px] justify-center text-[10px] lg:h-9 lg:w-[100px] lg:text-[12px]',
+                'h-7 w-[80px] justify-center text-[10px] lg:h-9 lg:w-[210px] lg:text-[12px]',
               )}
             </div>
 
@@ -339,7 +339,7 @@ export default function TicketListPageContent({
                 {t('terminal')}
               </span>
               <Select value={terminal} onValueChange={setTerminal}>
-                <SelectTrigger className="h-7 w-[70px] bg-background text-[10px] text-foreground lg:h-9 lg:w-[100px] lg:text-[12px]">
+                <SelectTrigger className="h-7 w-[75px] bg-background text-[10px] text-foreground lg:h-9 lg:w-[210px] lg:text-[12px]">
                   <SelectValue placeholder={t('terminal')} />
                 </SelectTrigger>
                 <SelectContent className="bg-white p-0">
@@ -358,7 +358,7 @@ export default function TicketListPageContent({
                 {t('status')}
               </span>
               <Select value={statusSelectValue} onValueChange={handleStatusChange}>
-                <SelectTrigger className="h-7 w-[70px] bg-background text-[10px] text-foreground lg:h-9 lg:w-[100px] lg:text-[12px]">
+                <SelectTrigger className="h-7 w-[70px] bg-background text-[10px] text-foreground lg:h-9 lg:w-[210px] lg:text-[12px]">
                   <SelectValue placeholder={t('status')} />
                 </SelectTrigger>
                 <SelectContent className="bg-white p-0">
@@ -396,7 +396,7 @@ export default function TicketListPageContent({
               <th className={thClass('w-[10%]')}>{t('ticket_id')}</th>
               <th className={thClass('w-[10%]')}>{t('date_n_time')}</th>
               <th className={thClass('w-[10%]')}>{t('terminal')}</th>
-              <th className={thClass('w-[11%]')}>{t('product')}</th>
+              <th className={thClass('w-[13%]')}>{t('product')}</th>
               <th className={thClass('w-[10%]')}>{t('staked_amount')}</th>
               <th className={thClass('w-[10%]')}>{t('won')}</th>
               <th className={thClass('w-[10%]')}>{t('ticket_status')}</th>
@@ -426,7 +426,7 @@ export default function TicketListPageContent({
                     key={item.ticket_id}
                     className={cn(
                       'border-b text-center',
-                      isCalcio ? 'text-[16px]' : 'text-[12px] lg:text-[16px]',
+                      isCalcio ? 'text-[16px]' : 'text-[12px] lg:text-[15px] uppercase ',
                     )}
                   >
                     <td className={tdClass()}>{item.ticket_id}</td>
