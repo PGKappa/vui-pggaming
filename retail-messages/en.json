@@ -151,6 +151,7 @@
   "pending": "Pending",
   "cancelled": "Cancelled",
   "payment": "Payment",
+  "balance": "Balance",
   "paid": "Paid",
   "unpaid": "Unpaid",
   "from": "From",
@@ -336,5 +337,7 @@
   "amount_by_type": "Amount by Type",
   "pay": "Pay",
   "pay_error": "Payment error",
+  "collected": "Collected",
+  "not_collected": "Not Collected",
   "pay_success": "Payment successful"
 }

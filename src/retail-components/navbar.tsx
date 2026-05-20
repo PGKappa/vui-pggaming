@@ -89,7 +89,7 @@ function NavbarContent() {
     if (pathname.includes('/calcio')) {
       return `https://d190050z3qr0m1.cloudfront.net/public/Soccer_Gaming_manual_${lang}.html`
     } else {
-      return `https://stanleybet-test.pgvirtual.eu/Gaming+manual_${lang}.html`
+      return `https://d190050z3qr0m1.cloudfront.net/public/Gaming_manual_${lang}.html`
     }
   }
 

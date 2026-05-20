@@ -425,6 +425,9 @@
     --minusButtonDark: 0, 0%, 20%;
     --minusButtonDark-foreground: 0 0% 100%;
 
+    --notCollected: 25, 95%, 53%;
+    --notCollected-foreground: 0 0% 0%;
+
     --ticket-won: 142 71% 45%;
     --ticket-lost: 0 72% 51%;
     --ticket-active: 48 96% 53%;
@@ -562,6 +565,9 @@
 
     --minusButtonDark: 0, 0%, 20%;
     --minusButtonDark-foreground: 0 0% 100%;
+
+    --notCollected: 25, 95%, 53%;
+    --notCollected-foreground: 0 0% 0%;
 
     --ticket-won: 142 71% 45%;
     --ticket-lost: 0 72% 51%;

@@ -143,6 +143,7 @@
   "pending": "Pendiente",
   "cancelled": "Cancelado",
   "payment": "Pago",
+  "balance": "Saldo",
   "paid": "Pagado",
   "unpaid": "No Pagado",
   "from": "Desde",
@@ -355,6 +356,8 @@
   "ticket_not_found": "Ticket no encontrado",
   "amount_by_type": "Importe por Tipo",
   "pay": "Pagar",
+  "collected": "Cobrado",
+  "not_collected": "Pendiente",
   "pay_error": "Error en el pago",
   "pay_success": "Pago realizado"
 }
