@@ -108,8 +108,6 @@ export default function TicketListPageContent({
     setDialogOpen(true)
   }
 
-  // Gestione status+payment unificati nel Select status
-  // I valori "paid" e "unpaid" vengono intercettati e smistati al payment filter
   const handleStatusChange = (value: string) => {
     if (value === 'paid') {
       setStatus('all')
@@ -123,7 +121,6 @@ export default function TicketListPageContent({
     }
   }
 
-  // Valore da mostrare nel Select status (tiene conto anche del payment attivo)
   const statusSelectValue =
     payment === 'paid' ? 'paid' : payment === 'unpaid' ? 'unpaid' : status
 
@@ -197,21 +194,33 @@ export default function TicketListPageContent({
       .join(' / ')
   }
 
-  // Shared th class for data columns
   const thClass = (extra?: string) =>
     cn(
       'border-r border-card-header-foreground last:border-r-0',
       isCalcio
         ? 'bg-badge p-2 text-[16px]'
-        : 'bg-accent p-1 text-[12px] lg:p-2 lg:text-[16px]',
+        : 'bg-accent p-1 text-[12px] lg:p-2 lg:text-[16px] uppercase',
       extra,
     )
 
-  // Shared td class for data columns
   const tdClass = (extra?: string) =>
     cn(
       'border-r border-muted last:border-r-0',
       isCalcio ? 'p-2' : 'p-1 lg:p-2',
+      extra,
+    )
+
+  // Stile bordo comune per la griglia totali
+  const totalBorder = '0.5px solid rgba(255,255,255,0.4)'
+
+  const totalCellStyle = {
+    border: totalBorder,
+  }
+
+  const totalCellClass = (extra?: string) =>
+    cn(
+      'bg-secondary text-center align-middle',
+      isCalcio ? 'px-3 py-2 text-[14px]' : 'px-1 py-1 text-[9px] lg:px-3 lg:text-[16px]',
       extra,
     )
 
@@ -387,7 +396,7 @@ export default function TicketListPageContent({
               <th className={thClass('w-[10%]')}>{t('ticket_id')}</th>
               <th className={thClass('w-[10%]')}>{t('date_n_time')}</th>
               <th className={thClass('w-[10%]')}>{t('terminal')}</th>
-              <th className={thClass('w-[10%]')}>{t('product')}</th>
+              <th className={thClass('w-[11%]')}>{t('product')}</th>
               <th className={thClass('w-[10%]')}>{t('staked_amount')}</th>
               <th className={thClass('w-[10%]')}>{t('won')}</th>
               <th className={thClass('w-[10%]')}>{t('ticket_status')}</th>
@@ -439,14 +448,6 @@ export default function TicketListPageContent({
                           isCalcio ? 'gap-2' : 'space-x-1 lg:space-x-2',
                         )}
                       >
-                        <div
-                          className={cn(
-                            isCalcio
-                              ? 'h-3 w-3 rounded-sm'
-                              : 'h-2 w-2 rounded-sm lg:h-3 lg:w-3',
-                            statusInfo.colorClass,
-                          )}
-                        />
                         <span
                           className={cn(
                             'font-medium',
@@ -455,6 +456,14 @@ export default function TicketListPageContent({
                         >
                           {t(statusInfo.translationKey)}
                         </span>
+                        <div
+                          className={cn(
+                            isCalcio
+                              ? 'h-3 w-3 rounded-sm'
+                              : 'h-2 w-2 rounded-sm lg:h-3 lg:w-3',
+                            statusInfo.colorClass,
+                          )}
+                        />
                       </div>
                     </td>
                     <td className={tdClass()}>
@@ -503,26 +512,26 @@ export default function TicketListPageContent({
 
       {/* Footer */}
       <div className={cn('relative', isCalcio ? 'grid grid-cols-9' : 'grid shrink-0 grid-cols-9 h-[121px]')}>
-        {/* Legend — bottom-left, occupa le prime 2 colonne del grid */}
+        {/* Legend */}
         <div className="col-span-2 bg-secondary flex items-end justify-start px-3 pb-3">
-          <div className="flex flex-row space-x-3 mb-[6px]">
-            <div className="flex items-center space-x-1.5">
-              <div className="h-4 w-4 rounded-md bg-ticket-won mb-0.5" />
+          <div className="flex flex-row space-x-4 mb-[6px]">
+            <div className="flex items-center space-x-2">
               <span className={cn('text-white', isCalcio ? 'text-[11px]' : 'text-[9px] lg:text-[12px]')}>
                 {t('collected')}
               </span>
+              <div className="h-4 w-4 rounded-md bg-ticket-won mb-0.5" />
             </div>
-            <div className="flex items-center space-x-1.5 mb-0.5">
-              <div className="h-4 w-4 rounded-md bg-notCollected" />
+            <div className="flex items-center space-x-2 mb-0.5">
               <span className={cn('text-white', isCalcio ? 'text-[11px]' : 'text-[9px] lg:text-[12px]')}>
                 {t('not_collected')}
               </span>
+              <div className="h-4 w-4 rounded-md bg-notCollected" />
             </div>
-            <div className="flex items-center space-x-1.5 mb-0.5">
-              <div className="h-4 w-4 rounded-md bg-ticket-lost" />
+            <div className="flex items-center space-x-2 mb-0.5">
               <span className={cn('text-white', isCalcio ? 'text-[11px]' : 'text-[9px] lg:text-[12px]')}>
                 {t('cancelled')}
               </span>
+              <div className="h-4 w-4 rounded-md bg-ticket-lost" />
             </div>
           </div>
         </div>
@@ -538,50 +547,39 @@ export default function TicketListPageContent({
             <col style={{ width: '14.2857%' }} />
           </colgroup>
           <tbody>
+            {/* Riga totali — 7 celle separate con bordi individuali */}
             <tr className="bg-secondary text-white h-[60px]">
-              <td className="bg-secondary border-r border-secondary" />
-              <td
-                className={cn(
-                  'border-r border-secondary bg-secondary text-center align-middle font-bold',
-                  isCalcio ? 'px-3 py-2 text-[14px]' : 'px-1 py-1 text-[9px] lg:px-3 lg:text-[16px]',
-                )}
-              >
+              {/* pos 1 → vuota, senza bordo */}
+              <td className="bg-secondary" />
+              {/* pos 2 → Totali */}
+              <td style={totalCellStyle} className={totalCellClass('font-bold')}>
                 {t('totals')}
               </td>
-              <td
-                className={cn(
-                  'border-r border-secondary bg-secondary text-center align-middle',
-                  isCalcio ? 'px-3 py-2 text-[14px]' : 'px-1 py-1 text-[9px] lg:px-3 lg:text-[16px]',
-                )}
-              >
+              {/* pos 3 → Importo giocato */}
+              <td style={totalCellStyle} className={totalCellClass()}>
                 {formatCurrency(info?.grandtotal?.in ?? 0, currencySymbol)}
               </td>
-              <td
-                className={cn(
-                  'border-r border-secondary bg-secondary text-center align-middle',
-                  isCalcio ? 'px-3 py-2 text-[14px]' : 'px-1 py-1 text-[9px] lg:px-3 lg:text-[16px]',
-                )}
-              >
+              {/* pos 4 → Vincita */}
+              <td style={totalCellStyle} className={totalCellClass()}>
                 {formatCurrency(info?.grandtotal?.out ?? '0.00', currencySymbol)}
               </td>
-              <td className="bg-secondary border-r border-secondary" />
-              <td
-                className={cn(
-                  'border-r border-secondary bg-secondary text-center align-middle',
-                  isCalcio ? 'px-3 py-2 text-[14px]' : 'px-1 py-1 text-[9px] lg:px-3 lg:text-[16px]',
-                )}
-              >
+              {/* pos 5 → vuota (Stato) */}
+              <td style={totalCellStyle} className={totalCellClass()} />
+              {/* pos 6 → Saldo */}
+              <td style={totalCellStyle} className={totalCellClass()}>
                 {formatCurrency(
                   parseFloat(String(info?.grandtotal?.out ?? '0')) -
                     (info?.grandtotal?.in ?? 0),
                   currencySymbol,
                 )}
               </td>
-              <td className="bg-secondary" />
+              {/* pos 7 → vuota (Details) */}
+              <td style={totalCellStyle} className={totalCellClass()} />
             </tr>
 
-            <tr className="bg-secondary">
-              <td colSpan={7} className="bg-secondary p-0 h-[61px]" />
+            {/* Riga vuota — senza bordi */}
+            <tr className="bg-secondary h-[61px]">
+              <td colSpan={7} className="bg-secondary" />
             </tr>
           </tbody>
         </table>
