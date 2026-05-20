@@ -168,6 +168,10 @@ export default {
           DEFAULT: 'hsl(var(--minusButton))',
           foreground: 'hsl(var(--minusButton-foreground))',
         },
+         notCollected: {
+          DEFAULT: 'hsl(var(--notCollected))',
+          foreground: 'hsl(var(--notCollected-foreground))',
+        },
         minusButtonDark: {
           DEFAULT: 'hsl(var(--minusButtonDark))',
           foreground: 'hsl(var(--minusButtonDark-foreground))',

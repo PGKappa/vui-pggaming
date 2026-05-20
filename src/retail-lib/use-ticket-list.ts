@@ -47,27 +47,31 @@ export function getStatusDisplay(status: number): {
     case 0: // CREATED
       return {
         label: 'Created',
-        colorClass: 'bg-ticket-active',
+        colorClass: 'bg-notCollected',
         translationKey: 'pending',
       }
     case 1: // ACTIVE
       return {
         label: 'Active',
-        colorClass: 'bg-ticket-active',
+        colorClass: 'bg-notCollected',
         translationKey: 'active',
       }
     case 2: // CANCELLED
       return {
         label: 'Cancelled',
-        colorClass: 'bg-muted',
+        colorClass: 'bg-ticket-lost',
         translationKey: 'cancelled',
       }
     case 3: // VOID
-      return { label: 'Void', colorClass: 'bg-muted', translationKey: 'void' }
+      return {
+        label: 'Void',
+        colorClass: 'bg-ticket-lost',
+        translationKey: 'void',
+      }
     case 4: // WON (unpaid)
       return {
         label: 'Won',
-        colorClass: 'bg-ticket-won',
+        colorClass: 'bg-notCollected',
         translationKey: 'won',
       }
     case 5: // LOST
@@ -249,7 +253,6 @@ export function useTicketList() {
 
       if (data.ret_code === 1024) {
         const rawItems = data.items ?? []
-        // Diagnostic: log any status codes not yet handled in getStatusDisplay
         const knownStatuses = new Set([1, 4, 5, 6, 9])
         const unknownStatuses = [
           ...new Set(rawItems.map((i) => i.status)),
