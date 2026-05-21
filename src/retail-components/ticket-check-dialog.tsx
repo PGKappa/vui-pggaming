@@ -64,6 +64,13 @@ function formatTicketTime(time: TicketDetailInfo['time']): string {
   return `${d}/${m}/${y} - ${h}:${mi}:${s}`
 }
 
+function formatTicketDate(time: TicketDetailInfo['time']): string {
+  const [year, month, day] = time
+  const d = String(day).padStart(2, '0')
+  const m = String(month + 1).padStart(2, '0')
+  return `${d}/${m}/${year}`
+}
+
 function combinationOddsSum(odds: number[], k: number): number {
   let total = 0
   function enumerate(start: number, current: number[], depth: number) {
@@ -393,7 +400,7 @@ export default function TicketCheckDialog({
                     </div>
                     {statusInfo.isWinner && (
                       <div
-                        className="flex items-center gap-2 rounded-lg px-[18px] py-[10px] text-[13px] font-bold tracking-[1px] text-white"
+                        className="flex items-center gap-2 rounded-lg px-[18px] py-[10px] text-[13px] font-bold uppercase tracking-[1px] text-white"
                         style={{
                           background: '#2d7a3a',
                           border: '2px solid #3a9e4a',
@@ -411,7 +418,7 @@ export default function TicketCheckDialog({
                     {!statusInfo.isWinner &&
                       statusInfo.translationKey === 'lost' && (
                         <div
-                          className="flex items-center gap-2 rounded-lg px-[18px] py-[10px] text-[13px] font-bold tracking-[1px] text-white"
+                          className="flex items-center gap-2 rounded-lg px-[18px] py-[10px] text-[13px] font-bold uppercase tracking-[1px] text-white"
                           style={{
                             background: '#7a2d2d',
                             border: '2px solid #9e3a3a',
@@ -427,7 +434,7 @@ export default function TicketCheckDialog({
                     {!statusInfo.isWinner &&
                       statusInfo.translationKey === 'pending' && (
                         <div
-                          className="flex items-center gap-2 rounded-lg px-[18px] py-[10px] text-[13px] font-bold tracking-[1px] text-white"
+                          className="flex items-center gap-2 rounded-lg px-[18px] py-[10px] text-[13px] font-bold uppercase tracking-[1px] text-white"
                           style={{
                             background: '#5a5a1a',
                             border: '2px solid #8a8a2a',
@@ -570,7 +577,10 @@ export default function TicketCheckDialog({
                               ' - ',
                             )
                               ? sel.startTime.split(' - ')
-                              : ['', sel.startTime]
+                              : [
+                                  formatTicketDate(ticketInfo.time),
+                                  sel.startTime,
+                                ]
                             return (
                               <>
                                 {datePart && (
@@ -614,7 +624,9 @@ export default function TicketCheckDialog({
                               className="flex-1 text-center text-[12.5px] font-semibold tracking-[0.4px]"
                               style={{ color: '#ccc' }}
                             >
-                              {s.description}
+                              {sel.game.dict.runners?.[s.description]
+                                ? `${s.description} - ${sel.game.dict.runners[s.description]}`
+                                : s.description}
                             </span>
                             <span
                               className="flex flex-1 items-center justify-end gap-2 text-[12.5px] font-semibold tracking-[0.4px]"
