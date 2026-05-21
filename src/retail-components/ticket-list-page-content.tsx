@@ -33,6 +33,7 @@ import { format } from 'date-fns'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import TicketCheckDialog from '@/retail-components/ticket-check-dialog'
+import { type DateRange } from 'react-day-picker'
 
 interface TicketListPageContentProps {
   returnPath: string
@@ -128,6 +129,17 @@ export default function TicketListPageContent({
     }
   }
 
+  const handleDateRangeSelect = (range: DateRange | undefined) => {
+    setDateFrom(range?.from)
+    setDateTo(range?.to)
+  }
+
+  const dateRangeLabel = () => {
+    if (dateFrom && dateTo) return `${format(dateFrom, 'dd/MM/yy')} - ${format(dateTo, 'dd/MM/yy')}`
+    if (dateFrom) return `${format(dateFrom, 'dd/MM/yy')} - ...`
+    return '-'
+  }
+
   const statusSelectValue =
     payment === 'paid' ? 'paid' : payment === 'unpaid' ? 'unpaid' : status
 
@@ -147,38 +159,18 @@ export default function TicketListPageContent({
       'h-7 w-7 bg-transparent p-0 opacity-70 hover:opacity-100 border border-gray-300 rounded',
   }
 
-  const dateFromButton = (extraClass: string) => (
+  const dateRangeButton = (extraClass: string) => (
     <Popover>
       <PopoverTrigger asChild>
         <Button variant="ticketFilter" className={extraClass}>
-          {dateFrom ? format(dateFrom, 'dd/MM/yy') : '-'}
+          {dateRangeLabel()}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto bg-white">
         <Calendar
-          mode="single"
-          selected={dateFrom}
-          onSelect={setDateFrom}
-          initialFocus
-          showOutsideDays={false}
-          classNames={calendarClassNames}
-        />
-      </PopoverContent>
-    </Popover>
-  )
-
-  const dateToButton = (extraClass: string) => (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button variant="ticketFilter" className={extraClass}>
-          {dateTo ? format(dateTo, 'dd/MM/yy') : '-'}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-auto bg-white">
-        <Calendar
-          mode="single"
-          selected={dateTo}
-          onSelect={setDateTo}
+          mode="range"
+          selected={{ from: dateFrom, to: dateTo }}
+          onSelect={handleDateRangeSelect}
           initialFocus
           showOutsideDays={false}
           classNames={calendarClassNames}
@@ -217,13 +209,8 @@ export default function TicketListPageContent({
       extra,
     )
 
-  // Stile bordo comune per la griglia totali
   const totalBorder = '0.5px solid rgba(255,255,255,0.4)'
-
-  const totalCellStyle = {
-    border: totalBorder,
-  }
-
+  const totalCellStyle = { border: totalBorder }
   const totalCellClass = (extra?: string) =>
     cn(
       'bg-secondary text-center align-middle',
@@ -305,16 +292,9 @@ export default function TicketListPageContent({
 
             <div className="mr-20 flex flex-row items-center gap-2 bg-badge text-background">
               <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
-                {t('from')}
+                {t('date', 'DATA')}
               </span>
-              {dateFromButton('w-[120px] justify-center text-[12px]')}
-            </div>
-
-            <div className="mr-20 flex flex-row items-center gap-2 bg-badge text-background">
-              <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
-                {t('to')}
-              </span>
-              {dateToButton('w-[120px] justify-center text-[12px]')}
+              {dateRangeButton('w-[200px] justify-center text-[12px]')}
             </div>
 
             <Button
@@ -328,21 +308,13 @@ export default function TicketListPageContent({
       ) : (
         <div className="flex shrink-0 justify-center bg-secondary pb-3 lg:pb-5">
           <div className="relative top-2 flex flex-wrap items-center space-x-5 lg:top-2.5 lg:space-x-10">
-            <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
-              <span className="whitespace-nowrap pl-1 text-[10px] font-semibold lg:pl-2 lg:text-[12px]">
-                {t('from')}
-              </span>
-              {dateFromButton(
-                'h-7 w-[80px] justify-center text-[10px] lg:h-9 lg:w-[210px] lg:text-[12px]',
-              )}
-            </div>
 
             <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
               <span className="whitespace-nowrap pl-1 text-[10px] font-semibold lg:pl-2 lg:text-[12px]">
-                {t('to')}
+                {t('date', 'DATA')}
               </span>
-              {dateToButton(
-                'h-7 w-[80px] justify-center text-[10px] lg:h-9 lg:w-[210px] lg:text-[12px]',
+              {dateRangeButton(
+                'h-7 w-[140px] justify-center text-[10px] lg:h-9 lg:w-[210px] lg:text-[12px]',
               )}
             </div>
 
@@ -390,7 +362,7 @@ export default function TicketListPageContent({
 
             <Button
               onClick={fetchTickets}
-              className="text-bold h-7 w-[60px] bg-tertiary text-[10px] text-tertiary-foreground lg:h-9 lg:w-[80px] lg:text-[14px]"
+              className="text-bold h-7 w-[60px] bg-tertiary text-[10px] text-tertiary-foreground lg:h-9 lg:w-[80px] lg:text-[14px] uppercase"
             >
               {t('reload')}
             </Button>
@@ -472,19 +444,12 @@ export default function TicketListPageContent({
                           isCalcio ? 'gap-2' : 'space-x-1 lg:space-x-2',
                         )}
                       >
-                        <span
-                          className={cn(
-                            'font-medium',
-                            isCalcio ? 'text-[16px]' : '',
-                          )}
-                        >
+                        <span className={cn('font-medium', isCalcio ? 'text-[16px]' : '')}>
                           {t(statusInfo.translationKey)}
                         </span>
                         <div
                           className={cn(
-                            isCalcio
-                              ? 'h-3 w-3 rounded-sm'
-                              : 'h-2 w-2 rounded-sm lg:h-3 lg:w-3',
+                            isCalcio ? 'h-3 w-3 rounded-sm' : 'h-2 w-2 rounded-sm lg:h-3 lg:w-3',
                             statusInfo.colorClass,
                           )}
                         />
@@ -520,7 +485,7 @@ export default function TicketListPageContent({
                           'bg-tertiary text-tertiary-foreground',
                           isCalcio
                             ? 'h-8 w-20 text-[16px]'
-                            : 'h-6 w-14 text-[10px] lg:h-8 lg:w-20 lg:text-[16px]',
+                            : 'h-6 w-14 text-[10px] lg:h-8 lg:w-[106px] lg:text-[15px] uppercase',
                         )}
                       >
                         {t('details')}
@@ -591,31 +556,21 @@ export default function TicketListPageContent({
             <col style={{ width: '14.2857%' }} />
           </colgroup>
           <tbody>
-            {/* Riga totali — 7 celle separate con bordi individuali */}
-            <tr className="h-[60px] bg-secondary text-white">
-              {/* pos 1 → vuota, senza bordo */}
+            <tr className="bg-secondary text-white h-[60px]">
               <td className="bg-secondary" />
-              {/* pos 2 → Totali */}
-              <td
-                style={totalCellStyle}
-                className={totalCellClass('font-bold')}
-              >
+              <td style={totalCellStyle} className={totalCellClass('font-bold')}>
                 {t('totals')}
               </td>
-              {/* pos 3 → Importo giocato */}
               <td style={totalCellStyle} className={totalCellClass()}>
                 {formatCurrency(info?.grandtotal?.in ?? 0, currencySymbol)}
               </td>
-              {/* pos 4 → Vincita */}
               <td style={totalCellStyle} className={totalCellClass()}>
                 {formatCurrency(
                   info?.grandtotal?.out ?? '0.00',
                   currencySymbol,
                 )}
               </td>
-              {/* pos 5 → vuota (Stato) */}
               <td style={totalCellStyle} className={totalCellClass()} />
-              {/* pos 6 → Saldo */}
               <td style={totalCellStyle} className={totalCellClass()}>
                 {formatCurrency(
                   parseFloat(String(info?.grandtotal?.out ?? '0')) -
@@ -623,19 +578,16 @@ export default function TicketListPageContent({
                   currencySymbol,
                 )}
               </td>
-              {/* pos 7 → vuota (Details) */}
               <td style={totalCellStyle} className={totalCellClass()} />
             </tr>
-
-            {/* Riga vuota — senza bordi */}
-            <tr className="h-[61px] bg-secondary">
+            <tr className="bg-secondary h-[61px]">
               <td colSpan={7} className="bg-secondary" />
             </tr>
           </tbody>
         </table>
 
-        {/* Paginazione assoluta in basso a destra */}
-        <div className="absolute bottom-2 right-0 flex items-center gap-2 bg-secondary px-2 py-1">
+        {/* Paginazione */}
+        <div className="absolute bottom-2 right-0 flex items-center gap-2 px-2 py-1 bg-secondary">
           <Pagination className="w-auto">
             <PaginationContent>
               <PaginationItem>
@@ -651,8 +603,7 @@ export default function TicketListPageContent({
                 let pageNum: number
                 if (totalPages <= 5) pageNum = i + 1
                 else if (currentPage <= 3) pageNum = i + 1
-                else if (currentPage >= totalPages - 2)
-                  pageNum = totalPages - 4 + i
+                else if (currentPage >= totalPages - 2) pageNum = totalPages - 4 + i
                 else pageNum = currentPage - 2 + i
                 return (
                   <PaginationItem key={pageNum}>
@@ -674,8 +625,7 @@ export default function TicketListPageContent({
                   href="#"
                   onClick={(e) => {
                     e.preventDefault()
-                    if (currentPage < totalPages)
-                      setCurrentPage(currentPage + 1)
+                    if (currentPage < totalPages) setCurrentPage(currentPage + 1)
                   }}
                 />
               </PaginationItem>
