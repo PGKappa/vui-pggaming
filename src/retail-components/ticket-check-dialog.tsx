@@ -258,7 +258,7 @@ export default function TicketCheckDialog({
           style={{ background: '#1e1e1e' }}
         >
           {/* HEADER */}
-          <DialogHeader className="shrink-0" style={{ background: '#12324a', padding: '18px 20px' }}>
+          <DialogHeader className="shrink-0 bg-accent" style={{ padding: '18px 20px' }}>
             <DialogTitle className="text-white text-[22px] font-bold tracking-[1px] m-0">
               {t('ticket_details', 'DETTAGLI TICKET')}
             </DialogTitle>
@@ -601,8 +601,7 @@ export default function TicketCheckDialog({
               {/* FOOTER */}
               {!pinMode && (
                 <div
-                  className="px-5 pt-[20px] pb-[16px] relative shrink-0"
-                  style={{ background: '#12324a' }}
+                  className="px-5 pt-[20px] pb-[16px] relative shrink-0 bg-accent"
                 >
                   <div className="text-white text-[25px] font-bold tracking-[1px] text-center mb-[30px]">
                     {t('total_winning', 'TOTALE VINCITA')} {fmt(ticketInfo.amount_won)}
