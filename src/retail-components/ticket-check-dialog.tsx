@@ -1,6 +1,5 @@
 'use client'
 
-// Declare window.Bubble type
 declare global {
   interface Window {
     Bubble?: (command: string, content: any) => void
@@ -14,7 +13,6 @@ import {
   DialogTitle,
 } from '@/retail-components/ui/dialog'
 import { Button } from '@/retail-components/ui/button'
-import { ScrollArea } from '@radix-ui/react-scroll-area'
 import { Delete } from 'lucide-react'
 import {
   TicketDetailInfo,
@@ -27,8 +25,6 @@ import { useCallback, useContext, useEffect, useState } from 'react'
 import { RootContext } from '@/retail-contexts/root-context'
 import Image from 'next/image'
 
-// Status mapping for ticket detail API:
-// 1 = active/in_progress, 4 = won (unpaid), 5 = lost, 6 = won (paid), 9 = lost
 function getDetailStatus(status: number): {
   translationKey: string
   isWinner: boolean
@@ -59,13 +55,14 @@ function getBetTypeLabel(
 }
 
 function formatTicketTime(time: TicketDetailInfo['time']): string {
-  const [year, month, day, hour, min] = time
+  const [year, month, day, hour, min, sec] = time
   const d = String(day).padStart(2, '0')
   const m = String(month + 1).padStart(2, '0')
-  const y = String(year).slice(-2)
+  const y = String(year)
   const h = String(hour).padStart(2, '0')
   const mi = String(min).padStart(2, '0')
-  return `${d}/${m}/${y} - ${h}:${mi}`
+  const s = String(sec ?? 0).padStart(2, '0')
+  return `${d}/${m}/${y} - ${h}:${mi}:${s}`
 }
 
 export default function TicketCheckDialog({
@@ -92,6 +89,7 @@ export default function TicketCheckDialog({
   const [pinMode, setPinMode] = useState(false)
   const [pinInput, setPinInput] = useState('')
   const [pinError, setPinError] = useState<string | null>(null)
+  const [showPayConfirm, setShowPayConfirm] = useState(false)
 
   const isDebug =
     typeof window !== 'undefined' &&
@@ -122,7 +120,6 @@ export default function TicketCheckDialog({
             setTicketInfo(data.info)
             return
           }
-
           if (data.description) {
             console.warn('Ticket detail lookup failed', {
               currentId,
@@ -131,7 +128,6 @@ export default function TicketCheckDialog({
             })
           }
         }
-
         setError(
           t('ticket_not_found', 'Ticket non trovato') +
             (idsToTry.length ? ` (${idsToTry.join(', ')})` : ''),
@@ -156,6 +152,7 @@ export default function TicketCheckDialog({
     if (!ticketInfo || !rootContext?.initCode || !rootContext?.operator) return
     setPaying(true)
     setPayResult(null)
+    setShowPayConfirm(false)
     try {
       const response = await createPGVirtualAPICall(
         `/api/ticket/pay/${ticketInfo.ticket_id}`,
@@ -164,14 +161,10 @@ export default function TicketCheckDialog({
         rootContext.operator,
       )
       const data: TicketPayResponse = await response.json()
-
-      // CDD required: API returns ret_code 1027 with print field containing CDD XML
       if (String(data.ret_code) === '1027' && data.print) {
         handlePrintCdd(data.print)
         return
       }
-
-      // Normal pay success
       if (String(data.ret_code) === '1024') {
         if (data.print && typeof window.Bubble === 'function') {
           window.Bubble('pay', data.print)
@@ -186,23 +179,10 @@ export default function TicketCheckDialog({
     } finally {
       setPaying(false)
     }
-  }, [
-    ticketInfo,
-    rootContext?.initCode,
-    rootContext?.operator,
-    fetchTicket,
-    handlePrintCdd,
-    t,
-  ])
+  }, [ticketInfo, rootContext?.initCode, rootContext?.operator, fetchTicket, handlePrintCdd, t])
 
   const handlePayWithPin = useCallback(async () => {
-    if (
-      !ticketInfo ||
-      !rootContext?.initCode ||
-      !rootContext?.operator ||
-      !pinInput
-    )
-      return
+    if (!ticketInfo || !rootContext?.initCode || !rootContext?.operator || !pinInput) return
     setPaying(true)
     setPinError(null)
     try {
@@ -222,7 +202,6 @@ export default function TicketCheckDialog({
         setPinInput('')
         fetchTicket(ticketInfo.ticket_id)
       } else {
-        // 1028 = PIN errato, 1027 = PIN mancante, qualsiasi altro errore
         setPinError(data.description || t('pin_error', 'PIN non corretto'))
         setPinInput('')
       }
@@ -232,16 +211,8 @@ export default function TicketCheckDialog({
     } finally {
       setPaying(false)
     }
-  }, [
-    ticketInfo,
-    rootContext?.initCode,
-    rootContext?.operator,
-    pinInput,
-    fetchTicket,
-    t,
-  ])
+  }, [ticketInfo, rootContext?.initCode, rootContext?.operator, pinInput, fetchTicket, t])
 
-  // Fetch ticket when dialog opens with a ticketId
   useEffect(() => {
     if (open && ticketId) {
       fetchTicket(ticketId, ticketCandidates)
@@ -254,13 +225,14 @@ export default function TicketCheckDialog({
       setPinMode(false)
       setPinInput('')
       setPinError(null)
+      setShowPayConfirm(false)
     }
   }, [open, ticketId, ticketCandidates, fetchTicket])
 
   const fmt = (amount: string | number) => {
     const num = typeof amount === 'string' ? parseFloat(amount) : amount
-    if (isNaN(num)) return `0,00 ${currencySymbol}`
-    return `${num.toFixed(2).replace('.', ',')} ${currencySymbol}`
+    if (isNaN(num)) return `0.00 ${currencySymbol}`
+    return `${num.toFixed(2)} ${currencySymbol}`
   }
 
   const statusInfo = ticketInfo ? getDetailStatus(ticketInfo.status) : null
@@ -268,304 +240,451 @@ export default function TicketCheckDialog({
     ? getBetTypeLabel(ticketInfo.betType, ticketInfo.system)
     : 'single'
 
-  // Calculate total system amount ("Importo per Tipologia")
   const systemTotal = ticketInfo
-    ? Object.values(ticketInfo.system).reduce(
-        (sum, v) => sum + parseFloat(v || '0'),
-        0,
-      )
+    ? Object.values(ticketInfo.system).reduce((sum, v) => sum + parseFloat(v || '0'), 0)
     : 0
 
+  const totalSelections = ticketInfo?.selections.reduce(
+    (acc, sel) => acc + sel.markets.reduce((a, m) => a + m.selections.length, 0),
+    0,
+  ) ?? 0
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        className="w-full max-w-lg overflow-hidden p-0 text-primary"
-        aria-describedby={undefined}
-      >
-        <DialogHeader className="px-6 py-4">
-          <DialogTitle className="text-xl font-bold">
-            {t('ticket')} {ticketId}
-          </DialogTitle>
-        </DialogHeader>
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent
+          aria-describedby={undefined}
+          className="p-0 border-0 overflow-hidden rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] w-[500px] max-w-[500px] flex flex-col max-h-[calc(100vh-40px)]"
+          style={{ background: '#1e1e1e' }}
+        >
+          {/* HEADER */}
+          <DialogHeader className="shrink-0" style={{ background: '#12324a', padding: '18px 20px' }}>
+            <DialogTitle className="text-white text-[22px] font-bold tracking-[1px] m-0">
+              {t('ticket_details', 'DETTAGLI TICKET')}
+            </DialogTitle>
+          </DialogHeader>
 
-        {loading && (
-          <div className="flex items-center justify-center py-12">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-          </div>
-        )}
-
-        {error && (
-          <div className="px-6 py-12 text-center">
-            <p className="text-lg font-semibold">{error}</p>
-          </div>
-        )}
-
-        {ticketInfo && statusInfo && (
-          <ScrollArea className="max-h-[70vh] overflow-y-auto">
-            {/* Summary rows */}
-            <div className="flex flex-col">
-              <div className="flex h-12 items-center bg-betSlip px-4">
-                <div className="mr-3 h-6 w-2 rounded bg-primary/50" />
-                <span className="flex-1 text-center font-bold text-primary">
-                  {formatTicketTime(ticketInfo.time)}
-                </span>
-              </div>
-              <div className="flex h-12 items-center bg-betSlip/80 px-4">
-                <div className="mr-3 h-6 w-2 rounded bg-primary/50" />
-                <span className="flex-1 text-center font-bold text-primary">
-                  {t(betTypeKey)}
-                </span>
-              </div>
-              <div className="flex h-12 items-center bg-betSlip px-4">
-                <div className="mr-3 h-6 w-2 rounded bg-primary/50" />
-                <span className="flex-1 text-center font-bold text-primary">
-                  {fmt(ticketInfo.amount)}
-                </span>
-              </div>
-              <div className="flex h-12 items-center bg-betSlip/80 px-4">
-                <div className="mr-3 h-6 w-2 rounded bg-primary/50" />
-                <span className="flex-1 text-center font-bold text-primary">
-                  {fmt(ticketInfo.amount_won)}
-                </span>
-              </div>
-              <div className="flex h-12 items-center bg-betSlip px-4">
-                <div className="mr-3 h-6 w-2 rounded bg-primary/50" />
-                <span className="flex-1 text-center font-bold text-primary">
-                  {statusInfo.isWinner
-                    ? t('winner', 'Vincente')
-                    : statusInfo.translationKey === 'lost'
-                      ? t('lost', 'Perdente')
-                      : t('pending', 'In Attesa')}
-                </span>
-              </div>
-              {statusInfo.isPaid && (
-                <div className="flex h-12 items-center bg-betSlip/80 px-4">
-                  <div className="mr-3 h-6 w-2 rounded bg-primary/50" />
-                  <span className="flex-1 text-center font-bold text-primary">
-                    {t('paid', 'Pagato')}
-                  </span>
-                </div>
-              )}
-              <div className="flex h-12 items-center bg-betSlip px-4">
-                <span className="font-bold text-primary">
-                  {t('amount_by_type', 'Importo per Tipologia')}
-                </span>
-                <div className="mx-3 h-6 w-2 rounded bg-primary/50" />
-                <span className="ml-auto font-bold text-primary">
-                  {fmt(systemTotal)}
-                </span>
-              </div>
+          {/* LOADING */}
+          {loading && (
+            <div className="flex items-center justify-center py-16" style={{ background: '#212121' }}>
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-t-transparent" style={{ borderColor: '#12324a', borderTopColor: 'transparent' }} />
             </div>
+          )}
 
-            {/* Pay / CDD / PIN section */}
-            {statusInfo.isWinner && !statusInfo.isPaid && (
-              <div className="flex flex-col items-center gap-2 py-3">
-                {/* DEBUG: simulate CDD response */}
-                {isDebug && !cddXml && (
-                  <button
-                    className="mb-1 rounded border border-dashed border-amber-500 px-3 py-1 text-xs text-amber-600"
-                    onClick={() =>
-                      handlePrintCdd(
-                        `<printCDDTicket><body><CDDData TransactionId="TEST-${ticketInfo.ticket_id}" TransactionType="P" Amount="${ticketInfo.amount_won}" Pin="" WinCode="TEST-${ticketInfo.ticket_id}" /></body></printCDDTicket>`,
-                      )
-                    }
-                  >
-                    [DEBUG] Simula CDD
-                  </button>
-                )}
-                {cddXml ? (
-                  pinMode ? (
-                    // PIN keypad — styled like numeric-keypad-drawer
-                    <div className="w-full">
-                      {/* Red header bar */}
-                      <div className="flex h-[45px] items-center justify-center bg-accent">
-                        <span className="font-semibold text-accent-foreground">
-                          {t('insert_pin_cdd', 'Inserisci PIN CDD')}
-                        </span>
+          {/* ERROR */}
+          {error && (
+            <div className="px-6 py-12 text-center" style={{ background: '#212121' }}>
+              <p className="text-lg font-semibold" style={{ color: '#ccc' }}>{error}</p>
+            </div>
+          )}
+
+          {/* CONTENT */}
+          {ticketInfo && statusInfo && (
+            <>
+              {/* BODY scrollabile */}
+              <div className="flex-1 min-h-0 overflow-y-auto" style={{ background: '#212121' }}>
+                <div className="px-5">
+
+                  {/* CODICE + STATO */}
+                  <div className="pt-5 pb-4 flex justify-between items-center">
+                    <div>
+                      <div className="text-[11px] font-semibold tracking-[0.8px] uppercase mb-1" style={{ color: '#888' }}>
+                        {t('code', 'CODICE')}
                       </div>
-                      <div className="flex flex-col gap-3 p-3">
-                        {/* Display row: masked input + backspace */}
-                        <div className="flex items-center gap-2">
-                          <div className="flex h-12 flex-1 items-center justify-end rounded border px-3 text-[22px] font-bold tracking-widest">
-                            {pinInput.length > 0 ? (
-                              '●'.repeat(pinInput.length)
-                            ) : (
-                              <span className="w-full text-center text-sm text-foreground/40">
-                                PIN CDD
-                              </span>
-                            )}
-                          </div>
-                          <Button
-                            variant="outline"
-                            className="h-12 w-[90px]"
-                            onClick={() => setPinInput((p) => p.slice(0, -1))}
-                          >
-                            <Delete className="h-5 w-5" style={{ zoom: 2 }} />
-                          </Button>
-                        </div>
-                        {pinError && (
-                          <p className="text-center text-sm text-destructive">
-                            {pinError}
-                          </p>
-                        )}
-                        {/* Keypad grid */}
-                        <div className="grid grid-cols-3 gap-2">
-                          {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(
-                            (d) => (
-                              <Button
-                                key={d}
-                                variant="outline"
-                                size="lg"
-                                className="h-12 text-[20px] font-semibold tabular-nums"
-                                onClick={() => setPinInput((p) => p + d)}
-                              >
-                                {d}
-                              </Button>
-                            ),
-                          )}
-                          <Button
-                            variant="outline"
-                            size="lg"
-                            className="h-12 text-[20px] font-semibold tabular-nums"
-                            onClick={() => setPinInput('')}
-                          >
-                            C
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="lg"
-                            className="h-12 text-[20px] font-semibold tabular-nums"
-                            onClick={() => setPinInput((p) => p + '0')}
-                          >
-                            0
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="lg"
-                            className="h-12 text-[20px] font-semibold tabular-nums"
-                            onClick={() => {
-                              setPinMode(false)
-                              setPinInput('')
-                              setPinError(null)
-                            }}
-                          >
-                            {t('close', 'Chiudi')}
-                          </Button>
-                        </div>
-                        {/* Confirm button */}
-                        <Button
-                          className="h-12 w-full bg-secondary text-[18px] tabular-nums text-accent-foreground hover:opacity-95"
-                          onClick={handlePayWithPin}
-                          disabled={paying || !pinInput}
-                        >
-                          {paying ? '...' : t('confirm', 'Conferma')}
-                        </Button>
+                      <div className="text-white text-[26px] font-bold tracking-[1px]">
+                        {ticketInfo.ticket_id}
                       </div>
                     </div>
-                  ) : (
-                    // CDD active: ristampa + inserisci PIN
-                    <>
-                      <Button
-                        className="h-12 w-56 bg-amber-600 text-lg font-bold text-white"
-                        onClick={() => handlePrintCdd(cddXml)}
+                    {statusInfo.isWinner && (
+                      <div
+                        className="text-white text-[13px] font-bold tracking-[1px] px-[18px] py-[10px] rounded-lg flex items-center gap-2"
+                        style={{ background: '#2d7a3a', border: '2px solid #3a9e4a' }}
                       >
-                        {t('reprint_cdd', 'Ristampa CDD')}
-                      </Button>
-                      <Button
-                        className="h-12 w-56 text-lg font-bold"
-                        onClick={() => {
-                          setPinMode(true)
-                          setPinInput('')
-                          setPinError(null)
-                        }}
-                      >
-                        {t('insert_pin_cdd', 'Inserisci PIN CDD')}
-                      </Button>
-                    </>
-                  )
-                ) : (
-                  <Button
-                    className="h-12 w-48 bg-ticket-won text-lg font-bold text-white"
-                    onClick={handlePay}
-                    disabled={paying}
-                  >
-                    {paying ? '...' : t('pay', 'Paga')}
-                  </Button>
-                )}
-              </div>
-            )}
-
-            {payResult && payResult !== 'success' && (
-              <p className="px-4 pb-2 text-center text-sm text-destructive">
-                {payResult}
-              </p>
-            )}
-
-            {/* Selections */}
-            <div className="space-y-4 p-4">
-              {ticketInfo.selections.map((sel, idx) => (
-                <div key={idx} className="rounded-lg border bg-background p-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-2">
-                      <Image
-                        src={
-                          sel.gameId.startsWith('dogs')
-                            ? '/cane_blu.png'
-                            : sel.gameId.startsWith('horse')
-                              ? '/cavallo_blu.png'
-                              : '/calciatore_blu.png'
-                        }
-                        alt={sel.gameId}
-                        width={40}
-                        height={40}
-                        className="size-10 object-contain"
-                      />
-                      <div>
-                        <p className="font-bold text-foreground">
-                          {sel.game.dict.misc.name} {sel.channelName}
-                        </p>
-                        <p className="text-sm text-foreground/60">
-                          {sel.trackName}
-                        </p>
+                        {statusInfo.isPaid
+                          ? t('paid', 'PAGATO')
+                          : t('winning', 'VINCENTE')}
+                        <span className="w-[9px] h-[9px] rounded-full shrink-0" style={{ background: '#4cce5e' }} />
                       </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-bold text-foreground">
-                        {sel.startTime}
-                      </p>
-                      <p className="text-xs text-foreground/60">
-                        Pal. {sel.palimpsestId} / ID {sel.eventId}
-                      </p>
+                    )}
+                    {!statusInfo.isWinner && statusInfo.translationKey === 'lost' && (
+                      <div
+                        className="text-white text-[13px] font-bold tracking-[1px] px-[18px] py-[10px] rounded-lg flex items-center gap-2"
+                        style={{ background: '#7a2d2d', border: '2px solid #9e3a3a' }}
+                      >
+                        {t('lost', 'PERDENTE')}
+                        <span className="w-[9px] h-[9px] rounded-full shrink-0" style={{ background: '#cc4444' }} />
+                      </div>
+                    )}
+                    {!statusInfo.isWinner && statusInfo.translationKey === 'pending' && (
+                      <div
+                        className="text-white text-[13px] font-bold tracking-[1px] px-[18px] py-[10px] rounded-lg flex items-center gap-2"
+                        style={{ background: '#5a5a1a', border: '2px solid #8a8a2a' }}
+                      >
+                        {t('pending', 'IN ATTESA')}
+                        <span className="w-[9px] h-[9px] rounded-full shrink-0" style={{ background: '#cccc44' }} />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* DATA E ORA */}
+                  <div className="py-[14px] flex justify-between items-end">
+                    <div>
+                      <div className="text-[11px] font-semibold tracking-[0.8px] uppercase mb-1" style={{ color: '#888' }}>
+                        {t('date_hour', 'DATA E ORA')}
+                      </div>
+                      <div className="text-white text-[19px] font-bold">
+                        {formatTicketTime(ticketInfo.time)}
+                      </div>
                     </div>
                   </div>
 
-                  {sel.markets.map((market, mIdx) => (
-                    <div key={mIdx} className="mt-3 border-t pt-2">
-                      {market.selections.map((s, sIdx) => (
+                  {/* PUNTATA / IMPORTO TIPOLOGIA / VINCITA */}
+                  <div className="pt-[14px] pb-5 flex items-end">
+                    <div className="flex-1">
+                      <div className="text-[11px] font-semibold tracking-[0.8px] uppercase mb-1" style={{ color: '#888' }}>
+                        {t('stake', 'PUNTATA')}
+                      </div>
+                      <div className="text-white text-[19px] font-bold">
+                        {fmt(ticketInfo.amount)}
+                      </div>
+                    </div>
+                    <div className="flex-1 text-center">
+                      <div className="text-[11px] font-semibold tracking-[0.8px] uppercase mb-1" style={{ color: '#888' }}>
+                        {t('amount_by_type', 'IMP. TIPOLOGIA')}
+                      </div>
+                      <div className="text-white text-[19px] font-bold">
+                        {fmt(systemTotal)}
+                      </div>
+                    </div>
+                    <div className="flex-1 text-right">
+                      <div className="text-[11px] font-semibold tracking-[0.8px] uppercase mb-1" style={{ color: '#888' }}>
+                        {t('winning', 'VINCITA')}
+                      </div>
+                      <div className="text-white text-[19px] font-bold">
+                        {fmt(ticketInfo.amount_won)}
+                      </div>
+                    </div>
+                  </div>
+
+                  <hr style={{ borderColor: '#3a3a3a' }} />
+
+                  {/* TIPO label */}
+                  <div className="py-[18px] text-center">
+                    <span className="text-[12px] font-semibold tracking-[1.5px] uppercase" style={{ color: '#888' }}>
+                      {t(betTypeKey)}
+                    </span>
+                  </div>
+
+                  {/* DEBUG: simula CDD */}
+                  {isDebug && !cddXml && statusInfo.isWinner && !statusInfo.isPaid && (
+                    <div className="mb-3 text-center">
+                      <button
+                        className="rounded border border-dashed px-3 py-1 text-xs"
+                        style={{ borderColor: '#f59e0b', color: '#f59e0b' }}
+                        onClick={() =>
+                          handlePrintCdd(
+                            `<printCDDTicket><body><CDDData TransactionId="TEST-${ticketInfo.ticket_id}" TransactionType="P" Amount="${ticketInfo.amount_won}" Pin="" WinCode="TEST-${ticketInfo.ticket_id}" /></body></printCDDTicket>`,
+                          )
+                        }
+                      >
+                        [DEBUG] Simula CDD
+                      </button>
+                    </div>
+                  )}
+
+                  {/* EVENT CARDS */}
+                  {ticketInfo.selections.map((sel, idx) => (
+                    <div
+                      key={idx}
+                      className="rounded-xl p-[14px] px-4 mb-4"
+                      style={{ background: '#2a2a2a' }}
+                    >
+                      {/* Card header */}
+                      <div className="flex justify-between items-start mb-[14px]">
+                        <div className="flex items-center gap-3">
+                          <Image
+                            src={
+                              sel.gameId.startsWith('dogs')
+                                ? '/cane_blu.png'
+                                : sel.gameId.startsWith('horse')
+                                  ? '/cavallo_blu.png'
+                                  : '/calciatore_blu.png'
+                            }
+                            alt={sel.gameId}
+                            width={28}
+                            height={28}
+                            className="object-contain opacity-70"
+                          />
+                          <div
+                            className="text-[12px] font-bold tracking-[0.5px] leading-[1.6]"
+                            style={{ color: '#aaa' }}
+                          >
+                            {sel.game.dict.misc.name} {sel.channelName}
+                            <br />
+                            <span className="font-normal" style={{ color: '#777' }}>
+                              {sel.trackName}
+                            </span>
+                          </div>
+                        </div>
                         <div
-                          key={sIdx}
-                          className="flex items-center justify-between py-1"
+                          className="text-right text-[12px] font-semibold tracking-[0.4px] leading-[1.6]"
+                          style={{ color: '#aaa' }}
                         >
-                          <span className="text-sm text-foreground">
-                            {sel.game.dict.markets[market.description] ||
-                              market.description}
-                          </span>
-                          <span className="text-sm text-foreground">
-                            {s.description}
-                          </span>
-                          <span className="text-sm font-semibold text-foreground">
-                            {s.odds}
+                          {sel.startTime}
+                          <br />
+                          <span style={{ color: '#666' }}>
+                            Pal. {sel.palimpsestId} / ID {sel.eventId}
                           </span>
                         </div>
-                      ))}
+                      </div>
+
+                      {/* Markets / Selections */}
+                      {sel.markets.map((market, mIdx) =>
+                        market.selections.map((s, sIdx) => (
+                          <div
+                            key={`${mIdx}-${sIdx}`}
+                            className="flex justify-between items-center py-[11px]"
+                            style={{
+                              borderTop:
+                                mIdx === 0 && sIdx === 0
+                                  ? undefined
+                                  : '1px solid #363636',
+                            }}
+                          >
+                            <span
+                              className="text-[12.5px] font-semibold tracking-[0.4px] flex-1"
+                              style={{ color: '#ccc' }}
+                            >
+                              {sel.game.dict.markets[market.description] ||
+                                market.description}
+                            </span>
+                            <span
+                              className="text-[12.5px] font-semibold tracking-[0.4px] flex-1 text-center"
+                              style={{ color: '#ccc' }}
+                            >
+                              {s.description}
+                            </span>
+                            <span
+                              className="text-[12.5px] font-semibold tracking-[0.4px] flex-1 flex items-center justify-end gap-2"
+                              style={{ color: '#ccc' }}
+                            >
+                              Q. {s.odds}
+                            </span>
+                          </div>
+                        )),
+                      )}
                     </div>
                   ))}
+
+                  {/* SELEZIONI TOTALI */}
+                  {totalSelections > 0 && (
+                    <div className="pt-2 pb-5">
+                      <span className="text-[12px] font-semibold tracking-[0.6px]" style={{ color: '#888' }}>
+                        {t('total_selections', 'SELEZIONI TOTALI')}: {totalSelections}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Errore pagamento */}
+                  {payResult && payResult !== 'success' && (
+                    <p className="pb-4 text-center text-sm" style={{ color: '#cc4444' }}>
+                      {payResult}
+                    </p>
+                  )}
+
+                  {/* CDD: ristampa + PIN mode */}
+                  {statusInfo.isWinner && !statusInfo.isPaid && cddXml && (
+                    <div className="mb-4">
+                      {pinMode ? (
+                        /* PIN keypad */
+                        <div className="rounded-xl overflow-hidden" style={{ background: '#2a2a2a' }}>
+                          <div
+                            className="flex h-[45px] items-center justify-center"
+                            style={{ background: '#12324a' }}
+                          >
+                            <span className="font-semibold text-white tracking-[1px]">
+                              {t('insert_pin_cdd', 'INSERISCI PIN CDD')}
+                            </span>
+                          </div>
+                          <div className="flex flex-col gap-3 p-4">
+                            <div className="flex items-center gap-2">
+                              <div
+                                className="flex h-12 flex-1 items-center justify-end rounded-lg px-3 text-[22px] font-bold tracking-widest text-white"
+                                style={{ background: '#1e1e1e', border: '1px solid #3a3a3a' }}
+                              >
+                                {pinInput.length > 0 ? (
+                                  '●'.repeat(pinInput.length)
+                                ) : (
+                                  <span className="w-full text-center text-sm" style={{ color: '#555' }}>
+                                    PIN CDD
+                                  </span>
+                                )}
+                              </div>
+                              <button
+                                className="h-12 w-[56px] rounded-lg flex items-center justify-center border-0"
+                                style={{ background: '#1e1e1e', border: '1px solid #3a3a3a' }}
+                                onClick={() => setPinInput((p) => p.slice(0, -1))}
+                              >
+                                <Delete className="h-5 w-5" style={{ color: '#ccc' }} />
+                              </button>
+                            </div>
+                            {pinError && (
+                              <p className="text-center text-sm" style={{ color: '#cc4444' }}>{pinError}</p>
+                            )}
+                            <div className="grid grid-cols-3 gap-2">
+                              {['1','2','3','4','5','6','7','8','9'].map((d) => (
+                                <button
+                                  key={d}
+                                  className="h-12 rounded-lg text-[20px] font-semibold text-white border-0"
+                                  style={{ background: '#1e1e1e', border: '1px solid #3a3a3a' }}
+                                  onClick={() => setPinInput((p) => p + d)}
+                                >
+                                  {d}
+                                </button>
+                              ))}
+                              <button
+                                className="h-12 rounded-lg text-[18px] font-semibold text-white border-0"
+                                style={{ background: '#1e1e1e', border: '1px solid #3a3a3a' }}
+                                onClick={() => setPinInput('')}
+                              >
+                                C
+                              </button>
+                              <button
+                                className="h-12 rounded-lg text-[20px] font-semibold text-white border-0"
+                                style={{ background: '#1e1e1e', border: '1px solid #3a3a3a' }}
+                                onClick={() => setPinInput((p) => p + '0')}
+                              >
+                                0
+                              </button>
+                              <button
+                                className="h-12 rounded-lg text-[13px] font-semibold border-0"
+                                style={{ background: '#1e1e1e', border: '1px solid #3a3a3a', color: '#aaa' }}
+                                onClick={() => { setPinMode(false); setPinInput(''); setPinError(null) }}
+                              >
+                                {t('close', 'Chiudi')}
+                              </button>
+                            </div>
+                            <button
+                              className="h-12 w-full rounded-lg text-[16px] font-bold tracking-[1.5px] uppercase text-white border-0"
+                              style={{ background: paying || !pinInput ? '#1a3a2a' : '#2d7a3a', opacity: paying || !pinInput ? 0.5 : 1 }}
+                              onClick={handlePayWithPin}
+                              disabled={paying || !pinInput}
+                            >
+                              {paying ? '...' : t('confirm', 'CONFERMA')}
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col gap-3 items-center pb-2">
+                          <button
+                            className="w-full rounded-lg text-white text-[14px] font-bold tracking-[1.5px] py-3 uppercase border-0"
+                            style={{ background: '#7a5a1a', border: '2px solid #9e7a2a' }}
+                            onClick={() => handlePrintCdd(cddXml)}
+                          >
+                            {t('reprint_cdd', 'RISTAMPA CDD')}
+                          </button>
+                          <button
+                            className="w-full rounded-lg text-white text-[14px] font-bold tracking-[1.5px] py-3 uppercase border-0"
+                            style={{ background: '#12324a', border: '2px solid #1a4a6a' }}
+                            onClick={() => { setPinMode(true); setPinInput(''); setPinError(null) }}
+                          >
+                            {t('insert_pin_cdd', 'INSERISCI PIN CDD')}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                 </div>
-              ))}
+              </div>
+
+              {/* FOOTER */}
+              {!pinMode && (
+                <div
+                  className="px-5 pt-[20px] pb-[16px] relative shrink-0"
+                  style={{ background: '#12324a' }}
+                >
+                  <div className="text-white text-[25px] font-bold tracking-[1px] text-center mb-[30px]">
+                    {t('total_winning', 'TOTALE VINCITA')} {fmt(ticketInfo.amount_won)}
+                  </div>
+                  {statusInfo.isWinner && !statusInfo.isPaid && !cddXml && (
+                    <button
+                      onClick={() => setShowPayConfirm(true)}
+                      disabled={paying}
+                      className="block w-[160px] mx-auto mb-[35px] rounded-lg text-white text-[15px] font-bold tracking-[2px] py-3 text-center uppercase cursor-pointer border-0"
+                      style={{ background: '#2a2a2a', opacity: paying ? 0.5 : 1 }}
+                    >
+                      {paying ? '...' : t('pay', 'PAGA')}
+                    </button>
+                  )}
+                  {(!statusInfo.isWinner || statusInfo.isPaid || cddXml) && (
+                    <div className="mb-[35px] h-[46px]" />
+                  )}
+                  {/* Print button */}
+                  <button
+                    className="absolute right-[16px] bottom-[14px] rounded-lg p-[10px] px-[12px] cursor-pointer flex items-center justify-center border-0"
+                    style={{ background: '#2a2a2a' }}
+                  >
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" style={{ fill: '#ccc' }}>
+                      <path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z" />
+                    </svg>
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* POPUP CONFERMA PAGAMENTO */}
+      {showPayConfirm && (
+        <div
+          className="fixed inset-0 z-[200] flex justify-center items-center"
+          style={{ background: 'rgba(0,0,0,0.7)' }}
+          onClick={(e) => { if (e.target === e.currentTarget) setShowPayConfirm(false) }}
+        >
+          <div className="w-[340px] rounded-xl overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.6)]" style={{ background: '#1e1e1e' }}>
+            <div className="flex justify-between items-center px-5 py-4" style={{ background: '#12324a' }}>
+              <h2 className="text-white text-[16px] font-bold tracking-[1px]">
+                {t('confirm_payment', 'CONFERMA PAGAMENTO')}
+              </h2>
+              <span
+                className="text-white text-[28px] font-light cursor-pointer leading-none"
+                onClick={() => setShowPayConfirm(false)}
+              >
+                &#x2715;
+              </span>
             </div>
-          </ScrollArea>
-        )}
-      </DialogContent>
-    </Dialog>
+            <div className="px-6 pt-7 pb-6 text-center" style={{ background: '#212121' }}>
+              <div className="text-[11px] font-semibold tracking-[0.8px] uppercase mb-[10px]" style={{ color: '#888' }}>
+                {t('total_winning_to_collect', 'Totale vincita da riscuotere')}
+              </div>
+              <div className="text-white text-[32px] font-bold tracking-[1px] mb-2">
+                {fmt(ticketInfo!.amount_won)}
+              </div>
+              <div className="text-[13px] font-semibold tracking-[0.4px] mb-7" style={{ color: '#aaa' }}>
+                {t('confirm_payment_question', 'Vuoi confermare il pagamento?')}
+              </div>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowPayConfirm(false)}
+                  className="flex-1 rounded-lg text-[13px] font-bold tracking-[1.5px] py-[14px] uppercase cursor-pointer border-0"
+                  style={{ background: '#2e2e2e', color: '#ccc' }}
+                >
+                  {t('cancel', 'ANNULLA')}
+                </button>
+                <button
+                  onClick={handlePay}
+                  className="flex-1 rounded-lg text-white text-[13px] font-bold tracking-[1.5px] py-[14px] uppercase cursor-pointer border-0"
+                  style={{ background: '#12324a', border: '2px solid #1a4a6a' }}
+                >
+                  {t('confirm', 'CONFERMA')}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   )
 }
