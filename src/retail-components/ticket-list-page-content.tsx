@@ -48,6 +48,9 @@ export default function TicketListPageContent({
   const [selectedTicketCandidates, setSelectedTicketCandidates] = useState<
     Array<string | number>
   >([])
+  const [selectedTerminalId, setSelectedTerminalId] = useState<string | null>(
+    null,
+  )
 
   const {
     terminal,
@@ -93,7 +96,10 @@ export default function TicketListPageContent({
     return Array.from(new Set(candidates))
   }
 
-  const handleDetailsClick = (item: { ticket_id: number }) => {
+  const handleDetailsClick = (item: {
+    ticket_id: number
+    terminal_id?: string
+  }) => {
     const candidates = buildTicketCandidates(item)
     const primary = candidates.find((v) => typeof v === 'number')
     const fallbackNumber = Number(item.ticket_id)
@@ -105,6 +111,7 @@ export default function TicketListPageContent({
           ? fallbackNumber
           : null,
     )
+    setSelectedTerminalId(item.terminal_id ?? null)
     setDialogOpen(true)
   }
 
@@ -220,7 +227,9 @@ export default function TicketListPageContent({
   const totalCellClass = (extra?: string) =>
     cn(
       'bg-secondary text-center align-middle',
-      isCalcio ? 'px-3 py-2 text-[14px]' : 'px-1 py-1 text-[9px] lg:px-3 lg:text-[17px]',
+      isCalcio
+        ? 'px-3 py-2 text-[14px]'
+        : 'px-1 py-1 text-[9px] lg:px-3 lg:text-[17px]',
       extra,
     )
 
@@ -275,7 +284,10 @@ export default function TicketListPageContent({
               <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
                 {t('status')}
               </span>
-              <Select value={statusSelectValue} onValueChange={handleStatusChange}>
+              <Select
+                value={statusSelectValue}
+                onValueChange={handleStatusChange}
+              >
                 <SelectTrigger className="w-[100px] bg-background text-[12px] text-foreground">
                   <SelectValue placeholder={t('status')} />
                 </SelectTrigger>
@@ -357,7 +369,10 @@ export default function TicketListPageContent({
               <span className="whitespace-nowrap pl-1 text-[10px] font-semibold lg:pl-2 lg:text-[12px]">
                 {t('status')}
               </span>
-              <Select value={statusSelectValue} onValueChange={handleStatusChange}>
+              <Select
+                value={statusSelectValue}
+                onValueChange={handleStatusChange}
+              >
                 <SelectTrigger className="h-7 w-[70px] bg-background text-[10px] text-foreground lg:h-9 lg:w-[210px] lg:text-[12px]">
                   <SelectValue placeholder={t('status')} />
                 </SelectTrigger>
@@ -385,7 +400,12 @@ export default function TicketListPageContent({
 
       {/* Table Content */}
       <div className="flex-1 overflow-auto bg-white text-black">
-        <table className={cn('w-full border-collapse', isCalcio ? 'text-[12px]' : '')}>
+        <table
+          className={cn(
+            'w-full border-collapse',
+            isCalcio ? 'text-[12px]' : '',
+          )}
+        >
           <thead
             className={cn(
               'bg-secondary text-white',
@@ -426,7 +446,9 @@ export default function TicketListPageContent({
                     key={item.ticket_id}
                     className={cn(
                       'border-b text-center',
-                      isCalcio ? 'text-[16px]' : 'text-[12px] lg:text-[15px] uppercase ',
+                      isCalcio
+                        ? 'text-[16px]'
+                        : 'text-[12px] uppercase lg:text-[15px]',
                     )}
                   >
                     <td className={tdClass()}>{item.ticket_id}</td>
@@ -434,7 +456,9 @@ export default function TicketListPageContent({
                       {format(date, 'dd/MM/yy')} - {format(date, 'HH:mm:ss')}
                     </td>
                     <td className={tdClass()}>{item.terminal_id}</td>
-                    <td className={tdClass()}>{getDisciplineLabel(item.ticket_id)}</td>
+                    <td className={tdClass()}>
+                      {getDisciplineLabel(item.ticket_id)}
+                    </td>
                     <td className={tdClass()}>
                       {formatCurrency(item.amount, currencySymbol)}
                     </td>
@@ -511,24 +535,44 @@ export default function TicketListPageContent({
       </div>
 
       {/* Footer */}
-      <div className={cn('relative', isCalcio ? 'grid grid-cols-9' : 'grid shrink-0 grid-cols-9 h-[121px]')}>
+      <div
+        className={cn(
+          'relative',
+          isCalcio ? 'grid grid-cols-9' : 'grid h-[121px] shrink-0 grid-cols-9',
+        )}
+      >
         {/* Legend */}
-        <div className="col-span-2 bg-secondary flex items-end justify-start px-3 pb-3">
-          <div className="flex flex-row space-x-4 mb-[6px]">
+        <div className="col-span-2 flex items-end justify-start bg-secondary px-3 pb-3">
+          <div className="mb-[6px] flex flex-row space-x-4">
             <div className="flex items-center space-x-2">
-              <span className={cn('text-white', isCalcio ? 'text-[11px]' : 'text-[9px] lg:text-[12px]')}>
+              <span
+                className={cn(
+                  'text-white',
+                  isCalcio ? 'text-[11px]' : 'text-[9px] lg:text-[12px]',
+                )}
+              >
                 {t('collected')}
               </span>
-              <div className="h-4 w-4 rounded-md bg-ticket-won mb-0.5" />
+              <div className="mb-0.5 h-4 w-4 rounded-md bg-ticket-won" />
             </div>
-            <div className="flex items-center space-x-2 mb-0.5">
-              <span className={cn('text-white', isCalcio ? 'text-[11px]' : 'text-[9px] lg:text-[12px]')}>
+            <div className="mb-0.5 flex items-center space-x-2">
+              <span
+                className={cn(
+                  'text-white',
+                  isCalcio ? 'text-[11px]' : 'text-[9px] lg:text-[12px]',
+                )}
+              >
                 {t('not_collected')}
               </span>
               <div className="h-4 w-4 rounded-md bg-notCollected" />
             </div>
-            <div className="flex items-center space-x-2 mb-0.5">
-              <span className={cn('text-white', isCalcio ? 'text-[11px]' : 'text-[9px] lg:text-[12px]')}>
+            <div className="mb-0.5 flex items-center space-x-2">
+              <span
+                className={cn(
+                  'text-white',
+                  isCalcio ? 'text-[11px]' : 'text-[9px] lg:text-[12px]',
+                )}
+              >
                 {t('cancelled')}
               </span>
               <div className="h-4 w-4 rounded-md bg-ticket-lost" />
@@ -536,7 +580,7 @@ export default function TicketListPageContent({
           </div>
         </div>
 
-        <table className="col-span-7 border-collapse table-fixed w-full">
+        <table className="col-span-7 w-full table-fixed border-collapse">
           <colgroup>
             <col style={{ width: '14.2857%' }} />
             <col style={{ width: '14.2857%' }} />
@@ -548,11 +592,14 @@ export default function TicketListPageContent({
           </colgroup>
           <tbody>
             {/* Riga totali — 7 celle separate con bordi individuali */}
-            <tr className="bg-secondary text-white h-[60px]">
+            <tr className="h-[60px] bg-secondary text-white">
               {/* pos 1 → vuota, senza bordo */}
               <td className="bg-secondary" />
               {/* pos 2 → Totali */}
-              <td style={totalCellStyle} className={totalCellClass('font-bold')}>
+              <td
+                style={totalCellStyle}
+                className={totalCellClass('font-bold')}
+              >
                 {t('totals')}
               </td>
               {/* pos 3 → Importo giocato */}
@@ -561,7 +608,10 @@ export default function TicketListPageContent({
               </td>
               {/* pos 4 → Vincita */}
               <td style={totalCellStyle} className={totalCellClass()}>
-                {formatCurrency(info?.grandtotal?.out ?? '0.00', currencySymbol)}
+                {formatCurrency(
+                  info?.grandtotal?.out ?? '0.00',
+                  currencySymbol,
+                )}
               </td>
               {/* pos 5 → vuota (Stato) */}
               <td style={totalCellStyle} className={totalCellClass()} />
@@ -578,14 +628,14 @@ export default function TicketListPageContent({
             </tr>
 
             {/* Riga vuota — senza bordi */}
-            <tr className="bg-secondary h-[61px]">
+            <tr className="h-[61px] bg-secondary">
               <td colSpan={7} className="bg-secondary" />
             </tr>
           </tbody>
         </table>
 
         {/* Paginazione assoluta in basso a destra */}
-        <div className="absolute bottom-2 right-0 flex items-center gap-2 px-2 py-1 bg-secondary">
+        <div className="absolute bottom-2 right-0 flex items-center gap-2 bg-secondary px-2 py-1">
           <Pagination className="w-auto">
             <PaginationContent>
               <PaginationItem>
@@ -656,6 +706,7 @@ export default function TicketListPageContent({
         onOpenChange={setDialogOpen}
         ticketId={selectedTicketId}
         ticketCandidates={selectedTicketCandidates}
+        terminalId={selectedTerminalId ?? undefined}
       />
     </div>
   )
