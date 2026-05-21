@@ -358,6 +358,7 @@ export type TicketDetailSelection = {
     dict: {
       misc: { name: string }
       markets: Record<string, string>
+      runners?: Record<string, string>
     }
     constraints: Record<string, string>
   }

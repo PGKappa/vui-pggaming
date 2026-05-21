@@ -302,6 +302,8 @@
   "min_stake_error": "Minimum stake is {{min}}",
   "min_bet_error": "Minimum ticket amount is {{min}}",
   "max_win_error": "Maximum potential win is {{max}}",
+  "min_win": "Min Win",
+  "max_win": "Max Win",
   "min_stake_per_combination_not_met": "Minimum stake per combination not met. Increase by {{amount}} to continue",
   "operator_missing": "Operator parameter is missing in URL",
   "operator_required": "Operator is required",

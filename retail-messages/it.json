@@ -305,6 +305,8 @@
   "min_stake_error": "L'importo minimo della scommessa è {{min}}",
   "min_bet_error": "L'importo minimo del ticket è {{min}}",
   "max_win_error": "La vincita massima potenziale è {{max}}",
+  "min_win": "Vincita Min",
+  "max_win": "Vincita Max",
   "no_tickets_found": "Nessun biglietto trovato",
   "ticket": "Ticket",
   "ticket_not_found": "Ticket non trovato",
