@@ -135,7 +135,8 @@ export default function TicketListPageContent({
   }
 
   const dateRangeLabel = () => {
-    if (dateFrom && dateTo) return `${format(dateFrom, 'dd/MM/yy')} - ${format(dateTo, 'dd/MM/yy')}`
+    if (dateFrom && dateTo)
+      return `${format(dateFrom, 'dd/MM/yy')} - ${format(dateTo, 'dd/MM/yy')}`
     if (dateFrom) return `${format(dateFrom, 'dd/MM/yy')} - ...`
     return '-'
   }
@@ -308,7 +309,6 @@ export default function TicketListPageContent({
       ) : (
         <div className="flex shrink-0 justify-center bg-secondary pb-3 lg:pb-5">
           <div className="relative top-2 flex flex-wrap items-center space-x-5 lg:top-2.5 lg:space-x-10">
-
             <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
               <span className="whitespace-nowrap pl-1 text-[10px] font-semibold lg:pl-2 lg:text-[12px]">
                 {t('date', 'DATA')}
@@ -362,7 +362,7 @@ export default function TicketListPageContent({
 
             <Button
               onClick={fetchTickets}
-              className="text-bold h-7 w-[60px] bg-tertiary text-[10px] text-tertiary-foreground lg:h-9 lg:w-[80px] lg:text-[14px] uppercase"
+              className="text-bold h-7 w-[60px] bg-tertiary text-[10px] uppercase text-tertiary-foreground lg:h-9 lg:w-[80px] lg:text-[14px]"
             >
               {t('reload')}
             </Button>
@@ -444,12 +444,19 @@ export default function TicketListPageContent({
                           isCalcio ? 'gap-2' : 'space-x-1 lg:space-x-2',
                         )}
                       >
-                        <span className={cn('font-medium', isCalcio ? 'text-[16px]' : '')}>
+                        <span
+                          className={cn(
+                            'font-medium',
+                            isCalcio ? 'text-[16px]' : '',
+                          )}
+                        >
                           {t(statusInfo.translationKey)}
                         </span>
                         <div
                           className={cn(
-                            isCalcio ? 'h-3 w-3 rounded-sm' : 'h-2 w-2 rounded-sm lg:h-3 lg:w-3',
+                            isCalcio
+                              ? 'h-3 w-3 rounded-sm'
+                              : 'h-2 w-2 rounded-sm lg:h-3 lg:w-3',
                             statusInfo.colorClass,
                           )}
                         />
@@ -485,7 +492,7 @@ export default function TicketListPageContent({
                           'bg-tertiary text-tertiary-foreground',
                           isCalcio
                             ? 'h-8 w-20 text-[16px]'
-                            : 'h-6 w-14 text-[10px] lg:h-8 lg:w-[106px] lg:text-[15px] uppercase',
+                            : 'h-6 w-14 text-[10px] uppercase lg:h-8 lg:w-[106px] lg:text-[15px]',
                         )}
                       >
                         {t('details')}
@@ -556,9 +563,12 @@ export default function TicketListPageContent({
             <col style={{ width: '14.2857%' }} />
           </colgroup>
           <tbody>
-            <tr className="bg-secondary text-white h-[60px]">
+            <tr className="h-[60px] bg-secondary text-white">
               <td className="bg-secondary" />
-              <td style={totalCellStyle} className={totalCellClass('font-bold')}>
+              <td
+                style={totalCellStyle}
+                className={totalCellClass('font-bold')}
+              >
                 {t('totals')}
               </td>
               <td style={totalCellStyle} className={totalCellClass()}>
@@ -580,14 +590,14 @@ export default function TicketListPageContent({
               </td>
               <td style={totalCellStyle} className={totalCellClass()} />
             </tr>
-            <tr className="bg-secondary h-[61px]">
+            <tr className="h-[61px] bg-secondary">
               <td colSpan={7} className="bg-secondary" />
             </tr>
           </tbody>
         </table>
 
         {/* Paginazione */}
-        <div className="absolute bottom-2 right-0 flex items-center gap-2 px-2 py-1 bg-secondary">
+        <div className="absolute bottom-2 right-0 flex items-center gap-2 bg-secondary px-2 py-1">
           <Pagination className="w-auto">
             <PaginationContent>
               <PaginationItem>
@@ -603,7 +613,8 @@ export default function TicketListPageContent({
                 let pageNum: number
                 if (totalPages <= 5) pageNum = i + 1
                 else if (currentPage <= 3) pageNum = i + 1
-                else if (currentPage >= totalPages - 2) pageNum = totalPages - 4 + i
+                else if (currentPage >= totalPages - 2)
+                  pageNum = totalPages - 4 + i
                 else pageNum = currentPage - 2 + i
                 return (
                   <PaginationItem key={pageNum}>
@@ -625,7 +636,8 @@ export default function TicketListPageContent({
                   href="#"
                   onClick={(e) => {
                     e.preventDefault()
-                    if (currentPage < totalPages) setCurrentPage(currentPage + 1)
+                    if (currentPage < totalPages)
+                      setCurrentPage(currentPage + 1)
                   }}
                 />
               </PaginationItem>

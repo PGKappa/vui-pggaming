@@ -12,7 +12,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/retail-components/ui/dialog'
-import { Button } from '@/retail-components/ui/button'
 import { Delete } from 'lucide-react'
 import {
   TicketDetailInfo,
@@ -22,6 +21,7 @@ import {
 import { createPGVirtualAPICall } from '@/retail-lib/utils'
 import { useTranslation } from 'react-i18next'
 import { useCallback, useContext, useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { RootContext } from '@/retail-contexts/root-context'
 
 function getDetailStatus(status: number): {
@@ -354,13 +354,7 @@ export default function TicketCheckDialog({
               className="flex items-center justify-center py-16"
               style={{ background: '#212121' }}
             >
-              <div
-                className="h-8 w-8 animate-spin rounded-full border-4 border-t-transparent"
-                style={{
-                  borderColor: '#12324a',
-                  borderTopColor: 'transparent',
-                }}
-              />
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-accent border-t-transparent" />
             </div>
           )}
 
@@ -656,11 +650,7 @@ export default function TicketCheckDialog({
                   {/* VIDEO REPLAY */}
                   <div className="pb-4 text-center">
                     <button
-                      className="w-[260px] cursor-pointer rounded-lg border-0 py-3 text-[14px] font-bold uppercase tracking-[1.5px] text-white"
-                      style={{
-                        background: '#12324a',
-                        border: '2px solid #1a4a6a',
-                      }}
+                      className="w-[260px] cursor-pointer rounded-lg border-0 bg-[#12324a] py-3 text-[14px] font-bold uppercase tracking-[1.5px] text-white"
                       onClick={() => {
                         if (typeof window.Bubble === 'function') {
                           window.Bubble('replay', String(ticketInfo.ticket_id))
@@ -690,10 +680,7 @@ export default function TicketCheckDialog({
                           className="overflow-hidden rounded-xl"
                           style={{ background: '#2a2a2a' }}
                         >
-                          <div
-                            className="flex h-[45px] items-center justify-center"
-                            style={{ background: '#12324a' }}
-                          >
+                          <div className="flex h-[45px] items-center justify-center bg-accent">
                             <span className="font-semibold tracking-[1px] text-white">
                               {t('insert_pin_cdd', 'INSERISCI PIN CDD')}
                             </span>
@@ -829,11 +816,7 @@ export default function TicketCheckDialog({
                             {t('reprint_cdd', 'RISTAMPA CDD')}
                           </button>
                           <button
-                            className="w-full rounded-lg border-0 py-3 text-[14px] font-bold uppercase tracking-[1.5px] text-white"
-                            style={{
-                              background: '#12324a',
-                              border: '2px solid #1a4a6a',
-                            }}
+                            className="w-full rounded-lg border-0 bg-accent py-3 text-[14px] font-bold uppercase tracking-[1.5px] text-white"
                             onClick={() => {
                               setPinMode(true)
                               setPinInput('')
@@ -904,71 +887,76 @@ export default function TicketCheckDialog({
       </Dialog>
 
       {/* POPUP CONFERMA PAGAMENTO */}
-      {showPayConfirm && (
-        <div
-          className="fixed inset-0 z-[200] flex items-center justify-center"
-          style={{ background: 'rgba(0,0,0,0.7)' }}
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setShowPayConfirm(false)
-          }}
-        >
+      {showPayConfirm &&
+        typeof document !== 'undefined' &&
+        createPortal(
           <div
-            className="w-[340px] overflow-hidden rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.6)]"
-            style={{ background: '#1e1e1e' }}
+            className="fixed inset-0 z-[200] flex items-center justify-center"
+            style={{ background: 'rgba(0,0,0,0.7)' }}
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setShowPayConfirm(false)
+            }}
           >
             <div
-              className="flex items-center justify-between px-5 py-4"
-              style={{ background: '#12324a' }}
+              className="w-[340px] overflow-hidden rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.6)]"
+              style={{ background: '#1e1e1e' }}
             >
-              <h2 className="text-[16px] font-bold tracking-[1px] text-white">
-                {t('confirm_payment', 'CONFERMA PAGAMENTO')}
-              </h2>
-              <span
-                className="cursor-pointer text-[28px] font-light leading-none text-white"
-                onClick={() => setShowPayConfirm(false)}
-              >
-                &#x2715;
-              </span>
-            </div>
-            <div
-              className="px-6 pb-6 pt-7 text-center"
-              style={{ background: '#212121' }}
-            >
-              <div
-                className="mb-[10px] text-[11px] font-semibold uppercase tracking-[0.8px]"
-                style={{ color: '#888' }}
-              >
-                {t('total_winning_to_collect', 'Totale vincita da riscuotere')}
-              </div>
-              <div className="mb-2 text-[32px] font-bold tracking-[1px] text-white">
-                {fmt(ticketInfo!.amount_won)}
-              </div>
-              <div
-                className="mb-7 text-[13px] font-semibold tracking-[0.4px]"
-                style={{ color: '#aaa' }}
-              >
-                {t('confirm_payment_question', 'Vuoi confermare il pagamento?')}
-              </div>
-              <div className="flex gap-3">
-                <button
+              <div className="flex items-center justify-between bg-card-header px-5 py-4 text-card-header-foreground">
+                <h2 className="text-[16px] font-bold tracking-[1px] text-white">
+                  {t('confirm_payment', 'CONFERMA PAGAMENTO')}
+                </h2>
+                <span
+                  className="cursor-pointer text-[28px] font-light leading-none text-white"
                   onClick={() => setShowPayConfirm(false)}
-                  className="flex-1 cursor-pointer rounded-lg border-0 py-[14px] text-[13px] font-bold uppercase tracking-[1.5px]"
-                  style={{ background: '#2e2e2e', color: '#ccc' }}
                 >
-                  {t('cancel', 'ANNULLA')}
-                </button>
-                <button
-                  onClick={handlePay}
-                  className="flex-1 cursor-pointer rounded-lg border-0 py-[14px] text-[13px] font-bold uppercase tracking-[1.5px] text-white"
-                  style={{ background: '#12324a', border: '2px solid #1a4a6a' }}
+                  &#x2715;
+                </span>
+              </div>
+              <div
+                className="px-6 pb-6 pt-7 text-center"
+                style={{ background: '#212121' }}
+              >
+                <div
+                  className="mb-[10px] text-[11px] font-semibold uppercase tracking-[0.8px]"
+                  style={{ color: '#888' }}
                 >
-                  {t('confirm', 'CONFERMA')}
-                </button>
+                  {t(
+                    'total_winning_to_collect',
+                    'Totale vincita da riscuotere',
+                  )}
+                </div>
+                <div className="mb-2 text-[32px] font-bold tracking-[1px] text-white">
+                  {fmt(ticketInfo!.amount_won)}
+                </div>
+                <div
+                  className="mb-7 text-[13px] font-semibold tracking-[0.4px]"
+                  style={{ color: '#aaa' }}
+                >
+                  {t(
+                    'confirm_payment_question',
+                    'Vuoi confermare il pagamento?',
+                  )}
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setShowPayConfirm(false)}
+                    className="flex-1 cursor-pointer rounded-lg border-0 py-[14px] text-[13px] font-bold uppercase tracking-[1.5px]"
+                    style={{ background: '#2e2e2e', color: '#ccc' }}
+                  >
+                    {t('cancel', 'ANNULLA')}
+                  </button>
+                  <button
+                    onClick={handlePay}
+                    className="flex-1 cursor-pointer rounded-lg border-0 bg-accent py-[14px] text-[13px] font-bold uppercase tracking-[1.5px] text-white"
+                  >
+                    {t('confirm', 'CONFERMA')}
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body,
+        )}
     </>
   )
 }
