@@ -321,6 +321,8 @@
   "no_events_available": "No hay eventos disponibles",
   "min_stake_error": "El importe mínimo de apuesta es {{min}}",
   "max_win_error": "La ganancia máxima permitida es {{max}}",
+  "min_win": "Ganancia Mín",
+  "max_win": "Ganancia Máx",
   "min_bet_error": "El importe mínimo del ticket es {{min}}",
   "min_stake_per_combination_not_met": "El valor mínimo por columna no se cumple. Auméntelo en {{amount}} para continuar",
   "operator_missing": "Falta el operador",
