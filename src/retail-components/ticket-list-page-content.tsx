@@ -61,6 +61,8 @@ export default function TicketListPageContent({
     setStatus,
     payment,
     setPayment,
+    discipline,
+    setDiscipline,
     dateFrom,
     setDateFrom,
     dateTo,
@@ -164,10 +166,11 @@ export default function TicketListPageContent({
   const dateRangeButton = (extraClass: string) => (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="ticketFilter" className={cn(extraClass, 'justify-between px-3')}>
-          <span>
-            {dateFrom ? dateRangeLabel() : t('date', 'DATA')}
-          </span>
+        <Button
+          variant="ticketFilter"
+          className={cn(extraClass, 'justify-between px-3')}
+        >
+          <span>{dateFrom ? dateRangeLabel() : t('date', 'DATA')}</span>
           <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -192,7 +195,7 @@ export default function TicketListPageContent({
       .map((discipline) => {
         if (discipline === 'dogs') return t('dog_racing')
         if (discipline === 'horses') return t('horse_racing')
-        if (discipline === 'soccer') return t('soccer')
+        if (discipline === 'soccer') return t('football')
         return discipline
       })
       .join(' / ')
@@ -253,10 +256,30 @@ export default function TicketListPageContent({
       {isCalcio ? (
         <div className="flex flex-col items-center gap-4 px-4 pb-8 pt-10">
           <div className="flex items-center gap-8">
+            {/* Disciplina - calcio */}
+            <div className="mr-20 flex flex-row items-center gap-2 bg-badge text-background">
+              <Select
+                value={discipline === 'all' ? '' : discipline}
+                onValueChange={(v) => setDiscipline(v || 'all')}
+              >
+                <SelectTrigger className="h-[38px] w-[140px] bg-background text-[15px] text-foreground">
+                  <SelectValue placeholder={t('discipline')} />
+                </SelectTrigger>
+                <SelectContent className="bg-white p-0 text-[13px]">
+                  <SelectItem value="all">{t('all')}</SelectItem>
+                  <SelectItem value="dogs">{t('dog_racing')}</SelectItem>
+                  <SelectItem value="horses">{t('horse_racing')}</SelectItem>
+                  <SelectItem value="soccer">{t('football')}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
             {/* Terminale - calcio */}
             <div className="mr-20 flex flex-row items-center gap-2 bg-badge text-background">
-              <Select value={terminal === 'all' ? '' : terminal} onValueChange={(v) => setTerminal(v || 'all')}>
+              <Select
+                value={terminal === 'all' ? '' : terminal}
+                onValueChange={(v) => setTerminal(v || 'all')}
+              >
                 <SelectTrigger className="h-[38px] w-[140px] bg-background text-[15px] text-foreground">
                   <SelectValue placeholder={t('terminal')} />
                 </SelectTrigger>
@@ -308,6 +331,23 @@ export default function TicketListPageContent({
       ) : (
         <div className="flex shrink-0 justify-center bg-secondary pb-3 lg:pb-5">
           <div className="relative top-2 flex flex-wrap items-center space-x-5 lg:top-2.5 lg:space-x-10">
+            {/* Disciplina - standard */}
+            <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
+              <Select
+                value={discipline === 'all' ? '' : discipline}
+                onValueChange={(v) => setDiscipline(v || 'all')}
+              >
+                <SelectTrigger className="h-[38px] w-[75px] bg-background text-[15px] text-foreground lg:h-[46px] lg:w-[210px]">
+                  <SelectValue placeholder={t('discipline')} />
+                </SelectTrigger>
+                <SelectContent className="bg-white p-0 text-[13px]">
+                  <SelectItem value="all">{t('all')}</SelectItem>
+                  <SelectItem value="dogs">{t('dog_racing')}</SelectItem>
+                  <SelectItem value="horses">{t('horse_racing')}</SelectItem>
+                  <SelectItem value="soccer">{t('football')}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
             {/* Data - standard */}
             <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
@@ -318,7 +358,10 @@ export default function TicketListPageContent({
 
             {/* Terminale - standard */}
             <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
-              <Select value={terminal === 'all' ? '' : terminal} onValueChange={(v) => setTerminal(v || 'all')}>
+              <Select
+                value={terminal === 'all' ? '' : terminal}
+                onValueChange={(v) => setTerminal(v || 'all')}
+              >
                 <SelectTrigger className="h-[38px] w-[75px] bg-background text-[15px] text-foreground lg:h-[46px] lg:w-[210px]">
                   <SelectValue placeholder={t('terminal')} />
                 </SelectTrigger>
@@ -353,10 +396,9 @@ export default function TicketListPageContent({
                 </SelectContent>
               </Select>
             </div>
-
             <Button
               onClick={fetchTickets}
-              className="text-bold h-7 w-[60px] bg-tertiary text-[10px] text-tertiary-foreground lg:h-[46px] lg:w-[106px] lg:text-[15px] uppercase"
+              className="text-bold h-7 w-[60px] bg-tertiary text-[10px] uppercase text-tertiary-foreground lg:h-[46px] lg:w-[106px] lg:text-[15px]"
             >
               {t('reload')}
             </Button>
@@ -412,9 +454,7 @@ export default function TicketListPageContent({
                     key={item.ticket_id}
                     className={cn(
                       'border-b text-center',
-                      isCalcio
-                        ? 'text-[16px]'
-                        : 'text-[12px]  lg:text-[15px]',
+                      isCalcio ? 'text-[16px]' : 'text-[12px] lg:text-[15px]',
                     )}
                   >
                     <td className={tdClass()}>{item.ticket_id}</td>
