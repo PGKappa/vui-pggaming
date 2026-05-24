@@ -245,7 +245,7 @@ export default function TicketListPageContent({
         <h2
           className={cn(
             'font-bold uppercase',
-            isCalcio ? 'text-[20px]' : 'text-[12px] lg:text-[16px]',
+            isCalcio ? 'text-[20px]' : 'text-[12px] lg:text-[16px] relative bottom-[2px]',
           )}
         >
           {t('ticket_list')}
@@ -256,22 +256,9 @@ export default function TicketListPageContent({
       {isCalcio ? (
         <div className="flex flex-col items-center gap-4 px-4 pb-8 pt-10">
           <div className="flex items-center gap-8">
-            {/* Disciplina - calcio */}
+            {/* Data - calcio */}
             <div className="mr-20 flex flex-row items-center gap-2 bg-badge text-background">
-              <Select
-                value={discipline === 'all' ? '' : discipline}
-                onValueChange={(v) => setDiscipline(v || 'all')}
-              >
-                <SelectTrigger className="h-[38px] w-[140px] bg-background text-[15px] text-foreground">
-                  <SelectValue placeholder={t('discipline')} />
-                </SelectTrigger>
-                <SelectContent className="bg-white p-0 text-[13px]">
-                  <SelectItem value="all">{t('all')}</SelectItem>
-                  <SelectItem value="dogs">{t('dog_racing')}</SelectItem>
-                  <SelectItem value="horses">{t('horse_racing')}</SelectItem>
-                  <SelectItem value="soccer">{t('football')}</SelectItem>
-                </SelectContent>
-              </Select>
+              {dateRangeButton('h-[38px] w-[200px] justify-center text-[15px]')}
             </div>
 
             {/* Terminale - calcio */}
@@ -315,9 +302,22 @@ export default function TicketListPageContent({
               </Select>
             </div>
 
-            {/* Data - calcio */}
+            {/* Disciplina - calcio */}
             <div className="mr-20 flex flex-row items-center gap-2 bg-badge text-background">
-              {dateRangeButton('h-[38px] w-[200px] justify-center text-[15px]')}
+              <Select
+                value={discipline === 'all' ? '' : discipline}
+                onValueChange={(v) => setDiscipline(v || 'all')}
+              >
+                <SelectTrigger className="h-[38px] w-[140px] bg-background text-[15px] text-foreground">
+                  <SelectValue placeholder={t('discipline')} />
+                </SelectTrigger>
+                <SelectContent className="bg-white p-0 text-[13px]">
+                  <SelectItem value="all">{t('all')}</SelectItem>
+                  <SelectItem value="dogs">{t('dog_racing')}</SelectItem>
+                  <SelectItem value="horses">{t('horse_racing')}</SelectItem>
+                  <SelectItem value="soccer">{t('football')}</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <Button
@@ -330,14 +330,21 @@ export default function TicketListPageContent({
         </div>
       ) : (
         <div className="flex shrink-0 justify-center bg-secondary pb-3 lg:pb-5">
-          <div className="relative top-2 flex flex-wrap items-center space-x-5 lg:top-2.5 lg:space-x-10">
+          <div className="relative  left-[63px] flex flex-wrap items-center space-x-5  lg:bottom-[3px] lg:space-x-4 uppercase">
+            {/* Data - standard */}
+            <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
+              {dateRangeButton(
+                'h-[38px] w-[140px] justify-center text-[15px] lg:h-[46px] lg:w-[210px] uppercase',
+              )}
+            </div>
+
             {/* Disciplina - standard */}
             <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
               <Select
                 value={discipline === 'all' ? '' : discipline}
                 onValueChange={(v) => setDiscipline(v || 'all')}
               >
-                <SelectTrigger className="h-[38px] w-[75px] bg-background text-[15px] text-foreground lg:h-[46px] lg:w-[210px]">
+                <SelectTrigger className="h-[38px] w-[75px] bg-background text-[15px] text-foreground lg:h-[46px] lg:w-[210px] uppercase">
                   <SelectValue placeholder={t('discipline')} />
                 </SelectTrigger>
                 <SelectContent className="bg-white p-0 text-[13px]">
@@ -349,20 +356,13 @@ export default function TicketListPageContent({
               </Select>
             </div>
 
-            {/* Data - standard */}
-            <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
-              {dateRangeButton(
-                'h-[38px] w-[140px] justify-center text-[15px] lg:h-[46px] lg:w-[210px]',
-              )}
-            </div>
-
             {/* Terminale - standard */}
             <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
               <Select
                 value={terminal === 'all' ? '' : terminal}
                 onValueChange={(v) => setTerminal(v || 'all')}
               >
-                <SelectTrigger className="h-[38px] w-[75px] bg-background text-[15px] text-foreground lg:h-[46px] lg:w-[210px]">
+                <SelectTrigger className="h-[38px] w-[75px] bg-background text-[15px] text-foreground lg:h-[46px] lg:w-[210px] uppercase">
                   <SelectValue placeholder={t('terminal')} />
                 </SelectTrigger>
                 <SelectContent className="bg-white p-0 text-[13px]">
@@ -382,7 +382,7 @@ export default function TicketListPageContent({
                 value={statusSelectValue === 'all' ? '' : statusSelectValue}
                 onValueChange={handleStatusChange}
               >
-                <SelectTrigger className="h-[38px] w-[70px] bg-background text-[15px] text-foreground lg:h-[46px] lg:w-[210px]">
+                <SelectTrigger className="h-[38px] w-[70px] bg-background text-[15px] text-foreground lg:h-[46px] lg:w-[210px] uppercase">
                   <SelectValue placeholder={t('status')} />
                 </SelectTrigger>
                 <SelectContent className="bg-white p-0 text-[13px]">
@@ -398,7 +398,7 @@ export default function TicketListPageContent({
             </div>
             <Button
               onClick={fetchTickets}
-              className="text-bold h-7 w-[60px] bg-tertiary text-[10px] uppercase text-tertiary-foreground lg:h-[46px] lg:w-[106px] lg:text-[15px]"
+              className="text-bold h-7 w-[60px] bg-tertiary text-[10px] uppercase text-tertiary-foreground lg:h-[46px] lg:w-[106px] lg:text-[15px] relative left-2"
             >
               {t('reload')}
             </Button>
@@ -549,39 +549,39 @@ export default function TicketListPageContent({
       >
         {/* Legend */}
         <div className="col-span-2 flex items-end justify-start bg-secondary px-3 pb-3">
-          <div className="mb-[68px] flex flex-row space-x-4">
+          <div className="mb-[68px] ml-[11px] flex flex-row space-x-3">
             <div className="flex items-center space-x-2">
               <span
                 className={cn(
                   'text-white',
-                  isCalcio ? 'text-[11px]' : 'text-[9px] lg:text-[12px]',
+                  isCalcio ? 'text-[11px]' : 'text-[9px] lg:text-[12px] uppercase',
                 )}
               >
                 {t('collected')}
               </span>
-              <div className="mb-0.5 h-4 w-4 rounded-md bg-ticket-won" />
+              <div className="mb-0.5 h-4 w-4 rounded-sm bg-ticket-won" />
             </div>
             <div className="mb-0.5 flex items-center space-x-2">
               <span
                 className={cn(
                   'text-white',
-                  isCalcio ? 'text-[11px]' : 'text-[9px] lg:text-[12px]',
+                  isCalcio ? 'text-[11px]' : 'text-[9px] lg:text-[12px] uppercase',
                 )}
               >
                 {t('not_collected')}
               </span>
-              <div className="h-4 w-4 rounded-md bg-notCollected" />
+              <div className="h-4 w-4 rounded-sm bg-notCollected" />
             </div>
             <div className="mb-0.5 flex items-center space-x-2">
               <span
                 className={cn(
                   'text-white',
-                  isCalcio ? 'text-[11px]' : 'text-[9px] lg:text-[12px]',
+                  isCalcio ? 'text-[11px]' : 'text-[9px] lg:text-[12px] uppercase',
                 )}
               >
                 {t('cancelled')}
               </span>
-              <div className="h-4 w-4 rounded-md bg-ticket-lost" />
+              <div className="h-4 w-4 rounded-sm bg-ticket-lost" />
             </div>
           </div>
         </div>
@@ -597,7 +597,7 @@ export default function TicketListPageContent({
             <col style={{ width: '14.2857%' }} />
           </colgroup>
           <tbody>
-            <tr className="h-[60px] bg-secondary text-white">
+            <tr className="h-[60px] bg-secondary text-white uppercase">
               <td className="bg-secondary" />
               <td
                 style={totalCellStyle}
@@ -631,7 +631,7 @@ export default function TicketListPageContent({
         </table>
 
         {/* Paginazione */}
-        <div className="absolute bottom-2 right-0 flex items-center gap-2 bg-secondary px-2 py-1">
+        <div className="absolute bottom-2 right-4 flex items-center space-x-3 bg-secondary px-2 py-1">
           <Pagination className="w-auto">
             <PaginationContent>
               <PaginationItem>
