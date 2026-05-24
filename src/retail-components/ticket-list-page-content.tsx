@@ -586,15 +586,23 @@ export default function TicketListPageContent({
           </div>
         </div>
 
+        {/* Footer totals table — colgroup mirrors columns 3-9 of the main table */}
         <table className="col-span-7 w-full table-fixed border-collapse">
           <colgroup>
-            <col style={{ width: '14.2857%' }} />
-            <col style={{ width: '14.2857%' }} />
-            <col style={{ width: '14.2857%' }} />
-            <col style={{ width: '14.2857%' }} />
-            <col style={{ width: '14.2857%' }} />
-            <col style={{ width: '14.2857%' }} />
-            <col style={{ width: '14.2857%' }} />
+            {/* terminal  — col 3 */}
+            <col style={{ width: '11.11%' }} />
+            {/* product   — col 4 */}
+            <col style={{ width: '11.11%' }} />
+            {/* amount    — col 5 */}
+            <col style={{ width: '11.11%' }} />
+            {/* won       — col 6 */}
+            <col style={{ width: '11.11%' }} />
+            {/* status    — col 7 */}
+            <col style={{ width: '11.11%' }} />
+            {/* balance   — col 8 */}
+            <col style={{ width: '11.11%' }} />
+            {/* button    — col 9 */}
+            <col style={{ width: '11.12%' }} />
           </colgroup>
           <tbody>
             <tr className="h-[60px] bg-secondary text-white uppercase">
