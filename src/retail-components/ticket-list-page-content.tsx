@@ -108,22 +108,6 @@ export default function TicketListPageContent({
     setDialogOpen(true)
   }
 
-  const handleStatusChange = (value: string) => {
-    if (value === 'paid') {
-      setStatus('all')
-      setPayment('paid')
-    } else if (value === 'unpaid') {
-      setStatus('all')
-      setPayment('unpaid')
-    } else {
-      setStatus(value)
-      setPayment('all')
-    }
-  }
-
-  const statusSelectValue =
-    payment === 'paid' ? 'paid' : payment === 'unpaid' ? 'unpaid' : status
-
   const isCalcio = variant === 'calcio'
 
   const calendarClassNames = {
@@ -194,36 +178,6 @@ export default function TicketListPageContent({
       .join(' / ')
   }
 
-  const thClass = (extra?: string) =>
-    cn(
-      'border-r border-card-header-foreground last:border-r-0',
-      isCalcio
-        ? 'bg-badge p-2 text-[16px]'
-        : 'bg-accent p-1 text-[12px] lg:p-2 lg:text-[16px] uppercase',
-      extra,
-    )
-
-  const tdClass = (extra?: string) =>
-    cn(
-      'border-r border-muted last:border-r-0',
-      isCalcio ? 'p-2' : 'p-1 lg:p-2',
-      extra,
-    )
-
-  // Stile bordo comune per la griglia totali
-  const totalBorder = '0.5px solid rgba(255,255,255,0.4)'
-
-  const totalCellStyle = {
-    border: totalBorder,
-  }
-
-  const totalCellClass = (extra?: string) =>
-    cn(
-      'bg-secondary text-center align-middle',
-      isCalcio ? 'px-3 py-2 text-[14px]' : 'px-1 py-1 text-[9px] lg:px-3 lg:text-[17px]',
-      extra,
-    )
-
   return (
     <div
       className={cn(
@@ -271,24 +225,40 @@ export default function TicketListPageContent({
               </Select>
             </div>
 
-            <div className="mr-20 flex flex-row items-center gap-2 bg-badge text-background">
-              <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
-                {t('status')}
-              </span>
-              <Select value={statusSelectValue} onValueChange={handleStatusChange}>
-                <SelectTrigger className="w-[100px] bg-background text-[12px] text-foreground">
-                  <SelectValue placeholder={t('status')} />
-                </SelectTrigger>
-                <SelectContent className="bg-white p-0">
-                  <SelectItem value="all">{t('all')}</SelectItem>
-                  <SelectItem value="active">{t('active')}</SelectItem>
-                  <SelectItem value="won">{t('won')}</SelectItem>
-                  <SelectItem value="lost">{t('lost')}</SelectItem>
-                  <SelectItem value="cancelled">{t('cancelled')}</SelectItem>
-                  <SelectItem value="paid">{t('paid')}</SelectItem>
-                  <SelectItem value="unpaid">{t('unpaid')}</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="mr-20 flex items-center gap-4">
+              <div className="flex flex-row items-center gap-2 bg-badge text-background">
+                <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
+                  {t('status')}
+                </span>
+                <Select value={status} onValueChange={setStatus}>
+                  <SelectTrigger className="w-[100px] bg-background text-[12px] text-foreground">
+                    <SelectValue placeholder={t('status')} />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white p-0">
+                    <SelectItem value="all">{t('all')}</SelectItem>
+                    <SelectItem value="active">{t('active')}</SelectItem>
+                    <SelectItem value="won">{t('won')}</SelectItem>
+                    <SelectItem value="lost">{t('lost')}</SelectItem>
+                    <SelectItem value="cancelled">{t('cancelled')}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex flex-row items-center gap-2 bg-badge text-background">
+                <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
+                  {t('payment')}
+                </span>
+                <Select value={payment} onValueChange={setPayment}>
+                  <SelectTrigger className="w-[100px] bg-background text-[12px] text-foreground">
+                    <SelectValue placeholder={t('payment')} />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white p-0">
+                    <SelectItem value="all">{t('all')}</SelectItem>
+                    <SelectItem value="paid">{t('paid')}</SelectItem>
+                    <SelectItem value="unpaid">{t('unpaid')}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <div className="mr-20 flex flex-row items-center gap-2 bg-badge text-background">
@@ -321,7 +291,7 @@ export default function TicketListPageContent({
                 {t('from')}
               </span>
               {dateFromButton(
-                'h-7 w-[80px] justify-center text-[10px] lg:h-9 lg:w-[210px] lg:text-[12px]',
+                'h-7 w-[80px] justify-center text-[10px] lg:h-9 lg:w-[100px] lg:text-[12px]',
               )}
             </div>
 
@@ -330,7 +300,7 @@ export default function TicketListPageContent({
                 {t('to')}
               </span>
               {dateToButton(
-                'h-7 w-[80px] justify-center text-[10px] lg:h-9 lg:w-[210px] lg:text-[12px]',
+                'h-7 w-[80px] justify-center text-[10px] lg:h-9 lg:w-[100px] lg:text-[12px]',
               )}
             </div>
 
@@ -339,7 +309,7 @@ export default function TicketListPageContent({
                 {t('terminal')}
               </span>
               <Select value={terminal} onValueChange={setTerminal}>
-                <SelectTrigger className="h-7 w-[75px] bg-background text-[10px] text-foreground lg:h-9 lg:w-[210px] lg:text-[12px]">
+                <SelectTrigger className="h-7 w-[70px] bg-background text-[10px] text-foreground lg:h-9 lg:w-[100px] lg:text-[12px]">
                   <SelectValue placeholder={t('terminal')} />
                 </SelectTrigger>
                 <SelectContent className="bg-white p-0">
@@ -357,8 +327,8 @@ export default function TicketListPageContent({
               <span className="whitespace-nowrap pl-1 text-[10px] font-semibold lg:pl-2 lg:text-[12px]">
                 {t('status')}
               </span>
-              <Select value={statusSelectValue} onValueChange={handleStatusChange}>
-                <SelectTrigger className="h-7 w-[70px] bg-background text-[10px] text-foreground lg:h-9 lg:w-[210px] lg:text-[12px]">
+              <Select value={status} onValueChange={setStatus}>
+                <SelectTrigger className="h-7 w-[70px] bg-background text-[10px] text-foreground lg:h-9 lg:w-[100px] lg:text-[12px]">
                   <SelectValue placeholder={t('status')} />
                 </SelectTrigger>
                 <SelectContent className="bg-white p-0">
@@ -367,6 +337,20 @@ export default function TicketListPageContent({
                   <SelectItem value="won">{t('won')}</SelectItem>
                   <SelectItem value="lost">{t('lost')}</SelectItem>
                   <SelectItem value="cancelled">{t('cancelled')}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
+              <span className="whitespace-nowrap pl-1 text-[10px] font-semibold lg:pl-2 lg:text-[12px]">
+                {t('payment')}
+              </span>
+              <Select value={payment} onValueChange={setPayment}>
+                <SelectTrigger className="h-7 w-[70px] bg-background text-[10px] text-foreground lg:h-9 lg:w-[100px] lg:text-[12px]">
+                  <SelectValue placeholder={t('payment')} />
+                </SelectTrigger>
+                <SelectContent className="bg-white p-0">
+                  <SelectItem value="all">{t('all')}</SelectItem>
                   <SelectItem value="paid">{t('paid')}</SelectItem>
                   <SelectItem value="unpaid">{t('unpaid')}</SelectItem>
                 </SelectContent>
@@ -385,7 +369,7 @@ export default function TicketListPageContent({
 
       {/* Table Content */}
       <div className="flex-1 overflow-auto bg-white text-black">
-        <table className={cn('w-full border-collapse', isCalcio ? 'text-[12px]' : '')}>
+        <table className={cn('w-full', isCalcio ? 'text-[12px]' : '')}>
           <thead
             className={cn(
               'bg-secondary text-white',
@@ -393,27 +377,125 @@ export default function TicketListPageContent({
             )}
           >
             <tr>
-              <th className={thClass('w-[10%]')}>{t('ticket_id')}</th>
-              <th className={thClass('w-[10%]')}>{t('date_n_time')}</th>
-              <th className={thClass('w-[10%]')}>{t('terminal')}</th>
-              <th className={thClass('w-[13%]')}>{t('product')}</th>
-              <th className={thClass('w-[10%]')}>{t('staked_amount')}</th>
-              <th className={thClass('w-[10%]')}>{t('won')}</th>
-              <th className={thClass('w-[10%]')}>{t('ticket_status')}</th>
-              <th className={thClass('w-[10%]')}>{t('balance')}</th>
-              <th className={thClass('w-[10%]')}></th>
+              <th
+                className={cn(
+                  'text-[16px]',
+                  isCalcio
+                    ? 'bg-badge p-2'
+                    : 'bg-accent p-1 text-[12px] lg:p-2 lg:text-[16px]',
+                )}
+              >
+                {t('ticket_id')}
+              </th>
+              <th className="w-[1px] bg-card-header-foreground p-0"></th>
+              <th
+                className={cn(
+                  'text-[16px]',
+                  isCalcio
+                    ? 'bg-badge p-2'
+                    : 'bg-accent p-1 text-[12px] lg:p-2 lg:text-[16px]',
+                )}
+              >
+                {t('date_n_time')}
+              </th>
+              <th className="w-[1px] bg-card-header-foreground p-0"></th>
+              <th
+                className={cn(
+                  'text-[16px]',
+                  isCalcio
+                    ? 'bg-badge p-2'
+                    : 'bg-accent p-1 text-[12px] lg:p-2 lg:text-[16px]',
+                )}
+              >
+                {t('terminal')}
+              </th>
+              <th className="w-[1px] bg-card-header-foreground p-0"></th>
+              <th
+                className={cn(
+                  'text-[16px]',
+                  isCalcio
+                    ? 'bg-badge p-2'
+                    : 'bg-accent p-1 text-[12px] lg:p-2 lg:text-[16px]',
+                )}
+              >
+                {t('product')}
+              </th>
+              <th className="w-[1px] bg-card-header-foreground p-0"></th>
+              <th
+                className={cn(
+                  'text-[16px]',
+                  isCalcio
+                    ? 'bg-badge p-2'
+                    : 'bg-accent p-1 text-[12px] lg:p-2 lg:text-[16px]',
+                )}
+              >
+                {t('staked_amount')}
+              </th>
+              <th className="w-[1px] bg-card-header-foreground p-0"></th>
+              <th
+                className={cn(
+                  'text-[16px]',
+                  isCalcio
+                    ? 'bg-badge p-2'
+                    : 'bg-accent p-1 text-[12px] lg:p-2 lg:text-[16px]',
+                )}
+              >
+                {t('won')}
+              </th>
+              <th className="w-[1px] bg-card-header-foreground p-0"></th>
+              <th
+                className={cn(
+                  'text-[16px]',
+                  isCalcio
+                    ? 'bg-badge p-2'
+                    : 'bg-accent p-1 text-[12px] lg:p-2 lg:text-[16px]',
+                )}
+              >
+                {t('ticket_status')}
+              </th>
+              <th className="w-[1px] bg-card-header-foreground p-0"></th>
+              <th
+                className={cn(
+                  'text-[16px]',
+                  isCalcio
+                    ? 'bg-badge p-2'
+                    : 'bg-accent p-1 text-[12px] lg:p-2 lg:text-[16px]',
+                )}
+              >
+                {t('payment')}
+              </th>
+              <th className="w-[1px] bg-card-header-foreground p-0"></th>
+              <th
+                className={cn(
+                  'text-[16px]',
+                  isCalcio
+                    ? 'bg-badge p-2'
+                    : 'bg-accent p-1 text-[12px] lg:p-2 lg:text-[16px]',
+                )}
+              >
+                {t('balance')}
+              </th>
+              <th className="w-[1px] bg-card-header-foreground p-0"></th>
+              <th
+                className={cn(
+                  'text-[16px]',
+                  isCalcio
+                    ? 'bg-badge p-2'
+                    : 'bg-accent p-1 text-[12px] lg:p-2 lg:text-[16px]',
+                )}
+              ></th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={9} className="p-8 text-center text-gray-400">
+                <td colSpan={19} className="p-8 text-center text-gray-400">
                   {t('loading')}...
                 </td>
               </tr>
             ) : items.length === 0 ? (
               <tr>
-                <td colSpan={9} className="p-8 text-center text-gray-400">
+                <td colSpan={19} className="p-8 text-center text-gray-400">
                   {t('no_tickets_found')}
                 </td>
               </tr>
@@ -426,36 +508,40 @@ export default function TicketListPageContent({
                     key={item.ticket_id}
                     className={cn(
                       'border-b text-center',
-                      isCalcio ? 'text-[16px]' : 'text-[12px] lg:text-[15px] uppercase ',
+                      isCalcio ? 'text-[16px]' : 'text-[12px] lg:text-[16px]',
                     )}
                   >
-                    <td className={tdClass()}>{item.ticket_id}</td>
-                    <td className={tdClass()}>
+                    <td className={cn(isCalcio ? 'p-2' : 'p-1 lg:p-2')}>
+                      {item.ticket_id}
+                    </td>
+                    <td className="w-[1px] bg-muted p-0"></td>
+                    <td className={cn(isCalcio ? 'p-2' : 'p-1 lg:p-2')}>
                       {format(date, 'dd/MM/yy')} - {format(date, 'HH:mm:ss')}
                     </td>
-                    <td className={tdClass()}>{item.terminal_id}</td>
-                    <td className={tdClass()}>{getDisciplineLabel(item.ticket_id)}</td>
-                    <td className={tdClass()}>
+                    <td className="w-[1px] bg-muted p-0"></td>
+                    <td className={cn(isCalcio ? 'p-2' : 'p-1 lg:p-2')}>
+                      {item.terminal_id}
+                    </td>
+                    <td className="w-[1px] bg-muted p-0"></td>
+                    <td className={cn(isCalcio ? 'p-2' : 'p-1 lg:p-2')}>
+                      {getDisciplineLabel(item.ticket_id)}
+                    </td>
+                    <td className="w-[1px] bg-muted p-0"></td>
+                    <td className={cn(isCalcio ? 'p-2' : 'p-1 lg:p-2')}>
                       {formatCurrency(item.amount, currencySymbol)}
                     </td>
-                    <td className={tdClass()}>
+                    <td className="w-[1px] bg-muted p-0"></td>
+                    <td className={cn(isCalcio ? 'p-2' : 'p-1 lg:p-2')}>
                       {formatCurrency(item.amount_won, currencySymbol)}
                     </td>
-                    <td className={tdClass()}>
+                    <td className="w-[1px] bg-muted p-0"></td>
+                    <td className={cn(isCalcio ? 'p-2' : 'p-1 lg:p-2')}>
                       <div
                         className={cn(
                           'flex items-center justify-center',
                           isCalcio ? 'gap-2' : 'space-x-1 lg:space-x-2',
                         )}
                       >
-                        <span
-                          className={cn(
-                            'font-medium',
-                            isCalcio ? 'text-[16px]' : '',
-                          )}
-                        >
-                          {t(statusInfo.translationKey)}
-                        </span>
                         <div
                           className={cn(
                             isCalcio
@@ -464,9 +550,24 @@ export default function TicketListPageContent({
                             statusInfo.colorClass,
                           )}
                         />
+                        <span
+                          className={cn(
+                            'font-medium',
+                            isCalcio ? 'text-[16px]' : '',
+                          )}
+                        >
+                          {t(statusInfo.translationKey)}
+                        </span>
                       </div>
                     </td>
-                    <td className={tdClass()}>
+                    <td className="w-[1px] bg-muted p-0"></td>
+                    <td className={cn(isCalcio ? 'p-2' : 'p-1 lg:p-2')}>
+                      {parseFloat(item.amount_won) > 0 && item.status === 4
+                        ? t('unpaid')
+                        : '-'}
+                    </td>
+                    <td className="w-[1px] bg-muted p-0"></td>
+                    <td className={cn(isCalcio ? 'p-2' : 'p-1 lg:p-2')}>
                       {(() => {
                         const saldo =
                           item.saldo !== undefined
@@ -489,7 +590,8 @@ export default function TicketListPageContent({
                         )
                       })()}
                     </td>
-                    <td className={tdClass()}>
+                    <td className="w-[1px] bg-muted p-0"></td>
+                    <td className={cn(isCalcio ? 'p-2' : 'p-1 lg:p-2')}>
                       <Button
                         onClick={() => handleDetailsClick(item)}
                         className={cn(
@@ -511,81 +613,133 @@ export default function TicketListPageContent({
       </div>
 
       {/* Footer */}
-      <div className={cn('relative', isCalcio ? 'grid grid-cols-9' : 'grid shrink-0 grid-cols-9 h-[121px]')}>
-        {/* Legend */}
-        <div className="col-span-2 bg-secondary flex items-end justify-start px-3 pb-3">
-          <div className="flex flex-row space-x-4 mb-[6px]">
-            <div className="flex items-center space-x-2">
-              <span className={cn('text-white', isCalcio ? 'text-[11px]' : 'text-[9px] lg:text-[12px]')}>
+      <div
+        className={cn(
+          'relative',
+          isCalcio ? 'grid grid-cols-9' : 'grid h-[121px] shrink-0 grid-cols-9',
+        )}
+      >
+        {/* Legend — bottom-left */}
+        <div className="col-span-2 flex items-end justify-start bg-secondary px-3 pb-3">
+          <div className="flex flex-row gap-3">
+            <div className="flex items-center gap-1.5">
+              <div className="h-4 w-4 rounded-sm bg-ticket-won" />
+              <span
+                className={cn(
+                  'text-white',
+                  isCalcio ? 'text-[11px]' : 'text-[9px] lg:text-[11px]',
+                )}
+              >
                 {t('collected')}
               </span>
-              <div className="h-4 w-4 rounded-md bg-ticket-won mb-0.5" />
             </div>
-            <div className="flex items-center space-x-2 mb-0.5">
-              <span className={cn('text-white', isCalcio ? 'text-[11px]' : 'text-[9px] lg:text-[12px]')}>
+            <div className="flex items-center gap-1.5">
+              <div
+                className="h-4 w-4 rounded-sm"
+                style={{ backgroundColor: '#f97316' }}
+              />
+              <span
+                className={cn(
+                  'text-white',
+                  isCalcio ? 'text-[11px]' : 'text-[9px] lg:text-[11px]',
+                )}
+              >
                 {t('not_collected')}
               </span>
-              <div className="h-4 w-4 rounded-md bg-notCollected" />
             </div>
-            <div className="flex items-center space-x-2 mb-0.5">
-              <span className={cn('text-white', isCalcio ? 'text-[11px]' : 'text-[9px] lg:text-[12px]')}>
+            <div className="flex items-center gap-1.5">
+              <div className="h-4 w-4 rounded-sm bg-ticket-lost" />
+              <span
+                className={cn(
+                  'text-white',
+                  isCalcio ? 'text-[11px]' : 'text-[9px] lg:text-[11px]',
+                )}
+              >
                 {t('cancelled')}
               </span>
-              <div className="h-4 w-4 rounded-md bg-ticket-lost" />
             </div>
           </div>
         </div>
 
-        <table className="col-span-7 border-collapse table-fixed w-full">
-          <colgroup>
-            <col style={{ width: '14.2857%' }} />
-            <col style={{ width: '14.2857%' }} />
-            <col style={{ width: '14.2857%' }} />
-            <col style={{ width: '14.2857%' }} />
-            <col style={{ width: '14.2857%' }} />
-            <col style={{ width: '14.2857%' }} />
-            <col style={{ width: '14.2857%' }} />
-          </colgroup>
+        <table className="col-span-7 w-full table-fixed border-collapse">
           <tbody>
-            {/* Riga totali — 7 celle separate con bordi individuali */}
-            <tr className="bg-secondary text-white h-[60px]">
-              {/* pos 1 → vuota, senza bordo */}
-              <td className="bg-secondary" />
-              {/* pos 2 → Totali */}
-              <td style={totalCellStyle} className={totalCellClass('font-bold')}>
+            {/* Riga superiore: Totali + valori */}
+            <tr className="h-[60px] border-b border-l border-secondary bg-secondary text-lg font-medium text-white">
+              <td
+                className={cn(
+                  'w-[22%] border-r border-t border-secondary bg-secondary text-center align-middle font-bold',
+                  isCalcio
+                    ? 'px-3 py-2'
+                    : 'px-1 py-1 text-[10px] lg:px-3 lg:text-md',
+                )}
+              >
                 {t('totals')}
               </td>
-              {/* pos 3 → Importo giocato */}
-              <td style={totalCellStyle} className={totalCellClass()}>
+              <td
+                className={cn(
+                  'w-[26%] border-r border-t border-secondary bg-secondary text-center align-middle',
+                  isCalcio
+                    ? 'px-3 py-2'
+                    : 'px-1 py-1 text-[10px] lg:px-3 lg:text-md',
+                )}
+              >
                 {formatCurrency(info?.grandtotal?.in ?? 0, currencySymbol)}
               </td>
-              {/* pos 4 → Vincita */}
-              <td style={totalCellStyle} className={totalCellClass()}>
-                {formatCurrency(info?.grandtotal?.out ?? '0.00', currencySymbol)}
+              <td
+                className={cn(
+                  'w-[26%] border-r border-t border-secondary bg-secondary text-center align-middle',
+                  isCalcio
+                    ? 'px-3 py-2'
+                    : 'px-1 py-1 text-[10px] lg:px-3 lg:text-md',
+                )}
+              >
+                {formatCurrency(
+                  info?.grandtotal?.out ?? '0.00',
+                  currencySymbol,
+                )}
               </td>
-              {/* pos 5 → vuota (Stato) */}
-              <td style={totalCellStyle} className={totalCellClass()} />
-              {/* pos 6 → Saldo */}
-              <td style={totalCellStyle} className={totalCellClass()}>
+              <td
+                className={cn(
+                  'w-[26%] border-t border-secondary bg-secondary text-center align-middle',
+                  isCalcio
+                    ? 'px-3 py-2'
+                    : 'px-1 py-1 text-[10px] lg:px-3 lg:text-md',
+                )}
+              >
                 {formatCurrency(
                   parseFloat(String(info?.grandtotal?.out ?? '0')) -
                     (info?.grandtotal?.in ?? 0),
                   currencySymbol,
                 )}
               </td>
-              {/* pos 7 → vuota (Details) */}
-              <td style={totalCellStyle} className={totalCellClass()} />
             </tr>
 
-            {/* Riga vuota — senza bordi */}
-            <tr className="bg-secondary h-[61px]">
-              <td colSpan={7} className="bg-secondary" />
+            {/* Riga inferiore vuota per altezza */}
+            <tr className="bg-secondary">
+              <td colSpan={4} className="h-[61px] bg-secondary p-0" />
             </tr>
           </tbody>
         </table>
 
         {/* Paginazione assoluta in basso a destra */}
-        <div className="absolute bottom-2 right-0 flex items-center gap-2 px-2 py-1 bg-secondary">
+        <div className="absolute bottom-1.5 right-0 flex items-center gap-2 bg-secondary px-2 py-1">
+          <Select value={pageSize} onValueChange={setPageSize}>
+            <SelectTrigger
+              className={cn(
+                'bg-background text-foreground',
+                isCalcio
+                  ? 'h-8 w-[80px] text-[12px]'
+                  : 'h-7 w-[55px] text-[10px] lg:h-9 lg:w-[80px] lg:text-[12px]',
+              )}
+            >
+              <SelectValue placeholder="Dim." />
+            </SelectTrigger>
+            <SelectContent className="bg-white p-0">
+              <SelectItem value="15">15</SelectItem>
+              <SelectItem value="50">50</SelectItem>
+              <SelectItem value="100">100</SelectItem>
+            </SelectContent>
+          </Select>
           <Pagination className="w-auto">
             <PaginationContent>
               <PaginationItem>
@@ -631,23 +785,6 @@ export default function TicketListPageContent({
               </PaginationItem>
             </PaginationContent>
           </Pagination>
-          <Select value={pageSize} onValueChange={setPageSize}>
-            <SelectTrigger
-              className={cn(
-                'bg-background text-foreground',
-                isCalcio
-                  ? 'h-8 w-[80px] text-[12px]'
-                  : 'h-7 w-[55px] text-[10px] lg:h-9 lg:w-[80px] lg:text-[12px]',
-              )}
-            >
-              <SelectValue placeholder="Dim." />
-            </SelectTrigger>
-            <SelectContent className="bg-white p-0">
-              <SelectItem value="15">15</SelectItem>
-              <SelectItem value="50">50</SelectItem>
-              <SelectItem value="100">100</SelectItem>
-            </SelectContent>
-          </Select>
         </div>
       </div>
 
