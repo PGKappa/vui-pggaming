@@ -29,10 +29,12 @@ import {
   formatCurrency,
 } from '@/retail-lib/use-ticket-list'
 import { cn } from '@/retail-lib/utils'
+import { ChevronDown } from 'lucide-react'
 import { format } from 'date-fns'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import TicketCheckDialog from '@/retail-components/ticket-check-dialog'
+import { type DateRange } from 'react-day-picker'
 
 interface TicketListPageContentProps {
   returnPath: string
@@ -48,6 +50,9 @@ export default function TicketListPageContent({
   const [selectedTicketCandidates, setSelectedTicketCandidates] = useState<
     Array<string | number>
   >([])
+  const [selectedTerminalId, setSelectedTerminalId] = useState<string | null>(
+    null,
+  )
 
   const {
     terminal,
@@ -56,6 +61,8 @@ export default function TicketListPageContent({
     setStatus,
     payment,
     setPayment,
+    discipline,
+    setDiscipline,
     dateFrom,
     setDateFrom,
     dateTo,
@@ -93,7 +100,10 @@ export default function TicketListPageContent({
     return Array.from(new Set(candidates))
   }
 
-  const handleDetailsClick = (item: { ticket_id: number }) => {
+  const handleDetailsClick = (item: {
+    ticket_id: number
+    terminal_id?: string
+  }) => {
     const candidates = buildTicketCandidates(item)
     const primary = candidates.find((v) => typeof v === 'number')
     const fallbackNumber = Number(item.ticket_id)
@@ -105,6 +115,7 @@ export default function TicketListPageContent({
           ? fallbackNumber
           : null,
     )
+    setSelectedTerminalId(item.terminal_id ?? null)
     setDialogOpen(true)
   }
 
@@ -119,6 +130,18 @@ export default function TicketListPageContent({
       setStatus(value)
       setPayment('all')
     }
+  }
+
+  const handleDateRangeSelect = (range: DateRange | undefined) => {
+    setDateFrom(range?.from)
+    setDateTo(range?.to)
+  }
+
+  const dateRangeLabel = () => {
+    if (dateFrom && dateTo)
+      return `${format(dateFrom, 'dd/MM/yy')} - ${format(dateTo, 'dd/MM/yy')}`
+    if (dateFrom) return `${format(dateFrom, 'dd/MM/yy')} - ...`
+    return '-'
   }
 
   const statusSelectValue =
@@ -140,38 +163,22 @@ export default function TicketListPageContent({
       'h-7 w-7 bg-transparent p-0 opacity-70 hover:opacity-100 border border-gray-300 rounded',
   }
 
-  const dateFromButton = (extraClass: string) => (
+  const dateRangeButton = (extraClass: string) => (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="ticketFilter" className={extraClass}>
-          {dateFrom ? format(dateFrom, 'dd/MM/yy') : '-'}
+        <Button
+          variant="ticketFilter"
+          className={cn(extraClass, 'justify-between px-3')}
+        >
+          <span>{dateFrom ? dateRangeLabel() : t('date', 'DATA')}</span>
+          <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto bg-white">
         <Calendar
-          mode="single"
-          selected={dateFrom}
-          onSelect={setDateFrom}
-          initialFocus
-          showOutsideDays={false}
-          classNames={calendarClassNames}
-        />
-      </PopoverContent>
-    </Popover>
-  )
-
-  const dateToButton = (extraClass: string) => (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button variant="ticketFilter" className={extraClass}>
-          {dateTo ? format(dateTo, 'dd/MM/yy') : '-'}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-auto bg-white">
-        <Calendar
-          mode="single"
-          selected={dateTo}
-          onSelect={setDateTo}
+          mode="range"
+          selected={{ from: dateFrom, to: dateTo }}
+          onSelect={handleDateRangeSelect}
           initialFocus
           showOutsideDays={false}
           classNames={calendarClassNames}
@@ -188,7 +195,7 @@ export default function TicketListPageContent({
       .map((discipline) => {
         if (discipline === 'dogs') return t('dog_racing')
         if (discipline === 'horses') return t('horse_racing')
-        if (discipline === 'soccer') return t('soccer')
+        if (discipline === 'soccer') return t('football')
         return discipline
       })
       .join(' / ')
@@ -210,17 +217,14 @@ export default function TicketListPageContent({
       extra,
     )
 
-  // Stile bordo comune per la griglia totali
   const totalBorder = '0.5px solid rgba(255,255,255,0.4)'
-
-  const totalCellStyle = {
-    border: totalBorder,
-  }
-
+  const totalCellStyle = { border: totalBorder }
   const totalCellClass = (extra?: string) =>
     cn(
       'bg-secondary text-center align-middle',
-      isCalcio ? 'px-3 py-2 text-[14px]' : 'px-1 py-1 text-[9px] lg:px-3 lg:text-[17px]',
+      isCalcio
+        ? 'px-3 py-2 text-[14px]'
+        : 'px-1 py-1 text-[9px] lg:px-3 lg:text-[17px]',
       extra,
     )
 
@@ -241,7 +245,7 @@ export default function TicketListPageContent({
         <h2
           className={cn(
             'font-bold uppercase',
-            isCalcio ? 'text-[20px]' : 'text-[12px] lg:text-[16px]',
+            isCalcio ? 'text-[20px]' : 'text-[12px] lg:text-[16px] relative bottom-[2px]',
           )}
         >
           {t('ticket_list')}
@@ -252,15 +256,21 @@ export default function TicketListPageContent({
       {isCalcio ? (
         <div className="flex flex-col items-center gap-4 px-4 pb-8 pt-10">
           <div className="flex items-center gap-8">
+            {/* Data - calcio */}
             <div className="mr-20 flex flex-row items-center gap-2 bg-badge text-background">
-              <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
-                {t('terminal')}
-              </span>
-              <Select value={terminal} onValueChange={setTerminal}>
-                <SelectTrigger className="w-[100px] bg-background text-[12px] text-foreground">
+              {dateRangeButton('h-[38px] w-[200px] justify-center text-[15px]')}
+            </div>
+
+            {/* Terminale - calcio */}
+            <div className="mr-20 flex flex-row items-center gap-2 bg-badge text-background">
+              <Select
+                value={terminal === 'all' ? '' : terminal}
+                onValueChange={(v) => setTerminal(v || 'all')}
+              >
+                <SelectTrigger className="h-[38px] w-[140px] bg-background text-[15px] text-foreground">
                   <SelectValue placeholder={t('terminal')} />
                 </SelectTrigger>
-                <SelectContent className="bg-white p-0">
+                <SelectContent className="bg-white p-0 text-[13px]">
                   <SelectItem value="all">{t('all')}</SelectItem>
                   {availableTerminals.map((tid) => (
                     <SelectItem key={tid} value={tid}>
@@ -271,15 +281,16 @@ export default function TicketListPageContent({
               </Select>
             </div>
 
+            {/* Stato - calcio */}
             <div className="mr-20 flex flex-row items-center gap-2 bg-badge text-background">
-              <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
-                {t('status')}
-              </span>
-              <Select value={statusSelectValue} onValueChange={handleStatusChange}>
-                <SelectTrigger className="w-[100px] bg-background text-[12px] text-foreground">
+              <Select
+                value={statusSelectValue === 'all' ? '' : statusSelectValue}
+                onValueChange={handleStatusChange}
+              >
+                <SelectTrigger className="h-[38px] w-[140px] bg-background text-[15px] text-foreground">
                   <SelectValue placeholder={t('status')} />
                 </SelectTrigger>
-                <SelectContent className="bg-white p-0">
+                <SelectContent className="bg-white p-0 text-[13px]">
                   <SelectItem value="all">{t('all')}</SelectItem>
                   <SelectItem value="active">{t('active')}</SelectItem>
                   <SelectItem value="won">{t('won')}</SelectItem>
@@ -291,18 +302,22 @@ export default function TicketListPageContent({
               </Select>
             </div>
 
+            {/* Disciplina - calcio */}
             <div className="mr-20 flex flex-row items-center gap-2 bg-badge text-background">
-              <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
-                {t('from')}
-              </span>
-              {dateFromButton('w-[120px] justify-center text-[12px]')}
-            </div>
-
-            <div className="mr-20 flex flex-row items-center gap-2 bg-badge text-background">
-              <span className="whitespace-nowrap pl-2 text-[12px] font-semibold">
-                {t('to')}
-              </span>
-              {dateToButton('w-[120px] justify-center text-[12px]')}
+              <Select
+                value={discipline === 'all' ? '' : discipline}
+                onValueChange={(v) => setDiscipline(v || 'all')}
+              >
+                <SelectTrigger className="h-[38px] w-[140px] bg-background text-[15px] text-foreground">
+                  <SelectValue placeholder={t('discipline')} />
+                </SelectTrigger>
+                <SelectContent className="bg-white p-0 text-[13px]">
+                  <SelectItem value="all">{t('all')}</SelectItem>
+                  <SelectItem value="dogs">{t('dog_racing')}</SelectItem>
+                  <SelectItem value="horses">{t('horse_racing')}</SelectItem>
+                  <SelectItem value="soccer">{t('football')}</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <Button
@@ -315,34 +330,42 @@ export default function TicketListPageContent({
         </div>
       ) : (
         <div className="flex shrink-0 justify-center bg-secondary pb-3 lg:pb-5">
-          <div className="relative top-2 flex flex-wrap items-center space-x-5 lg:top-2.5 lg:space-x-10">
+          <div className="relative  left-[63px] flex flex-wrap items-center space-x-5  lg:bottom-[3px] lg:space-x-4 uppercase">
+            {/* Data - standard */}
             <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
-              <span className="whitespace-nowrap pl-1 text-[10px] font-semibold lg:pl-2 lg:text-[12px]">
-                {t('from')}
-              </span>
-              {dateFromButton(
-                'h-7 w-[80px] justify-center text-[10px] lg:h-9 lg:w-[210px] lg:text-[12px]',
+              {dateRangeButton(
+                'h-[38px] w-[140px] justify-center text-[15px] lg:h-[46px] lg:w-[210px] uppercase',
               )}
             </div>
 
+            {/* Disciplina - standard */}
             <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
-              <span className="whitespace-nowrap pl-1 text-[10px] font-semibold lg:pl-2 lg:text-[12px]">
-                {t('to')}
-              </span>
-              {dateToButton(
-                'h-7 w-[80px] justify-center text-[10px] lg:h-9 lg:w-[210px] lg:text-[12px]',
-              )}
+              <Select
+                value={discipline === 'all' ? '' : discipline}
+                onValueChange={(v) => setDiscipline(v || 'all')}
+              >
+                <SelectTrigger className="h-[38px] w-[75px] bg-background text-[15px] text-foreground lg:h-[46px] lg:w-[210px] uppercase">
+                  <SelectValue placeholder={t('discipline')} />
+                </SelectTrigger>
+                <SelectContent className="bg-white p-0 text-[13px]">
+                  <SelectItem value="all">{t('all')}</SelectItem>
+                  <SelectItem value="dogs">{t('dog_racing')}</SelectItem>
+                  <SelectItem value="horses">{t('horse_racing')}</SelectItem>
+                  <SelectItem value="soccer">{t('football')}</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
+            {/* Terminale - standard */}
             <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
-              <span className="whitespace-nowrap pl-1 text-[10px] font-semibold lg:pl-2 lg:text-[12px]">
-                {t('terminal')}
-              </span>
-              <Select value={terminal} onValueChange={setTerminal}>
-                <SelectTrigger className="h-7 w-[75px] bg-background text-[10px] text-foreground lg:h-9 lg:w-[210px] lg:text-[12px]">
+              <Select
+                value={terminal === 'all' ? '' : terminal}
+                onValueChange={(v) => setTerminal(v || 'all')}
+              >
+                <SelectTrigger className="h-[38px] w-[75px] bg-background text-[15px] text-foreground lg:h-[46px] lg:w-[210px] uppercase">
                   <SelectValue placeholder={t('terminal')} />
                 </SelectTrigger>
-                <SelectContent className="bg-white p-0">
+                <SelectContent className="bg-white p-0 text-[13px]">
                   <SelectItem value="all">{t('all')}</SelectItem>
                   {availableTerminals.map((tid) => (
                     <SelectItem key={tid} value={tid}>
@@ -353,15 +376,16 @@ export default function TicketListPageContent({
               </Select>
             </div>
 
+            {/* Stato - standard */}
             <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
-              <span className="whitespace-nowrap pl-1 text-[10px] font-semibold lg:pl-2 lg:text-[12px]">
-                {t('status')}
-              </span>
-              <Select value={statusSelectValue} onValueChange={handleStatusChange}>
-                <SelectTrigger className="h-7 w-[70px] bg-background text-[10px] text-foreground lg:h-9 lg:w-[210px] lg:text-[12px]">
+              <Select
+                value={statusSelectValue === 'all' ? '' : statusSelectValue}
+                onValueChange={handleStatusChange}
+              >
+                <SelectTrigger className="h-[38px] w-[70px] bg-background text-[15px] text-foreground lg:h-[46px] lg:w-[210px] uppercase">
                   <SelectValue placeholder={t('status')} />
                 </SelectTrigger>
-                <SelectContent className="bg-white p-0">
+                <SelectContent className="bg-white p-0 text-[13px]">
                   <SelectItem value="all">{t('all')}</SelectItem>
                   <SelectItem value="active">{t('active')}</SelectItem>
                   <SelectItem value="won">{t('won')}</SelectItem>
@@ -372,10 +396,9 @@ export default function TicketListPageContent({
                 </SelectContent>
               </Select>
             </div>
-
             <Button
               onClick={fetchTickets}
-              className="text-bold h-7 w-[60px] bg-tertiary text-[10px] text-tertiary-foreground lg:h-9 lg:w-[80px] lg:text-[14px]"
+              className="text-bold h-7 w-[60px] bg-tertiary text-[10px] uppercase text-tertiary-foreground lg:h-[46px] lg:w-[106px] lg:text-[15px] relative left-2"
             >
               {t('reload')}
             </Button>
@@ -385,7 +408,12 @@ export default function TicketListPageContent({
 
       {/* Table Content */}
       <div className="flex-1 overflow-auto bg-white text-black">
-        <table className={cn('w-full border-collapse', isCalcio ? 'text-[12px]' : '')}>
+        <table
+          className={cn(
+            'w-full border-collapse',
+            isCalcio ? 'text-[12px]' : '',
+          )}
+        >
           <thead
             className={cn(
               'bg-secondary text-white',
@@ -396,7 +424,7 @@ export default function TicketListPageContent({
               <th className={thClass('w-[10%]')}>{t('ticket_id')}</th>
               <th className={thClass('w-[10%]')}>{t('date_n_time')}</th>
               <th className={thClass('w-[10%]')}>{t('terminal')}</th>
-              <th className={thClass('w-[13%]')}>{t('product')}</th>
+              <th className={thClass('w-[10%]')}>{t('product')}</th>
               <th className={thClass('w-[10%]')}>{t('staked_amount')}</th>
               <th className={thClass('w-[10%]')}>{t('won')}</th>
               <th className={thClass('w-[10%]')}>{t('ticket_status')}</th>
@@ -426,7 +454,7 @@ export default function TicketListPageContent({
                     key={item.ticket_id}
                     className={cn(
                       'border-b text-center',
-                      isCalcio ? 'text-[16px]' : 'text-[12px] lg:text-[15px] uppercase ',
+                      isCalcio ? 'text-[16px]' : 'text-[12px] lg:text-[15px]',
                     )}
                   >
                     <td className={tdClass()}>{item.ticket_id}</td>
@@ -434,7 +462,9 @@ export default function TicketListPageContent({
                       {format(date, 'dd/MM/yy')} - {format(date, 'HH:mm:ss')}
                     </td>
                     <td className={tdClass()}>{item.terminal_id}</td>
-                    <td className={tdClass()}>{getDisciplineLabel(item.ticket_id)}</td>
+                    <td className={tdClass()}>
+                      {getDisciplineLabel(item.ticket_id)}
+                    </td>
                     <td className={tdClass()}>
                       {formatCurrency(item.amount, currencySymbol)}
                     </td>
@@ -496,7 +526,7 @@ export default function TicketListPageContent({
                           'bg-tertiary text-tertiary-foreground',
                           isCalcio
                             ? 'h-8 w-20 text-[16px]'
-                            : 'h-6 w-14 text-[10px] lg:h-8 lg:w-20 lg:text-[16px]',
+                            : 'h-6 w-14 text-[10px] uppercase lg:h-8 lg:w-[106px] lg:text-[15px]',
                         )}
                       >
                         {t('details')}
@@ -511,61 +541,88 @@ export default function TicketListPageContent({
       </div>
 
       {/* Footer */}
-      <div className={cn('relative', isCalcio ? 'grid grid-cols-9' : 'grid shrink-0 grid-cols-9 h-[121px]')}>
+      <div
+        className={cn(
+          'relative',
+          isCalcio ? 'grid grid-cols-9' : 'grid h-[121px] shrink-0 grid-cols-9',
+        )}
+      >
         {/* Legend */}
-        <div className="col-span-2 bg-secondary flex items-end justify-start px-3 pb-3">
-          <div className="flex flex-row space-x-4 mb-[6px]">
+        <div className="col-span-2 flex items-end justify-start bg-secondary px-3 pb-3">
+          <div className="mb-[68px] ml-[11px] flex flex-row space-x-3">
             <div className="flex items-center space-x-2">
-              <span className={cn('text-white', isCalcio ? 'text-[11px]' : 'text-[9px] lg:text-[12px]')}>
+              <span
+                className={cn(
+                  'text-white',
+                  isCalcio ? 'text-[11px]' : 'text-[9px] lg:text-[12px] uppercase',
+                )}
+              >
                 {t('collected')}
               </span>
-              <div className="h-4 w-4 rounded-md bg-ticket-won mb-0.5" />
+              <div className="mb-0.5 h-4 w-4 rounded-sm bg-ticket-won" />
             </div>
-            <div className="flex items-center space-x-2 mb-0.5">
-              <span className={cn('text-white', isCalcio ? 'text-[11px]' : 'text-[9px] lg:text-[12px]')}>
+            <div className="mb-0.5 flex items-center space-x-2">
+              <span
+                className={cn(
+                  'text-white',
+                  isCalcio ? 'text-[11px]' : 'text-[9px] lg:text-[12px] uppercase',
+                )}
+              >
                 {t('not_collected')}
               </span>
-              <div className="h-4 w-4 rounded-md bg-notCollected" />
+              <div className="h-4 w-4 rounded-sm bg-notCollected" />
             </div>
-            <div className="flex items-center space-x-2 mb-0.5">
-              <span className={cn('text-white', isCalcio ? 'text-[11px]' : 'text-[9px] lg:text-[12px]')}>
+            <div className="mb-0.5 flex items-center space-x-2">
+              <span
+                className={cn(
+                  'text-white',
+                  isCalcio ? 'text-[11px]' : 'text-[9px] lg:text-[12px] uppercase',
+                )}
+              >
                 {t('cancelled')}
               </span>
-              <div className="h-4 w-4 rounded-md bg-ticket-lost" />
+              <div className="h-4 w-4 rounded-sm bg-ticket-lost" />
             </div>
           </div>
         </div>
 
-        <table className="col-span-7 border-collapse table-fixed w-full">
+        {/* Footer totals table — colgroup mirrors columns 3-9 of the main table */}
+        <table className="col-span-7 w-full table-fixed border-collapse">
           <colgroup>
-            <col style={{ width: '14.2857%' }} />
-            <col style={{ width: '14.2857%' }} />
-            <col style={{ width: '14.2857%' }} />
-            <col style={{ width: '14.2857%' }} />
-            <col style={{ width: '14.2857%' }} />
-            <col style={{ width: '14.2857%' }} />
-            <col style={{ width: '14.2857%' }} />
+            {/* terminal  — col 3 */}
+            <col style={{ width: '11.11%' }} />
+            {/* product   — col 4 */}
+            <col style={{ width: '11.11%' }} />
+            {/* amount    — col 5 */}
+            <col style={{ width: '11.11%' }} />
+            {/* won       — col 6 */}
+            <col style={{ width: '11.11%' }} />
+            {/* status    — col 7 */}
+            <col style={{ width: '11.11%' }} />
+            {/* balance   — col 8 */}
+            <col style={{ width: '11.11%' }} />
+            {/* button    — col 9 */}
+            <col style={{ width: '11.12%' }} />
           </colgroup>
           <tbody>
-            {/* Riga totali — 7 celle separate con bordi individuali */}
-            <tr className="bg-secondary text-white h-[60px]">
-              {/* pos 1 → vuota, senza bordo */}
+            <tr className="h-[60px] bg-secondary text-white uppercase">
               <td className="bg-secondary" />
-              {/* pos 2 → Totali */}
-              <td style={totalCellStyle} className={totalCellClass('font-bold')}>
+              <td
+                style={totalCellStyle}
+                className={totalCellClass('font-bold')}
+              >
                 {t('totals')}
               </td>
-              {/* pos 3 → Importo giocato */}
               <td style={totalCellStyle} className={totalCellClass()}>
                 {formatCurrency(info?.grandtotal?.in ?? 0, currencySymbol)}
               </td>
-              {/* pos 4 → Vincita */}
               <td style={totalCellStyle} className={totalCellClass()}>
-                {formatCurrency(info?.grandtotal?.out ?? '0.00', currencySymbol)}
+                {formatCurrency(
+                  info?.grandtotal?.out ?? '0.00',
+                  currencySymbol,
+                )}
               </td>
-              {/* pos 5 → vuota (Stato) */}
               <td style={totalCellStyle} className={totalCellClass()} />
-              {/* pos 6 → Saldo */}
               <td style={totalCellStyle} className={totalCellClass()}>
                 {formatCurrency(
                   parseFloat(String(info?.grandtotal?.out ?? '0')) -
@@ -573,19 +630,16 @@ export default function TicketListPageContent({
                   currencySymbol,
                 )}
               </td>
-              {/* pos 7 → vuota (Details) */}
               <td style={totalCellStyle} className={totalCellClass()} />
             </tr>
-
-            {/* Riga vuota — senza bordi */}
-            <tr className="bg-secondary h-[61px]">
+            <tr className="h-[61px] bg-secondary">
               <td colSpan={7} className="bg-secondary" />
             </tr>
           </tbody>
         </table>
 
-        {/* Paginazione assoluta in basso a destra */}
-        <div className="absolute bottom-2 right-0 flex items-center gap-2 px-2 py-1 bg-secondary">
+        {/* Paginazione */}
+        <div className="absolute bottom-2 right-4 flex items-center space-x-3 bg-secondary px-2 py-1">
           <Pagination className="w-auto">
             <PaginationContent>
               <PaginationItem>
@@ -656,6 +710,7 @@ export default function TicketListPageContent({
         onOpenChange={setDialogOpen}
         ticketId={selectedTicketId}
         ticketCandidates={selectedTicketCandidates}
+        terminalId={selectedTerminalId ?? undefined}
       />
     </div>
   )
