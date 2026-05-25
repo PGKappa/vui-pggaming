@@ -67,7 +67,7 @@ export default function TicketCheckPageContent(
         </p>
 
         <Input
-          className="mt-6 h-10 w-[320px] bg-white text-center text-[16px] font-bold text-foreground lg:mt-10 lg:h-12 lg:w-[480px] lg:text-[20px] relative bottom-[110px] rounded-md"
+          className="mt-6 h-10 w-[320px] bg-white text-center text-[16px] font-bold text-foreground lg:mt-10 lg:h-10 lg:w-[370px] lg:text-[20px] relative bottom-[110px] rounded-md"
           readOnly
           value={code}
         />
