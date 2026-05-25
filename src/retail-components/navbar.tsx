@@ -73,8 +73,15 @@ function NavbarContent() {
 
   const closeTicketPageAndThen = (openSearch = false, openInfo = false) => {
     setIsInfoOpen(false)
-    if (openSearch) setSearchEventResults(eventResults)
-    if (openInfo) setIsInfoOpen(true)
+    if (isOnTicketPage) {
+      const params = new URLSearchParams(searchParams.toString())
+      if (openSearch) params.set('openSearch', 'true')
+      if (openInfo) params.set('openInfo', 'true')
+      router.push(`${getDisciplineBasePath(pathname)}?${params.toString()}`)
+    } else {
+      if (openSearch) setSearchEventResults(eventResults)
+      if (openInfo) setIsInfoOpen(true)
+    }
   }
 
   const getInfoLink = () => {

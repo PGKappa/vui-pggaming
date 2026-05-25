@@ -113,6 +113,7 @@ export function useTicketList() {
   const [terminal, setTerminal] = useState('all')
   const [status, setStatus] = useState('all')
   const [payment, setPayment] = useState('all')
+  const [discipline, setDiscipline] = useState('all')
   const [dateFrom, setDateFrom] = useState<Date | undefined>(new Date())
   const [dateTo, setDateTo] = useState<Date | undefined>(new Date())
   const [pageSize, setPageSize] = useState('15')
@@ -132,8 +133,16 @@ export function useTicketList() {
     status,
     payment,
     terminal,
+    discipline,
   })
-  filtersRef.current = { dateFrom, dateTo, status, payment, terminal }
+  filtersRef.current = {
+    dateFrom,
+    dateTo,
+    status,
+    payment,
+    terminal,
+    discipline,
+  }
 
   const [appliedFilters, setAppliedFilters] = useState({
     dateFrom,
@@ -141,6 +150,7 @@ export function useTicketList() {
     status,
     payment,
     terminal,
+    discipline,
   })
 
   const fetchDisciplines = useCallback(
@@ -212,6 +222,7 @@ export function useTicketList() {
       status: s,
       payment: p,
       terminal: term,
+      discipline: disc,
     } = filtersRef.current
 
     setAppliedFilters({
@@ -220,6 +231,7 @@ export function useTicketList() {
       status: s,
       payment: p,
       terminal: term,
+      discipline: disc,
     })
     setCurrentPage(1)
     setLoading(true)
@@ -303,12 +315,15 @@ export function useTicketList() {
     }
   }, [fetchTickets])
 
-  const filteredItems =
-    appliedFilters.terminal === 'all'
-      ? allItems
-      : allItems.filter(
-          (i) => String(i.terminal_id) === appliedFilters.terminal,
-        )
+  const filteredItems = allItems.filter((i) => {
+    const terminalMatch =
+      appliedFilters.terminal === 'all' ||
+      String(i.terminal_id) === appliedFilters.terminal
+    const disciplineMatch =
+      appliedFilters.discipline === 'all' ||
+      (disciplineMap[i.ticket_id]?.includes(appliedFilters.discipline) ?? true)
+    return terminalMatch && disciplineMatch
+  })
 
   const perPage = parseInt(pageSize)
   const totalPages = Math.max(1, Math.ceil(filteredItems.length / perPage))
@@ -329,6 +344,8 @@ export function useTicketList() {
     setStatus,
     payment,
     setPayment,
+    discipline,
+    setDiscipline,
     dateFrom,
     setDateFrom,
     dateTo,

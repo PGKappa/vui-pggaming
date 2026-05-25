@@ -252,6 +252,8 @@
   "min_stake_error": "Минимальная ставка {{min}}",
   "min_bet_error": "Минимальная сумма билета {{min}}",
   "max_win_error": "Максимальный выигрыш {{max}}",
+  "min_win": "Мин. выигрыш",
+  "max_win": "Макс. выигрыш",
   "no_tickets_found": "Билеты не найдены",
   "ticket": "Билет",
   "ticket_not_found": "Билет не найден",
