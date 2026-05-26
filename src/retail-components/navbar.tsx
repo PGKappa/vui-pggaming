@@ -24,6 +24,10 @@ function NavbarContent() {
     pathname.includes('/ticket-list') || pathname.includes('/ticket-check')
 
   useEffect(() => {
+    setIsInfoOpen(false)
+  }, [pathname])
+
+  useEffect(() => {
     if (!isOnTicketPage) {
       let needsReplace = false
       const params = new URLSearchParams(searchParams.toString())
@@ -174,7 +178,9 @@ function NavbarContent() {
               href={buildHref(
                 `${getDisciplineBasePath(pathname)}/ticket-check`,
               )}
-              onClick={() => setIsInfoOpen(false)}
+              onClick={() => {
+                if (pathname.includes('/ticket-check')) setIsInfoOpen(false)
+              }}
               className={cn(
                 buttonVariants({ variant: 'ticketButton', size: 'lg' }),
                 'h-12 w-[168px] p-[18px] pb-5 hover:bg-[#46474d]',
@@ -189,7 +195,9 @@ function NavbarContent() {
           {isOperator && (
             <Link
               href={buildHref(`${getDisciplineBasePath(pathname)}/ticket-list`)}
-              onClick={() => setIsInfoOpen(false)}
+              onClick={() => {
+                if (pathname.includes('/ticket-list')) setIsInfoOpen(false)
+              }}
               className={cn(
                 buttonVariants({ variant: 'ticketButton', size: 'lg' }),
                 'h-12 w-[168px] p-[18px] pb-5 hover:bg-[#46474d]',
