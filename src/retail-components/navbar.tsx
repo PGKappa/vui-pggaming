@@ -32,6 +32,10 @@ function NavbarContent() {
     pathname.includes('/ticket-list') || pathname.includes('/ticket-check')
 
   useEffect(() => {
+    setIsInfoOpen(false)
+  }, [pathname])
+
+  useEffect(() => {
     if (!isOnTicketPage) {
       // Flag impostato da closeTicketPageAndThen quando naviga da una pagina ticket.
       // Evitiamo il param openSearch nell'URL per non dover fare router.replace()
@@ -99,25 +103,16 @@ function NavbarContent() {
     }
 
     setIsInfoOpen(false)
-    if (isOnTicketPage) {
-      // Usa il flag a livello di modulo invece del param URL openSearch=true.
-      // Questo evita il pattern push(openSearch=true) + replace() che in
-      // Next.js 15 App Router corrompe la history cancellando l'entry della
-      // pagina ticket, impedendo di tornare indietro correttamente.
-      if (openSearch) pendingOpenSearch = true
+    if (isOnTicketPage && (openSearch || openInfo)) {
+      // Only navigate programmatically for Button elements (search/info)
+      // that have no href — plain Link clicks let their own href handle it
       const params = new URLSearchParams(searchParams.toString())
-      const qs = params.toString()
-      router.push(`${getDisciplineBasePath(pathname)}${qs ? `?${qs}` : ''}`)
-    } else {
-      if (openSearch) {
-        setSearchEventResults(eventResults)
-      } else {
-        // Chiude la ricerca risultati se aperta. Necessario per il caso in cui
-        // si clicca il tab della stessa disciplina già attiva (stesso URL → nessuna
-        // navigazione → EventsContextProvider non si rimonta → lo stato non si azzera
-        // automaticamente). Per navigazioni verso altre pagine è ridondante ma inoffensivo.
-        setSearchEventResults(undefined)
-      }
+      if (openSearch) params.set('openSearch', 'true')
+      if (openInfo) params.set('openInfo', 'true')
+      router.push(`${getDisciplineBasePath(pathname)}?${params.toString()}`)
+    } else if (!isOnTicketPage) {
+      if (openSearch) setSearchEventResults(eventResults)
+      if (openInfo) setIsInfoOpen(true)
     }
   }
 
@@ -223,9 +218,6 @@ function NavbarContent() {
                 `${getDisciplineBasePath(pathname)}/ticket-check`,
               )}
               onClick={() => {
-                // Se siamo già su ticket-check non ci sarà navigazione → nessun remount →
-                // dobbiamo chiudere l'overlay manualmente. Negli altri casi la navigazione
-                // causa il remount che resetta isInfoOpen automaticamente (no flash).
                 if (pathname.includes('/ticket-check')) setIsInfoOpen(false)
               }}
               className={cn(
@@ -243,7 +235,6 @@ function NavbarContent() {
             <Link
               href={buildHref(`${getDisciplineBasePath(pathname)}/ticket-list`)}
               onClick={() => {
-                // Stessa logica: chiude overlay solo se già su ticket-list (no navigazione).
                 if (pathname.includes('/ticket-list')) setIsInfoOpen(false)
               }}
               className={cn(
@@ -272,13 +263,7 @@ function NavbarContent() {
             className="h-12 w-12 text-[18px] text-searchResultText hover:bg-[#46474d]"
             variant="ticketButton"
             size="lg"
-            onClick={() => {
-              if (isOnTicketPage) {
-                closeTicketPageAndThen(false, true)
-              } else {
-                setIsInfoOpen((prev) => !prev)
-              }
-            }}
+            onClick={() => setIsInfoOpen((prev) => !prev)}
           >
             i
           </Button>
