@@ -31,6 +31,7 @@ import {
 import { cn } from '@/retail-lib/utils'
 import { ChevronDown } from 'lucide-react'
 import { format } from 'date-fns'
+import { it } from 'date-fns/locale'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import TicketCheckDialog from '@/retail-components/ticket-check-dialog'
@@ -182,7 +183,7 @@ export default function TicketListPageContent({
       'aria-selected:bg-red-100 aria-selected:text-gray-800 rounded-none',
     caption_label: 'text-sm font-semibold text-gray-800',
     nav_button:
-      'h-7 w-7 bg-transparent p-0 opacity-70 hover:opacity-100 border border-gray-300 rounded',
+      'h-7 w-7 bg-transparent p-0 opacity-70 hover:opacity-100 border border-gray-300 rounded flex items-center justify-center',
   }
 
   const dateRangeButton = (extraClass: string) => (
@@ -208,7 +209,7 @@ export default function TicketListPageContent({
             )}
             onClick={() => handleModeSwitch('single')}
           >
-            {t('single', 'Giorno')}
+            {t('day', 'Giorno')}
           </button>
           <button
             className={cn(
@@ -231,16 +232,17 @@ export default function TicketListPageContent({
             onSelect={handleSingleDateSelect}
             initialFocus
             showOutsideDays={false}
+            locale={it}
             classNames={calendarClassNames}
           />
         ) : (
           <Calendar
             mode="range"
-            numberOfMonths={2}
             selected={{ from: dateFrom, to: dateTo }}
             onSelect={handleDateRangeSelect}
             initialFocus
             showOutsideDays={false}
+            locale={it}
             classNames={calendarClassNames}
           />
         )}
@@ -274,7 +276,7 @@ export default function TicketListPageContent({
   const tdClass = (extra?: string) =>
     cn(
       'border-r border-muted last:border-r-0',
-      isCalcio ? 'p-2' : 'p-1 lg:p-2',
+      isCalcio ? 'p-2' : 'px-1 py-0.5 lg:px-2 lg:py-[5.5px]',
       extra,
     )
 
@@ -285,7 +287,7 @@ export default function TicketListPageContent({
       'bg-secondary text-center align-middle',
       isCalcio
         ? 'px-3 py-2 text-[14px]'
-        : 'px-1 py-1 text-[9px] lg:px-3 lg:text-[17px]',
+        : 'px-1 py-1 text-[9px] lg:px-3 lg:text-[17px] relative bottom-[1px]',
       extra,
     )
 
@@ -459,7 +461,7 @@ export default function TicketListPageContent({
             </div>
             <Button
               onClick={fetchTickets}
-              className="text-bold h-7 w-[60px] bg-tertiary text-[10px] uppercase text-tertiary-foreground lg:h-[46px] lg:w-[106px] lg:text-[15px] relative left-2"
+              className="text-bold h-7 w-[60px] bg-tertiary text-[10px] uppercase text-tertiary-foreground lg:h-[42px] lg:w-[106px] lg:text-[15px] relative left-2"
             >
               {t('reload')}
             </Button>
@@ -638,7 +640,7 @@ export default function TicketListPageContent({
               <col style={{ width: '11.12%' }} />
             </colgroup>
             <tbody>
-              <tr className="h-[60px]">
+              <tr className="h-[64px]">
                 <td colSpan={2} className="bg-secondary px-3 align-middle">
                   <div className="ml-[11px] flex flex-row space-x-3">
                     <div className="flex items-center space-x-2">

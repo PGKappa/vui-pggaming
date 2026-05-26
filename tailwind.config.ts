@@ -90,6 +90,18 @@ export default {
           DEFAULT: 'hsl(var(--badge-background))',
           foreground: 'hsl(var(--badge-foreground))',
         },
+        replay: {
+          DEFAULT: 'hsl(var(--replay))',
+          foreground: 'hsl(var(--replay-foreground))',
+        },
+        navbarHover: {
+          DEFAULT: 'hsl(var(--navbarHover))',
+          foreground: 'hsl(var(--navbarHover-foreground))',
+        },
+        betHover: {
+          DEFAULT: 'hsl(var(--betHover))',
+          foreground: 'hsl(var(--betHover-foreground))',
+        },
         ticket: {
           won: 'hsl(var(--ticket-won))',
           lost: 'hsl(var(--ticket-lost))',

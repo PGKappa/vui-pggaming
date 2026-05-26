@@ -7,7 +7,7 @@ import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useContext, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ArrowLeft } from 'lucide-react'
+import { ChevronLeft } from 'lucide-react'
 import { Button, buttonVariants } from './ui/button'
 
 // Variabile a livello di modulo: sopravvive al rimount del componente causato da
@@ -139,7 +139,7 @@ function NavbarContent() {
               'flex h-12 w-28 flex-row items-center justify-between px-4 py-1 text-foreground transition-colors',
               pathname.includes('/retail/dogs-horses')
                 ? 'bg-tertiary'
-                : 'bg-secondary hover:bg-[#46474d]',
+                : 'bg-secondary hover:bg-navbarHover',
             )}
           >
             <Image
@@ -166,7 +166,7 @@ function NavbarContent() {
               pathname.includes('/retail/dogs') &&
                 !pathname.includes('/retail/dogs-horses')
                 ? 'bg-tertiary'
-                : 'bg-secondary hover:bg-[#46474d]',
+                : 'bg-secondary hover:bg-navbarHover',
             )}
           >
             <Image
@@ -185,7 +185,7 @@ function NavbarContent() {
               'flex h-12 w-24 flex-row items-center justify-center px-4 py-1 text-foreground transition-colors',
               pathname.includes('/retail/horses')
                 ? 'bg-tertiary'
-                : 'bg-secondary hover:bg-[#46474d]',
+                : 'bg-secondary hover:bg-navbarHover',
             )}
           >
             <Image
@@ -209,7 +209,7 @@ function NavbarContent() {
               }
             }}
           >
-            <ArrowLeft className="size-8 text-searchResultText" />
+            <ChevronLeft className="size-8 text-searchResultText" strokeWidth={2.5} />
           </button>
 
           {isOperator && (
@@ -222,7 +222,7 @@ function NavbarContent() {
               }}
               className={cn(
                 buttonVariants({ variant: 'ticketButton', size: 'lg' }),
-                'h-12 w-[168px] p-[18px] pb-5 hover:bg-[#46474d]',
+                'h-12 w-[168px] p-[18px] pb-5 hover:bg-navbarHover',
               )}
             >
               <span className="text-[14px] font-semibold text-searchResultText">
@@ -239,7 +239,7 @@ function NavbarContent() {
               }}
               className={cn(
                 buttonVariants({ variant: 'ticketButton', size: 'lg' }),
-                'h-12 w-[168px] p-[18px] pb-5 hover:bg-[#46474d]',
+                'h-12 w-[168px] p-[18px] pb-5 hover:bg-navbarHover',
               )}
             >
               <span className="text-[14px] font-semibold text-searchResultText">
@@ -249,7 +249,7 @@ function NavbarContent() {
           )}
 
           <Button
-            className="h-12 w-fit p-[17px] pb-5 hover:bg-[#46474d]"
+            className="h-12 w-fit p-[17px] pb-5 hover:bg-navbarHover"
             variant="ticketButton"
             size="lg"
             onClick={() => closeTicketPageAndThen(true, false)}
@@ -260,7 +260,7 @@ function NavbarContent() {
           </Button>
 
           <Button
-            className="h-12 w-12 text-[18px] text-searchResultText hover:bg-[#46474d]"
+            className="h-12 w-12 text-[18px] text-searchResultText hover:bg-navbarHover"
             variant="ticketButton"
             size="lg"
             onClick={() => setIsInfoOpen((prev) => !prev)}
