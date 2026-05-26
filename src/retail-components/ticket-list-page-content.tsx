@@ -270,7 +270,7 @@ export default function TicketListPageContent({
                 <SelectTrigger className="h-[38px] w-[140px] bg-background text-[15px] text-foreground">
                   <SelectValue placeholder={t('terminal')} />
                 </SelectTrigger>
-                <SelectContent className="bg-white p-0 text-[13px]">
+                <SelectContent className="bg-white p-0 text-[13px] uppercase">
                   <SelectItem value="all">{t('all')}</SelectItem>
                   {availableTerminals.map((tid) => (
                     <SelectItem key={tid} value={tid}>
@@ -290,7 +290,7 @@ export default function TicketListPageContent({
                 <SelectTrigger className="h-[38px] w-[140px] bg-background text-[15px] text-foreground">
                   <SelectValue placeholder={t('status')} />
                 </SelectTrigger>
-                <SelectContent className="bg-white p-0 text-[13px]">
+                <SelectContent className="bg-white p-0 text-[13px] uppercase">
                   <SelectItem value="all">{t('all')}</SelectItem>
                   <SelectItem value="active">{t('active')}</SelectItem>
                   <SelectItem value="won">{t('won')}</SelectItem>
@@ -311,7 +311,7 @@ export default function TicketListPageContent({
                 <SelectTrigger className="h-[38px] w-[140px] bg-background text-[15px] text-foreground">
                   <SelectValue placeholder={t('discipline')} />
                 </SelectTrigger>
-                <SelectContent className="bg-white p-0 text-[13px]">
+                <SelectContent className="bg-white p-0 text-[13px] uppercase">
                   <SelectItem value="all">{t('all')}</SelectItem>
                   <SelectItem value="dogs">{t('dog_racing')}</SelectItem>
                   <SelectItem value="horses">{t('horse_racing')}</SelectItem>
@@ -347,7 +347,7 @@ export default function TicketListPageContent({
                 <SelectTrigger className="h-[38px] w-[75px] bg-background text-[15px] text-foreground lg:h-[46px] lg:w-[210px] uppercase">
                   <SelectValue placeholder={t('discipline')} />
                 </SelectTrigger>
-                <SelectContent className="bg-white p-0 text-[13px]">
+                <SelectContent className="bg-white p-0 text-[13px] uppercase">
                   <SelectItem value="all">{t('all')}</SelectItem>
                   <SelectItem value="dogs">{t('dog_racing')}</SelectItem>
                   <SelectItem value="horses">{t('horse_racing')}</SelectItem>
@@ -365,7 +365,7 @@ export default function TicketListPageContent({
                 <SelectTrigger className="h-[38px] w-[75px] bg-background text-[15px] text-foreground lg:h-[46px] lg:w-[210px] uppercase">
                   <SelectValue placeholder={t('terminal')} />
                 </SelectTrigger>
-                <SelectContent className="bg-white p-0 text-[13px]">
+                <SelectContent className="bg-white p-0 text-[13px] uppercase">
                   <SelectItem value="all">{t('all')}</SelectItem>
                   {availableTerminals.map((tid) => (
                     <SelectItem key={tid} value={tid}>
@@ -385,7 +385,7 @@ export default function TicketListPageContent({
                 <SelectTrigger className="h-[38px] w-[70px] bg-background text-[15px] text-foreground lg:h-[46px] lg:w-[210px] uppercase">
                   <SelectValue placeholder={t('status')} />
                 </SelectTrigger>
-                <SelectContent className="bg-white p-0 text-[13px]">
+                <SelectContent className="bg-white p-0 text-[13px] uppercase">
                   <SelectItem value="all">{t('all')}</SelectItem>
                   <SelectItem value="active">{t('active')}</SelectItem>
                   <SelectItem value="won">{t('won')}</SelectItem>
@@ -408,12 +408,23 @@ export default function TicketListPageContent({
 
       {/* Table Content */}
       <div className="flex-1 overflow-auto bg-white text-black">
-        <table
-          className={cn(
-            'w-full border-collapse',
-            isCalcio ? 'text-[12px]' : '',
-          )}
-        >
+         <table
+    className={cn(
+      'w-full table-fixed border-collapse',
+      isCalcio ? 'text-[12px]' : '',
+    )}
+  >
+     <colgroup>
+      <col style={{ width: '11.11%' }} /> {/* ticket_id */}
+      <col style={{ width: '11.11%' }} /> {/* data/ora */}
+      <col style={{ width: '11.11%' }} /> {/* terminale */}
+      <col style={{ width: '11.11%' }} /> {/* prodotto */}
+      <col style={{ width: '11.11%' }} /> {/* puntata */}
+      <col style={{ width: '11.11%' }} /> {/* vinto */}
+      <col style={{ width: '11.11%' }} /> {/* stato */}
+      <col style={{ width: '11.11%' }} /> {/* saldo */}
+      <col style={{ width: '11.12%' }} /> {/* bottone */}
+    </colgroup>
           <thead
             className={cn(
               'bg-secondary text-white',
@@ -421,15 +432,15 @@ export default function TicketListPageContent({
             )}
           >
             <tr>
-              <th className={thClass('w-[10%]')}>{t('ticket_id')}</th>
-              <th className={thClass('w-[10%]')}>{t('date_n_time')}</th>
-              <th className={thClass('w-[10%]')}>{t('terminal')}</th>
-              <th className={thClass('w-[10%]')}>{t('product')}</th>
-              <th className={thClass('w-[10%]')}>{t('staked_amount')}</th>
-              <th className={thClass('w-[10%]')}>{t('won')}</th>
-              <th className={thClass('w-[10%]')}>{t('ticket_status')}</th>
-              <th className={thClass('w-[10%]')}>{t('balance')}</th>
-              <th className={thClass('w-[10%]')}></th>
+               <th className={thClass()}>{t('ticket_id')}</th>
+  <th className={thClass()}>{t('date_n_time')}</th>
+  <th className={thClass()}>{t('terminal')}</th>
+  <th className={thClass()}>{t('product')}</th>
+  <th className={thClass()}>{t('staked_amount')}</th>
+  <th className={thClass()}>{t('won')}</th>
+  <th className={thClass()}>{t('ticket_status')}</th>
+  <th className={thClass()}>{t('balance')}</th>
+  <th className={thClass()}></th>
             </tr>
           </thead>
           <tbody>
@@ -514,7 +525,7 @@ export default function TicketListPageContent({
                                   : '',
                             )}
                           >
-                            {formatCurrency(saldo, currencySymbol)}
+                            {formatCurrency(Math.abs(saldo), currencySymbol)}
                           </span>
                         )
                       })()}
@@ -589,21 +600,21 @@ export default function TicketListPageContent({
         {/* Footer totals table — colgroup mirrors columns 3-9 of the main table */}
         <table className="col-span-7 w-full table-fixed border-collapse">
           <colgroup>
-            {/* terminal  — col 3 */}
-            <col style={{ width: '11.11%' }} />
-            {/* product   — col 4 */}
-            <col style={{ width: '11.11%' }} />
-            {/* amount    — col 5 */}
-            <col style={{ width: '11.11%' }} />
-            {/* won       — col 6 */}
-            <col style={{ width: '11.11%' }} />
-            {/* status    — col 7 */}
-            <col style={{ width: '11.11%' }} />
-            {/* balance   — col 8 */}
-            <col style={{ width: '11.11%' }} />
-            {/* button    — col 9 */}
-            <col style={{ width: '11.12%' }} />
-          </colgroup>
+    {/* terminal  — col 3 */}
+    <col style={{ width: '14.28%' }} />
+    {/* product   — col 4 */}
+    <col style={{ width: '14.28%' }} />
+    {/* amount    — col 5 */}
+    <col style={{ width: '14.28%' }} />
+    {/* won       — col 6 */}
+    <col style={{ width: '14.28%' }} />
+    {/* status    — col 7 */}
+    <col style={{ width: '14.28%' }} />
+    {/* balance   — col 8 */}
+    <col style={{ width: '14.28%' }} />
+    {/* button    — col 9 */}
+    <col style={{ width: '14.32%' }} />
+  </colgroup>
           <tbody>
             <tr className="h-[60px] bg-secondary text-white uppercase">
               <td className="bg-secondary" />

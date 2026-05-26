@@ -57,7 +57,7 @@ export default function TicketCheckPageContent(
         >
          {/* RICEVUTA DI PAGAMENTO - alto sinistra */}
         <div className="absolute left-[191px] top-[108px] flex flex-col items-center pointer-events-none">
-          <div className="w-full h-[44px] bg-red-900 text-white text-[15px] font-bold  uppercase text-center pt-3 px-2
+          <div className="rounded-sm w-full h-[44px] bg-red-900 text-white text-[15px] font-bold  uppercase text-center pt-3 px-2
    mb-[9px]">
             RICEVUTA DI PAGAMENTO
           </div>
@@ -70,7 +70,7 @@ export default function TicketCheckPageContent(
 
         {/* RICEVUTA CASH OUT - alto destra */}
         <div className="absolute right-[191px] top-[108px] flex flex-col items-center pointer-events-none">
-          <div className="w-full h-[44px] bg-red-900 text-white text-[15px] font-bold  uppercase text-center pt-3 px-2
+          <div className="rounded-sm w-full h-[44px] bg-red-900 text-white text-[15px] font-bold  uppercase text-center pt-3 px-2
    mb-[9px]">
             RICEVUTA CASH OUT
           </div>
@@ -144,7 +144,7 @@ export default function TicketCheckPageContent(
 
       <div className="flex justify-center">
         <Button
-          className="h-12 w-[90vw] bg-bet text-[16px] font-bold text-white lg:h-16 lg:w-[1865px] rounded-md lg:text-[23px] uppercase"
+          className="h-12 w-[90vw] bg-bet text-[16px] font-bold text-white lg:h-16 lg:w-[1865px] rounded-md lg:text-[22px] font-sans uppercase"
           onClick={handleSubmit}
         >
           {t('confirm')}
