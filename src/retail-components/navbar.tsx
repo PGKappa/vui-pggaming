@@ -24,6 +24,10 @@ function NavbarContent() {
     pathname.includes('/ticket-list') || pathname.includes('/ticket-check')
 
   useEffect(() => {
+    setIsInfoOpen(false)
+  }, [pathname])
+
+  useEffect(() => {
     if (!isOnTicketPage) {
       let needsReplace = false
       const params = new URLSearchParams(searchParams.toString())
@@ -73,12 +77,14 @@ function NavbarContent() {
 
   const closeTicketPageAndThen = (openSearch = false, openInfo = false) => {
     setIsInfoOpen(false)
-    if (isOnTicketPage) {
+    if (isOnTicketPage && (openSearch || openInfo)) {
+      // Only navigate programmatically for Button elements (search/info)
+      // that have no href — plain Link clicks let their own href handle it
       const params = new URLSearchParams(searchParams.toString())
       if (openSearch) params.set('openSearch', 'true')
       if (openInfo) params.set('openInfo', 'true')
       router.push(`${getDisciplineBasePath(pathname)}?${params.toString()}`)
-    } else {
+    } else if (!isOnTicketPage) {
       if (openSearch) setSearchEventResults(eventResults)
       if (openInfo) setIsInfoOpen(true)
     }
@@ -172,7 +178,9 @@ function NavbarContent() {
               href={buildHref(
                 `${getDisciplineBasePath(pathname)}/ticket-check`,
               )}
-              onClick={() => setIsInfoOpen(false)}
+              onClick={() => {
+                if (pathname.includes('/ticket-check')) setIsInfoOpen(false)
+              }}
               className={cn(
                 buttonVariants({ variant: 'ticketButton', size: 'lg' }),
                 'h-12 w-[168px] p-[18px] pb-5 hover:bg-[#46474d]',
@@ -187,7 +195,9 @@ function NavbarContent() {
           {isOperator && (
             <Link
               href={buildHref(`${getDisciplineBasePath(pathname)}/ticket-list`)}
-              onClick={() => setIsInfoOpen(false)}
+              onClick={() => {
+                if (pathname.includes('/ticket-list')) setIsInfoOpen(false)
+              }}
               className={cn(
                 buttonVariants({ variant: 'ticketButton', size: 'lg' }),
                 'h-12 w-[168px] p-[18px] pb-5 hover:bg-[#46474d]',
@@ -214,13 +224,7 @@ function NavbarContent() {
             className="h-12 w-12 text-[18px] text-searchResultText hover:bg-[#46474d]"
             variant="ticketButton"
             size="lg"
-            onClick={() => {
-              if (isOnTicketPage) {
-                closeTicketPageAndThen(false, true)
-              } else {
-                setIsInfoOpen((prev) => !prev)
-              }
-            }}
+            onClick={() => setIsInfoOpen((prev) => !prev)}
           >
             i
           </Button>
@@ -228,7 +232,7 @@ function NavbarContent() {
       </div>
 
       {isInfoOpen && (
-        <div className="fixed inset-x-0 bottom-0 top-16 z-40 flex flex-col bg-accent">
+        <div className="fixed inset-x-0 bottom-0 top-16 z-[60] flex flex-col bg-accent">
           <div className="flex h-16 flex-shrink-0 items-center justify-center bg-secondary px-4 text-secondary-foreground">
             <span className="text-[16px] font-semibold uppercase">
               {t('game_rules').toUpperCase()}
