@@ -109,7 +109,15 @@ function NavbarContent() {
       const qs = params.toString()
       router.push(`${getDisciplineBasePath(pathname)}${qs ? `?${qs}` : ''}`)
     } else {
-      if (openSearch) setSearchEventResults(eventResults)
+      if (openSearch) {
+        setSearchEventResults(eventResults)
+      } else {
+        // Chiude la ricerca risultati se aperta. Necessario per il caso in cui
+        // si clicca il tab della stessa disciplina già attiva (stesso URL → nessuna
+        // navigazione → EventsContextProvider non si rimonta → lo stato non si azzera
+        // automaticamente). Per navigazioni verso altre pagine è ridondante ma inoffensivo.
+        setSearchEventResults(undefined)
+      }
     }
   }
 
@@ -214,7 +222,12 @@ function NavbarContent() {
               href={buildHref(
                 `${getDisciplineBasePath(pathname)}/ticket-check`,
               )}
-              onClick={() => setIsInfoOpen(false)}
+              onClick={() => {
+                // Se siamo già su ticket-check non ci sarà navigazione → nessun remount →
+                // dobbiamo chiudere l'overlay manualmente. Negli altri casi la navigazione
+                // causa il remount che resetta isInfoOpen automaticamente (no flash).
+                if (pathname.includes('/ticket-check')) setIsInfoOpen(false)
+              }}
               className={cn(
                 buttonVariants({ variant: 'ticketButton', size: 'lg' }),
                 'h-12 w-[168px] p-[18px] pb-5 hover:bg-[#46474d]',
@@ -229,7 +242,10 @@ function NavbarContent() {
           {isOperator && (
             <Link
               href={buildHref(`${getDisciplineBasePath(pathname)}/ticket-list`)}
-              onClick={() => setIsInfoOpen(false)}
+              onClick={() => {
+                // Stessa logica: chiude overlay solo se già su ticket-list (no navigazione).
+                if (pathname.includes('/ticket-list')) setIsInfoOpen(false)
+              }}
               className={cn(
                 buttonVariants({ variant: 'ticketButton', size: 'lg' }),
                 'h-12 w-[168px] p-[18px] pb-5 hover:bg-[#46474d]',
