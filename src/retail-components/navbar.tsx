@@ -216,13 +216,7 @@ function NavbarContent() {
             className="h-12 w-12 text-[18px] text-searchResultText hover:bg-[#46474d]"
             variant="ticketButton"
             size="lg"
-            onClick={() => {
-              if (isOnTicketPage) {
-                closeTicketPageAndThen(false, true)
-              } else {
-                setIsInfoOpen((prev) => !prev)
-              }
-            }}
+            onClick={() => setIsInfoOpen((prev) => !prev)}
           >
             i
           </Button>
@@ -230,7 +224,7 @@ function NavbarContent() {
       </div>
 
       {isInfoOpen && (
-        <div className="fixed inset-x-0 bottom-0 top-16 z-40 flex flex-col bg-accent">
+        <div className="fixed inset-x-0 bottom-0 top-16 z-[60] flex flex-col bg-accent">
           <div className="flex h-16 flex-shrink-0 items-center justify-center bg-secondary px-4 text-secondary-foreground">
             <span className="text-[16px] font-semibold uppercase">
               {t('game_rules').toUpperCase()}
