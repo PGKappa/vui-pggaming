@@ -45,6 +45,7 @@ export default function TicketListPageContent({
   variant = 'standard',
 }: TicketListPageContentProps) {
   const { t } = useTranslation()
+  const [calendarMode, setCalendarMode] = useState<'single' | 'range'>('range')
   const [dialogOpen, setDialogOpen] = useState(false)
   const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null)
   const [selectedTicketCandidates, setSelectedTicketCandidates] = useState<
@@ -137,9 +138,23 @@ export default function TicketListPageContent({
     setDateTo(range?.to)
   }
 
+  const handleSingleDateSelect = (date: Date | undefined) => {
+    setDateFrom(date)
+    setDateTo(date)
+  }
+
+  const handleModeSwitch = (mode: 'single' | 'range') => {
+    setCalendarMode(mode)
+    setDateFrom(undefined)
+    setDateTo(undefined)
+  }
+
   const dateRangeLabel = () => {
-    if (dateFrom && dateTo)
-      return `${format(dateFrom, 'dd/MM/yy')} - ${format(dateTo, 'dd/MM/yy')}`
+    if (dateFrom && dateTo) {
+      const from = format(dateFrom, 'dd/MM/yy')
+      const to = format(dateTo, 'dd/MM/yy')
+      return from === to ? from : `${from} - ${to}`
+    }
     if (dateFrom) return `${format(dateFrom, 'dd/MM/yy')} - ...`
     return '-'
   }
@@ -150,14 +165,21 @@ export default function TicketListPageContent({
   const isCalcio = variant === 'calcio'
 
   const calendarClassNames = {
+    months: 'flex flex-row space-x-4',
     head_cell: 'text-gray-600 w-8 font-semibold text-[0.8rem]',
     cell: 'relative p-0 text-center text-sm text-gray-800 focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-red-100 [&:has([aria-selected].day-outside)]:bg-red-50',
     day: 'h-8 w-8 p-0 font-normal text-gray-800 aria-selected:opacity-100 hover:bg-gray-100 rounded-md',
     day_selected:
       'bg-red-700 text-white hover:bg-red-800 focus:bg-red-700 focus:text-white rounded-md',
-    day_today: 'bg-red-700 text-white rounded-md',
+    day_today: dateFrom ? '' : 'border border-red-700 font-bold text-red-700 rounded-md',
     day_outside: 'text-gray-300 opacity-50',
     day_disabled: 'text-gray-300 opacity-30',
+    day_range_start:
+      'bg-red-700 text-white hover:bg-red-800 rounded-l-md rounded-r-none',
+    day_range_end:
+      'bg-red-700 text-white hover:bg-red-800 rounded-r-md rounded-l-none',
+    day_range_middle:
+      'aria-selected:bg-red-100 aria-selected:text-gray-800 rounded-none',
     caption_label: 'text-sm font-semibold text-gray-800',
     nav_button:
       'h-7 w-7 bg-transparent p-0 opacity-70 hover:opacity-100 border border-gray-300 rounded',
@@ -174,15 +196,54 @@ export default function TicketListPageContent({
           <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto bg-white">
-        <Calendar
-          mode="range"
-          selected={{ from: dateFrom, to: dateTo }}
-          onSelect={handleDateRangeSelect}
-          initialFocus
-          showOutsideDays={false}
-          classNames={calendarClassNames}
-        />
+      <PopoverContent className="w-auto bg-white p-0">
+        {/* Toggle single / range */}
+        <div className="flex border-b border-gray-200">
+          <button
+            className={cn(
+              'flex-1 py-2 text-sm font-semibold uppercase transition-colors',
+              calendarMode === 'single'
+                ? 'bg-red-700 text-white'
+                : 'text-gray-600 hover:bg-gray-100',
+            )}
+            onClick={() => handleModeSwitch('single')}
+          >
+            {t('single', 'Giorno')}
+          </button>
+          <button
+            className={cn(
+              'flex-1 py-2 text-sm font-semibold uppercase transition-colors',
+              calendarMode === 'range'
+                ? 'bg-red-700 text-white'
+                : 'text-gray-600 hover:bg-gray-100',
+            )}
+            onClick={() => handleModeSwitch('range')}
+          >
+            {t('period', 'Periodo')}
+          </button>
+        </div>
+
+        {/* Calendario */}
+        {calendarMode === 'single' ? (
+          <Calendar
+            mode="single"
+            selected={dateFrom}
+            onSelect={handleSingleDateSelect}
+            initialFocus
+            showOutsideDays={false}
+            classNames={calendarClassNames}
+          />
+        ) : (
+          <Calendar
+            mode="range"
+            numberOfMonths={2}
+            selected={{ from: dateFrom, to: dateTo }}
+            onSelect={handleDateRangeSelect}
+            initialFocus
+            showOutsideDays={false}
+            classNames={calendarClassNames}
+          />
+        )}
       </PopoverContent>
     </Popover>
   )
@@ -406,250 +467,243 @@ export default function TicketListPageContent({
         </div>
       )}
 
-      {/* Table Content */}
-      <div className="flex-1 overflow-auto bg-white text-black">
-         <table
-    className={cn(
-      'w-full table-fixed border-collapse',
-      isCalcio ? 'text-[12px]' : '',
-    )}
-  >
-     <colgroup>
-      <col style={{ width: '11.11%' }} /> {/* ticket_id */}
-      <col style={{ width: '11.11%' }} /> {/* data/ora */}
-      <col style={{ width: '11.11%' }} /> {/* terminale */}
-      <col style={{ width: '11.11%' }} /> {/* prodotto */}
-      <col style={{ width: '11.11%' }} /> {/* puntata */}
-      <col style={{ width: '11.11%' }} /> {/* vinto */}
-      <col style={{ width: '11.11%' }} /> {/* stato */}
-      <col style={{ width: '11.11%' }} /> {/* saldo */}
-      <col style={{ width: '11.12%' }} /> {/* bottone */}
-    </colgroup>
-          <thead
+      {/* ─────────────────────────────────────────────────────────────────────
+          Tabella dati + riga TOTALI nello STESSO contenitore di scroll.
+          Questo è l'unico modo per garantire allineamento perfetto delle colonne:
+          entrambe le tabelle condividono esattamente la stessa larghezza effettiva
+          (larghezza contenitore − larghezza eventuale scrollbar), senza bisogno
+          di sincronizzare percentuali o pixel. La riga TOTALI è sticky bottom-0
+          quindi rimane sempre visibile durante lo scroll.
+          ──────────────────────────────────────────────────────────────────────── */}
+      <div className="flex-1 overflow-y-auto flex flex-col bg-white text-black">
+
+        {/* Tabella dati — flex-1 per occupare lo spazio residuo quando ci sono poche righe */}
+        <div className="flex-1">
+          <table
             className={cn(
-              'bg-secondary text-white',
-              isCalcio ? '' : 'sticky top-0 z-10',
+              'w-full table-fixed border-collapse',
+              isCalcio ? 'text-[12px]' : '',
             )}
           >
-            <tr>
-               <th className={thClass()}>{t('ticket_id')}</th>
-  <th className={thClass()}>{t('date_n_time')}</th>
-  <th className={thClass()}>{t('terminal')}</th>
-  <th className={thClass()}>{t('product')}</th>
-  <th className={thClass()}>{t('staked_amount')}</th>
-  <th className={thClass()}>{t('won')}</th>
-  <th className={thClass()}>{t('ticket_status')}</th>
-  <th className={thClass()}>{t('balance')}</th>
-  <th className={thClass()}></th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
+            <colgroup>
+              <col style={{ width: '11.11%' }} /> {/* ticket_id  */}
+              <col style={{ width: '11.11%' }} /> {/* data/ora   */}
+              <col style={{ width: '11.11%' }} /> {/* terminale  */}
+              <col style={{ width: '11.11%' }} /> {/* prodotto   */}
+              <col style={{ width: '11.11%' }} /> {/* puntata    */}
+              <col style={{ width: '11.11%' }} /> {/* vinto      */}
+              <col style={{ width: '11.11%' }} /> {/* stato      */}
+              <col style={{ width: '11.11%' }} /> {/* saldo      */}
+              <col style={{ width: '11.12%' }} /> {/* bottone    */}
+            </colgroup>
+            <thead
+              className={cn(
+                'bg-secondary text-white',
+                isCalcio ? '' : 'sticky top-0 z-10',
+              )}
+            >
               <tr>
-                <td colSpan={9} className="p-8 text-center text-gray-400">
-                  {t('loading')}...
-                </td>
+                <th className={thClass()}>{t('ticket_id')}</th>
+                <th className={thClass()}>{t('date_n_time')}</th>
+                <th className={thClass()}>{t('terminal')}</th>
+                <th className={thClass()}>{t('product')}</th>
+                <th className={thClass()}>{t('staked_amount')}</th>
+                <th className={thClass()}>{t('won')}</th>
+                <th className={thClass()}>{t('ticket_status')}</th>
+                <th className={thClass()}>{t('balance')}</th>
+                <th className={thClass()}></th>
               </tr>
-            ) : items.length === 0 ? (
-              <tr>
-                <td colSpan={9} className="p-8 text-center text-gray-400">
-                  {t('no_tickets_found')}
-                </td>
-              </tr>
-            ) : (
-              items.map((item) => {
-                const date = parseTicketTime(item.time)
-                const statusInfo = getStatusDisplay(item.status)
-                return (
-                  <tr
-                    key={item.ticket_id}
-                    className={cn(
-                      'border-b text-center',
-                      isCalcio ? 'text-[16px]' : 'text-[12px] lg:text-[15px]',
-                    )}
-                  >
-                    <td className={tdClass()}>{item.ticket_id}</td>
-                    <td className={tdClass()}>
-                      {format(date, 'dd/MM/yy')} - {format(date, 'HH:mm:ss')}
-                    </td>
-                    <td className={tdClass()}>{item.terminal_id}</td>
-                    <td className={tdClass()}>
-                      {getDisciplineLabel(item.ticket_id)}
-                    </td>
-                    <td className={tdClass()}>
-                      {formatCurrency(item.amount, currencySymbol)}
-                    </td>
-                    <td className={tdClass()}>
-                      {formatCurrency(item.amount_won, currencySymbol)}
-                    </td>
-                    <td className={tdClass()}>
-                      <div
-                        className={cn(
-                          'flex items-center justify-center',
-                          isCalcio ? 'gap-2' : 'space-x-1 lg:space-x-2',
-                        )}
-                      >
-                        <span
-                          className={cn(
-                            'font-medium',
-                            isCalcio ? 'text-[16px]' : '',
-                          )}
-                        >
-                          {t(statusInfo.translationKey)}
-                        </span>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr>
+                  <td colSpan={9} className="p-8 text-center text-gray-400">
+                    {t('loading')}...
+                  </td>
+                </tr>
+              ) : items.length === 0 ? (
+                <tr>
+                  <td colSpan={9} className="p-8 text-center text-gray-400">
+                    {t('no_tickets_found')}
+                  </td>
+                </tr>
+              ) : (
+                items.map((item) => {
+                  const date = parseTicketTime(item.time)
+                  const statusInfo = getStatusDisplay(item.status)
+                  return (
+                    <tr
+                      key={item.ticket_id}
+                      className={cn(
+                        'border-b text-center',
+                        isCalcio ? 'text-[16px]' : 'text-[12px] lg:text-[15px]',
+                      )}
+                    >
+                      <td className={tdClass()}>{item.ticket_id}</td>
+                      <td className={tdClass()}>
+                        {format(date, 'dd/MM/yy')} - {format(date, 'HH:mm:ss')}
+                      </td>
+                      <td className={tdClass()}>{item.terminal_id}</td>
+                      <td className={tdClass()}>
+                        {getDisciplineLabel(item.ticket_id)}
+                      </td>
+                      <td className={tdClass()}>
+                        {formatCurrency(item.amount, currencySymbol)}
+                      </td>
+                      <td className={tdClass()}>
+                        {formatCurrency(item.amount_won, currencySymbol)}
+                      </td>
+                      <td className={tdClass()}>
                         <div
                           className={cn(
-                            isCalcio
-                              ? 'h-3 w-3 rounded-sm'
-                              : 'h-2 w-2 rounded-sm lg:h-3 lg:w-3',
-                            statusInfo.colorClass,
+                            'flex items-center justify-center',
+                            isCalcio ? 'gap-2' : 'space-x-1 lg:space-x-2',
                           )}
-                        />
-                      </div>
-                    </td>
-                    <td className={tdClass()}>
-                      {(() => {
-                        const saldo =
-                          item.saldo !== undefined
-                            ? parseFloat(item.saldo)
-                            : parseFloat(item.amount_won || '0') -
-                              parseFloat(item.amount || '0')
-                        return (
+                        >
                           <span
                             className={cn(
-                              'font-medium tabular-nums',
-                              saldo > 0
-                                ? 'text-ticket-won'
-                                : saldo < 0
-                                  ? 'text-ticket-lost'
-                                  : '',
+                              'font-medium',
+                              isCalcio ? 'text-[16px]' : '',
                             )}
                           >
-                            {formatCurrency(Math.abs(saldo), currencySymbol)}
+                            {t(statusInfo.translationKey)}
                           </span>
-                        )
-                      })()}
-                    </td>
-                    <td className={tdClass()}>
-                      <Button
-                        onClick={() => handleDetailsClick(item)}
-                        className={cn(
-                          'bg-tertiary text-tertiary-foreground',
-                          isCalcio
-                            ? 'h-8 w-20 text-[16px]'
-                            : 'h-6 w-14 text-[10px] uppercase lg:h-8 lg:w-[106px] lg:text-[15px]',
-                        )}
-                      >
-                        {t('details')}
-                      </Button>
-                    </td>
-                  </tr>
-                )
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Footer */}
-      <div
-        className={cn(
-          'relative',
-          isCalcio ? 'grid grid-cols-9' : 'grid h-[121px] shrink-0 grid-cols-9',
-        )}
-      >
-        {/* Legend */}
-        <div className="col-span-2 flex items-end justify-start bg-secondary px-3 pb-3">
-          <div className="mb-[68px] ml-[11px] flex flex-row space-x-3">
-            <div className="flex items-center space-x-2">
-              <span
-                className={cn(
-                  'text-white',
-                  isCalcio ? 'text-[11px]' : 'text-[9px] lg:text-[12px] uppercase',
-                )}
-              >
-                {t('collected')}
-              </span>
-              <div className="mb-0.5 h-4 w-4 rounded-sm bg-ticket-won" />
-            </div>
-            <div className="mb-0.5 flex items-center space-x-2">
-              <span
-                className={cn(
-                  'text-white',
-                  isCalcio ? 'text-[11px]' : 'text-[9px] lg:text-[12px] uppercase',
-                )}
-              >
-                {t('not_collected')}
-              </span>
-              <div className="h-4 w-4 rounded-sm bg-notCollected" />
-            </div>
-            <div className="mb-0.5 flex items-center space-x-2">
-              <span
-                className={cn(
-                  'text-white',
-                  isCalcio ? 'text-[11px]' : 'text-[9px] lg:text-[12px] uppercase',
-                )}
-              >
-                {t('cancelled')}
-              </span>
-              <div className="h-4 w-4 rounded-sm bg-ticket-lost" />
-            </div>
-          </div>
+                          <div
+                            className={cn(
+                              isCalcio
+                                ? 'h-3 w-3 rounded-sm'
+                                : 'h-2 w-2 rounded-sm lg:h-3 lg:w-3',
+                              statusInfo.colorClass,
+                            )}
+                          />
+                        </div>
+                      </td>
+                      <td className={tdClass()}>
+                        {(() => {
+                          const saldo =
+                            item.saldo !== undefined
+                              ? parseFloat(item.saldo)
+                              : parseFloat(item.amount_won || '0') -
+                                parseFloat(item.amount || '0')
+                          return (
+                            <span
+                              className={cn(
+                                'font-medium tabular-nums',
+                                saldo > 0
+                                  ? 'text-ticket-won'
+                                  : saldo < 0
+                                    ? 'text-ticket-lost'
+                                    : '',
+                              )}
+                            >
+                              {formatCurrency(Math.abs(saldo), currencySymbol)}
+                            </span>
+                          )
+                        })()}
+                      </td>
+                      <td className={tdClass()}>
+                        <Button
+                          onClick={() => handleDetailsClick(item)}
+                          className={cn(
+                            'bg-tertiary text-tertiary-foreground',
+                            isCalcio
+                              ? 'h-8 w-20 text-[16px]'
+                              : 'h-6 w-14 text-[10px] uppercase lg:h-8 lg:w-[106px] lg:text-[15px]',
+                          )}
+                        >
+                          {t('details')}
+                        </Button>
+                      </td>
+                    </tr>
+                  )
+                })
+              )}
+            </tbody>
+          </table>
         </div>
 
-        {/* Footer totals table — colgroup mirrors columns 3-9 of the main table */}
-        <table className="col-span-7 w-full table-fixed border-collapse">
-          <colgroup>
-    {/* terminal  — col 3 */}
-    <col style={{ width: '14.28%' }} />
-    {/* product   — col 4 */}
-    <col style={{ width: '14.28%' }} />
-    {/* amount    — col 5 */}
-    <col style={{ width: '14.28%' }} />
-    {/* won       — col 6 */}
-    <col style={{ width: '14.28%' }} />
-    {/* status    — col 7 */}
-    <col style={{ width: '14.28%' }} />
-    {/* balance   — col 8 */}
-    <col style={{ width: '14.28%' }} />
-    {/* button    — col 9 */}
-    <col style={{ width: '14.32%' }} />
-  </colgroup>
-          <tbody>
-            <tr className="h-[60px] bg-secondary text-white uppercase">
-              <td className="bg-secondary" />
-              <td
-                style={totalCellStyle}
-                className={totalCellClass('font-bold')}
-              >
-                {t('totals')}
-              </td>
-              <td style={totalCellStyle} className={totalCellClass()}>
-                {formatCurrency(info?.grandtotal?.in ?? 0, currencySymbol)}
-              </td>
-              <td style={totalCellStyle} className={totalCellClass()}>
-                {formatCurrency(
-                  info?.grandtotal?.out ?? '0.00',
-                  currencySymbol,
-                )}
-              </td>
-              <td style={totalCellStyle} className={totalCellClass()} />
-              <td style={totalCellStyle} className={totalCellClass()}>
-                {formatCurrency(
-                  parseFloat(String(info?.grandtotal?.out ?? '0')) -
-                    (info?.grandtotal?.in ?? 0),
-                  currencySymbol,
-                )}
-              </td>
-              <td style={totalCellStyle} className={totalCellClass()} />
-            </tr>
-            <tr className="h-[61px] bg-secondary">
-              <td colSpan={7} className="bg-secondary" />
-            </tr>
-          </tbody>
-        </table>
+        {/* Riga TOTALI — sticky bottom-0 nello stesso contenitore scroll.
+            Stessa larghezza effettiva della tabella dati → colonne sempre allineate. */}
+        <div className="sticky bottom-0 shrink-0 bg-secondary text-white uppercase">
+          <table className="w-full table-fixed border-collapse">
+            <colgroup>
+              <col style={{ width: '11.11%' }} />
+              <col style={{ width: '11.11%' }} />
+              <col style={{ width: '11.11%' }} />
+              <col style={{ width: '11.11%' }} />
+              <col style={{ width: '11.11%' }} />
+              <col style={{ width: '11.11%' }} />
+              <col style={{ width: '11.11%' }} />
+              <col style={{ width: '11.11%' }} />
+              <col style={{ width: '11.12%' }} />
+            </colgroup>
+            <tbody>
+              <tr className="h-[60px]">
+                <td colSpan={2} className="bg-secondary px-3 align-middle">
+                  <div className="ml-[11px] flex flex-row space-x-3">
+                    <div className="flex items-center space-x-2">
+                      <span
+                        className={cn(
+                          'text-white',
+                          isCalcio ? 'text-[11px]' : 'text-[9px] lg:text-[12px] uppercase',
+                        )}
+                      >
+                        {t('collected')}
+                      </span>
+                      <div className="h-4 w-4 rounded-sm bg-ticket-won" />
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span
+                        className={cn(
+                          'text-white',
+                          isCalcio ? 'text-[11px]' : 'text-[9px] lg:text-[12px] uppercase',
+                        )}
+                      >
+                        {t('not_collected')}
+                      </span>
+                      <div className="h-4 w-4 rounded-sm bg-notCollected" />
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span
+                        className={cn(
+                          'text-white',
+                          isCalcio ? 'text-[11px]' : 'text-[9px] lg:text-[12px] uppercase',
+                        )}
+                      >
+                        {t('cancelled')}
+                      </span>
+                      <div className="h-4 w-4 rounded-sm bg-ticket-lost" />
+                    </div>
+                  </div>
+                </td>
+                <td style={totalCellStyle} className={totalCellClass()} />
+                <td style={totalCellStyle} className={totalCellClass('font-bold')}>
+                  {t('totals')}
+                </td>
+                <td style={totalCellStyle} className={totalCellClass()}>
+                  {formatCurrency(info?.grandtotal?.in ?? 0, currencySymbol)}
+                </td>
+                <td style={totalCellStyle} className={totalCellClass()}>
+                  {formatCurrency(info?.grandtotal?.out ?? '0.00', currencySymbol)}
+                </td>
+                <td style={totalCellStyle} className={totalCellClass()} />
+                <td style={totalCellStyle} className={totalCellClass()}>
+                  {formatCurrency(
+                    parseFloat(String(info?.grandtotal?.out ?? '0')) -
+                      (info?.grandtotal?.in ?? 0),
+                    currencySymbol,
+                  )}
+                </td>
+                <td style={totalCellStyle} className={totalCellClass()} />
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
-        {/* Paginazione */}
+      </div>
+
+      {/* Barra paginazione — fuori dal contenitore scroll, sempre in fondo alla pagina */}
+      <div className="relative h-[61px] shrink-0 bg-secondary">
         <div className="absolute bottom-2 right-4 flex items-center space-x-3 bg-secondary px-2 py-1">
           <Pagination className="w-auto">
             <PaginationContent>

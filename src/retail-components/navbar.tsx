@@ -7,7 +7,15 @@ import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useContext, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { ArrowLeft } from 'lucide-react'
 import { Button, buttonVariants } from './ui/button'
+
+// Variabile a livello di modulo: sopravvive al rimount del componente causato da
+// <EventsContextProvider key={pathname}> nel layout. Viene impostata prima della
+// navigazione e consumata nel useEffect del componente rimontato sulla nuova pagina.
+// In questo modo evitiamo il pattern router.push(openSearch=true) + router.replace()
+// che in Next.js 15 App Router corrompe la history del browser.
+let pendingOpenSearch = false
 
 function NavbarContent() {
   const { t, i18n } = useTranslation()
@@ -25,6 +33,16 @@ function NavbarContent() {
 
   useEffect(() => {
     if (!isOnTicketPage) {
+      // Flag impostato da closeTicketPageAndThen quando naviga da una pagina ticket.
+      // Evitiamo il param openSearch nell'URL per non dover fare router.replace()
+      // subito dopo il router.push(), che in Next.js 15 corrompe la history.
+      if (pendingOpenSearch) {
+        pendingOpenSearch = false
+        setSearchEventResults(eventResults)
+        return
+      }
+
+      // Gestione parametri URL (backward compat per link diretti/esterni)
       let needsReplace = false
       const params = new URLSearchParams(searchParams.toString())
 
@@ -72,15 +90,26 @@ function NavbarContent() {
   }
 
   const closeTicketPageAndThen = (openSearch = false, openInfo = false) => {
+    if (openInfo) {
+      // Apre l'overlay info direttamente senza navigare via dalla pagina corrente.
+      // L'overlay è fixed full-screen quindi funziona sopra qualsiasi pagina.
+      // Navigare via prima di aprirlo causava la perdita della pagina nella history.
+      setIsInfoOpen(true)
+      return
+    }
+
     setIsInfoOpen(false)
     if (isOnTicketPage) {
+      // Usa il flag a livello di modulo invece del param URL openSearch=true.
+      // Questo evita il pattern push(openSearch=true) + replace() che in
+      // Next.js 15 App Router corrompe la history cancellando l'entry della
+      // pagina ticket, impedendo di tornare indietro correttamente.
+      if (openSearch) pendingOpenSearch = true
       const params = new URLSearchParams(searchParams.toString())
-      if (openSearch) params.set('openSearch', 'true')
-      if (openInfo) params.set('openInfo', 'true')
-      router.push(`${getDisciplineBasePath(pathname)}?${params.toString()}`)
+      const qs = params.toString()
+      router.push(`${getDisciplineBasePath(pathname)}${qs ? `?${qs}` : ''}`)
     } else {
       if (openSearch) setSearchEventResults(eventResults)
-      if (openInfo) setIsInfoOpen(true)
     }
   }
 
@@ -167,6 +196,19 @@ function NavbarContent() {
         </div>
 
         <div className="relative left-1 flex w-full justify-end space-x-2">
+          <button
+            className="flex h-12 w-12 items-center justify-center"
+            onClick={() => {
+              if (isInfoOpen) {
+                setIsInfoOpen(false)
+              } else {
+                router.back()
+              }
+            }}
+          >
+            <ArrowLeft className="size-8 text-searchResultText" />
+          </button>
+
           {isOperator && (
             <Link
               href={buildHref(
@@ -228,7 +270,7 @@ function NavbarContent() {
       </div>
 
       {isInfoOpen && (
-        <div className="fixed inset-x-0 bottom-0 top-16 z-40 flex flex-col bg-accent">
+        <div className="fixed inset-x-0 bottom-0 top-16 z-[60] flex flex-col bg-accent">
           <div className="flex h-16 flex-shrink-0 items-center justify-center bg-secondary px-4 text-secondary-foreground">
             <span className="text-[16px] font-semibold uppercase">
               {t('game_rules').toUpperCase()}
