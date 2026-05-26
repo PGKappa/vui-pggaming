@@ -73,12 +73,14 @@ function NavbarContent() {
 
   const closeTicketPageAndThen = (openSearch = false, openInfo = false) => {
     setIsInfoOpen(false)
-    if (isOnTicketPage) {
+    if (isOnTicketPage && (openSearch || openInfo)) {
+      // Only navigate programmatically for Button elements (search/info)
+      // that have no href — plain Link clicks let their own href handle it
       const params = new URLSearchParams(searchParams.toString())
       if (openSearch) params.set('openSearch', 'true')
       if (openInfo) params.set('openInfo', 'true')
       router.push(`${getDisciplineBasePath(pathname)}?${params.toString()}`)
-    } else {
+    } else if (!isOnTicketPage) {
       if (openSearch) setSearchEventResults(eventResults)
       if (openInfo) setIsInfoOpen(true)
     }
