@@ -220,7 +220,7 @@ export default function TicketListPageContent({
       <PopoverTrigger asChild>
         <Button
           variant="ticketFilter"
-          className={cn(extraClass, 'justify-between px-3')}
+          className={cn(extraClass, 'justify-between pl-[15px] pr-[12px]')}
         >
           <span>{dateFrom ? dateRangeLabel() : t('date', 'DATA')}</span>
           <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -350,7 +350,7 @@ export default function TicketListPageContent({
           <div className="flex items-center gap-8">
             {/* Data - calcio */}
             <div className="mr-20 flex flex-row items-center gap-2 bg-badge text-background">
-              {dateRangeButton('h-[38px] w-[200px] justify-center text-[15px]')}
+              {dateRangeButton('h-[38px] w-[209px] justify-center text-[15px]')}
             </div>
 
             {/* Terminale - calcio */}
@@ -359,7 +359,7 @@ export default function TicketListPageContent({
                 value={terminal === 'all' ? '' : terminal}
                 onValueChange={(v) => setTerminal(v || 'all')}
               >
-                <SelectTrigger className="h-[38px] w-[140px] bg-background text-[15px] text-foreground">
+                <SelectTrigger className="h-[38px] w-[149px] bg-background text-[15px] text-foreground pl-[15px] pr-[12px]">
                   <SelectValue placeholder={t('terminal')} />
                 </SelectTrigger>
                 <SelectContent className="bg-white p-0 text-[13px] uppercase">
@@ -379,7 +379,7 @@ export default function TicketListPageContent({
                 value={statusSelectValue === 'all' ? '' : statusSelectValue}
                 onValueChange={handleStatusChange}
               >
-                <SelectTrigger className="h-[38px] w-[140px] bg-background text-[15px] text-foreground">
+                <SelectTrigger className="h-[38px] w-[149px] bg-background text-[15px] text-foreground pl-[15px] pr-[12px]">
                   <SelectValue placeholder={t('status')} />
                 </SelectTrigger>
                 <SelectContent className="bg-white p-0 text-[13px] uppercase">
@@ -400,7 +400,7 @@ export default function TicketListPageContent({
                 value={discipline === 'all' ? '' : discipline}
                 onValueChange={(v) => setDiscipline(v || 'all')}
               >
-                <SelectTrigger className="h-[38px] w-[140px] bg-background text-[15px] text-foreground">
+                <SelectTrigger className="h-[38px] w-[149px] bg-background text-[15px] text-foreground pl-[15px] pr-[12px]">
                   <SelectValue placeholder={t('discipline')} />
                 </SelectTrigger>
                 <SelectContent className="bg-white p-0 text-[13px] uppercase">
@@ -426,7 +426,7 @@ export default function TicketListPageContent({
             {/* Data - standard */}
             <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
               {dateRangeButton(
-                'h-[38px] w-[140px] justify-center text-[15px] lg:h-[46px] lg:w-[280px] uppercase',
+                'h-[38px] w-[149px] justify-center text-[15px] lg:h-[46px] lg:w-[286px] uppercase',
               )}
             </div>
 
@@ -436,7 +436,7 @@ export default function TicketListPageContent({
                 value={discipline === 'all' ? '' : discipline}
                 onValueChange={(v) => setDiscipline(v || 'all')}
               >
-                <SelectTrigger className="h-[38px] w-[75px] bg-background text-[15px] text-foreground lg:h-[46px] lg:w-[280px] uppercase">
+                <SelectTrigger className="h-[38px] w-[84px] bg-background text-[15px] text-foreground lg:h-[46px] lg:w-[286px] uppercase pl-[15px] pr-[12px]">
                   <SelectValue placeholder={t('discipline')} />
                 </SelectTrigger>
                 <SelectContent className="bg-white p-0 text-[13px] uppercase">
@@ -454,7 +454,7 @@ export default function TicketListPageContent({
                 value={terminal === 'all' ? '' : terminal}
                 onValueChange={(v) => setTerminal(v || 'all')}
               >
-                <SelectTrigger className="h-[38px] w-[75px] bg-background text-[15px] text-foreground lg:h-[46px] lg:w-[280px] uppercase">
+                <SelectTrigger className="h-[38px] w-[84px] bg-background text-[15px] text-foreground lg:h-[46px] lg:w-[286px] uppercase pl-[15px] pr-[12px]">
                   <SelectValue placeholder={t('terminal')} />
                 </SelectTrigger>
                 <SelectContent className="bg-white p-0 text-[13px] uppercase">
@@ -474,7 +474,7 @@ export default function TicketListPageContent({
                 value={statusSelectValue === 'all' ? '' : statusSelectValue}
                 onValueChange={handleStatusChange}
               >
-                <SelectTrigger className="h-[38px] w-[70px] bg-background text-[15px] text-foreground lg:h-[46px] lg:w-[280px] uppercase">
+                <SelectTrigger className="h-[38px] w-[79px] bg-background text-[15px] text-foreground lg:h-[46px] lg:w-[286px] uppercase pl-[15px] pr-[12px]">
                   <SelectValue placeholder={t('status')} />
                 </SelectTrigger>
                 <SelectContent className="bg-white p-0 text-[13px] uppercase">
