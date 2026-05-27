@@ -319,9 +319,14 @@ export function useTicketList() {
     const terminalMatch =
       appliedFilters.terminal === 'all' ||
       String(i.terminal_id) === appliedFilters.terminal
-    const disciplineMatch =
-      appliedFilters.discipline === 'all' ||
-      (disciplineMap[i.ticket_id]?.includes(appliedFilters.discipline) ?? true)
+    const disciplineMatch = (() => {
+      if (appliedFilters.discipline === 'all') return true
+      const d = disciplineMap[i.ticket_id]
+      if (d === undefined) return true
+      if (appliedFilters.discipline === 'real')
+        return d.includes('dogs') && d.includes('horses')
+      return d.includes(appliedFilters.discipline)
+    })()
     return terminalMatch && disciplineMatch
   })
 

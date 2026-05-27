@@ -32,7 +32,7 @@ import { cn } from '@/retail-lib/utils'
 import { ChevronDown } from 'lucide-react'
 import { format } from 'date-fns'
 import { it } from 'date-fns/locale'
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import TicketCheckDialog from '@/retail-components/ticket-check-dialog'
 import { type DateRange } from 'react-day-picker'
@@ -165,6 +165,35 @@ export default function TicketListPageContent({
 
   const isCalcio = variant === 'calcio'
 
+  // ── Filler rows ────────────────────────────────────────────────────────────
+  // Misura il wrapper della tabella e l'altezza di una riga dati, poi calcola
+  // quante righe vuote aggiungere per coprire lo spazio bianco rimasto.
+  const tableWrapperRef = useRef<HTMLDivElement>(null)
+  const [fillerCount, setFillerCount] = useState(0)
+
+  useEffect(() => {
+    const recompute = () => {
+      const wrapper = tableWrapperRef.current
+      if (!wrapper || items.length === 0) { setFillerCount(0); return }
+      const table = wrapper.querySelector('table')
+      if (!table) return
+      const thead = table.querySelector('thead')
+      const theadH = thead ? thead.getBoundingClientRect().height : 0
+      const firstRow = table.querySelector('tbody tr') as HTMLTableRowElement | null
+      if (!firstRow) return
+      const rowH = firstRow.getBoundingClientRect().height
+      if (rowH === 0) return
+      const wrapperH = wrapper.getBoundingClientRect().height
+      const remaining = wrapperH - theadH - rowH * items.length
+      setFillerCount(Math.max(0, Math.floor(remaining / rowH)))
+    }
+
+    recompute()
+    const obs = new ResizeObserver(recompute)
+    if (tableWrapperRef.current) obs.observe(tableWrapperRef.current)
+    return () => obs.disconnect()
+  }, [items])
+
   const calendarClassNames = {
     months: 'flex flex-row space-x-4',
     head_cell: 'text-gray-600 w-8 font-semibold text-[0.8rem]',
@@ -276,7 +305,7 @@ export default function TicketListPageContent({
   const tdClass = (extra?: string) =>
     cn(
       'border-r border-muted last:border-r-0',
-      isCalcio ? 'p-2' : 'px-1 py-0.5 lg:px-2 lg:py-[5.5px]',
+      isCalcio ? 'p-2' : 'px-1 py-0.5 lg:px-2 lg:py-[6.5px]',
       extra,
     )
 
@@ -302,13 +331,13 @@ export default function TicketListPageContent({
       <div
         className={cn(
           'relative flex items-center justify-center bg-secondary text-accent-foreground',
-          isCalcio ? 'h-16' : 'h-10 shrink-0 lg:h-16',
+          isCalcio ? 'h-16' : 'h-10 shrink-0 lg:h-[58px]',
         )}
       >
         <h2
           className={cn(
             'font-bold uppercase',
-            isCalcio ? 'text-[20px]' : 'text-[12px] lg:text-[16px] relative bottom-[2px]',
+            isCalcio ? 'text-[20px]' : 'text-[12px] lg:text-[16px] relative bottom-[1px]',
           )}
         >
           {t('ticket_list')}
@@ -378,7 +407,7 @@ export default function TicketListPageContent({
                   <SelectItem value="all">{t('all')}</SelectItem>
                   <SelectItem value="dogs">{t('dog_racing')}</SelectItem>
                   <SelectItem value="horses">{t('horse_racing')}</SelectItem>
-                  <SelectItem value="soccer">{t('football')}</SelectItem>
+                  <SelectItem value="real">{t('dog_racing')} / {t('horse_racing')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -393,11 +422,11 @@ export default function TicketListPageContent({
         </div>
       ) : (
         <div className="flex shrink-0 justify-center bg-secondary pb-3 lg:pb-5">
-          <div className="relative  left-[63px] flex flex-wrap items-center space-x-5  lg:bottom-[3px] lg:space-x-4 uppercase">
+          <div className="relative  left-[60px] flex flex-wrap items-center space-x-5  lg:bottom-[2px] lg:space-x-4 uppercase">
             {/* Data - standard */}
             <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
               {dateRangeButton(
-                'h-[38px] w-[140px] justify-center text-[15px] lg:h-[46px] lg:w-[210px] uppercase',
+                'h-[38px] w-[140px] justify-center text-[15px] lg:h-[46px] lg:w-[280px] uppercase',
               )}
             </div>
 
@@ -407,14 +436,14 @@ export default function TicketListPageContent({
                 value={discipline === 'all' ? '' : discipline}
                 onValueChange={(v) => setDiscipline(v || 'all')}
               >
-                <SelectTrigger className="h-[38px] w-[75px] bg-background text-[15px] text-foreground lg:h-[46px] lg:w-[210px] uppercase">
+                <SelectTrigger className="h-[38px] w-[75px] bg-background text-[15px] text-foreground lg:h-[46px] lg:w-[280px] uppercase">
                   <SelectValue placeholder={t('discipline')} />
                 </SelectTrigger>
                 <SelectContent className="bg-white p-0 text-[13px] uppercase">
                   <SelectItem value="all">{t('all')}</SelectItem>
                   <SelectItem value="dogs">{t('dog_racing')}</SelectItem>
                   <SelectItem value="horses">{t('horse_racing')}</SelectItem>
-                  <SelectItem value="soccer">{t('football')}</SelectItem>
+                  <SelectItem value="real">{t('dog_racing')} / {t('horse_racing')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -425,7 +454,7 @@ export default function TicketListPageContent({
                 value={terminal === 'all' ? '' : terminal}
                 onValueChange={(v) => setTerminal(v || 'all')}
               >
-                <SelectTrigger className="h-[38px] w-[75px] bg-background text-[15px] text-foreground lg:h-[46px] lg:w-[210px] uppercase">
+                <SelectTrigger className="h-[38px] w-[75px] bg-background text-[15px] text-foreground lg:h-[46px] lg:w-[280px] uppercase">
                   <SelectValue placeholder={t('terminal')} />
                 </SelectTrigger>
                 <SelectContent className="bg-white p-0 text-[13px] uppercase">
@@ -445,7 +474,7 @@ export default function TicketListPageContent({
                 value={statusSelectValue === 'all' ? '' : statusSelectValue}
                 onValueChange={handleStatusChange}
               >
-                <SelectTrigger className="h-[38px] w-[70px] bg-background text-[15px] text-foreground lg:h-[46px] lg:w-[210px] uppercase">
+                <SelectTrigger className="h-[38px] w-[70px] bg-background text-[15px] text-foreground lg:h-[46px] lg:w-[280px] uppercase">
                   <SelectValue placeholder={t('status')} />
                 </SelectTrigger>
                 <SelectContent className="bg-white p-0 text-[13px] uppercase">
@@ -480,10 +509,10 @@ export default function TicketListPageContent({
       <div className="flex-1 overflow-y-auto flex flex-col bg-white text-black">
 
         {/* Tabella dati — flex-1 per occupare lo spazio residuo quando ci sono poche righe */}
-        <div className="flex-1">
+        <div className="flex-1" ref={tableWrapperRef}>
           <table
             className={cn(
-              'w-full table-fixed border-collapse',
+              'w-full h-full table-fixed border-collapse',
               isCalcio ? 'text-[12px]' : '',
             )}
           >
@@ -530,7 +559,8 @@ export default function TicketListPageContent({
                   </td>
                 </tr>
               ) : (
-                items.map((item) => {
+                <>
+                {items.map((item) => {
                   const date = parseTicketTime(item.time)
                   const statusInfo = getStatusDisplay(item.status)
                   return (
@@ -618,7 +648,14 @@ export default function TicketListPageContent({
                       </td>
                     </tr>
                   )
-                })
+                })}
+                {/* Riga filler: estende visivamente la griglia fino in fondo */}
+                <tr className="h-full">
+                  {Array.from({ length: 9 }).map((_, i) => (
+                    <td key={i} className={tdClass()} />
+                  ))}
+                </tr>
+                </>
               )}
             </tbody>
           </table>
@@ -640,7 +677,7 @@ export default function TicketListPageContent({
               <col style={{ width: '11.12%' }} />
             </colgroup>
             <tbody>
-              <tr className="h-[64px]">
+              <tr className="h-[49px]">
                 <td colSpan={2} className="bg-secondary px-3 align-middle">
                   <div className="ml-[11px] flex flex-row space-x-3">
                     <div className="flex items-center space-x-2">
@@ -705,8 +742,8 @@ export default function TicketListPageContent({
       </div>
 
       {/* Barra paginazione — fuori dal contenitore scroll, sempre in fondo alla pagina */}
-      <div className="relative h-[61px] shrink-0 bg-secondary">
-        <div className="absolute bottom-2 right-4 flex items-center space-x-3 bg-secondary px-2 py-1">
+      <div className="relative h-[52px] shrink-0 bg-secondary">
+        <div className="absolute bottom-[4px] right-4 flex items-center space-x-3 bg-secondary px-2 py-1">
           <Pagination className="w-auto">
             <PaginationContent>
               <PaginationItem>
