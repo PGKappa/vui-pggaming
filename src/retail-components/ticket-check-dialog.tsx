@@ -650,7 +650,7 @@ export default function TicketCheckDialog({
                   {/* VIDEO REPLAY */}
                   <div className="pb-4 text-center">
                     <button
-                      className="w-[260px] cursor-pointer rounded-lg border-0 bg-[#12324a] py-3 text-[14px] font-bold uppercase tracking-[1.5px] text-white"
+                      className="w-[260px] cursor-pointer rounded-lg border-0 bg-replay py-3 text-[14px] font-bold uppercase tracking-[1.5px] text-white"
                       onClick={() => {
                         if (typeof window.Bubble === 'function') {
                           window.Bubble('replay', String(ticketInfo.ticket_id))

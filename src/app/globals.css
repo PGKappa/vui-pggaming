@@ -428,6 +428,15 @@
     --notCollected: 25, 95%, 53%;
     --notCollected-foreground: 0 0% 0%;
 
+    --replay: 206, 61%, 18%;
+    --replay-foreground: 0 0% 100%;  
+
+    --navbarHover: 233, 12%, 29%;
+    --navbarHover-foreground: 0 0% 100%;
+
+    --betHover: 234, 5%, 43%;
+    --betHover-foreground: 0 0% 100%;
+
     --ticket-won: 142 71% 45%;
     --ticket-lost: 0 72% 51%;
     --ticket-active: 48 96% 53%;
@@ -445,6 +454,9 @@
 
     --navbarBg: 0 0% 0%;
     --navbarBg-foreground: 0 0% 0%;
+
+    --navbarHover: 233, 12%, 29%;
+    --navbarHover-foreground: 0 0% 100%;
 
     --card: 0 0% 100%;
     --card-foreground: 0 0% 0%;
@@ -476,6 +488,12 @@
 
     --badge-background: 211 34% 48%;
     --badge-foreground: 0 0% 100%;
+
+    --betHover: 234, 5%, 43%;
+    --betHover-foreground: 0 0% 100%;
+
+    --replay: 206, 61%, 18%;
+    --replay-foreground: 0 0% 100%;    
 
     --betEntry-background: 0 0% 90%;
     --betEntry-foreground: 0 0% 0%;

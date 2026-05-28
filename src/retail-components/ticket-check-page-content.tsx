@@ -52,8 +52,35 @@ export default function TicketCheckPageContent(
             backgroundImage: "url('/bg-stadium.png')",
             backgroundSize: 'cover',
             backgroundPosition: 'center',
+            
           }}
         >
+         {/* RICEVUTA DI PAGAMENTO - alto sinistra */}
+        <div className="absolute left-[191px] top-[108px] flex flex-col items-center pointer-events-none">
+          <div className="rounded-sm w-full h-[44px] bg-red-900 text-white text-[15px] font-bold  uppercase text-center pt-3 px-2
+   mb-[9px]">
+            RICEVUTA DI PAGAMENTO
+          </div>
+          <img
+            src="/esTicket2.png"
+            alt="Ricevuta di pagamento"
+            className="w-[270px] lg:w-[260px] lg:h-[273px] opacity-90"
+          />
+        </div>
+
+        {/* RICEVUTA CASH OUT - alto destra */}
+        <div className="absolute right-[191px] top-[108px] flex flex-col items-center pointer-events-none">
+          <div className="rounded-sm w-full h-[44px] bg-red-900 text-white text-[15px] font-bold  uppercase text-center pt-3 px-2
+   mb-[9px]">
+            RICEVUTA CASH OUT
+          </div>
+          <img
+            src="/esTicket1.png"
+            alt="Ricevuta cash out"
+            className="w-[270px] lg:w-[260px] lg:h-[273px] opacity-90"
+          />
+        </div>
+        
       {/* Title Bar */}
       <div className="relative bottom-[20px] flex h-10 shrink-0 items-center justify-center bg-secondary text-accent-foreground lg:h-16">
         <h1 className="text-[12px] font-bold uppercase lg:text-[16px]">
@@ -72,7 +99,7 @@ export default function TicketCheckPageContent(
           value={code}
         />
 
-        <div className="mt-6 flex flex-row items-start gap-4 lg:mt-40 lg:gap-6">
+        <div className="mt-6 flex flex-row items-start gap-4 lg:mt-40 lg:gap-6 relative top-[15px]">
           {/* Lettere */}
           <div className="flex flex-col space-y-1 lg:space-y-2">
             {LETTER_LAYOUT.map((row, rowIdx) => (
@@ -83,7 +110,7 @@ export default function TicketCheckPageContent(
                 {row.map((key) => (
                   <Button
                     key={key}
-                    className="h-12 w-12 rounded-md bg-secondary text-[16px] font-bold text-tertiary-foreground lg:h-[60px] lg:w-[76px] lg:text-[23px]"
+                    className="h-12 w-12 rounded-md bg-secondary text-[16px] font-bold text-tertiary-foreground lg:h-[60px] lg:w-[76px] lg:text-[23px] lg:font-sans"
                     onClick={() => handleClick(key)}
                   >
                     {key}
@@ -117,7 +144,7 @@ export default function TicketCheckPageContent(
 
       <div className="flex justify-center">
         <Button
-          className="h-12 w-[90vw] bg-bet text-[16px] font-bold text-white lg:h-16 lg:w-[1865px] rounded-md lg:text-[23px] uppercase"
+          className="h-12 w-[90vw] bg-bet text-[16px] font-bold text-white lg:h-16 lg:w-[1865px] rounded-md lg:text-[22px] font-sans uppercase"
           onClick={handleSubmit}
         >
           {t('confirm')}

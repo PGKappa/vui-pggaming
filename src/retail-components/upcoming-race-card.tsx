@@ -830,7 +830,7 @@ export default function UpcomingRaceCard({
         variant={isActive ? 'marketSelected' : 'market'}
         className={cn(
           "h-12 w-[140px] px-[18px] pb-0 text-[16px] font-semibold uppercase transition-colors",
-          !isActive && "hover:bg-[#46474d]" // L'hover viene applicato solo se NON è attivo
+          !isActive && "hover:bg-navbarHover" // L'hover viene applicato solo se NON è attivo
         )}
         onClick={() => handleTabChange(key as TabType)}
       >
@@ -864,7 +864,7 @@ export default function UpcomingRaceCard({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-12 w-fit pt-[1px] border-border bg-secondary px-[18px] text-[15px] font-semibold text-secondary-foreground hover:bg-[#46474d]"
+                className="h-12 w-fit pt-[1px] border-border bg-secondary px-[18px] text-[15px] font-semibold text-secondary-foreground hover:bg-navbarHover"
                 onClick={() => setIsLatecomersDialogOpen(true)}
               >
                 <span>{t('latecomers').toUpperCase()}</span>

@@ -7,7 +7,15 @@ import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useContext, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { ChevronLeft } from 'lucide-react'
 import { Button, buttonVariants } from './ui/button'
+
+// Variabile a livello di modulo: sopravvive al rimount del componente causato da
+// <EventsContextProvider key={pathname}> nel layout. Viene impostata prima della
+// navigazione e consumata nel useEffect del componente rimontato sulla nuova pagina.
+// In questo modo evitiamo il pattern router.push(openSearch=true) + router.replace()
+// che in Next.js 15 App Router corrompe la history del browser.
+let pendingOpenSearch = false
 
 function NavbarContent() {
   const { t, i18n } = useTranslation()
@@ -29,6 +37,16 @@ function NavbarContent() {
 
   useEffect(() => {
     if (!isOnTicketPage) {
+      // Flag impostato da closeTicketPageAndThen quando naviga da una pagina ticket.
+      // Evitiamo il param openSearch nell'URL per non dover fare router.replace()
+      // subito dopo il router.push(), che in Next.js 15 corrompe la history.
+      if (pendingOpenSearch) {
+        pendingOpenSearch = false
+        setSearchEventResults(eventResults)
+        return
+      }
+
+      // Gestione parametri URL (backward compat per link diretti/esterni)
       let needsReplace = false
       const params = new URLSearchParams(searchParams.toString())
 
@@ -76,6 +94,14 @@ function NavbarContent() {
   }
 
   const closeTicketPageAndThen = (openSearch = false, openInfo = false) => {
+    if (openInfo) {
+      // Apre l'overlay info direttamente senza navigare via dalla pagina corrente.
+      // L'overlay è fixed full-screen quindi funziona sopra qualsiasi pagina.
+      // Navigare via prima di aprirlo causava la perdita della pagina nella history.
+      setIsInfoOpen(true)
+      return
+    }
+
     setIsInfoOpen(false)
     if (isOnTicketPage && (openSearch || openInfo)) {
       // Only navigate programmatically for Button elements (search/info)
@@ -113,7 +139,7 @@ function NavbarContent() {
               'flex h-12 w-28 flex-row items-center justify-between px-4 py-1 text-foreground transition-colors',
               pathname.includes('/retail/dogs-horses')
                 ? 'bg-tertiary'
-                : 'bg-secondary hover:bg-[#46474d]',
+                : 'bg-secondary hover:bg-navbarHover',
             )}
           >
             <Image
@@ -140,7 +166,7 @@ function NavbarContent() {
               pathname.includes('/retail/dogs') &&
                 !pathname.includes('/retail/dogs-horses')
                 ? 'bg-tertiary'
-                : 'bg-secondary hover:bg-[#46474d]',
+                : 'bg-secondary hover:bg-navbarHover',
             )}
           >
             <Image
@@ -159,7 +185,7 @@ function NavbarContent() {
               'flex h-12 w-24 flex-row items-center justify-center px-4 py-1 text-foreground transition-colors',
               pathname.includes('/retail/horses')
                 ? 'bg-tertiary'
-                : 'bg-secondary hover:bg-[#46474d]',
+                : 'bg-secondary hover:bg-navbarHover',
             )}
           >
             <Image
@@ -173,6 +199,19 @@ function NavbarContent() {
         </div>
 
         <div className="relative left-1 flex w-full justify-end space-x-2">
+          <button
+            className="flex h-12 w-12 items-center justify-center"
+            onClick={() => {
+              if (isInfoOpen) {
+                setIsInfoOpen(false)
+              } else {
+                router.back()
+              }
+            }}
+          >
+            <ChevronLeft className="size-8 text-searchResultText" strokeWidth={2.5} />
+          </button>
+
           {isOperator && (
             <Link
               href={buildHref(
@@ -183,7 +222,7 @@ function NavbarContent() {
               }}
               className={cn(
                 buttonVariants({ variant: 'ticketButton', size: 'lg' }),
-                'h-12 w-[168px] p-[18px] pb-5 hover:bg-[#46474d]',
+                'h-12 w-[168px] p-[18px] pb-5 hover:bg-navbarHover',
               )}
             >
               <span className="text-[14px] font-semibold text-searchResultText">
@@ -200,7 +239,7 @@ function NavbarContent() {
               }}
               className={cn(
                 buttonVariants({ variant: 'ticketButton', size: 'lg' }),
-                'h-12 w-[168px] p-[18px] pb-5 hover:bg-[#46474d]',
+                'h-12 w-[168px] p-[18px] pb-5 hover:bg-navbarHover',
               )}
             >
               <span className="text-[14px] font-semibold text-searchResultText">
@@ -210,7 +249,7 @@ function NavbarContent() {
           )}
 
           <Button
-            className="h-12 w-fit p-[17px] pb-5 hover:bg-[#46474d]"
+            className="h-12 w-fit p-[17px] pb-5 hover:bg-navbarHover"
             variant="ticketButton"
             size="lg"
             onClick={() => closeTicketPageAndThen(true, false)}
@@ -221,7 +260,7 @@ function NavbarContent() {
           </Button>
 
           <Button
-            className="h-12 w-12 text-[18px] text-searchResultText hover:bg-[#46474d]"
+            className="h-12 w-12 text-[18px] text-searchResultText hover:bg-navbarHover"
             variant="ticketButton"
             size="lg"
             onClick={() => setIsInfoOpen((prev) => !prev)}
