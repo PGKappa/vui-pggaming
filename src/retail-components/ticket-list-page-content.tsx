@@ -220,7 +220,7 @@ export default function TicketListPageContent({
       <PopoverTrigger asChild>
         <Button
           variant="ticketFilter"
-          className={cn(extraClass, 'justify-between pl-[15px] pr-[12px]')}
+          className={cn(extraClass, 'justify-between pl-[15px] pr-[9px]')}
         >
           <span>{dateFrom ? dateRangeLabel() : t('date', 'DATA')}</span>
           <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -305,7 +305,7 @@ export default function TicketListPageContent({
   const tdClass = (extra?: string) =>
     cn(
       'border-r border-muted last:border-r-0',
-      isCalcio ? 'p-2' : 'px-1 py-0.5 lg:px-2 lg:py-[6.5px]',
+      isCalcio ? 'p-2' : 'px-1 py-0.5 lg:px-2 lg:pt-[7px] lg:pb-[6px]',
       extra,
     )
 
@@ -331,7 +331,7 @@ export default function TicketListPageContent({
       <div
         className={cn(
           'relative flex items-center justify-center bg-secondary text-accent-foreground',
-          isCalcio ? 'h-16' : 'h-10 shrink-0 lg:h-[58px]',
+          isCalcio ? 'h-16' : 'h-10 shrink-0 lg:h-[56px]',
         )}
       >
         <h2
@@ -421,12 +421,12 @@ export default function TicketListPageContent({
           </div>
         </div>
       ) : (
-        <div className="flex shrink-0 justify-center bg-secondary pb-3 lg:pb-5">
-          <div className="relative  left-[60px] flex flex-wrap items-center space-x-5  lg:bottom-[2px] lg:space-x-4 uppercase">
+        <div className="flex shrink-0 justify-center bg-secondary pb-3 lg:pb-5 h-[61px]">
+          <div className="relative  left-[60px] flex flex-wrap items-center space-x-5  lg:bottom-[3px] lg:space-x-4 uppercase">
             {/* Data - standard */}
             <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
               {dateRangeButton(
-                'h-[38px] w-[149px] justify-center text-[15px] lg:h-[46px] lg:w-[286px] uppercase',
+                'h-[38px] w-[149px] justify-center text-[15px] lg:h-[44px] lg:w-[286px] uppercase',
               )}
             </div>
 
@@ -436,7 +436,7 @@ export default function TicketListPageContent({
                 value={discipline === 'all' ? '' : discipline}
                 onValueChange={(v) => setDiscipline(v || 'all')}
               >
-                <SelectTrigger className="h-[38px] w-[84px] bg-background text-[15px] text-foreground lg:h-[46px] lg:w-[286px] uppercase pl-[15px] pr-[12px]">
+                <SelectTrigger className="h-[38px] w-[84px] bg-background text-[15px] text-foreground lg:h-[44px] lg:w-[286px] uppercase pl-[15px] pr-[12px]">
                   <SelectValue placeholder={t('discipline')} />
                 </SelectTrigger>
                 <SelectContent className="bg-white p-0 text-[13px] uppercase">
@@ -454,7 +454,7 @@ export default function TicketListPageContent({
                 value={terminal === 'all' ? '' : terminal}
                 onValueChange={(v) => setTerminal(v || 'all')}
               >
-                <SelectTrigger className="h-[38px] w-[84px] bg-background text-[15px] text-foreground lg:h-[46px] lg:w-[286px] uppercase pl-[15px] pr-[12px]">
+                <SelectTrigger className="h-[38px] w-[84px] bg-background text-[15px] text-foreground lg:h-[44px] lg:w-[286px] uppercase pl-[15px] pr-[12px]">
                   <SelectValue placeholder={t('terminal')} />
                 </SelectTrigger>
                 <SelectContent className="bg-white p-0 text-[13px] uppercase">
@@ -474,7 +474,7 @@ export default function TicketListPageContent({
                 value={statusSelectValue === 'all' ? '' : statusSelectValue}
                 onValueChange={handleStatusChange}
               >
-                <SelectTrigger className="h-[38px] w-[79px] bg-background text-[15px] text-foreground lg:h-[46px] lg:w-[286px] uppercase pl-[15px] pr-[12px]">
+                <SelectTrigger className="h-[38px] w-[79px] bg-background text-[15px] text-foreground lg:h-[44px] lg:w-[286px] uppercase pl-[15px] pr-[12px]">
                   <SelectValue placeholder={t('status')} />
                 </SelectTrigger>
                 <SelectContent className="bg-white p-0 text-[13px] uppercase">
@@ -506,7 +506,7 @@ export default function TicketListPageContent({
           di sincronizzare percentuali o pixel. La riga TOTALI è sticky bottom-0
           quindi rimane sempre visibile durante lo scroll.
           ──────────────────────────────────────────────────────────────────────── */}
-      <div className="flex-1 overflow-y-auto flex flex-col bg-white text-black">
+      <div className="flex-1 overflow-y-hidden flex flex-col bg-white text-black">
 
         {/* Tabella dati — flex-1 per occupare lo spazio residuo quando ci sono poche righe */}
         <div className="flex-1" ref={tableWrapperRef}>
@@ -679,7 +679,37 @@ export default function TicketListPageContent({
             <tbody>
               <tr className="h-[49px]">
                 <td colSpan={2} className="bg-secondary px-3 align-middle">
-                  <div className="ml-[11px] flex flex-row space-x-3">
+                  
+                </td>
+                <td style={totalCellStyle} className={totalCellClass()} />
+                <td style={totalCellStyle} className={totalCellClass('font-bold')}>
+                  {t('totals')}
+                </td>
+                <td style={totalCellStyle} className={totalCellClass()}>
+                  {formatCurrency(info?.grandtotal?.in ?? 0, currencySymbol)}
+                </td>
+                <td style={totalCellStyle} className={totalCellClass()}>
+                  {formatCurrency(info?.grandtotal?.out ?? '0.00', currencySymbol)}
+                </td>
+                <td style={totalCellStyle} className={totalCellClass()} />
+                <td style={totalCellStyle} className={totalCellClass()}>
+                  {formatCurrency(
+                    parseFloat(String(info?.grandtotal?.out ?? '0')) -
+                      (info?.grandtotal?.in ?? 0),
+                    currencySymbol,
+                  )}
+                </td>
+                <td style={totalCellStyle} className={totalCellClass()} />
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+      {/* Barra paginazione — fuori dal contenitore scroll, sempre in fondo alla pagina */}
+      <div className="relative h-[59px] shrink-0 bg-secondary">
+        <div className="ml-[24px] flex flex-row space-x-3 relative top-[21px]">
                     <div className="flex items-center space-x-2">
                       <span
                         className={cn(
@@ -714,36 +744,7 @@ export default function TicketListPageContent({
                       <div className="h-4 w-4 rounded-sm bg-ticket-lost" />
                     </div>
                   </div>
-                </td>
-                <td style={totalCellStyle} className={totalCellClass()} />
-                <td style={totalCellStyle} className={totalCellClass('font-bold')}>
-                  {t('totals')}
-                </td>
-                <td style={totalCellStyle} className={totalCellClass()}>
-                  {formatCurrency(info?.grandtotal?.in ?? 0, currencySymbol)}
-                </td>
-                <td style={totalCellStyle} className={totalCellClass()}>
-                  {formatCurrency(info?.grandtotal?.out ?? '0.00', currencySymbol)}
-                </td>
-                <td style={totalCellStyle} className={totalCellClass()} />
-                <td style={totalCellStyle} className={totalCellClass()}>
-                  {formatCurrency(
-                    parseFloat(String(info?.grandtotal?.out ?? '0')) -
-                      (info?.grandtotal?.in ?? 0),
-                    currencySymbol,
-                  )}
-                </td>
-                <td style={totalCellStyle} className={totalCellClass()} />
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-      </div>
-
-      {/* Barra paginazione — fuori dal contenitore scroll, sempre in fondo alla pagina */}
-      <div className="relative h-[52px] shrink-0 bg-secondary">
-        <div className="absolute bottom-[4px] right-4 flex items-center space-x-3 bg-secondary px-2 py-1">
+        <div className="absolute bottom-[7px] right-4 flex items-center space-x-3 bg-secondary px-2 py-1">
           <Pagination className="w-auto">
             <PaginationContent>
               <PaginationItem>
