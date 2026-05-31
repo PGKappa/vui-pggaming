@@ -228,13 +228,13 @@ export default function TicketListPageContent({
       </PopoverTrigger>
       <PopoverContent className="w-auto bg-white p-0">
         {/* Toggle single / range */}
-        <div className="flex border-b border-gray-200">
+        <div className="flex" style={{ backgroundColor: '#EDEDED' }}>
           <button
             className={cn(
-              'flex-1 py-2 text-sm font-semibold uppercase transition-colors',
+              'flex-1 py-2 text-sm font-semibold uppercase transition-colors border-b-[5px]',
               calendarMode === 'single'
-                ? 'bg-red-700 text-white'
-                : 'text-gray-600 hover:bg-gray-100',
+                ? 'text-red-700 border-b-red-700'
+                : 'text-gray-600 border-b-transparent hover:bg-gray-100',
             )}
             onClick={() => handleModeSwitch('single')}
           >
@@ -242,10 +242,10 @@ export default function TicketListPageContent({
           </button>
           <button
             className={cn(
-              'flex-1 py-2 text-sm font-semibold uppercase transition-colors',
+              'flex-1 py-2 text-sm font-semibold uppercase transition-colors border-b-[5px]',
               calendarMode === 'range'
-                ? 'bg-red-700 text-white'
-                : 'text-gray-600 hover:bg-gray-100',
+                ? 'text-red-700 border-b-red-700'
+                : 'text-gray-600 border-b-transparent hover:bg-gray-100',
             )}
             onClick={() => handleModeSwitch('range')}
           >
@@ -692,7 +692,7 @@ export default function TicketListPageContent({
                   {formatCurrency(info?.grandtotal?.out ?? '0.00', currencySymbol)}
                 </td>
                 <td style={totalCellStyle} className={totalCellClass()} />
-                <td style={totalCellStyle} className={totalCellClass()}>
+                <td style={{ ...totalCellStyle, backgroundColor: 'color-mix(in srgb, hsl(var(--secondary)) 90%, white)' }} className={totalCellClass()}>
                   {formatCurrency(
                     parseFloat(String(info?.grandtotal?.out ?? '0')) -
                       (info?.grandtotal?.in ?? 0),
