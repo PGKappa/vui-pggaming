@@ -231,7 +231,7 @@ export default function TicketListPageContent({
         <div className="flex" style={{ backgroundColor: '#EDEDED' }}>
           <button
             className={cn(
-              'flex-1 py-2 text-sm font-semibold uppercase transition-colors border-b-[5px]',
+              'flex-1 py-2 text-sm font-semibold uppercase transition-colors border-b-[4px]',
               calendarMode === 'single'
                 ? 'text-red-700 border-b-red-700'
                 : 'text-gray-600 border-b-transparent hover:bg-gray-100',
@@ -242,7 +242,7 @@ export default function TicketListPageContent({
           </button>
           <button
             className={cn(
-              'flex-1 py-2 text-sm font-semibold uppercase transition-colors border-b-[5px]',
+              'flex-1 py-2 text-sm font-semibold uppercase transition-colors border-b-[4px]',
               calendarMode === 'range'
                 ? 'text-red-700 border-b-red-700'
                 : 'text-gray-600 border-b-transparent hover:bg-gray-100',
