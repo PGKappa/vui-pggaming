@@ -226,7 +226,7 @@ export default function TicketListPageContent({
           <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto bg-white p-0">
+      <PopoverContent className="w-[var(--radix-popover-trigger-width)] bg-white p-0">
         {/* Toggle single / range */}
         <div className="flex" style={{ backgroundColor: '#EDEDED' }}>
           <button
