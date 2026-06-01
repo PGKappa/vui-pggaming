@@ -165,34 +165,24 @@ export default function TicketListPageContent({
 
   const isCalcio = variant === 'calcio'
 
-  // ── Filler rows ────────────────────────────────────────────────────────────
-  // Misura il wrapper della tabella e l'altezza di una riga dati, poi calcola
-  // quante righe vuote aggiungere per coprire lo spazio bianco rimasto.
   const tableWrapperRef = useRef<HTMLDivElement>(null)
-  const [fillerCount, setFillerCount] = useState(0)
+  const [rowHeight, setRowHeight] = useState(0)
 
   useEffect(() => {
-    const recompute = () => {
-      const wrapper = tableWrapperRef.current
-      if (!wrapper || items.length === 0) { setFillerCount(0); return }
-      const table = wrapper.querySelector('table')
-      if (!table) return
-      const thead = table.querySelector('thead')
-      const theadH = thead ? thead.getBoundingClientRect().height : 0
-      const firstRow = table.querySelector('tbody tr') as HTMLTableRowElement | null
+    const measure = () => {
+      if (!tableWrapperRef.current || items.length === 0) return
+      const firstRow = tableWrapperRef.current.querySelector('tbody tr') as HTMLTableRowElement | null
       if (!firstRow) return
-      const rowH = firstRow.getBoundingClientRect().height
-      if (rowH === 0) return
-      const wrapperH = wrapper.getBoundingClientRect().height
-      const remaining = wrapperH - theadH - rowH * items.length
-      setFillerCount(Math.max(0, Math.floor(remaining / rowH)))
+      const h = firstRow.offsetHeight
+      if (h > 0) setRowHeight(h)
     }
-
-    recompute()
-    const obs = new ResizeObserver(recompute)
+    measure()
+    const obs = new ResizeObserver(measure)
     if (tableWrapperRef.current) obs.observe(tableWrapperRef.current)
     return () => obs.disconnect()
   }, [items])
+
+  const fillerCount = Math.max(0, parseInt(pageSize) - items.length)
 
   const calendarClassNames = {
     months: 'flex flex-row space-x-4',
@@ -228,13 +218,13 @@ export default function TicketListPageContent({
       </PopoverTrigger>
       <PopoverContent className="w-auto bg-white p-0">
         {/* Toggle single / range */}
-        <div className="flex border-b border-gray-200">
+        <div className="flex" style={{ backgroundColor: '#EDEDED' }}>
           <button
             className={cn(
-              'flex-1 py-2 text-sm font-semibold uppercase transition-colors',
+              'flex-1 py-2 text-sm font-semibold uppercase transition-colors border-b-[4px]',
               calendarMode === 'single'
-                ? 'bg-red-700 text-white'
-                : 'text-gray-600 hover:bg-gray-100',
+                ? 'text-red-700 border-b-red-700'
+                : 'text-gray-600 border-b-transparent hover:bg-gray-100',
             )}
             onClick={() => handleModeSwitch('single')}
           >
@@ -242,10 +232,10 @@ export default function TicketListPageContent({
           </button>
           <button
             className={cn(
-              'flex-1 py-2 text-sm font-semibold uppercase transition-colors',
+              'flex-1 py-2 text-sm font-semibold uppercase transition-colors border-b-[4px]',
               calendarMode === 'range'
-                ? 'bg-red-700 text-white'
-                : 'text-gray-600 hover:bg-gray-100',
+                ? 'text-red-700 border-b-red-700'
+                : 'text-gray-600 border-b-transparent hover:bg-gray-100',
             )}
             onClick={() => handleModeSwitch('range')}
           >
@@ -649,10 +639,21 @@ export default function TicketListPageContent({
                     </tr>
                   )
                 })}
-                {/* Riga filler: estende visivamente la griglia fino in fondo */}
+                {Array.from({ length: fillerCount }).map((_, rowIdx) => (
+                  <tr
+                    key={`filler-${rowIdx}`}
+                    className="border-b"
+                    style={rowHeight > 0 ? { height: rowHeight } : undefined}
+                  >
+                    {Array.from({ length: 9 }).map((_, i) => (
+                      <td key={i} className={tdClass()} />
+                    ))}
+                  </tr>
+                ))}
+                {/* Spacer invisibile: assorbe lo spazio residuo senza stirare le righe dati */}
                 <tr className="h-full">
                   {Array.from({ length: 9 }).map((_, i) => (
-                    <td key={i} className={tdClass()} />
+                    <td key={i} />
                   ))}
                 </tr>
                 </>
@@ -692,7 +693,7 @@ export default function TicketListPageContent({
                   {formatCurrency(info?.grandtotal?.out ?? '0.00', currencySymbol)}
                 </td>
                 <td style={totalCellStyle} className={totalCellClass()} />
-                <td style={totalCellStyle} className={totalCellClass()}>
+                <td style={{ ...totalCellStyle, backgroundColor: 'color-mix(in srgb, hsl(var(--secondary)) 90%, white)' }} className={totalCellClass()}>
                   {formatCurrency(
                     parseFloat(String(info?.grandtotal?.out ?? '0')) -
                       (info?.grandtotal?.in ?? 0),

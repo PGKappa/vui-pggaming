@@ -200,7 +200,7 @@ function NavbarContent() {
 
         <div className="relative left-1 flex w-full justify-end space-x-2">
           <button
-            className="flex h-12 w-12 items-center justify-center"
+            className="flex h-12 w-12 items-center justify-center bg-trasparent"
             onClick={() => {
               if (isInfoOpen) {
                 setIsInfoOpen(false)
@@ -209,7 +209,7 @@ function NavbarContent() {
               }
             }}
           >
-            <ChevronLeft className="size-8 text-searchResultText" strokeWidth={2.5} />
+            <ChevronLeft className="size-8 text-searchResultText bg-transparent" strokeWidth={2.5} />
           </button>
 
           {isOperator && (

@@ -84,7 +84,7 @@ export function getStatusDisplay(status: number): {
       return {
         label: 'Paid',
         colorClass: 'bg-ticket-won',
-        translationKey: 'paid',
+        translationKey: 'won',
       }
     default:
       console.warn(
