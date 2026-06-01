@@ -185,10 +185,11 @@ export default function TicketListPageContent({
   const fillerCount = Math.max(0, parseInt(pageSize) - items.length)
 
   const calendarClassNames = {
-    months: 'flex flex-row space-x-4',
-    head_cell: 'text-gray-600 w-8 font-semibold text-[0.8rem]',
-    cell: 'relative p-0 text-center text-sm text-gray-800 focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-red-100 [&:has([aria-selected].day-outside)]:bg-red-50',
-    day: 'h-8 w-8 p-0 font-normal text-gray-800 aria-selected:opacity-100 hover:bg-gray-100 rounded-md',
+    months: 'flex flex-row space-x-4 w-full',
+    month: 'space-y-4 flex-1',
+    head_cell: 'text-gray-600 flex-1 font-semibold text-[0.8rem] text-center',
+    cell: 'relative p-0 text-center text-sm text-gray-800 flex-1 focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-red-100 [&:has([aria-selected].day-outside)]:bg-red-50',
+    day: 'h-8 w-full p-0 font-normal text-gray-800 aria-selected:opacity-100 hover:bg-gray-100 rounded-md',
     day_selected:
       'bg-red-700 text-white hover:bg-red-800 focus:bg-red-700 focus:text-white rounded-md',
     day_today: dateFrom ? '' : 'border border-red-700 font-bold text-red-700 rounded-md',
@@ -216,7 +217,7 @@ export default function TicketListPageContent({
           <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto bg-white p-0">
+      <PopoverContent className="w-auto min-w-[var(--radix-popover-trigger-width)] bg-white p-0">
         {/* Toggle single / range */}
         <div className="flex" style={{ backgroundColor: '#EDEDED' }}>
           <button
@@ -253,6 +254,7 @@ export default function TicketListPageContent({
             showOutsideDays={false}
             locale={it}
             classNames={calendarClassNames}
+            className="w-full p-3"
           />
         ) : (
           <Calendar
@@ -263,6 +265,7 @@ export default function TicketListPageContent({
             showOutsideDays={false}
             locale={it}
             classNames={calendarClassNames}
+            className="w-full p-3"
           />
         )}
       </PopoverContent>
