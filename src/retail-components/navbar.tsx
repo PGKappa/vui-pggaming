@@ -198,7 +198,7 @@ function NavbarContent() {
           </Link>
         </div>
 
-        <div className="relative left-1 flex w-full justify-end space-x-2">
+        <div className="relative left-1 flex w-full justify-end space-x-2 bg-transparent">
           <button
             className="flex h-12 w-12 items-center justify-center bg-trasparent"
             onClick={() => {
