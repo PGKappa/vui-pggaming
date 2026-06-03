@@ -196,7 +196,7 @@ export default function TicketListPageContent({
     months: 'flex flex-row space-x-4 w-full',
     month: 'space-y-4 flex-1',
     head_cell: 'text-gray-600 flex-1 font-semibold text-[0.8rem] text-center',
-    cell: 'relative p-0 text-center text-sm text-gray-800 flex-1 focus-within:relative focus-within:z-20 [&:has([aria-selected])]:bg-red-100 [&:has([aria-selected].day-outside)]:bg-red-50',
+    cell: 'relative p-0 text-center text-sm text-gray-800 flex-1 focus-within:relative focus-within:z-20',
     day: 'h-8 w-full p-0 font-normal text-gray-800 aria-selected:opacity-100 hover:bg-gray-100 rounded-md',
     day_selected:
       'bg-red-700 text-white hover:bg-red-800 focus:bg-red-700 focus:text-white rounded-md',
@@ -208,7 +208,7 @@ export default function TicketListPageContent({
     day_range_end:
       'bg-red-700 text-white hover:bg-red-800 rounded-r-md rounded-l-none',
     day_range_middle:
-      'aria-selected:bg-red-100 aria-selected:text-gray-800 rounded-none',
+      'bg-red-100 !text-black rounded-none',
     caption_label: 'text-sm font-semibold text-gray-800',
     nav_button:
       'h-7 w-7 bg-transparent p-0 opacity-70 hover:opacity-100 border border-gray-300 rounded flex items-center justify-center',
