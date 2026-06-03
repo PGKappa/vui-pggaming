@@ -114,8 +114,8 @@ export function useTicketList() {
   const [status, setStatus] = useState('all')
   const [payment, setPayment] = useState('all')
   const [discipline, setDiscipline] = useState('all')
-  const [dateFrom, setDateFrom] = useState<Date | undefined>(new Date())
-  const [dateTo, setDateTo] = useState<Date | undefined>(new Date())
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined)
+  const [dateTo, setDateTo] = useState<Date | undefined>(undefined)
   const [pageSize, setPageSize] = useState('15')
   const [currentPage, setCurrentPage] = useState(1)
 
