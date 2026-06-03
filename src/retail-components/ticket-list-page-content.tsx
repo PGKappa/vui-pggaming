@@ -168,7 +168,9 @@ export default function TicketListPageContent({
   useEffect(() => {
     const measure = () => {
       if (!tableWrapperRef.current || items.length === 0) return
-      const firstRow = tableWrapperRef.current.querySelector('tbody tr') as HTMLTableRowElement | null
+      const firstRow = tableWrapperRef.current.querySelector(
+        'tbody tr',
+      ) as HTMLTableRowElement | null
       if (!firstRow) return
       const h = firstRow.offsetHeight
       if (h > 0) setRowHeight(h)
@@ -182,7 +184,10 @@ export default function TicketListPageContent({
   useEffect(() => {
     if (!isDatePickerOpen) return
     const handleClickOutside = (e: MouseEvent) => {
-      if (datePickerRef.current && !datePickerRef.current.contains(e.target as Node)) {
+      if (
+        datePickerRef.current &&
+        !datePickerRef.current.contains(e.target as Node)
+      ) {
         setIsDatePickerOpen(false)
       }
     }
@@ -200,15 +205,16 @@ export default function TicketListPageContent({
     day: 'h-8 w-full p-0 font-normal text-gray-800 bg-white border-0 aria-selected:opacity-100 hover:bg-gray-100 rounded-md',
     day_selected:
       'bg-red-700 text-white hover:bg-red-800 focus:bg-red-700 focus:text-white rounded-md',
-    day_today: dateFrom ? '' : 'border border-red-700 font-bold text-red-700 rounded-md',
+    day_today: dateFrom
+      ? ''
+      : 'border border-red-700 font-bold text-red-700 rounded-md',
     day_outside: 'text-gray-300 opacity-50',
     day_disabled: 'text-gray-300 opacity-30',
     day_range_start:
       '!bg-red-700 !text-white hover:!bg-red-800 rounded-l-md rounded-r-none',
     day_range_end:
       '!bg-red-700 !text-white hover:!bg-red-800 rounded-r-md rounded-l-none',
-    day_range_middle:
-      '!bg-red-100 !text-black rounded-none',
+    day_range_middle: '!bg-red-100 !text-black rounded-none',
     caption_label: 'text-sm font-semibold text-gray-800',
     nav_button:
       'h-7 w-7 bg-transparent p-0 opacity-70 hover:opacity-100 border border-gray-300 rounded flex items-center justify-center',
@@ -230,10 +236,10 @@ export default function TicketListPageContent({
           <div className="flex" style={{ backgroundColor: '#EDEDED' }}>
             <button
               className={cn(
-                'flex-1 py-2 text-sm font-semibold uppercase transition-colors border-b-[4px]',
+                'flex-1 border-b-[4px] py-2 text-sm font-semibold uppercase transition-colors',
                 calendarMode === 'single'
-                  ? 'text-red-700 border-b-red-700'
-                  : 'text-gray-600 border-b-transparent hover:bg-gray-100',
+                  ? 'border-b-red-700 text-red-700'
+                  : 'border-b-transparent text-gray-600 hover:bg-gray-100',
               )}
               onClick={() => handleModeSwitch('single')}
             >
@@ -241,10 +247,10 @@ export default function TicketListPageContent({
             </button>
             <button
               className={cn(
-                'flex-1 py-2 text-sm font-semibold uppercase transition-colors border-b-[4px]',
+                'flex-1 border-b-[4px] py-2 text-sm font-semibold uppercase transition-colors',
                 calendarMode === 'range'
-                  ? 'text-red-700 border-b-red-700'
-                  : 'text-gray-600 border-b-transparent hover:bg-gray-100',
+                  ? 'border-b-red-700 text-red-700'
+                  : 'border-b-transparent text-gray-600 hover:bg-gray-100',
               )}
               onClick={() => handleModeSwitch('range')}
             >
@@ -314,6 +320,22 @@ export default function TicketListPageContent({
       extra,
     )
 
+  const getItemSaldo = (item: (typeof items)[number]) =>
+    item.saldo !== undefined
+      ? parseFloat(item.saldo)
+      : parseFloat(item.amount_won || '0') - parseFloat(item.amount || '0')
+
+  const totalSaldo = items.reduce(
+    (acc, item) => acc + Math.abs(getItemSaldo(item)),
+    0,
+  )
+  const winningSaldo = items.reduce((acc, item) => {
+    if (item.status === 4 || item.status === 6)
+      return acc + Math.abs(getItemSaldo(item))
+    return acc
+  }, 0)
+  const netSaldo = totalSaldo - winningSaldo
+
   const totalBorder = '0.5px solid rgba(255,255,255,0.4)'
   const totalCellStyle = { border: totalBorder }
   const totalCellClass = (extra?: string) =>
@@ -342,7 +364,9 @@ export default function TicketListPageContent({
         <h2
           className={cn(
             'font-bold uppercase',
-            isCalcio ? 'text-[20px]' : 'text-[12px] lg:text-[16px] relative bottom-[1px]',
+            isCalcio
+              ? 'text-[20px]'
+              : 'relative bottom-[1px] text-[12px] lg:text-[16px]',
           )}
         >
           {t('ticket_list')}
@@ -364,7 +388,7 @@ export default function TicketListPageContent({
                 value={terminal === 'all' ? '' : terminal}
                 onValueChange={(v) => setTerminal(v || 'all')}
               >
-                <SelectTrigger className="h-[38px] w-[149px] bg-background text-[15px] text-foreground pl-[15px] pr-[12px]">
+                <SelectTrigger className="h-[38px] w-[149px] bg-background pl-[15px] pr-[12px] text-[15px] text-foreground">
                   <SelectValue placeholder={t('terminal')} />
                 </SelectTrigger>
                 <SelectContent className="bg-white p-0 text-[13px] uppercase">
@@ -384,7 +408,7 @@ export default function TicketListPageContent({
                 value={statusSelectValue === 'all' ? '' : statusSelectValue}
                 onValueChange={handleStatusChange}
               >
-                <SelectTrigger className="h-[38px] w-[149px] bg-background text-[15px] text-foreground pl-[15px] pr-[12px]">
+                <SelectTrigger className="h-[38px] w-[149px] bg-background pl-[15px] pr-[12px] text-[15px] text-foreground">
                   <SelectValue placeholder={t('status')} />
                 </SelectTrigger>
                 <SelectContent className="bg-white p-0 text-[13px] uppercase">
@@ -405,14 +429,16 @@ export default function TicketListPageContent({
                 value={discipline === 'all' ? '' : discipline}
                 onValueChange={(v) => setDiscipline(v || 'all')}
               >
-                <SelectTrigger className="h-[38px] w-[149px] bg-background text-[15px] text-foreground pl-[15px] pr-[12px]">
+                <SelectTrigger className="h-[38px] w-[149px] bg-background pl-[15px] pr-[12px] text-[15px] text-foreground">
                   <SelectValue placeholder={t('discipline')} />
                 </SelectTrigger>
                 <SelectContent className="bg-white p-0 text-[13px] uppercase">
                   <SelectItem value="all">{t('all')}</SelectItem>
                   <SelectItem value="dogs">{t('dog_racing')}</SelectItem>
                   <SelectItem value="horses">{t('horse_racing')}</SelectItem>
-                  <SelectItem value="real">{t('dog_racing')} / {t('horse_racing')}</SelectItem>
+                  <SelectItem value="real">
+                    {t('dog_racing')} / {t('horse_racing')}
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -426,8 +452,8 @@ export default function TicketListPageContent({
           </div>
         </div>
       ) : (
-        <div className="flex shrink-0 justify-center bg-secondary pb-3 lg:pb-5 h-[61px]">
-          <div className="relative  left-[60px] flex flex-wrap items-center space-x-5  lg:bottom-[3px] lg:space-x-4 uppercase">
+        <div className="flex h-[61px] shrink-0 justify-center bg-secondary pb-3 lg:pb-5">
+          <div className="relative left-[60px] flex flex-wrap items-center space-x-5 uppercase lg:bottom-[3px] lg:space-x-4">
             {/* Data - standard */}
             <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
               {dateRangeButton(
@@ -441,14 +467,16 @@ export default function TicketListPageContent({
                 value={discipline === 'all' ? '' : discipline}
                 onValueChange={(v) => setDiscipline(v || 'all')}
               >
-                <SelectTrigger className="h-[38px] w-[84px] bg-background text-[15px] text-foreground lg:h-[44px] lg:w-[286px] uppercase pl-[15px] pr-[12px]">
+                <SelectTrigger className="h-[38px] w-[84px] bg-background pl-[15px] pr-[12px] text-[15px] uppercase text-foreground lg:h-[44px] lg:w-[286px]">
                   <SelectValue placeholder={t('discipline')} />
                 </SelectTrigger>
                 <SelectContent className="bg-white p-0 text-[13px] uppercase">
                   <SelectItem value="all">{t('all')}</SelectItem>
                   <SelectItem value="dogs">{t('dog_racing')}</SelectItem>
                   <SelectItem value="horses">{t('horse_racing')}</SelectItem>
-                  <SelectItem value="real">{t('dog_racing')} / {t('horse_racing')}</SelectItem>
+                  <SelectItem value="real">
+                    {t('dog_racing')} / {t('horse_racing')}
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -459,7 +487,7 @@ export default function TicketListPageContent({
                 value={terminal === 'all' ? '' : terminal}
                 onValueChange={(v) => setTerminal(v || 'all')}
               >
-                <SelectTrigger className="h-[38px] w-[84px] bg-background text-[15px] text-foreground lg:h-[44px] lg:w-[286px] uppercase pl-[15px] pr-[12px]">
+                <SelectTrigger className="h-[38px] w-[84px] bg-background pl-[15px] pr-[12px] text-[15px] uppercase text-foreground lg:h-[44px] lg:w-[286px]">
                   <SelectValue placeholder={t('terminal')} />
                 </SelectTrigger>
                 <SelectContent className="bg-white p-0 text-[13px] uppercase">
@@ -479,7 +507,7 @@ export default function TicketListPageContent({
                 value={statusSelectValue === 'all' ? '' : statusSelectValue}
                 onValueChange={handleStatusChange}
               >
-                <SelectTrigger className="h-[38px] w-[79px] bg-background text-[15px] text-foreground lg:h-[44px] lg:w-[286px] uppercase pl-[15px] pr-[12px]">
+                <SelectTrigger className="h-[38px] w-[79px] bg-background pl-[15px] pr-[12px] text-[15px] uppercase text-foreground lg:h-[44px] lg:w-[286px]">
                   <SelectValue placeholder={t('status')} />
                 </SelectTrigger>
                 <SelectContent className="bg-white p-0 text-[13px] uppercase">
@@ -495,7 +523,7 @@ export default function TicketListPageContent({
             </div>
             <Button
               onClick={fetchTickets}
-              className="text-bold h-7 w-[60px] bg-tertiary text-[10px] uppercase text-tertiary-foreground lg:h-[42px] lg:w-[106px] lg:text-[15px] relative left-2"
+              className="text-bold relative left-2 h-7 w-[60px] bg-tertiary text-[10px] uppercase text-tertiary-foreground lg:h-[42px] lg:w-[106px] lg:text-[15px]"
             >
               {t('reload')}
             </Button>
@@ -511,13 +539,12 @@ export default function TicketListPageContent({
           di sincronizzare percentuali o pixel. La riga TOTALI è sticky bottom-0
           quindi rimane sempre visibile durante lo scroll.
           ──────────────────────────────────────────────────────────────────────── */}
-      <div className="flex-1 overflow-y-hidden flex flex-col bg-white text-black">
-
+      <div className="flex flex-1 flex-col overflow-y-hidden bg-white text-black">
         {/* Tabella dati — flex-1 per occupare lo spazio residuo quando ci sono poche righe */}
         <div className="flex-1" ref={tableWrapperRef}>
           <table
             className={cn(
-              'w-full h-full table-fixed border-collapse',
+              'h-full w-full table-fixed border-collapse',
               isCalcio ? 'text-[12px]' : '',
             )}
           >
@@ -565,112 +592,107 @@ export default function TicketListPageContent({
                 </tr>
               ) : (
                 <>
-                {items.map((item) => {
-                  const date = parseTicketTime(item.time)
-                  const statusInfo = getStatusDisplay(item.status)
-                  return (
-                    <tr
-                      key={item.ticket_id}
-                      className={cn(
-                        'border-b text-center',
-                        isCalcio ? 'text-[16px]' : 'text-[12px] lg:text-[15px]',
-                      )}
-                    >
-                      <td className={tdClass()}>{item.ticket_id}</td>
-                      <td className={tdClass()}>
-                        {format(date, 'dd/MM/yy')} - {format(date, 'HH:mm:ss')}
-                      </td>
-                      <td className={tdClass()}>{item.terminal_id}</td>
-                      <td className={tdClass()}>
-                        {getDisciplineLabel(item.ticket_id)}
-                      </td>
-                      <td className={tdClass()}>
-                        {formatCurrency(item.amount, currencySymbol)}
-                      </td>
-                      <td className={tdClass()}>
-                        {formatCurrency(item.amount_won, currencySymbol)}
-                      </td>
-                      <td className={tdClass()}>
-                        <div
-                          className={cn(
-                            'flex items-center justify-center',
-                            isCalcio ? 'gap-2' : 'space-x-1 lg:space-x-2',
-                          )}
-                        >
-                          <span
-                            className={cn(
-                              'font-medium',
-                              isCalcio ? 'text-[16px]' : '',
-                            )}
-                          >
-                            {t(statusInfo.translationKey)}
-                          </span>
+                  {items.map((item) => {
+                    const date = parseTicketTime(item.time)
+                    const statusInfo = getStatusDisplay(item.status)
+                    return (
+                      <tr
+                        key={item.ticket_id}
+                        className={cn(
+                          'border-b text-center',
+                          isCalcio
+                            ? 'text-[16px]'
+                            : 'text-[12px] lg:text-[15px]',
+                        )}
+                      >
+                        <td className={tdClass()}>{item.ticket_id}</td>
+                        <td className={tdClass()}>
+                          {format(date, 'dd/MM/yy')} -{' '}
+                          {format(date, 'HH:mm:ss')}
+                        </td>
+                        <td className={tdClass()}>{item.terminal_id}</td>
+                        <td className={tdClass()}>
+                          {getDisciplineLabel(item.ticket_id)}
+                        </td>
+                        <td className={tdClass()}>
+                          {formatCurrency(item.amount, currencySymbol)}
+                        </td>
+                        <td className={tdClass()}>
+                          {formatCurrency(item.amount_won, currencySymbol)}
+                        </td>
+                        <td className={tdClass()}>
                           <div
                             className={cn(
-                              isCalcio
-                                ? 'h-3 w-3 rounded-sm'
-                                : 'h-2 w-2 rounded-sm lg:h-3 lg:w-3',
-                              statusInfo.colorClass,
+                              'flex items-center justify-center',
+                              isCalcio ? 'gap-2' : 'space-x-1 lg:space-x-2',
                             )}
-                          />
-                        </div>
-                      </td>
-                      <td className={tdClass()}>
-                        {(() => {
-                          const saldo =
-                            item.saldo !== undefined
-                              ? parseFloat(item.saldo)
-                              : parseFloat(item.amount_won || '0') -
-                                parseFloat(item.amount || '0')
-                          return (
+                          >
                             <span
                               className={cn(
-                                'font-medium tabular-nums',
-                                saldo > 0
-                                  ? 'text-ticket-won'
-                                  : saldo < 0
-                                    ? 'text-ticket-lost'
-                                    : '',
+                                'font-medium',
+                                isCalcio ? 'text-[16px]' : '',
                               )}
                             >
-                              {formatCurrency(Math.abs(saldo), currencySymbol)}
+                              {t(statusInfo.translationKey)}
                             </span>
-                          )
-                        })()}
-                      </td>
-                      <td className={tdClass()}>
-                        <Button
-                          onClick={() => handleDetailsClick(item)}
-                          className={cn(
-                            'bg-tertiary text-tertiary-foreground',
-                            isCalcio
-                              ? 'h-8 w-20 text-[16px]'
-                              : 'h-6 w-14 text-[10px] uppercase lg:h-8 lg:w-[106px] lg:text-[15px]',
-                          )}
-                        >
-                          {t('details')}
-                        </Button>
-                      </td>
+                            <div
+                              className={cn(
+                                isCalcio
+                                  ? 'h-3 w-3 rounded-sm'
+                                  : 'h-2 w-2 rounded-sm lg:h-3 lg:w-3',
+                                statusInfo.colorClass,
+                              )}
+                            />
+                          </div>
+                        </td>
+                        <td className={tdClass()}>
+                          <span
+                            className={cn(
+                              'font-medium tabular-nums',
+                              item.status === 4 || item.status === 6
+                                ? 'text-ticket-lost'
+                                : '',
+                            )}
+                          >
+                            {formatCurrency(
+                              Math.abs(getItemSaldo(item)),
+                              currencySymbol,
+                            )}
+                          </span>
+                        </td>
+                        <td className={tdClass()}>
+                          <Button
+                            onClick={() => handleDetailsClick(item)}
+                            className={cn(
+                              'bg-tertiary text-tertiary-foreground',
+                              isCalcio
+                                ? 'h-8 w-20 text-[16px]'
+                                : 'h-6 w-14 text-[10px] uppercase lg:h-8 lg:w-[106px] lg:text-[15px]',
+                            )}
+                          >
+                            {t('details')}
+                          </Button>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                  {Array.from({ length: fillerCount }).map((_, rowIdx) => (
+                    <tr
+                      key={`filler-${rowIdx}`}
+                      className="border-b"
+                      style={rowHeight > 0 ? { height: rowHeight } : undefined}
+                    >
+                      {Array.from({ length: 9 }).map((_, i) => (
+                        <td key={i} className={tdClass()} />
+                      ))}
                     </tr>
-                  )
-                })}
-                {Array.from({ length: fillerCount }).map((_, rowIdx) => (
-                  <tr
-                    key={`filler-${rowIdx}`}
-                    className="border-b"
-                    style={rowHeight > 0 ? { height: rowHeight } : undefined}
-                  >
+                  ))}
+                  {/* Spacer invisibile: assorbe lo spazio residuo senza stirare le righe dati */}
+                  <tr className="h-full">
                     {Array.from({ length: 9 }).map((_, i) => (
-                      <td key={i} className={tdClass()} />
+                      <td key={i} />
                     ))}
                   </tr>
-                ))}
-                {/* Spacer invisibile: assorbe lo spazio residuo senza stirare le righe dati */}
-                <tr className="h-full">
-                  {Array.from({ length: 9 }).map((_, i) => (
-                    <td key={i} />
-                  ))}
-                </tr>
                 </>
               )}
             </tbody>
@@ -679,7 +701,7 @@ export default function TicketListPageContent({
 
         {/* Riga TOTALI — sticky bottom-0 nello stesso contenitore scroll.
             Stessa larghezza effettiva della tabella dati → colonne sempre allineate. */}
-        <div className="sticky bottom-0 shrink-0 bg-secondary text-white uppercase">
+        <div className="sticky bottom-0 shrink-0 bg-secondary uppercase text-white">
           <table className="w-full table-fixed border-collapse">
             <colgroup>
               <col style={{ width: '11.11%' }} />
@@ -694,72 +716,84 @@ export default function TicketListPageContent({
             </colgroup>
             <tbody>
               <tr className="h-[49px]">
-                <td colSpan={2} className="bg-secondary px-3 align-middle">
-                  
-                </td>
+                <td colSpan={2} className="bg-secondary px-3 align-middle"></td>
                 <td style={totalCellStyle} className={totalCellClass()} />
-                <td style={totalCellStyle} className={totalCellClass('font-bold')}>
+                <td
+                  style={totalCellStyle}
+                  className={totalCellClass('font-bold')}
+                >
                   {t('totals')}
                 </td>
                 <td style={totalCellStyle} className={totalCellClass()}>
                   {formatCurrency(info?.grandtotal?.in ?? 0, currencySymbol)}
                 </td>
                 <td style={totalCellStyle} className={totalCellClass()}>
-                  {formatCurrency(info?.grandtotal?.out ?? '0.00', currencySymbol)}
-                </td>
-                <td style={totalCellStyle} className={totalCellClass()} />
-                <td style={{ ...totalCellStyle, backgroundColor: 'color-mix(in srgb, hsl(var(--secondary)) 90%, white)' }} className={totalCellClass()}>
                   {formatCurrency(
-                    parseFloat(String(info?.grandtotal?.out ?? '0')) -
-                      (info?.grandtotal?.in ?? 0),
+                    info?.grandtotal?.out ?? '0.00',
                     currencySymbol,
                   )}
+                </td>
+                <td style={totalCellStyle} className={totalCellClass()} />
+                <td
+                  style={{
+                    ...totalCellStyle,
+                    backgroundColor:
+                      'color-mix(in srgb, hsl(var(--secondary)) 90%, white)',
+                  }}
+                  className={totalCellClass()}
+                >
+                  {formatCurrency(netSaldo, currencySymbol)}
                 </td>
                 <td style={totalCellStyle} className={totalCellClass()} />
               </tr>
             </tbody>
           </table>
         </div>
-
       </div>
 
       {/* Barra paginazione — fuori dal contenitore scroll, sempre in fondo alla pagina */}
       <div className="relative h-[59px] shrink-0 bg-secondary">
-        <div className="ml-[24px] flex flex-row space-x-3 relative top-[21px]">
-                    <div className="flex items-center space-x-2">
-                      <span
-                        className={cn(
-                          'text-white',
-                          isCalcio ? 'text-[11px]' : 'text-[9px] lg:text-[12px] uppercase',
-                        )}
-                      >
-                        {t('collected')}
-                      </span>
-                      <div className="h-4 w-4 rounded-sm bg-ticket-won" />
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <span
-                        className={cn(
-                          'text-white',
-                          isCalcio ? 'text-[11px]' : 'text-[9px] lg:text-[12px] uppercase',
-                        )}
-                      >
-                        {t('not_collected')}
-                      </span>
-                      <div className="h-4 w-4 rounded-sm bg-notCollected" />
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <span
-                        className={cn(
-                          'text-white',
-                          isCalcio ? 'text-[11px]' : 'text-[9px] lg:text-[12px] uppercase',
-                        )}
-                      >
-                        {t('cancelled')}
-                      </span>
-                      <div className="h-4 w-4 rounded-sm bg-ticket-lost" />
-                    </div>
-                  </div>
+        <div className="relative top-[21px] ml-[24px] flex flex-row space-x-3">
+          <div className="flex items-center space-x-2">
+            <span
+              className={cn(
+                'text-white',
+                isCalcio
+                  ? 'text-[11px]'
+                  : 'text-[9px] uppercase lg:text-[12px]',
+              )}
+            >
+              {t('collected')}
+            </span>
+            <div className="h-4 w-4 rounded-sm bg-ticket-won" />
+          </div>
+          <div className="flex items-center space-x-2">
+            <span
+              className={cn(
+                'text-white',
+                isCalcio
+                  ? 'text-[11px]'
+                  : 'text-[9px] uppercase lg:text-[12px]',
+              )}
+            >
+              {t('not_collected')}
+            </span>
+            <div className="h-4 w-4 rounded-sm bg-notCollected" />
+          </div>
+          <div className="flex items-center space-x-2">
+            <span
+              className={cn(
+                'text-white',
+                isCalcio
+                  ? 'text-[11px]'
+                  : 'text-[9px] uppercase lg:text-[12px]',
+              )}
+            >
+              {t('cancelled')}
+            </span>
+            <div className="h-4 w-4 rounded-sm bg-ticket-lost" />
+          </div>
+        </div>
         <div className="absolute bottom-[7px] right-4 flex items-center space-x-3 bg-secondary px-2 py-1">
           <Pagination className="w-auto">
             <PaginationContent>

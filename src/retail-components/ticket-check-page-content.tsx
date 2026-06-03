@@ -1,4 +1,5 @@
 'use client'
+import Image from 'next/image'
 import { useState } from 'react'
 import { Button } from '@/retail-components/ui/button'
 import { Input } from '@/retail-components/ui/input'
@@ -46,41 +47,42 @@ export default function TicketCheckPageContent(
   }
 
   return (
-          <main
-          className="fixed bottom-0 left-0 right-0 top-[60px] z-50 flex flex-col justify-between py-4 text-accent-foreground lg:py-6"
-          style={{
-            backgroundImage: "url('/bg-stadium.png')",
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            
-          }}
-        >
-         {/* RICEVUTA DI PAGAMENTO - alto sinistra */}
-        <div className="absolute left-[191px] top-[108px] flex flex-col items-center pointer-events-none">
-          <div className="rounded-sm w-full h-[44px] bg-red-900 text-white text-[15px] font-bold  uppercase text-center pt-3 px-2
-   mb-[9px]">
-            RICEVUTA DI PAGAMENTO
-          </div>
-          <img
-            src="/esTicket2.png"
-            alt="Ricevuta di pagamento"
-            className="w-[270px] lg:w-[260px] lg:h-[273px] opacity-90"
-          />
+    <main
+      className="fixed bottom-0 left-0 right-0 top-[60px] z-50 flex flex-col justify-between py-4 text-accent-foreground lg:py-6"
+      style={{
+        backgroundImage: "url('/bg-stadium.png')",
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
+    >
+      {/* RICEVUTA DI PAGAMENTO - alto sinistra */}
+      <div className="pointer-events-none absolute left-[191px] top-[108px] flex flex-col items-center">
+        <div className="mb-[9px] h-[44px] w-full rounded-sm bg-red-900 px-2 pt-3 text-center text-[15px] font-bold uppercase text-white">
+          RICEVUTA DI PAGAMENTO
         </div>
+        <Image
+          src="/esTicket2.png"
+          alt="Ricevuta di pagamento"
+          width={270}
+          height={273}
+          className="w-[270px] opacity-90 lg:h-[273px] lg:w-[260px]"
+        />
+      </div>
 
-        {/* RICEVUTA CASH OUT - alto destra */}
-        <div className="absolute right-[191px] top-[108px] flex flex-col items-center pointer-events-none">
-          <div className="rounded-sm w-full h-[44px] bg-red-900 text-white text-[15px] font-bold  uppercase text-center pt-3 px-2
-   mb-[9px]">
-            RICEVUTA CASH OUT
-          </div>
-          <img
-            src="/esTicket1.png"
-            alt="Ricevuta cash out"
-            className="w-[270px] lg:w-[260px] lg:h-[273px] opacity-90"
-          />
+      {/* RICEVUTA CASH OUT - alto destra */}
+      <div className="pointer-events-none absolute right-[191px] top-[108px] flex flex-col items-center">
+        <div className="mb-[9px] h-[44px] w-full rounded-sm bg-red-900 px-2 pt-3 text-center text-[15px] font-bold uppercase text-white">
+          RICEVUTA CASH OUT
         </div>
-        
+        <Image
+          src="/esTicket1.png"
+          alt="Ricevuta cash out"
+          width={270}
+          height={273}
+          className="w-[270px] opacity-90 lg:h-[273px] lg:w-[260px]"
+        />
+      </div>
+
       {/* Title Bar */}
       <div className="relative bottom-[20px] flex h-10 shrink-0 items-center justify-center bg-secondary text-accent-foreground lg:h-16">
         <h1 className="text-[12px] font-bold uppercase lg:text-[16px]">
@@ -89,17 +91,17 @@ export default function TicketCheckPageContent(
       </div>
 
       <div className="flex flex-1 flex-col items-center justify-center">
-        <p className="text-[16px] font-semibold lg:text-[22px] relative bottom-[80px]">
+        <p className="relative bottom-[80px] text-[16px] font-semibold lg:text-[22px]">
           {t('scan_or_enter_code')}
         </p>
 
         <Input
-          className="mt-6 h-10 w-[320px] bg-white text-center text-[16px] font-bold text-foreground lg:mt-10 lg:h-10 lg:w-[370px] lg:text-[20px] relative bottom-[110px] rounded-md"
+          className="relative bottom-[110px] mt-6 h-10 w-[320px] rounded-md bg-white text-center text-[16px] font-bold text-foreground lg:mt-10 lg:h-10 lg:w-[370px] lg:text-[20px]"
           readOnly
           value={code}
         />
 
-        <div className="mt-6 flex flex-row items-start gap-4 lg:mt-40 lg:gap-6 relative top-[15px]">
+        <div className="relative top-[15px] mt-6 flex flex-row items-start gap-4 lg:mt-40 lg:gap-6">
           {/* Lettere */}
           <div className="flex flex-col space-y-1 lg:space-y-2">
             {LETTER_LAYOUT.map((row, rowIdx) => (
@@ -110,7 +112,7 @@ export default function TicketCheckPageContent(
                 {row.map((key) => (
                   <Button
                     key={key}
-                    className="h-12 w-12 rounded-md bg-secondary text-[16px] font-bold text-tertiary-foreground lg:h-[60px] lg:w-[76px] lg:text-[23px] lg:font-sans"
+                    className="h-12 w-12 rounded-md bg-secondary text-[16px] font-bold text-tertiary-foreground lg:h-[60px] lg:w-[76px] lg:font-sans lg:text-[23px]"
                     onClick={() => handleClick(key)}
                   >
                     {key}
@@ -144,7 +146,7 @@ export default function TicketCheckPageContent(
 
       <div className="flex justify-center">
         <Button
-          className="h-12 w-[90vw] bg-bet text-[16px] font-bold text-white lg:h-16 lg:w-[1865px] rounded-md lg:text-[22px] font-sans uppercase"
+          className="h-12 w-[90vw] rounded-md bg-bet font-sans text-[16px] font-bold uppercase text-white lg:h-16 lg:w-[1865px] lg:text-[22px]"
           onClick={handleSubmit}
         >
           {t('confirm')}
