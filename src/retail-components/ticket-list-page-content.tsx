@@ -273,6 +273,9 @@ export default function TicketListPageContent({
               showOutsideDays={false}
               locale={it}
               classNames={calendarClassNames}
+              modifiersStyles={{
+                range_middle: { backgroundColor: '#fee2e2', color: '#000000' },
+              }}
               className="w-full p-3"
             />
           )}
