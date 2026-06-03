@@ -200,7 +200,7 @@ function NavbarContent() {
 
         <div className="relative left-1 flex w-full justify-end space-x-2 bg-transparent">
           <button
-            className="flex h-12 w-12 items-center justify-center bg-trasparent"
+            className="flex h-12 w-12 items-center justify-center bg-transparent border-0 outline-none"
             onClick={() => {
               if (isInfoOpen) {
                 setIsInfoOpen(false)
