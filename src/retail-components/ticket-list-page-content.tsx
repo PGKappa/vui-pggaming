@@ -197,16 +197,16 @@ export default function TicketListPageContent({
     month: 'space-y-4 flex-1',
     head_cell: 'text-gray-600 flex-1 font-semibold text-[0.8rem] text-center',
     cell: 'relative p-0 text-center text-sm text-gray-800 flex-1 focus-within:relative focus-within:z-20',
-    day: 'h-8 w-full p-0 font-normal text-gray-800 aria-selected:opacity-100 hover:bg-gray-100 rounded-md',
+    day: 'h-8 w-full p-0 font-normal text-gray-800 bg-white border-0 aria-selected:opacity-100 hover:bg-gray-100 rounded-md',
     day_selected:
       'bg-red-700 text-white hover:bg-red-800 focus:bg-red-700 focus:text-white rounded-md',
     day_today: dateFrom ? '' : 'border border-red-700 font-bold text-red-700 rounded-md',
     day_outside: 'text-gray-300 opacity-50',
     day_disabled: 'text-gray-300 opacity-30',
     day_range_start:
-      'bg-red-700 text-white hover:bg-red-800 rounded-l-md rounded-r-none',
+      '!bg-red-700 !text-white hover:!bg-red-800 rounded-l-md rounded-r-none',
     day_range_end:
-      'bg-red-700 text-white hover:bg-red-800 rounded-r-md rounded-l-none',
+      '!bg-red-700 !text-white hover:!bg-red-800 rounded-r-md rounded-l-none',
     day_range_middle:
       '!bg-red-100 !text-black rounded-none',
     caption_label: 'text-sm font-semibold text-gray-800',
