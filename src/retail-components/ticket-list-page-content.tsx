@@ -11,11 +11,6 @@ import {
   PaginationPrevious,
 } from '@/retail-components/ui/pagination'
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/retail-components/ui/popover'
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -47,6 +42,8 @@ export default function TicketListPageContent({
 }: TicketListPageContentProps) {
   const { t } = useTranslation()
   const [calendarMode, setCalendarMode] = useState<'single' | 'range'>('range')
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false)
+  const datePickerRef = useRef<HTMLDivElement>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null)
   const [selectedTicketCandidates, setSelectedTicketCandidates] = useState<
@@ -182,6 +179,17 @@ export default function TicketListPageContent({
     return () => obs.disconnect()
   }, [items])
 
+  useEffect(() => {
+    if (!isDatePickerOpen) return
+    const handleClickOutside = (e: MouseEvent) => {
+      if (datePickerRef.current && !datePickerRef.current.contains(e.target as Node)) {
+        setIsDatePickerOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [isDatePickerOpen])
+
   const fillerCount = Math.max(0, parseInt(pageSize) - items.length)
 
   const calendarClassNames = {
@@ -207,69 +215,70 @@ export default function TicketListPageContent({
   }
 
   const dateRangeButton = (extraClass: string) => (
-    <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          variant="ticketFilter"
-          className={cn(extraClass, 'justify-between pl-[15px] pr-[9px]')}
-        >
-          <span>{dateFrom ? dateRangeLabel() : t('date', 'DATA')}</span>
-          <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-auto min-w-[var(--radix-popover-trigger-width)] bg-white p-0">
-        {/* Toggle single / range */}
-        <div className="flex" style={{ backgroundColor: '#EDEDED' }}>
-          <button
-            className={cn(
-              'flex-1 py-2 text-sm font-semibold uppercase transition-colors border-b-[4px]',
-              calendarMode === 'single'
-                ? 'text-red-700 border-b-red-700'
-                : 'text-gray-600 border-b-transparent hover:bg-gray-100',
-            )}
-            onClick={() => handleModeSwitch('single')}
-          >
-            {t('day', 'Giorno')}
-          </button>
-          <button
-            className={cn(
-              'flex-1 py-2 text-sm font-semibold uppercase transition-colors border-b-[4px]',
-              calendarMode === 'range'
-                ? 'text-red-700 border-b-red-700'
-                : 'text-gray-600 border-b-transparent hover:bg-gray-100',
-            )}
-            onClick={() => handleModeSwitch('range')}
-          >
-            {t('period', 'Periodo')}
-          </button>
-        </div>
+    <div className="relative" ref={datePickerRef}>
+      <Button
+        variant="ticketFilter"
+        className={cn(extraClass, 'justify-between pl-[15px] pr-[9px]')}
+        onClick={() => setIsDatePickerOpen((prev) => !prev)}
+      >
+        <span>{dateFrom ? dateRangeLabel() : t('date', 'DATA')}</span>
+        <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+      </Button>
+      {isDatePickerOpen && (
+        <div className="absolute left-0 top-full z-50 w-auto min-w-full border bg-white shadow-md">
+          {/* Toggle single / range */}
+          <div className="flex" style={{ backgroundColor: '#EDEDED' }}>
+            <button
+              className={cn(
+                'flex-1 py-2 text-sm font-semibold uppercase transition-colors border-b-[4px]',
+                calendarMode === 'single'
+                  ? 'text-red-700 border-b-red-700'
+                  : 'text-gray-600 border-b-transparent hover:bg-gray-100',
+              )}
+              onClick={() => handleModeSwitch('single')}
+            >
+              {t('day', 'Giorno')}
+            </button>
+            <button
+              className={cn(
+                'flex-1 py-2 text-sm font-semibold uppercase transition-colors border-b-[4px]',
+                calendarMode === 'range'
+                  ? 'text-red-700 border-b-red-700'
+                  : 'text-gray-600 border-b-transparent hover:bg-gray-100',
+              )}
+              onClick={() => handleModeSwitch('range')}
+            >
+              {t('period', 'Periodo')}
+            </button>
+          </div>
 
-        {/* Calendario */}
-        {calendarMode === 'single' ? (
-          <Calendar
-            mode="single"
-            selected={dateFrom}
-            onSelect={handleSingleDateSelect}
-            initialFocus
-            showOutsideDays={false}
-            locale={it}
-            classNames={calendarClassNames}
-            className="w-full p-3"
-          />
-        ) : (
-          <Calendar
-            mode="range"
-            selected={{ from: dateFrom, to: dateTo }}
-            onSelect={handleDateRangeSelect}
-            initialFocus
-            showOutsideDays={false}
-            locale={it}
-            classNames={calendarClassNames}
-            className="w-full p-3"
-          />
-        )}
-      </PopoverContent>
-    </Popover>
+          {/* Calendario */}
+          {calendarMode === 'single' ? (
+            <Calendar
+              mode="single"
+              selected={dateFrom}
+              onSelect={handleSingleDateSelect}
+              initialFocus
+              showOutsideDays={false}
+              locale={it}
+              classNames={calendarClassNames}
+              className="w-full p-3"
+            />
+          ) : (
+            <Calendar
+              mode="range"
+              selected={{ from: dateFrom, to: dateTo }}
+              onSelect={handleDateRangeSelect}
+              initialFocus
+              showOutsideDays={false}
+              locale={it}
+              classNames={calendarClassNames}
+              className="w-full p-3"
+            />
+          )}
+        </div>
+      )}
+    </div>
   )
 
   const getDisciplineLabel = (ticketId: number) => {
