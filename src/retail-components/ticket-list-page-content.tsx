@@ -208,7 +208,7 @@ export default function TicketListPageContent({
     day_range_end:
       'bg-red-700 text-white hover:bg-red-800 rounded-r-md rounded-l-none',
     day_range_middle:
-      'bg-red-100 !text-black rounded-none',
+      '!bg-red-100 !text-black rounded-none',
     caption_label: 'text-sm font-semibold text-gray-800',
     nav_button:
       'h-7 w-7 bg-transparent p-0 opacity-70 hover:opacity-100 border border-gray-300 rounded flex items-center justify-center',
