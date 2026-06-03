@@ -253,7 +253,7 @@ export default function NumericKeypadDrawer(props: {
             onClick={closeDrawer}
             className="absolute right-2 top-1 bg-transparent"
           >
-            <ChevronDown className="h-5 w-5" style={{ zoom: 1.3 }} />
+            <ChevronDown className="h-5 w-5 !size-6" />
           </Button>
         </DrawerHeader>
 
