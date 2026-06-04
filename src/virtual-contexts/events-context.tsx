@@ -323,13 +323,15 @@ export default function EventsContextProvider(props: {
                       time: event.time,
                       discipline: Discipline.DOGS,
                       result: {
-                        podium: (event.arrival || []).map(
-                          (dog: any, index: number) => ({
-                            name: dog.name,
-                            number: dog.number,
-                            position: index + 1,
-                          }),
-                        ),
+                        podium: (
+                          (detailedResult as any)?.arrival ||
+                          event.arrival ||
+                          []
+                        ).map((dog: any, index: number) => ({
+                          name: dog.name,
+                          number: dog.number,
+                          position: index + 1,
+                        })),
                         odds: (detailedResult as any)?.odds || {},
                       } as RaceResult,
                     } as EventResult
@@ -415,13 +417,15 @@ export default function EventsContextProvider(props: {
                       time: event.time,
                       discipline: Discipline.HORSES,
                       result: {
-                        podium: (event.arrival || []).map(
-                          (horse: any, index: number) => ({
-                            name: horse.name,
-                            number: horse.number,
-                            position: index + 1,
-                          }),
-                        ),
+                        podium: (
+                          (detailedResult as any)?.arrival ||
+                          event.arrival ||
+                          []
+                        ).map((horse: any, index: number) => ({
+                          name: horse.name,
+                          number: horse.number,
+                          position: index + 1,
+                        })),
                         odds: (detailedResult as any)?.odds || {},
                       } as RaceResult,
                     } as EventResult

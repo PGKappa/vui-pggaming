@@ -5,14 +5,12 @@ import LiveMatchInfo from '@/virtual-components/live-match-info'
 import { UpcomingEventsCarousel } from '@/virtual-components/upcoming-events-carousel'
 import UpcomingRaceCard from '@/virtual-components/upcoming-race-card'
 import VideoStreamCard from '@/virtual-components/video-stream-card'
-import PreviousResultsCard from '@/virtual-components/previous-results-card'
 import { RootContext } from '@/virtual-contexts/root-context'
 import { Discipline, UpcomingEvent } from '@/virtual-lib/types'
 import {
   getCarouselFilteredEvents,
   getFutureEventsFromCarousel,
 } from '@/virtual-lib/carousel-sync'
-import previousResultsMock from '@/virtual-lib/previous-results-mock.json'
 import { t } from 'i18next'
 import { useContext, useEffect, useMemo, useState } from 'react'
 
@@ -82,20 +80,12 @@ export default function Home() {
       <div className="container mb-10 mt-1 grid grid-cols-1 justify-center gap-3 bg-columnL-background pb-16 text-columnL-foreground lg:mb-4 lg:grid-cols-4 lg:pb-0">
         {/* First column - contenuto principale */}
         <div className="flex flex-col items-center gap-4 lg:col-span-3">
-          <div className="grid w-full grid-cols-1 gap-3 lg:grid-cols-3">
-            <div className="flex flex-col gap-1 lg:col-span-2">
-              <LiveMatchInfo />
-              <VideoStreamCard
-                streamUrl={liveRound?.streamUrl}
-                discipline={Discipline.HORSES}
-              />
-            </div>
-            <div className="overflow-y-auto lg:col-span-1">
-              <PreviousResultsCard
-                results={previousResultsMock.horses}
-                discipline="HORSES"
-              />
-            </div>
+          <div className="flex w-full flex-col gap-1">
+            <LiveMatchInfo />
+            <VideoStreamCard
+              streamUrl={liveRound?.streamUrl}
+              discipline={Discipline.HORSES}
+            />
           </div>
           <UpcomingEventsCarousel
             selectedEvent={selectedEvent}

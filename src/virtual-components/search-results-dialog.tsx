@@ -40,12 +40,15 @@ const timeSlots = [
 export default function SearchResultsDialog({
   open,
   onOpenChange,
+  discipline: disciplineProp,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
+  discipline?: Discipline
 }) {
   const { t } = useTranslation()
   const rootContext = useContext(RootContext)
+  const [activeTab, setActiveTab] = useState<'latest' | 'search'>('latest')
 
   const timezone = rootContext.getTimezone?.() || 'Europe/Rome'
   const dates = useMemo(
@@ -230,8 +233,21 @@ export default function SearchResultsDialog({
       setFetchedResults([])
       setSelectedResult(null)
       setSelectedTimeSlot('ALL')
+      setActiveTab('latest')
     }
   }, [open])
+
+  // Latest results from context (already fetched with full detail)
+  const latestResults = useMemo(() => {
+    const all = rootContext.eventResults ?? []
+    const filtered = disciplineProp
+      ? all.filter((r) => r.discipline === disciplineProp)
+      : all
+    return [...filtered].sort(
+      (a, b) =>
+        new Date(b.startTime).getTime() - new Date(a.startTime).getTime(),
+    )
+  }, [rootContext.eventResults, disciplineProp])
 
   return (
     <>
@@ -244,168 +260,269 @@ export default function SearchResultsDialog({
             <DialogTitle>{t('search_results')}</DialogTitle>
           </DialogHeader>
 
-          {/* Filtri */}
-          <div className="grid grid-cols-2 gap-2 px-4 pt-4 sm:flex sm:items-center sm:gap-2">
-            {/* Disciplina */}
-            <div className="min-w-0">
-              <Select
-                value={selectedDiscipline}
-                onValueChange={(v) =>
-                  setSelectedDiscipline(v === 'ALL' ? 'ALL' : (v as Discipline))
-                }
-              >
-                <SelectTrigger
-                  className="h-9 w-full border border-gray-300 bg-white px-2 text-sm"
-                  style={{ color: 'hsl(var(--table-foreground))' }}
-                >
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent
-                  className="bg-white"
-                  style={{ color: 'hsl(var(--table-foreground))' }}
-                >
-                  <SelectItem value={Discipline.DOGS}>
-                    {t('dog_racing')}
-                  </SelectItem>
-                  <SelectItem value={Discipline.HORSES}>
-                    {t('horse_racing')}
-                  </SelectItem>
-                  <SelectItem value="ALL">{t('all_disciplines')}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Data */}
-            <div className="min-w-0">
-              <Select value={selectedDate} onValueChange={setSelectedDate}>
-                <SelectTrigger
-                  className="h-9 w-full border border-gray-300 bg-white px-2 text-sm"
-                  style={{ color: 'hsl(var(--table-foreground))' }}
-                >
-                  <SelectValue placeholder={t('date')} />
-                </SelectTrigger>
-                <SelectContent
-                  className="bg-white"
-                  style={{ color: 'hsl(var(--table-foreground))' }}
-                >
-                  {dates.map((d) => (
-                    <SelectItem key={d} value={d}>
-                      {d}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Fascia Oraria */}
-            <div className="col-span-2 min-w-0 sm:flex-1">
-              <Select
-                value={selectedTimeSlot}
-                onValueChange={setSelectedTimeSlot}
-              >
-                <SelectTrigger
-                  className="h-9 w-full border border-gray-300 bg-white px-2 text-sm"
-                  style={{ color: 'hsl(var(--table-foreground))' }}
-                >
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent
-                  className="bg-white"
-                  style={{ color: 'hsl(var(--table-foreground))' }}
-                >
-                  <SelectItem value="ALL">{t('time_slot')}</SelectItem>
-                  {timeSlots.map((slot) => (
-                    <SelectItem key={slot} value={slot}>
-                      {slot}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          {/* Tabs */}
+          <div className="grid grid-cols-2 border-b text-center text-sm font-semibold">
+            <button
+              className={`py-2 transition-colors ${activeTab === 'latest' ? 'border-b-2 border-accent text-accent' : 'text-gray-500 hover:text-gray-700'}`}
+              onClick={() => setActiveTab('latest')}
+            >
+              {t('latest_results')}
+            </button>
+            <button
+              className={`py-2 transition-colors ${activeTab === 'search' ? 'border-b-2 border-accent text-accent' : 'text-gray-500 hover:text-gray-700'}`}
+              onClick={() => setActiveTab('search')}
+            >
+              {t('search_results')}
+            </button>
           </div>
 
-          {/* Risultati */}
-          <div className="flex min-h-0 flex-1 flex-col px-4 pb-2">
-            {hasSearched && (
-              <ScrollArea className="mt-3 flex-1">
-                {isLoading ? (
-                  <div className="flex flex-col items-center justify-center py-8">
-                    <LoadingSpinner />
-                  </div>
-                ) : fetchedResults.length > 0 ? (
-                  <div className="space-y-1">
-                    {fetchedResults.map((eventResult, index) => {
-                      const uniqueKey = `${eventResult.discipline}-${eventResult.id}-${index}`
-                      const timeStr =
-                        eventResult.startTime instanceof Date &&
-                        !isNaN(eventResult.startTime.getTime())
-                          ? eventResult.startTime.toLocaleTimeString('it-IT', {
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            })
-                          : '--:--'
-                      const icon =
-                        eventResult.discipline === Discipline.DOGS
-                          ? '/dog-image.png'
-                          : '/horse-image.png'
+          {activeTab === 'latest' ? (
+            /* ── LATEST RESULTS ── */
+            <div className="flex min-h-0 flex-1 flex-col">
+              {/* Header row */}
+              <div className="bg-card-header px-3 py-2 text-xs font-bold text-card-header-foreground">
+                <div className="flex text-center">
+                  <span className="w-12 shrink-0">
+                    {t('time').toUpperCase()}
+                  </span>
+                  <span className="w-12 shrink-0">{t('id').toUpperCase()}</span>
+                  <span className="flex-1">
+                    {t('arrival').toUpperCase()} 1°-2°-3°
+                  </span>
+                </div>
+              </div>
+              <ScrollArea className="flex-1">
+                {latestResults.length === 0 ? (
+                  <p className="py-8 text-center text-sm text-gray-500">
+                    {t('no_results_found')}
+                  </p>
+                ) : (
+                  <div>
+                    {latestResults.map((eventResult, index) => {
+                      const uniqueKey = `latest-${eventResult.discipline}-${eventResult.id}-${index}`
+                      const st = eventResult.startTime
+                      const timeStr = st
+                        ? new Date(st).toLocaleTimeString('it-IT', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })
+                        : '--:--'
+                      const podium =
+                        eventResult.result && 'podium' in eventResult.result
+                          ? eventResult.result.podium
+                          : []
+                      if (index === 0)
+                        console.log(
+                          '[SearchDialog] eventResult[0]',
+                          JSON.stringify(eventResult, null, 2),
+                        )
                       return (
                         <div
                           key={uniqueKey}
-                          className="flex items-center justify-between border-b border-gray-100 px-2 py-2"
+                          className="flex items-center border-b border-gray-200 px-3 py-1"
                         >
-                          <div className="flex items-center gap-2">
-                            <Image
-                              src={icon}
-                              alt={eventResult.discipline}
-                              width={22}
-                              height={22}
-                              className="object-contain"
-                            />
-                            <div>
-                              <p className="text-xs font-semibold text-gray-900">
-                                {eventResult.discipline === Discipline.DOGS
-                                  ? t('dog_races_label')
-                                  : t('horse_races_label')}
-                              </p>
-                              <p className="text-xs text-gray-500">
-                                ID {eventResult.id}
-                              </p>
-                            </div>
+                          <div className="w-12 shrink-0 text-center text-xs font-bold text-gray-900">
+                            {timeStr}
                           </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-semibold text-gray-900">
-                              {timeStr}
-                            </span>
-                            <Button
-                              size="sm"
-                              className="h-8 bg-secondary px-3 text-xs text-secondary-foreground hover:bg-secondary/90"
-                              onClick={() => setSelectedResult(eventResult)}
-                            >
-                              {t('show_results')}
-                            </Button>
+                          <div className="w-12 shrink-0 text-center text-xs text-gray-700">
+                            {eventResult.id}
+                          </div>
+                          <div className="grid flex-1 grid-cols-3">
+                            {podium.slice(0, 3).map((competitor, i) => (
+                              <div
+                                key={`${competitor.number}-${i}`}
+                                className="flex flex-col items-center"
+                              >
+                                <span className="text-sm font-bold text-gray-900">
+                                  {competitor.number}
+                                </span>
+                                <span
+                                  className="w-full truncate text-center text-xs text-gray-600"
+                                  title={competitor.name}
+                                >
+                                  {competitor.name}
+                                </span>
+                              </div>
+                            ))}
                           </div>
                         </div>
                       )
                     })}
                   </div>
-                ) : (
-                  <p className="py-8 text-center text-sm text-gray-500">
-                    {t('no_results_found')}
-                  </p>
                 )}
               </ScrollArea>
-            )}
-          </div>
+            </div>
+          ) : (
+            /* ── SEARCH ── */
+            <>
+              {/* Filtri */}
+              <div className="grid grid-cols-2 gap-2 px-4 pt-4 sm:flex sm:items-center sm:gap-2">
+                {/* Disciplina */}
+                <div className="min-w-0">
+                  <Select
+                    value={selectedDiscipline}
+                    onValueChange={(v) =>
+                      setSelectedDiscipline(
+                        v === 'ALL' ? 'ALL' : (v as Discipline),
+                      )
+                    }
+                  >
+                    <SelectTrigger
+                      className="h-9 w-full border border-gray-300 bg-white px-2 text-sm"
+                      style={{ color: 'hsl(var(--table-foreground))' }}
+                    >
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent
+                      className="bg-white"
+                      style={{ color: 'hsl(var(--table-foreground))' }}
+                    >
+                      <SelectItem value={Discipline.DOGS}>
+                        {t('dog_racing')}
+                      </SelectItem>
+                      <SelectItem value={Discipline.HORSES}>
+                        {t('horse_racing')}
+                      </SelectItem>
+                      <SelectItem value="ALL">
+                        {t('all_disciplines')}
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
 
-          {/* Pulsante Cerca */}
-          <div className="flex justify-center px-4 pb-4 pt-2">
-            <Button
-              className="h-10 w-40 bg-accent text-accent-foreground hover:bg-accent/90"
-              onClick={handleSearch}
-            >
-              {t('accept').toUpperCase()}
-            </Button>
-          </div>
+                {/* Data */}
+                <div className="min-w-0">
+                  <Select value={selectedDate} onValueChange={setSelectedDate}>
+                    <SelectTrigger
+                      className="h-9 w-full border border-gray-300 bg-white px-2 text-sm"
+                      style={{ color: 'hsl(var(--table-foreground))' }}
+                    >
+                      <SelectValue placeholder={t('date')} />
+                    </SelectTrigger>
+                    <SelectContent
+                      className="bg-white"
+                      style={{ color: 'hsl(var(--table-foreground))' }}
+                    >
+                      {dates.map((d) => (
+                        <SelectItem key={d} value={d}>
+                          {d}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Fascia Oraria */}
+                <div className="col-span-2 min-w-0 sm:flex-1">
+                  <Select
+                    value={selectedTimeSlot}
+                    onValueChange={setSelectedTimeSlot}
+                  >
+                    <SelectTrigger
+                      className="h-9 w-full border border-gray-300 bg-white px-2 text-sm"
+                      style={{ color: 'hsl(var(--table-foreground))' }}
+                    >
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent
+                      className="bg-white"
+                      style={{ color: 'hsl(var(--table-foreground))' }}
+                    >
+                      <SelectItem value="ALL">{t('time_slot')}</SelectItem>
+                      {timeSlots.map((slot) => (
+                        <SelectItem key={slot} value={slot}>
+                          {slot}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Risultati ricerca */}
+              <div className="flex min-h-0 flex-1 flex-col px-4 pb-2">
+                {hasSearched && (
+                  <ScrollArea className="mt-3 flex-1">
+                    {isLoading ? (
+                      <div className="flex flex-col items-center justify-center py-8">
+                        <LoadingSpinner />
+                      </div>
+                    ) : fetchedResults.length > 0 ? (
+                      <div className="space-y-1">
+                        {fetchedResults.map((eventResult, index) => {
+                          const uniqueKey = `${eventResult.discipline}-${eventResult.id}-${index}`
+                          const timeStr =
+                            eventResult.startTime instanceof Date &&
+                            !isNaN(eventResult.startTime.getTime())
+                              ? eventResult.startTime.toLocaleTimeString(
+                                  'it-IT',
+                                  { hour: '2-digit', minute: '2-digit' },
+                                )
+                              : '--:--'
+                          const icon =
+                            eventResult.discipline === Discipline.DOGS
+                              ? '/dog-image.png'
+                              : '/horse-image.png'
+                          return (
+                            <div
+                              key={uniqueKey}
+                              className="flex items-center justify-between border-b border-gray-100 px-2 py-2"
+                            >
+                              <div className="flex items-center gap-2">
+                                <Image
+                                  src={icon}
+                                  alt={eventResult.discipline}
+                                  width={22}
+                                  height={22}
+                                  className="object-contain"
+                                />
+                                <div>
+                                  <p className="text-xs font-semibold text-gray-900">
+                                    {eventResult.discipline === Discipline.DOGS
+                                      ? t('dog_races_label')
+                                      : t('horse_races_label')}
+                                  </p>
+                                  <p className="text-xs text-gray-500">
+                                    ID {eventResult.id}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs font-semibold text-gray-900">
+                                  {timeStr}
+                                </span>
+                                <Button
+                                  size="sm"
+                                  className="h-8 bg-secondary px-3 text-xs text-secondary-foreground hover:bg-secondary/90"
+                                  onClick={() => setSelectedResult(eventResult)}
+                                >
+                                  {t('show_results')}
+                                </Button>
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    ) : (
+                      <p className="py-8 text-center text-sm text-gray-500">
+                        {t('no_results_found')}
+                      </p>
+                    )}
+                  </ScrollArea>
+                )}
+              </div>
+
+              {/* Pulsante Cerca */}
+              <div className="flex justify-center px-4 pb-4 pt-2">
+                <Button
+                  className="h-10 w-40 bg-accent text-accent-foreground hover:bg-accent/90"
+                  onClick={handleSearch}
+                >
+                  {t('accept').toUpperCase()}
+                </Button>
+              </div>
+            </>
+          )}
         </DialogContent>
       </Dialog>
 

@@ -165,6 +165,7 @@ export default function LiveMatchInfo() {
       <SearchResultsDialog
         open={isSearchDialogOpen}
         onOpenChange={setIsSearchDialogOpen}
+        discipline={currentDiscipline}
       />
 
       <Dialog open={isInfoDialogOpen} onOpenChange={setIsInfoDialogOpen}>
