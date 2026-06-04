@@ -973,7 +973,7 @@ export default function BettingSlip() {
         <BetsHistoryDialog />
 
         <div
-          className={`relative flex h-12 w-full flex-col items-center justify-center transition-colors ${
+          className={`relative flex h-12 w-full flex-col items-center justify-center overflow-hidden transition-colors ${
             isSystemMandatory
               ? 'cursor-not-allowed bg-gray-100 opacity-50'
               : !isSystemToggleEnabled || systemToggleMode === 'multiple'
@@ -1002,12 +1002,12 @@ export default function BettingSlip() {
 
           {!isSystemMandatory &&
             (!isSystemToggleEnabled || systemToggleMode === 'multiple') && (
-              <div className="absolute bottom-0.5 h-[4px] w-[156px] bg-accent"></div>
+              <div className="absolute bottom-0 h-[3px] w-full bg-accent"></div>
             )}
         </div>
 
         <div
-          className={`relative flex w-full flex-col items-center justify-center transition-colors ${
+          className={`relative flex w-full flex-col items-center justify-center overflow-hidden transition-colors ${
             isSystemMandatory ||
             (isSystemToggleEnabled && systemToggleMode === 'system')
               ? 'cursor-pointer bg-betSlip-header'
@@ -1031,7 +1031,7 @@ export default function BettingSlip() {
           </span>
           {(isSystemMandatory ||
             (isSystemToggleEnabled && systemToggleMode === 'system')) && (
-            <div className="absolute bottom-0.5 h-[4px] w-[156px] bg-accent"></div>
+            <div className="absolute bottom-0 h-[3px] w-full bg-accent"></div>
           )}
         </div>
       </div>
