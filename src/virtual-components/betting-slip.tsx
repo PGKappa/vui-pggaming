@@ -37,6 +37,8 @@ function StakeInput({
   value,
   onCommit,
   className,
+  onFocus: onFocusExternal,
+  onBlur: onBlurExternal,
   ...props
 }: Omit<React.ComponentProps<typeof Input>, 'onChange' | 'value'> & {
   value: number
@@ -51,14 +53,16 @@ function StakeInput({
       inputMode="decimal"
       value={editing ? localValue : Number(value.toFixed(2))}
       onChange={(e) => setLocalValue(e.target.value)}
-      onFocus={() => {
+      onFocus={(e) => {
         setEditing(true)
         setLocalValue('')
+        onFocusExternal?.(e)
       }}
-      onBlur={() => {
+      onBlur={(e) => {
         setEditing(false)
         const parsed = parseFloat(localValue)
         onCommit(isNaN(parsed) || parsed < 0 ? 0 : parsed)
+        onBlurExternal?.(e)
       }}
       className={className}
       {...props}
@@ -81,7 +85,7 @@ export default function BettingSlip() {
 
   // Ottieni simbolo valuta e limiti dal context (come retail)
   const currencySymbol = rootContext?.getCurrencySymbol?.() || '€'
-  const stakeButtons = rootContext?.getStakeButtons?.() || [5, 10, 20, 50, 100] // eslint-disable-line @typescript-eslint/no-unused-vars
+  const stakeButtons = rootContext?.getStakeButtons?.() || [5, 10, 20, 50, 100]
   const minStake = Number(rootContext?.getMinStake?.()) || 0.5
   const minBet = Number(rootContext?.getMinBet?.()) || 0
   const maxWin = Number(rootContext?.getMaxWin?.()) || 10000
@@ -103,6 +107,7 @@ export default function BettingSlip() {
   >({})
 
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [stakeInputOpen, setStakeInputOpen] = useState(false)
   const [printFunctionName, setPrintFunctionName] = useState('Bubble')
 
   // Stati per accordion e checkbox
@@ -1077,33 +1082,62 @@ export default function BettingSlip() {
               <span className="font-semibold">{t('amount')}</span>
             </div>
 
-            <div className="flex w-full flex-row items-center justify-between gap-20 p-2">
-              <span className="text-sm font-semibold">{t('total')}</span>
-              <div className="flex w-fit items-center border border-border">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-5 w-5 rounded-none bg-betSlip p-3"
-                  onClick={() =>
-                    setGlobal((prev) => Math.max(prev - minStakeIncrement, 0))
-                  }
-                >
-                  -
-                </Button>
-                <StakeInput
-                  value={global}
-                  className="bg-background-foreground w-16 border-x text-center"
-                  onCommit={(v) => setGlobal(v)}
-                />
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-5 w-4 rounded-none bg-betSlip p-3"
-                  onClick={() => setGlobal((prev) => prev + minStakeIncrement)}
-                >
-                  +
-                </Button>
+            <div className="flex w-full flex-col">
+              <div className="flex w-full flex-row items-center justify-between gap-20 p-2">
+                <span className="text-sm font-semibold">{t('total')}</span>
+                <div className="flex w-fit items-center border border-border">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-5 w-5 rounded-none bg-betSlip p-3"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() =>
+                      setGlobal((prev) => Math.max(prev - minStakeIncrement, 0))
+                    }
+                  >
+                    -
+                  </Button>
+                  <StakeInput
+                    value={global}
+                    className="bg-background-foreground w-16 border-x text-center"
+                    onCommit={(v) => setGlobal(v)}
+                    onFocus={() => setStakeInputOpen(true)}
+                    onBlur={() => setStakeInputOpen(false)}
+                  />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-5 w-4 rounded-none bg-betSlip p-3"
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() =>
+                      setGlobal((prev) => prev + minStakeIncrement)
+                    }
+                  >
+                    +
+                  </Button>
+                </div>
               </div>
+
+              {stakeInputOpen && (
+                <div className="flex w-full flex-row gap-1 px-2 pb-1">
+                  {stakeButtons.map((btn) => (
+                    <Button
+                      key={btn}
+                      variant="ghost"
+                      size="sm"
+                      className="flex-1 rounded-sm border border-border bg-betSlip text-xs font-semibold"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() =>
+                        setGlobal(
+                          (prev) => Math.round((prev + btn) * 100) / 100,
+                        )
+                      }
+                    >
+                      +{btn}
+                    </Button>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="w-full px-2">
