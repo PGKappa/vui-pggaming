@@ -13,7 +13,7 @@ export default function PreviousResultsCard({
   const { t } = useTranslation()
 
   return (
-    <Card className="h-96">
+    <Card className="h-full">
       <CardHeader className="bg-muted py-3">
         <CardTitle className="text-center text-lg font-bold">
           {t('latest_results')}
