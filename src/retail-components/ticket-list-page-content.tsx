@@ -360,6 +360,7 @@ export default function TicketListPageContent({
           'relative flex items-center justify-center bg-secondary text-accent-foreground',
           isCalcio ? 'h-16' : 'h-10 shrink-0 lg:h-[56px]',
         )}
+        style={{ borderLeft: '1px solid white' }}
       >
         <h2
           className={cn(
@@ -375,7 +376,7 @@ export default function TicketListPageContent({
 
       {/* Filter Bar */}
       {isCalcio ? (
-        <div className="flex flex-col items-center gap-4 px-4 pb-8 pt-10">
+        <div className="flex flex-col items-center gap-4 px-4 pb-8 pt-10" style={{ borderLeft: '1px solid white' }}>
           <div className="flex items-center gap-8">
             {/* Data - calcio */}
             <div className="mr-20 flex flex-row items-center gap-2 bg-badge text-background">
@@ -452,7 +453,7 @@ export default function TicketListPageContent({
           </div>
         </div>
       ) : (
-        <div className="flex h-[61px] shrink-0 justify-center bg-secondary pb-3 lg:pb-5">
+        <div className="flex h-[61px] shrink-0 justify-center bg-secondary pb-3 lg:pb-5" style={{ borderLeft: '1px solid white' }}>
           <div className="relative left-[60px] flex flex-wrap items-center space-x-5 uppercase lg:bottom-[3px] lg:space-x-4">
             {/* Data - standard */}
             <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
@@ -701,7 +702,7 @@ export default function TicketListPageContent({
 
         {/* Riga TOTALI — sticky bottom-0 nello stesso contenitore scroll.
             Stessa larghezza effettiva della tabella dati → colonne sempre allineate. */}
-        <div className="sticky bottom-0 shrink-0 bg-secondary uppercase text-white">
+        <div className="sticky bottom-0 shrink-0 bg-secondary uppercase text-white" style={{ borderLeft: '1px solid white' }}>
           <table className="w-full table-fixed border-collapse">
             <colgroup>
               <col style={{ width: '11.11%' }} />
@@ -752,7 +753,7 @@ export default function TicketListPageContent({
       </div>
 
       {/* Barra paginazione — fuori dal contenitore scroll, sempre in fondo alla pagina */}
-      <div className="relative h-[59px] shrink-0 bg-secondary">
+      <div className="relative h-[59px] shrink-0 bg-secondary" style={{ borderLeft: '1px solid white' }}>
         <div className="relative top-[21px] ml-[24px] flex flex-row space-x-3">
           <div className="flex items-center space-x-2">
             <span
