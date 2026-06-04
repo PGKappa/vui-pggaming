@@ -690,7 +690,7 @@ export default function BettingSlip({
             channelId,
             palimpsestId,
             eventId: parseInt(eventId, 10),
-            isBanker: false,
+            isBanker: entries.some((e) => e.fixed === true),
             markets,
           }
         },
@@ -1137,12 +1137,12 @@ export default function BettingSlip({
 
       <Separator />
 
-      <CardFooter className="relative mb-[26px] flex flex-col bg-backgroundBetslip">
+      <CardFooter className="bg-backgroundBetslip relative mb-[26px] flex flex-col">
         {betMode !== 'SYSTEM' ? (
           <>
             <div className="relative h-[30px] w-full bg-accent py-3"></div>
 
-            <div className="relative top-[12px] flex w-full flex-row items-center justify-between px-4 pt-[9px] text-backgroundBetslip-foreground">
+            <div className="text-backgroundBetslip-foreground relative top-[12px] flex w-full flex-row items-center justify-between px-4 pt-[9px]">
               <span className="relative bottom-[3px] text-[15px] font-semibold">
                 {t('total_odd').toUpperCase()}
               </span>
@@ -1174,7 +1174,7 @@ export default function BettingSlip({
               })}
             </div>
 
-            <div className="relative top-[17px] flex w-full flex-row items-center justify-between px-4 py-[18px] text-backgroundBetslip-foreground">
+            <div className="text-backgroundBetslip-foreground relative top-[17px] flex w-full flex-row items-center justify-between px-4 py-[18px]">
               <div className="flex items-center gap-2">
                 <span className="pt-[1px] text-[15px] font-semibold">
                   {t('amount').toUpperCase()}
@@ -1193,7 +1193,7 @@ export default function BettingSlip({
 
             <Separator />
 
-            <div className="relative top-[27px] flex w-full flex-row items-center justify-between bg-backgroundBetslip px-4 py-[12px] pb-[16px] pt-0 text-backgroundBetslip-foreground">
+            <div className="bg-backgroundBetslip text-backgroundBetslip-foreground relative top-[27px] flex w-full flex-row items-center justify-between px-4 py-[12px] pb-[16px] pt-0">
               <span className="relative bottom-[1px] text-[17px] font-semibold">
                 {t('potential_win').toUpperCase()}
               </span>
@@ -1496,8 +1496,12 @@ export default function BettingSlip({
               <span className="text-[15px] font-semibold">
                 {t('total_combinations').toUpperCase()}
               </span>
-              <span className="text-[15px] font-semibold">
-                {totalSystemCombinations}/{totalSystemCombinations}
+              <span
+                className={`text-[15px] font-semibold ${
+                  totalSystemCombinations > 2048 ? 'text-red-600' : ''
+                }`}
+              >
+                {totalSystemCombinations}/2048
               </span>
             </div>
 
@@ -1542,7 +1546,8 @@ export default function BettingSlip({
             disabled={
               isSubmitting ||
               (betMode !== 'SYSTEM' && global <= 0) ||
-              (betMode === 'SYSTEM' && totalSystemStake <= 0)
+              (betMode === 'SYSTEM' && totalSystemStake <= 0) ||
+              (betMode === 'SYSTEM' && totalSystemCombinations > 2048)
             }
             className="h-12 w-full text-[18px] font-bold"
           >
