@@ -338,7 +338,7 @@ export default function BettingSlip() {
             channelId: channelId,
             palimpsestId: palimpsestId,
             eventId: eventId,
-            isBanker: false,
+            isBanker: entries.some((e) => e.fixed === true),
             markets: markets,
           }
         },
@@ -529,6 +529,14 @@ export default function BettingSlip() {
       Object.keys(betsByEvent).length > 1
     )
   }, [betsByEvent])
+
+  const MAX_COMBINATIONS = 2048
+  const totalCombinations = useMemo(
+    () => systemGroups.reduce((sum, g) => sum + g.combinations.length, 0),
+    [systemGroups],
+  )
+  const combinationsExceeded =
+    effectiveMode === 'SYSTEM' && totalCombinations > MAX_COMBINATIONS
 
   return (
     <Card
@@ -878,16 +886,12 @@ export default function BettingSlip() {
               <span className="text-[13px] font-bold">
                 {t('total_combinations')}
               </span>
-              <span className="text-[13px] font-bold">
-                {systemGroups.reduce(
-                  (sum, g) => sum + (g.stake > 0 ? g.combinations.length : 0),
-                  0,
-                )}
-                /
-                {systemGroups.reduce(
-                  (sum, g) => sum + g.combinations.length,
-                  0,
-                )}
+              <span
+                className={`text-[13px] font-bold ${
+                  combinationsExceeded ? 'text-red-600' : ''
+                }`}
+              >
+                {totalCombinations}/{MAX_COMBINATIONS}
               </span>
             </div>
 
@@ -937,7 +941,9 @@ export default function BettingSlip() {
 
       <Button
         variant="betNow"
-        disabled={betEntries.length === 0 || isSubmitting}
+        disabled={
+          betEntries.length === 0 || isSubmitting || combinationsExceeded
+        }
         size="lg"
         className="m-1 w-full rounded-none text-[16px] font-bold"
         onClick={handleSubmitTicket}

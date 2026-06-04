@@ -124,7 +124,7 @@ export function generateSystemGroups(entries: BetEntry[]): SystemGroup[] {
   })
   const eventsNumber = eventsSet.size
 
-  if (eventsNumber > 15) {
+  if (eventsNumber > 10) {
     console.warn('Too many events for system groups generation:', eventsNumber)
     return groups
   }
