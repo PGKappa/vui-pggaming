@@ -101,7 +101,7 @@ export default function TicketCheckPageContent(
           value={code}
         />
 
-        <div className="relative top-[15px] mt-6 flex flex-row items-start gap-4 lg:mt-40 lg:gap-6">
+        <div className="relative top-[15px] mt-6 flex flex-row items-start space-x-4 lg:mt-40 lg:space-x-6">
           {/* Lettere */}
           <div className="flex flex-col space-y-1 lg:space-y-2">
             {LETTER_LAYOUT.map((row, rowIdx) => (
