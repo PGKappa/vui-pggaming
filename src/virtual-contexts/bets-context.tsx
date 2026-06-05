@@ -171,18 +171,10 @@ export default function BetsContextProvider(props: {
   }, [betsContext.betEntries])
 
   // Controlli limiti per sistema
+  const MAX_EVENTS = 10
+
   const checkSystemLimits = useCallback(
     (newEntries: BetEntry[]): boolean => {
-      if (betMode !== 'SYSTEM') return true
-
-      const totalEntries = betsContext.betEntries.length + newEntries.length
-      if (totalEntries > 50) {
-        toast.error(
-          'Cannot add more bets: Maximum 50 bet entries allowed for system betting',
-        )
-        return false
-      }
-
       const allEntries = [...betsContext.betEntries, ...newEntries]
       const eventsSet = new Set<string>()
       allEntries.forEach((entry) => {
@@ -191,16 +183,16 @@ export default function BetsContextProvider(props: {
       })
       const eventsNumber = eventsSet.size
 
-      if (eventsNumber > 15) {
+      if (eventsNumber > MAX_EVENTS) {
         toast.error(
-          'Cannot add more bets: Maximum 15 unique events allowed for system betting',
+          `Limite raggiunto: massimo ${MAX_EVENTS} eventi per biglietto`,
         )
         return false
       }
 
       return true
     },
-    [betMode, betsContext.betEntries],
+    [betsContext.betEntries],
   )
 
   // Aggiungi scommessa

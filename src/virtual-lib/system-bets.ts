@@ -124,7 +124,7 @@ export function generateSystemGroups(entries: BetEntry[]): SystemGroup[] {
   })
   const eventsNumber = eventsSet.size
 
-  if (eventsNumber > 15) {
+  if (eventsNumber > 10) {
     console.warn('Too many events for system groups generation:', eventsNumber)
     return groups
   }
@@ -140,7 +140,7 @@ export function generateSystemGroups(entries: BetEntry[]): SystemGroup[] {
     }
   })
 
-  for (let size = 1; size <= eventsNumber; size++) {
+  for (let size = 1; size <= Math.min(eventsNumber, 10); size++) {
     const combos = getCombinations(nonFixedEntries, size, fixedEntries)
     if (combos.length === 0) continue
     const minWin = Math.min(

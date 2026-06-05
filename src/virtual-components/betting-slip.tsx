@@ -188,6 +188,18 @@ export default function BettingSlip() {
       }, 0)
   }, [systemGroups, selectedGroups])
 
+  const totalSystemCombinations = useMemo(
+    () =>
+      systemGroups
+        .filter((group) => selectedGroups[group.name])
+        .reduce((sum, g) => sum + g.combinations.length, 0),
+    [systemGroups, selectedGroups],
+  )
+
+  const MAX_COMBINATIONS = 2048
+  const combinationsExceeded =
+    effectiveMode === 'SYSTEM' && totalSystemCombinations > MAX_COMBINATIONS
+
   // Sincronizza global con il totale reale in SYSTEM mode
   useEffect(() => {
     if (effectiveMode === 'SYSTEM') {
@@ -500,7 +512,7 @@ export default function BettingSlip() {
             channelId: channelId,
             palimpsestId: palimpsestId,
             eventId: parseInt(eventId, 10),
-            isBanker: false,
+            isBanker: entries.some((e) => e.fixed === true),
             markets: markets,
           }
         },
@@ -1339,16 +1351,12 @@ export default function BettingSlip() {
               <span className="text-[13px] font-bold">
                 {t('total_combinations')}
               </span>
-              <span className="text-[13px] font-bold">
-                {systemGroups.reduce(
-                  (sum, g) => sum + (g.stake > 0 ? g.combinations.length : 0),
-                  0,
-                )}
-                /
-                {systemGroups.reduce(
-                  (sum, g) => sum + g.combinations.length,
-                  0,
-                )}
+              <span
+                className={`text-[13px] font-bold ${
+                  combinationsExceeded ? 'text-red-600' : ''
+                }`}
+              >
+                {totalSystemCombinations}/{MAX_COMBINATIONS}
               </span>
             </div>
 
@@ -1410,7 +1418,9 @@ export default function BettingSlip() {
 
       <Button
         variant="betNow"
-        disabled={betEntries.length === 0 || isSubmitting}
+        disabled={
+          betEntries.length === 0 || isSubmitting || combinationsExceeded
+        }
         size="lg"
         className="m-1 w-full rounded-none text-[16px] font-bold"
         onClick={handleSubmitTicket}
