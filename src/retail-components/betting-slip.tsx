@@ -911,6 +911,7 @@ export default function BettingSlip({
                     discipline: entry.bet.discipline,
                     channelId: getChannelId(entry.bet.discipline),
                     trackName: buildTrackName(entry),
+                    isBanker: !!entry.fixed,
                     markets: [],
                   }
                 }
