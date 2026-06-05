@@ -570,6 +570,7 @@ export default function BettingSlip({
         return
       }
 
+      // Key = "DISCIPLINE-eventId" to avoid collision between dogs/horses with same int_event_id
       const groupedByEvent = betEntries.reduce(
         (acc, entry) => {
           const key = `${entry.bet.discipline}-${entry.bet.event.number}`
@@ -676,6 +677,7 @@ export default function BettingSlip({
                 ? 1
                 : 1
           const eventAny = firstEntry.bet.event as any
+          // Look up by BOTH id AND discipline to get correct palimpsestId per discipline
           const liveEvent = rootContext?.upcomingEvents?.find(
             (e) =>
               e.id === firstEntry.bet.event.number &&
@@ -691,7 +693,7 @@ export default function BettingSlip({
             gameId,
             channelId,
             palimpsestId,
-            eventId: parseInt(eventId, 10),
+            eventId: firstEntry.bet.event.number,
             isBanker: entries.some((e) => e.fixed === true),
             markets,
           }
