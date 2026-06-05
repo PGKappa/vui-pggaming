@@ -673,7 +673,7 @@ export default function BettingSlip({
             firstEntry.bet.discipline === 'HORSES'
               ? 3
               : firstEntry.bet.discipline === 'DOGS'
-                ? 4
+                ? 1
                 : 1
           const eventAny = firstEntry.bet.event as any
           const palimpsestId =
@@ -878,7 +878,7 @@ export default function BettingSlip({
             const getChannelId = (discipline: string) => {
               switch (discipline) {
                 case 'DOGS':
-                  return 4
+                  return 1
                 case 'HORSES':
                   return 3
                 case 'DOGS8':
@@ -935,17 +935,24 @@ export default function BettingSlip({
                       name: group.name,
                       size: group.size,
                       stake: group.stake,
-                      minWin: group.minWin,
-                      maxWin: group.maxWin,
+                      minWin: parseFloat(group.minWin.toFixed(2)),
+                      maxWin: parseFloat(group.maxWin.toFixed(2)),
                       totalCombinations: group.combinations.length,
                       combinations: group.combinations.map((combo) => {
-                        const comboOdds = combo.reduce(
-                          (total, entry) => total * entry.bet.option.decPrice,
-                          1,
+                        const comboOdds = parseFloat(
+                          combo
+                            .reduce(
+                              (total, entry) =>
+                                total * entry.bet.option.decPrice,
+                              1,
+                            )
+                            .toFixed(2),
                         )
                         return {
                           odds: comboOdds,
-                          potentialWin: comboOdds * group.stake,
+                          potentialWin: parseFloat(
+                            (comboOdds * group.stake).toFixed(2),
+                          ),
                           entries: combo.map((entry) => ({
                             eventName: entry.bet.event.name || '',
                             competitorName: getPrintCompetitorName(entry),
@@ -1137,12 +1144,12 @@ export default function BettingSlip({
 
       <Separator />
 
-      <CardFooter className="bg-backgroundBetslip relative mb-[26px] flex flex-col">
+      <CardFooter className="relative mb-[26px] flex flex-col bg-backgroundBetslip">
         {betMode !== 'SYSTEM' ? (
           <>
             <div className="relative h-[30px] w-full bg-accent py-3"></div>
 
-            <div className="text-backgroundBetslip-foreground relative top-[12px] flex w-full flex-row items-center justify-between px-4 pt-[9px]">
+            <div className="relative top-[12px] flex w-full flex-row items-center justify-between px-4 pt-[9px] text-backgroundBetslip-foreground">
               <span className="relative bottom-[3px] text-[15px] font-semibold">
                 {t('total_odd').toUpperCase()}
               </span>
@@ -1174,7 +1181,7 @@ export default function BettingSlip({
               })}
             </div>
 
-            <div className="text-backgroundBetslip-foreground relative top-[17px] flex w-full flex-row items-center justify-between px-4 py-[18px]">
+            <div className="relative top-[17px] flex w-full flex-row items-center justify-between px-4 py-[18px] text-backgroundBetslip-foreground">
               <div className="flex items-center gap-2">
                 <span className="pt-[1px] text-[15px] font-semibold">
                   {t('amount').toUpperCase()}
@@ -1193,7 +1200,7 @@ export default function BettingSlip({
 
             <Separator />
 
-            <div className="bg-backgroundBetslip text-backgroundBetslip-foreground relative top-[27px] flex w-full flex-row items-center justify-between px-4 py-[12px] pb-[16px] pt-0">
+            <div className="relative top-[27px] flex w-full flex-row items-center justify-between bg-backgroundBetslip px-4 py-[12px] pb-[16px] pt-0 text-backgroundBetslip-foreground">
               <span className="relative bottom-[1px] text-[17px] font-semibold">
                 {t('potential_win').toUpperCase()}
               </span>
