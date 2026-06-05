@@ -122,26 +122,26 @@ export default function SearchResultsDialog({
       for (const discipline of disciplines) {
         const gameIds = discipline === Discipline.HORSES ? 'horses6' : 'dogs6'
 
+        const payload = {
+          gameIds: [gameIds],
+          dateStart: selectedDate || dates[0],
+          dateEnd: selectedDate || dates[0],
+          ...(selectedTimeSlot !== 'ALL'
+            ? (() => {
+                const [startTimeStr, endTimeStr] = selectedTimeSlot.split(' | ')
+                return {
+                  timeStart: startTimeStr.trim(),
+                  timeEnd: endTimeStr.trim(),
+                }
+              })()
+            : {}),
+        }
         const response = await createPGVirtualAPICall(
           '/api/event/results/list',
           rootContext.initCode,
           {
             method: 'POST',
-            body: JSON.stringify({
-              gameIds: [gameIds],
-              dateStart: selectedDate || dates[0],
-              dateEnd: selectedDate || dates[0],
-              ...(selectedTimeSlot !== 'ALL'
-                ? (() => {
-                    const [startTimeStr, endTimeStr] =
-                      selectedTimeSlot.split(' | ')
-                    return {
-                      timeStart: startTimeStr.trim(),
-                      timeEnd: endTimeStr.trim(),
-                    }
-                  })()
-                : {}),
-            }),
+            body: JSON.stringify(payload),
           },
           rootContext.operator,
         )
@@ -311,11 +311,6 @@ export default function SearchResultsDialog({
                         eventResult.result && 'podium' in eventResult.result
                           ? eventResult.result.podium
                           : []
-                      if (index === 0)
-                        console.log(
-                          '[SearchDialog] eventResult[0]',
-                          JSON.stringify(eventResult, null, 2),
-                        )
                       return (
                         <div
                           key={uniqueKey}
