@@ -882,7 +882,7 @@ export default function BettingSlip({
                 case 'HORSES':
                   return 3
                 case 'DOGS8':
-                  return 2
+                  return 4
                 case 'SOCCER':
                   return 1
                 default:
