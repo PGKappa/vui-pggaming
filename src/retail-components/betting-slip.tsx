@@ -572,9 +572,9 @@ export default function BettingSlip({
 
       const groupedByEvent = betEntries.reduce(
         (acc, entry) => {
-          const eventId = entry.bet.event.number.toString()
-          if (!acc[eventId]) acc[eventId] = []
-          acc[eventId].push(entry)
+          const key = `${entry.bet.discipline}-${entry.bet.event.number}`
+          if (!acc[key]) acc[key] = []
+          acc[key].push(entry)
           return acc
         },
         {} as Record<string, typeof betEntries>,
@@ -676,14 +676,16 @@ export default function BettingSlip({
                 ? 1
                 : 1
           const eventAny = firstEntry.bet.event as any
+          const liveEvent = rootContext?.upcomingEvents?.find(
+            (e) =>
+              e.id === firstEntry.bet.event.number &&
+              e.discipline === firstEntry.bet.discipline,
+          )
           const palimpsestId =
             eventAny.palimpsestId ||
             eventAny.extId ||
-            selectedEvent?.extId ||
-            selectedEvent?.palimpsestId ||
-            (firstEntry.bet.discipline === 'HORSES'
-              ? '1000003504'
-              : '1000003502')
+            liveEvent?.extId ||
+            liveEvent?.palimpsestId
 
           return {
             gameId,
@@ -902,10 +904,10 @@ export default function BettingSlip({
 
             const eventGroups = betEntries.reduce(
               (groups, entry) => {
-                const eventId = entry.bet.event.number
-                if (!groups[eventId]) {
-                  groups[eventId] = {
-                    eventId,
+                const groupKey = `${entry.bet.discipline}-${entry.bet.event.number}`
+                if (!groups[groupKey]) {
+                  groups[groupKey] = {
+                    eventId: entry.bet.event.number,
                     eventName: getTranslatedEventName(entry.bet.discipline),
                     eventStartTime: entry.bet.event.startingAt,
                     discipline: entry.bet.discipline,
@@ -915,7 +917,7 @@ export default function BettingSlip({
                     markets: [],
                   }
                 }
-                groups[eventId].markets.push({
+                groups[groupKey].markets.push({
                   market: getTranslatedMarket(entry.market),
                   competitorName: getPrintCompetitorName(entry),
                   selection: getPrintSelection(entry),
@@ -923,7 +925,7 @@ export default function BettingSlip({
                 })
                 return groups
               },
-              {} as Record<number, any>,
+              {} as Record<string, any>,
             )
 
             const betsInfo = Object.values(eventGroups)
