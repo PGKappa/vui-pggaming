@@ -301,8 +301,13 @@ export default function RacingFastBet({
       />
 
       <DraggableCodeList
-        discipline="racing"
-        racingDiscipline={selectedEvent?.discipline}
+        discipline={
+          selectedEvent?.discipline === 'DOGS8'
+            ? 'dogs8'
+            : selectedEvent?.discipline === 'HORSES8'
+              ? 'horses8'
+              : 'racing'
+        }
       />
     </div>
   )
