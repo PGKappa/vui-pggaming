@@ -12,13 +12,19 @@ type Discipline = 'soccer' | 'racing'
 
 interface DraggableCodeListProps {
   discipline: Discipline
+  racingDiscipline?: string
   onCodeClick?: (code: string) => void
 }
 
 // Configurazione immagini basata su disciplina, lingua e skin
-const getImageConfig = (discipline: Discipline, language: string, skin: SkinType = SkinType.DEFAULT) => {
+const getImageConfig = (
+  discipline: Discipline,
+  language: string,
+  skin: SkinType = SkinType.DEFAULT,
+  racingDiscipline?: string,
+) => {
   if (discipline === 'soccer') {
-    if(language === 'es') {
+    if (language === 'es') {
       return {
         image: '/futbol-codes-image.png',
         alt: 'Códigos de apuestas de fútbol',
@@ -35,7 +41,10 @@ const getImageConfig = (discipline: Discipline, language: string, skin: SkinType
   // Racing: cambia immagine in base alla lingua e skin
   if (language === 'es') {
     return {
-      image: '/galgoscaballos-codes-image.png',
+      image:
+        racingDiscipline === 'DOGS8'
+          ? '/galgoscaballos-8-codes-image.png'
+          : '/galgoscaballos-codes-image.png',
       alt: 'Códigos de apuestas galgos y caballos',
       title: 'Racing Code List',
     }
@@ -44,7 +53,12 @@ const getImageConfig = (discipline: Discipline, language: string, skin: SkinType
   if (language === 'it') {
     const isStanleybet = skin === SkinType.STANLEYBET
     return {
-      image: isStanleybet ? '/cani-cavalli-codes-image-rosso.png' : '/cani-cavalli-codes-image.png',
+      image:
+        racingDiscipline === 'DOGS8'
+          ? '/cani-cavalli-8-codes-image.png'
+          : isStanleybet
+            ? '/cani-cavalli-codes-image-rosso.png'
+            : '/cani-cavalli-codes-image.png',
       alt: 'Codici scommesse cani e cavalli',
       title: 'Elenco Codici Corse',
     }
@@ -52,7 +66,10 @@ const getImageConfig = (discipline: Discipline, language: string, skin: SkinType
 
   // Default inglese per racing
   return {
-    image: '/dogshorses-codes-image.png',
+    image:
+      racingDiscipline === 'DOGS8'
+        ? '/dogshorses-8-codes-image.png'
+        : '/dogshorses-codes-image.png',
     alt: 'Dogs and horses betting codes',
     title: 'Racing Code List',
   }
@@ -64,6 +81,7 @@ const INITIAL_WIDTH = 1260
 
 export default function DraggableCodeList({
   discipline,
+  racingDiscipline,
 }: DraggableCodeListProps) {
   const { t } = useTranslation()
   const rootContext = useContext(RootContext)
@@ -89,11 +107,22 @@ export default function DraggableCodeList({
 
   // Ottieni la lingua dall'API e configura l'immagine corretta
   const currentLanguage = rootContext?.userData?.lang || 'en'
-  const config = getImageConfig(discipline, currentLanguage, skin)
+  const config = getImageConfig(
+    discipline,
+    currentLanguage,
+    skin,
+    racingDiscipline,
+  )
 
   // Quando l'immagine viene caricata, aggiorna le proporzioni reali e mostra il container
   const handleImageLoad = useCallback(
-    ({ naturalWidth, naturalHeight }: { naturalWidth: number; naturalHeight: number }) => {
+    ({
+      naturalWidth,
+      naturalHeight,
+    }: {
+      naturalWidth: number
+      naturalHeight: number
+    }) => {
       const ratio = naturalHeight / naturalWidth
       setImageRatio(ratio)
       setSize((prev) => ({
@@ -341,7 +370,7 @@ export default function DraggableCodeList({
           }}
         >
           <div
-            className="flex h-14 shrink-0 cursor-move select-none items-center justify-center border-black bg-accent border-b"
+            className="flex h-14 shrink-0 cursor-move select-none items-center justify-center border-b border-black bg-accent"
             onMouseDown={handleMouseDown}
             onTouchStart={handleTouchStart}
           >

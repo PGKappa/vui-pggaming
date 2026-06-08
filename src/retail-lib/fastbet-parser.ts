@@ -1,4 +1,3 @@
-import { t } from 'i18next'
 import { Bet, Discipline, UpcomingEvent } from './types'
 import { createPGVirtualAPICall } from './utils'
 
