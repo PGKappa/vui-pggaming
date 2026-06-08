@@ -8,7 +8,13 @@ import Image from 'next/image'
 import { RootContext } from '@/retail-contexts/root-context'
 import { SkinContext, SkinType } from '@/retail-contexts/skin-context'
 
-type Discipline = 'soccer' | 'dogs6' | 'horses6' | 'dogs8' | 'horses8'
+type Discipline =
+  | 'soccer'
+  | 'dogs6'
+  | 'horses6'
+  | 'dogs8'
+  | 'horses8'
+  | 'racing'
 
 interface DraggableCodeListProps {
   discipline: Discipline
@@ -38,54 +44,52 @@ const getImageConfig = (
     }
   }
 
-  // 6 corridors: dogs6 and horses6 share the same code list
-  if (discipline === 'dogs6' || discipline === 'horses6') {
+  // 8 corridors: dogs8 and horses8
+  if (discipline === 'dogs8' || discipline === 'horses8') {
     if (language === 'es') {
       return {
-        image: '/racing6-codes-es.png',
-        alt: 'Códigos de apuestas carreras 6',
-        title: 'Lista de Códigos Carreras',
+        image: '/galgoscaballos8-codes-image.png',
+        alt: 'Códigos de apuestas galgos y caballos 8',
+        title: 'Racing Code List',
       }
     }
     if (language === 'it') {
       return {
         image: isStanleybet
-          ? '/racing6-codes-it-stanley.png'
-          : '/racing6-codes-it.png',
-        alt: 'Codici scommesse corse 6',
+          ? '/cani-cavalli8-codes-image-stanley.png'
+          : '/cani-cavalli8-codes-image.png',
+        alt: 'Codici scommesse cani e cavalli 8',
         title: 'Elenco Codici Corse',
       }
     }
-    // en / ru / default
     return {
-      image: '/racing6-codes-en.png',
-      alt: 'Racing 6 betting codes',
+      image: '/dogs-horses8-codes-image.png',
+      alt: 'Dogs and horses 8 betting codes',
       title: 'Racing Code List',
     }
   }
 
-  // 8 corridors: dogs8 and horses8 share the same code list
+  // 6 corridors: dogs6, horses6, and legacy 'racing'
   if (language === 'es') {
     return {
-      image: '/racing8-codes-es.png',
-      alt: 'Códigos de apuestas carreras 8',
-      title: 'Lista de Códigos Carreras 8',
+      image: '/galgoscaballos-codes-image.png',
+      alt: 'Códigos de apuestas galgos y caballos',
+      title: 'Racing Code List',
     }
   }
   if (language === 'it') {
     return {
       image: isStanleybet
-        ? '/racing8-codes-it-stanley.png'
-        : '/racing8-codes-it.png',
-      alt: 'Codici scommesse corse 8',
-      title: 'Elenco Codici Corse 8',
+        ? '/cani-cavalli-codes-image-stanley.png'
+        : '/cani-cavalli-codes-image.png',
+      alt: 'Codici scommesse cani e cavalli',
+      title: 'Elenco Codici Corse',
     }
   }
-  // en / ru / default
   return {
-    image: '/racing8-codes-en.png',
-    alt: 'Racing 8 betting codes',
-    title: 'Racing 8 Code List',
+    image: '/dogs-horses-codes-image.png',
+    alt: 'Dogs and horses betting codes',
+    title: 'Racing Code List',
   }
 }
 
