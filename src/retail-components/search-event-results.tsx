@@ -26,10 +26,17 @@ import {
 } from './ui/select'
 import { getLayoutConfig } from '@/retail-lib/layout-config'
 
+function formatDateForAPI(date: Date) {
+  const day = String(date.getDate()).padStart(2, '0')
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const year = date.getFullYear()
+  return `${day}/${month}/${year}`
+}
+
 const dates = Array.from({ length: 10 }, (_, index) => {
   const date = new Date()
   date.setDate(date.getDate() - index)
-  return date.toLocaleDateString('it-IT')
+  return formatDateForAPI(date)
 })
 
 const timeSlots = [
@@ -196,8 +203,8 @@ export default function SearchEventResults() {
             const sevenDaysAgo = new Date(today)
             sevenDaysAgo.setDate(today.getDate() - 7)
 
-            const dateStart = sevenDaysAgo.toLocaleDateString('it-IT')
-            const dateEnd = today.toLocaleDateString('it-IT')
+            const dateStart = formatDateForAPI(sevenDaysAgo)
+            const dateEnd = formatDateForAPI(today)
 
             const gameIds =
               confirmedDiscipline === Discipline.HORSES
@@ -352,10 +359,15 @@ export default function SearchEventResults() {
                 ? 'dogs8'
                 : `${discipline.toLowerCase()}6`
 
-        const requestBody = {
+        const requestBody: Record<string, any> = {
           gameIds: [gameIds],
           dateStart: apiDateFormat,
           dateEnd: apiDateFormat,
+        }
+        if (confirmedTimeSlot !== 'ALL') {
+          const [startTimeStr, endTimeStr] = confirmedTimeSlot.split(' | ')
+          requestBody.timeStart = startTimeStr.trim()
+          requestBody.timeEnd = endTimeStr.trim()
         }
 
         const response = await createPGVirtualAPICall(
@@ -657,6 +669,20 @@ export default function SearchEventResults() {
 
   // Funzione per avviare la ricerca
   const handleSearch = () => {
+    if (!lastTenGames) {
+      if (selectedDate === 'ALL' && selectedTimeSlot === 'ALL') {
+        toast.error(t('select_date_and_time_slot'))
+        return
+      }
+      if (selectedDate === 'ALL') {
+        toast.error(t('select_date'))
+        return
+      }
+      if (selectedTimeSlot === 'ALL') {
+        toast.error(t('select_time_slot'))
+        return
+      }
+    }
     setContextResultsSnapshot(rootContext.eventResults || [])
     setConfirmedDiscipline(selectedDiscipline)
     // Quando "Last 10 Games" è attivo, ignora data e fascia oraria
