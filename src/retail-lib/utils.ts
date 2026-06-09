@@ -5,7 +5,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-// Normalizes competitors/outcome for under/over markets to match toggles and fastBet 
+// Normalizes competitors/outcome for under/over markets to match toggles and fastBet
 export function normalizeUnderOverValue(value: string): string {
   const v = value.toLowerCase().trim()
   // Map all variations of "under" to canonical form
@@ -224,6 +224,7 @@ export function createPGVirtualAPICall(
 export enum Discipline {
   SOCCER = 'SOCCER',
   DOGS = 'DOGS',
+  DOGS8 = 'DOGS8',
   HORSES = 'HORSES',
 }
 
@@ -233,6 +234,7 @@ export function getAPIUrlForDiscipline(discipline: Discipline): string {
     case Discipline.SOCCER:
       return API_URLS.SOCCER
     case Discipline.DOGS:
+    case Discipline.DOGS8:
     case Discipline.HORSES:
       return API_URLS.PGVIRTUAL
     default:
@@ -302,7 +304,7 @@ export async function fetchCashierInit(
 // Colori delle pettorine per cani e cavalli con codici colore esadecimali
 export function getRacerColors(
   racerNumber: number,
-  discipline: 'DOGS' | 'HORSES',
+  discipline: 'DOGS' | 'DOGS8' | 'HORSES',
 ) {
   if (discipline === 'HORSES') {
     switch (racerNumber) {
@@ -418,6 +420,87 @@ export function getRacerColors(
             textShadow:
               '2px 0 0 #fff, -2px 0 0 #fff, 0 2px 0 #fff, 0 -2px 0 #fff, 1px 1px #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff',
           },
+        }
+      default:
+        return {
+          bg: '#CCCCCC',
+          text: '#000000',
+          border: '1px solid #CCCCCC',
+          style: {
+            backgroundColor: '#CCCCCC',
+            color: '#000000',
+            border: '1px solid #CCCCCC',
+          },
+        }
+    }
+  } else if (discipline === 'DOGS8') {
+    switch (racerNumber) {
+      case 1:
+        return {
+          bg: '#FF0000',
+          text: '#FFFFFF',
+          border: '',
+          style: { backgroundColor: '#FF0000', color: '#FFFFFF' },
+        }
+      case 2:
+        return {
+          bg: '#0000FF',
+          text: '#FFFFFF',
+          border: '',
+          style: { backgroundColor: '#0000FF', color: '#FFFFFF' },
+        }
+      case 3:
+        return {
+          bg: '#FFFFFF',
+          text: '#000000',
+          border: '1px solid #000000',
+          style: {
+            backgroundColor: '#FFFFFF',
+            color: '#000000',
+            border: '1px solid #000000',
+          },
+        }
+      case 4:
+        return {
+          bg: '#287957',
+          text: '#FFFFFF',
+          border: '',
+          style: { backgroundColor: '#287957', color: '#FFFFFF' },
+        }
+      case 5:
+        return {
+          bg: '#000000',
+          text: '#FFBB00',
+          border: '',
+          style: { backgroundColor: '#000000', color: '#FFBB00' },
+        }
+      case 6:
+        return {
+          bg: '#FFBB00',
+          text: '#000000',
+          border: '',
+          style: { backgroundColor: '#FFBB00', color: '#000000' },
+        }
+      case 7:
+        return {
+          bg: '#1D6647',
+          text: '#000000',
+          border: '1px solid #000000',
+          style: {
+            background:
+              'linear-gradient(0deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 8.333333333%, rgba(29,102,71,1) 8.333333334%, rgba(29,102,71,1) 25.000000001%, rgba(255,255,255,1) 25.000000002%, rgba(255,255,255,1) 41.666666669%, rgba(29,102,71,1) 41.66666667%, rgba(29,102,71,1) 58.333333337%, rgba(255,255,255,1) 58.333333338%, rgba(255,255,255,1) 75.000000005%, rgba(29,102,71,1) 75.000000006%, rgba(29,102,71,1) 91.666666673%, rgba(255,255,255,1) 91.666666674%, rgba(255,255,255,1) 100%)',
+            color: '#000000',
+            border: '1px solid #000000',
+            textShadow:
+              '2px 0 0 #fff, -2px 0 0 #fff, 0 2px 0 #fff, 0 -2px 0 #fff, 1px 1px #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff',
+          },
+        }
+      case 8:
+        return {
+          bg: '#000000',
+          text: '#FF0000',
+          border: '',
+          style: { backgroundColor: '#000000', color: '#FF0000' },
         }
       default:
         return {

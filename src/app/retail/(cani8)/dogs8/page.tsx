@@ -12,7 +12,7 @@ import {
 import { useContext, useEffect, useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
-export default function Home() {
+export default function Dogs8Page() {
   const { t } = useTranslation()
   const { upcomingEvents, searchEventResults, setSearchEventResults } =
     useContext(RootContext)
@@ -21,8 +21,9 @@ export default function Home() {
     undefined,
   )
 
+  // SINCRONIZZAZIONE PERFETTA CON CAROSELLO
   const carouselEvents = useMemo(
-    () => getCarouselFilteredEvents(upcomingEvents, [Discipline.DOGS]),
+    () => getCarouselFilteredEvents(upcomingEvents, [Discipline.DOGS8]),
     [upcomingEvents],
   )
 
@@ -31,56 +32,59 @@ export default function Home() {
     [carouselEvents],
   )
 
+  // AUTO-SELEZIONE: Solo se non c'è evento selezionato o se l'evento selezionato non esiste più
   useEffect(() => {
-    setSelectedEvent((prev) => {
-      if (prev) {
-        const stillExists = carouselEvents.some((e) => e.id === prev.id)
-        if (stillExists) return prev
+    // Se c'è un evento selezionato, verifica che esista ancora
+    if (selectedEvent) {
+      const stillExists = carouselEvents.some((e) => e.id === selectedEvent.id)
+      if (stillExists) {
+        return // Evento ancora valido, non cambiare
       }
+    }
 
-      if (futureEvents && futureEvents.length > 0 && futureEvents[0]) {
-        return futureEvents[0]
-      } else if (carouselEvents && carouselEvents.length > 0) {
-        return carouselEvents[0]
-      } else {
-        return undefined
-      }
-    })
-  }, [futureEvents, carouselEvents])
+    // Auto-seleziona il primo evento futuro
+    if (futureEvents && futureEvents.length > 0 && futureEvents[0]) {
+      setSelectedEvent(futureEvents[0])
+    } else if (carouselEvents && carouselEvents.length > 0) {
+      setSelectedEvent(carouselEvents[0])
+    } else {
+      setSelectedEvent(undefined)
+    }
+  }, [futureEvents, carouselEvents, selectedEvent])
 
+  // AUTO-AGGIORNAMENTO
   useEffect(() => {
     const interval = setInterval(() => {
-      setSelectedEvent((prev) => {
-        if (!prev) return prev
+      if (selectedEvent) {
         const now = new Date()
         const eventTime =
-          prev.time instanceof Date ? prev.time : new Date(prev.time)
+          selectedEvent.time instanceof Date
+            ? selectedEvent.time
+            : new Date(selectedEvent.time)
 
         if (eventTime <= now) {
+          // Refresh degli eventi
           const freshFutureEvents = getFutureEventsFromCarousel(
-            getCarouselFilteredEvents(upcomingEvents, [Discipline.DOGS]),
+            getCarouselFilteredEvents(upcomingEvents, [Discipline.DOGS8]),
           )
 
           if (freshFutureEvents.length > 0) {
-            if (freshFutureEvents[0].id === prev.id) return prev
-            return freshFutureEvents[0]
+            setSelectedEvent(freshFutureEvents[0])
           } else {
+            // Nessun evento futuro, prendi il più recente
             const allEvents = getCarouselFilteredEvents(upcomingEvents, [
-              Discipline.DOGS,
+              Discipline.DOGS8,
             ])
             if (allEvents.length > 0) {
-              const last = allEvents[allEvents.length - 1]
-              if (last.id === prev.id) return prev
-              return last
+              setSelectedEvent(allEvents[allEvents.length - 1])
             }
           }
         }
-        return prev
-      })
+      }
     }, 500)
 
     return () => clearInterval(interval)
-  }, [upcomingEvents])
+  }, [selectedEvent, upcomingEvents])
 
   return (
     <div className="relative bottom-[5px] flex h-full flex-row overflow-hidden">
@@ -95,6 +99,7 @@ export default function Home() {
           />
         </div>
 
+        {/* Main content area */}
         <div className="bg-betslip flex h-full flex-row gap-2 overflow-hidden pr-2 pt-[2px]">
           <div className="flex h-[921px] w-[1500px] flex-col gap-2 overflow-y-auto pb-16">
             {!!searchEventResults ? (

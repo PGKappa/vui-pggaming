@@ -86,6 +86,7 @@
   "dogs": "Galgos",
   "horses": "Caballos",
   "dog_racing": "Carreras de Galgos",
+  "dog8_racing": "Carreras de Galgos 8",
   "horse_racing": "Carreras de Caballos",
   "couples": "Parejas",
   "triplets": "Tríos",
@@ -271,6 +272,7 @@
   "horse": "Caballo",
   "racing": "Carrera",
   "dog_races_label": "CARRERAS DE GALGOS",
+  "dog8_races_label": "CARRERAS DE GALGOS 8",
   "horse_races_label": "CARRERAS DE CABALLOS",
   "football_label": "FÚTBOL",
   "racing_winner": "Ganador\nG",
@@ -340,5 +342,8 @@
   "max_bet_entries_system": "No se pueden añadir más apuestas: máximo 50 selecciones permitidas para apuesta de sistema",
   "max_events_system": "No se pueden añadir más apuestas: máximo 15 eventos únicos permitidos para apuesta de sistema",
   "failed_fetch_results": "Error al obtener los resultados",
+  "select_date": "Selecciona una fecha",
+  "select_time_slot": "Selecciona una franja horaria",
+  "select_date_and_time_slot": "Selecciona una fecha y una franja horaria",
   "http_error": "Error"
 }

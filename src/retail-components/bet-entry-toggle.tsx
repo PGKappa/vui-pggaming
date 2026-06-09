@@ -64,7 +64,9 @@ export default function BetEntryToggle(props: {
   const formatOutcome = (outcome: string, marketName: string): string => {
     // Per cani e cavalli usa le label complete, per il calcio usa le abbreviazioni
     const isRacing =
-      props.bet.discipline === 'DOGS' || props.bet.discipline === 'HORSES'
+      props.bet.discipline === 'DOGS' ||
+      props.bet.discipline === 'DOGS8' ||
+      props.bet.discipline === 'HORSES'
     const underLabel = isRacing
       ? t('under_full') || 'Under'
       : t('under') || 'Un'

@@ -1,7 +1,6 @@
 'use client'
 import BettingSlip from '@/retail-components/betting-slip'
 import SearchEventResults from '@/retail-components/search-event-results'
-import { ScrollArea } from '@/retail-components/ui/scroll-area'
 import { UpcomingEventsCarousel } from '@/retail-components/upcoming-events-carousel'
 import UpcomingRaceCard from '@/retail-components/upcoming-race-card'
 import { RootContext } from '@/retail-contexts/root-context'
@@ -84,10 +83,9 @@ export default function Home() {
   }, [upcomingEvents])
 
   return (
-    <div className="relative bottom-[5px] flex h-full min-w-[1200px] flex-row overflow-hidden">
-      {/* LEFT COLUMN - si allarga/stringe in base alla risoluzione */}
-      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-        <div className="bg-betslip flex h-[99px] w-full flex-row items-center justify-center pb-[2px] pr-2">
+    <div className="relative bottom-[5px] flex h-full flex-row overflow-hidden">
+      <div className="flex flex-col">
+        <div className="bg-betslip flex h-[109px] w-[1508px] flex-row items-center justify-center pb-[2px] pr-2">
           <UpcomingEventsCarousel
             selectedEvent={selectedEvent}
             setSelectedEvent={(event) => {
@@ -97,8 +95,8 @@ export default function Home() {
           />
         </div>
 
-        <div className="bg-betslip flex flex-1 flex-row gap-2 overflow-hidden pr-2 pt-[2px]">
-          <ScrollArea className="h-full w-full">
+        <div className="bg-betslip flex h-full flex-row gap-2 overflow-hidden pr-2 pt-[2px]">
+          <div className="flex h-[921px] w-[1500px] flex-col gap-2 overflow-y-auto pb-16">
             {!!searchEventResults ? (
               <SearchEventResults />
             ) : selectedEvent ? (
@@ -108,12 +106,12 @@ export default function Home() {
                 {t('no_event_selected')}
               </div>
             )}
-          </ScrollArea>
+          </div>
         </div>
       </div>
 
-      {/* RIGHT COLUMN - larghezza fissa, sempre ancorata a destra */}
-      <div className="relative right-1 h-[950px] w-[400px] shrink-0 bg-background text-foreground">
+      {/* RIGHT COLUMN - Betting slip */}
+      <div className="relative right-2 h-[937px] w-[410px] bg-background text-foreground">
         <BettingSlip selectedEvent={selectedEvent} />
       </div>
     </div>

@@ -1,4 +1,3 @@
-import { t } from 'i18next'
 import { Bet, Discipline, UpcomingEvent } from './types'
 import { createPGVirtualAPICall } from './utils'
 
@@ -230,9 +229,11 @@ export async function createBetFromFastCode(
     return null
   }
 
-  // Usa trackName dall'evento (dal canale API) se disponibile, altrimenti fallback
+  // Usa trackName dall'evento (dal canale API) se disponibile, altrimenti fallback basato sulla disciplina
   const trackName =
-    currentEvent.trackName || raceData.track?.name || t('track_6')
+    currentEvent.trackName ||
+    raceData.track?.name ||
+    (currentEvent.discipline === 'DOGS8' ? 'Track 8' : 'Track 6')
 
   // Helper per ottenere il nome del competitor dal numero
   const getCompetitorName = (number: number): string => {
@@ -250,7 +251,8 @@ export async function createBetFromFastCode(
 
   if (
     currentEvent.discipline === Discipline.HORSES ||
-    currentEvent.discipline === Discipline.DOGS
+    currentEvent.discipline === Discipline.DOGS ||
+    currentEvent.discipline === Discipline.DOGS8
   ) {
     switch (fastCode.code) {
       case 'W': // Winner

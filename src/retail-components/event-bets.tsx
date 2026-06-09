@@ -69,7 +69,7 @@ export default function EventBets(props: {
                     alt="Bin"
                     width={40}
                     height={20}
-                    className="mb-[4px] ml-[6px] size-[17px] object-contain bg-transparent"
+                    className="mb-[4px] ml-[6px] size-[17px] bg-transparent object-contain"
                   />
                 </Button>
               </TooltipTrigger>
@@ -83,7 +83,9 @@ export default function EventBets(props: {
                 ? t('football')
                 : eventBets[0].bet.discipline === 'DOGS'
                   ? t('dog_races_label')
-                  : t('horse_races_label')}
+                  : eventBets[0].bet.discipline === 'DOGS8'
+                    ? t('dog8_races_label')
+                    : t('horse_races_label')}
             </span>
 
             <div className="flex items-center space-x-2">
@@ -117,7 +119,10 @@ export default function EventBets(props: {
                     if (num) return t(`track_${num}`)
                     return track
                   }
-                  return t('track_6')
+                  // Fallback basato sulla disciplina
+                  return eventBets[0].bet.discipline === 'DOGS8'
+                    ? t('track_8')
+                    : t('track_6')
                 })()}
               </span>
               <span className="text-[10px]">|</span>
@@ -175,12 +180,14 @@ export default function EventBets(props: {
                 // Per cani e cavalli usa la versione completa
                 const isRacing =
                   betEntry.bet.discipline === 'DOGS' ||
+                  betEntry.bet.discipline === 'DOGS8' ||
                   betEntry.bet.discipline === 'HORSES'
                 outcomeDisplay = isRacing ? t('under_full') : t('under')
               } else if (outcomeLower === 'over') {
                 // Per cani e cavalli usa la versione completa
                 const isRacing =
                   betEntry.bet.discipline === 'DOGS' ||
+                  betEntry.bet.discipline === 'DOGS8' ||
                   betEntry.bet.discipline === 'HORSES'
                 outcomeDisplay = isRacing ? t('over_full') : t('over')
               }

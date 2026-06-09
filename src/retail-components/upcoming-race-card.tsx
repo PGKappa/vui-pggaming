@@ -242,7 +242,11 @@ export default function UpcomingRaceCard({
 
   // Helper per determinare se mostrare il pulsante info (solo per cani e cavalli)
   const shouldShowInfoButton = () => {
-    return race.discipline === 'DOGS' || race.discipline === 'HORSES'
+    return (
+      race.discipline === 'DOGS' ||
+      race.discipline === 'DOGS8' ||
+      race.discipline === 'HORSES'
+    )
   }
 
   useEffect(() => {
@@ -457,68 +461,68 @@ export default function UpcomingRaceCard({
     })
   }
 
- const renderTableHeader = () => {
-  return (
-    <TableHeader className="h-14 bg-card-header text-[16px] text-card-header-foreground">
-      <TableRow>
-        <TableHead className="w-[249px] min-w-[150px] text-center font-semibold">
-          {t('starters_list').toUpperCase()}
-        </TableHead>
-        <TableHead className="w-[1px] bg-border p-0" />
+  const renderTableHeader = () => {
+    return (
+      <TableHeader className="h-14 bg-card-header text-[16px] text-card-header-foreground">
+        <TableRow>
+          <TableHead className="w-[249px] min-w-[150px] text-center font-semibold">
+            {t('starters_list').toUpperCase()}
+          </TableHead>
+          <TableHead className="w-[1px] bg-border p-0" />
 
-        <TableHead className="w-[249px] min-w-[140px] text-center font-semibold">
-          {t('performance').toUpperCase()}
-        </TableHead>
-        <TableHead className="w-[1px] bg-border p-0" />
+          <TableHead className="w-[249px] min-w-[140px] text-center font-semibold">
+            {t('performance').toUpperCase()}
+          </TableHead>
+          <TableHead className="w-[1px] bg-border p-0" />
 
-        <TableHead className="hidden min-[1440px]:table-cell w-[249px] min-w-[130px] text-center font-semibold">
-  {t('history').toUpperCase()}
-</TableHead>
-<TableHead className="hidden min-[1440px]:table-cell w-[1px] bg-border p-0" />
+          <TableHead className="hidden w-[249px] min-w-[130px] text-center font-semibold min-[1440px]:table-cell">
+            {t('history').toUpperCase()}
+          </TableHead>
+          <TableHead className="hidden w-[1px] bg-border p-0 min-[1440px]:table-cell" />
 
-        {activeTab === 'main' && (
-          <>
-            <TableHead className="w-[249px] min-w-[100px] text-center font-bold">
-              {t('winner').toUpperCase()}
-            </TableHead>
-            <TableHead className="w-[1px] bg-border p-0" />
-            <TableHead className="w-[249px] min-w-[100px] text-center font-semibold">
-              {t('place_2').toUpperCase()}
-            </TableHead>
-            <TableHead className="w-[1px] bg-border p-0" />
-            <TableHead className="w-[249px] min-w-[100px] text-center font-semibold">
-              {t('show_3').toUpperCase()}
-            </TableHead>
-          </>
-        )}
+          {activeTab === 'main' && (
+            <>
+              <TableHead className="w-[249px] min-w-[100px] text-center font-bold">
+                {t('winner').toUpperCase()}
+              </TableHead>
+              <TableHead className="w-[1px] bg-border p-0" />
+              <TableHead className="w-[249px] min-w-[100px] text-center font-semibold">
+                {t('place_2').toUpperCase()}
+              </TableHead>
+              <TableHead className="w-[1px] bg-border p-0" />
+              <TableHead className="w-[249px] min-w-[100px] text-center font-semibold">
+                {t('show_3').toUpperCase()}
+              </TableHead>
+            </>
+          )}
 
-        {activeTab === 'couples' && (
-          <>
-            <TableHead className="text-center font-bold" colSpan={2}>
-              {t('exacta').toUpperCase()}
-            </TableHead>
-            <TableHead className="w-[1px] bg-border p-0" />
-            <TableHead className="text-center font-bold" colSpan={2}>
-              {t('quinella').toUpperCase()}
-            </TableHead>
-          </>
-        )}
+          {activeTab === 'couples' && (
+            <>
+              <TableHead className="text-center font-bold" colSpan={2}>
+                {t('exacta').toUpperCase()}
+              </TableHead>
+              <TableHead className="w-[1px] bg-border p-0" />
+              <TableHead className="text-center font-bold" colSpan={2}>
+                {t('quinella').toUpperCase()}
+              </TableHead>
+            </>
+          )}
 
-        {activeTab === 'triplets' && (
-          <>
-            <TableHead className="text-center font-bold" colSpan={3}>
-              {t('trifecta').toUpperCase()}
-            </TableHead>
-            <TableHead className="w-[1px] bg-border p-0" />
-            <TableHead className="text-center font-bold" colSpan={2}>
-              {t('boxed_trifecta').toUpperCase()}
-            </TableHead>
-          </>
-        )}
-      </TableRow>
-    </TableHeader>
-  )
-}
+          {activeTab === 'triplets' && (
+            <>
+              <TableHead className="text-center font-bold" colSpan={3}>
+                {t('trifecta').toUpperCase()}
+              </TableHead>
+              <TableHead className="w-[1px] bg-border p-0" />
+              <TableHead className="text-center font-bold" colSpan={2}>
+                {t('boxed_trifecta').toUpperCase()}
+              </TableHead>
+            </>
+          )}
+        </TableRow>
+      </TableHeader>
+    )
+  }
 
   const renderTabSpecificCells = (racer: UpcomingRace['racers'][number]) => {
     if (activeTab === 'main') {
@@ -542,7 +546,9 @@ export default function UpcomingRaceCard({
                     raceInfo?.odds?.winner?.[racer.number.toString()] || '0',
                   ),
                 },
-                track: race.trackName || 'Track 6',
+                track:
+                  race.trackName ||
+                  (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
               }}
               variant="racecard"
               className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] tabular-nums text-betEntry-foreground hover:opacity-85"
@@ -571,7 +577,9 @@ export default function UpcomingRaceCard({
                     raceInfo?.odds?.placed?.[racer.number.toString()] || '0',
                   ),
                 },
-                track: race.trackName || 'Track 6',
+                track:
+                  race.trackName ||
+                  (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
               }}
               variant="racecard"
               className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] tabular-nums text-betEntry-foreground hover:opacity-85"
@@ -601,7 +609,9 @@ export default function UpcomingRaceCard({
                     raceInfo?.odds?.show?.[racer.number.toString()] || '0',
                   ),
                 },
-                track: race.trackName || 'Track 6',
+                track:
+                  race.trackName ||
+                  (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
               }}
               variant="racecard"
               className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] tabular-nums text-betEntry-foreground hover:opacity-85"
@@ -827,7 +837,9 @@ export default function UpcomingRaceCard({
                       outcome: 'even',
                       decPrice: parseFloat(raceInfo.odds.evenodd?.even || '0'),
                     },
-                    track: race.trackName || 'Track 6',
+                    track:
+                      race.trackName ||
+                      (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
                   }}
                   variant="matchcard"
                   className="h-[49px] w-full text-[16px] text-black"
@@ -853,7 +865,9 @@ export default function UpcomingRaceCard({
                       outcome: 'odd',
                       decPrice: parseFloat(raceInfo.odds.evenodd?.odd || '0'),
                     },
-                    track: race.trackName || 'Track 6',
+                    track:
+                      race.trackName ||
+                      (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
                   }}
                   variant="matchcard"
                   className="h-[49px] w-full text-[16px] text-black"
@@ -892,7 +906,9 @@ export default function UpcomingRaceCard({
                         raceInfo.odds.underover?.under || '0',
                       ),
                     },
-                    track: race.trackName || 'Track 6',
+                    track:
+                      race.trackName ||
+                      (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
                   }}
                   variant="matchcard"
                   className="h-[49px] w-full text-[16px] text-black"
@@ -920,7 +936,9 @@ export default function UpcomingRaceCard({
                         raceInfo.odds.underover?.over || '0',
                       ),
                     },
-                    track: race.trackName || 'Track 6',
+                    track:
+                      race.trackName ||
+                      (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
                   }}
                   variant="matchcard"
                   className="h-[49px] w-full text-[16px] text-black"
@@ -1008,7 +1026,7 @@ export default function UpcomingRaceCard({
                           style={
                             getRacerColors(
                               racer.number,
-                              race.discipline as 'DOGS' | 'HORSES',
+                              race.discipline as 'DOGS' | 'DOGS8' | 'HORSES',
                             ).style
                           }
                         >
@@ -1040,16 +1058,16 @@ export default function UpcomingRaceCard({
                       </div>
                     </TableCell>
 
-                    <TableCell className="hidden min-[1440px]:table-cell w-[1px] bg-border p-0" />
+                    <TableCell className="hidden w-[1px] bg-border p-0 min-[1440px]:table-cell" />
 
-{/* Storico */}
-<TableCell className="hidden min-[1440px]:table-cell">
-  <div className="flex items-center justify-center space-x-[10px]">
-    <MedalsHistory history={racer.history} />
-  </div>
-</TableCell>
+                    {/* Storico */}
+                    <TableCell className="hidden min-[1440px]:table-cell">
+                      <div className="flex items-center justify-center space-x-[10px]">
+                        <MedalsHistory history={racer.history} />
+                      </div>
+                    </TableCell>
 
-<TableCell className="w-[1px] bg-border p-0" />
+                    <TableCell className="w-[1px] bg-border p-0" />
 
                     {renderTabSpecificCells(racer)}
                   </TableRow>
@@ -1096,7 +1114,7 @@ export default function UpcomingRaceCard({
         isOpen={isLatecomersDialogOpen}
         onOpenChange={setIsLatecomersDialogOpen}
         raceInfo={raceInfo}
-        discipline={race.discipline as 'DOGS' | 'HORSES'}
+        discipline={race.discipline as 'DOGS' | 'DOGS8' | 'HORSES'}
       />
     </>
   )

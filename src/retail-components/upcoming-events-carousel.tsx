@@ -28,6 +28,9 @@ export function UpcomingEventsCarousel(props: {
     const path = (pathname || '/').toLowerCase()
     if (path.includes('dogs-horses') || path.includes('cani-cavalli')) {
       return [Discipline.DOGS, Discipline.HORSES]
+    } else if (path.includes('dogs8') || path.includes('cani8')) {
+      // IMPORTANTE: controllare dogs8 PRIMA di dogs!
+      return [Discipline.DOGS8]
     } else if (path.includes('dogs') || path.includes('cani')) {
       return [Discipline.DOGS]
     } else if (path.includes('horses') || path.includes('cavalli')) {
@@ -39,10 +42,14 @@ export function UpcomingEventsCarousel(props: {
 
   const filteredAndSortedEvents = useMemo(() => {
     const events = upcomingEvents || []
-    const filtered = events.filter((event) => disciplines.includes(event.discipline))
+    const filtered = events.filter((event) =>
+      disciplines.includes(event.discipline),
+    )
     return filtered.sort((a, b) => {
-      const timeA = a.time instanceof Date ? a.time.getTime() : new Date(a.time).getTime()
-      const timeB = b.time instanceof Date ? b.time.getTime() : new Date(b.time).getTime()
+      const timeA =
+        a.time instanceof Date ? a.time.getTime() : new Date(a.time).getTime()
+      const timeB =
+        b.time instanceof Date ? b.time.getTime() : new Date(b.time).getTime()
       return timeA - timeB
     })
   }, [upcomingEvents, disciplines])
@@ -77,9 +84,9 @@ export function UpcomingEventsCarousel(props: {
 
   return (
     <Carousel
-  className="w-full px-9"
-  opts={{ align: 'start', skipSnaps: false }}
->
+      className="w-full px-9"
+      opts={{ align: 'start', skipSnaps: false }}
+    >
       <CarouselContent className="bg-white">
         {isLoadingEvents ? (
           Array.from({ length: 6 }).map((_, index) => (
@@ -171,14 +178,14 @@ function UpcomingEventItem(props: {
         src={
           event.discipline === 'SOCCER'
             ? '/calciatore_blu.png'
-            : event.discipline === 'DOGS'
+            : event.discipline === 'DOGS' || event.discipline === 'DOGS8'
               ? '/cane_blu.png'
               : '/cavallo_blu.png'
         }
         alt={event.discipline}
         width={40}
         height={20}
-         className={`relative hidden min-[1730px]:block size-14 object-contain ${imageOffset}`}
+        className={`relative hidden size-14 object-contain min-[1730px]:block ${imageOffset}`}
       />
 
       <div className={`relative ${textOffset} flex flex-col items-start`}>
@@ -189,17 +196,16 @@ function UpcomingEventItem(props: {
             ? event.name
             : event.discipline === 'HORSES'
               ? t('horse_races_label')
-              : t('dog_races_label')}
+              : event.discipline === 'DOGS8'
+                ? t('dog8_races_label')
+                : t('dog_races_label')}
         </span>
         <span
           className={`relative ${eventSubtitleBottom} whitespace-nowrap ${eventSubtitleFontSize} font-normal uppercase`}
         >
           {event.discipline === 'SOCCER'
             ? `${t('round')} ${event.id}`
-            : (() => {
-                const trackNum = event.trackName?.match(/\d+/)?.[0] || '6'
-                return `${t('track')} ${trackNum}`
-              })()}
+            : `${t('track')} ${event.trackName?.match(/\d+/)?.[0] || (event.discipline === 'DOGS8' ? '8' : '6')}`}
         </span>
         <div className="flex flex-row gap-2">
           <span className="relative bottom-[1px] text-[14px] font-semibold tabular-nums">
