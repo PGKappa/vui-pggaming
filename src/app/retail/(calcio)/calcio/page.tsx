@@ -50,54 +50,34 @@ export default function Home() {
     return getCarouselFilteredEvents(upcomingEvents, [Discipline.SOCCER])
   }, [upcomingEvents])
 
-  const futureEvents = useMemo(() => {
-    return getFutureEventsFromCarousel(carouselEvents)
-  }, [carouselEvents])
-
-  // AUTO-SELEZIONE: Sempre primo evento del carosello
+  // SELEZIONE UNIFICATA: un solo meccanismo per evitare competizioni
   useEffect(() => {
-    if (futureEvents && futureEvents.length > 0 && futureEvents[0]) {
-      setSelectedEvent(futureEvents[0])
-    } else if (carouselEvents && carouselEvents.length > 0) {
-      setSelectedEvent(carouselEvents[0])
-    } else {
-      setSelectedEvent(undefined)
-    }
-  }, [futureEvents, carouselEvents])
+    const pickEvent = () => {
+      setSelectedEvent((prev) => {
+        const futureEvts = getFutureEventsFromCarousel(carouselEvents)
 
-  // AUTO-AGGIORNAMENTO
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (selectedEvent) {
-        const now = new Date()
-        const eventTime =
-          selectedEvent.time instanceof Date
-            ? selectedEvent.time
-            : new Date(selectedEvent.time)
-
-        if (eventTime <= now) {
-          // Refresh degli eventi
-          const freshFutureEvents = getFutureEventsFromCarousel(
-            getCarouselFilteredEvents(upcomingEvents, [Discipline.SOCCER]),
-          )
-
-          if (freshFutureEvents.length > 0) {
-            setSelectedEvent(freshFutureEvents[0])
-          } else {
-            // Nessun evento futuro, prendi il più recente
-            const allEvents = getCarouselFilteredEvents(upcomingEvents, [
-              Discipline.SOCCER,
-            ])
-            if (allEvents.length > 0) {
-              setSelectedEvent(allEvents[allEvents.length - 1])
-            }
+        if (prev) {
+          const stillInCarousel = carouselEvents.some((e) => e.id === prev.id)
+          if (stillInCarousel) {
+            const now = new Date()
+            const eventTime =
+              prev.time instanceof Date ? prev.time : new Date(prev.time)
+            if (eventTime > now) return prev // still valid and not expired
+            // Expired → pick next future
+            if (futureEvts.length > 0) return futureEvts[0]
+            return prev // nothing better available
           }
+          // Gone from carousel → pick new
         }
-      }
-    }, 5000)
 
+        return futureEvts[0] ?? carouselEvents[0] ?? undefined
+      })
+    }
+
+    pickEvent()
+    const interval = setInterval(pickEvent, 5000)
     return () => clearInterval(interval)
-  }, [selectedEvent, upcomingEvents])
+  }, [carouselEvents])
 
   return (
     <div className="flex h-full flex-row overflow-hidden">
@@ -131,24 +111,28 @@ export default function Home() {
                 <div className="h-full overflow-hidden">
                   <div
                     ref={pageScrollRef}
-                    className="h-full overflow-y-scroll no-scrollbar"
+                    className="no-scrollbar h-full overflow-y-scroll"
                   >
                     {/* Sezione UpcomingRoundCard con scrollbar custom interna */}
                     <div className="relative h-[810px] flex-shrink-0 overflow-hidden">
                       <div className="h-full overflow-hidden">
                         <div
                           ref={scrollContainerRef}
-                          className="h-full overflow-y-scroll no-scrollbar"
+                          className="no-scrollbar h-full overflow-y-scroll"
                           onWheel={(e) => {
-                            // Se siamo al top o al bottom della scrollbar interna, 
+                            // Se siamo al top o al bottom della scrollbar interna,
                             // lascia che lo scroll si propaghi alla pagina principale
                             const element = scrollContainerRef.current
                             if (element) {
                               const isAtTop = element.scrollTop === 0
-                              const isAtBottom = 
-                                element.scrollHeight - element.scrollTop === element.clientHeight
-                              
-                              if ((isAtTop && e.deltaY < 0) || (isAtBottom && e.deltaY > 0)) {
+                              const isAtBottom =
+                                element.scrollHeight - element.scrollTop ===
+                                element.clientHeight
+
+                              if (
+                                (isAtTop && e.deltaY < 0) ||
+                                (isAtBottom && e.deltaY > 0)
+                              ) {
                                 // Lascia propagare lo scroll
                                 return
                               }
@@ -163,7 +147,7 @@ export default function Home() {
                             onTabChange={() => {
                               scrollContainerRef.current?.scrollTo({
                                 top: 0,
-                                behavior: 'smooth', 
+                                behavior: 'smooth',
                               })
                             }}
                           />
@@ -171,13 +155,13 @@ export default function Home() {
                       </div>
 
                       {/* Scrollbar custom per UpcomingRoundCard */}
-                      <div className="absolute right-0 top-0 h-full pointer-events-none z-10">
+                      <div className="pointer-events-none absolute right-0 top-0 z-10 h-full">
                         <CustomScrollbar contentRef={scrollContainerRef} />
                       </div>
                     </div>
 
                     {/* Leaderboard con la sua scrollbar separata */}
-                    <div className=" relative bottom-[15px]">
+                    <div className="relative bottom-[15px]">
                       <Leaderboard
                         isExpanded={isLeaderboardExpanded}
                         onToggle={setIsLeaderboardExpanded}
@@ -187,7 +171,7 @@ export default function Home() {
                 </div>
 
                 {/* Scrollbar custom per tutta la pagina - limitata all'altezza della sezione eventi */}
-                <div className="absolute right-0 top-0 h-[810px] pointer-events-none z-20">
+                <div className="pointer-events-none absolute right-0 top-0 z-20 h-[810px]">
                   <CustomScrollbar contentRef={pageScrollRef} />
                 </div>
               </div>

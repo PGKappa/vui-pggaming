@@ -39,11 +39,7 @@ export default function UpcomingRoundsCard({
         <SheetTitle></SheetTitle>
       </VisuallyHidden>
       <SheetTrigger asChild>
-        <Button
-          variant="ghost"
-          className="text-background"
-          style={{ scale: 2 }}
-        >
+        <Button variant="ghost" className="text-background" style={{ zoom: 2 }}>
           <CalendarIcon />
         </Button>
       </SheetTrigger>

@@ -39,14 +39,14 @@ export default function MatchBettingOptions(props: {
 
   return (
     <div ref={ref} className="flex h-full w-full flex-col gap-4">
-      <div className="flex flex-row items-center justify-between bg-accent p-3 text-accent-foreground">
+      <div className="flex flex-row items-center justify-between bg-bet p-3 text-accent-foreground">
         <div className="flex flex-row items-center gap-2">
           <Button
             className="bg-accent text-tertiary-foreground"
             onClick={props.close}
             size="icon-lg"
           >
-            <ChevronsLeftIcon style={{ scale: 2 }} />
+            <ChevronsLeftIcon style={{ zoom: 2 }} />
           </Button>
           <span className="text-[16px]">
             {props.round.name} {t('round')} {props.round.number} /
@@ -60,10 +60,10 @@ export default function MatchBettingOptions(props: {
 
       <div className="flex flex-1 gap-0 overflow-hidden">
         {/* Contenuto scrollabile - scrollbar nascosta */}
-        <div className="flex-1 min-w-0 overflow-hidden">
+        <div className="min-w-0 flex-1 overflow-hidden">
           <div
             ref={scrollContainerRef}
-            className="h-full overflow-y-scroll no-scrollbar"
+            className="no-scrollbar h-full overflow-y-scroll"
           >
             <div className="flex flex-col gap-4">
               <div className="flex flex-row items-start justify-between">

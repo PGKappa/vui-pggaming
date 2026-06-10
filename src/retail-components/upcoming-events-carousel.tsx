@@ -175,18 +175,20 @@ function UpcomingEventItem(props: {
     layout.carousel.imageOffset[event.discipline] ?? 'bottom-[4px] right-[10px]'
   const textOffset =
     layout.carousel.textOffset[event.discipline] ?? 'right-[3px]'
+  const progressBarHeight = layout.carousel.progressBarHeight
+  const eventNameFontSize = layout.carousel.eventNameFontSize
+  const eventSubtitleFontSize = layout.carousel.eventSubtitleFontSize
+  const eventSubtitleBottom = layout.carousel.eventSubtitleBottom
 
   return (
     <CarouselItem
-      className={`relative flex h-[88px] ${layout.carousel.itemBasis} cursor-pointer flex-row items-center justify-center gap-3 overflow-hidden border-l-8 border-l-background px-2 py-2 text-[15px] last:border-r-background ${
+      className={`relative flex h-[88px] ${layout.carousel.itemBasis} cursor-pointer flex-row items-center justify-center overflow-hidden border-l-8 border-l-background px-2 py-2 text-[15px] last:border-r-background hover:opacity-95 ${
         event.id === props.selectedEvent?.id &&
         event.discipline === props.selectedEvent?.discipline
-          ? 'bg-selectedEvent/90 text-tertiary-foreground'
+          ? 'bg-selectedEvent text-tertiary-foreground'
           : 'bg-secondary text-secondary-foreground'
       }`}
-      onClick={() => {
-        props.setSelectedEvent(event)
-      }}
+      onClick={() => props.setSelectedEvent(event)}
     >
       <Image
         src={
@@ -199,20 +201,27 @@ function UpcomingEventItem(props: {
         alt={event.discipline}
         width={40}
         height={20}
-        className={`relative size-14 object-contain ${imageOffset}`}
+        className={`relative hidden size-14 object-contain min-[1730px]:block ${imageOffset}`}
       />
       <div className={`relative ${textOffset} flex flex-col items-start`}>
-        <span className="relative bottom-[7px] whitespace-nowrap text-[14px] font-semibold uppercase">
+        <span
+          className={`relative bottom-[7px] whitespace-nowrap ${eventNameFontSize} font-semibold uppercase`}
+        >
           {event.discipline === 'SOCCER'
             ? event.name
             : event.discipline === 'HORSES'
               ? t('horse_races_label')
               : t('dog_races_label')}
         </span>
-        <span className="relative bottom-[5px] whitespace-nowrap text-[13px] font-normal uppercase">
+        <span
+          className={`relative ${eventSubtitleBottom} whitespace-nowrap ${eventSubtitleFontSize} font-normal uppercase`}
+        >
           {event.discipline === 'SOCCER'
             ? `${t('round')} ${event.id}`
-            : `${t('track')} ${(event.data as any)?.channel || 6}`}
+            : (() => {
+                const trackNum = event.trackName?.match(/\d+/)?.[0] || '6'
+                return `${t('track')} ${trackNum}`
+              })()}
         </span>
         <div className="flex flex-row gap-2">
           <span className="relative bottom-[1px] text-[14px] font-semibold tabular-nums">
@@ -225,8 +234,8 @@ function UpcomingEventItem(props: {
       </div>
       <Progress
         value={progressValue}
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-[6px] rounded-none bg-navbarButton"
-        indicatorClassName="bg-tertiary"
+        className={`pointer-events-none absolute inset-x-0 bottom-0 ${progressBarHeight} bg-loading1 rounded-none`}
+        indicatorClassName="bg-loading2"
       />
     </CarouselItem>
   )
