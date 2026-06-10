@@ -102,7 +102,7 @@ export default function EventBets(props: {
               </span>
               <span className="text-[10px]">|</span>
               {eventBets[0].bet.event.roundId && (
-                <span className="relative mr-[220px] text-[13px] font-bold text-accent">
+                <span className="relative mr-[200px] text-[13px] font-bold text-accent">
                   {t('round').toUpperCase()} {eventBets[0].bet.event.roundId}
                 </span>
               )}
