@@ -11,6 +11,7 @@ import {
 } from '@/retail-lib/carousel-sync'
 import { useContext, useEffect, useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { ScrollArea } from '@/retail-components/ui/scroll-area'
 
 export default function Home() {
   const { t } = useTranslation()
