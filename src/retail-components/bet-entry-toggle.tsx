@@ -114,7 +114,14 @@ export default function BetEntryToggle(props: {
       return outcome
     }
 
-    const valueMatch = marketName.match(/(\d+\.?\d*)/)
+    // Prefer value in parentheses e.g. "(1.5)" over first digit in "1x2"
+    const allNumMatches = [...marketName.matchAll(/(\d+\.?\d*)/g)]
+    const parenMatch = marketName.match(/\((\d+\.?\d*)\)/)
+    const valueMatch =
+      parenMatch ||
+      (allNumMatches.length > 0
+        ? allNumMatches[allNumMatches.length - 1]
+        : null)
     const value = valueMatch ? valueMatch[1] : ''
 
     if (outcome.includes('+')) {

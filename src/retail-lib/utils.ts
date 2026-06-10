@@ -22,6 +22,7 @@ export function normalizeUnderOverValue(value: string): string {
 export function normalizeMarketName(market: string): string {
   const m = market.toLowerCase().trim()
 
+  // ── Racing markets ───────────────────────────────────────────────────────
   if (m.includes('winn') || m.includes('vinc') || m.includes('ganador'))
     return 'winner'
   if (
@@ -54,15 +55,79 @@ export function normalizeMarketName(market: string): string {
     m.includes('impar')
   )
     return 'even_odd'
+
+  // ── Soccer markets ────────────────────────────────────────────────────────
+  // Combo checks MUST come before under/over (combo market names contain "under/over")
+
+  // Combo 1x2 + Goal/No Goal
+  if (m.includes('combo') && (m.includes('goal/no goal') || m.includes('segna') || m.includes('gol/no gol')))
+    return 'market_combo_vincente_segna'
+
+  // Combo 1x2 + Under/Over 1.5
+  if (m.includes('combo') && (m.includes('1.5') || m.includes('1,5')))
+    return 'market_combo_vincente_goals_1_5'
+
+  // Combo 1x2 + Under/Over 2.5
+  if (m.includes('combo') && (m.includes('2.5') || m.includes('2,5')))
+    return 'market_combo_vincente_goals_2_5'
+
+  // Under/Over — preserve numeric value so 1.5/2.5/3.5/4.5 are distinct
   if (
     m.includes('under') ||
     m.includes('over') ||
     m.includes('menos') ||
     m.includes('más')
   ) {
-    // Return canonical form for under/over markets
+    // Use last number match so "(1.5)" is preferred over "1" in "1x2"
+    const allMatches = [...m.matchAll(/(\d+\.?\d*)/g)]
+    const valueMatch = allMatches.length > 0 ? allMatches[allMatches.length - 1] : null
+    if (valueMatch) {
+      if (m.includes('casa') || m.includes('home')) return `home_underover_${valueMatch[1]}`
+      if (m.includes('trasferta') || m.includes('away')) return `away_underover_${valueMatch[1]}`
+      return `underover_${valueMatch[1]}`
+    }
     return 'underover'
   }
+
+  // 1X2 / Esito finale
+  if (m === '1x2' || m.includes('esito finale') || m.includes('resultado final 1x2'))
+    return 'market_esito_finale_1x2'
+
+  // Double Chance / Doppia Chance
+  if (m.includes('double chance') || m.includes('doppia chance') || m.includes('doble oportunidad'))
+    return 'market_doppia_chance'
+
+  // Gol no gol / Goal No Goal
+  if (m.includes('gol no gol') || m.includes('goal no goal') || m.includes('gol / no gol'))
+    return 'market_gol_no_gol'
+
+  // Correct Score / Risultato esatto
+  if (m.includes('correct score') || m.includes('risultato esatto') || m.includes('marcador exacto'))
+    return 'market_risultato_esatto'
+
+  // Half Time / Full Time / Parziale-Finale
+  if (m.includes('half time') || m.includes('full time') || m.includes('parziale') || m.includes('parcial'))
+    return 'market_parziale_finale'
+
+  // First Scorer / Primo marcatore
+  if (m.includes('first scorer') || m.includes('primo marcatore') || m.includes('primer goleador'))
+    return 'market_primo_marcatore'
+
+  // Red Card / Cartellino Rosso
+  if (m.includes('red card') || m.includes('cartellino rosso') || m.includes('tarjeta roja'))
+    return 'market_cartellino_rosso'
+
+  // Multigoal Home / Somma gol Casa
+  if ((m.includes('multigoal') || m.includes('somma gol')) && (m.includes('home') || m.includes('casa')))
+    return 'market_somma_gol_casa'
+
+  // Multigoal Away / Somma gol Trasferta
+  if ((m.includes('multigoal') || m.includes('somma gol')) && (m.includes('away') || m.includes('trasferta')))
+    return 'market_somma_gol_trasferta'
+
+  // Multigoal (generic) / Somma gol
+  if (m.includes('multigoal') || m.includes('somma gol') || m.includes('multi gol'))
+    return 'market_somma_gol'
 
   return m
 }

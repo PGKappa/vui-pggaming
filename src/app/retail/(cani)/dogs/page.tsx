@@ -26,66 +26,40 @@ export default function Home() {
     [upcomingEvents],
   )
 
-  const futureEvents = useMemo(
-    () => getFutureEventsFromCarousel(carouselEvents),
-    [carouselEvents],
-  )
-
+  // SELEZIONE UNIFICATA: un solo meccanismo per evitare competizioni
   useEffect(() => {
-    setSelectedEvent((prev) => {
-      if (prev) {
-        const stillExists = carouselEvents.some((e) => e.id === prev.id)
-        if (stillExists) return prev
-      }
-
-      if (futureEvents && futureEvents.length > 0 && futureEvents[0]) {
-        return futureEvents[0]
-      } else if (carouselEvents && carouselEvents.length > 0) {
-        return carouselEvents[0]
-      } else {
-        return undefined
-      }
-    })
-  }, [futureEvents, carouselEvents])
-
-  useEffect(() => {
-    const interval = setInterval(() => {
+    const pickEvent = () => {
       setSelectedEvent((prev) => {
-        if (!prev) return prev
-        const now = new Date()
-        const eventTime =
-          prev.time instanceof Date ? prev.time : new Date(prev.time)
+        const futureEvts = getFutureEventsFromCarousel(carouselEvents)
 
-        if (eventTime <= now) {
-          const freshFutureEvents = getFutureEventsFromCarousel(
-            getCarouselFilteredEvents(upcomingEvents, [Discipline.DOGS]),
-          )
-
-          if (freshFutureEvents.length > 0) {
-            if (freshFutureEvents[0].id === prev.id) return prev
-            return freshFutureEvents[0]
-          } else {
-            const allEvents = getCarouselFilteredEvents(upcomingEvents, [
-              Discipline.DOGS,
-            ])
-            if (allEvents.length > 0) {
-              const last = allEvents[allEvents.length - 1]
-              if (last.id === prev.id) return prev
-              return last
-            }
+        if (prev) {
+          const stillInCarousel = carouselEvents.some((e) => e.id === prev.id)
+          if (stillInCarousel) {
+            const now = new Date()
+            const eventTime =
+              prev.time instanceof Date ? prev.time : new Date(prev.time)
+            if (eventTime > now) return prev // still valid and not expired
+            // Expired → pick next future
+            if (futureEvts.length > 0) return futureEvts[0]
+            return prev // nothing better available
           }
+          // Gone from carousel → pick new
         }
-        return prev
-      })
-    }, 500)
 
+        return futureEvts[0] ?? carouselEvents[0] ?? undefined
+      })
+    }
+
+    pickEvent()
+    const interval = setInterval(pickEvent, 500)
     return () => clearInterval(interval)
-  }, [upcomingEvents])
+  }, [carouselEvents])
 
   return (
-    <div className="relative bottom-[5px] flex h-full flex-row overflow-hidden">
-      <div className="flex flex-col">
-        <div className="bg-betslip flex h-[109px] w-[1508px] flex-row items-center justify-center pb-[2px] pr-2">
+    <div className="relative bottom-[5px] flex h-full min-w-[1200px] flex-row overflow-hidden">
+      {/* LEFT COLUMN - si allarga/stringe in base alla risoluzione */}
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+        <div className="bg-betslip flex h-[99px] w-full flex-row items-center justify-center pb-[2px] pr-2">
           <UpcomingEventsCarousel
             selectedEvent={selectedEvent}
             setSelectedEvent={(event) => {
@@ -95,8 +69,8 @@ export default function Home() {
           />
         </div>
 
-        <div className="bg-betslip flex h-full flex-row gap-2 overflow-hidden pr-2 pt-[2px]">
-          <div className="flex h-[921px] w-[1500px] flex-col gap-2 overflow-y-auto pb-16">
+        <div className="bg-betslip flex flex-1 flex-row gap-2 overflow-hidden pr-2 pt-[2px]">
+          <ScrollArea className="h-full w-full">
             {!!searchEventResults ? (
               <SearchEventResults />
             ) : selectedEvent ? (
@@ -106,12 +80,12 @@ export default function Home() {
                 {t('no_event_selected')}
               </div>
             )}
-          </div>
+          </ScrollArea>
         </div>
       </div>
 
-      {/* RIGHT COLUMN - Betting slip */}
-      <div className="relative right-2 h-[937px] w-[410px] bg-background text-foreground">
+      {/* RIGHT COLUMN - larghezza fissa, sempre ancorata a destra */}
+      <div className="relative right-1 h-[950px] w-[400px] shrink-0 bg-background text-foreground">
         <BettingSlip selectedEvent={selectedEvent} />
       </div>
     </div>

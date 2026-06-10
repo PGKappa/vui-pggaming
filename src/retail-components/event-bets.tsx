@@ -37,6 +37,25 @@ export default function EventBets(props: {
   // Helper to translate market names - usa normalizeMarketName centralizzato
   const getTranslatedMarket = (market: string) => {
     const normalized = normalizeMarketName(market)
+
+    // Handle under/over with value: 'underover_1.5', 'home_underover_1.5', etc.
+    const underoverMatch = normalized.match(
+      /^(?:(home|away)_)?underover_(\d+\.?\d*)$/,
+    )
+    if (underoverMatch) {
+      const prefix = underoverMatch[1] // 'home', 'away', or undefined
+      const value = underoverMatch[2] // '1.5', '2.5', etc.
+      const valueKey = value.replace('.', '_') // '1_5', '2_5', etc.
+      if (prefix === 'home') {
+        return t(`market_casa_under_over_${valueKey}`)
+      } else if (prefix === 'away') {
+        return t(`market_trasferta_under_over_${valueKey}`)
+      } else {
+        return t(`market_under_over_${valueKey}`)
+      }
+    }
+
+    // 'market_*' keys map directly to i18n — t() will handle them
     return t(normalized)
   }
 
@@ -104,7 +123,7 @@ export default function EventBets(props: {
               </span>
               <span className="text-[10px]">|</span>
               {eventBets[0].bet.event.roundId && (
-                <span className="relative mr-[220px] text-[13px] font-bold text-accent">
+                <span className="relative mr-[200px] text-[13px] font-bold text-accent">
                   {t('round').toUpperCase()} {eventBets[0].bet.event.roundId}
                 </span>
               )}
@@ -146,7 +165,7 @@ export default function EventBets(props: {
               normalized === 'placed' ||
               normalized === 'show'
 
-            // Traduci anche Even, Odd, Under, Over
+            // Traduci anche Even, Odd, Under, Over, Yes, No
             const outcomeLower = betEntry.bet.option.outcome.toLowerCase()
             const isTranslatableOutcome =
               outcomeLower === 'even' ||
@@ -156,12 +175,53 @@ export default function EventBets(props: {
               outcomeLower === 'dispari' ||
               outcomeLower === 'impar' ||
               outcomeLower === 'under' ||
-              outcomeLower === 'over'
+              outcomeLower === 'u' ||
+              outcomeLower === 'over' ||
+              outcomeLower === 'o' ||
+              outcomeLower === 'yes' ||
+              outcomeLower === 'sì' ||
+              outcomeLower === 'sí' ||
+              outcomeLower === 'да' ||
+              outcomeLower === 'no'
 
             let outcomeDisplay = betEntry.bet.option.outcome
 
             if (isMainMarket && betEntry.bet.competitors) {
               outcomeDisplay = `${betEntry.bet.option.outcome} ${betEntry.bet.competitors}`
+            } else if (
+              normalized.startsWith('market_combo') &&
+              betEntry.bet.option.outcome.includes('+')
+            ) {
+              // Translate combo outcomes: "X+U" → "X + Menos 1.5", "1+O" → "1 + Más 2.5", "2+G" → "2 + G"
+              const [result, suffix] = betEntry.bet.option.outcome.split('+')
+              const sufLower = suffix?.toLowerCase() ?? ''
+              // Extract value from market name using last number (e.g. "1.5" from "Under/Over (1.5)")
+              const allMatches = [...betEntry.market.matchAll(/(\d+\.?\d*)/g)]
+              const valueStr =
+                allMatches.length > 0
+                  ? allMatches[allMatches.length - 1][1]
+                  : ''
+              if (
+                sufLower === 'u' ||
+                sufLower === 'under' ||
+                sufLower === 'me' ||
+                sufLower === 'menos'
+              ) {
+                outcomeDisplay = `${result} + ${t('under_full')}${valueStr ? ` ${valueStr}` : ''}`
+              } else if (
+                sufLower === 'o' ||
+                sufLower === 'over' ||
+                sufLower === 'ma' ||
+                sufLower === 'más'
+              ) {
+                outcomeDisplay = `${result} + ${t('over_full')}${valueStr ? ` ${valueStr}` : ''}`
+              } else if (sufLower === 'g' || sufLower === 'gg') {
+                outcomeDisplay = `${result} + G`
+              } else if (sufLower === 'ng') {
+                outcomeDisplay = `${result} + NG`
+              } else {
+                outcomeDisplay = `${result} + ${suffix}`
+              }
             } else if (isTranslatableOutcome) {
               // Traduci usando le chiavi minuscole
               if (
@@ -176,20 +236,19 @@ export default function EventBets(props: {
                 outcomeLower === 'impar'
               ) {
                 outcomeDisplay = t('odd')
-              } else if (outcomeLower === 'under') {
-                // Per cani e cavalli usa la versione completa
-                const isRacing =
-                  betEntry.bet.discipline === 'DOGS' ||
-                  betEntry.bet.discipline === 'DOGS8' ||
-                  betEntry.bet.discipline === 'HORSES'
-                outcomeDisplay = isRacing ? t('under_full') : t('under')
-              } else if (outcomeLower === 'over') {
-                // Per cani e cavalli usa la versione completa
-                const isRacing =
-                  betEntry.bet.discipline === 'DOGS' ||
-                  betEntry.bet.discipline === 'DOGS8' ||
-                  betEntry.bet.discipline === 'HORSES'
-                outcomeDisplay = isRacing ? t('over_full') : t('over')
+              } else if (outcomeLower === 'under' || outcomeLower === 'u') {
+                outcomeDisplay = t('under_full')
+              } else if (outcomeLower === 'over' || outcomeLower === 'o') {
+                outcomeDisplay = t('over_full')
+              } else if (
+                outcomeLower === 'yes' ||
+                outcomeLower === 'sì' ||
+                outcomeLower === 'sí' ||
+                outcomeLower === 'да'
+              ) {
+                outcomeDisplay = t('yes')
+              } else if (outcomeLower === 'no') {
+                outcomeDisplay = t('no')
               }
             }
 

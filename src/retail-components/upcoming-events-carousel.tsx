@@ -166,7 +166,7 @@ function UpcomingEventItem(props: {
 
   return (
     <CarouselItem
-      className={`relative flex h-[88px] ${layout.carousel.itemBasis} cursor-pointer flex-row items-center justify-center gap-3 overflow-hidden border-l-8 border-l-background px-2 py-2 text-[15px] last:border-r-background ${
+      className={`relative flex h-[88px] ${layout.carousel.itemBasis} cursor-pointer flex-row items-center justify-center overflow-hidden border-l-8 border-l-background px-2 py-2 text-[15px] last:border-r-background hover:opacity-95 ${
         event.id === props.selectedEvent?.id &&
         event.discipline === props.selectedEvent?.discipline
           ? 'bg-selectedEvent text-tertiary-foreground'
@@ -205,7 +205,10 @@ function UpcomingEventItem(props: {
         >
           {event.discipline === 'SOCCER'
             ? `${t('round')} ${event.id}`
-            : `${t('track')} ${event.trackName?.match(/\d+/)?.[0] || (event.discipline === 'DOGS8' ? '8' : '6')}`}
+            : (() => {
+                const trackNum = event.trackName?.match(/\d+/)?.[0] || '6'
+                return `${t('track')} ${trackNum}`
+              })()}
         </span>
         <div className="flex flex-row gap-2">
           <span className="relative bottom-[1px] text-[14px] font-semibold tabular-nums">
@@ -219,8 +222,8 @@ function UpcomingEventItem(props: {
 
       <Progress
         value={progressValue}
-        className={`pointer-events-none absolute inset-x-0 bottom-0 ${progressBarHeight} rounded-none bg-navbarButton`}
-        indicatorClassName="bg-tertiary"
+        className={`pointer-events-none absolute inset-x-0 bottom-0 ${progressBarHeight} bg-loading1 rounded-none`}
+        indicatorClassName="bg-loading2"
       />
     </CarouselItem>
   )

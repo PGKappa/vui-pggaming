@@ -94,26 +94,26 @@ const layoutByLanguage: Record<string, LayoutConfig> = {
       itemBasis: 'basis-1/5 min-[1500px]:basis-1/6',
       imageOffset: {
         SOCCER: 'bottom-[4px] right-[10px]',
-        HORSES: 'bottom-[4px] right-[9px]',
-        DOGS: 'bottom-[4px] right-[11px]',
+        HORSES: 'bottom-[4px] right-[13px]',
+        DOGS: 'bottom-[4px] right-[13px]',
         DOGS8: 'bottom-[4px] right-[11px]',
       },
       textOffset: {
         SOCCER: 'right-[3px]',
-        HORSES: 'right-[5px]',
-        DOGS: 'right-[6px]',
+        HORSES: 'left-[5px]',
+        DOGS: 'left-[4px]',
         DOGS8: 'right-[6px]',
       },
       progressBarHeight: 'h-[6px]',
       eventNameFontSize: 'text-[14px]',
-      eventSubtitleFontSize: 'text-[13px]',
+      eventSubtitleFontSize: 'text-[13px] top-[-4px]',
       eventSubtitleBottom: 'bottom-[5px]',
     },
     eventBets: {
       eventIdMargin: 'mr-[215px]',
     },
     bettingSlip: {
-      combinationsButtonLeft: 'left-[251px] bg-transparent',
+      combinationsButtonLeft: 'left-[255px] bg-transparent',
     },
     searchEventResults: {
       disciplineSelectLeft: 'left-5',
