@@ -190,6 +190,7 @@ export default function BetEntryToggle(props: {
               discipline: props.bet.discipline,
               competitors: props.bet.competitors,
               option: props.bet.option,
+              track: props.bet.track,
             },
             props.apiMarketName || props.marketName,
           )
