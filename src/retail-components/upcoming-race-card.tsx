@@ -65,8 +65,6 @@ export default function UpcomingRaceCard({
   // Aggiungi il context
   const { betEntries } = useContext(BetsContext)
   const rootContext = useContext(RootContext)
-  const getTrackName =
-    rootContext?.getTrackName || ((channel?: number) => `Track ${channel || 6}`)
 
   // Inizializzazione corretta del marketType basata su activeTab
   const [marketType, setMarketType] = useState<
@@ -244,7 +242,11 @@ export default function UpcomingRaceCard({
 
   // Helper per determinare se mostrare il pulsante info (solo per cani e cavalli)
   const shouldShowInfoButton = () => {
-    return race.discipline === 'DOGS' || race.discipline === 'HORSES'
+    return (
+      race.discipline === 'DOGS' ||
+      race.discipline === 'DOGS8' ||
+      race.discipline === 'HORSES'
+    )
   }
 
   useEffect(() => {
@@ -463,32 +465,32 @@ export default function UpcomingRaceCard({
     return (
       <TableHeader className="h-14 bg-card-header text-[16px] text-card-header-foreground">
         <TableRow>
-          <TableHead className="w-[249px] text-center font-semibold">
+          <TableHead className="w-[249px] min-w-[150px] text-center font-semibold">
             {t('starters_list').toUpperCase()}
           </TableHead>
           <TableHead className="w-[1px] bg-border p-0" />
 
-          <TableHead className="w-[249px] text-center font-semibold">
+          <TableHead className="w-[249px] min-w-[140px] text-center font-semibold">
             {t('performance').toUpperCase()}
           </TableHead>
           <TableHead className="w-[1px] bg-border p-0" />
 
-          <TableHead className="w-[249px] text-center font-semibold">
+          <TableHead className="hidden w-[249px] min-w-[130px] text-center font-semibold min-[1440px]:table-cell">
             {t('history').toUpperCase()}
           </TableHead>
-          <TableHead className="w-[1px] bg-border p-0" />
+          <TableHead className="hidden w-[1px] bg-border p-0 min-[1440px]:table-cell" />
 
           {activeTab === 'main' && (
             <>
-              <TableHead className="w-249px] text-center font-bold">
+              <TableHead className="w-[249px] min-w-[100px] text-center font-bold">
                 {t('winner').toUpperCase()}
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
-              <TableHead className="w-[249px] text-center font-semibold">
+              <TableHead className="w-[249px] min-w-[100px] text-center font-semibold">
                 {t('place_2').toUpperCase()}
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
-              <TableHead className="w-[249px] text-center font-semibold">
+              <TableHead className="w-[249px] min-w-[100px] text-center font-semibold">
                 {t('show_3').toUpperCase()}
               </TableHead>
             </>
@@ -544,7 +546,9 @@ export default function UpcomingRaceCard({
                     raceInfo?.odds?.winner?.[racer.number.toString()] || '0',
                   ),
                 },
-                track: getTrackName(6),
+                track:
+                  race.trackName ||
+                  (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
               }}
               variant="racecard"
               className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] tabular-nums text-betEntry-foreground hover:opacity-85"
@@ -573,7 +577,9 @@ export default function UpcomingRaceCard({
                     raceInfo?.odds?.placed?.[racer.number.toString()] || '0',
                   ),
                 },
-                track: getTrackName(6),
+                track:
+                  race.trackName ||
+                  (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
               }}
               variant="racecard"
               className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] tabular-nums text-betEntry-foreground hover:opacity-85"
@@ -603,7 +609,9 @@ export default function UpcomingRaceCard({
                     raceInfo?.odds?.show?.[racer.number.toString()] || '0',
                   ),
                 },
-                track: getTrackName(6),
+                track:
+                  race.trackName ||
+                  (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
               }}
               variant="racecard"
               className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] tabular-nums text-betEntry-foreground hover:opacity-85"
@@ -824,12 +832,14 @@ export default function UpcomingRaceCard({
                       number: race.id,
                       startingAt: race.time,
                     },
-                    competitors: t('even'),
+                    competitors: 'Even',
                     option: {
-                      outcome: t('even'),
+                      outcome: 'even',
                       decPrice: parseFloat(raceInfo.odds.evenodd?.even || '0'),
                     },
-                    track: getTrackName(6),
+                    track:
+                      race.trackName ||
+                      (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
                   }}
                   variant="matchcard"
                   className="h-[49px] w-full text-[16px] text-black"
@@ -850,12 +860,14 @@ export default function UpcomingRaceCard({
                       number: race.id,
                       startingAt: race.time,
                     },
-                    competitors: t('odd'),
+                    competitors: 'Odd',
                     option: {
-                      outcome: t('odd'),
+                      outcome: 'odd',
                       decPrice: parseFloat(raceInfo.odds.evenodd?.odd || '0'),
                     },
-                    track: getTrackName(6),
+                    track:
+                      race.trackName ||
+                      (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
                   }}
                   variant="matchcard"
                   className="h-[49px] w-full text-[16px] text-black"
@@ -887,14 +899,16 @@ export default function UpcomingRaceCard({
                       number: race.id,
                       startingAt: race.time,
                     },
-                    competitors: t('under_full'),
+                    competitors: 'Under',
                     option: {
-                      outcome: t('under_full'),
+                      outcome: 'under',
                       decPrice: parseFloat(
                         raceInfo.odds.underover?.under || '0',
                       ),
                     },
-                    track: getTrackName(6),
+                    track:
+                      race.trackName ||
+                      (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
                   }}
                   variant="matchcard"
                   className="h-[49px] w-full text-[16px] text-black"
@@ -915,14 +929,16 @@ export default function UpcomingRaceCard({
                       number: race.id,
                       startingAt: race.time,
                     },
-                    competitors: t('over_full'),
+                    competitors: 'Over',
                     option: {
-                      outcome: t('over_full'),
+                      outcome: 'over',
                       decPrice: parseFloat(
                         raceInfo.odds.underover?.over || '0',
                       ),
                     },
-                    track: getTrackName(6),
+                    track:
+                      race.trackName ||
+                      (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
                   }}
                   variant="matchcard"
                   className="h-[49px] w-full text-[16px] text-black"
@@ -942,7 +958,7 @@ export default function UpcomingRaceCard({
     <>
       <Card className="h-full w-full">
         <CardHeader className="flex h-[73px] flex-row items-center justify-between px-[12px]">
-          <div className="flex items-center gap-[8px]">
+          <div className="flex items-center space-x-2">
             {Object.entries(tabConfig).map(([key, config]) => (
               <Button
                 key={key}
@@ -1010,7 +1026,7 @@ export default function UpcomingRaceCard({
                           style={
                             getRacerColors(
                               racer.number,
-                              race.discipline as 'DOGS' | 'HORSES',
+                              race.discipline as 'DOGS' | 'DOGS8' | 'HORSES',
                             ).style
                           }
                         >
@@ -1030,11 +1046,11 @@ export default function UpcomingRaceCard({
                     <TableCell className="p-3 text-[15px] font-bold">
                       <div className="flex items-center justify-center gap-3">
                         <div className="flex space-x-1">
-                          <div className="flex flex-col items-center justify-center gap-2">
+                          <div className="flex flex-col items-center justify-center">
                             {racer.performance}%
                             <Progress
                               value={racer.performance}
-                              className="relative bottom-[3px] w-[189px] [&>div]:rounded-r-full [&>div]:bg-tertiary"
+                              className="relative bottom-[0px] w-[189px] [&>div]:rounded-r-full [&>div]:bg-tertiary"
                               style={{ height: '8px' }}
                             />
                           </div>
@@ -1042,11 +1058,11 @@ export default function UpcomingRaceCard({
                       </div>
                     </TableCell>
 
-                    <TableCell className="w-[1px] bg-border p-0" />
+                    <TableCell className="hidden w-[1px] bg-border p-0 min-[1440px]:table-cell" />
 
                     {/* Storico */}
-                    <TableCell>
-                      <div className="flex items-center justify-center gap-2.5">
+                    <TableCell className="hidden min-[1440px]:table-cell">
+                      <div className="flex items-center justify-center space-x-[10px]">
                         <MedalsHistory history={racer.history} />
                       </div>
                     </TableCell>
@@ -1098,7 +1114,7 @@ export default function UpcomingRaceCard({
         isOpen={isLatecomersDialogOpen}
         onOpenChange={setIsLatecomersDialogOpen}
         raceInfo={raceInfo}
-        discipline={race.discipline as 'DOGS' | 'HORSES'}
+        discipline={race.discipline as 'DOGS' | 'DOGS8' | 'HORSES'}
       />
     </>
   )

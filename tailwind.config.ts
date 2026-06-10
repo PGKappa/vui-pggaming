@@ -12,6 +12,7 @@ export default {
     'retail-default',
     'basis-1/5',
     'basis-1/6',
+    'min-[1500px]:basis-1/6',
   ],
   content: [
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
@@ -26,6 +27,9 @@ export default {
       padding: '0rem',
     },
     extend: {
+      screens: {
+        '3xl': '1920px',
+      },
       fontFamily: {
         sans: ['Arial', 'sans-serif'],
         inter: ['var(--font-inter)', 'sans-serif'],
@@ -98,6 +102,34 @@ export default {
             foreground: 'hsl(var(--navbarButton-selected-foreground))',
           },
         },
+        navbarTop: {
+          DEFAULT: 'hsl(var(--navbarTop))',
+          foreground: 'hsl(var(--navbarTop-foreground))',
+        },
+        loading1: {
+          DEFAULT: 'hsl(var(--loading1))',
+          foreground: 'hsl(var(--loading1-foreground))',
+        },
+        loading2: {
+          DEFAULT: 'hsl(var(--loading2))',
+          foreground: 'hsl(var(--loading2-foreground))',
+        },
+        backgroundBetslip: {
+          DEFAULT: 'hsl(var(--backgroundBetslip))',
+          foreground: 'hsl(var(--backgroundBetslip-foreground))',
+        },
+        infoBackground: {
+          DEFAULT: 'hsl(var(--infoBackground))',
+          foreground: 'hsl(var(--infoBackground-foreground))',
+        },
+        betslipTitle: {
+          DEFAULT: 'hsl(var(--betslipTitle))',
+          foreground: 'hsl(var(--betslipTitle-foreground))',
+        },
+        betslipTitleBackground: {
+          DEFAULT: 'hsl(var(--betslipTitleBackground))',
+          foreground: 'hsl(var(--betslipTitleBackground-foreground))',
+        },
         market: {
           DEFAULT: 'hsl(var(--market))',
           foreground: 'hsl(var(--market-foreground))',
@@ -158,20 +190,12 @@ export default {
       },
       keyframes: {
         'accordion-down': {
-          from: {
-            height: '0',
-          },
-          to: {
-            height: 'var(--radix-accordion-content-height)',
-          },
+          from: { height: '0' },
+          to: { height: 'var(--radix-accordion-content-height)' },
         },
         'accordion-up': {
-          from: {
-            height: 'var(--radix-accordion-content-height)',
-          },
-          to: {
-            height: '0',
-          },
+          from: { height: 'var(--radix-accordion-content-height)' },
+          to: { height: '0' },
         },
       },
       animation: {

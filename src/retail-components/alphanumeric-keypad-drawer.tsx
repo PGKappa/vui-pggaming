@@ -54,11 +54,6 @@ export default function AlphanumericKeypadDrawer(props: {
     }
   }
 
-  const handleClear = () => {
-    setValue('')
-    props.setValue('')
-  }
-
   const processKey = (rawKey: string, prevent: () => void) => {
     const key = rawKey.toUpperCase()
 
@@ -132,10 +127,6 @@ export default function AlphanumericKeypadDrawer(props: {
     }
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    processKey(e.key, () => e.preventDefault())
-  }
-
   const handleSubmit = () => {
     props.onSubmit()
     setActiveDrawer(undefined)
@@ -188,7 +179,7 @@ export default function AlphanumericKeypadDrawer(props: {
         </div>
       </DrawerTrigger>
 
-      <DrawerContent className="ml-2 w-[1500px] border-0">
+      <DrawerContent className="w-[calc(100vw-420px)] ml-[8px] border-0">
         <DrawerHeader className="relative bg-secondary text-accent-foreground">
           <DrawerTitle className="pt-1 text-center text-accent-foreground">
             {props.placeholder || 'FASTBET'}
@@ -197,35 +188,16 @@ export default function AlphanumericKeypadDrawer(props: {
             variant="ghost"
             size="icon"
             onClick={closeDrawer}
-            className="absolute right-2 top-2"
+            className="absolute right-2 top-2 bg-transparent"
           >
             <ChevronDown
-              className="relative bottom-1 h-5 w-5"
+              className="relative bottom-1 h-5 w-5 bg-transparent"
               style={{ scale: 1.7 }}
             />
           </Button>
         </DrawerHeader>
 
-        <div className="flex flex-col gap-3 p-3">
-          {/* Display Value */}
-          <div className="flex items-center gap-2">
-            <Input
-              value={value}
-              onChange={() => {}}
-              onKeyDown={handleKeyDown}
-              readOnly
-              className="h-12 flex-1 border pl-[17px] pr-2 text-left text-2xl font-normal uppercase"
-              autoFocus
-            />
-            <Button
-              variant="outline"
-              onClick={handleDelete}
-              className="h-12 w-[126px] px-1"
-            >
-              <Delete className="h-5 w-5" style={{ scale: 2 }} />
-            </Button>
-          </div>
-
+        <div className="flex flex-col space-x-3 space-y-3 p-3">
           {/* Number Row */}
           <div className="grid grid-cols-11 gap-2">
             {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'].map((num) => (
@@ -241,11 +213,10 @@ export default function AlphanumericKeypadDrawer(props: {
             ))}
             <Button
               variant="outline"
-              size="lg"
-              className="h-12 text-[18px] font-semibold"
-              onClick={handleClear}
+              onClick={handleDelete}
+              className="h-12 w-full px-1"
             >
-              {t('clear')}
+              <Delete className="h-5 w-5" style={{ scale: 2 }} />
             </Button>
           </div>
 

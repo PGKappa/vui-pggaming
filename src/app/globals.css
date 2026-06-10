@@ -70,6 +70,9 @@
     --betHistory-foreground: 0 0% 0%;
     --betHistory-header: 0 0% 100%;
 
+    --navbarTop: 0 0% 0%;
+    --navbarTop-foreground: 0 0% 100%;
+
     --chart-1: 0 0% 63%;
     --chart-2: 353 100% 44%;
     --chart-3: 0 0% 100%;
@@ -133,6 +136,9 @@
     --betHistory: 240 100% 11.8%;
     --betHistory-foreground: 0 0% 0%;
     --betHistory-header: 0 0% 100%;
+
+    --navbarTop: 240 100% 11.8%;
+    --navbarTop-foreground: 0 0% 100%;
 
     --chart-1: 0 0% 63%;
     --chart-2: 358 100% 62%;
@@ -198,6 +204,9 @@
     --betHistory-foreground: 0 0% 0%;
     --betHistory-header: 0 0% 100%;
 
+    --navbarTop: 213 61% 51%;
+    --navbarTop-foreground: 0 0% 100%;
+
     --chart-1: 0 0% 63%;
     --chart-2: 358 100% 62%;
     --chart-3: 218 80% 83%;
@@ -261,6 +270,9 @@
     --betHistory: 198 42% 15%;
     --betHistory-foreground: 0 0% 0%;
     --betHistory-header: 0 0% 100%;
+
+    --navbarTop: 198 42% 15%;
+    --navbarTop-foreground: 0 0% 100%;
 
     --chart-1: 0 0% 63%;
     --chart-2: 358 100% 62%;
@@ -351,20 +363,20 @@
     --footer-betslip: 353 100% 44%;
     --footer-betslip-foreground: 0 0% 100%;
   }
-
+  
   .stanleybet {
     --background: 0 0% 100%;
     --foreground: 0 0% 0%;
 
     --card: 0 0% 100%;
     --card-foreground: 0 0% 0%;
-    --card-header: 353 100% 25%;
+    --card-header: 0 100% 40%;
     --card-header-foreground: 0 0% 100%;
 
     --primary: 0 0% 0%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 353 100% 32%;
+    --secondary: 233 6% 25%;
     --secondary-foreground: 0 0% 90%;
 
     --tertiary: 353 100% 36%;
@@ -373,7 +385,7 @@
     --muted: 353 100% 25%;
     --muted-foreground: 220 12% 95%;
 
-    --accent: 353 100% 25%;
+    --accent: 0 100% 40%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 62% 30%;
@@ -394,27 +406,46 @@
 
     --radius: 0.4rem;
 
-    --bet: 353 100% 44%;
+    --bet: 91, 100%, 35%;
     --bet-foreground: 0 0% 100%;
+
+    --infoBackground: 353 100% 44%;
+    --infoBackground-foreground: 0 0% 100%;
 
     --selected-event: 353 100% 44%;
 
-    --carousel-arrow: 353 100% 44%;
+    --betslipTitle: 353 100% 44%;
+    --betslipTitle-foreground: 0 0% 100%;
+
+
+    --carousel-arrow: 233 6% 25%;
 
     --betSlip: 0 0% 62%;
     --betSlip-foreground: 0 0% 0%;
-    --betSlip-header: 207 18% 76%;
+    --betSlip-header: 233 6% 25%;
     --betSlip-header-foreground: 0 0% 100%;
 
     --betHistory: 353 100% 44%;
     --betHistory-foreground: 0 0% 0%;
     --betHistory-header: 0 0% 100%;
 
-    --navbarButton: 207 18% 76%;
+    --navbarButton: 233 6% 25%;
     --navbarButton-foreground: 0 0% 100%;
 
     --navbarButton-selected: 212 92% 13%;
     --navbarButton-selected-foreground: 0 0% 100%;
+
+    --navbarTop: 0 0% 0%;
+    --navbarTop-foreground: 0 0% 100%;
+
+    --loading1: 210, 3%, 47%;
+    --loading1-foreground: 0 0% 0%;
+    
+    --loading2: 233 6% 25%;
+    --loading2-foreground: 0 0% 100%;
+
+    --backgroundBetslip: 233 6% 25%;
+    --backgroundBetslip-foreground: 0 0% 100%;
 
     --searchResult: 215 83% 68%;
     --searchResult-foreground: 0 0% 0%;
@@ -429,6 +460,9 @@
 
     --footer-betslip: 353 100% 44%;
     --footer-betslip-foreground: 0 0% 100%;
+
+    --betslipTitleBackground: 0, 0%, 93%;
+    --betslipTitleBackground-foreground: 0 0% 100%;
   }
 }
 
@@ -483,20 +517,10 @@
   border-width: 0px;
 }
 
-div.bg-bet-foreground:nth-child(1)>div:nth-child(1)>div:nth-child(1)>div:nth-child(2)>button:nth-child(2)>svg:nth-child(1) {
-  width: 20px;
-  height: 20px;
-  position: relative;
-  left: 4px;
-}
 
 
-div.gap-1:nth-child(2)>div:nth-child(1)>div:nth-child(1)>div:nth-child(2)>button:nth-child(2)>svg:nth-child(1) {
-  width: 20px;
-  height: 20px;
-  position: relative;
-  left: 4px;
-}
+
+
 
 
 .left-\[243px\]>svg:nth-child(1) {
@@ -542,4 +566,20 @@ div.gap-1:nth-child(2)>div:nth-child(1)>div:nth-child(1)>div:nth-child(2)>button
 
 .data-\[state\=on\]\:bg-bet[data-state="on"]:hover {
   opacity: 1;
+}
+
+
+body > main > div > div > div.h-\[950px\].w-\[400px\].relative.right-1.shrink-0.bg-background.text-foreground > div > div.grid.grid-cols-2.text-center > div.relative.top-\[5px\].col-span-2.flex.h-\[52px\].w-full.flex-row.items-center.justify-between.bg-accent.px-5 > button{
+  background: transparent;
+}
+
+
+#radix-\:r7\: > div.grid.gap-1\.5.p-4.text-center.sm\:text-left.h-\[45px\].relative.bg-secondary.text-accent-foreground > button{
+  background: transparent;
+}
+
+
+body > main > div > div > div.h-\[950px\].w-\[400px\].relative.right-1.shrink-0.bg-background.text-foreground > div > div.p-0.pt-0.relative.mb-\[26px\].flex.flex-col.bg-backgroundBetslip > div.relative.top-3.w-full > div{
+  background-color: white;
+  
 }

@@ -2,7 +2,14 @@
 
 import { Bet, BetEntry, Selection, SubmittedTicket } from '@/retail-lib/types'
 import { BetMode } from '@/retail-components/betting-slip'
-import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
+import {
+  createContext,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
@@ -122,6 +129,8 @@ export default function BetsContextProvider(props: {
   children: React.ReactNode
 }) {
   const { t } = useTranslation()
+  const tRef = useRef(t)
+  tRef.current = t
   const initialBetsContext = getBetsContext()
   const [betsContext, setBetsContext] =
     useState<BetsContextType>(initialBetsContext)
@@ -144,14 +153,12 @@ export default function BetsContextProvider(props: {
     if (betsContext.betEntries.length <= 1) return 'SINGLE'
 
     // Se ci sono multiple bet nello stesso evento → automaticamente SYSTEM
+    // (sia con un solo evento che con più eventi)
     const hasMultipleBetsInSameEvent = Object.values(
       betsContext.betsByEvent,
     ).some((bets) => bets.length > 1)
 
-    if (
-      Object.keys(betsContext.betsByEvent).length > 1 &&
-      hasMultipleBetsInSameEvent
-    ) {
+    if (hasMultipleBetsInSameEvent) {
       return 'SYSTEM'
     }
 
@@ -182,8 +189,13 @@ export default function BetsContextProvider(props: {
           betEntries: activeBets,
           betsByEvent: getBetsByEvent(activeBets),
         }))
-        toast.info(
-          `Removed ${removedCount} expired bet${removedCount > 1 ? 's' : ''}`,
+        // Messaggio tradotto: "⚠️ Se eliminó X selección: evento iniciado."
+        toast.warning(
+          removedCount > 1
+            ? tRef.current('event_started_removed_plural', {
+                count: removedCount,
+              })
+            : tRef.current('event_started_removed', { count: removedCount }),
         )
       }
     }
@@ -192,18 +204,10 @@ export default function BetsContextProvider(props: {
     return () => clearInterval(interval)
   }, [betsContext.betEntries])
 
+  const MAX_EVENTS = 10
+
   const checkSystemLimits = useCallback(
     (newEntries: BetEntry[]): boolean => {
-      if (betMode !== 'SYSTEM') return true
-
-      const totalEntries = betsContext.betEntries.length + newEntries.length
-      if (totalEntries > 50) {
-        toast.error(
-          'Cannot add more bets: Maximum 50 bet entries allowed for system betting',
-        )
-        return false
-      }
-
       const allEntries = [...betsContext.betEntries, ...newEntries]
       const eventsSet = new Set<string>()
       allEntries.forEach((entry) => {
@@ -212,16 +216,14 @@ export default function BetsContextProvider(props: {
       })
       const eventsNumber = eventsSet.size
 
-      if (eventsNumber > 15) {
-        toast.error(
-          'Cannot add more bets: Maximum 15 unique events allowed for system betting',
-        )
+      if (eventsNumber > MAX_EVENTS) {
+        toast.error(tRef.current('max_events_system'))
         return false
       }
 
       return true
     },
-    [betMode, betsContext.betEntries],
+    [betsContext.betEntries],
   )
 
   const addBet = useCallback(
@@ -305,7 +307,7 @@ export default function BetsContextProvider(props: {
   const restoreLastSubmittedTicket = useCallback(() => {
     const stored = localStorage.getItem('lastSubmittedTicket')
     if (!stored) {
-      toast.error(t('no_last_ticket'))
+      toast.error(tRef.current('no_last_ticket'))
       return
     }
 
@@ -320,7 +322,7 @@ export default function BetsContextProvider(props: {
           ? Math.max(...lastTicket.betEntries.map((b) => b.id))
           : 0,
     }))
-  }, [t])
+  }, [])
 
   const addBets = useCallback(
     (market: string, bets: Bet[], apiMarket?: string) => {
@@ -382,7 +384,7 @@ export default function BetsContextProvider(props: {
             entry.bet.option.outcome === bet.bet.option.outcome,
         )
         if (existingEntry) {
-          toast.error(t('duplicate_bet_found'))
+          toast.error(tRef.current('duplicate_bet_found'))
           return
         }
 
@@ -406,7 +408,7 @@ export default function BetsContextProvider(props: {
         }
       })
     },
-    [betsContext.betEntries, betsContext.lastId, checkSystemLimits, t],
+    [betsContext.betEntries, betsContext.lastId, checkSystemLimits],
   )
 
   const removeBets = useCallback(
@@ -473,8 +475,25 @@ export default function BetsContextProvider(props: {
     localStorage.setItem('betsContext', JSON.stringify(toSave))
   }, [betsContext])
 
+  const contextValue = useMemo(
+    () => ({
+      ...betsContext,
+      betMode,
+      isSystemToggleEnabled,
+      systemToggleMode,
+      setSystemToggleMode,
+    }),
+    [
+      betsContext,
+      betMode,
+      isSystemToggleEnabled,
+      systemToggleMode,
+      setSystemToggleMode,
+    ],
+  )
+
   return (
-    <BetsContext.Provider value={betsContext}>
+    <BetsContext.Provider value={contextValue}>
       {props.children}
     </BetsContext.Provider>
   )

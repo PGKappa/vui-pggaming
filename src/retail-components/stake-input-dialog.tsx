@@ -91,7 +91,7 @@ export default function StakeInputDialog(props: {
         </DialogHeader>
 
         <div className="flex flex-col gap-2 p-4">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center space-x-3">
             <input
               className="flex-1 border border-input bg-background px-4 py-2 text-right text-xl font-bold"
               value={displayValue}

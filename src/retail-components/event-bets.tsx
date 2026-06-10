@@ -65,7 +65,7 @@ export default function EventBets(props: {
         <div className="flex h-[90px] flex-col gap-0 border border-betSlip-foreground p-1">
           <div className="flex flex-row justify-between">
             <div className={betMode === 'SYSTEM' ? 'visible' : 'invisible'}>
-              <div className="relative bottom-[1px] flex flex-row items-center gap-2 pl-1">
+              <div className="relative bottom-[1px] flex flex-row items-center space-x-2 pl-1">
                 <Checkbox
                   checked={eventBets[0].fixed}
                   onCheckedChange={() => toggleEventBetsFixed(eventKey)}
@@ -88,7 +88,7 @@ export default function EventBets(props: {
                     alt="Bin"
                     width={40}
                     height={20}
-                    className="mb-[4px] ml-[6px] size-[17px] object-contain"
+                    className="mb-[4px] ml-[6px] size-[17px] bg-transparent object-contain"
                   />
                 </Button>
               </TooltipTrigger>
@@ -102,10 +102,12 @@ export default function EventBets(props: {
                 ? t('football')
                 : eventBets[0].bet.discipline === 'DOGS'
                   ? t('dog_races_label')
-                  : t('horse_races_label')}
+                  : eventBets[0].bet.discipline === 'DOGS8'
+                    ? t('dog8_races_label')
+                    : t('horse_races_label')}
             </span>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center space-x-2">
               <span className="relative left-[1px] text-[15px] font-bold tabular-nums">
                 {format(eventBets[0].bet.event.startingAt, 'HH:mm')}
               </span>
@@ -129,7 +131,18 @@ export default function EventBets(props: {
           ) : (
             <div className="relative bottom-[1px] ml-[3px] flex items-center justify-between pb-[4px]">
               <span className="text-[13px] uppercase">
-                {eventBets[0].bet.track || t('track_6')}
+                {(() => {
+                  const track = eventBets[0].bet.track
+                  if (track) {
+                    const num = track.match(/\d+/)?.[0]
+                    if (num) return t(`track_${num}`)
+                    return track
+                  }
+                  // Fallback basato sulla disciplina
+                  return eventBets[0].bet.discipline === 'DOGS8'
+                    ? t('track_8')
+                    : t('track_6')
+                })()}
               </span>
               <span className="text-[10px]">|</span>
 
@@ -259,7 +272,7 @@ export default function EventBets(props: {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-[40px] w-[24px] flex-shrink-0 translate-x-[3px]"
+                  className="h-[40px] w-[24px] flex-shrink-0 translate-x-[3px] bg-transparent"
                   onClick={() => {
                     removeBet(
                       betEntry.market,

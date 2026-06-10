@@ -43,7 +43,7 @@ function NavbarContent() {
       className="flex h-16 w-full flex-row items-center justify-start bg-accent p-3"
       suppressHydrationWarning={true}
     >
-      <div className="relative left-[8px] flex flex-row items-center gap-[8px]">
+      <div className="relative left-[8px] flex flex-row items-center space-x-2">
         <Link
           href={buildHref('/retail/dogs-horses')}
           className={cn(
@@ -74,7 +74,8 @@ function NavbarContent() {
           className={cn(
             'flex h-12 w-24 flex-row items-center justify-center px-4 py-1 text-foreground transition-colors hover:opacity-90',
             pathname.includes('/retail/dogs') &&
-              !pathname.includes('/retail/dogs-horses')
+              !pathname.includes('/retail/dogs-horses') &&
+              !pathname.includes('/retail/dogs8')
               ? 'bg-tertiary'
               : 'bg-secondary',
           )}
@@ -86,6 +87,23 @@ function NavbarContent() {
             height={20}
             className="size-8 object-contain"
           />
+        </Link>
+
+        <Link
+          href={buildHref('/retail/dogs8')}
+          className={cn(
+            'flex h-12 w-28 flex-row items-center justify-center gap-1 px-3 py-1 text-foreground transition-colors hover:opacity-90',
+            pathname.includes('/retail/dogs8') ? 'bg-tertiary' : 'bg-secondary',
+          )}
+        >
+          <Image
+            src="/dog.png"
+            alt="Dogs 8"
+            width={40}
+            height={20}
+            className="size-8 object-contain"
+          />
+          <span className="text-sm font-bold text-white">8</span>
         </Link>
 
         <Link
@@ -105,7 +123,6 @@ function NavbarContent() {
             className="size-8 object-contain"
           />
         </Link>
-
         <Link
           href={buildHref('/retail/calcio')}
           className={cn(
@@ -125,7 +142,7 @@ function NavbarContent() {
         </Link>
       </div>
 
-      <div className="relative right-2 flex w-full justify-end gap-[8px]">
+      <div className="relative right-2 flex w-full justify-end space-x-2">
         <Button
           className="h-12 w-fit p-[18px] hover:opacity-95"
           variant="ticketButton"
@@ -190,7 +207,7 @@ function NavbarContent() {
 
 export default function Navbar() {
   return (
-    <Suspense fallback={<div className="flex h-16 w-full bg-accent" />}>
+    <Suspense fallback={<div className="bg-navbarTop flex h-16 w-full" />}>
       <NavbarContent />
     </Suspense>
   )

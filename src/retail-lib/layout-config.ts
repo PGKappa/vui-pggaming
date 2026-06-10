@@ -24,7 +24,6 @@ export type LayoutConfig = {
   bettingSlip: BettingSlipLayoutConfig
   searchEventResults: SearchEventResultsLayoutConfig
 }
-
 const layoutByLanguage: Record<string, LayoutConfig> = {
   en: {
     carousel: {
@@ -123,10 +122,8 @@ const layoutByLanguage: Record<string, LayoutConfig> = {
     },
   },
 }
-
 /** Default layout (English) used as fallback for unknown languages */
 const defaultLayout = layoutByLanguage.en
-
 export function getLayoutConfig(lang: string): LayoutConfig {
   return layoutByLanguage[lang] ?? defaultLayout
 }

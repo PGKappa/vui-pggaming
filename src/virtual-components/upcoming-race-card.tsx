@@ -153,7 +153,7 @@ export default function UpcomingRaceCard({
       setIsLoading(true)
       try {
         const response = await fetch(
-          `https://apidev.pgvirtual.eu/api/event/info/${race.extId}/${race.id}`,
+          `https://apisuprema.pgvirtual.eu/api/event/info/${race.extId}/${race.id}`,
           {
             headers: {
               accept: 'application/json',
@@ -666,9 +666,9 @@ export default function UpcomingRaceCard({
                       number: race.id,
                       startingAt: race.time,
                     },
-                    competitors: t('even'),
+                    competitors: 'Even',
                     option: {
-                      outcome: t('even'),
+                      outcome: 'even',
                       decPrice: parseFloat(raceInfo.odds.evenodd?.even || '0'),
                     },
                     track: `${t('track')} 6`,
@@ -688,9 +688,9 @@ export default function UpcomingRaceCard({
                       number: race.id,
                       startingAt: race.time,
                     },
-                    competitors: t('odd'),
+                    competitors: 'Odd',
                     option: {
-                      outcome: t('odd'),
+                      outcome: 'odd',
                       decPrice: parseFloat(raceInfo.odds.evenodd?.odd || '0'),
                     },
                     track: `${t('track')} 6`,
@@ -723,7 +723,7 @@ export default function UpcomingRaceCard({
                     },
                     competitors: 'Under',
                     option: {
-                      outcome: 'Under',
+                      outcome: 'under',
                       decPrice: parseFloat(
                         raceInfo.odds.underover?.under || '0',
                       ),
@@ -747,7 +747,7 @@ export default function UpcomingRaceCard({
                     },
                     competitors: 'Over',
                     option: {
-                      outcome: 'Over',
+                      outcome: 'over',
                       decPrice: parseFloat(
                         raceInfo.odds.underover?.over || '0',
                       ),

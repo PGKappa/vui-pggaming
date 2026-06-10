@@ -1,7 +1,6 @@
 'use client'
 import BettingSlip from '@/retail-components/betting-slip'
 import SearchEventResults from '@/retail-components/search-event-results'
-import { ScrollArea } from '@/retail-components/ui/scroll-area'
 import { UpcomingEventsCarousel } from '@/retail-components/upcoming-events-carousel'
 import UpcomingRaceCard from '@/retail-components/upcoming-race-card'
 import { RootContext } from '@/retail-contexts/root-context'
@@ -22,9 +21,8 @@ export default function Home() {
     undefined,
   )
 
-  // SINCRONIZZAZIONE PERFETTA CON CAROSELLO
   const carouselEvents = useMemo(
-    () => getCarouselFilteredEvents(upcomingEvents, [Discipline.HORSES]),
+    () => getCarouselFilteredEvents(upcomingEvents, [Discipline.DOGS]),
     [upcomingEvents],
   )
 
