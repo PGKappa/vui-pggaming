@@ -36,7 +36,7 @@ const layoutByLanguage: Record<string, LayoutConfig> = {
       },
       textOffset: {
         SOCCER: 'right-[3px]',
-        HORSES: 'right-[5px]',
+        HORSES: 'right-[6px]',
         DOGS: 'right-[6px]',
         DOGS8: 'right-[6px]',
       },
@@ -61,13 +61,13 @@ const layoutByLanguage: Record<string, LayoutConfig> = {
     carousel: {
       itemBasis: 'basis-1/5',
       imageOffset: {
-        SOCCER: 'bottom-[4px] right-[10px]',
+        SOCCER: 'bottom-[1px] right-[25px]',
         HORSES: 'bottom-[4px] right-[5px]',
         DOGS: 'bottom-[4px] right-[12px]',
         DOGS8: 'bottom-[4px] right-[12px]',
       },
       textOffset: {
-        SOCCER: 'right-[3px]',
+        SOCCER: 'left-[5px] top-[3px]',
         HORSES: 'right-[0px]',
         DOGS: 'right-[8px]',
         DOGS8: 'right-[8px]',
