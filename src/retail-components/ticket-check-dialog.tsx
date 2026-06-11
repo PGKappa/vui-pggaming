@@ -12,10 +12,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/retail-components/ui/dialog'
-import { Delete } from 'lucide-react'
+import { Delete, X, ChevronLeft, ChevronRight } from 'lucide-react'
 import {
   TicketDetailInfo,
   TicketDetailResponse,
+  TicketDetailSelection,
   TicketPayResponse,
 } from '@/retail-lib/types'
 import { createPGVirtualAPICall } from '@/retail-lib/utils'
@@ -305,6 +306,9 @@ export default function TicketCheckDialog({
       setPinInput('')
       setPinError(null)
       setShowPayConfirm(false)
+      setShowReplayPlayer(false)
+      setReplayVideos([])
+      setReplayIndex(0)
     }
   }, [open, ticketId, ticketCandidates, fetchTicket])
 
@@ -312,6 +316,93 @@ export default function TicketCheckDialog({
     const num = typeof amount === 'string' ? parseFloat(amount) : amount
     if (isNaN(num)) return `0.00 ${currencySymbol}`
     return `${num.toFixed(2)} ${currencySymbol}`
+  }
+
+  const [showReplayPlayer, setShowReplayPlayer] = useState(false)
+  const [replayIndex, setReplayIndex] = useState(0)
+  const [replayVideos, setReplayVideos] = useState<
+    Array<{ url: string | null; loading: boolean; sel: TicketDetailSelection }>
+  >([])
+
+  // Deduplicated unique events for replay (computed once ticketInfo is available)
+  const uniqueReplaySelections = ticketInfo
+    ? (() => {
+        const seen = new Set<number>()
+        return ticketInfo.selections.filter((sel) => {
+          if (seen.has(sel.eventId)) return false
+          seen.add(sel.eventId)
+          return true
+        })
+      })()
+    : []
+
+  const fetchReplayForIndex = async (index: number) => {
+    if (!ticketInfo || !rootContext?.initCode || !rootContext?.operator) return
+    const sel = uniqueReplaySelections[index]
+    if (!sel) return
+
+    // Mark this slot as loading
+    setReplayVideos((prev) => {
+      const next = [...prev]
+      next[index] = { ...next[index], loading: true }
+      return next
+    })
+
+    try {
+      const response = await createPGVirtualAPICall(
+        '/api/event/results/replay',
+        rootContext.initCode!,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            gameId: sel.gameId,
+            channelId: sel.channelId,
+            palimpsestId: sel.palimpsestId,
+            eventId: sel.eventId,
+          }),
+        },
+        rootContext.operator,
+      )
+      const data = response.ok ? await response.json() : null
+      setReplayVideos((prev) => {
+        const next = [...prev]
+        next[index] = { url: data?.video?.src ?? null, loading: false, sel }
+        return next
+      })
+    } catch {
+      setReplayVideos((prev) => {
+        const next = [...prev]
+        next[index] = { url: null, loading: false, sel }
+        return next
+      })
+    }
+  }
+
+  const handleOpenReplay = async () => {
+    if (!ticketInfo || uniqueReplaySelections.length === 0) return
+    // Initialise slots (all loading: false, url: null) then fetch index 0
+    const slots = uniqueReplaySelections.map((sel) => ({
+      url: null as string | null,
+      loading: false,
+      sel,
+    }))
+    setReplayVideos(slots)
+    setReplayIndex(0)
+    setShowReplayPlayer(true)
+    // Fetch first event immediately
+    await fetchReplayForIndex(0)
+  }
+
+  const handleReplayNav = async (direction: 'prev' | 'next') => {
+    const newIndex =
+      direction === 'next'
+        ? Math.min(replayIndex + 1, uniqueReplaySelections.length - 1)
+        : Math.max(replayIndex - 0 - 1, 0)
+    setReplayIndex(newIndex)
+    // Lazy-load if not yet fetched
+    if (!replayVideos[newIndex]?.url && !replayVideos[newIndex]?.loading) {
+      await fetchReplayForIndex(newIndex)
+    }
   }
 
   const statusInfo = ticketInfo ? getDetailStatus(ticketInfo.status) : null
@@ -648,17 +739,134 @@ export default function TicketCheckDialog({
                   )}
 
                   {/* VIDEO REPLAY */}
-                  <div className="pb-4 text-center">
-                    <button
-                      className="w-[260px] cursor-pointer rounded-lg border-0 bg-replay py-3 text-[14px] font-bold uppercase tracking-[1.5px] text-white"
-                      onClick={() => {
-                        if (typeof window.Bubble === 'function') {
-                          window.Bubble('replay', String(ticketInfo.ticket_id))
-                        }
-                      }}
-                    >
-                      {t('show_replay', 'VIDEO REPLAY')}
-                    </button>
+                  <div className="pb-4">
+                    {showReplayPlayer ? (
+                      <div
+                        className="overflow-hidden rounded-xl"
+                        style={{ background: '#111' }}
+                      >
+                        {/* Event info header — matches event card style (#2a2a2a) */}
+                        {(() => {
+                          const currentSel = uniqueReplaySelections[replayIndex]
+                          if (!currentSel) return null
+                          return (
+                            <div
+                              className="flex items-center justify-between px-3 py-2"
+                              style={{ background: '#2a2a2a' }}
+                            >
+                              <div className="flex flex-col">
+                                <span
+                                  className="text-[12px] font-bold"
+                                  style={{ color: '#fff' }}
+                                >
+                                  {currentSel.game.dict.misc.name}{' '}
+                                  {currentSel.channelName}
+                                </span>
+                                <span
+                                  className="text-[11px]"
+                                  style={{ color: '#aaa' }}
+                                >
+                                  {currentSel.trackName}
+                                </span>
+                              </div>
+                              <div className="flex flex-col items-end">
+                                <span
+                                  className="text-[11px] font-semibold"
+                                  style={{ color: '#ccc' }}
+                                >
+                                  {currentSel.startTime}
+                                </span>
+                                <span
+                                  className="text-[11px]"
+                                  style={{ color: '#888' }}
+                                >
+                                  {t('event', 'Evento')} {currentSel.eventId}
+                                </span>
+                              </div>
+                              <button
+                                onClick={() => {
+                                  setShowReplayPlayer(false)
+                                  setReplayVideos([])
+                                }}
+                                className="ml-3 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent text-white hover:opacity-80"
+                              >
+                                <X className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
+                          )
+                        })()}
+
+                        {/* Video area */}
+                        <div className="relative flex h-[200px] items-center justify-center bg-black">
+                          {replayVideos[replayIndex]?.loading ? (
+                            <div className="h-8 w-8 animate-spin rounded-full border-4 border-accent border-t-transparent" />
+                          ) : replayVideos[replayIndex]?.url ? (
+                            <video
+                              key={replayVideos[replayIndex].url!}
+                              src={replayVideos[replayIndex].url!}
+                              controls
+                              autoPlay
+                              playsInline
+                              className="h-full w-full object-contain"
+                            />
+                          ) : (
+                            <span
+                              className="text-[13px]"
+                              style={{ color: '#666' }}
+                            >
+                              {t('no_video_available', 'Video non disponibile')}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Navigation bar — only shown when there are multiple events */}
+                        {uniqueReplaySelections.length > 1 && (
+                          <div
+                            className="flex items-center justify-between px-3 py-2"
+                            style={{ background: '#1a1a1a' }}
+                          >
+                            <button
+                              disabled={replayIndex === 0}
+                              onClick={() => handleReplayNav('prev')}
+                              className="flex h-8 w-8 items-center justify-center rounded-lg text-white hover:opacity-80 disabled:opacity-30"
+                              style={{ background: '#333' }}
+                            >
+                              <ChevronLeft className="h-5 w-5" />
+                            </button>
+                            <span
+                              className="text-[12px] font-semibold"
+                              style={{ color: '#aaa' }}
+                            >
+                              {replayIndex + 1} /{' '}
+                              {uniqueReplaySelections.length}
+                            </span>
+                            <button
+                              disabled={
+                                replayIndex ===
+                                uniqueReplaySelections.length - 1
+                              }
+                              onClick={() => handleReplayNav('next')}
+                              className="flex h-8 w-8 items-center justify-center rounded-lg text-white hover:opacity-80 disabled:opacity-30"
+                              style={{ background: '#333' }}
+                            >
+                              <ChevronRight className="h-5 w-5" />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="text-center">
+                        <button
+                          className="w-[260px] cursor-pointer rounded-lg border-0 bg-replay py-3 text-[14px] font-bold uppercase tracking-[1.5px] text-white disabled:opacity-60"
+                          disabled={replayVideos[0]?.loading}
+                          onClick={handleOpenReplay}
+                        >
+                          {replayVideos[0]?.loading
+                            ? t('loading', 'Loading') + '...'
+                            : t('show_replay', 'VIDEO REPLAY')}
+                        </button>
+                      </div>
+                    )}
                   </div>
 
                   {/* Errore pagamento */}
