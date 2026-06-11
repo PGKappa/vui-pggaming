@@ -72,7 +72,7 @@ function NavbarContent() {
         <Link
           href={buildHref('/retail/dogs')}
           className={cn(
-            'flex h-12 w-24 flex-row items-center justify-center px-4 py-1 text-foreground transition-colors hover:opacity-90',
+            'flex h-12 w-24 flex-row items-center justify-center gap-1 px-3 py-1 text-foreground transition-colors hover:opacity-90',
             pathname.includes('/retail/dogs') &&
               !pathname.includes('/retail/dogs-horses') &&
               !pathname.includes('/retail/dogs8')
@@ -87,6 +87,7 @@ function NavbarContent() {
             height={20}
             className="size-8 object-contain"
           />
+          <span className="text-base font-bold text-secondary-foreground">6</span>
         </Link>
 
         <Link
@@ -103,13 +104,13 @@ function NavbarContent() {
             height={20}
             className="size-8 object-contain"
           />
-          <span className="text-sm font-bold text-white">8</span>
+          <span className="text-base font-bold text-secondary-foreground">8</span>
         </Link>
 
         <Link
           href={buildHref('/retail/horses')}
           className={cn(
-            'hover:*opacity-90 flex h-12 w-24 flex-row items-center justify-center px-4 py-1 text-foreground transition-colors',
+            'flex h-12 w-24 flex-row items-center justify-center gap-1 px-3 py-1 text-foreground transition-colors hover:opacity-90',
             pathname.includes('/retail/horses')
               ? 'bg-tertiary'
               : 'bg-secondary',
@@ -122,6 +123,7 @@ function NavbarContent() {
             height={20}
             className="size-8 object-contain"
           />
+          <span className="text-base font-bold text-secondary-foreground">6</span>
         </Link>
         <Link
           href={buildHref('/retail/calcio')}
