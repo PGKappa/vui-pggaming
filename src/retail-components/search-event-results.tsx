@@ -152,7 +152,11 @@ export default function SearchEventResults() {
             const dateStart = sevenDaysAgo.toLocaleDateString('it-IT')
             const dateEnd = today.toLocaleDateString('it-IT')
             const gameIds =
-              confirmedDiscipline === Discipline.HORSES ? 'horses6' : 'dogs6'
+              confirmedDiscipline === Discipline.HORSES
+                ? 'horses6'
+                : confirmedDiscipline === Discipline.DOGS8
+                  ? 'dogs8'
+                  : 'dogs6'
             const requestBody = { gameIds: [gameIds], dateStart, dateEnd }
             const response = await createPGVirtualAPICall(
               '/api/event/results/list',
@@ -268,32 +272,18 @@ export default function SearchEventResults() {
           discipline === Discipline.DOGS ||
           discipline === Discipline.DOGS8
         ) {
-          let filteredItems = data.items
-          if (confirmedTimeSlot !== 'ALL') {
-            const [startTimeStr, endTimeStr] = confirmedTimeSlot.split(' | ')
-            const [startHours, startMinutes] = startTimeStr
-              .split(':')
-              .map(Number)
-            const [endHours, endMinutes] = endTimeStr.split(':').map(Number)
-            const startInMinutes = startHours * 60 + startMinutes
-            const endInMinutes = endHours * 60 + endMinutes
-            filteredItems = data.items.filter((item: any) => {
-              if (!item.start_time || !item.start_time.includes(':'))
-                return false
-              const [hours, minutes] = item.start_time.split(':').map(Number)
-              const timeInMinutes = hours * 60 + minutes
-              return (
-                timeInMinutes >= startInMinutes && timeInMinutes <= endInMinutes
-              )
-            })
-          }
+          const filteredItems = data.items
 
           results = await Promise.all(
             filteredItems.map(async (result: any) => {
-              const detailedResult = await fetchDetailedEventResult(
-                result.ext_pal_id,
-                result.int_event_id.toString(),
-              )
+              // Only fetch detailed result if the list item doesn't already have arrival data
+              const detailedResult =
+                result.arrival && result.arrival.length > 0
+                  ? null
+                  : await fetchDetailedEventResult(
+                      result.ext_pal_id,
+                      result.int_event_id.toString(),
+                    )
               let startTime: Date
               try {
                 startTime = result.time
@@ -311,7 +301,6 @@ export default function SearchEventResults() {
 
               let raceResult = detailedResult
               if (!detailedResult) {
-                if (!result.arrival || result.arrival.length === 0) return null
                 raceResult = {
                   arrival:
                     (
@@ -555,10 +544,13 @@ export default function SearchEventResults() {
         .sort((a, b) => b.startTime.getTime() - a.startTime.getTime())
         .slice(0, 10)
     }
-    if (!confirmedDate) return []
-    return fetchedResults.filter(
+    if (!confirmedDate) {
+      return []
+    }
+    const dateFiltered = fetchedResults.filter(
       (result) => result.discipline === confirmedDiscipline,
     )
+    return dateFiltered
   }, [
     confirmedDiscipline,
     confirmedDate,
