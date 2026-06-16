@@ -204,16 +204,10 @@ export default function BetsContextProvider(props: {
     return () => clearInterval(interval)
   }, [betsContext.betEntries])
 
+  const MAX_EVENTS = 10
+
   const checkSystemLimits = useCallback(
     (newEntries: BetEntry[]): boolean => {
-      if (betMode !== 'SYSTEM') return true
-
-      const totalEntries = betsContext.betEntries.length + newEntries.length
-      if (totalEntries > 50) {
-        toast.error(tRef.current('max_bet_entries_system'))
-        return false
-      }
-
       const allEntries = [...betsContext.betEntries, ...newEntries]
       const eventsSet = new Set<string>()
       allEntries.forEach((entry) => {
@@ -222,19 +216,14 @@ export default function BetsContextProvider(props: {
       })
       const eventsNumber = eventsSet.size
 
-      if (eventsNumber > 10) {
-        toast.error(tRef.current('max_tuple_error'))
-        return false
-      }
-
-      if (eventsNumber > 15) {
+      if (eventsNumber > MAX_EVENTS) {
         toast.error(tRef.current('max_events_system'))
         return false
       }
 
       return true
     },
-    [betMode, betsContext.betEntries],
+    [betsContext.betEntries],
   )
 
   const addBet = useCallback(

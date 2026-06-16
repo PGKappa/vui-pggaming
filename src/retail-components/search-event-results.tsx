@@ -155,28 +155,28 @@ export default function SearchEventResults() {
 
       if (
         confirmedDiscipline === Discipline.HORSES ||
-        confirmedDiscipline === Discipline.DOGS
+        confirmedDiscipline === Discipline.DOGS ||
+        confirmedDiscipline === Discipline.DOGS8
       ) {
         const fetchRacingResults = async () => {
           setIsLoading(true)
           try {
-            if (!initCode || !operator) {
+            if (!rootContext.initCode || !rootContext.operator) {
               setIsLoading(false)
               return
             }
             const today = new Date()
             const sevenDaysAgo = new Date(today)
             sevenDaysAgo.setDate(today.getDate() - 7)
-            const dateStart = formatDateForAPI(sevenDaysAgo)
-            const dateEnd = formatDateForAPI(today)
+            const dateStart = sevenDaysAgo.toLocaleDateString('it-IT')
+            const dateEnd = today.toLocaleDateString('it-IT')
             const gameIds =
-              confirmedDiscipline === Discipline.HORSES ? 'horses6' : 'dogs6'
-            const requestBody = {
-              gameIds: [gameIds],
-              dateStart,
-              dateEnd,
-              timezone,
-            }
+              confirmedDiscipline === Discipline.HORSES
+                ? 'horses6'
+                : confirmedDiscipline === Discipline.DOGS8
+                  ? 'dogs8'
+                  : 'dogs6'
+            const requestBody = { gameIds: [gameIds], dateStart, dateEnd }
             const response = await createPGVirtualAPICall(
               '/api/event/results/list',
               initCode,
@@ -192,11 +192,9 @@ export default function SearchEventResults() {
             const limitedItems = data.items.slice(0, 10)
             const results: EventResult[] = await Promise.all(
               limitedItems.map(async (event: any) => {
-                const palId = getPalId(event)
-                const eventId = getEventId(event)
                 const detailedResult = await fetchDetailedEventResult(
-                  palId,
-                  eventId,
+                  event.ext_pal_id,
+                  event.int_event_id.toString(),
                 )
                 let startTime: Date
                 try {
@@ -211,9 +209,9 @@ export default function SearchEventResults() {
                   startTime = new Date()
                 }
                 return {
-                  id: Number(eventId),
-                  extId: palId,
-                  name: `${confirmedDiscipline === Discipline.DOGS ? 'Dog' : 'Horse'} Race ${eventId}`,
+                  id: event.int_event_id,
+                  extId: event.ext_pal_id,
+                  name: `${confirmedDiscipline === Discipline.DOGS || confirmedDiscipline === Discipline.DOGS8 ? 'Dog' : 'Horse'} Race ${event.int_event_id}`,
                   startTime,
                   discipline: confirmedDiscipline,
                   track: event.track_name || event.track || '6',
@@ -250,7 +248,7 @@ export default function SearchEventResults() {
     const fetchEventResults = async (discipline: Discipline, date: string) => {
       setIsLoading(true)
       try {
-        if (!initCode || !operator) {
+        if (!rootContext.initCode || !rootContext.operator) {
           setIsLoading(false)
           return
         }
@@ -259,12 +257,13 @@ export default function SearchEventResults() {
             ? 'horses6'
             : discipline === Discipline.DOGS
               ? 'dogs6'
-              : `${discipline.toLowerCase()}6`
+              : discipline === Discipline.DOGS8
+                ? 'dogs8'
+                : `${discipline.toLowerCase()}6`
         const requestBody: Record<string, any> = {
           gameIds: [gameIds],
           dateStart: date,
           dateEnd: date,
-          timezone,
         }
         if (confirmedTimeSlot !== 'ALL') {
           const [startTimeStr, endTimeStr] = confirmedTimeSlot.split(' | ')
@@ -289,47 +288,21 @@ export default function SearchEventResults() {
 
         if (
           discipline === Discipline.HORSES ||
-          discipline === Discipline.DOGS
+          discipline === Discipline.DOGS ||
+          discipline === Discipline.DOGS8
         ) {
-          let filteredItems = data.items
-          // Client-side fallback filter in case backend doesn't support timeStart/timeEnd yet
-          if (
-            confirmedTimeSlot !== 'ALL' &&
-            filteredItems.length === data.items.length
-          ) {
-            const [startTimeStr, endTimeStr] = confirmedTimeSlot.split(' | ')
-            const [startHours, startMinutes] = startTimeStr
-              .trim()
-              .split(':')
-              .map(Number)
-            const [endHours, endMinutes] = endTimeStr
-              .trim()
-              .split(':')
-              .map(Number)
-            const startInMinutes = startHours * 60 + startMinutes
-            const endInMinutes = endHours * 60 + endMinutes
-            const filtered = data.items.filter((item: any) => {
-              if (!item.start_time || !item.start_time.includes(':'))
-                return false
-              const [hours, minutes] = item.start_time.split(':').map(Number)
-              const timeInMinutes = hours * 60 + minutes
-              return (
-                timeInMinutes >= startInMinutes && timeInMinutes <= endInMinutes
-              )
-            })
-            if (filtered.length < data.items.length) {
-              filteredItems = filtered
-            }
-          }
+          const filteredItems = data.items
 
           results = await Promise.all(
             filteredItems.map(async (result: any) => {
-              const palId = getPalId(result)
-              const eventId = getEventId(result)
-              const detailedResult = await fetchDetailedEventResult(
-                palId,
-                eventId,
-              )
+              // Only fetch detailed result if the list item doesn't already have arrival data
+              const detailedResult =
+                result.arrival && result.arrival.length > 0
+                  ? null
+                  : await fetchDetailedEventResult(
+                      result.ext_pal_id,
+                      result.int_event_id.toString(),
+                    )
               let startTime: Date
               try {
                 startTime = result.time
@@ -375,12 +348,12 @@ export default function SearchEventResults() {
               }
 
               return {
-                id: Number(eventId),
-                extId: palId,
+                id: result.int_event_id,
+                extId: result.ext_pal_id,
                 name:
                   detailedResult?.track_name ||
                   result.track_name ||
-                  `${discipline} Race ${eventId}`,
+                  `${discipline === Discipline.DOGS || discipline === Discipline.DOGS8 ? 'Dog' : 'Horse'} Race ${result.int_event_id}`,
                 startTime,
                 discipline,
                 track:
@@ -525,9 +498,8 @@ export default function SearchEventResults() {
     confirmedTimeSlot,
     contextResultsSnapshot,
     fetchDetailedEventResult,
-    initCode,
-    operator,
-    timezone,
+    rootContext.initCode,
+    rootContext.operator,
     t,
   ])
 
@@ -591,10 +563,13 @@ export default function SearchEventResults() {
         .sort((a, b) => b.startTime.getTime() - a.startTime.getTime())
         .slice(0, 10)
     }
-    if (!confirmedDate) return []
-    return fetchedResults.filter(
+    if (!confirmedDate) {
+      return []
+    }
+    const dateFiltered = fetchedResults.filter(
       (result) => result.discipline === confirmedDiscipline,
     )
+    return dateFiltered
   }, [
     confirmedDiscipline,
     confirmedDate,
@@ -631,8 +606,8 @@ export default function SearchEventResults() {
   }
 
   return (
-    <div className="flex h-full flex-col space-y-1">
-      <div className="flex h-16 w-full items-center space-x-2 bg-accent px-[24px] min-[1400px]:px-[60px] min-[1600px]:px-[100px] min-[1750px]:px-[130px] min-[1920px]:px-[167px]">
+    <div className="flex h-full flex-col gap-1">
+      <div className="flex h-16 w-full items-center gap-2 bg-accent px-[24px] min-[1400px]:px-[60px] min-[1600px]:px-[100px] min-[1750px]:px-[130px] min-[1920px]:px-[167px]">
         {/* DISCIPLINA */}
         <Select
           value={selectedDiscipline.toString()}
@@ -644,33 +619,38 @@ export default function SearchEventResults() {
             )
           }}
         >
-          <SelectTrigger className="mr-1 h-[46px] min-w-0 flex-1 border-none bg-background pl-[16px] pr-[5px] text-[16px] text-foreground tabular-nums">
+          <SelectTrigger className="h-[48px] min-w-0 flex-1 border-none bg-background pl-[16px] pr-[5px] text-[16px] text-foreground">
             <SelectValue placeholder={t('sport')} />
           </SelectTrigger>
           <SelectContent className="bg-white p-0">
             <SelectItem className="text-[14px]" value="NONE">
               {t('discipline').toUpperCase()}
             </SelectItem>
-            {Object.values(Discipline)
-              .filter((d) => d !== Discipline.SOCCER)
-              .map((d) => {
-                const translationKey =
-                  d === 'DOGS'
-                    ? 'dog_racing'
+            {[
+              Discipline.DOGS,
+              Discipline.DOGS8,
+              Discipline.HORSES,
+              Discipline.SOCCER,
+            ].map((d) => {
+              const translationKey =
+                d === 'DOGS'
+                  ? 'dog_racing'
+                  : d === 'DOGS8'
+                    ? 'dog8_racing'
                     : d === 'HORSES'
                       ? 'horse_racing'
                       : 'football'
-                return (
-                  <SelectItem className="text-[14px]" key={d} value={d}>
-                    {t(translationKey).toUpperCase()}
-                  </SelectItem>
-                )
-              })}
+              return (
+                <SelectItem className="text-[14px]" key={d} value={d}>
+                  {t(translationKey).toUpperCase()}
+                </SelectItem>
+              )
+            })}
           </SelectContent>
         </Select>
 
         {/* LAST 10 GAMES */}
-        <div className="ml-1.5 flex shrink-0 flex-row items-center">
+        <div className="ml-1 flex shrink-0 flex-row items-center">
           <Checkbox
             id="last10"
             className="h-6 w-6 border-0 bg-background text-foreground"
@@ -679,7 +659,7 @@ export default function SearchEventResults() {
           />
           <label
             htmlFor="last10"
-            className="mr-[-4px] whitespace-nowrap px-2 py-3 text-[15px] font-semibold text-background"
+            className="whitespace-nowrap px-2 py-3 text-[15px] font-semibold text-background"
           >
             {t('last_10_games')}
           </label>
@@ -691,7 +671,7 @@ export default function SearchEventResults() {
           onValueChange={(value) => setSelectedDate(value)}
           disabled={lastTenGames}
         >
-          <SelectTrigger className="h-[46px] min-w-0 flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground tabular-nums disabled:opacity-95">
+          <SelectTrigger className="ml-[2px] mr-[10px] h-[48px] min-w-0 flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground">
             <SelectValue placeholder={t('date')} />
           </SelectTrigger>
           <SelectContent className="bg-white p-0">
@@ -699,7 +679,7 @@ export default function SearchEventResults() {
               {t('date').toUpperCase()}
             </SelectItem>
             {dates.map((date) => (
-              <SelectItem className="text-[14px] tabular-nums" key={date} value={date}>
+              <SelectItem className="text-[14px]" key={date} value={date}>
                 {date}
               </SelectItem>
             ))}
@@ -712,7 +692,7 @@ export default function SearchEventResults() {
           onValueChange={setSelectedTimeSlot}
           disabled={lastTenGames}
         >
-          <SelectTrigger className="relative left-[10px] h-[46px] min-w-0 flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground tabular-nums disabled:opacity-95">
+          <SelectTrigger className="mr-2 h-[48px] min-w-0 flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground">
             <SelectValue placeholder={t('time_slot')} />
           </SelectTrigger>
           <SelectContent className="bg-white p-0">
@@ -720,7 +700,7 @@ export default function SearchEventResults() {
               {t('time_slot').toUpperCase()}
             </SelectItem>
             {timeSlots.map((slot) => (
-              <SelectItem className="text-[14px] tabular-nums" key={slot} value={slot}>
+              <SelectItem className="text-[14px]" key={slot} value={slot}>
                 {slot}
               </SelectItem>
             ))}
@@ -729,7 +709,7 @@ export default function SearchEventResults() {
 
         {/* CERCA */}
         <Button
-          className="relative left-[26px] ml-2 mr-4 h-[46px] min-w-0 flex-1 bg-searchResButton text-[16px] font-bold text-bet-foreground hover:opacity-90 disabled:opacity-85"
+          className="ml-2 mr-4 h-[48px] min-w-0 flex-1 bg-tertiary text-[16px] font-bold text-bet-foreground hover:opacity-90"
           disabled={selectedDiscipline === 'NONE'}
           onClick={handleSearch}
         >
@@ -738,7 +718,7 @@ export default function SearchEventResults() {
 
         {/* RESET */}
         <Button
-          className="relative left-[42px] h-[46px] min-w-0 flex-1 bg-searchResButton text-[15px] text-tertiary-foreground"
+          className="h-[48px] min-w-0 flex-1 bg-tertiary text-[15px] text-tertiary-foreground"
           disabled={!selectedDate && !selectedDiscipline && !selectedTimeSlot}
           onClick={handleReset}
         >
@@ -752,7 +732,7 @@ export default function SearchEventResults() {
           (confirmedLastTenGames && rootContext.isLoadingEvents) ? (
             <div className="flex h-full flex-col items-center justify-center pt-4">
               <LoadingSpinner />
-              <p className="mt-4 text-[16px] text-black">
+              <p className="mt-4 text-[16px] text-muted-foreground">
                 {t('loading')}...
               </p>
             </div>
@@ -778,11 +758,13 @@ export default function SearchEventResults() {
                             <span className="whitespace-nowrap text-[16px]">
                               {eventResult.discipline === 'DOGS'
                                 ? t('dog_races_label')
-                                : eventResult.discipline === 'HORSES'
-                                  ? t('horse_races_label')
-                                  : eventResult.discipline === 'SOCCER'
-                                    ? t('football_label')
-                                    : eventResult.discipline}
+                                : eventResult.discipline === 'DOGS8'
+                                  ? t('dog8_races_label')
+                                  : eventResult.discipline === 'HORSES'
+                                    ? t('horse_races_label')
+                                    : eventResult.discipline === 'SOCCER'
+                                      ? t('football_label')
+                                      : eventResult.discipline}
                             </span>
                             {eventResult.discipline === Discipline.SOCCER
                               ? eventResult.jornada && (
@@ -790,16 +772,18 @@ export default function SearchEventResults() {
                                     {t('round')} {eventResult.jornada}
                                   </span>
                                 )
-                              : (eventResult.track || '6') && (
+                              : eventResult.track && (
                                   <span className="whitespace-nowrap border-l border-l-white pl-4">
                                     {(() => {
-                                      const trackValue =
-                                        eventResult.track || '6'
+                                      const trackValue = eventResult.track
                                       const numberMatch =
                                         trackValue.match(/\d+/)
                                       const trackNum = numberMatch
                                         ? numberMatch[0]
-                                        : '6'
+                                        : eventResult.discipline ===
+                                            Discipline.DOGS8
+                                          ? '8'
+                                          : '6'
                                       return `${t('track')} ${trackNum}`
                                     })()}
                                   </span>
@@ -932,7 +916,8 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
 
   if (
     (eventResult.discipline === Discipline.HORSES ||
-      eventResult.discipline === Discipline.DOGS) &&
+      eventResult.discipline === Discipline.DOGS ||
+      eventResult.discipline === Discipline.DOGS8) &&
     detailedResult
   ) {
     if (detailedResult.odds) {
@@ -1024,33 +1009,8 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
         return results
       }
 
-      if (showReplay && replayUrl) {
-        return (
-          <div className="relative mb-[-48px] flex flex-col items-center">
-            <button
-              onClick={() => setShowReplay(false)}
-              className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-background/60 text-foreground hover:bg-background/80"
-            >
-              <X className="h-5 w-5" />
-            </button>
-            <div className="flex h-[660px] w-full items-center justify-center bg-black">
-              <video
-                key={replayUrl}
-                src={replayUrl}
-                controls
-                autoPlay
-                playsInline
-                className="h-full w-full object-contain"
-                onEnded={() => setShowReplay(false)}
-                onError={(e) => console.error('Video error:', e)}
-              />
-            </div>
-          </div>
-        )
-      }
-
       return (
-        <div className="mb-[-70px] space-y-4 tabular-nums">
+        <div className="mb-[-48px] space-y-4">
           {detailedResult.arrival &&
             Array.isArray(detailedResult.arrival) &&
             detailedResult.arrival.length > 0 && (
@@ -1060,7 +1020,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                     {t('arrival_order').toUpperCase()}
                   </div>
                 </div>
-                <div className="mr-[40px] flex h-[79px] items-center justify-center space-x-[147px] p-4">
+                <div className="mr-[40px] flex h-[79px] items-center justify-center gap-[147px] p-4">
                   {detailedResult.arrival
                     .slice(0, 3)
                     .map((competitor: any, index: number) => {
@@ -1074,9 +1034,9 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                       return (
                         <div
                           key={competitor.number || index}
-                          className="flex items-center space-x-3"
+                          className="flex items-center gap-3"
                         >
-                          <div className="relative flex h-11 w-11 items-center justify-center tabular-nums">
+                          <div className="relative flex h-11 w-11 items-center justify-center">
                             <Image
                               src={imageSrc}
                               alt={medalNumber}
@@ -1093,7 +1053,10 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                             style={
                               getRacerColors(
                                 competitor.number,
-                                eventResult.discipline as 'DOGS' | 'HORSES',
+                                eventResult.discipline as
+                                  | 'DOGS'
+                                  | 'DOGS8'
+                                  | 'HORSES',
                               ).style
                             }
                           >
@@ -1124,13 +1087,16 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                         key={number}
                         className="flex items-center justify-between"
                       >
-                        <span className="ml-3 flex items-center space-x-3">
+                        <span className="ml-3 flex items-center gap-3">
                           <div
                             className="flex h-[33px] w-[33px] items-center justify-center rounded-md text-[21px] font-semibold"
                             style={
                               getRacerColors(
                                 parseInt(number),
-                                eventResult.discipline as 'DOGS' | 'HORSES',
+                                eventResult.discipline as
+                                  | 'DOGS'
+                                  | 'DOGS8'
+                                  | 'HORSES',
                               ).style
                             }
                           >
@@ -1160,13 +1126,16 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                         key={number}
                         className="flex items-center justify-between"
                       >
-                        <span className="ml-3 flex items-center space-x-3">
+                        <span className="ml-3 flex items-center gap-3">
                           <div
                             className="flex h-[33px] w-[33px] items-center justify-center rounded-md text-[21px] font-semibold"
                             style={
                               getRacerColors(
                                 parseInt(number),
-                                eventResult.discipline as 'DOGS' | 'HORSES',
+                                eventResult.discipline as
+                                  | 'DOGS'
+                                  | 'DOGS8'
+                                  | 'HORSES',
                               ).style
                             }
                           >
@@ -1196,13 +1165,16 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                         key={number}
                         className="flex items-center justify-between"
                       >
-                        <span className="ml-3 flex items-center space-x-3">
+                        <span className="ml-3 flex items-center gap-3">
                           <div
                             className="flex h-[33px] w-[33px] items-center justify-center rounded-md text-[21px] font-semibold"
                             style={
                               getRacerColors(
                                 parseInt(number),
-                                eventResult.discipline as 'DOGS' | 'HORSES',
+                                eventResult.discipline as
+                                  | 'DOGS'
+                                  | 'DOGS8'
+                                  | 'HORSES',
                               ).style
                             }
                           >
@@ -1235,7 +1207,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                         key={combination}
                         className="flex items-center justify-between"
                       >
-                        <span className="ml-3 flex items-center space-x-3">
+                        <span className="ml-3 flex items-center gap-3">
                           {combination.split('-').map((num, idx) => (
                             <div
                               key={idx}
@@ -1243,7 +1215,10 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                               style={
                                 getRacerColors(
                                   parseInt(num),
-                                  eventResult.discipline as 'DOGS' | 'HORSES',
+                                  eventResult.discipline as
+                                    | 'DOGS'
+                                    | 'DOGS8'
+                                    | 'HORSES',
                                 ).style
                               }
                             >
@@ -1274,7 +1249,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                         key={combination}
                         className="flex items-center justify-between"
                       >
-                        <span className="ml-3 flex items-center space-x-3">
+                        <span className="ml-3 flex items-center gap-3">
                           {combination.split('-').map((num, idx) => (
                             <div
                               key={idx}
@@ -1282,7 +1257,10 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                               style={
                                 getRacerColors(
                                   parseInt(num),
-                                  eventResult.discipline as 'DOGS' | 'HORSES',
+                                  eventResult.discipline as
+                                    | 'DOGS'
+                                    | 'DOGS8'
+                                    | 'HORSES',
                                 ).style
                               }
                             >
@@ -1313,7 +1291,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                         key={combination}
                         className="flex items-center justify-between"
                       >
-                        <span className="ml-3 flex items-center space-x-3">
+                        <span className="ml-3 flex items-center gap-3">
                           {combination.split('-').map((num, idx) => (
                             <div
                               key={idx}
@@ -1321,7 +1299,10 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                               style={
                                 getRacerColors(
                                   parseInt(num),
-                                  eventResult.discipline as 'DOGS' | 'HORSES',
+                                  eventResult.discipline as
+                                    | 'DOGS'
+                                    | 'DOGS8'
+                                    | 'HORSES',
                                 ).style
                               }
                             >
@@ -1352,7 +1333,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                         key={combination}
                         className="flex items-center justify-between"
                       >
-                        <span className="ml-3 flex items-center justify-center space-x-3">
+                        <span className="ml-3 flex items-center justify-center gap-3">
                           {combination.split('-').map((num, idx) => (
                             <div
                               key={idx}
@@ -1360,7 +1341,10 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                               style={
                                 getRacerColors(
                                   parseInt(num),
-                                  eventResult.discipline as 'DOGS' | 'HORSES',
+                                  eventResult.discipline as
+                                    | 'DOGS'
+                                    | 'DOGS8'
+                                    | 'HORSES',
                                 ).style
                               }
                             >
@@ -1513,7 +1497,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
             </div>
           </div>
         </div>
-        <div className="grid grid-cols-2 space-y-2">
+        <div className="grid grid-cols-2 gap-y-2">
           {detailedResult.odds?.oneXTwo && (
             <div className="border border-l-0 border-r-0">
               <div className="bg-accent py-2 text-center">

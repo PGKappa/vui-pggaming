@@ -608,6 +608,7 @@ export default function BettingSlip({
         return
       }
 
+      // Key = "DISCIPLINE-eventId" to avoid collision between dogs/horses with same int_event_id
       const groupedByEvent = betEntries.reduce(
         (acc, entry) => {
           const key = `${entry.bet.discipline}-${entry.bet.event.number}`
@@ -699,45 +700,44 @@ export default function BettingSlip({
           }),
         )
 
-        const firstEntry = entries[0]
-        const eventId = firstEntry.bet.event.number
+          const firstEntry = entries[0]
+          const gameId =
+            firstEntry.bet.discipline === 'HORSES'
+              ? 'horses6'
+              : firstEntry.bet.discipline === 'DOGS'
+                ? 'dogs6'
+                : firstEntry.bet.discipline === 'DOGS8'
+                  ? 'dogs8'
+                  : 'soccer'
+          const channelId =
+            firstEntry.bet.discipline === 'HORSES'
+              ? 3
+              : firstEntry.bet.discipline === 'DOGS'
+                ? 1
+                : 1
+          const eventAny = firstEntry.bet.event as any
+          // Look up by BOTH id AND discipline to get correct palimpsestId per discipline
+          const liveEvent = rootContext?.upcomingEvents?.find(
+            (e) =>
+              e.id === firstEntry.bet.event.number &&
+              e.discipline === firstEntry.bet.discipline,
+          )
+          const palimpsestId =
+            eventAny.palimpsestId ||
+            eventAny.extId ||
+            liveEvent?.extId ||
+            liveEvent?.palimpsestId
 
-        // Resolve palimpsestId: bet entry → live event lookup → fallback
-        const liveEvent = rootContext?.upcomingEvents?.find(
-          (e) => e.id === eventId && e.discipline === firstEntry.bet.discipline,
-        )
-        const palimpsestId =
-          firstEntry.bet.event.palimpsestId ||
-          firstEntry.bet.event.extId ||
-          liveEvent?.palimpsestId ||
-          liveEvent?.extId
-
-        const gameId =
-          firstEntry.bet.discipline === Discipline.HORSES
-            ? 'horses6'
-            : firstEntry.bet.discipline === Discipline.DOGS
-              ? 'dogs6'
-              : 'soccer'
-
-        // Resolve channelId dynamically from cashier_init channels
-        const matchedChannel = channels.find((ch: any) => ch.game_id === gameId)
-        const channelId =
-          matchedChannel?.id ??
-          (firstEntry.bet.discipline === Discipline.HORSES
-            ? 3
-            : firstEntry.bet.discipline === Discipline.DOGS
-              ? 1
-              : 4)
-
-        return {
-          gameId,
-          channelId,
-          palimpsestId,
-          eventId,
-          isBanker: !!firstEntry.fixed,
-          markets,
-        }
-      })
+          return {
+            gameId,
+            channelId,
+            palimpsestId,
+            eventId: firstEntry.bet.event.number,
+            isBanker: entries.some((e) => e.fixed === true),
+            markets,
+          }
+        },
+      )
 
       const ticketType = getTicketType(betEntries)
       const ticketMode = getTicketMode(betMode, betEntries)
@@ -834,6 +834,7 @@ export default function BettingSlip({
             const getTranslatedEventName = (discipline: string) => {
               switch (discipline) {
                 case 'DOGS':
+                case 'DOGS8':
                   return `${t('dog')} ${t('racing')}`
                 case 'HORSES':
                   return `${t('horse')} ${t('racing')}`
@@ -937,7 +938,7 @@ export default function BettingSlip({
                 case 'HORSES':
                   return 3
                 case 'DOGS8':
-                  return 4
+                  return 5
                 case 'SOCCER':
                   return 1
                 default:
@@ -957,19 +958,20 @@ export default function BettingSlip({
 
             const eventGroups = betEntries.reduce(
               (groups, entry) => {
-                const eventId = entry.bet.event.number
-                if (!groups[eventId]) {
-                  groups[eventId] = {
-                    eventId,
+                const groupKey = `${entry.bet.discipline}-${entry.bet.event.number}`
+                if (!groups[groupKey]) {
+                  groups[groupKey] = {
+                    eventId: entry.bet.event.number,
                     eventName: getTranslatedEventName(entry.bet.discipline),
                     eventStartTime: entry.bet.event.startingAt,
                     discipline: entry.bet.discipline,
                     channelId: getChannelId(entry.bet.discipline),
                     trackName: buildTrackName(entry),
+                    isBanker: !!entry.fixed,
                     markets: [],
                   }
                 }
-                groups[eventId].markets.push({
+                groups[groupKey].markets.push({
                   market: getTranslatedMarket(entry.market),
                   competitorName: getPrintCompetitorName(entry),
                   selection: getPrintSelection(entry),
@@ -977,7 +979,7 @@ export default function BettingSlip({
                 })
                 return groups
               },
-              {} as Record<number, any>,
+              {} as Record<string, any>,
             )
 
             const betsInfo = Object.values(eventGroups)
@@ -990,17 +992,24 @@ export default function BettingSlip({
                       name: group.name,
                       size: group.size,
                       stake: group.stake,
-                      minWin: group.minWin,
-                      maxWin: group.maxWin,
+                      minWin: parseFloat(group.minWin.toFixed(2)),
+                      maxWin: parseFloat(group.maxWin.toFixed(2)),
                       totalCombinations: group.combinations.length,
                       combinations: group.combinations.map((combo) => {
-                        const comboOdds = combo.reduce(
-                          (total, entry) => total * entry.bet.option.decPrice,
-                          1,
+                        const comboOdds = parseFloat(
+                          combo
+                            .reduce(
+                              (total, entry) =>
+                                total * entry.bet.option.decPrice,
+                              1,
+                            )
+                            .toFixed(2),
                         )
                         return {
                           odds: comboOdds,
-                          potentialWin: comboOdds * group.stake,
+                          potentialWin: parseFloat(
+                            (comboOdds * group.stake).toFixed(2),
+                          ),
                           entries: combo.map((entry) => ({
                             eventName: entry.bet.event.name || '',
                             competitorName: getPrintCompetitorName(entry),
@@ -1195,9 +1204,9 @@ export default function BettingSlip({
       <CardFooter className="bg-backgroundBetslip relative mb-[26px] flex flex-col">
         {betMode !== 'SYSTEM' ? (
           <>
-            <div className="bg-amountHeader relative h-[30px] w-full py-3"></div>
+            <div className="relative h-[30px] w-full bg-accent py-3"></div>
 
-            <div className="text-searchResultText relative top-[12px] flex w-full flex-row items-center justify-between px-4 pt-[9px]">
+            <div className="text-backgroundBetslip-foreground relative top-[12px] flex w-full flex-row items-center justify-between px-4 pt-[9px]">
               <span className="relative bottom-[3px] text-[15px] font-semibold">
                 {t('total_odd').toUpperCase()}
               </span>
@@ -1210,9 +1219,16 @@ export default function BettingSlip({
             <div className="relative top-[19px] grid w-full grid-cols-5 space-x-2 p-2">
               {stakeButtons.map((amount, index) => {
                 const numericAmount =
+                 
                   typeof amount === 'number'
+                   
                     ? amount
-                    : parseFloat(String(amount).replace(/[^\d.]/g, ''))
+                   
+                    : parseFloat(
+                        String(amount)
+                          .replace(',', '.')
+                          .replace(/[^\d.]/g, ''),
+                      )
                 if (isNaN(numericAmount) || numericAmount <= 0) return null
 
                 return (
@@ -1599,7 +1615,8 @@ export default function BettingSlip({
             disabled={
               isSubmitting ||
               (betMode !== 'SYSTEM' && global <= 0) ||
-              (betMode === 'SYSTEM' && totalSystemStake <= 0)
+              (betMode === 'SYSTEM' && totalSystemStake <= 0) ||
+              (betMode === 'SYSTEM' && totalSystemCombinations > 2048)
             }
             className="h-12 w-full text-[18px] font-bold"
           >

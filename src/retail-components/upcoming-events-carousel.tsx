@@ -28,6 +28,9 @@ export function UpcomingEventsCarousel(props: {
     const path = (pathname || '/').toLowerCase()
     if (path.includes('dogs-horses') || path.includes('cani-cavalli')) {
       return [Discipline.DOGS, Discipline.HORSES]
+    } else if (path.includes('dogs8') || path.includes('cani8')) {
+      // IMPORTANTE: controllare dogs8 PRIMA di dogs!
+      return [Discipline.DOGS8]
     } else if (path.includes('dogs') || path.includes('cani')) {
       return [Discipline.DOGS]
     } else if (path.includes('horses') || path.includes('cavalli')) {
@@ -164,7 +167,7 @@ function UpcomingEventItem(props: {
         src={
           event.discipline === 'SOCCER'
             ? '/calciatore_blu.png'
-            : event.discipline === 'DOGS'
+            : event.discipline === 'DOGS' || event.discipline === 'DOGS8'
               ? '/cane_blu.png'
               : '/cavallo_blu.png'
         }
@@ -182,7 +185,9 @@ function UpcomingEventItem(props: {
             ? event.name
             : event.discipline === 'HORSES'
               ? t('horse_races_label')
-              : t('dog_races_label')}
+              : event.discipline === 'DOGS8'
+                ? t('dog8_races_label')
+                : t('dog_races_label')}
         </span>
         <span
           className={`relative ${eventSubtitleBottom} whitespace-nowrap ${eventSubtitleFontSize} font-normal uppercase`}

@@ -93,7 +93,7 @@ export default function BetCombinationsTable({
                 outcome: `${racer1}-${racer2}`,
                 decPrice: parseFloat(odds),
               },
-              track: race.trackName || 'Track 6',
+              track: race.trackName || (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
             })
           }
         })
@@ -134,7 +134,7 @@ export default function BetCombinationsTable({
                           outcome: `${racer1}-${racer2}`,
                           decPrice: parseFloat(odds),
                         },
-                        track: race.trackName || 'Track 6',
+                        track: race.trackName || (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
                       })
                     }
                   }
@@ -173,7 +173,7 @@ export default function BetCombinationsTable({
                       outcome: `${racer1}-${racer2}`,
                       decPrice: parseFloat(odds),
                     },
-                    track: race.trackName || 'Track 6',
+                    track: race.trackName || (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
                   })
                 }
               }
@@ -208,7 +208,7 @@ export default function BetCombinationsTable({
                         outcome: `${racer1}-${racer2}`,
                         decPrice: parseFloat(odds),
                       },
-                      track: race.trackName || 'Track 6',
+                      track: race.trackName || (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
                     })
                   }
                 }
@@ -262,7 +262,7 @@ export default function BetCombinationsTable({
                   outcome: `${racer1}-${racer2}-${racer3}`,
                   decPrice: parseFloat(odds),
                 },
-                track: race.trackName || 'Track 6',
+                track: race.trackName || (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
               })
             }
           })
@@ -321,7 +321,7 @@ export default function BetCombinationsTable({
                               outcome: `${combinationKey}`,
                               decPrice: parseFloat(odds),
                             },
-                            track: race.trackName || 'Track 6',
+                            track: race.trackName || (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
                           })
                         }
                       }
@@ -381,7 +381,7 @@ export default function BetCombinationsTable({
                               outcome: `${combinationKey}`,
                               decPrice: parseFloat(odds),
                             },
-                            track: race.trackName || 'Track 6',
+                            track: race.trackName || (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
                           })
                         }
                       }
@@ -420,7 +420,7 @@ export default function BetCombinationsTable({
                         outcome: `${combinationKey}`,
                         decPrice: parseFloat(odds),
                       },
-                      track: race.trackName || 'Track 6',
+                      track: race.trackName || (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
                     })
                   }
                 }
@@ -470,7 +470,7 @@ export default function BetCombinationsTable({
                             outcome: `${combinationKey}`,
                             decPrice: parseFloat(odds),
                           },
-                          track: race.trackName || 'Track 6',
+                          track: race.trackName || (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
                         })
                       }
                     }

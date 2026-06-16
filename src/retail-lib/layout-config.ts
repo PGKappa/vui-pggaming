@@ -36,7 +36,7 @@ const layoutByLanguage: Record<string, LayoutConfig> = {
       },
       textOffset: {
         SOCCER: 'right-[3px]',
-        HORSES: 'right-[5px]',
+        HORSES: 'right-[6px]',
         DOGS: 'right-[6px]',
         DOGS8: 'right-[6px]',
       },

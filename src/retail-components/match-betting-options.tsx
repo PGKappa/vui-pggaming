@@ -60,10 +60,10 @@ export default function MatchBettingOptions(props: {
 
       <div className="flex flex-1 gap-0 overflow-hidden">
         {/* Contenuto scrollabile - scrollbar nascosta */}
-        <div className="flex-1 min-w-0 overflow-hidden">
+        <div className="min-w-0 flex-1 overflow-hidden">
           <div
             ref={scrollContainerRef}
-            className="h-full overflow-y-scroll no-scrollbar"
+            className="no-scrollbar h-full overflow-y-scroll"
           >
             <div className="flex flex-col gap-4">
               <div className="flex flex-row items-start justify-between">

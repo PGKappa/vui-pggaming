@@ -19,39 +19,6 @@ type ConsoleEntry = {
   message: string
 }
 
-
-const getCircularReplacer = () => {
-  const seen = new WeakSet()
-  return (_: string, value: any) => {
-    if (typeof value === 'object' && value !== null) {
-      if (seen.has(value)) return '[Circular]'
-      seen.add(value)
-    }
-    return value
-  }
-}
-
-
-const safeStringify = (a: any): string => {
-  if (typeof a === 'string') return a
-  try {
-    return JSON.stringify(a, getCircularReplacer())?.slice(0, 200) ?? String(a)
-  } catch {
-    try {
-      return String(a)
-    } catch {
-      return '[unserializable]'
-    }
-  }
-}
-
-/**
- * Barra di debug fissa in basso — visibile SOLO con `debug=1` nell'URL.
- *
- * Mostra: init_code, operator, terminal, shopId, cashier status, lingua,
- * currency, versione API/FE, eventi carosello, risultati, disciplina,
- * pathname, URL changes, userid changes, init_code changes.
- */
 export default function UrlDebugBar() {
   const cashier = useContext(CashierContext)
   const events = useContext(EventsContext)
@@ -69,13 +36,11 @@ export default function UrlDebugBar() {
   const prevInitCodeRef = useRef<string | null | undefined>(undefined)
   const prevUserIdRef = useRef<string | null | undefined>(undefined)
 
-  // Poll window.location e tracking cambi URL / init_code
   useEffect(() => {
     if (typeof window === 'undefined') return
 
     const update = () => {
       const currentUrl = window.location.href
-      // Check debug param on every poll (in case URL changes)
       try {
         const params = new URLSearchParams(window.location.search)
         setVisible(params.get('debug') === '1')
@@ -132,7 +97,6 @@ export default function UrlDebugBar() {
     }
   }, [])
 
-  // Intercetta console.error e console.warn
   useEffect(() => {
     const origError = console.error
     const origWarn = console.warn
@@ -141,7 +105,11 @@ export default function UrlDebugBar() {
       (level: 'error' | 'warn') =>
       (...args: any[]) => {
         const msg = args
-          .map(safeStringify)
+          .map((a) =>
+            typeof a === 'string'
+              ? a
+              : (JSON.stringify(a)?.slice(0, 200) ?? String(a)),
+          )
           .join(' ')
           .slice(0, 300)
         setConsoleErrors((prev) =>
@@ -163,14 +131,12 @@ export default function UrlDebugBar() {
     }
   }, [])
 
-  // Clock aggiornato ogni secondo per il timestamp live
   useEffect(() => {
     if (!visible) return
     const id = setInterval(() => setNow(new Date()), 1000)
     return () => clearInterval(id)
   }, [visible])
 
-  // Estrai i campi rilevanti da cashierData
   const cashierData: any = cashier.cashierData
   const configs: any = cashierData?.configs
   const userTypeRaw = configs?.user_type
@@ -193,7 +159,6 @@ export default function UrlDebugBar() {
   const userId =
     userIdCandidates.length > 0 ? String(userIdCandidates[0]) : null
 
-  // Tracking cambi userid
   useEffect(() => {
     if (prevUserIdRef.current === undefined) {
       prevUserIdRef.current = userId
@@ -215,7 +180,6 @@ export default function UrlDebugBar() {
     }
   }, [userId])
 
-  // Non renderizzare nulla se debug non è attivo
   if (!visible) return null
 
   const cashierStatus = cashier.hasCashierError
@@ -233,7 +197,6 @@ export default function UrlDebugBar() {
   const formatChange = (c: ChangeEvent) =>
     `[${c.time}] ${c.from ?? '(missing)'} -> ${c.to ?? '(missing)'}`
 
-  // Info aggiuntive dal cashier
   const lang = cashierData?.dictInfo?.lang ?? '-'
   const currency = cashier.getCurrencyCode?.() ?? '-'
   const currencySymbol = cashier.getCurrencySymbol?.() ?? '-'
@@ -251,7 +214,6 @@ export default function UrlDebugBar() {
   const stakeButtons = cashier.getStakeButtons?.() ?? []
   const retCode = cashierData?.ret_code ?? '-'
 
-  // Info dagli eventi
   const upcomingCount = events.upcomingEvents?.length ?? 0
   const resultsCount = events.eventResults?.length ?? 0
   const eventsLoading = events.isLoadingEvents
@@ -259,7 +221,6 @@ export default function UrlDebugBar() {
     ...new Set(events.upcomingEvents?.map((e) => e.discipline) ?? []),
   ]
 
-  // Pathname corrente (senza query)
   const pathname =
     typeof window !== 'undefined' ? window.location.pathname : '-'
 
@@ -291,7 +252,6 @@ export default function UrlDebugBar() {
         borderTop: `1px solid ${hasAlert ? '#ff5555' : '#00ff88'}`,
       }}
     >
-      {/* Riga 1: Cashier core */}
       <div>
         <L>cash_init</L>{' '}
         <span
@@ -313,7 +273,7 @@ export default function UrlDebugBar() {
         </span>
         <S /> <L>operator</L> {cashier.operator ?? '-'}
         <S /> <L>shop</L> {shopId}
-        <S /> <L>terminal</L> {cashier.terminalId ?? terminalFromCfg ?? '-'}
+        <S /> <L>terminal</L> {terminalFromCfg ?? '-'}
         <S /> <L>user_type</L> {userTypeRaw ?? '-'}
         <S /> <L>userid</L>{' '}
         <span style={{ color: userId ? '#00ff88' : '#ff5555' }}>
@@ -322,7 +282,6 @@ export default function UrlDebugBar() {
         <S /> <L>playerId</L> {cashier.userData?.playerId ?? '-'}
       </div>
 
-      {/* Riga 2: Configurazione */}
       <div>
         <L>lang</L> {lang}
         <S /> <L>currency</L> {currency} ({currencySymbol})
@@ -336,7 +295,6 @@ export default function UrlDebugBar() {
         {channels.map((c: any) => c?.name ?? '?').join(', ')})
       </div>
 
-      {/* Riga 3: Eventi */}
       <div>
         <L>events</L>{' '}
         <span style={{ color: eventsLoading ? '#ffaa66' : '#00ff88' }}>
@@ -352,12 +310,10 @@ export default function UrlDebugBar() {
         <S /> <L>clock</L> {now.toLocaleTimeString()}
       </div>
 
-      {/* Riga 4: URL */}
       <div style={{ opacity: 0.8 }}>
         <L>URL</L> {url}
       </div>
 
-      {/* Alert: init_code cambiato */}
       {initCodeChanged && (
         <div style={{ color: '#ff8888', fontWeight: 'bold' }}>
           <span style={{ color: '#ff3333' }}>!! init_code CHANGED x</span>
@@ -367,7 +323,6 @@ export default function UrlDebugBar() {
         </div>
       )}
 
-      {/* Alert: userid cambiato */}
       {userIdChanged && (
         <div style={{ color: '#ff8888', fontWeight: 'bold' }}>
           <span style={{ color: '#ff3333' }}>!! userid CHANGED x</span>
@@ -377,7 +332,6 @@ export default function UrlDebugBar() {
         </div>
       )}
 
-      {/* Console errors/warnings */}
       {consoleErrors.length > 0 && (
         <div
           style={{

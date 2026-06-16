@@ -105,7 +105,8 @@ export default function UpcomingRoundCard(props: {
     if (tabName === t('main')) return layoutConfig.normal.main
     if (tabName === t('under/over')) return layoutConfig.normal.underover
     if (tabName === t('multi_goal')) return layoutConfig.normal.multigoal
-    if (tabName === t('partial/final')) return layoutConfig.normal.partialeFinale
+    if (tabName === t('partial/final'))
+      return layoutConfig.normal.partialeFinale
     return layoutConfig.normal.special
   }
 
@@ -340,7 +341,7 @@ export default function UpcomingRoundCard(props: {
         <Table className="table-fixed">
           <TableHeader className="h-11 bg-card-header text-[20px] text-card-header-foreground">
             <TableRow className="border-card-foreground transition-none">
-              <TableHead className="w-[130px] min-w-[130px] max-w-[130px] text-[16px] text-center font-semibold">
+              <TableHead className="w-[130px] min-w-[130px] max-w-[130px] text-center text-[16px] font-semibold">
                 {t('round')} {props.round.scheduleId}
               </TableHead>
               <TableHead className="w-[1px] bg-card-header p-0"></TableHead>
@@ -395,7 +396,7 @@ export default function UpcomingRoundCard(props: {
                 return (
                   <TableRow
                     key={index}
-                    className="h-[67px] items-center justify-between border-card-foreground tabular-nums "
+                    className="h-[67px] items-center justify-between border-card-foreground tabular-nums"
                   >
                     <TableCell className="w-[130px] min-w-[130px] max-w-[130px] whitespace-nowrap text-start text-[17px] font-bold">
                       <div className="flex flex-col text-center">
@@ -488,8 +489,10 @@ export default function UpcomingRoundCard(props: {
                                           bet={{
                                             discipline: Discipline.SOCCER,
                                             event: {
-                                              name: match.eventIdentity.eventName,
-                                              number: match.eventIdentity.eventId,
+                                              name: match.eventIdentity
+                                                .eventName,
+                                              number:
+                                                match.eventIdentity.eventId,
                                               startingAt: matchStart,
                                               roundId:
                                                 match.eventIdentity.groupId,
@@ -514,35 +517,39 @@ export default function UpcomingRoundCard(props: {
                           <React.Fragment key={`regular-market-${marketIndex}`}>
                             <TableCell className="w-[1px] bg-black p-0"></TableCell>
                             <TableCell
-                              colSpan={market.selections.flatMap(
-                                ({ selection }) => selection,
-                              ).length}
-                              className={getLayoutConfig(selectedTab).cellPadding}
+                              colSpan={
+                                market.selections.flatMap(
+                                  ({ selection }) => selection,
+                                ).length
+                              }
+                              className={
+                                getLayoutConfig(selectedTab).cellPadding
+                              }
                             >
                               <div
                                 className={`${getLayoutConfig(selectedTab).container} ${getLayoutConfig(selectedTab).gap}`}
                               >
-                                {market.selections.flatMap(
-                                  ({ selection }) => selection,
-                                ).map((option, i) => (
-                                  <BetEntryToggle
-                                    key={i}
-                                    bet={{
-                                      discipline: Discipline.SOCCER,
-                                      event: {
-                                        name: match.eventIdentity.eventName,
-                                        number: match.eventIdentity.eventId,
-                                        startingAt: matchStart,
-                                        roundId: match.eventIdentity.groupId,
-                                      },
-                                      competitors: teamNames,
-                                      option: option,
-                                    }}
-                                    marketName={market.name}
-                                    variant="roundcard"
-                                    className="h-[50px] w-[100px] text-[16px] font-semibold tabular-nums"
-                                  />
-                                ))}
+                                {market.selections
+                                  .flatMap(({ selection }) => selection)
+                                  .map((option, i) => (
+                                    <BetEntryToggle
+                                      key={i}
+                                      bet={{
+                                        discipline: Discipline.SOCCER,
+                                        event: {
+                                          name: match.eventIdentity.eventName,
+                                          number: match.eventIdentity.eventId,
+                                          startingAt: matchStart,
+                                          roundId: match.eventIdentity.groupId,
+                                        },
+                                        competitors: teamNames,
+                                        option: option,
+                                      }}
+                                      marketName={market.name}
+                                      variant="roundcard"
+                                      className="h-[50px] w-[100px] text-[16px] font-semibold tabular-nums"
+                                    />
+                                  ))}
                               </div>
                             </TableCell>
                           </React.Fragment>
@@ -551,7 +558,7 @@ export default function UpcomingRoundCard(props: {
                     })()}
 
                     <TableCell className="w-[1px] bg-black p-0"></TableCell>
-                    <TableCell className="w-[48px] min-w-[48px] max-w-[48px] text-center items-center justify-center">
+                    <TableCell className="w-[48px] min-w-[48px] max-w-[48px] items-center justify-center text-center">
                       <Button
                         variant="action"
                         size="icon-lg"

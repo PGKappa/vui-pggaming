@@ -22,6 +22,7 @@ export function normalizeUnderOverValue(value: string): string {
 export function normalizeMarketName(market: string): string {
   const m = market.toLowerCase().trim()
 
+  // ── Racing markets ───────────────────────────────────────────────────────
   if (m.includes('winn') || m.includes('vinc') || m.includes('ganador'))
     return 'winner'
   if (
@@ -54,15 +55,79 @@ export function normalizeMarketName(market: string): string {
     m.includes('impar')
   )
     return 'even_odd'
+
+  // ── Soccer markets ────────────────────────────────────────────────────────
+  // Combo checks MUST come before under/over (combo market names contain "under/over")
+
+  // Combo 1x2 + Goal/No Goal
+  if (m.includes('combo') && (m.includes('goal/no goal') || m.includes('segna') || m.includes('gol/no gol')))
+    return 'market_combo_vincente_segna'
+
+  // Combo 1x2 + Under/Over 1.5
+  if (m.includes('combo') && (m.includes('1.5') || m.includes('1,5')))
+    return 'market_combo_vincente_goals_1_5'
+
+  // Combo 1x2 + Under/Over 2.5
+  if (m.includes('combo') && (m.includes('2.5') || m.includes('2,5')))
+    return 'market_combo_vincente_goals_2_5'
+
+  // Under/Over — preserve numeric value so 1.5/2.5/3.5/4.5 are distinct
   if (
     m.includes('under') ||
     m.includes('over') ||
     m.includes('menos') ||
     m.includes('más')
   ) {
-    // Return canonical form for under/over markets
+    // Use last number match so "(1.5)" is preferred over "1" in "1x2"
+    const allMatches = [...m.matchAll(/(\d+\.?\d*)/g)]
+    const valueMatch = allMatches.length > 0 ? allMatches[allMatches.length - 1] : null
+    if (valueMatch) {
+      if (m.includes('casa') || m.includes('home')) return `home_underover_${valueMatch[1]}`
+      if (m.includes('trasferta') || m.includes('away')) return `away_underover_${valueMatch[1]}`
+      return `underover_${valueMatch[1]}`
+    }
     return 'underover'
   }
+
+  // 1X2 / Esito finale
+  if (m === '1x2' || m.includes('esito finale') || m.includes('resultado final 1x2'))
+    return 'market_esito_finale_1x2'
+
+  // Double Chance / Doppia Chance
+  if (m.includes('double chance') || m.includes('doppia chance') || m.includes('doble oportunidad'))
+    return 'market_doppia_chance'
+
+  // Gol no gol / Goal No Goal
+  if (m.includes('gol no gol') || m.includes('goal no goal') || m.includes('gol / no gol'))
+    return 'market_gol_no_gol'
+
+  // Correct Score / Risultato esatto
+  if (m.includes('correct score') || m.includes('risultato esatto') || m.includes('marcador exacto'))
+    return 'market_risultato_esatto'
+
+  // Half Time / Full Time / Parziale-Finale
+  if (m.includes('half time') || m.includes('full time') || m.includes('parziale') || m.includes('parcial'))
+    return 'market_parziale_finale'
+
+  // First Scorer / Primo marcatore
+  if (m.includes('first scorer') || m.includes('primo marcatore') || m.includes('primer goleador'))
+    return 'market_primo_marcatore'
+
+  // Red Card / Cartellino Rosso
+  if (m.includes('red card') || m.includes('cartellino rosso') || m.includes('tarjeta roja'))
+    return 'market_cartellino_rosso'
+
+  // Multigoal Home / Somma gol Casa
+  if ((m.includes('multigoal') || m.includes('somma gol')) && (m.includes('home') || m.includes('casa')))
+    return 'market_somma_gol_casa'
+
+  // Multigoal Away / Somma gol Trasferta
+  if ((m.includes('multigoal') || m.includes('somma gol')) && (m.includes('away') || m.includes('trasferta')))
+    return 'market_somma_gol_trasferta'
+
+  // Multigoal (generic) / Somma gol
+  if (m.includes('multigoal') || m.includes('somma gol') || m.includes('multi gol'))
+    return 'market_somma_gol'
 
   return m
 }
@@ -247,6 +312,7 @@ export function createPGVirtualAPICall(
 export enum Discipline {
   SOCCER = 'SOCCER',
   DOGS = 'DOGS',
+  DOGS8 = 'DOGS8',
   HORSES = 'HORSES',
 }
 
@@ -256,6 +322,7 @@ export function getAPIUrlForDiscipline(discipline: Discipline): string {
     case Discipline.SOCCER:
       return API_URLS.SOCCER
     case Discipline.DOGS:
+    case Discipline.DOGS8:
     case Discipline.HORSES:
       return API_URLS.PGVIRTUAL
     default:
@@ -326,7 +393,7 @@ export async function fetchCashierInit(
 // Colori delle pettorine per cani e cavalli con codici colore esadecimali
 export function getRacerColors(
   racerNumber: number,
-  discipline: 'DOGS' | 'HORSES',
+  discipline: 'DOGS' | 'DOGS8' | 'HORSES',
 ) {
   if (discipline === 'HORSES') {
     switch (racerNumber) {
@@ -442,6 +509,87 @@ export function getRacerColors(
             textShadow:
               '2px 0 0 #fff, -2px 0 0 #fff, 0 2px 0 #fff, 0 -2px 0 #fff, 1px 1px #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff',
           },
+        }
+      default:
+        return {
+          bg: '#CCCCCC',
+          text: '#000000',
+          border: '1px solid #CCCCCC',
+          style: {
+            backgroundColor: '#CCCCCC',
+            color: '#000000',
+            border: '1px solid #CCCCCC',
+          },
+        }
+    }
+  } else if (discipline === 'DOGS8') {
+    switch (racerNumber) {
+      case 1:
+        return {
+          bg: '#FF0000',
+          text: '#FFFFFF',
+          border: '',
+          style: { backgroundColor: '#FF0000', color: '#FFFFFF' },
+        }
+      case 2:
+        return {
+          bg: '#0000FF',
+          text: '#FFFFFF',
+          border: '',
+          style: { backgroundColor: '#0000FF', color: '#FFFFFF' },
+        }
+      case 3:
+        return {
+          bg: '#FFFFFF',
+          text: '#000000',
+          border: '1px solid #000000',
+          style: {
+            backgroundColor: '#FFFFFF',
+            color: '#000000',
+            border: '1px solid #000000',
+          },
+        }
+      case 4:
+        return {
+          bg: '#287957',
+          text: '#FFFFFF',
+          border: '',
+          style: { backgroundColor: '#287957', color: '#FFFFFF' },
+        }
+      case 5:
+        return {
+          bg: '#000000',
+          text: '#FFBB00',
+          border: '',
+          style: { backgroundColor: '#000000', color: '#FFBB00' },
+        }
+      case 6:
+        return {
+          bg: '#FFBB00',
+          text: '#000000',
+          border: '',
+          style: { backgroundColor: '#FFBB00', color: '#000000' },
+        }
+      case 7:
+        return {
+          bg: '#1D6647',
+          text: '#000000',
+          border: '1px solid #000000',
+          style: {
+            background:
+              'linear-gradient(0deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 8.333333333%, rgba(29,102,71,1) 8.333333334%, rgba(29,102,71,1) 25.000000001%, rgba(255,255,255,1) 25.000000002%, rgba(255,255,255,1) 41.666666669%, rgba(29,102,71,1) 41.66666667%, rgba(29,102,71,1) 58.333333337%, rgba(255,255,255,1) 58.333333338%, rgba(255,255,255,1) 75.000000005%, rgba(29,102,71,1) 75.000000006%, rgba(29,102,71,1) 91.666666673%, rgba(255,255,255,1) 91.666666674%, rgba(255,255,255,1) 100%)',
+            color: '#000000',
+            border: '1px solid #000000',
+            textShadow:
+              '2px 0 0 #fff, -2px 0 0 #fff, 0 2px 0 #fff, 0 -2px 0 #fff, 1px 1px #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff',
+          },
+        }
+      case 8:
+        return {
+          bg: '#000000',
+          text: '#FF0000',
+          border: '',
+          style: { backgroundColor: '#000000', color: '#FF0000' },
         }
       default:
         return {

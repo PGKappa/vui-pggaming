@@ -299,13 +299,15 @@ export default function Leaderboard({
   const handleToggle = () => {
     const newExpandedState = !isExpanded
     onToggle(newExpandedState)
-    
+
     // Quando si apre la Leaderboard, scrolla la pagina principale della metà
     if (newExpandedState) {
       setTimeout(() => {
         // Trova il contenitore di scroll principale (pageScrollRef)
-        const pageScroll = document.querySelector('[class*="overflow-y-scroll"][class*="no-scrollbar"]') as HTMLDivElement
-        
+        const pageScroll = document.querySelector(
+          '[class*="overflow-y-scroll"][class*="no-scrollbar"]',
+        ) as HTMLDivElement
+
         if (pageScroll) {
           // Scrolla della metà dell'altezza della Leaderboard (400px = metà di 800px)
           const currentScroll = pageScroll.scrollTop
@@ -326,7 +328,7 @@ export default function Leaderboard({
             className="flex h-[41px] cursor-pointer flex-row items-center px-5"
             onClick={handleToggle}
           >
-            <CardTitle className="justify-start text-[16px] font-bold realtive bottom-[1px]">
+            <CardTitle className="realtive bottom-[1px] justify-start text-[16px] font-bold">
               {t('standings').toUpperCase()}
             </CardTitle>
             <Button variant="ghost" size="icon-lg">
@@ -341,14 +343,14 @@ export default function Leaderboard({
       </div>
 
       {isExpanded && (
-        <div className="bg-background relative h-[800px] overflow-hidden">
+        <div className="relative h-[800px] overflow-hidden bg-background">
           <div className="h-full overflow-hidden">
             <div
               ref={leaderboardScrollRef}
-              className="h-full overflow-y-scroll no-scrollbar"
+              className="no-scrollbar h-full overflow-y-scroll"
             >
               <div className="sticky top-0 z-30 bg-card-header">
-                <div className="grid h-[51px] grid-cols-11 [&_div]:flex [&_div]:items-center [&_div]:justify-center [&_div]:font-bold [&_div]:text-card-header-foreground text-[16px]">
+                <div className="grid h-[51px] grid-cols-11 text-[16px] [&_div]:flex [&_div]:items-center [&_div]:justify-center [&_div]:font-bold [&_div]:text-card-header-foreground">
                   <div className="p-2 text-center"></div>
                   <div className="p-2 text-center">{t('club')}</div>
                   <div className="p-2 text-center">{t('p')}</div>
@@ -370,7 +372,7 @@ export default function Leaderboard({
                       {displayRankings.map((ranking) => (
                         <tr
                           key={ranking.team}
-                          className="grid grid-cols-11 border-b border-border md:grid-cols-11 h-[51px]"
+                          className="grid h-[51px] grid-cols-11 border-b border-border md:grid-cols-11"
                         >
                           <td className="p-3 text-center font-bold">
                             {ranking.position}
@@ -385,7 +387,9 @@ export default function Leaderboard({
                           <td className="p-3 text-center font-bold">
                             {ranking.points}
                           </td>
-                          <td className="p-3 text-center">{ranking.goalsFor}</td>
+                          <td className="p-3 text-center">
+                            {ranking.goalsFor}
+                          </td>
                           <td className="p-3 text-center">
                             {ranking.goalsAgainst}
                           </td>
@@ -424,7 +428,7 @@ export default function Leaderboard({
           </div>
 
           {/* Scrollbar custom per Leaderboard */}
-          <div className="absolute right-0 top-0 h-full pointer-events-none">
+          <div className="pointer-events-none absolute right-0 top-0 h-full">
             <CustomScrollbar contentRef={leaderboardScrollRef} />
           </div>
         </div>
