@@ -1463,18 +1463,6 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
             )}
           </div>
 
-          {(eventResult.discipline === Discipline.DOGS ||
-            eventResult.discipline === Discipline.HORSES) && (
-            <div className="flex justify-center pb-11 relative bottom-[14px] ">
-              <Button
-                onClick={fetchReplay}
-                disabled={loadingReplay}
-                className="h-[50px] w-[300px] bg-green-600 text-[18px] font-bold text-white shadow-lg hover:bg-green-700"
-              >
-                {loadingReplay ? <LoadingSpinner /> : t('show_replay')}
-              </Button>
-            </div>
-          )}
         </div>
       )
     }
