@@ -68,19 +68,8 @@ export function UpcomingEventsCarousel(props: {
     }, 0)
   }, [filteredAndSortedEvents, nowMs])
 
-  useEffect(() => {
-    if (filteredAndSortedEvents.length === 0) return
-    const selectedEventStillExists = props.selectedEvent
-      ? filteredAndSortedEvents.some(
-          (event) =>
-            event.id === props.selectedEvent?.id &&
-            event.discipline === props.selectedEvent?.discipline,
-        )
-      : false
-    if (!props.selectedEvent || !selectedEventStillExists) {
-      props.setSelectedEvent(filteredAndSortedEvents[0])
-    }
-  }, [filteredAndSortedEvents, props])
+  // Auto-selezione RIMOSSA: la logica è gestita SOLO dalla pagina (pickEvent)
+  // per evitare competizione tra meccanismi multipli
 
   return (
     <Carousel
@@ -166,7 +155,7 @@ function UpcomingEventItem(props: {
 
   return (
     <CarouselItem
-      className={`relative flex h-[88px] ${layout.carousel.itemBasis} cursor-pointer flex-row items-center justify-center overflow-hidden border-l-8 border-l-background px-2 py-2 text-[15px] last:border-r-background hover:opacity-95 ${
+      className={`relative flex h-[88px] ${layout.carousel.itemBasis} cursor-pointer flex-row items-center hover:opacity-95 justify-center overflow-hidden border-l-8 border-l-background px-2 py-2 text-[15px] last:border-r-background ${
         event.id === props.selectedEvent?.id &&
         event.discipline === props.selectedEvent?.discipline
           ? 'bg-selectedEvent text-tertiary-foreground'
@@ -222,7 +211,7 @@ function UpcomingEventItem(props: {
 
       <Progress
         value={progressValue}
-        className={`pointer-events-none absolute inset-x-0 bottom-0 ${progressBarHeight} bg-loading1 rounded-none`}
+        className={`pointer-events-none absolute inset-x-0 bottom-0 ${progressBarHeight} rounded-none bg-loading1`}
         indicatorClassName="bg-loading2"
       />
     </CarouselItem>

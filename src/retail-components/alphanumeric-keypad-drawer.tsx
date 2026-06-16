@@ -171,7 +171,7 @@ export default function AlphanumericKeypadDrawer(props: {
           <Input
             type="text"
             value={value}
-            className="h-10 w-full bg-white pl-10 text-center text-[16px] font-normal text-black placeholder:text-black"
+            className="h-10 w-full bg-white pl-10 text-center text-[16px] font-normal text-black placeholder:text-black tabular-nums"
             placeholder={props.placeholder || 'FASTBET'}
             readOnly
             onClick={openDrawer}
@@ -179,8 +179,8 @@ export default function AlphanumericKeypadDrawer(props: {
         </div>
       </DrawerTrigger>
 
-      <DrawerContent className="w-[calc(100vw-420px)] ml-[8px] border-0">
-        <DrawerHeader className="relative bg-secondary text-accent-foreground">
+      <DrawerContent className="w-[calc(100vw-420px)]  mt-[196px] ml-[8px] border-0">
+        <DrawerHeader className="relative bg-accent text-accent-foreground">
           <DrawerTitle className="pt-1 text-center text-accent-foreground">
             {props.placeholder || 'FASTBET'}
           </DrawerTitle>
@@ -191,13 +191,12 @@ export default function AlphanumericKeypadDrawer(props: {
             className="absolute right-2 top-2 bg-transparent"
           >
             <ChevronDown
-              className="relative bottom-1 h-5 w-5 bg-transparent"
-              style={{ scale: 1.7 }}
+              className="relative bottom-1 bg-transparent !size-6"
             />
           </Button>
         </DrawerHeader>
 
-        <div className="flex flex-col space-x-3 space-y-3 p-3">
+        <div className="flex flex-col space-y-3 p-3">
           {/* Number Row */}
           <div className="grid grid-cols-11 gap-2">
             {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'].map((num) => (
@@ -216,7 +215,7 @@ export default function AlphanumericKeypadDrawer(props: {
               onClick={handleDelete}
               className="h-12 w-full px-1"
             >
-              <Delete className="h-5 w-5" style={{ scale: 2 }} />
+              <Delete className="h-5 w-5 bg-transparent" style={{ zoom: 2 }} />
             </Button>
           </div>
 
@@ -284,7 +283,7 @@ export default function AlphanumericKeypadDrawer(props: {
             <Button
               variant="outline"
               size="lg"
-              className="col-span-2 h-12 bg-tertiary text-[18px] font-semibold text-accent-foreground hover:opacity-95 border-0"
+              className="col-span-2 h-12 bg-secondary text-[18px] font-semibold text-accent-foreground hover:opacity-95 border-0"
               onClick={handleSubmit}
             >
               {t('enter')}

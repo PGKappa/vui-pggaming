@@ -89,8 +89,8 @@ export default function LatecomersDialog({
         <div className="p-0">
           {latecomersData.length > 0 ? (
             <Table style={{ borderCollapse: 'collapse' }}>
-              <TableHeader className="h-[64px] bg-secondary text-secondary-foreground">
-                <TableRow>
+              <TableHeader className="bg-secondary text-secondary-foreground">
+                  <TableRow className="h-16">
                   <TableHead className="w-1/3 border-r border-border text-center text-[16px] font-bold">
                     {t('market')}
                   </TableHead>

@@ -82,6 +82,10 @@
 
     --footer-betslip: 353 100% 44%;
     --footer-betslip-foreground: 0 0% 100%;
+
+    --ticket-won: 142 71% 45%;
+    --ticket-lost: 0 72% 51%;
+    --ticket-active: 48 96% 53%;
   }
 
   .sportradar {
@@ -149,6 +153,10 @@
 
     --footer-betslip: 358 100% 62%;
     --footer-betslip-foreground: 0 0% 100%;
+
+    --ticket-won: 142 71% 45%;
+    --ticket-lost: 0 72% 51%;
+    --ticket-active: 48 96% 53%;
   }
 
   .dp {
@@ -216,6 +224,10 @@
 
     --footer-betslip: 358 100% 62%;
     --footer-betslip-foreground: 0 0% 100%;
+
+    --ticket-won: 142 71% 45%;
+    --ticket-lost: 0 72% 51%;
+    --ticket-active: 48 96% 53%;
   }
 
   .sc {
@@ -283,6 +295,10 @@
 
     --footer-betslip: 358 100% 62%;
     --footer-betslip-foreground: 0 0% 100%;
+
+    --ticket-won: 142 71% 45%;
+    --ticket-lost: 0 72% 51%;
+    --ticket-active: 48 96% 53%;
   }
 
   .retail-default {
@@ -331,11 +347,12 @@
     --bet-foreground: 0 0% 100%;
 
     --selected-event: 211 65% 37%;
-    
+
     --carousel-arrow: 211 57% 51%;
 
     --betSlip: 0 0% 62%;
     --betSlip-foreground: 0 0% 0%;
+
     --betSlip-header: 207 18% 76%;
     --betSlip-header-foreground: 0 0% 100%;
 
@@ -362,11 +379,84 @@
 
     --footer-betslip: 353 100% 44%;
     --footer-betslip-foreground: 0 0% 100%;
+
+    --navbarBg: 212 62% 23%;
+    --navbarBg-foreground: 0 0% 0%;
+
+    --amountHeader: 212 62% 23%;
+    --amountHeader-foreground: 0 0% 100%;
+
+    --searchResultText: 0 0% 0%;
+    --searchResultText-foreground: 0 0% 100%;
+
+    --betslipTitleBackground1: 212 62% 23%;
+    --betslipTitleBackground1-foreground: 207 18% 76%;
+
+    --betslipTitleBackground2: 212 62% 23%;
+    --betslipTitleBackground2-foreground: 0 0% 100%;
+
+    --backgroundBetslip: 0 0% 100%;
+    --backgroundBetslip-foreground: 0 0% 100%;
+
+    --loading1: 207 18% 76%;
+    --loading1-foreground: 0 0% 0%;
+
+    --loading2: 212 58% 51%;
+    --loading2-foreground: 0 0% 100%;
+
+    --infoBackground: 353 100% 44%;
+    --infoBackground-foreground: 0 0% 100%;
+
+    --betslipBorder: 207 18% 76%;
+    --betslipBorder-foreground: 0 0% 0%;
+
+    --betslipBorder2: 212 62% 23%;
+    --betslipBorder2-foreground: 0 0% 0%;
+
+    --disabledButton: 353 100% 44%;
+    --disabledButton-foreground: 0 0% 0%;
+
+    --searchResButton: 212 58% 51%;
+    --searchResButton-foreground: 0 0% 100%;
+
+    --plusButton: 353 100% 44%;
+    --plusButton-foreground: 0 0% 100%;
+
+    --minusButtonDark: 0, 0%, 20%;
+    --minusButtonDark-foreground: 0 0% 100%;
+
+    --notCollected: 25, 95%, 53%;
+    --notCollected-foreground: 0 0% 0%;
+
+    --replay: 206, 61%, 18%;
+    --replay-foreground: 0 0% 100%;  
+
+    --navbarHover: 233, 12%, 29%;
+    --navbarHover-foreground: 0 0% 100%;
+
+    --betHover: 234, 5%, 43%;
+    --betHover-foreground: 0 0% 100%;
+
+    --ticket-won: 142 71% 45%;
+    --ticket-lost: 0 72% 51%;
+    --ticket-active: 48 96% 53%;
   }
-  
+
   .stanleybet {
     --background: 0 0% 100%;
     --foreground: 0 0% 0%;
+
+    --amountHeader: 0 0% 100%;
+    --amountHeader-foreground: 0 0% 100%;
+
+    --searchResultText: 0 0% 100%;
+    --searchResultText-foreground: 0 0% 100%;
+
+    --navbarBg: 0 0% 0%;
+    --navbarBg-foreground: 0 0% 0%;
+
+    --navbarHover: 233, 12%, 29%;
+    --navbarHover-foreground: 0 0% 100%;
 
     --card: 0 0% 100%;
     --card-foreground: 0 0% 0%;
@@ -379,8 +469,11 @@
     --secondary: 233 6% 25%;
     --secondary-foreground: 0 0% 90%;
 
-    --tertiary: 353 100% 36%;
+    --tertiary: 0 100% 40%;
     --tertiary-foreground: 0 0% 100%;
+
+    --searchResButton: 0, 100%, 50%;
+    --searchResButton-foreground: 0 0% 100%;
 
     --muted: 353 100% 25%;
     --muted-foreground: 220 12% 95%;
@@ -395,6 +488,12 @@
 
     --badge-background: 211 34% 48%;
     --badge-foreground: 0 0% 100%;
+
+    --betHover: 234, 5%, 43%;
+    --betHover-foreground: 0 0% 100%;
+
+    --replay: 206, 61%, 18%;
+    --replay-foreground: 0 0% 100%;    
 
     --betEntry-background: 0 0% 90%;
     --betEntry-foreground: 0 0% 0%;
@@ -440,8 +539,8 @@
 
     --loading1: 210, 3%, 47%;
     --loading1-foreground: 0 0% 0%;
-    
-    --loading2: 233 6% 25%;
+
+    --loading2: 0 0% 10%;
     --loading2-foreground: 0 0% 100%;
 
     --backgroundBetslip: 233 6% 25%;
@@ -461,8 +560,36 @@
     --footer-betslip: 353 100% 44%;
     --footer-betslip-foreground: 0 0% 100%;
 
-    --betslipTitleBackground: 0, 0%, 93%;
-    --betslipTitleBackground-foreground: 0 0% 100%;
+    --betslipTitleBackground1: 0, 0%, 93%;
+    --betslipTitleBackground1-foreground: 353 100% 44%;
+
+    --betslipTitleBackground2: 0, 0%, 93%;
+    --betslipTitleBackground2-foreground: 0 0% 0%;
+
+    --betslipBorder: 353 100% 44%;
+    --betslipBorder-foreground: 0 0% 0%;
+
+    --betslipBorder2: 0, 0%, 93%;
+    --betslipBorder2-foreground: 0 0% 0%;
+
+    --disabledButton: 210, 3%, 35%;
+    --disabledButton-foreground: 0 0% 0%;
+
+    --plusButton: 184, 100%, 33%;
+    --plusButton-foreground: 0 0% 100%;
+
+    --minusButton: 0, 0%, 27%;
+    --minusButton-foreground: 0 0% 100%;
+
+    --minusButtonDark: 0, 0%, 20%;
+    --minusButtonDark-foreground: 0 0% 100%;
+
+    --notCollected: 25, 95%, 53%;
+    --notCollected-foreground: 0 0% 0%;
+
+    --ticket-won: 142 71% 45%;
+    --ticket-lost: 0 72% 51%;
+    --ticket-active: 48 96% 53%;
   }
 }
 
@@ -569,17 +696,46 @@
 }
 
 
-body > main > div > div > div.h-\[950px\].w-\[400px\].relative.right-1.shrink-0.bg-background.text-foreground > div > div.grid.grid-cols-2.text-center > div.relative.top-\[5px\].col-span-2.flex.h-\[52px\].w-full.flex-row.items-center.justify-between.bg-accent.px-5 > button{
+body>main>div>div>div.h-\[950px\].w-\[400px\].relative.right-1.shrink-0.bg-background.text-foreground>div>div.grid.grid-cols-2.text-center>div.relative.top-\[5px\].col-span-2.flex.h-\[52px\].w-full.flex-row.items-center.justify-between.bg-accent.px-5>button {
   background: transparent;
 }
 
 
-#radix-\:r7\: > div.grid.gap-1\.5.p-4.text-center.sm\:text-left.h-\[45px\].relative.bg-secondary.text-accent-foreground > button{
+#radix-\:r7\:>div.grid.gap-1\.5.p-4.text-center.sm\:text-left.h-\[45px\].relative.bg-secondary.text-accent-foreground>button {
   background: transparent;
 }
 
 
-body > main > div > div > div.h-\[950px\].w-\[400px\].relative.right-1.shrink-0.bg-background.text-foreground > div > div.p-0.pt-0.relative.mb-\[26px\].flex.flex-col.bg-backgroundBetslip > div.relative.top-3.w-full > div{
+body>main>div>div>div.h-\[950px\].w-\[400px\].relative.right-1.shrink-0.bg-background.text-foreground>div>div.p-0.pt-0.relative.mb-\[26px\].flex.flex-col.bg-backgroundBetslip>div.relative.top-3.w-full>div {
   background-color: white;
-  
+  position: relative;
+  bottom: 8px;
 }
+
+
+
+
+
+
+
+
+[data-vaul-drawer][data-vaul-snap-points="false"][data-vaul-drawer-direction="bottom"][data-state="open"] {
+  top: 451px;
+}
+
+
+
+#radix-\:reg\: {
+  margin-top: 150px;
+}
+
+
+[data-vaul-drawer][data-vaul-drawer-direction=bottom]::after {
+  visibility: hidden;
+}
+
+body > div.relative.z-50.flex.h-16.w-full.flex-row.items-center.justify-start.bg-navbarBg.p-3 > div.relative.left-1.flex.w-full.justify-end.space-x-2 > button.flex.h-12.w-12.items-center.justify-center.bg-transparent > svg > path{
+  background: transparent !important;
+}
+
+

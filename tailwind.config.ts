@@ -18,6 +18,7 @@ export default {
     './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/retail-components/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/retail-lib/**/*.{js,ts,jsx,tsx}',
     './src/retail-lib/layout-config.ts',
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
@@ -89,6 +90,23 @@ export default {
           DEFAULT: 'hsl(var(--badge-background))',
           foreground: 'hsl(var(--badge-foreground))',
         },
+        replay: {
+          DEFAULT: 'hsl(var(--replay))',
+          foreground: 'hsl(var(--replay-foreground))',
+        },
+        navbarHover: {
+          DEFAULT: 'hsl(var(--navbarHover))',
+          foreground: 'hsl(var(--navbarHover-foreground))',
+        },
+        betHover: {
+          DEFAULT: 'hsl(var(--betHover))',
+          foreground: 'hsl(var(--betHover-foreground))',
+        },
+        ticket: {
+          won: 'hsl(var(--ticket-won))',
+          lost: 'hsl(var(--ticket-lost))',
+          active: 'hsl(var(--ticket-active))',
+        },
         betEntry: {
           DEFAULT: 'hsl(var(--betEntry-background))',
           foreground: 'hsl(var(--betEntry-foreground))',
@@ -122,13 +140,65 @@ export default {
           DEFAULT: 'hsl(var(--infoBackground))',
           foreground: 'hsl(var(--infoBackground-foreground))',
         },
+        searchResButton: {
+          DEFAULT: 'hsl(var(--searchResButton))',
+          foreground: 'hsl(var(--searchResButton-foreground))',
+        },
         betslipTitle: {
           DEFAULT: 'hsl(var(--betslipTitle))',
           foreground: 'hsl(var(--betslipTitle-foreground))',
         },
-        betslipTitleBackground: {
-          DEFAULT: 'hsl(var(--betslipTitleBackground))',
-          foreground: 'hsl(var(--betslipTitleBackground-foreground))',
+        navbarBg: {
+          DEFAULT: 'hsl(var(--navbarBg))',
+          foreground: 'hsl(var(--navbarBg-foreground))',
+        },
+        amountHeader: {
+          DEFAULT: 'hsl(var(--amountHeader))',
+          foreground: 'hsl(var(--amountHeader-foreground))',
+        },
+        searchResultText: {
+          DEFAULT: 'hsl(var(--searchResultText))',
+          foreground: 'hsl(var(--searchResultText-foreground))',
+        },
+        amountBg: {
+          DEFAULT: 'hsl(var(--amountBg))',
+          foreground: 'hsl(var(--amountBg-foreground))',
+        },
+        betslipTitleBackground1: {
+          DEFAULT: 'hsl(var(--betslipTitleBackground1))',
+          foreground: 'hsl(var(--betslipTitleBackground1-foreground))',
+        },
+        betslipTitleBackground2: {
+          DEFAULT: 'hsl(var(--betslipTitleBackground2))',
+          foreground: 'hsl(var(--betslipTitleBackground2-foreground))',
+        },
+        plusButton: {
+          DEFAULT: 'hsl(var(--plusButton))',
+          foreground: 'hsl(var(--plusButton-foreground))',
+        },
+        minusButton: {
+          DEFAULT: 'hsl(var(--minusButton))',
+          foreground: 'hsl(var(--minusButton-foreground))',
+        },
+         notCollected: {
+          DEFAULT: 'hsl(var(--notCollected))',
+          foreground: 'hsl(var(--notCollected-foreground))',
+        },
+        minusButtonDark: {
+          DEFAULT: 'hsl(var(--minusButtonDark))',
+          foreground: 'hsl(var(--minusButtonDark-foreground))',
+        },
+        betslipBorder: {
+          DEFAULT: 'hsl(var(--betslipBorder))',
+          foreground: 'hsl(var(--betslipBorder-foreground))',
+        },
+        betslipBorder2: {
+          DEFAULT: 'hsl(var(--betslipBorder2))',
+          foreground: 'hsl(var(--betslipBorder2-foreground))',
+        },
+        disabledButton: {
+          DEFAULT: 'hsl(var(--disabledButton))',
+          foreground: 'hsl(var(--disabledButton-foreground))',
         },
         market: {
           DEFAULT: 'hsl(var(--market))',

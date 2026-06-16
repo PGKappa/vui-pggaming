@@ -3,7 +3,7 @@ name: Deploy to S3 + CloudFront
 on:
   push:
     branches:
-      - stanleybet2025
+      - stanleybet2026
 
 jobs:
   deploy:

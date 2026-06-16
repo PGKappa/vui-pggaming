@@ -1,7 +1,11 @@
 'use client'
 
 import { User } from '@/retail-lib/types'
-import { BASE_API_URL, fetchCashierInit } from '@/retail-lib/utils'
+import {
+  BASE_API_URL,
+  fetchCashierInit,
+  setRetailHeaders,
+} from '@/retail-lib/utils'
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -9,6 +13,7 @@ import { toast } from 'sonner'
 export type CashierContextType = {
   initCode?: string
   operator?: string
+  terminalId?: string
   userData?: User
   cashierData?: any
   hasCashierError?: boolean
@@ -70,7 +75,7 @@ function createContextDataFromCashierData(
     playerId: `${cashierData.configs?.user_type}-${cashierData.configs?.terminals?.[0] || 'unknown'}`,
     currency: cashierData.intl?.currency || 'EUR',
     lang: cashierData.dictInfo?.lang || 'it',
-    level: 1,
+    level: cashierData.configs?.user_type === 'operator' ? 1 : 2,
     group: [cashierData.configs?.ui_type || 'retail'],
   } as User
 
@@ -170,9 +175,9 @@ function createContextDataFromCashierData(
   }
   const getMinBet = () => {
     const minBet = cashierData.intl?.min_bet
-    if (minBet) {
+    if (minBet !== undefined && minBet !== null) {
       const parsed = typeof minBet === 'string' ? parseFloat(minBet) : minBet
-      if (!isNaN(parsed) && parsed > 0) return parsed
+      if (!isNaN(parsed) && parsed >= 0) return parsed
     }
     return 0.05
   }
@@ -284,6 +289,7 @@ export default function CashierContextProvider(props: {
 }) {
   const [initCode, setInitCode] = useState<string | undefined>(undefined)
   const [operator, setOperator] = useState<string | undefined>(undefined)
+  const [terminalId, setTerminalId] = useState<string | undefined>(undefined)
   const [cashierContext, setCashierContext] = useState<CashierContextType>(
     defaultCashierContext,
   )
@@ -297,11 +303,30 @@ export default function CashierContextProvider(props: {
     const urlInitCode = params.get('init_code')
     // Accetta sia 'operator' che 'partner' come parametro URL (operator ha precedenza)
     const urlOperator = params.get('operator') || params.get('partner')
+    const urlShopId = params.get('shopID')
+    const urlTerminalId = params.get('terminalID')
+
+    // Salva Shop-Id e Terminal-Id per tutte le API call
+    const effectiveShopId =
+      urlShopId || localStorage.getItem('shopId') || undefined
+    const effectiveTerminalId =
+      urlTerminalId || localStorage.getItem('terminalId') || undefined
+    setRetailHeaders(effectiveShopId, effectiveTerminalId)
+    setTerminalId(effectiveTerminalId)
+
+    if (!effectiveShopId) {
+      console.warn('Shop-Id is missing from URL and localStorage')
+    }
+    if (!effectiveTerminalId) {
+      console.warn('Terminal-Id is missing from URL and localStorage')
+    }
 
     if (urlInitCode) {
       // Se l'initCode è cambiato, pulisci la sessione precedente
       clearSessionStorageForNewInitCode(urlInitCode)
       setInitCode(urlInitCode)
+      if (urlShopId) localStorage.setItem('shopId', urlShopId)
+      if (urlTerminalId) localStorage.setItem('terminalId', urlTerminalId)
       if (urlOperator) {
         setOperator(urlOperator)
         localStorage.setItem('operator', urlOperator)
@@ -420,6 +445,7 @@ export default function CashierContextProvider(props: {
       ...cashierContext,
       initCode,
       operator,
+      terminalId,
       apiRequest,
       hasCashierError,
       isLoadingCashier: isLoading,
@@ -429,6 +455,7 @@ export default function CashierContextProvider(props: {
       apiRequest,
       initCode,
       operator,
+      terminalId,
       hasCashierError,
       isLoading,
     ],

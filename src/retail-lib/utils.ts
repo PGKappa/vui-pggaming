@@ -134,12 +134,22 @@ export function normalizeMarketName(market: string): string {
 
 // API URLs - direttamente nel codice per evitare problemi con env online
 export const API_URLS = {
-  PGVIRTUAL: 'https://apisuprema.pgvirtual.eu',
-  CASHIER_INIT: 'https://apisuprema.pgvirtual.eu/api/init/cashier',
+  PGVIRTUAL: 'https://api-stanleybet.pgvirtual.eu',
+  CASHIER_INIT: 'https://api-stanleybet.pgvirtual.eu/api/init/cashier',
   SOCCER: 'https://cvgl.it/football/incoming.php',
   // Base per altre chiamate se necessario
   BASE: 'https://pg-gaming.stg.startegois.com/proxy',
 } as const
+
+// Backend PGVirtual: stanleybet ha un'istanza dedicata, tutti gli altri
+// operatori (pg, domenicano, ...) condividono il backend generico "suprema"
+const STANLEYBET_BACKEND = API_URLS.PGVIRTUAL
+const SUPREMA_BACKEND = 'https://apisuprema.pgvirtual.eu'
+
+// Risolve il backend PGVirtual corretto in base all'operatore (default: suprema)
+export function getPGVirtualBaseUrl(operator?: string): string {
+  return operator === 'stanleybet' ? STANLEYBET_BACKEND : SUPREMA_BACKEND
+}
 
 // Backwards compatibility
 export const PGVIRTUAL_API_URL = API_URLS.PGVIRTUAL
@@ -254,6 +264,14 @@ export function parseAPIDate(
   }
 }
 
+// Module-level retail headers (Shop-Id, Terminal-Id) — set once at init
+const retailHeaders: Record<string, string> = {}
+
+export function setRetailHeaders(shopId?: string, terminalId?: string) {
+  if (shopId) retailHeaders['Shop-Id'] = shopId
+  if (terminalId) retailHeaders['Terminal-Id'] = terminalId
+}
+
 // Helper per chiamate API PGVirtual pulite
 export function createPGVirtualAPICall(
   endpoint: string,
@@ -277,12 +295,13 @@ export function createPGVirtualAPICall(
       authorization: `Bearer ${initCode}`,
       'content-type': 'application/json',
       operator: operator,
+      ...retailHeaders,
     },
     mode: 'cors' as const,
     credentials: 'include' as const,
   }
 
-  return fetch(`${PGVIRTUAL_API_URL}${endpoint}`, finalOptions)
+  return fetch(`${getPGVirtualBaseUrl(operator)}${endpoint}`, finalOptions)
 }
 
 // Enum per le discipline
@@ -342,13 +361,14 @@ export async function fetchCashierInit(
     throw new Error('Operator is required for Cashier initialization')
   }
 
-  const response = await fetch(API_URLS.CASHIER_INIT, {
+  const response = await fetch(`${getPGVirtualBaseUrl(operator)}/api/init/cashier`, {
     headers: {
       accept: 'application/json',
       'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
       authorization: `Bearer ${initCode}`,
       operator: operator,
       'Content-Type': 'application/json',
+      ...retailHeaders,
     },
     method: 'POST',
     mode: 'cors',

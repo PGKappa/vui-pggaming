@@ -61,16 +61,16 @@ const layoutByLanguage: Record<string, LayoutConfig> = {
     carousel: {
       itemBasis: 'basis-1/5',
       imageOffset: {
-        SOCCER: 'bottom-[1px] right-[25px]',
-        HORSES: 'bottom-[4px] right-[5px]',
-        DOGS: 'bottom-[4px] right-[12px]',
+        SOCCER: 'bottom-[4px] right-[10px]',
+        HORSES: 'bottom-[4px] right-[10px]',
+        DOGS: 'bottom-[4px] right-[18px]',
         DOGS8: 'bottom-[4px] right-[12px]',
       },
       textOffset: {
-        SOCCER: 'left-[5px] top-[3px]',
-        HORSES: 'right-[0px]',
-        DOGS: 'right-[8px]',
-        DOGS8: 'right-[8px]',
+        SOCCER: 'right-[3px]',
+        HORSES: 'left-[6px]',
+        DOGS: 'right-[2px]',
+        DOGS8: 'left-[3px]',
       },
       progressBarHeight: 'h-[7px]',
       eventNameFontSize: 'text-[13px]',
@@ -85,7 +85,7 @@ const layoutByLanguage: Record<string, LayoutConfig> = {
     },
     searchEventResults: {
       disciplineSelectLeft: 'right-11',
-      disciplineSelectMinWidth: 'min-w-[250px]',
+      disciplineSelectMinWidth: 'min-w-[240px]',
       searchBarPaddingRight: '95px',
     },
   },

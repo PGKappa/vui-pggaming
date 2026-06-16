@@ -190,7 +190,7 @@ export default function NumericKeypadDrawer(props: {
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 w-7 bg-bet p-3 text-[19px] text-bet-foreground hover:opacity-90"
+            className="disabled:bg-disabledButton disabled:text-white disabled:opacity-1 h-8 w-7 bg-minusButton p-3 text-[19px] text-white hover:opacity-90"
             disabled={displayValue <= 0}
             onClick={(e) => {
               e.stopPropagation()
@@ -209,7 +209,7 @@ export default function NumericKeypadDrawer(props: {
           <Button
             variant="ghost"
             size="sm"
-            className="h-8 w-7 bg-bet p-3 text-[19px] text-bet-foreground hover:opacity-90"
+            className="h-8 w-7 bg-plusButton p-3 text-[19px] text-bet-foreground hover:opacity-90"
             onClick={(e) => {
               e.stopPropagation()
               handlePlusMinus(incrementValue)
@@ -242,8 +242,8 @@ export default function NumericKeypadDrawer(props: {
     >
       <DrawerTrigger asChild>{renderTrigger()}</DrawerTrigger>
 
-      <DrawerContent className="ml-auto mr-2 h-[475px] w-[396px] border-0">
-        <DrawerHeader className="relative h-[45px] bg-secondary text-accent-foreground">
+      <DrawerContent className="ml-auto mr-2 h-[475px] w-[400px] border-0">
+        <DrawerHeader className="relative h-[45px] bg-accent text-accent-foreground">
           <DrawerTitle className="relative bottom-[1px] text-center text-accent-foreground">
             {props.triggerLabel || t('enter_stake_amount')}
           </DrawerTitle>
@@ -251,13 +251,13 @@ export default function NumericKeypadDrawer(props: {
             variant="ghost"
             size="icon"
             onClick={closeDrawer}
-            className="absolute right-2 top-1"
+            className="absolute right-2 top-1 bg-transparent"
           >
-            <ChevronDown className="h-5 w-5" style={{ scale: 1.5 }} />
+            <ChevronDown className="h-5 w-5 !size-6" />
           </Button>
         </DrawerHeader>
 
-        <div className="flex flex-col gap-3 p-3">
+        <div className="flex flex-col space-y-3 p-2">
           {/* Display Value */}
           <div className="flex items-center space-x-3">
             <Input
@@ -272,7 +272,7 @@ export default function NumericKeypadDrawer(props: {
               onClick={handleDelete}
               className="h-12 w-[115.34px] px-1"
             >
-              <Delete className="h-5 w-5" style={{ scale: 2 }} />
+              <Delete className="h-5 w-5" style={{ zoom: 2 }} />
             </Button>
           </div>
 
@@ -284,7 +284,14 @@ export default function NumericKeypadDrawer(props: {
             }}
           >
             {stakeButtons.map((amount, idx) => {
-              const numericAmount = typeof amount === 'number' ? amount : parseFloat(String(amount).replace(',', '.').replace(/[^\d.]/g, ''))
+              const numericAmount =
+                typeof amount === 'number'
+                  ? amount
+                  : parseFloat(
+                      String(amount)
+                        .replace(',', '.')
+                        .replace(/[^\d.]/g, ''),
+                    )
 
               if (
                 isNaN(numericAmount) ||
@@ -313,7 +320,7 @@ export default function NumericKeypadDrawer(props: {
             <Button
               variant="outline"
               size="lg"
-              className="h-12 text-[20px] font-semibold tabular-nums w-[112px] relative left-3 top-3"
+              className="relative left-3 top-3 h-12 w-[112px] text-[20px] font-semibold tabular-nums"
               onClick={() => handleNumberClick('1')}
             >
               1
@@ -413,7 +420,7 @@ export default function NumericKeypadDrawer(props: {
 
           <Button
             onClick={handleConfirm}
-            className="h-12 w-full bg-tertiary text-[18px] tabular-nums text-accent-foreground hover:opacity-95"
+            className="h-12 w-full bg-secondary text-[18px] tabular-nums text-accent-foreground hover:opacity-95"
           >
             {t('ok')}
           </Button>

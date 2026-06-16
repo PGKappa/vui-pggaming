@@ -100,7 +100,7 @@ export default function LiveMatchInfo() {
 
       try {
         const response = await fetch(
-          `https://apisuprema.pgvirtual.eu/api/event/info/${nextEvent.extId}/${nextEvent.id}`,
+          `https://api-stanleybet.pgvirtual.eu/api/event/info/${nextEvent.extId}/${nextEvent.id}`,
           {
             headers: {
               accept: 'application/json',
@@ -233,7 +233,7 @@ export default function LiveMatchInfo() {
                   onClick={() => setIsLatecomersOpen(true)}
                   title="Late Comers"
                 >
-                  <Clock style={{ scale: 1.5 }} />
+                  <Clock style={{ zoom: 1.3 }} />
                 </Button>
               )}
             </div>

@@ -4,6 +4,7 @@ import { getRacerColors, createPGVirtualAPICall } from '@/retail-lib/utils'
 import { format } from 'date-fns'
 import { t } from 'i18next'
 import Image from 'next/image'
+import { X } from 'lucide-react'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -24,11 +25,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select'
+import { getLayoutConfig } from '@/retail-lib/layout-config'
+
+function formatDateForAPI(date: Date) {
+  const day = String(date.getDate()).padStart(2, '0')
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const year = date.getFullYear()
+  return `${day}/${month}/${year}`
+}
 
 const dates = Array.from({ length: 10 }, (_, index) => {
   const date = new Date()
   date.setDate(date.getDate() - index)
-  return date.toLocaleDateString('it-IT')
+  return formatDateForAPI(date)
 })
 
 const timeSlots = [
@@ -50,9 +59,23 @@ const searchResultsCache = new Map<
 >()
 const SEARCH_CACHE_TTL_MS = 5 * 60 * 1000
 
+function getPalId(item: any): string {
+  return String(item?.ext_pal_id ?? item?.int_pal_id ?? item?.pal_id ?? '')
+}
+
+function getEventId(item: any): string {
+  return String(item?.int_event_id ?? item?.event_id ?? item?.id ?? '')
+}
+
 export default function SearchEventResults() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const rootContext = useContext(RootContext)
+  const initCode = rootContext.initCode
+  const operator = rootContext.operator
+  const timezone = rootContext.getTimezone?.() || 'Europe/Rome'
+  const { disciplineSelectMinWidth } = getLayoutConfig(
+    i18n.language,
+  ).searchEventResults
 
   const [selectedDiscipline, setSelectedDiscipline] = useState<
     Discipline | 'NONE'
@@ -80,13 +103,13 @@ export default function SearchEventResults() {
 
   const fetchDetailedEventResult = useCallback(
     async (extId: string, eventId: string) => {
-      if (!rootContext.initCode || !rootContext.operator) return null
+      if (!initCode || !operator) return null
       try {
         const response = await createPGVirtualAPICall(
           `/api/event/results/${extId}/${eventId}`,
-          rootContext.initCode,
+          initCode,
           undefined,
-          rootContext.operator,
+          operator,
         )
         if (!response.ok) {
           console.warn('Response not ok:', response.status)
@@ -100,7 +123,7 @@ export default function SearchEventResults() {
         return null
       }
     },
-    [rootContext.initCode, rootContext.operator],
+    [initCode, operator],
   )
 
   useEffect(() => {
@@ -162,7 +185,7 @@ export default function SearchEventResults() {
               '/api/event/results/list',
               rootContext.initCode,
               { method: 'POST', body: JSON.stringify(requestBody) },
-              rootContext.operator,
+              operator,
             )
             if (!response.ok) throw new Error('Failed to fetch racing events')
             const data = await response.json()
@@ -255,7 +278,7 @@ export default function SearchEventResults() {
           '/api/event/results/list',
           rootContext.initCode,
           { method: 'POST', body: JSON.stringify(requestBody) },
-          rootContext.operator,
+          operator,
         )
         if (!response.ok)
           throw new Error(`HTTP error! status: ${response.status}`)
@@ -390,9 +413,9 @@ export default function SearchEventResults() {
               startTime = new Date()
             }
             return {
-              id: result.int_event_id,
-              extId: result.ext_pal_id,
-              name: result.round_name || `Soccer Match ${result.int_event_id}`,
+              id: Number(getEventId(result)),
+              extId: getPalId(result),
+              name: result.round_name || `Soccer Match ${getEventId(result)}`,
               startTime,
               discipline: Discipline.SOCCER,
               jornada: result.round_number,
@@ -450,9 +473,9 @@ export default function SearchEventResults() {
               startTime = new Date()
             }
             return {
-              id: result.int_event_id,
-              extId: result.ext_pal_id,
-              name: result.name || `${discipline} Event ${result.int_event_id}`,
+              id: Number(getEventId(result)),
+              extId: getPalId(result),
+              name: result.name || `${discipline} Event ${getEventId(result)}`,
               startTime,
               discipline,
             } as EventResult
@@ -588,7 +611,7 @@ export default function SearchEventResults() {
 
   return (
     <div className="flex h-full flex-col gap-1">
-      <div className="flex h-16 w-full items-center gap-2 bg-accent px-[24px] min-[1400px]:px-[60px] min-[1600px]:px-[100px] min-[1750px]:px-[130px] min-[1920px]:px-[167px]">
+      <div className="flex h-16 w-full items-center gap-2 bg-accent px-[24px] min-[1400px]:px-[60px] min-[1600px]:px-[100px] min-[1750px]:px-[130px] min-[1920px]:pl-[14px] min-[1920px]:pr-[167px]">
         {/* DISCIPLINA */}
         <Select
           value={selectedDiscipline.toString()}
@@ -600,7 +623,9 @@ export default function SearchEventResults() {
             )
           }}
         >
-          <SelectTrigger className="h-[48px] min-w-0 flex-1 border-none bg-background pl-[16px] pr-[5px] text-[16px] text-foreground">
+          <SelectTrigger
+            className={`h-[48px] ${disciplineSelectMinWidth} flex-1 border-none bg-background pl-[16px] pr-[5px] text-[16px] text-foreground`}
+          >
             <SelectValue placeholder={t('sport')} />
           </SelectTrigger>
           <SelectContent className="bg-white p-0">
@@ -652,7 +677,9 @@ export default function SearchEventResults() {
           onValueChange={(value) => setSelectedDate(value)}
           disabled={lastTenGames}
         >
-          <SelectTrigger className="ml-[2px] mr-[10px] h-[48px] min-w-0 flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground">
+          <SelectTrigger
+            className={`ml-[2px] mr-[10px] h-[48px] ${disciplineSelectMinWidth} flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground`}
+          >
             <SelectValue placeholder={t('date')} />
           </SelectTrigger>
           <SelectContent className="bg-white p-0">
@@ -673,7 +700,9 @@ export default function SearchEventResults() {
           onValueChange={setSelectedTimeSlot}
           disabled={lastTenGames}
         >
-          <SelectTrigger className="mr-2 h-[48px] min-w-0 flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground">
+          <SelectTrigger
+            className={`mr-2 h-[48px] ${disciplineSelectMinWidth} flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground`}
+          >
             <SelectValue placeholder={t('time_slot')} />
           </SelectTrigger>
           <SelectContent className="bg-white p-0">
@@ -690,7 +719,7 @@ export default function SearchEventResults() {
 
         {/* CERCA */}
         <Button
-          className="ml-2 mr-4 h-[48px] min-w-0 flex-1 bg-tertiary text-[16px] font-bold text-bet-foreground hover:opacity-90"
+          className={`ml-2 mr-4 h-[48px] ${disciplineSelectMinWidth} flex-1 bg-tertiary text-[16px] font-bold text-bet-foreground hover:opacity-90`}
           disabled={selectedDiscipline === 'NONE'}
           onClick={handleSearch}
         >
@@ -699,7 +728,7 @@ export default function SearchEventResults() {
 
         {/* RESET */}
         <Button
-          className="h-[48px] min-w-0 flex-1 bg-tertiary text-[15px] text-tertiary-foreground"
+          className={`h-[48px] ${disciplineSelectMinWidth} flex-1 bg-tertiary text-[15px] text-tertiary-foreground`}
           disabled={!selectedDate && !selectedDiscipline && !selectedTimeSlot}
           onClick={handleReset}
         >
@@ -721,7 +750,7 @@ export default function SearchEventResults() {
             <ScrollArea className="pb-20">
               <Accordion
                 type="multiple"
-                className="space-y-2"
+                className="max-w-[1500px] space-y-2"
                 value={openResults}
                 onValueChange={setOpenResults}
               >
@@ -734,8 +763,8 @@ export default function SearchEventResults() {
                       className="gap-0"
                     >
                       <AccordionTrigger className="pointer-events-none border-b-0 bg-accent p-0 pl-2 text-base text-accent-foreground hover:no-underline [&[data-state=open]>svg]:-rotate-90">
-                        <div className="relative top-1.5 mb-[7px] flex h-[46px] w-full flex-row items-center justify-between gap-4 pl-[9px] uppercase tabular-nums text-white">
-                          <div className="flex flex-row items-center gap-4 pb-[5px] text-[16px] font-semibold">
+                        <div className="relative top-1.5 mb-[7px] flex h-[46px] min-w-0 flex-1 flex-row items-center justify-between space-x-4 pl-[9px] uppercase tabular-nums text-white">
+                          <div className="flex flex-row items-center space-x-4 pb-[5px] text-[16px] font-semibold">
                             <span className="whitespace-nowrap text-[16px]">
                               {eventResult.discipline === 'DOGS'
                                 ? t('dog_races_label')
@@ -777,7 +806,7 @@ export default function SearchEventResults() {
                             </span>
                           </div>
                         </div>
-                        <div className="pointer-events-auto flex items-center justify-center">
+                        <div className="pointer-events-auto flex shrink-0 items-center justify-center">
                           <svg
                             width="25"
                             height="25"
@@ -824,7 +853,56 @@ export default function SearchEventResults() {
 }
 
 function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
+  const rootContext = useContext(RootContext)
   const [detailedResult, setDetailedResult] = useState<any>(null)
+  const [showReplay, setShowReplay] = useState(false)
+  const [replayUrl, setReplayUrl] = useState<string | null>(null)
+  const [loadingReplay, setLoadingReplay] = useState(false)
+
+  const fetchReplay = useCallback(async () => {
+    if (!rootContext.initCode || !rootContext.operator || !eventResult.extId)
+      return
+    setLoadingReplay(true)
+    try {
+      const gameId =
+        eventResult.discipline === Discipline.DOGS ? 'dogs6' : 'horses6'
+      const response = await createPGVirtualAPICall(
+        '/api/event/results/replay',
+        rootContext.initCode,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            channelId: '',
+            eventId: String(eventResult.id),
+            gameId,
+            palimpsestId: eventResult.extId,
+          }),
+        },
+        rootContext.operator,
+      )
+      if (!response.ok) {
+        setLoadingReplay(false)
+        return
+      }
+      const data = await response.json()
+      console.log('Replay response:', data)
+      if (data.video?.src) {
+        setReplayUrl(data.video.src)
+        setShowReplay(true)
+      } else {
+        console.error('No video src in replay response:', data)
+      }
+    } catch (error) {
+      console.error('Error fetching replay:', error)
+    }
+    setLoadingReplay(false)
+  }, [
+    rootContext.initCode,
+    rootContext.operator,
+    eventResult.extId,
+    eventResult.id,
+    eventResult.discipline,
+  ])
 
   useEffect(() => {
     if (eventResult.result && eventResult.result.odds) {
@@ -1368,7 +1446,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
             )}
           </div>
 
-          <div className="grid grid-cols-1 gap-1">
+          <div className="grid grid-cols-1 space-x-1">
             {raceResult.raceDuration && (
               <div className="border">
                 <div className="bg-accent py-2 text-center">
@@ -1384,6 +1462,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
               </div>
             )}
           </div>
+
         </div>
       )
     }

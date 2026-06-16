@@ -17,6 +17,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -90,7 +91,7 @@ export default function EventsContextProvider(props: {
   const { t } = useTranslation()
   const pathname = usePathname()
   const cashierContext = useContext(CashierContext)
-  const { initCode, operator, getTimezone } = cashierContext
+  const { initCode, operator, getTimezone, isLoadingCashier } = cashierContext
 
   const [upcomingEvents, setUpcomingEvents] = useState<UpcomingEvent[]>([])
   const [eventResults, setEventResults] = useState<EventResult[]>([])
@@ -111,11 +112,8 @@ export default function EventsContextProvider(props: {
   )
   const [isLoadingEventDetails, setIsLoadingEventDetails] = useState(false)
 
-  // Se initCode non è ancora disponibile da CashierContext, prova localStorage
-  const effectiveInitCode =
-    initCode ||
-    (typeof window !== 'undefined' ? localStorage.getItem('initCode') : null) ||
-    undefined
+  // Usa solo initCode dal CashierContext
+  const effectiveInitCode = initCode || undefined
 
   const setActiveDrawer = useCallback((drawerId?: string) => {
     setActiveDrawerId(drawerId)
@@ -376,6 +374,7 @@ export default function EventsContextProvider(props: {
                   return {
                     id: parseInt(event.int_event_id),
                     extId: event.ext_pal_id,
+                    palimpsestId: event.ext_pal_id || event.int_pal_id,
                     duration: horseChannel.duration?.[idx] || 3,
                     name: 'Horse',
                     startTime: event.start_time,
@@ -416,7 +415,7 @@ export default function EventsContextProvider(props: {
       ? disciplines
       : [Discipline.DOGS, Discipline.DOGS8, Discipline.HORSES]
 
-    if (!effectiveInitCode || disciplines.length === 0) {
+    if (!effectiveInitCode || disciplines.length === 0 || isLoadingCashier) {
       setIsLoadingEvents(false)
       return
     }
@@ -494,7 +493,6 @@ export default function EventsContextProvider(props: {
               ? racingData.channels
               : []
 
-            // Dogs - solo next_events
             const dogChannel =
               channels.find(
                 (c: any) =>
@@ -527,6 +525,7 @@ export default function EventsContextProvider(props: {
                   return {
                     id: parseInt(event.int_event_id),
                     extId: event.ext_pal_id,
+                    palimpsestId: event.ext_pal_id || event.int_pal_id,
                     duration: dogChannel.duration?.[idx] || 3,
                     name: 'Dog',
                     startTime: event.start_time,
@@ -607,6 +606,7 @@ export default function EventsContextProvider(props: {
                   return {
                     id: parseInt(event.int_event_id),
                     extId: event.ext_pal_id,
+                    palimpsestId: event.ext_pal_id || event.int_pal_id,
                     duration: horseChannel.duration?.[idx] || 3,
                     name: 'Horse',
                     startTime: event.start_time,
@@ -834,11 +834,16 @@ export default function EventsContextProvider(props: {
     pathname,
     operator,
     effectiveInitCode,
+    isLoadingCashier,
     getTimezone,
     activeDisciplines,
     fetchEventsInBackground,
     t,
   ])
+
+  // Ref per accedere a upcomingEvents nel polling senza causare re-esecuzione
+  const upcomingEventsRef = useRef(upcomingEvents)
+  upcomingEventsRef.current = upcomingEvents
 
   // Polling periodico per mantenere il carosello aggiornato
   useEffect(() => {
@@ -873,7 +878,7 @@ export default function EventsContextProvider(props: {
       const now = new Date()
 
       // Conta gli eventi futuri (non ancora scaduti)
-      const futureEvents = upcomingEvents.filter((event) => {
+      const futureEvents = upcomingEventsRef.current.filter((event) => {
         const eventTime =
           event.time instanceof Date ? event.time : new Date(event.time)
         return eventTime > now
@@ -907,13 +912,7 @@ export default function EventsContextProvider(props: {
       clearInterval(checkIntervalId)
       clearInterval(pollingIntervalId)
     }
-  }, [
-    pathname,
-    effectiveInitCode,
-    operator,
-    fetchEventsInBackground,
-    upcomingEvents,
-  ])
+  }, [pathname, effectiveInitCode, operator, fetchEventsInBackground])
 
   return (
     <EventsContext.Provider
