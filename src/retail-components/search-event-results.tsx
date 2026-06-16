@@ -183,7 +183,7 @@ export default function SearchEventResults() {
             const requestBody = { gameIds: [gameIds], dateStart, dateEnd }
             const response = await createPGVirtualAPICall(
               '/api/event/results/list',
-              initCode,
+              rootContext.initCode,
               { method: 'POST', body: JSON.stringify(requestBody) },
               operator,
             )
@@ -276,7 +276,7 @@ export default function SearchEventResults() {
         }
         const response = await createPGVirtualAPICall(
           '/api/event/results/list',
-          initCode,
+          rootContext.initCode,
           { method: 'POST', body: JSON.stringify(requestBody) },
           operator,
         )
