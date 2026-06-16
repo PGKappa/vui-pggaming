@@ -70,7 +70,7 @@ const layoutByLanguage: Record<string, LayoutConfig> = {
         SOCCER: 'right-[3px]',
         HORSES: 'left-[6px]',
         DOGS: 'right-[2px]',
-        DOGS8: 'right-[8px]',
+        DOGS8: 'left-[3px]',
       },
       progressBarHeight: 'h-[7px]',
       eventNameFontSize: 'text-[13px]',
@@ -85,7 +85,7 @@ const layoutByLanguage: Record<string, LayoutConfig> = {
     },
     searchEventResults: {
       disciplineSelectLeft: 'right-11',
-      disciplineSelectMinWidth: 'min-w-[250px]',
+      disciplineSelectMinWidth: 'min-w-[240px]',
       searchBarPaddingRight: '95px',
     },
   },

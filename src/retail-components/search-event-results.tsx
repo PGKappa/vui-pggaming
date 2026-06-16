@@ -25,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select'
+import { getLayoutConfig } from '@/retail-lib/layout-config'
 
 function formatDateForAPI(date: Date) {
   const day = String(date.getDate()).padStart(2, '0')
@@ -67,11 +68,14 @@ function getEventId(item: any): string {
 }
 
 export default function SearchEventResults() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const rootContext = useContext(RootContext)
   const initCode = rootContext.initCode
   const operator = rootContext.operator
   const timezone = rootContext.getTimezone?.() || 'Europe/Rome'
+  const { disciplineSelectMinWidth } = getLayoutConfig(
+    i18n.language,
+  ).searchEventResults
 
   const [selectedDiscipline, setSelectedDiscipline] = useState<
     Discipline | 'NONE'
@@ -607,7 +611,7 @@ export default function SearchEventResults() {
 
   return (
     <div className="flex h-full flex-col gap-1">
-      <div className="flex h-16 w-full items-center gap-2 bg-accent px-[24px] min-[1400px]:px-[60px] min-[1600px]:px-[100px] min-[1750px]:px-[130px] min-[1920px]:px-[167px]">
+      <div className="flex h-16 w-full items-center gap-2 bg-accent px-[24px] min-[1400px]:px-[60px] min-[1600px]:px-[100px] min-[1750px]:px-[130px] min-[1920px]:pl-[14px] min-[1920px]:pr-[167px]">
         {/* DISCIPLINA */}
         <Select
           value={selectedDiscipline.toString()}
@@ -619,7 +623,9 @@ export default function SearchEventResults() {
             )
           }}
         >
-          <SelectTrigger className="h-[48px] min-w-0 flex-1 border-none bg-background pl-[16px] pr-[5px] text-[16px] text-foreground">
+          <SelectTrigger
+            className={`h-[48px] ${disciplineSelectMinWidth} flex-1 border-none bg-background pl-[16px] pr-[5px] text-[16px] text-foreground`}
+          >
             <SelectValue placeholder={t('sport')} />
           </SelectTrigger>
           <SelectContent className="bg-white p-0">
@@ -671,7 +677,9 @@ export default function SearchEventResults() {
           onValueChange={(value) => setSelectedDate(value)}
           disabled={lastTenGames}
         >
-          <SelectTrigger className="ml-[2px] mr-[10px] h-[48px] min-w-0 flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground">
+          <SelectTrigger
+            className={`ml-[2px] mr-[10px] h-[48px] ${disciplineSelectMinWidth} flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground`}
+          >
             <SelectValue placeholder={t('date')} />
           </SelectTrigger>
           <SelectContent className="bg-white p-0">
@@ -692,7 +700,9 @@ export default function SearchEventResults() {
           onValueChange={setSelectedTimeSlot}
           disabled={lastTenGames}
         >
-          <SelectTrigger className="mr-2 h-[48px] min-w-0 flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground">
+          <SelectTrigger
+            className={`mr-2 h-[48px] ${disciplineSelectMinWidth} flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground`}
+          >
             <SelectValue placeholder={t('time_slot')} />
           </SelectTrigger>
           <SelectContent className="bg-white p-0">
@@ -709,7 +719,7 @@ export default function SearchEventResults() {
 
         {/* CERCA */}
         <Button
-          className="ml-2 mr-4 h-[48px] min-w-0 flex-1 bg-tertiary text-[16px] font-bold text-bet-foreground hover:opacity-90"
+          className={`ml-2 mr-4 h-[48px] ${disciplineSelectMinWidth} flex-1 bg-tertiary text-[16px] font-bold text-bet-foreground hover:opacity-90`}
           disabled={selectedDiscipline === 'NONE'}
           onClick={handleSearch}
         >
@@ -718,7 +728,7 @@ export default function SearchEventResults() {
 
         {/* RESET */}
         <Button
-          className="h-[48px] min-w-0 flex-1 bg-tertiary text-[15px] text-tertiary-foreground"
+          className={`h-[48px] ${disciplineSelectMinWidth} flex-1 bg-tertiary text-[15px] text-tertiary-foreground`}
           disabled={!selectedDate && !selectedDiscipline && !selectedTimeSlot}
           onClick={handleReset}
         >
@@ -740,7 +750,7 @@ export default function SearchEventResults() {
             <ScrollArea className="pb-20">
               <Accordion
                 type="multiple"
-                className="space-y-2"
+                className="max-w-[1500px] space-y-2"
                 value={openResults}
                 onValueChange={setOpenResults}
               >
@@ -753,7 +763,7 @@ export default function SearchEventResults() {
                       className="gap-0"
                     >
                       <AccordionTrigger className="pointer-events-none border-b-0 bg-accent p-0 pl-2 text-base text-accent-foreground hover:no-underline [&[data-state=open]>svg]:-rotate-90">
-                        <div className="relative top-1.5 mb-[7px] flex h-[46px] w-full flex-row items-center justify-between space-x-4 pl-[9px] uppercase tabular-nums text-white">
+                        <div className="relative top-1.5 mb-[7px] flex h-[46px] min-w-0 flex-1 flex-row items-center justify-between space-x-4 pl-[9px] uppercase tabular-nums text-white">
                           <div className="flex flex-row items-center space-x-4 pb-[5px] text-[16px] font-semibold">
                             <span className="whitespace-nowrap text-[16px]">
                               {eventResult.discipline === 'DOGS'
@@ -796,7 +806,7 @@ export default function SearchEventResults() {
                             </span>
                           </div>
                         </div>
-                        <div className="pointer-events-auto flex items-center justify-center">
+                        <div className="pointer-events-auto flex shrink-0 items-center justify-center">
                           <svg
                             width="25"
                             height="25"
@@ -1455,7 +1465,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
 
           {(eventResult.discipline === Discipline.DOGS ||
             eventResult.discipline === Discipline.HORSES) && (
-            <div className="flex justify-center pb-11 relative bottom-[23px] ">
+            <div className="flex justify-center pb-11 relative bottom-[14px] ">
               <Button
                 onClick={fetchReplay}
                 disabled={loadingReplay}

@@ -141,18 +141,14 @@ export const API_URLS = {
   BASE: 'https://pg-gaming.stg.startegois.com/proxy',
 } as const
 
-// Backend PGVirtual per operatore: ogni operatore ha la propria istanza
-const PGVIRTUAL_BACKENDS = {
-  stanleybet: API_URLS.PGVIRTUAL,
-  pg: 'https://apisuprema.pgvirtual.eu',
-} as const
+// Backend PGVirtual: stanleybet ha un'istanza dedicata, tutti gli altri
+// operatori (pg, domenicano, ...) condividono il backend generico "suprema"
+const STANLEYBET_BACKEND = API_URLS.PGVIRTUAL
+const SUPREMA_BACKEND = 'https://apisuprema.pgvirtual.eu'
 
-// Risolve il backend PGVirtual corretto in base all'operatore (default: stanleybet)
+// Risolve il backend PGVirtual corretto in base all'operatore (default: suprema)
 export function getPGVirtualBaseUrl(operator?: string): string {
-  return (
-    PGVIRTUAL_BACKENDS[operator as keyof typeof PGVIRTUAL_BACKENDS] ??
-    PGVIRTUAL_BACKENDS.stanleybet
-  )
+  return operator === 'stanleybet' ? STANLEYBET_BACKEND : SUPREMA_BACKEND
 }
 
 // Backwards compatibility
