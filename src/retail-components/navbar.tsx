@@ -47,7 +47,7 @@ function NavbarContent() {
         <Link
           href={buildHref('/retail/dogs-horses')}
           className={cn(
-            'flex h-12 w-28 flex-row items-center justify-between px-4 py-1 text-foreground transition-colors hover:opacity-90',
+            'flex h-12 w-24 flex-row items-center justify-between px-4 py-1 text-foreground transition-colors hover:opacity-90',
             pathname.includes('/retail/dogs-horses')
               ? 'bg-tertiary'
               : 'bg-secondary',
@@ -93,7 +93,7 @@ function NavbarContent() {
         <Link
           href={buildHref('/retail/dogs8')}
           className={cn(
-            'flex h-12 w-28 flex-row items-center justify-center gap-1 px-3 py-1 text-foreground transition-colors hover:opacity-90',
+            'flex h-12 w-24 flex-row items-center justify-center gap-1 px-3 py-1 text-foreground transition-colors hover:opacity-90',
             pathname.includes('/retail/dogs8') ? 'bg-tertiary' : 'bg-secondary',
           )}
         >
