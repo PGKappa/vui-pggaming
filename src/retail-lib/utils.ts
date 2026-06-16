@@ -76,6 +76,20 @@ export const API_URLS = {
   BASE: 'https://pg-gaming.stg.startegois.com/proxy',
 } as const
 
+// Backend PGVirtual per operatore: ogni operatore ha la propria istanza
+const PGVIRTUAL_BACKENDS = {
+  stanleybet: API_URLS.PGVIRTUAL,
+  pg: 'https://apisuprema.pgvirtual.eu',
+} as const
+
+// Risolve il backend PGVirtual corretto in base all'operatore (default: stanleybet)
+export function getPGVirtualBaseUrl(operator?: string): string {
+  return (
+    PGVIRTUAL_BACKENDS[operator as keyof typeof PGVIRTUAL_BACKENDS] ??
+    PGVIRTUAL_BACKENDS.stanleybet
+  )
+}
+
 // Backwards compatibility
 export const PGVIRTUAL_API_URL = API_URLS.PGVIRTUAL
 export const CASHIER_API_URL = API_URLS.CASHIER_INIT
@@ -226,7 +240,7 @@ export function createPGVirtualAPICall(
     credentials: 'include' as const,
   }
 
-  return fetch(`${PGVIRTUAL_API_URL}${endpoint}`, finalOptions)
+  return fetch(`${getPGVirtualBaseUrl(operator)}${endpoint}`, finalOptions)
 }
 
 // Enum per le discipline
@@ -284,7 +298,7 @@ export async function fetchCashierInit(
     throw new Error('Operator is required for Cashier initialization')
   }
 
-  const response = await fetch(API_URLS.CASHIER_INIT, {
+  const response = await fetch(`${getPGVirtualBaseUrl(operator)}/api/init/cashier`, {
     headers: {
       accept: 'application/json',
       'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
