@@ -19,12 +19,15 @@ import Image from 'next/image'
 export function UpcomingEventsCarousel(props: {
   selectedEvent?: UpcomingEvent
   setSelectedEvent: (event: UpcomingEvent) => void
+  /** Override the disciplines shown. When provided, pathname-based detection is skipped. */
+  disciplines?: Discipline[]
 }) {
   const { upcomingEvents, isLoadingEvents } = useContext(RootContext)
   const { t } = useTranslation()
   const pathname = usePathname()
 
   const disciplines = useMemo(() => {
+    if (props.disciplines) return props.disciplines
     const path = (pathname || '/').toLowerCase()
     if (path.includes('dogs-horses') || path.includes('cani-cavalli')) {
       return [Discipline.DOGS, Discipline.DOGS8, Discipline.HORSES]
@@ -38,7 +41,7 @@ export function UpcomingEventsCarousel(props: {
     } else {
       return [Discipline.SOCCER]
     }
-  }, [pathname])
+  }, [pathname, props.disciplines])
 
   const filteredAndSortedEvents = useMemo(() => {
     const events = upcomingEvents || []

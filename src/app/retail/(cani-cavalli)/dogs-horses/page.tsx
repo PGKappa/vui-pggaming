@@ -22,17 +22,21 @@ export default function Home() {
     undefined,
   )
 
-  // Always include all three racing disciplines — if a discipline has no events
-  // in upcomingEvents (e.g. this operator has no dogs8 channel), nothing extra
-  // appears. The source of truth is what the events API actually returns.
+  // Dynamically derive which disciplines are present from the actual events
+  // returned by the API. All three racing disciplines are fetched, but only
+  // the ones with real events are shown. Before events load, all three are
+  // included so nothing is hidden prematurely.
+  const activeDisciplines = useMemo((): Discipline[] => {
+    const all = [Discipline.DOGS, Discipline.DOGS8, Discipline.HORSES]
+    if (!upcomingEvents?.length) return all
+    const present = new Set(upcomingEvents.map((e) => e.discipline))
+    const filtered = all.filter((d) => present.has(d))
+    return filtered.length > 0 ? filtered : all
+  }, [upcomingEvents])
+
   const carouselEvents = useMemo(
-    () =>
-      getCarouselFilteredEvents(upcomingEvents, [
-        Discipline.DOGS,
-        Discipline.DOGS8,
-        Discipline.HORSES,
-      ]),
-    [upcomingEvents],
+    () => getCarouselFilteredEvents(upcomingEvents, activeDisciplines),
+    [upcomingEvents, activeDisciplines],
   )
 
   // SELEZIONE UNIFICATA: un solo meccanismo per evitare competizioni
@@ -70,6 +74,7 @@ export default function Home() {
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         <div className="bg-betslip flex h-[99px] w-full flex-row items-center justify-center pb-[2px] pr-2">
           <UpcomingEventsCarousel
+            disciplines={activeDisciplines}
             selectedEvent={selectedEvent}
             setSelectedEvent={(event) => {
               setSelectedEvent(event)

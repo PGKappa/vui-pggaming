@@ -265,9 +265,9 @@ export default function EventsContextProvider(props: {
             const dogChannel =
               channels.find(
                 (c: any) =>
-                  // Cerca nel game_id (dogs6) o nel name (Dog, Grey, etc) - ma NON dogs8
+                  // Match dogs6 / dog6 but NOT dogs8 — use negative lookahead on the digit
                   (typeof c?.game_id === 'string' &&
-                    /dogs?6|dog[^8]/i.test(c.game_id)) ||
+                    /^dogs?(?!8)/i.test(c.game_id)) ||
                   (typeof c?.name === 'string' &&
                     /dog|grey/i.test(c.name) &&
                     !/8/.test(c.name) &&
@@ -496,9 +496,9 @@ export default function EventsContextProvider(props: {
             const dogChannel =
               channels.find(
                 (c: any) =>
-                  // Cerca nel game_id (dogs6) o nel name (Dog, Grey, etc) - ma NON dogs8
+                  // Match dogs6 / dog6 but NOT dogs8 — use negative lookahead on the digit
                   (typeof c?.game_id === 'string' &&
-                    /dogs?6|dog[^8]/i.test(c.game_id)) ||
+                    /^dogs?(?!8)/i.test(c.game_id)) ||
                   (typeof c?.name === 'string' &&
                     /dog|grey/i.test(c.name) &&
                     !/8/.test(c.name) &&
