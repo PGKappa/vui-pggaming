@@ -22,10 +22,14 @@ export default function Home() {
     undefined,
   )
 
+  // Always include all three racing disciplines — if a discipline has no events
+  // in upcomingEvents (e.g. this operator has no dogs8 channel), nothing extra
+  // appears. The source of truth is what the events API actually returns.
   const carouselEvents = useMemo(
     () =>
       getCarouselFilteredEvents(upcomingEvents, [
         Discipline.DOGS,
+        Discipline.DOGS8,
         Discipline.HORSES,
       ]),
     [upcomingEvents],

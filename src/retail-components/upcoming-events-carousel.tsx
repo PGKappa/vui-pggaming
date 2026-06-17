@@ -27,7 +27,7 @@ export function UpcomingEventsCarousel(props: {
   const disciplines = useMemo(() => {
     const path = (pathname || '/').toLowerCase()
     if (path.includes('dogs-horses') || path.includes('cani-cavalli')) {
-      return [Discipline.DOGS, Discipline.HORSES]
+      return [Discipline.DOGS, Discipline.DOGS8, Discipline.HORSES]
     } else if (path.includes('dogs8') || path.includes('cani8')) {
       // IMPORTANTE: controllare dogs8 PRIMA di dogs!
       return [Discipline.DOGS8]
@@ -155,7 +155,7 @@ function UpcomingEventItem(props: {
 
   return (
     <CarouselItem
-      className={`relative flex h-[88px] ${layout.carousel.itemBasis} cursor-pointer flex-row items-center hover:opacity-95 justify-center overflow-hidden border-l-8 border-l-background px-2 py-2 text-[15px] last:border-r-background ${
+      className={`relative flex h-[88px] ${layout.carousel.itemBasis} cursor-pointer flex-row items-center justify-center overflow-hidden border-l-8 border-l-background px-2 py-2 text-[15px] last:border-r-background hover:opacity-95 ${
         event.id === props.selectedEvent?.id &&
         event.discipline === props.selectedEvent?.discipline
           ? 'bg-selectedEvent text-tertiary-foreground'
