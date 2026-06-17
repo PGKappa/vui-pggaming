@@ -1091,7 +1091,7 @@ export default function BettingSlip({
 
   return (
     <Card
-      className="ml-1 flex h-full w-full flex-col overflow-hidden bg-primary-foreground text-betSlip-foreground"
+      className="ml-2 flex h-full w-full flex-col overflow-hidden bg-primary-foreground text-betSlip-foreground"
       data-testid="betting-slip"
     >
       <div className="grid grid-cols-2 text-center">

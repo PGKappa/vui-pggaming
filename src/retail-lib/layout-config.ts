@@ -61,13 +61,13 @@ const layoutByLanguage: Record<string, LayoutConfig> = {
     carousel: {
       itemBasis: 'basis-1/5',
       imageOffset: {
-        SOCCER: 'bottom-[4px] right-[10px]',
+        SOCCER: 'bottom-[4px] right-[40px]',
         HORSES: 'bottom-[4px] right-[10px]',
         DOGS: 'bottom-[4px] right-[18px]',
         DOGS8: 'bottom-[4px] right-[12px]',
       },
       textOffset: {
-        SOCCER: 'right-[3px]',
+        SOCCER: 'right-[25px]',
         HORSES: 'left-[6px]',
         DOGS: 'right-[2px]',
         DOGS8: 'left-[3px]',
@@ -81,7 +81,7 @@ const layoutByLanguage: Record<string, LayoutConfig> = {
       eventIdMargin: 'mr-[220px]',
     },
     bettingSlip: {
-      combinationsButtonLeft: 'left-[238px]',
+      combinationsButtonLeft: 'left-[245px]',
     },
     searchEventResults: {
       disciplineSelectLeft: 'right-11',
