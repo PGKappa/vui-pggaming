@@ -35,6 +35,7 @@ export type RootContextType = {
   getTranslation?: (key: string, fallback?: string) => string
   getVersion?: () => string
   getSplashscreen?: () => string
+  getMaxCombinations?: () => number
   // === Da EventsContext (per backward-compatibility) ===
   upcomingEvents?: UpcomingEvent[]
   searchEventResults?: EventResult[]
@@ -60,6 +61,7 @@ const defaultRootContext: RootContextType = {
   getTranslation: (key: string, fallback?: string) => fallback || key,
   getVersion: () => 'v1.0',
   getSplashscreen: () => 'splashscreen-empty.png',
+  getMaxCombinations: () => 2048,
   isLoadingEvents: false,
   upcomingEvents: [],
   eventResults: [],
@@ -106,6 +108,7 @@ export default function RootContextProvider(props: {
       getTranslation: cashierContext.getTranslation,
       getVersion: cashierContext.getVersion,
       getSplashscreen: cashierContext.getSplashscreen,
+      getMaxCombinations: cashierContext.getMaxCombinations,
       upcomingEvents: eventsContext.upcomingEvents,
       searchEventResults: eventsContext.searchEventResults,
       setSearchEventResults: eventsContext.setSearchEventResults,
@@ -138,6 +141,7 @@ export default function RootContextProvider(props: {
       cashierContext.getTranslation,
       cashierContext.getVersion,
       cashierContext.getSplashscreen,
+      cashierContext.getMaxCombinations,
       eventsContext.upcomingEvents,
       eventsContext.searchEventResults,
       eventsContext.setSearchEventResults,
