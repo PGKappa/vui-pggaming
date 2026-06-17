@@ -1,10 +1,10 @@
 import { RootContext } from '@/retail-contexts/root-context'
 import { Discipline, EventResult, RaceResult } from '@/retail-lib/types'
 import { getRacerColors, createPGVirtualAPICall } from '@/retail-lib/utils'
+import dynamic from 'next/dynamic'
 import { format } from 'date-fns'
 import { t } from 'i18next'
 import Image from 'next/image'
-import { X } from 'lucide-react'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -25,19 +25,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select'
-import { getLayoutConfig } from '@/retail-lib/layout-config'
 
-function formatDateForAPI(date: Date) {
-  const day = String(date.getDate()).padStart(2, '0')
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const year = date.getFullYear()
-  return `${day}/${month}/${year}`
-}
+const ReactPlayer = dynamic(() => import('react-player'), { ssr: false })
 
 const dates = Array.from({ length: 10 }, (_, index) => {
   const date = new Date()
   date.setDate(date.getDate() - index)
-  return formatDateForAPI(date)
+  return date.toLocaleDateString('it-IT')
 })
 
 const timeSlots = [
@@ -59,23 +53,53 @@ const searchResultsCache = new Map<
 >()
 const SEARCH_CACHE_TTL_MS = 5 * 60 * 1000
 
-function getPalId(item: any): string {
-  return String(item?.ext_pal_id ?? item?.int_pal_id ?? item?.pal_id ?? '')
+const getReplayGameId = (discipline: Discipline): string => {
+  if (discipline === Discipline.HORSES) return 'horses6'
+  if (discipline === Discipline.DOGS8) return 'dogs8'
+  if (discipline === Discipline.DOGS) return 'dogs6'
+  return `${discipline.toLowerCase()}6`
 }
 
-function getEventId(item: any): string {
-  return String(item?.int_event_id ?? item?.event_id ?? item?.id ?? '')
+const extractReplayUrl = (payload: any): string | null => {
+  if (typeof payload === 'string' && payload.trim()) return payload.trim()
+
+  const candidates = [
+    payload?.replayUrl,
+    payload?.replay_url,
+    payload?.videoUrl,
+    payload?.video_url,
+    payload?.streamUrl,
+    payload?.stream_url,
+    payload?.url,
+    payload?.playlist,
+    payload?.hls,
+    payload?.data?.replayUrl,
+    payload?.data?.replay_url,
+    payload?.data?.videoUrl,
+    payload?.data?.video_url,
+    payload?.data?.streamUrl,
+    payload?.data?.stream_url,
+    payload?.data?.url,
+    payload?.data?.playlist,
+    payload?.data?.hls,
+    payload?.result?.replayUrl,
+    payload?.result?.videoUrl,
+    payload?.result?.streamUrl,
+    payload?.result?.url,
+  ]
+
+  for (const candidate of candidates) {
+    if (typeof candidate === 'string' && candidate.trim()) {
+      return candidate.trim()
+    }
+  }
+
+  return null
 }
 
 export default function SearchEventResults() {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const rootContext = useContext(RootContext)
-  const initCode = rootContext.initCode
-  const operator = rootContext.operator
-  const timezone = rootContext.getTimezone?.() || 'Europe/Rome'
-  const { disciplineSelectMinWidth } = getLayoutConfig(
-    i18n.language,
-  ).searchEventResults
 
   const [selectedDiscipline, setSelectedDiscipline] = useState<
     Discipline | 'NONE'
@@ -103,13 +127,13 @@ export default function SearchEventResults() {
 
   const fetchDetailedEventResult = useCallback(
     async (extId: string, eventId: string) => {
-      if (!initCode || !operator) return null
+      if (!rootContext.initCode || !rootContext.operator) return null
       try {
         const response = await createPGVirtualAPICall(
           `/api/event/results/${extId}/${eventId}`,
-          initCode,
+          rootContext.initCode,
           undefined,
-          operator,
+          rootContext.operator,
         )
         if (!response.ok) {
           console.warn('Response not ok:', response.status)
@@ -123,7 +147,7 @@ export default function SearchEventResults() {
         return null
       }
     },
-    [initCode, operator],
+    [rootContext.initCode, rootContext.operator],
   )
 
   useEffect(() => {
@@ -185,7 +209,7 @@ export default function SearchEventResults() {
               '/api/event/results/list',
               rootContext.initCode,
               { method: 'POST', body: JSON.stringify(requestBody) },
-              operator,
+              rootContext.operator,
             )
             if (!response.ok) throw new Error('Failed to fetch racing events')
             const data = await response.json()
@@ -278,7 +302,7 @@ export default function SearchEventResults() {
           '/api/event/results/list',
           rootContext.initCode,
           { method: 'POST', body: JSON.stringify(requestBody) },
-          operator,
+          rootContext.operator,
         )
         if (!response.ok)
           throw new Error(`HTTP error! status: ${response.status}`)
@@ -413,9 +437,9 @@ export default function SearchEventResults() {
               startTime = new Date()
             }
             return {
-              id: Number(getEventId(result)),
-              extId: getPalId(result),
-              name: result.round_name || `Soccer Match ${getEventId(result)}`,
+              id: result.int_event_id,
+              extId: result.ext_pal_id,
+              name: result.round_name || `Soccer Match ${result.int_event_id}`,
               startTime,
               discipline: Discipline.SOCCER,
               jornada: result.round_number,
@@ -473,9 +497,9 @@ export default function SearchEventResults() {
               startTime = new Date()
             }
             return {
-              id: Number(getEventId(result)),
-              extId: getPalId(result),
-              name: result.name || `${discipline} Event ${getEventId(result)}`,
+              id: result.int_event_id,
+              extId: result.ext_pal_id,
+              name: result.name || `${discipline} Event ${result.int_event_id}`,
               startTime,
               discipline,
             } as EventResult
@@ -611,7 +635,7 @@ export default function SearchEventResults() {
 
   return (
     <div className="flex h-full flex-col gap-1">
-      <div className="flex h-16 w-full items-center gap-2 bg-accent px-[24px] min-[1400px]:px-[60px] min-[1600px]:px-[100px] min-[1750px]:px-[130px] min-[1920px]:pl-[14px] min-[1920px]:pr-[167px]">
+      <div className="flex h-16 w-full items-center gap-2 bg-accent px-[24px] min-[1400px]:px-[60px] min-[1600px]:px-[100px] min-[1750px]:px-[130px] min-[1920px]:px-[167px]">
         {/* DISCIPLINA */}
         <Select
           value={selectedDiscipline.toString()}
@@ -623,9 +647,7 @@ export default function SearchEventResults() {
             )
           }}
         >
-          <SelectTrigger
-            className={`h-[48px] ${disciplineSelectMinWidth} flex-1 border-none bg-background pl-[16px] pr-[5px] text-[16px] text-foreground`}
-          >
+          <SelectTrigger className="h-[48px] min-w-0 flex-1 border-none bg-background pl-[16px] pr-[5px] text-[16px] text-foreground">
             <SelectValue placeholder={t('sport')} />
           </SelectTrigger>
           <SelectContent className="bg-white p-0">
@@ -677,9 +699,7 @@ export default function SearchEventResults() {
           onValueChange={(value) => setSelectedDate(value)}
           disabled={lastTenGames}
         >
-          <SelectTrigger
-            className={`ml-[2px] mr-[10px] h-[48px] ${disciplineSelectMinWidth} flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground`}
-          >
+          <SelectTrigger className="ml-[2px] mr-[10px] h-[48px] min-w-0 flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground">
             <SelectValue placeholder={t('date')} />
           </SelectTrigger>
           <SelectContent className="bg-white p-0">
@@ -700,9 +720,7 @@ export default function SearchEventResults() {
           onValueChange={setSelectedTimeSlot}
           disabled={lastTenGames}
         >
-          <SelectTrigger
-            className={`mr-2 h-[48px] ${disciplineSelectMinWidth} flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground`}
-          >
+          <SelectTrigger className="mr-2 h-[48px] min-w-0 flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground">
             <SelectValue placeholder={t('time_slot')} />
           </SelectTrigger>
           <SelectContent className="bg-white p-0">
@@ -719,7 +737,7 @@ export default function SearchEventResults() {
 
         {/* CERCA */}
         <Button
-          className={`ml-2 mr-4 h-[48px] ${disciplineSelectMinWidth} flex-1 bg-tertiary text-[16px] font-bold text-bet-foreground hover:opacity-90`}
+          className="ml-2 mr-4 h-[48px] min-w-0 flex-1 bg-tertiary text-[16px] font-bold text-bet-foreground hover:opacity-90"
           disabled={selectedDiscipline === 'NONE'}
           onClick={handleSearch}
         >
@@ -728,7 +746,7 @@ export default function SearchEventResults() {
 
         {/* RESET */}
         <Button
-          className={`h-[48px] ${disciplineSelectMinWidth} flex-1 bg-tertiary text-[15px] text-tertiary-foreground`}
+          className="h-[48px] min-w-0 flex-1 bg-tertiary text-[15px] text-tertiary-foreground"
           disabled={!selectedDate && !selectedDiscipline && !selectedTimeSlot}
           onClick={handleReset}
         >
@@ -750,7 +768,7 @@ export default function SearchEventResults() {
             <ScrollArea className="pb-20">
               <Accordion
                 type="multiple"
-                className="max-w-[1500px] space-y-2"
+                className="space-y-2"
                 value={openResults}
                 onValueChange={setOpenResults}
               >
@@ -763,8 +781,8 @@ export default function SearchEventResults() {
                       className="gap-0"
                     >
                       <AccordionTrigger className="pointer-events-none border-b-0 bg-accent p-0 pl-2 text-base text-accent-foreground hover:no-underline [&[data-state=open]>svg]:-rotate-90">
-                        <div className="relative top-1.5 mb-[7px] flex h-[46px] min-w-0 flex-1 flex-row items-center justify-between space-x-4 pl-[9px] uppercase tabular-nums text-white">
-                          <div className="flex flex-row items-center space-x-4 pb-[5px] text-[16px] font-semibold">
+                        <div className="relative top-1.5 mb-[7px] flex h-[46px] w-full flex-row items-center justify-between gap-4 pl-[9px] uppercase tabular-nums text-white">
+                          <div className="flex flex-row items-center gap-4 pb-[5px] text-[16px] font-semibold">
                             <span className="whitespace-nowrap text-[16px]">
                               {eventResult.discipline === 'DOGS'
                                 ? t('dog_races_label')
@@ -806,7 +824,7 @@ export default function SearchEventResults() {
                             </span>
                           </div>
                         </div>
-                        <div className="pointer-events-auto flex shrink-0 items-center justify-center">
+                        <div className="pointer-events-auto flex items-center justify-center">
                           <svg
                             width="25"
                             height="25"
@@ -857,52 +875,83 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
   const [detailedResult, setDetailedResult] = useState<any>(null)
   const [showReplay, setShowReplay] = useState(false)
   const [replayUrl, setReplayUrl] = useState<string | null>(null)
-  const [loadingReplay, setLoadingReplay] = useState(false)
+  const [replayLoading, setReplayLoading] = useState(false)
+  const [replayError, setReplayError] = useState<string | null>(null)
 
-  const fetchReplay = useCallback(async () => {
-    if (!rootContext.initCode || !rootContext.operator || !eventResult.extId)
+  const handleOpenReplay = useCallback(async () => {
+    setShowReplay(true)
+
+    if (replayUrl || replayLoading) return
+
+    if (!rootContext.initCode || !rootContext.operator) {
+      setReplayError(t('login_required'))
       return
-    setLoadingReplay(true)
+    }
+
+    if (!eventResult.extId) {
+      setReplayError(t('no_detailed_results'))
+      return
+    }
+
+    setReplayLoading(true)
+    setReplayError(null)
     try {
-      const gameId =
-        eventResult.discipline === Discipline.DOGS ? 'dogs6' : 'horses6'
+      const requestBody = {
+        gameId: getReplayGameId(eventResult.discipline),
+        game_id: getReplayGameId(eventResult.discipline),
+        discipline: eventResult.discipline,
+        eventId: eventResult.id,
+        int_event_id: eventResult.id,
+        extId: eventResult.extId,
+        ext_pal_id: eventResult.extId,
+      }
+
       const response = await createPGVirtualAPICall(
         '/api/event/results/replay',
         rootContext.initCode,
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            channelId: '',
-            eventId: String(eventResult.id),
-            gameId,
-            palimpsestId: eventResult.extId,
-          }),
-        },
+        { method: 'POST', body: JSON.stringify(requestBody) },
         rootContext.operator,
       )
+
       if (!response.ok) {
-        setLoadingReplay(false)
-        return
+        throw new Error(`HTTP error! status: ${response.status}`)
       }
-      const data = await response.json()
-      console.log('Replay response:', data)
-      if (data.video?.src) {
-        setReplayUrl(data.video.src)
-        setShowReplay(true)
-      } else {
-        console.error('No video src in replay response:', data)
+
+      const rawText = await response.text()
+      let parsed: any = null
+      try {
+        parsed = rawText ? JSON.parse(rawText) : null
+      } catch {
+        parsed = null
       }
-    } catch (error) {
-      console.error('Error fetching replay:', error)
+
+      const url = extractReplayUrl(parsed) || extractReplayUrl(rawText)
+      if (!url) {
+        throw new Error('Replay URL not found in API response')
+      }
+
+      setReplayUrl(url)
+    } catch {
+      setReplayError(t('failed_fetch_results'))
+    } finally {
+      setReplayLoading(false)
     }
-    setLoadingReplay(false)
   }, [
-    rootContext.initCode,
-    rootContext.operator,
+    eventResult.discipline,
     eventResult.extId,
     eventResult.id,
-    eventResult.discipline,
+    replayLoading,
+    replayUrl,
+    rootContext.initCode,
+    rootContext.operator,
   ])
+
+  useEffect(() => {
+    setShowReplay(false)
+    setReplayUrl(null)
+    setReplayError(null)
+    setReplayLoading(false)
+  }, [eventResult.id, eventResult.extId, eventResult.discipline])
 
   useEffect(() => {
     if (eventResult.result && eventResult.result.odds) {
@@ -930,6 +979,69 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
       eventResult.discipline === Discipline.DOGS8) &&
     detailedResult
   ) {
+    if (showReplay) {
+      return (
+        <div className="mb-0">
+          <div className="relative border-b border-l border-r bg-black">
+            <button
+              onClick={() => setShowReplay(false)}
+              className="absolute right-3 top-2 z-10 text-[28px] leading-none text-white hover:opacity-80"
+              aria-label="Close replay"
+            >
+              ×
+            </button>
+
+            <div className="h-[540px] w-full bg-black">
+              {replayLoading ? (
+                <div className="flex h-full items-center justify-center">
+                  <LoadingSpinner />
+                </div>
+              ) : replayError ? (
+                <div className="flex h-full flex-col items-center justify-center gap-3 p-6 text-center text-neutral-300">
+                  <div>{replayError}</div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-white/20 bg-white/5 text-white hover:bg-white/10"
+                    onClick={handleOpenReplay}
+                  >
+                    RETRY
+                  </Button>
+                </div>
+              ) : replayUrl ? (
+                <ReactPlayer
+                  url={replayUrl}
+                  controls
+                  playing
+                  width="100%"
+                  height="100%"
+                  muted={false}
+                  style={{ backgroundColor: '#000' }}
+                />
+              ) : (
+                <div className="flex h-full items-center justify-center text-neutral-300">
+                  {t('no_detailed_results')}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="border-b border-l border-r bg-background">
+            <div className="flex h-[52px] items-center justify-center">
+              <Button
+                variant="outline"
+                size="sm"
+                className="min-w-[160px] border-border bg-background text-foreground hover:bg-muted"
+                onClick={() => setShowReplay(false)}
+              >
+                RESULTS
+              </Button>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
     if (detailedResult.odds) {
       const raceResult = detailedResult as RaceResult
 
@@ -1020,7 +1132,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
       }
 
       return (
-        <div className="mb-[-48px] space-y-4">
+        <div className="mb-0 space-y-4">
           {detailedResult.arrival &&
             Array.isArray(detailedResult.arrival) &&
             detailedResult.arrival.length > 0 && (
@@ -1446,23 +1558,16 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
             )}
           </div>
 
-          <div className="grid grid-cols-1 space-x-1">
-            {raceResult.raceDuration && (
-              <div className="border">
-                <div className="bg-accent py-2 text-center">
-                  <div className="text-[16px] font-bold uppercase text-accent-foreground">
-                    {t('race_duration').toUpperCase()}
-                  </div>
-                </div>
-                <div className="p-3 text-center">
-                  <div className="text-[16px] font-semibold">
-                    {raceResult.raceDuration} {t('seconds')}
-                  </div>
-                </div>
-              </div>
-            )}
+          <div className="flex justify-center">
+            <Button
+              variant="outline"
+              size="sm"
+              className="min-w-[160px] border-border bg-background text-foreground hover:bg-muted"
+              onClick={handleOpenReplay}
+            >
+              REPLAY
+            </Button>
           </div>
-
         </div>
       )
     }
@@ -1470,8 +1575,15 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
     return (
       <div className="p-4 text-center text-muted-foreground">
         {t('event_completed_detailed_results')}
-        <div className="mt-2 text-xs">
-          DEBUG: {JSON.stringify(Object.keys(detailedResult))}
+        <div className="mt-4 flex justify-center">
+          <Button
+            variant="outline"
+            size="sm"
+            className="min-w-[140px] border-border bg-background text-foreground hover:bg-muted"
+            onClick={handleOpenReplay}
+          >
+            REPLAY
+          </Button>
         </div>
       </div>
     )
@@ -1558,6 +1670,19 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
               </div>
             </div>
           )}
+        </div>
+
+          <div className="border-b border-l border-r bg-background">
+            <div className="flex h-[52px] items-center justify-center">
+              <Button
+                variant="outline"
+                size="sm"
+                className="min-w-[160px] border-border bg-background text-foreground hover:bg-muted"
+                onClick={handleOpenReplay}
+              >
+                REPLAY
+              </Button>
+            </div>
         </div>
       </div>
     )
