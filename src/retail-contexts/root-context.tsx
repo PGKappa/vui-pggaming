@@ -1,6 +1,7 @@
 'use client'
 
 import { CashierContext } from '@/retail-contexts/cashier-context'
+import type { NavbarConfig } from '@/retail-contexts/cashier-context'
 import { EventsContext } from '@/retail-contexts/events-context'
 import { EventResult, TeamRanking, UpcomingEvent } from '@/retail-lib/types'
 import { User } from '@/retail-lib/types'
@@ -37,6 +38,7 @@ export type RootContextType = {
   getSplashscreen?: () => string
   getMaxCombinations?: () => number
   getActiveMixDisciplines?: () => string[]
+  getNavbarConfig?: () => NavbarConfig
   // === Da EventsContext (per backward-compatibility) ===
   upcomingEvents?: UpcomingEvent[]
   searchEventResults?: EventResult[]
@@ -64,6 +66,13 @@ const defaultRootContext: RootContextType = {
   getSplashscreen: () => 'splashscreen-empty.png',
   getMaxCombinations: () => 2048,
   getActiveMixDisciplines: () => ['DOGS', 'HORSES'],
+  getNavbarConfig: () => ({
+    showDogs6: true,
+    showDogs8: true,
+    showHorses: true,
+    showMix: true,
+    showFootball: true,
+  }),
   isLoadingEvents: false,
   upcomingEvents: [],
   eventResults: [],
@@ -112,6 +121,7 @@ export default function RootContextProvider(props: {
       getSplashscreen: cashierContext.getSplashscreen,
       getMaxCombinations: cashierContext.getMaxCombinations,
       getActiveMixDisciplines: cashierContext.getActiveMixDisciplines,
+      getNavbarConfig: cashierContext.getNavbarConfig,
       upcomingEvents: eventsContext.upcomingEvents,
       searchEventResults: eventsContext.searchEventResults,
       setSearchEventResults: eventsContext.setSearchEventResults,
@@ -146,6 +156,7 @@ export default function RootContextProvider(props: {
       cashierContext.getSplashscreen,
       cashierContext.getMaxCombinations,
       cashierContext.getActiveMixDisciplines,
+      cashierContext.getNavbarConfig,
       eventsContext.upcomingEvents,
       eventsContext.searchEventResults,
       eventsContext.setSearchEventResults,
