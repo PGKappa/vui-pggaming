@@ -36,6 +36,7 @@ export type RootContextType = {
   getVersion?: () => string
   getSplashscreen?: () => string
   getMaxCombinations?: () => number
+  getActiveMixDisciplines?: () => string[]
   // === Da EventsContext (per backward-compatibility) ===
   upcomingEvents?: UpcomingEvent[]
   searchEventResults?: EventResult[]
@@ -62,6 +63,7 @@ const defaultRootContext: RootContextType = {
   getVersion: () => 'v1.0',
   getSplashscreen: () => 'splashscreen-empty.png',
   getMaxCombinations: () => 2048,
+  getActiveMixDisciplines: () => ['DOGS', 'HORSES'],
   isLoadingEvents: false,
   upcomingEvents: [],
   eventResults: [],
@@ -109,6 +111,7 @@ export default function RootContextProvider(props: {
       getVersion: cashierContext.getVersion,
       getSplashscreen: cashierContext.getSplashscreen,
       getMaxCombinations: cashierContext.getMaxCombinations,
+      getActiveMixDisciplines: cashierContext.getActiveMixDisciplines,
       upcomingEvents: eventsContext.upcomingEvents,
       searchEventResults: eventsContext.searchEventResults,
       setSearchEventResults: eventsContext.setSearchEventResults,
@@ -142,6 +145,7 @@ export default function RootContextProvider(props: {
       cashierContext.getVersion,
       cashierContext.getSplashscreen,
       cashierContext.getMaxCombinations,
+      cashierContext.getActiveMixDisciplines,
       eventsContext.upcomingEvents,
       eventsContext.searchEventResults,
       eventsContext.setSearchEventResults,

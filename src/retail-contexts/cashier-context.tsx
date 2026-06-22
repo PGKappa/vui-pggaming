@@ -38,6 +38,7 @@ export type CashierContextType = {
   getVersion?: () => string
   getSplashscreen?: () => string
   getMaxCombinations?: () => number
+  getActiveMixDisciplines?: () => string[]
 }
 
 const defaultCashierContext: CashierContextType = {
@@ -58,6 +59,7 @@ const defaultCashierContext: CashierContextType = {
   getVersion: () => 'v1.0',
   getSplashscreen: () => 'splashscreen-empty.png',
   getMaxCombinations: () => 2048,
+  getActiveMixDisciplines: () => ['DOGS', 'HORSES'],
 }
 
 export const CashierContext = createContext<CashierContextType>(
@@ -202,6 +204,37 @@ function createContextDataFromCashierData(
     }
     return 2048
   }
+  // Returns which disciplines are actually present in the cashier channels
+  // for the mixed dogs-horses page. Falls back to ['DOGS','HORSES'] when no
+  // recognised channels are found (e.g. before cashier data is loaded).
+  const getActiveMixDisciplines = (): string[] => {
+    const channels: any[] = cashierData.channels || []
+    const result: string[] = []
+    const hasDogs = channels.some(
+      (c) =>
+        (typeof c?.game_id === 'string' && /dogs?6|dog[^8]/i.test(c.game_id)) ||
+        (typeof c?.name === 'string' &&
+          /dog|grey/i.test(c.name) &&
+          !/8/.test(c.name) &&
+          !/8/.test(c.game_id || '')),
+    )
+    if (hasDogs) result.push('DOGS')
+    const hasDogs8 = channels.some(
+      (c) =>
+        (typeof c?.game_id === 'string' && /dogs?8/i.test(c.game_id)) ||
+        (typeof c?.name === 'string' && /dog.*8|grey.*8/i.test(c.name)),
+    )
+    if (hasDogs8) result.push('DOGS8')
+    const hasHorses = channels.some(
+      (c) =>
+        (typeof c?.game_id === 'string' && /horse/i.test(c.game_id)) ||
+        (typeof c?.name === 'string' && /horse|cavall/i.test(c.name)),
+    )
+    if (hasHorses) result.push('HORSES')
+    // Fallback: nothing matched yet → return the minimum expected set
+    if (result.length === 0) return ['DOGS', 'HORSES']
+    return result
+  }
 
   return {
     initCode,
@@ -223,6 +256,7 @@ function createContextDataFromCashierData(
     getVersion,
     getSplashscreen,
     getMaxCombinations,
+    getActiveMixDisciplines,
   }
 }
 

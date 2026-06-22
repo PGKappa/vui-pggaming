@@ -19,15 +19,18 @@ import Image from 'next/image'
 export function UpcomingEventsCarousel(props: {
   selectedEvent?: UpcomingEvent
   setSelectedEvent: (event: UpcomingEvent) => void
+  /** Override the disciplines shown. When provided, pathname-based detection is skipped. */
+  disciplines?: Discipline[]
 }) {
   const { upcomingEvents, isLoadingEvents } = useContext(RootContext)
   const { t } = useTranslation()
   const pathname = usePathname()
 
   const disciplines = useMemo(() => {
+    if (props.disciplines) return props.disciplines
     const path = (pathname || '/').toLowerCase()
     if (path.includes('dogs-horses') || path.includes('cani-cavalli')) {
-      return [Discipline.DOGS, Discipline.HORSES]
+      return [Discipline.DOGS, Discipline.DOGS8, Discipline.HORSES]
     } else if (path.includes('dogs8') || path.includes('cani8')) {
       // IMPORTANTE: controllare dogs8 PRIMA di dogs!
       return [Discipline.DOGS8]
@@ -38,7 +41,7 @@ export function UpcomingEventsCarousel(props: {
     } else {
       return [Discipline.SOCCER]
     }
-  }, [pathname])
+  }, [pathname, props.disciplines])
 
   const filteredAndSortedEvents = useMemo(() => {
     const events = upcomingEvents || []
@@ -155,7 +158,7 @@ function UpcomingEventItem(props: {
 
   return (
     <CarouselItem
-      className={`relative flex h-[88px] ${layout.carousel.itemBasis} cursor-pointer flex-row items-center hover:opacity-95 justify-center overflow-hidden border-l-8 border-l-background px-2 py-2 text-[15px] last:border-r-background ${
+      className={`relative flex h-[88px] ${layout.carousel.itemBasis} cursor-pointer flex-row items-center justify-center overflow-hidden border-l-8 border-l-background px-2 py-2 text-[15px] last:border-r-background hover:opacity-95 ${
         event.id === props.selectedEvent?.id &&
         event.discipline === props.selectedEvent?.discipline
           ? 'bg-selectedEvent text-tertiary-foreground'

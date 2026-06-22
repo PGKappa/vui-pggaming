@@ -75,7 +75,7 @@ function getDisciplinesFromUrl(pathname: string): Discipline[] {
 
   // Support both English and Italian slugs
   if (p.includes('dogs-horses') || p.includes('cani-cavalli'))
-    return [Discipline.DOGS, Discipline.HORSES]
+    return [Discipline.DOGS, Discipline.DOGS8, Discipline.HORSES]
   if (p.includes('dogs8') || p.includes('cani8')) return [Discipline.DOGS8]
   if (p.includes('horses') || p.includes('cavalli')) return [Discipline.HORSES]
   if (p.includes('dogs') || p.includes('cani')) return [Discipline.DOGS]
@@ -265,9 +265,9 @@ export default function EventsContextProvider(props: {
             const dogChannel =
               channels.find(
                 (c: any) =>
-                  // Cerca nel game_id (dogs6) o nel name (Dog, Grey, etc) - ma NON dogs8
+                  // Match dogs6 / dog6 but NOT dogs8 — use negative lookahead on the digit
                   (typeof c?.game_id === 'string' &&
-                    /dogs?6|dog[^8]/i.test(c.game_id)) ||
+                    /^dogs?(?!8)/i.test(c.game_id)) ||
                   (typeof c?.name === 'string' &&
                     /dog|grey/i.test(c.name) &&
                     !/8/.test(c.name) &&
@@ -496,9 +496,9 @@ export default function EventsContextProvider(props: {
             const dogChannel =
               channels.find(
                 (c: any) =>
-                  // Cerca nel game_id (dogs6) o nel name (Dog, Grey, etc) - ma NON dogs8
+                  // Match dogs6 / dog6 but NOT dogs8 — use negative lookahead on the digit
                   (typeof c?.game_id === 'string' &&
-                    /dogs?6|dog[^8]/i.test(c.game_id)) ||
+                    /^dogs?(?!8)/i.test(c.game_id)) ||
                   (typeof c?.name === 'string' &&
                     /dog|grey/i.test(c.name) &&
                     !/8/.test(c.name) &&
@@ -861,12 +861,15 @@ export default function EventsContextProvider(props: {
       return
     }
 
-    // Normalizza le discipline per racing (DOGS + HORSES usano stessa API)
+    // Normalizza le discipline per racing (DOGS, DOGS8 e HORSES usano stessa API)
     const isRacing = disciplines.some(
-      (d) => d === Discipline.DOGS || d === Discipline.HORSES,
+      (d) =>
+        d === Discipline.DOGS ||
+        d === Discipline.DOGS8 ||
+        d === Discipline.HORSES,
     )
     const normalizedDisciplines = isRacing
-      ? [Discipline.DOGS, Discipline.HORSES]
+      ? [Discipline.DOGS, Discipline.DOGS8, Discipline.HORSES]
       : disciplines
 
     const cacheKey = `${effectiveInitCode}:${normalizedDisciplines.sort().join('+')}`
