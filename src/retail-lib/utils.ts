@@ -144,7 +144,7 @@ export const API_URLS = {
 // Backend PGVirtual: stanleybet ha un'istanza dedicata, tutti gli altri
 // operatori (pg, domenicano, ...) condividono il backend generico "suprema"
 const STANLEYBET_BACKEND = API_URLS.PGVIRTUAL
-const SUPREMA_BACKEND = 'https://apisuprema.pgvirtual.eu'
+const SUPREMA_BACKEND = 'https://api-btprod.pgvirtual.eu'
 
 // Risolve il backend PGVirtual corretto in base all'operatore (default: suprema)
 export function getPGVirtualBaseUrl(operator?: string): string {
