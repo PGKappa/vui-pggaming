@@ -37,6 +37,7 @@ export type CashierContextType = {
   getTranslation?: (key: string, fallback?: string) => string
   getVersion?: () => string
   getSplashscreen?: () => string
+  getMaxCombinations?: () => number
 }
 
 const defaultCashierContext: CashierContextType = {
@@ -56,6 +57,7 @@ const defaultCashierContext: CashierContextType = {
   getTranslation: (key: string, fallback?: string) => fallback || key,
   getVersion: () => 'v1.0',
   getSplashscreen: () => 'splashscreen-empty.png',
+  getMaxCombinations: () => 2048,
 }
 
 export const CashierContext = createContext<CashierContextType>(
@@ -192,6 +194,14 @@ function createContextDataFromCashierData(
   const getVersion = () => cashierData.intl?.version || 'v1.0'
   const getSplashscreen = () =>
     cashierData.intl?.splashscreen || 'splashscreen-empty.png'
+  const getMaxCombinations = () => {
+    const val = cashierData.intl?.max_combination
+    if (val !== undefined && val !== null) {
+      const parsed = typeof val === 'string' ? parseInt(val, 10) : val
+      if (!isNaN(parsed) && parsed > 0) return parsed
+    }
+    return 2048
+  }
 
   return {
     initCode,
@@ -212,6 +222,7 @@ function createContextDataFromCashierData(
     getTranslation,
     getVersion,
     getSplashscreen,
+    getMaxCombinations,
   }
 }
 
