@@ -153,7 +153,7 @@ export default function UpcomingRaceCard({
       setIsLoading(true)
       try {
         const response = await fetch(
-          `https://api-stanleybet.pgvirtual.eu/api/event/info/${race.extId}/${race.id}`,
+          `https://api-btprod.pgvirtual.eu/api/event/info/${race.extId}/${race.id}`,
           {
             headers: {
               accept: 'application/json',
