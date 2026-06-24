@@ -146,6 +146,7 @@ export default function TicketCheckDialog({
   const [paying, setPaying] = useState(false)
   const [payResult, setPayResult] = useState<string | null>(null)
   const [cddXml, setCddXml] = useState<string | null>(null)
+  const [cddRequired, setCddRequired] = useState(false)
   const [pinMode, setPinMode] = useState(false)
   const [pinInput, setPinInput] = useState('')
   const [pinError, setPinError] = useState<string | null>(null)
@@ -221,8 +222,12 @@ export default function TicketCheckDialog({
         rootContext.operator,
       )
       const data: TicketPayResponse = await response.json()
-      if (String(data.ret_code) === '1027' && data.print) {
-        handlePrintCdd(data.print)
+      console.log('[TicketPay] API response:', data)
+      if (String(data.ret_code) === '1027') {
+        setCddRequired(true)
+        if (data.print) {
+          handlePrintCdd(data.print)
+        }
         return
       }
       if (String(data.ret_code) === '1024') {
@@ -302,6 +307,7 @@ export default function TicketCheckDialog({
       setError(null)
       setPayResult(null)
       setCddXml(null)
+      setCddRequired(false)
       setPinMode(false)
       setPinInput('')
       setPinError(null)
@@ -879,11 +885,12 @@ export default function TicketCheckDialog({
                     </p>
                   )}
 
-                  {/* CDD: ristampa + PIN mode */}
-                  {statusInfo.isWinner && !statusInfo.isPaid && cddXml && (
-                    <div className="mb-4">
-                      {pinMode ? (
-                        /* PIN keypad */
+                  {/* CDD PIN keypad — only shown in body when pinMode is active */}
+                  {statusInfo.isWinner &&
+                    !statusInfo.isPaid &&
+                    (cddRequired || cddXml) &&
+                    pinMode && (
+                      <div className="mb-4">
                         <div
                           className="overflow-hidden rounded-xl"
                           style={{ background: '#2a2a2a' }}
@@ -1011,32 +1018,8 @@ export default function TicketCheckDialog({
                             </button>
                           </div>
                         </div>
-                      ) : (
-                        <div className="flex flex-col items-center gap-3 pb-2">
-                          <button
-                            className="w-full rounded-lg border-0 py-3 text-[14px] font-bold uppercase tracking-[1.5px] text-white"
-                            style={{
-                              background: '#7a5a1a',
-                              border: '2px solid #9e7a2a',
-                            }}
-                            onClick={() => handlePrintCdd(cddXml)}
-                          >
-                            {t('reprint_cdd', 'RISTAMPA CDD')}
-                          </button>
-                          <button
-                            className="w-full rounded-lg border-0 bg-accent py-3 text-[14px] font-bold uppercase tracking-[1.5px] text-white"
-                            onClick={() => {
-                              setPinMode(true)
-                              setPinInput('')
-                              setPinError(null)
-                            }}
-                          >
-                            {t('insert_pin_cdd', 'INSERISCI PIN CDD')}
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                      </div>
+                    )}
                 </div>
               </div>
 
@@ -1047,20 +1030,52 @@ export default function TicketCheckDialog({
                     {t('total_winning', 'TOTALE VINCITA')}{' '}
                     {fmt(ticketInfo.amount_won)}
                   </div>
-                  {statusInfo.isWinner && !statusInfo.isPaid && !cddXml && (
-                    <button
-                      onClick={() => setShowPayConfirm(true)}
-                      disabled={paying}
-                      className="mx-auto mb-[35px] block w-[160px] cursor-pointer rounded-lg border-0 py-3 text-center text-[15px] font-bold uppercase tracking-[2px] text-white"
-                      style={{
-                        background: '#2a2a2a',
-                        opacity: paying ? 0.5 : 1,
-                      }}
-                    >
-                      {paying ? '...' : t('pay', 'PAGA')}
-                    </button>
-                  )}
-                  {(!statusInfo.isWinner || statusInfo.isPaid || cddXml) && (
+                  {/* PAGA: winner, not paid, no CDD pending */}
+                  {statusInfo.isWinner &&
+                    !statusInfo.isPaid &&
+                    !cddRequired &&
+                    !cddXml && (
+                      <button
+                        onClick={() => setShowPayConfirm(true)}
+                        disabled={paying}
+                        className="mx-auto mb-[35px] block w-[160px] cursor-pointer rounded-lg border-0 py-3 text-center text-[15px] font-bold uppercase tracking-[2px] text-white"
+                        style={{
+                          background: '#2a2a2a',
+                          opacity: paying ? 0.5 : 1,
+                        }}
+                      >
+                        {paying ? '...' : t('pay', 'PAGA')}
+                      </button>
+                    )}
+                  {/* CDD actions: winner, not paid, CDD required by server */}
+                  {statusInfo.isWinner &&
+                    !statusInfo.isPaid &&
+                    (cddRequired || cddXml) && (
+                      <div className="mb-4 flex gap-2">
+                        <button
+                          className="flex-1 rounded-lg border-0 py-3 text-[13px] font-bold uppercase tracking-[1px] text-white"
+                          style={{
+                            background: '#7a5a1a',
+                            border: '2px solid #9e7a2a',
+                          }}
+                          disabled={!cddXml}
+                          onClick={() => cddXml && handlePrintCdd(cddXml)}
+                        >
+                          {t('reprint_cdd', 'RISTAMPA CDD')}
+                        </button>
+                        <button
+                          className="flex-1 rounded-lg border-0 bg-accent py-3 text-[13px] font-bold uppercase tracking-[1px] text-white"
+                          onClick={() => {
+                            setPinMode(true)
+                            setPinInput('')
+                            setPinError(null)
+                          }}
+                        >
+                          {t('insert_pin_cdd', 'INSERISCI PIN CDD')}
+                        </button>
+                      </div>
+                    )}
+                  {(!statusInfo.isWinner || statusInfo.isPaid) && (
                     <div className="mb-[35px] h-[46px]" />
                   )}
                   {/* Print button */}
@@ -1099,8 +1114,15 @@ export default function TicketCheckDialog({
         typeof document !== 'undefined' &&
         createPortal(
           <div
-            className="fixed inset-0 z-[200] flex items-center justify-center"
-            style={{ background: 'rgba(0,0,0,0.7)' }}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 9999,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'rgba(0,0,0,0.7)',
+            }}
             onClick={(e) => {
               if (e.target === e.currentTarget) setShowPayConfirm(false)
             }}
