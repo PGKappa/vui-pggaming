@@ -18,7 +18,11 @@ import {
   SubmittedTicket,
   UpcomingEvent,
 } from '@/retail-lib/types'
-import { createPGVirtualAPICall, normalizeMarketName } from '@/retail-lib/utils'
+import {
+  cn,
+  createPGVirtualAPICall,
+  normalizeMarketName,
+} from '@/retail-lib/utils'
 import {
   ChevronDown,
   CornerDownLeft,
@@ -1565,7 +1569,11 @@ export default function BettingSlip({
                 {t('total_combinations').toUpperCase()}
               </span>
               <span
-                className={`text-[15px] font-semibold${totalSystemCombinations > maxCombinations ? 'text-chart-2' : ''}`}
+                className={cn(
+                  'text-[15px] font-semibold',
+                  totalSystemCombinations > maxCombinations &&
+                    'font-bold text-chart-2',
+                )}
               >
                 {totalSystemCombinations}/{maxCombinations}
               </span>
@@ -1605,6 +1613,11 @@ export default function BettingSlip({
       </CardFooter>
 
       <div className="bg-backgroundBetslip">
+        {betMode === 'SYSTEM' && totalSystemCombinations > maxCombinations && (
+          <div className="mx-3 mt-2 rounded border border-destructive bg-destructive/10 px-3 py-2 text-center text-sm font-semibold text-destructive">
+            {t('combinations_limit_exceeded')}
+          </div>
+        )}
         <div className="w-full p-3 pb-[24px] pt-[9px]">
           <Button
             variant="betNow"
