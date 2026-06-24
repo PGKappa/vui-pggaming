@@ -22,7 +22,6 @@ import {
 import { createPGVirtualAPICall } from '@/retail-lib/utils'
 import { useTranslation } from 'react-i18next'
 import { useCallback, useContext, useEffect, useState } from 'react'
-import { createPortal } from 'react-dom'
 import { RootContext } from '@/retail-contexts/root-context'
 
 function getDetailStatus(status: number): {
@@ -1109,84 +1108,55 @@ export default function TicketCheckDialog({
         </DialogContent>
       </Dialog>
 
-      {/* POPUP CONFERMA PAGAMENTO */}
-      {showPayConfirm &&
-        typeof document !== 'undefined' &&
-        createPortal(
+      {/* POPUP CONFERMA PAGAMENTO — nested Radix Dialog so pointer events are handled correctly */}
+      <Dialog open={showPayConfirm} onOpenChange={setShowPayConfirm}>
+        <DialogContent
+          aria-describedby={undefined}
+          className="w-[340px] max-w-[340px] overflow-hidden rounded-xl border-0 p-0 shadow-[0_8px_32px_rgba(0,0,0,0.6)]"
+          style={{ background: '#1e1e1e' }}
+        >
+          <DialogHeader className="bg-card-header px-5 py-4">
+            <DialogTitle className="text-[16px] font-bold tracking-[1px] text-white">
+              {t('confirm_payment', 'CONFERMA PAGAMENTO')}
+            </DialogTitle>
+          </DialogHeader>
           <div
-            style={{
-              position: 'fixed',
-              inset: 0,
-              zIndex: 9999,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: 'rgba(0,0,0,0.7)',
-            }}
-            onClick={(e) => {
-              if (e.target === e.currentTarget) setShowPayConfirm(false)
-            }}
+            className="px-6 pb-6 pt-7 text-center"
+            style={{ background: '#212121' }}
           >
             <div
-              className="w-[340px] overflow-hidden rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.6)]"
-              style={{ background: '#1e1e1e' }}
+              className="mb-[10px] text-[11px] font-semibold uppercase tracking-[0.8px]"
+              style={{ color: '#888' }}
             >
-              <div className="flex items-center justify-between bg-card-header px-5 py-4 text-card-header-foreground">
-                <h2 className="text-[16px] font-bold tracking-[1px] text-white">
-                  {t('confirm_payment', 'CONFERMA PAGAMENTO')}
-                </h2>
-                <span
-                  className="cursor-pointer text-[28px] font-light leading-none text-white"
-                  onClick={() => setShowPayConfirm(false)}
-                >
-                  &#x2715;
-                </span>
-              </div>
-              <div
-                className="px-6 pb-6 pt-7 text-center"
-                style={{ background: '#212121' }}
-              >
-                <div
-                  className="mb-[10px] text-[11px] font-semibold uppercase tracking-[0.8px]"
-                  style={{ color: '#888' }}
-                >
-                  {t(
-                    'total_winning_to_collect',
-                    'Totale vincita da riscuotere',
-                  )}
-                </div>
-                <div className="mb-2 text-[32px] font-bold tracking-[1px] text-white">
-                  {fmt(ticketInfo!.amount_won)}
-                </div>
-                <div
-                  className="mb-7 text-[13px] font-semibold tracking-[0.4px]"
-                  style={{ color: '#aaa' }}
-                >
-                  {t(
-                    'confirm_payment_question',
-                    'Vuoi confermare il pagamento?',
-                  )}
-                </div>
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => setShowPayConfirm(false)}
-                    className="flex-1 cursor-pointer rounded-lg border-0 py-[14px] text-[13px] font-bold uppercase tracking-[1.5px]"
-                    style={{ background: '#2e2e2e', color: '#ccc' }}
-                  >
-                    {t('cancel', 'ANNULLA')}
-                  </button>
-                  <button
-                    onClick={handlePay}
-                    className="flex-1 cursor-pointer rounded-lg border-0 bg-accent py-[14px] text-[13px] font-bold uppercase tracking-[1.5px] text-white"
-                  >
-                    {t('confirm', 'CONFERMA')}
-                  </button>
-                </div>
-              </div>
+              {t('total_winning_to_collect', 'Totale vincita da riscuotere')}
             </div>
-          </div>,
-          document.body,
-        )}
+            <div className="mb-2 text-[32px] font-bold tracking-[1px] text-white">
+              {ticketInfo ? fmt(ticketInfo.amount_won) : ''}
+            </div>
+            <div
+              className="mb-7 text-[13px] font-semibold tracking-[0.4px]"
+              style={{ color: '#aaa' }}
+            >
+              {t('confirm_payment_question', 'Vuoi confermare il pagamento?')}
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowPayConfirm(false)}
+                className="flex-1 cursor-pointer rounded-lg border-0 py-[14px] text-[13px] font-bold uppercase tracking-[1.5px]"
+                style={{ background: '#2e2e2e', color: '#ccc' }}
+              >
+                {t('cancel', 'ANNULLA')}
+              </button>
+              <button
+                onClick={handlePay}
+                className="flex-1 cursor-pointer rounded-lg border-0 bg-accent py-[14px] text-[13px] font-bold uppercase tracking-[1.5px] text-white"
+              >
+                {t('confirm', 'CONFERMA')}
+              </button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   )
 }
