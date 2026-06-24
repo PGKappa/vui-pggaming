@@ -39,6 +39,16 @@ export type CashierContextType = {
   getSplashscreen?: () => string
   getMaxCombinations?: () => number
   getActiveMixDisciplines?: () => string[]
+  getNavbarConfig?: () => NavbarConfig
+}
+
+export type NavbarConfig = {
+  showDogs6: boolean
+  showDogs8: boolean
+  showHorses: boolean
+  /** Show the dogs-horses mix button (true when ≥2 racing disciplines are present) */
+  showMix: boolean
+  showFootball: boolean
 }
 
 const defaultCashierContext: CashierContextType = {
@@ -60,6 +70,14 @@ const defaultCashierContext: CashierContextType = {
   getSplashscreen: () => 'splashscreen-empty.png',
   getMaxCombinations: () => 2048,
   getActiveMixDisciplines: () => ['DOGS', 'HORSES'],
+  // Default: show everything before cashier data is loaded
+  getNavbarConfig: () => ({
+    showDogs6: true,
+    showDogs8: true,
+    showHorses: true,
+    showMix: true,
+    showFootball: true,
+  }),
 }
 
 export const CashierContext = createContext<CashierContextType>(
@@ -236,6 +254,59 @@ function createContextDataFromCashierData(
     return result
   }
 
+  const getNavbarConfig = (): NavbarConfig => {
+    const channels: any[] = cashierData.channels || []
+
+    const hasDogs6 = channels.some(
+      (c) =>
+        (typeof c?.game_id === 'string' && /^dogs?(?!8)/i.test(c.game_id)) ||
+        (typeof c?.name === 'string' &&
+          /dog|grey/i.test(c.name) &&
+          !/8/.test(c.name) &&
+          !/8/.test(c.game_id || '')),
+    )
+    const hasDogs8 = channels.some(
+      (c) =>
+        (typeof c?.game_id === 'string' && /dogs?8/i.test(c.game_id)) ||
+        (typeof c?.name === 'string' && /dog.*8|grey.*8/i.test(c.name)),
+    )
+    const hasHorses = channels.some(
+      (c) =>
+        (typeof c?.game_id === 'string' && /horse/i.test(c.game_id)) ||
+        (typeof c?.name === 'string' && /horse|cavall/i.test(c.name)),
+    )
+
+    // Show the mix button when at least 2 racing disciplines are present
+    const racingCount = [hasDogs6, hasDogs8, hasHorses].filter(Boolean).length
+    const showMix = racingCount >= 2
+
+    // Football flag: checked in multiple possible locations in the cashier response
+    const showFootball =
+      cashierData.football === true ||
+      cashierData.configs?.football === true ||
+      cashierData.intl?.football === true
+
+    // If no channel game_ids are recognised (cashier doesn't expose them yet),
+    // fall back to showing all buttons so the navbar is never empty.
+    if (!hasDogs6 && !hasDogs8 && !hasHorses) {
+      return {
+        showDogs6: true,
+        showDogs8: true,
+        showHorses: true,
+        showMix: true,
+        showFootball,
+      }
+    }
+
+    return {
+      showDogs6: hasDogs6,
+      showDogs8: hasDogs8,
+      showHorses: hasHorses,
+      showMix,
+      showFootball,
+    }
+  }
+
   return {
     initCode,
     operator: cashierData.configs?.operator_name,
@@ -257,6 +328,7 @@ function createContextDataFromCashierData(
     getSplashscreen,
     getMaxCombinations,
     getActiveMixDisciplines,
+    getNavbarConfig,
   }
 }
 
