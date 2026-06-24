@@ -90,7 +90,9 @@ export default function BettingSlip({
   const minStake = Number(rootContext?.getMinStake?.()) || 0.5
   const minBet = Number(rootContext?.getMinBet?.()) || 0
   const maxWin = Number(rootContext?.getMaxWin?.()) || 1000000000
-  const maxCombinations = Number(rootContext?.getMaxCombinations?.()) || 2048
+  const maxEvents = Number(rootContext?.getMaxEvents?.()) || 10
+  const maxSelections = Number(rootContext?.getMaxSelections?.()) || 100
+  const maxCombinations = Number(rootContext?.getMaxCombinations?.()) || 512
   const minStakeIncrement = Number(rootContext?.getMinStakeIncrement?.()) || 0.5
   const systemStakeIncrement =
     Number(rootContext?.getSystemStakeIncrement?.()) || 0.1
@@ -121,8 +123,11 @@ export default function BettingSlip({
 
   const baseSystemGroups = useMemo(() => {
     if (betMode !== 'SYSTEM') return []
-    return generateSystemGroups(betEntries)
-  }, [betMode, betEntries])
+    return generateSystemGroups(betEntries, {
+      maxSelections,
+      maxEvents,
+    })
+  }, [betMode, betEntries, maxSelections, maxEvents])
 
   const systemEventsCount = useMemo(() => {
     if (betMode !== 'SYSTEM') return 0
@@ -138,10 +143,10 @@ export default function BettingSlip({
       isMountedRef.current = true
       return
     }
-    if (betMode === 'SYSTEM' && systemEventsCount > 10) {
-      toast.error(t('max_tuple_error'))
+    if (betMode === 'SYSTEM' && systemEventsCount > maxEvents) {
+      toast.error(t('max_events_system', { max: maxEvents }))
     }
-  }, [betMode, systemEventsCount, t])
+  }, [betMode, systemEventsCount, maxEvents, t])
 
   const systemGroups = useMemo(() => {
     return baseSystemGroups
@@ -500,8 +505,8 @@ export default function BettingSlip({
       return
     }
 
-    if (betMode === 'SYSTEM' && systemEventsCount > 10) {
-      toast.error(t('max_tuple_error'))
+    if (betMode === 'SYSTEM' && systemEventsCount > maxEvents) {
+      toast.error(t('max_events_system', { max: maxEvents }))
       return
     }
 
@@ -545,7 +550,7 @@ export default function BettingSlip({
         0,
       )
       if (totalSystemCombinations > maxCombinations) {
-        toast.error(t('max_combinations_error'))
+        toast.error(t('max_combinations_error', { max: maxCombinations }))
         return
       }
       if (totalSystemStake <= 0) {
