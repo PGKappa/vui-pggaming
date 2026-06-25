@@ -37,6 +37,8 @@ export type CashierContextType = {
   getTranslation?: (key: string, fallback?: string) => string
   getVersion?: () => string
   getSplashscreen?: () => string
+  getMaxEvents?: () => number
+  getMaxSelections?: () => number
   getMaxCombinations?: () => number
   getActiveMixDisciplines?: () => string[]
   getNavbarConfig?: () => NavbarConfig
@@ -68,7 +70,9 @@ const defaultCashierContext: CashierContextType = {
   getTranslation: (key: string, fallback?: string) => fallback || key,
   getVersion: () => 'v1.0',
   getSplashscreen: () => 'splashscreen-empty.png',
-  getMaxCombinations: () => 2048,
+  getMaxEvents: () => 10,
+  getMaxSelections: () => 100,
+  getMaxCombinations: () => 512,
   getActiveMixDisciplines: () => ['DOGS', 'HORSES'],
   // Default: show everything before cashier data is loaded
   getNavbarConfig: () => ({
@@ -214,13 +218,48 @@ function createContextDataFromCashierData(
   const getVersion = () => cashierData.intl?.version || 'v1.0'
   const getSplashscreen = () =>
     cashierData.intl?.splashscreen || 'splashscreen-empty.png'
-  const getMaxCombinations = () => {
-    const val = cashierData.intl?.max_combination
+
+  const getMaxEvents = () => {
+    const val =
+      cashierData?.intl?.MAX_EVENTS ??
+      cashierData?.intl?.max_events ??
+      cashierData?.MAX_EVENTS ??
+      cashierData?.max_events
+
     if (val !== undefined && val !== null) {
       const parsed = typeof val === 'string' ? parseInt(val, 10) : val
       if (!isNaN(parsed) && parsed > 0) return parsed
     }
-    return 2048
+    return 10
+  }
+
+  const getMaxSelections = () => {
+    const val =
+      cashierData?.intl?.MAX_SELECTIONS ??
+      cashierData?.intl?.max_selections ??
+      cashierData?.MAX_SELECTIONS ??
+      cashierData?.max_selections
+
+    if (val !== undefined && val !== null) {
+      const parsed = typeof val === 'string' ? parseInt(val, 10) : val
+      if (!isNaN(parsed) && parsed > 0) return parsed
+    }
+    return 100
+  }
+
+  const getMaxCombinations = () => {
+    const val =
+      cashierData?.intl?.MAX_COMBINATIONS ??
+      cashierData?.intl?.max_combinations ??
+      cashierData?.intl?.max_combination ??
+      cashierData?.MAX_COMBINATIONS ??
+      cashierData?.max_combinations
+
+    if (val !== undefined && val !== null) {
+      const parsed = typeof val === 'string' ? parseInt(val, 10) : val
+      if (!isNaN(parsed) && parsed > 0) return parsed
+    }
+    return 512
   }
   // Returns which disciplines are actually present in the cashier channels
   // for the mixed dogs-horses page. Falls back to ['DOGS','HORSES'] when no
@@ -326,6 +365,8 @@ function createContextDataFromCashierData(
     getTranslation,
     getVersion,
     getSplashscreen,
+    getMaxEvents,
+    getMaxSelections,
     getMaxCombinations,
     getActiveMixDisciplines,
     getNavbarConfig,

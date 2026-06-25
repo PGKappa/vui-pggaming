@@ -36,6 +36,8 @@ export type RootContextType = {
   getTranslation?: (key: string, fallback?: string) => string
   getVersion?: () => string
   getSplashscreen?: () => string
+  getMaxEvents?: () => number
+  getMaxSelections?: () => number
   getMaxCombinations?: () => number
   getActiveMixDisciplines?: () => string[]
   getNavbarConfig?: () => NavbarConfig
@@ -64,7 +66,9 @@ const defaultRootContext: RootContextType = {
   getTranslation: (key: string, fallback?: string) => fallback || key,
   getVersion: () => 'v1.0',
   getSplashscreen: () => 'splashscreen-empty.png',
-  getMaxCombinations: () => 2048,
+  getMaxEvents: () => 10,
+  getMaxSelections: () => 100,
+  getMaxCombinations: () => 512,
   getActiveMixDisciplines: () => ['DOGS', 'HORSES'],
   getNavbarConfig: () => ({
     showDogs6: true,
@@ -119,6 +123,8 @@ export default function RootContextProvider(props: {
       getTranslation: cashierContext.getTranslation,
       getVersion: cashierContext.getVersion,
       getSplashscreen: cashierContext.getSplashscreen,
+      getMaxEvents: cashierContext.getMaxEvents,
+      getMaxSelections: cashierContext.getMaxSelections,
       getMaxCombinations: cashierContext.getMaxCombinations,
       getActiveMixDisciplines: cashierContext.getActiveMixDisciplines,
       getNavbarConfig: cashierContext.getNavbarConfig,
@@ -154,6 +160,8 @@ export default function RootContextProvider(props: {
       cashierContext.getTranslation,
       cashierContext.getVersion,
       cashierContext.getSplashscreen,
+      cashierContext.getMaxEvents,
+      cashierContext.getMaxSelections,
       cashierContext.getMaxCombinations,
       cashierContext.getActiveMixDisciplines,
       cashierContext.getNavbarConfig,

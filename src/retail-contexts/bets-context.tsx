@@ -2,8 +2,10 @@
 
 import { Bet, BetEntry, Selection, SubmittedTicket } from '@/retail-lib/types'
 import { BetMode } from '@/retail-components/betting-slip'
+import { RootContext } from '@/retail-contexts/root-context'
 import {
   createContext,
+  useContext,
   useCallback,
   useEffect,
   useMemo,
@@ -129,6 +131,7 @@ export default function BetsContextProvider(props: {
   children: React.ReactNode
 }) {
   const { t } = useTranslation()
+  const rootContext = useContext(RootContext)
   const tRef = useRef(t)
   tRef.current = t
   const initialBetsContext = getBetsContext()
@@ -204,11 +207,20 @@ export default function BetsContextProvider(props: {
     return () => clearInterval(interval)
   }, [betsContext.betEntries])
 
-  const MAX_EVENTS = 10
+  const maxEvents = Number(rootContext?.getMaxEvents?.()) || 10
+  const maxSelections = Number(rootContext?.getMaxSelections?.()) || 100
 
   const checkSystemLimits = useCallback(
     (newEntries: BetEntry[]): boolean => {
       const allEntries = [...betsContext.betEntries, ...newEntries]
+
+      if (allEntries.length > maxSelections) {
+        toast.error(
+          tRef.current('max_bet_entries_system', { max: maxSelections }),
+        )
+        return false
+      }
+
       const eventsSet = new Set<string>()
       allEntries.forEach((entry) => {
         const eventKey = `${entry.bet.discipline}-${entry.bet.event.number}`
@@ -216,14 +228,14 @@ export default function BetsContextProvider(props: {
       })
       const eventsNumber = eventsSet.size
 
-      if (eventsNumber > MAX_EVENTS) {
-        toast.error(tRef.current('max_events_system'))
+      if (eventsNumber > maxEvents) {
+        toast.error(tRef.current('max_events_system', { max: maxEvents }))
         return false
       }
 
       return true
     },
-    [betsContext.betEntries],
+    [betsContext.betEntries, maxEvents, maxSelections],
   )
 
   const addBet = useCallback(

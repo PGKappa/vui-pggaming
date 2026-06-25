@@ -18,7 +18,11 @@ import {
   SubmittedTicket,
   UpcomingEvent,
 } from '@/retail-lib/types'
-import { createPGVirtualAPICall, normalizeMarketName } from '@/retail-lib/utils'
+import {
+  cn,
+  createPGVirtualAPICall,
+  normalizeMarketName,
+} from '@/retail-lib/utils'
 import {
   ChevronDown,
   CornerDownLeft,
@@ -86,7 +90,9 @@ export default function BettingSlip({
   const minStake = Number(rootContext?.getMinStake?.()) || 0.5
   const minBet = Number(rootContext?.getMinBet?.()) || 0
   const maxWin = Number(rootContext?.getMaxWin?.()) || 1000000000
-  const maxCombinations = Number(rootContext?.getMaxCombinations?.()) || 2048
+  const maxEvents = Number(rootContext?.getMaxEvents?.()) || 10
+  const maxSelections = Number(rootContext?.getMaxSelections?.()) || 100
+  const maxCombinations = Number(rootContext?.getMaxCombinations?.()) || 512
   const minStakeIncrement = Number(rootContext?.getMinStakeIncrement?.()) || 0.5
   const systemStakeIncrement =
     Number(rootContext?.getSystemStakeIncrement?.()) || 0.1
@@ -117,8 +123,11 @@ export default function BettingSlip({
 
   const baseSystemGroups = useMemo(() => {
     if (betMode !== 'SYSTEM') return []
-    return generateSystemGroups(betEntries)
-  }, [betMode, betEntries])
+    return generateSystemGroups(betEntries, {
+      maxSelections,
+      maxEvents,
+    })
+  }, [betMode, betEntries, maxSelections, maxEvents])
 
   const systemEventsCount = useMemo(() => {
     if (betMode !== 'SYSTEM') return 0
@@ -134,10 +143,10 @@ export default function BettingSlip({
       isMountedRef.current = true
       return
     }
-    if (betMode === 'SYSTEM' && systemEventsCount > 10) {
-      toast.error(t('max_tuple_error'))
+    if (betMode === 'SYSTEM' && systemEventsCount > maxEvents) {
+      toast.error(t('max_events_system', { max: maxEvents }))
     }
-  }, [betMode, systemEventsCount, t])
+  }, [betMode, systemEventsCount, maxEvents, t])
 
   const systemGroups = useMemo(() => {
     return baseSystemGroups
@@ -496,8 +505,8 @@ export default function BettingSlip({
       return
     }
 
-    if (betMode === 'SYSTEM' && systemEventsCount > 10) {
-      toast.error(t('max_tuple_error'))
+    if (betMode === 'SYSTEM' && systemEventsCount > maxEvents) {
+      toast.error(t('max_events_system', { max: maxEvents }))
       return
     }
 
@@ -541,7 +550,7 @@ export default function BettingSlip({
         0,
       )
       if (totalSystemCombinations > maxCombinations) {
-        toast.error(t('max_combinations_error'))
+        toast.error(t('max_combinations_error', { max: maxCombinations }))
         return
       }
       if (totalSystemStake <= 0) {
@@ -1565,7 +1574,11 @@ export default function BettingSlip({
                 {t('total_combinations').toUpperCase()}
               </span>
               <span
-                className={`text-[15px] font-semibold${totalSystemCombinations > maxCombinations ? 'text-chart-2' : ''}`}
+                className={cn(
+                  'text-[15px] font-semibold',
+                  totalSystemCombinations > maxCombinations &&
+                    'font-bold text-chart-2',
+                )}
               >
                 {totalSystemCombinations}/{maxCombinations}
               </span>
@@ -1605,6 +1618,11 @@ export default function BettingSlip({
       </CardFooter>
 
       <div className="bg-backgroundBetslip">
+        {betMode === 'SYSTEM' && totalSystemCombinations > maxCombinations && (
+          <div className="mx-3 mt-2 rounded border border-destructive bg-destructive/10 px-3 py-2 text-center text-sm font-semibold text-destructive">
+            {t('combinations_limit_exceeded')}
+          </div>
+        )}
         <div className="w-full p-3 pb-[24px] pt-[9px]">
           <Button
             variant="betNow"
