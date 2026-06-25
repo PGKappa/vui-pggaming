@@ -17,6 +17,8 @@ function getFeVersion() {
 const nextConfig: NextConfig = {
   output: 'export',
   trailingSlash: true,
+  basePath: '/v-ui',
+  assetPrefix: '/v-ui',
   images: {
     unoptimized: true,
   },
