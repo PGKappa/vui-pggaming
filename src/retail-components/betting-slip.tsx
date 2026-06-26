@@ -1048,7 +1048,6 @@ export default function BettingSlip({
               },
             }
 
-            console.log('[postMessage payload]', JSON.stringify(postMessagePayload, null, 2))
             window.parent.postMessage(postMessagePayload, '*')
           } catch {
             /* silent */
