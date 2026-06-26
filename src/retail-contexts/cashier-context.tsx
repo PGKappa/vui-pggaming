@@ -465,8 +465,11 @@ export default function CashierContextProvider(props: {
         if (storedInitCode && !storedOperator) {
           console.error('Operator is missing from localStorage')
           toast.error(t('operator_not_found'))
-          setHasCashierError(true)
+        } else {
+          // No initCode at all — terminal is not configured
+          console.error('No initCode found in URL or localStorage')
         }
+        setHasCashierError(true)
         setIsLoading(false)
       }
     }

@@ -163,9 +163,11 @@ function SkinBody({ children }: { children: React.ReactNode }) {
 let hasAppLoaded = false
 
 function RetailShell({ children }: { children: React.ReactNode }) {
+  const { t } = useTranslation()
   const {
     isLoadingEvents,
     isLoadingCashier,
+    hasCashierError,
     upcomingEvents,
     eventResults,
     getVersion,
@@ -226,9 +228,18 @@ function RetailShell({ children }: { children: React.ReactNode }) {
   }, [isLoadingCashier, getVersion, getSplashscreen, feVersion])
 
   useEffect(() => {
+    // Hide splash immediately when cashier fails — don't leave the user staring at the loading screen
+    if (hasCashierError) {
+      const splash = document.getElementById('static-splash')
+      if (splash) splash.classList.add('hidden')
+    }
+  }, [hasCashierError])
+
+  useEffect(() => {
     // Solo al primo caricamento
     if (
       !hasAppLoaded &&
+      !hasCashierError &&
       !isLoadingEvents &&
       !isLoadingCashier &&
       ((upcomingEvents?.length ?? 0) > 0 || (eventResults?.length ?? 0) > 0)
@@ -244,7 +255,31 @@ function RetailShell({ children }: { children: React.ReactNode }) {
         }
       }, 900) // 900ms per dare tempo di vedere versione e logo
     }
-  }, [isLoadingEvents, isLoadingCashier, upcomingEvents, eventResults])
+  }, [
+    hasCashierError,
+    isLoadingEvents,
+    isLoadingCashier,
+    upcomingEvents,
+    eventResults,
+  ])
+
+  if (hasCashierError) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-3 bg-background px-6 text-center">
+        <div className="text-5xl">⚠️</div>
+        <h1 className="text-2xl font-bold text-destructive">
+          {t('cashier_error_title')}
+        </h1>
+        <p className="text-accent">{t('cashier_unavailable_detail')}</p>
+        <button
+          className="mt-4 rounded-lg bg-accent px-6 py-3 text-[14px] font-bold uppercase tracking-[1.5px] text-white"
+          onClick={() => window.location.reload()}
+        >
+          {t('reload')}
+        </button>
+      </div>
+    )
+  }
 
   return (
     <>
