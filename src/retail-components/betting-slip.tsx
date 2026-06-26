@@ -967,10 +967,11 @@ export default function BettingSlip({
                     discipline: entry.bet.discipline,
                     channelId: getChannelId(entry.bet.discipline),
                     trackName: buildTrackName(entry),
-                    isBanker: !!entry.fixed,
+                    isBanker: false,
                     markets: [],
                   }
                 }
+                if (entry.fixed) groups[groupKey].isBanker = true
                 groups[groupKey].markets.push({
                   market: getTranslatedMarket(entry.market),
                   competitorName: getPrintCompetitorName(entry),
@@ -1038,6 +1039,7 @@ export default function BettingSlip({
               },
             }
 
+            console.log('[postMessage payload]', JSON.stringify(postMessagePayload, null, 2))
             window.parent.postMessage(postMessagePayload, '*')
           } catch {
             /* silent */
