@@ -37,6 +37,9 @@ export type CashierContextType = {
   getTranslation?: (key: string, fallback?: string) => string
   getVersion?: () => string
   getSplashscreen?: () => string
+  getMaxEvents?: () => number
+  getMaxSelections?: () => number
+  getMaxCombinations?: () => number
 }
 
 const defaultCashierContext: CashierContextType = {
@@ -56,6 +59,9 @@ const defaultCashierContext: CashierContextType = {
   getTranslation: (key: string, fallback?: string) => fallback || key,
   getVersion: () => 'v1.0',
   getSplashscreen: () => 'splashscreen-empty.png',
+  getMaxEvents: () => 10,
+  getMaxSelections: () => 100,
+  getMaxCombinations: () => 512,
 }
 
 export const CashierContext = createContext<CashierContextType>(
@@ -193,6 +199,46 @@ function createContextDataFromCashierData(
   const getSplashscreen = () =>
     cashierData.intl?.splashscreen || 'splashscreen-empty.png'
 
+  const getMaxEvents = () => {
+    const val =
+      cashierData?.intl?.MAX_EVENTS ??
+      cashierData?.intl?.max_events ??
+      cashierData?.MAX_EVENTS ??
+      cashierData?.max_events
+    if (val !== undefined && val !== null) {
+      const parsed = typeof val === 'string' ? parseInt(val, 10) : val
+      if (!isNaN(parsed) && parsed > 0) return parsed
+    }
+    return 10
+  }
+
+  const getMaxSelections = () => {
+    const val =
+      cashierData?.intl?.MAX_SELECTIONS ??
+      cashierData?.intl?.max_selections ??
+      cashierData?.MAX_SELECTIONS ??
+      cashierData?.max_selections
+    if (val !== undefined && val !== null) {
+      const parsed = typeof val === 'string' ? parseInt(val, 10) : val
+      if (!isNaN(parsed) && parsed > 0) return parsed
+    }
+    return 100
+  }
+
+  const getMaxCombinations = () => {
+    const val =
+      cashierData?.intl?.MAX_COMBINATIONS ??
+      cashierData?.intl?.max_combinations ??
+      cashierData?.intl?.max_combination ??
+      cashierData?.MAX_COMBINATIONS ??
+      cashierData?.max_combinations
+    if (val !== undefined && val !== null) {
+      const parsed = typeof val === 'string' ? parseInt(val, 10) : val
+      if (!isNaN(parsed) && parsed > 0) return parsed
+    }
+    return 512
+  }
+
   return {
     initCode,
     operator: cashierData.configs?.operator_name,
@@ -212,6 +258,9 @@ function createContextDataFromCashierData(
     getTranslation,
     getVersion,
     getSplashscreen,
+    getMaxEvents,
+    getMaxSelections,
+    getMaxCombinations,
   }
 }
 
