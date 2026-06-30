@@ -43,7 +43,7 @@ function NavbarContent() {
       return `https://d190050z3qr0m1.cloudfront.net/public/Soccer_Gaming_manual_${lang}.html`
     } else {
       // Per cani e cavalli
-      return `https://d190050z3qr0m1.cloudfront.net/public/Gaming_manual_${lang}.html`
+      return `https://d190050z3qr0m1.cloudfront.net/public/RD-RH_Gamingmanual_${lang}.html`
     }
   }
 
