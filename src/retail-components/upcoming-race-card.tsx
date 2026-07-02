@@ -883,7 +883,7 @@ export default function UpcomingRaceCard({
           </div>
         </CardHeader>
 
-        <CardContent>
+        <CardContent className="pb-6">
           <Table>
             {renderTableHeader()}
 
