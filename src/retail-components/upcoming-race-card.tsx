@@ -183,17 +183,39 @@ export default function UpcomingRaceCard({
     main: {
       name: t('main'),
       showCombinations: false,
-      columns: ['starters', 'performance', 'history', 'winner', 'place2', 'place3'],
+      columns: [
+        'starters',
+        'performance',
+        'history',
+        'winner',
+        'place2',
+        'place3',
+      ],
     },
     couples: {
       name: t('couples'),
       showCombinations: true,
-      columns: ['starters', 'performance', 'history', 'first', 'second', 'anyOrder'],
+      columns: [
+        'starters',
+        'performance',
+        'history',
+        'first',
+        'second',
+        'anyOrder',
+      ],
     },
     triplets: {
       name: t('triplets'),
       showCombinations: true,
-      columns: ['starters', 'performance', 'history', 'first', 'second', 'third', 'anyOrder'],
+      columns: [
+        'starters',
+        'performance',
+        'history',
+        'first',
+        'second',
+        'third',
+        'anyOrder',
+      ],
     },
   }
 
@@ -375,42 +397,42 @@ export default function UpcomingRaceCard({
       <TableHeader className="h-14 bg-card-header text-[16px] text-card-header-foreground">
         <TableRow>
           <TableHead className="w-[249px] min-w-[150px] text-center font-semibold">
-            <span className='inline-block w-full h-full leading-[54px] align-middle'>
+            <span className="inline-block h-full w-full align-middle leading-[54px]">
               {t('starters_list').toUpperCase()}
             </span>
           </TableHead>
           <TableHead className="w-[1px] bg-border p-0" />
 
           <TableHead className="w-[249px] min-w-[140px] text-center font-semibold">
-            <span className='inline-block w-full h-full leading-[54px] align-middle'>
+            <span className="inline-block h-full w-full align-middle leading-[54px]">
               {t('performance').toUpperCase()}
             </span>
           </TableHead>
           <TableHead className="w-[1px] bg-border p-0" />
 
           <TableHead className="hidden w-[249px] min-w-[130px] text-center font-semibold min-[1440px]:table-cell">
-            <span className='inline-block w-full h-full leading-[54px] align-middle'>
+            <span className="inline-block h-full w-full align-middle leading-[54px]">
               {t('history').toUpperCase()}
-              </span>
+            </span>
           </TableHead>
           <TableHead className="hidden w-[1px] bg-border p-0 min-[1440px]:table-cell" />
 
           {activeTab === 'main' && (
             <>
               <TableHead className="w-[249px] min-w-[100px] text-center font-bold">
-                <span className='inline-block w-full h-full leading-[54px] align-middle'>
+                <span className="inline-block h-full w-full align-middle leading-[54px]">
                   {t('winner').toUpperCase()}
                 </span>
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
               <TableHead className="w-[249px] min-w-[100px] text-center font-semibold">
-                <span className='inline-block w-full h-full leading-[54px] align-middle'>
+                <span className="inline-block h-full w-full align-middle leading-[54px]">
                   {t('place_2').toUpperCase()}
                 </span>
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
               <TableHead className="w-[249px] min-w-[100px] text-center font-semibold">
-                <span className='inline-block w-full h-full leading-[54px] align-middle'>
+                <span className="inline-block h-full w-full align-middle leading-[54px]">
                   {t('show_3').toUpperCase()}
                 </span>
               </TableHead>
@@ -420,13 +442,13 @@ export default function UpcomingRaceCard({
           {activeTab === 'couples' && (
             <>
               <TableHead className="text-center font-bold" colSpan={2}>
-                <span className='inline-block w-full h-full leading-[54px] align-middle'>
+                <span className="inline-block h-full w-full align-middle leading-[54px]">
                   {t('exacta').toUpperCase()}
                 </span>
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
               <TableHead className="text-center font-bold" colSpan={2}>
-                <span className='inline-block w-full h-full leading-[54px] align-middle'>
+                <span className="inline-block h-full w-full align-middle leading-[54px]">
                   {t('quinella').toUpperCase()}
                 </span>
               </TableHead>
@@ -436,13 +458,13 @@ export default function UpcomingRaceCard({
           {activeTab === 'triplets' && (
             <>
               <TableHead className="text-center font-bold" colSpan={3}>
-                <span className='inline-block w-full h-full leading-[54px] align-middle'>
+                <span className="inline-block h-full w-full align-middle leading-[54px]">
                   {t('trifecta').toUpperCase()}
                 </span>
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
               <TableHead className="text-center font-bold" colSpan={2}>
-                <span className='inline-block w-full h-full leading-[54px] align-middle'>
+                <span className="inline-block h-full w-full align-middle leading-[54px]">
                   {t('boxed_trifecta').toUpperCase()}
                 </span>
               </TableHead>
@@ -483,7 +505,9 @@ export default function UpcomingRaceCard({
               }}
               variant="racecard"
               className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] tabular-nums text-betEntry-foreground hover:opacity-85"
-              onToggle={() => { betAddedFromUIRef.current = true }}
+              onToggle={() => {
+                betAddedFromUIRef.current = true
+              }}
             />
           </TableCell>
           <TableCell className="w-[1px] bg-border p-0" />
@@ -514,7 +538,9 @@ export default function UpcomingRaceCard({
               }}
               variant="racecard"
               className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] tabular-nums text-betEntry-foreground hover:opacity-85"
-              onToggle={() => { betAddedFromUIRef.current = true }}
+              onToggle={() => {
+                betAddedFromUIRef.current = true
+              }}
             />
           </TableCell>
           <TableCell className="w-[1px] bg-border p-0" />
@@ -545,7 +571,9 @@ export default function UpcomingRaceCard({
               }}
               variant="racecard"
               className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] tabular-nums text-betEntry-foreground hover:opacity-85"
-              onToggle={() => { betAddedFromUIRef.current = true }}
+              onToggle={() => {
+                betAddedFromUIRef.current = true
+              }}
             />
           </TableCell>
         </>
@@ -589,7 +617,9 @@ export default function UpcomingRaceCard({
               className="flex h-full cursor-pointer flex-col text-center"
               onClick={handleMarketTypeToggle}
             >
-              <div className={`flex flex-1 items-center justify-center p-2 ${!isAnyOrderMode ? 'bg-gray-300' : ''}`}>
+              <div
+                className={`flex flex-1 items-center justify-center p-2 ${!isAnyOrderMode ? 'bg-gray-300' : ''}`}
+              >
                 <Toggle
                   pressed={fixedSelection.includes(racer.number)}
                   onPressedChange={() => toggleFixedSelection(racer.number)}
@@ -607,7 +637,9 @@ export default function UpcomingRaceCard({
               className="flex h-full cursor-pointer flex-col text-center"
               onClick={handleMarketTypeToggle}
             >
-              <div className={`flex flex-1 items-center justify-center p-2 ${!isAnyOrderMode ? 'bg-gray-300' : ''}`}>
+              <div
+                className={`flex flex-1 items-center justify-center p-2 ${!isAnyOrderMode ? 'bg-gray-300' : ''}`}
+              >
                 <Toggle
                   pressed={disorderSelection.includes(racer.number)}
                   onPressedChange={() => toggleDisorderSelection(racer.number)}
@@ -615,7 +647,10 @@ export default function UpcomingRaceCard({
                   className="relative right-[4px] h-12 w-[117px] border-betEntry-border pt-[2px]"
                 >
                   {disorderSelection.includes(racer.number) && (
-                    <Check className="h-12 w-12 text-background" style={{ zoom: 1.3 }} />
+                    <Check
+                      className="h-12 w-12 text-background"
+                      style={{ zoom: 1.3 }}
+                    />
                   )}
                 </Toggle>
               </div>
@@ -676,7 +711,9 @@ export default function UpcomingRaceCard({
               className="flex h-full cursor-pointer flex-col"
               onClick={handleMarketTypeToggle}
             >
-              <div className={`flex flex-1 items-center justify-center py-2 pl-[2px] ${!isAnyOrderMode ? 'bg-gray-300' : ''}`}>
+              <div
+                className={`flex flex-1 items-center justify-center py-2 pl-[2px] ${!isAnyOrderMode ? 'bg-gray-300' : ''}`}
+              >
                 <Toggle
                   pressed={fixedSelection.includes(racer.number)}
                   onPressedChange={() => toggleFixedSelection(racer.number)}
@@ -694,7 +731,9 @@ export default function UpcomingRaceCard({
               className="flex h-full cursor-pointer flex-col"
               onClick={handleMarketTypeToggle}
             >
-              <div className={`flex flex-1 items-center justify-center p-2 ${!isAnyOrderMode ? 'bg-gray-300' : ''}`}>
+              <div
+                className={`flex flex-1 items-center justify-center p-2 ${!isAnyOrderMode ? 'bg-gray-300' : ''}`}
+              >
                 <Toggle
                   pressed={disorderSelection.includes(racer.number)}
                   onPressedChange={() => toggleDisorderSelection(racer.number)}
@@ -702,7 +741,10 @@ export default function UpcomingRaceCard({
                   className="relative left-[3px] h-12 w-[116px] border-betEntry-border pt-[2px] tabular-nums"
                 >
                   {disorderSelection.includes(racer.number) && (
-                    <Check className="h-12 w-12 text-background" style={{ zoom: 1.3 }} />
+                    <Check
+                      className="h-12 w-12 text-background"
+                      style={{ zoom: 1.3 }}
+                    />
                   )}
                 </Toggle>
               </div>
@@ -729,129 +771,177 @@ export default function UpcomingRaceCard({
   // UNDER/OVER   → col 10
   // ─────────────────────────────────────────────────────────────────────────
   const renderSpecialMarkets = () => {
-  if (activeTab !== 'main' || !raceInfo?.odds) {
-    return null
+    if (activeTab !== 'main' || !raceInfo?.odds) {
+      return null
+    }
+
+    return (
+      <TableBody>
+        <TableRow className="border-0 hover:bg-transparent">
+          <TableCell colSpan={11} className="h-2 p-0" />
+        </TableRow>
+
+        <TableRow className="border-0 hover:bg-transparent">
+          {/* PARI / DISPARI — metà sinistra: colSpan 5 (PARTENTI + sep + PERFORMANCE + sep(hidden) + STORICO(hidden)) + sep */}
+          <TableCell colSpan={6} className="p-0">
+            <div className="flex h-16 items-center justify-center border-r bg-accent text-[16px] font-bold text-accent-foreground">
+              {t('even_odd').toUpperCase()}
+            </div>
+            <div className="flex h-[66px]">
+              <div className="flex flex-1 items-center justify-center pl-16">
+                <BetEntryToggle
+                  marketName={t('even_odd')}
+                  apiMarketName="even/odd"
+                  bet={{
+                    discipline: race.discipline,
+                    event: {
+                      name: race.name,
+                      number: race.id,
+                      startingAt: race.time,
+                      extId: race.extId,
+                      palimpsestId: race.palimpsestId,
+                    },
+                    competitors: 'Even',
+                    option: {
+                      outcome: 'even',
+                      decPrice: parseFloat(raceInfo.odds.evenodd?.even || '0'),
+                    },
+                    track: race.trackName || 'Track 6',
+                  }}
+                  variant="matchcard"
+                  className="h-[49px] w-full text-[16px] text-black"
+                  onToggle={() => {
+                    betAddedFromUIRef.current = true
+                  }}
+                />
+              </div>
+              <div className="flex flex-1 items-center justify-center border-r pl-16 pr-16">
+                <BetEntryToggle
+                  marketName={t('even_odd')}
+                  apiMarketName="even/odd"
+                  bet={{
+                    discipline: race.discipline,
+                    event: {
+                      name: race.name,
+                      number: race.id,
+                      startingAt: race.time,
+                      extId: race.extId,
+                      palimpsestId: race.palimpsestId,
+                    },
+                    competitors: 'Odd',
+                    option: {
+                      outcome: 'odd',
+                      decPrice: parseFloat(raceInfo.odds.evenodd?.odd || '0'),
+                    },
+                    track: race.trackName || 'Track 6',
+                  }}
+                  variant="matchcard"
+                  className="h-[49px] w-full text-[16px] text-black"
+                  onToggle={() => {
+                    betAddedFromUIRef.current = true
+                  }}
+                />
+              </div>
+            </div>
+          </TableCell>
+
+          {/* UNDER / OVER — metà destra: colSpan 5 (VINCENTE + sep + PIAZZATO + sep + PODIO) */}
+          <TableCell colSpan={5} className="p-0">
+            <div className="flex h-16 items-center justify-center bg-accent text-[16px] font-bold text-accent-foreground">
+              {t('under_over').toUpperCase()} 3.5
+            </div>
+            <div className="flex h-[66px]">
+              <div className="flex flex-1 items-center justify-center pl-16 pr-16">
+                <BetEntryToggle
+                  marketName={t('under_over')}
+                  apiMarketName="under/over"
+                  bet={{
+                    discipline: race.discipline,
+                    event: {
+                      name: race.name,
+                      number: race.id,
+                      startingAt: race.time,
+                      extId: race.extId,
+                      palimpsestId: race.palimpsestId,
+                    },
+                    competitors: 'Under',
+                    option: {
+                      outcome: 'under',
+                      decPrice: parseFloat(
+                        raceInfo.odds.underover?.under || '0',
+                      ),
+                    },
+                    track: race.trackName || 'Track 6',
+                  }}
+                  variant="matchcard"
+                  className="h-[49px] w-full text-[16px] text-black"
+                  onToggle={() => {
+                    betAddedFromUIRef.current = true
+                  }}
+                />
+              </div>
+              <div className="flex flex-1 items-center justify-center pr-16">
+                <BetEntryToggle
+                  marketName={t('under_over')}
+                  apiMarketName="under/over"
+                  bet={{
+                    discipline: race.discipline,
+                    event: {
+                      name: race.name,
+                      number: race.id,
+                      startingAt: race.time,
+                      extId: race.extId,
+                      palimpsestId: race.palimpsestId,
+                    },
+                    competitors: 'Over',
+                    option: {
+                      outcome: 'over',
+                      decPrice: parseFloat(
+                        raceInfo.odds.underover?.over || '0',
+                      ),
+                    },
+                    track: race.trackName || 'Track 6',
+                  }}
+                  variant="matchcard"
+                  className="h-[49px] w-full text-[16px] text-black"
+                  onToggle={() => {
+                    betAddedFromUIRef.current = true
+                  }}
+                />
+              </div>
+            </div>
+          </TableCell>
+        </TableRow>
+      </TableBody>
+    )
   }
-
-  return (
-    <TableBody>
-      <TableRow className="border-0 hover:bg-transparent">
-        <TableCell colSpan={11} className="h-2 p-0" />
-      </TableRow>
-
-      <TableRow className="border-0 hover:bg-transparent">
-        {/* PARI / DISPARI — metà sinistra: colSpan 5 (PARTENTI + sep + PERFORMANCE + sep(hidden) + STORICO(hidden)) + sep */}
-        <TableCell colSpan={6} className="p-0">
-          <div className="flex h-16 items-center justify-center bg-accent text-[16px] font-bold text-accent-foreground border-r">
-            {t('even_odd').toUpperCase()}
-          </div>
-          <div className="flex h-[66px]">
-            <div className="flex flex-1 items-center justify-center pl-16 ">
-              <BetEntryToggle
-                marketName={t('even_odd')}
-                apiMarketName="even/odd"
-                bet={{
-                  discipline: race.discipline,
-                  event: { name: race.name, number: race.id, startingAt: race.time, extId: race.extId, palimpsestId: race.palimpsestId },
-                  competitors: 'Even',
-                  option: { outcome: 'even', decPrice: parseFloat(raceInfo.odds.evenodd?.even || '0') },
-                  track: race.trackName || 'Track 6',
-                }}
-                variant="matchcard"
-                className="h-[49px] w-full text-[16px] text-black"
-                onToggle={() => { betAddedFromUIRef.current = true }}
-              />
-            </div>
-            <div className="flex flex-1 items-center justify-center pl-16 pr-16 border-r">
-              <BetEntryToggle
-                marketName={t('even_odd')}
-                apiMarketName="even/odd"
-                bet={{
-                  discipline: race.discipline,
-                  event: { name: race.name, number: race.id, startingAt: race.time, extId: race.extId, palimpsestId: race.palimpsestId },
-                  competitors: 'Odd',
-                  option: { outcome: 'odd', decPrice: parseFloat(raceInfo.odds.evenodd?.odd || '0') },
-                  track: race.trackName || 'Track 6',
-                }}
-                variant="matchcard"
-                className="h-[49px] w-full text-[16px] text-black"
-                onToggle={() => { betAddedFromUIRef.current = true }}
-              />
-            </div>
-          </div>
-        </TableCell>
-
-        {/* UNDER / OVER — metà destra: colSpan 5 (VINCENTE + sep + PIAZZATO + sep + PODIO) */}
-        <TableCell colSpan={5} className="p-0">
-          <div className="flex h-16 items-center justify-center bg-accent text-[16px] font-bold text-accent-foreground">
-            {t('under_over').toUpperCase()} 3.5
-          </div>
-          <div className="flex h-[66px]">
-            <div className="flex flex-1 items-center justify-center pl-16 pr-16 ">
-              <BetEntryToggle
-                marketName={t('under_over')}
-                apiMarketName="under/over"
-                bet={{
-                  discipline: race.discipline,
-                  event: { name: race.name, number: race.id, startingAt: race.time, extId: race.extId, palimpsestId: race.palimpsestId },
-                  competitors: 'Under',
-                  option: { outcome: 'under', decPrice: parseFloat(raceInfo.odds.underover?.under || '0') },
-                  track: race.trackName || 'Track 6',
-                }}
-                variant="matchcard"
-                className="h-[49px] w-full text-[16px] text-black"
-                onToggle={() => { betAddedFromUIRef.current = true }}
-              />
-            </div>
-            <div className="flex flex-1 items-center justify-center pr-16">
-              <BetEntryToggle
-                marketName={t('under_over')}
-                apiMarketName="under/over"
-                bet={{
-                  discipline: race.discipline,
-                  event: { name: race.name, number: race.id, startingAt: race.time, extId: race.extId, palimpsestId: race.palimpsestId },
-                  competitors: 'Over',
-                  option: { outcome: 'over', decPrice: parseFloat(raceInfo.odds.underover?.over || '0') },
-                  track: race.trackName || 'Track 6',
-                }}
-                variant="matchcard"
-                className="h-[49px] w-full text-[16px] text-black"
-                onToggle={() => { betAddedFromUIRef.current = true }}
-              />
-            </div>
-          </div>
-        </TableCell>
-      </TableRow>
-    </TableBody>
-  )
-}
 
   return (
     <>
       <Card className="h-full w-full">
         <CardHeader className="flex h-[73px] flex-row items-center justify-between px-[12px]">
           <div className="flex items-center space-x-2">
-  {Object.entries(tabConfig).map(([key, config]) => {
-    const isActive = activeTab === key;
+            {Object.entries(tabConfig).map(([key, config]) => {
+              const isActive = activeTab === key
 
-    return (
-      <Button
-        key={key}
-        variant={isActive ? 'marketSelected' : 'market'}
-        className={cn(
-          "h-12 w-[140px] px-[18px] pb-0 text-[16px] font-semibold uppercase transition-colors",
-          !isActive && "hover:bg-navbarHover" // L'hover viene applicato solo se NON è attivo
-        )}
-        onClick={() => handleTabChange(key as TabType)}
-      >
-        {config.name}
-      </Button>
-    );
-  })}
-</div>
+              return (
+                <Button
+                  key={key}
+                  variant={isActive ? 'marketSelected' : 'market'}
+                  className={cn(
+                    'h-12 w-[140px] px-[18px] pb-0 text-[16px] font-semibold uppercase transition-colors',
+                    !isActive && 'hover:bg-navbarHover', // L'hover viene applicato solo se NON è attivo
+                  )}
+                  onClick={() => handleTabChange(key as TabType)}
+                >
+                  {config.name}
+                </Button>
+              )
+            })}
+          </div>
 
           <div className="flex items-center gap-2">
-            <span className="p-[10px] text-[15px] font-semibold text-tertiary-foreground tabular-nums">
+            <span className="p-[10px] text-[15px] font-semibold tabular-nums text-tertiary-foreground">
               {'ID'} {race.id}
             </span>
 
@@ -874,7 +964,7 @@ export default function UpcomingRaceCard({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-12 w-fit pt-[1px] border-border bg-secondary px-[18px] text-[15px] font-semibold text-secondary-foreground hover:bg-navbarHover"
+                className="h-12 w-fit border-border bg-secondary px-[18px] pt-[1px] text-[15px] font-semibold text-secondary-foreground hover:bg-navbarHover"
                 onClick={() => setIsLatecomersDialogOpen(true)}
               >
                 <span>{t('latecomers').toUpperCase()}</span>
@@ -883,7 +973,7 @@ export default function UpcomingRaceCard({
           </div>
         </CardHeader>
 
-        <CardContent className="pb-6">
+        <CardContent>
           <Table>
             {renderTableHeader()}
 
