@@ -848,7 +848,7 @@ export default function UpcomingRaceCard({
           {/* UNDER / OVER — metà destra: colSpan 5 (VINCENTE + sep + PIAZZATO + sep + PODIO) */}
           <TableCell colSpan={5} className="p-0">
             <div className="flex h-16 items-center justify-center bg-accent text-[16px] font-bold text-accent-foreground">
-              {t('under_over').toUpperCase()} 3.5
+              {t('under_over').toUpperCase()} {race.discipline === 'DOGS8' ? '4.5' : '3.5'}
             </div>
             <div className="flex h-[66px]">
               <div className="flex flex-1 items-center justify-center pl-16 pr-16">
