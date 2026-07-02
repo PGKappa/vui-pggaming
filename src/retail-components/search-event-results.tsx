@@ -599,33 +599,43 @@ export default function SearchEventResults() {
             )
           }}
         >
-          <SelectTrigger className="h-[48px] min-w-0 flex-1 border-none bg-background pl-[16px] pr-[5px] text-[16px] text-foreground">
+          <SelectTrigger className="h-[48px] min-w-0 flex-[1.5] border-none bg-background pl-[16px] pr-[5px] text-[16px] text-foreground">
             <SelectValue placeholder={t('sport')} />
           </SelectTrigger>
           <SelectContent className="bg-white p-0">
             <SelectItem className="text-[14px]" value="NONE">
               {t('discipline').toUpperCase()}
             </SelectItem>
-            {[
-              Discipline.DOGS,
-              Discipline.DOGS8,
-              Discipline.HORSES,
-              Discipline.SOCCER,
-            ].map((d) => {
-              const translationKey =
-                d === 'DOGS'
-                  ? 'dog_racing'
-                  : d === 'DOGS8'
-                    ? 'dog8_racing'
-                    : d === 'HORSES'
-                      ? 'horse_racing'
-                      : 'football'
-              return (
-                <SelectItem className="text-[14px]" key={d} value={d}>
-                  {t(translationKey).toUpperCase()}
-                </SelectItem>
-              )
-            })}
+            {((): { discipline: Discipline; key: string }[] => {
+              const cfg = rootContext?.getNavbarConfig?.() ?? {
+                showDogs6: true,
+                showDogs8: true,
+                showHorses: true,
+                showFootball: true,
+              }
+              return [
+                cfg.showDogs6 && {
+                  discipline: Discipline.DOGS,
+                  key: 'dog_racing',
+                },
+                cfg.showDogs8 && {
+                  discipline: Discipline.DOGS8,
+                  key: 'dog8_racing',
+                },
+                cfg.showHorses && {
+                  discipline: Discipline.HORSES,
+                  key: 'horse_racing',
+                },
+                cfg.showFootball && {
+                  discipline: Discipline.SOCCER,
+                  key: 'football',
+                },
+              ].filter(Boolean) as { discipline: Discipline; key: string }[]
+            })().map(({ discipline: d, key }) => (
+              <SelectItem className="text-[14px]" key={d} value={d}>
+                {t(key).toUpperCase()}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
 
@@ -689,7 +699,7 @@ export default function SearchEventResults() {
 
         {/* CERCA */}
         <Button
-          className="ml-2 mr-4 h-[48px] min-w-0 flex-1 bg-tertiary text-[16px] font-bold text-bet-foreground hover:opacity-90"
+          className="ml-2 mr-4 h-[48px] min-w-0 flex-1 bg-tertiary text-[16px] font-bold uppercase text-bet-foreground hover:opacity-90"
           disabled={selectedDiscipline === 'NONE'}
           onClick={handleSearch}
         >
@@ -698,7 +708,7 @@ export default function SearchEventResults() {
 
         {/* RESET */}
         <Button
-          className="h-[48px] min-w-0 flex-1 bg-tertiary text-[15px] text-tertiary-foreground"
+          className="h-[48px] min-w-0 flex-1 bg-tertiary text-[16px] font-bold text-tertiary-foreground"
           disabled={!selectedDate && !selectedDiscipline && !selectedTimeSlot}
           onClick={handleReset}
         >
