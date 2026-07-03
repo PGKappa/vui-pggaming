@@ -714,9 +714,13 @@ export default function TicketCheckDialog({
                               className="flex-1 text-center text-[12.5px] font-semibold tracking-[0.4px]"
                               style={{ color: '#ccc' }}
                             >
-                              {sel.game.dict.runners?.[s.description]
-                                ? `${s.description} - ${sel.game.dict.runners[s.description]}`
-                                : s.description}
+                              {(() => {
+                                const num = parseInt(s.description)
+                                const name = !isNaN(num) && sel.competitors?.[num - 1]
+                                  ? sel.competitors[num - 1]
+                                  : sel.game.dict.runners?.[s.description]
+                                return name ? `${s.description} - ${name}` : s.description
+                              })()}
                             </span>
                             <span
                               className="flex flex-1 items-center justify-end gap-2 text-[12.5px] font-semibold tracking-[0.4px]"
