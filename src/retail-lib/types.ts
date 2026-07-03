@@ -362,6 +362,7 @@ export type TicketDetailSelection = {
     }
     constraints: Record<string, string>
   }
+  competitors?: string[]
   trackName: string
   channelName: string
   gameDuration: number
