@@ -2,9 +2,11 @@
 
 import { Bet, BetEntry, Selection, SubmittedTicket } from '@/retail-lib/types'
 import { BetMode } from '@/retail-components/betting-slip'
+import { RootContext } from '@/retail-contexts/root-context'
 import {
   createContext,
   useCallback,
+  useContext,
   useEffect,
   useMemo,
   useRef,
@@ -131,6 +133,7 @@ export default function BetsContextProvider(props: {
   const { t } = useTranslation()
   const tRef = useRef(t)
   tRef.current = t
+  const rootContext = useContext(RootContext)
   const initialBetsContext = getBetsContext()
   const [betsContext, setBetsContext] =
     useState<BetsContextType>(initialBetsContext)
@@ -204,17 +207,20 @@ export default function BetsContextProvider(props: {
     return () => clearInterval(interval)
   }, [betsContext.betEntries])
 
+  const maxEvents = Number(rootContext?.getMaxEvents?.()) || 10
+  const maxSelections = Number(rootContext?.getMaxSelections?.()) || 100
+
   const checkSystemLimits = useCallback(
     (newEntries: BetEntry[]): boolean => {
       if (betMode !== 'SYSTEM') return true
 
-      const totalEntries = betsContext.betEntries.length + newEntries.length
-      if (totalEntries > 50) {
-        toast.error(tRef.current('max_bet_entries_system'))
+      const allEntries = [...betsContext.betEntries, ...newEntries]
+
+      if (allEntries.length > maxSelections) {
+        toast.error(tRef.current('max_bet_entries_system', { max: maxSelections }))
         return false
       }
 
-      const allEntries = [...betsContext.betEntries, ...newEntries]
       const eventsSet = new Set<string>()
       allEntries.forEach((entry) => {
         const eventKey = `${entry.bet.discipline}-${entry.bet.event.number}`
@@ -222,19 +228,14 @@ export default function BetsContextProvider(props: {
       })
       const eventsNumber = eventsSet.size
 
-      if (eventsNumber > 10) {
-        toast.error(tRef.current('max_tuple_error'))
-        return false
-      }
-
-      if (eventsNumber > 15) {
-        toast.error(tRef.current('max_events_system'))
+      if (eventsNumber > maxEvents) {
+        toast.error(tRef.current('max_events_system', { max: maxEvents }))
         return false
       }
 
       return true
     },
-    [betMode, betsContext.betEntries],
+    [betMode, betsContext.betEntries, maxEvents, maxSelections],
   )
 
   const addBet = useCallback(

@@ -18,7 +18,11 @@ import {
   SubmittedTicket,
   UpcomingEvent,
 } from '@/retail-lib/types'
-import { createPGVirtualAPICall, normalizeMarketName } from '@/retail-lib/utils'
+import {
+  cn,
+  createPGVirtualAPICall,
+  normalizeMarketName,
+} from '@/retail-lib/utils'
 import {
   ChevronDown,
   CornerDownLeft,
@@ -86,6 +90,9 @@ export default function BettingSlip({
   const minStake = Number(rootContext?.getMinStake?.()) || 0.5
   const minBet = Number(rootContext?.getMinBet?.()) || 0
   const maxWin = Number(rootContext?.getMaxWin?.()) || 1000000000
+  const maxEvents = Number(rootContext?.getMaxEvents?.()) || 10
+  const maxSelections = Number(rootContext?.getMaxSelections?.()) || 100
+  const maxCombinations = Number(rootContext?.getMaxCombinations?.()) || 512
   const minStakeIncrement = Number(rootContext?.getMinStakeIncrement?.()) || 0.5
   const systemStakeIncrement =
     Number(rootContext?.getSystemStakeIncrement?.()) || 0.1
@@ -116,8 +123,8 @@ export default function BettingSlip({
 
   const baseSystemGroups = useMemo(() => {
     if (betMode !== 'SYSTEM') return []
-    return generateSystemGroups(betEntries)
-  }, [betMode, betEntries])
+    return generateSystemGroups(betEntries, { maxSelections, maxEvents })
+  }, [betMode, betEntries, maxSelections, maxEvents])
 
   const systemEventsCount = useMemo(() => {
     if (betMode !== 'SYSTEM') return 0
@@ -133,10 +140,10 @@ export default function BettingSlip({
       isMountedRef.current = true
       return
     }
-    if (betMode === 'SYSTEM' && systemEventsCount > 10) {
-      toast.error(t('max_tuple_error'))
+    if (betMode === 'SYSTEM' && systemEventsCount > maxEvents) {
+      toast.error(t('max_events_system', { max: maxEvents }))
     }
-  }, [betMode, systemEventsCount, t])
+  }, [betMode, systemEventsCount, maxEvents, t])
 
   const systemGroups = useMemo(() => {
     return baseSystemGroups
@@ -495,8 +502,8 @@ export default function BettingSlip({
       return
     }
 
-    if (betMode === 'SYSTEM' && systemEventsCount > 10) {
-      toast.error(t('max_tuple_error'))
+    if (betMode === 'SYSTEM' && systemEventsCount > maxEvents) {
+      toast.error(t('max_events_system', { max: maxEvents }))
       return
     }
 
@@ -539,8 +546,8 @@ export default function BettingSlip({
         (sum, group) => sum + group.stake,
         0,
       )
-      if (totalSystemCombinations > 2048) {
-        toast.error(t('max_combinations_error'))
+      if (totalSystemCombinations > maxCombinations) {
+        toast.error(t('max_combinations_error', { max: maxCombinations }))
         return
       }
       if (totalSystemStake <= 0) {
@@ -1117,7 +1124,7 @@ export default function BettingSlip({
           <div
             className={`relative flex w-full flex-col items-center justify-center border-b-4 pb-0${
               isSystemToggleEnabled ? 'cursor-pointer' : ''
-            } ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'border-betslipBorder bg-betslipTitleBackground1 border-b-4 pb-1 font-semibold text-betSlip-header' : 'font text-betslipTitleBackground-foreground border-betslipBorder2 bg-betslipTitleBackground1'}`}
+            } ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'border-b-4 border-betslipBorder bg-betslipTitleBackground1 pb-1 font-semibold text-betSlip-header' : 'font text-betslipTitleBackground-foreground border-betslipBorder2 bg-betslipTitleBackground1'}`}
             onClick={
               isSystemToggleEnabled
                 ? () => setSystemToggleMode('MULTIPLE')
@@ -1125,7 +1132,7 @@ export default function BettingSlip({
             }
           >
             <span
-              className={`pt-1 text-[14px] ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'text-betslipTitleBackground1-foreground font-semibold' : isSystemToggleEnabled ? 'text-betslipTitleBackground2-foreground pb-1 font-semibold' : 'text-betslipTitleBackground2-foreground pb-1 font-normal'}`}
+              className={`pt-1 text-[14px] ${betMode === 'SINGLE' || betMode === 'MULTIPLE' ? 'font-semibold text-betslipTitleBackground1-foreground' : isSystemToggleEnabled ? 'pb-1 font-semibold text-betslipTitleBackground2-foreground' : 'pb-1 font-normal text-betslipTitleBackground2-foreground'}`}
             >
               {betMode === 'SINGLE'
                 ? `${t('single').toUpperCase()}`
@@ -1148,7 +1155,7 @@ export default function BettingSlip({
             }
           >
             <span
-              className={`pt-1 text-[14px] ${betMode === 'SYSTEM' ? 'text-betslipTitleBackground1-foreground font-semibold' : isSystemToggleEnabled ? 'text-betslipTitleBackground2-foreground font-semibold' : 'text-betslipTitleBackground2-foreground font-normal'}`}
+              className={`pt-1 text-[14px] ${betMode === 'SYSTEM' ? 'font-semibold text-betslipTitleBackground1-foreground' : isSystemToggleEnabled ? 'font-semibold text-betslipTitleBackground2-foreground' : 'font-normal text-betslipTitleBackground2-foreground'}`}
             >
               {t('system').toUpperCase()}
             </span>
@@ -1192,12 +1199,12 @@ export default function BettingSlip({
 
       <Separator />
 
-      <CardFooter className="bg-backgroundBetslip relative mb-[26px] flex flex-col">
+      <CardFooter className="relative mb-[26px] flex flex-col bg-backgroundBetslip">
         {betMode !== 'SYSTEM' ? (
           <>
-            <div className="bg-amountHeader relative h-[30px] w-full py-3"></div>
+            <div className="relative h-[30px] w-full bg-amountHeader py-3"></div>
 
-            <div className="text-searchResultText relative top-[12px] flex w-full flex-row items-center justify-between px-4 pt-[9px]">
+            <div className="relative top-[12px] flex w-full flex-row items-center justify-between px-4 pt-[9px] text-searchResultText">
               <span className="relative bottom-[3px] text-[15px] font-semibold">
                 {t('total_odd').toUpperCase()}
               </span>
@@ -1229,7 +1236,7 @@ export default function BettingSlip({
               })}
             </div>
 
-            <div className="text-searchResultText relative top-[17px] flex w-full flex-row items-center justify-between px-4 py-[18px]">
+            <div className="relative top-[17px] flex w-full flex-row items-center justify-between px-4 py-[18px] text-searchResultText">
               <div className="flex items-center space-x-2">
                 <span className="pt-[1px] text-[15px] font-semibold">
                   {t('amount').toUpperCase()}
@@ -1248,7 +1255,7 @@ export default function BettingSlip({
 
             <Separator />
 
-            <div className="bg-backgroundBetslip text-searchResultText relative top-[27px] flex w-full flex-row items-center justify-between px-4 py-[12px] pb-[16px] pt-0">
+            <div className="relative top-[27px] flex w-full flex-row items-center justify-between bg-backgroundBetslip px-4 py-[12px] pb-[16px] pt-0 text-searchResultText">
               <span className="relative bottom-[1px] text-[17px] font-semibold">
                 {t('potential_win').toUpperCase()}
               </span>
@@ -1303,7 +1310,7 @@ export default function BettingSlip({
                             variant="ghost"
                             size="sm"
                             onClick={handleDistributeStake}
-                            className="bg-minusButtonDark h-8 w-7 p-3 text-[19px] text-bet-foreground opacity-50 hover:opacity-90"
+                            className="h-8 w-7 bg-minusButtonDark p-3 text-[19px] text-bet-foreground opacity-50 hover:opacity-90"
                           >
                             <DivideIcon className="h-4 w-4" />
                           </Button>
@@ -1320,7 +1327,7 @@ export default function BettingSlip({
                             variant="ghost"
                             size="sm"
                             onClick={handleAddStakeToAll}
-                            className="bg-plusButton h-8 w-7 p-3 text-[19px] text-bet-foreground hover:opacity-90"
+                            className="h-8 w-7 bg-plusButton p-3 text-[19px] text-bet-foreground hover:opacity-90"
                           >
                             <CornerDownLeft className="h-4 w-4" />
                           </Button>
@@ -1407,7 +1414,7 @@ export default function BettingSlip({
                                       }
                                     }}
                                     disabled={group.stake <= 0}
-                                    className="bg-minusButton disabled:bg-minusButtonDark h-8 w-7 p-3 text-[19px] text-bet-foreground hover:opacity-90"
+                                    className="h-8 w-7 bg-minusButton p-3 text-[19px] text-bet-foreground hover:opacity-90 disabled:bg-minusButtonDark"
                                   >
                                     <MinusIcon className="h-4 w-4" />
                                   </Button>
@@ -1454,7 +1461,7 @@ export default function BettingSlip({
                                         }, 0)
                                       }
                                     }}
-                                    className="bg-plusButton h-8 w-7 p-3 text-[19px] text-bet-foreground hover:opacity-90"
+                                    className="h-8 w-7 bg-plusButton p-3 text-[19px] text-bet-foreground hover:opacity-90"
                                   >
                                     <PlusIcon className="h-4 w-4" />
                                   </Button>
@@ -1547,20 +1554,24 @@ export default function BettingSlip({
 
             <Separator />
 
-            <div className="bg-backgroundBetslip text-searchResultText relative bottom-[1px] flex w-full flex-row items-center justify-between px-3 py-[27px] pb-[15px]">
+            <div className="relative bottom-[1px] flex w-full flex-row items-center justify-between bg-backgroundBetslip px-3 py-[27px] pb-[15px] text-searchResultText">
               <span className="text-[15px] font-semibold">
                 {t('total_combinations').toUpperCase()}
               </span>
               <span
-                className={`text-[15px] font-semibold${totalSystemCombinations > 2048 ? 'text-chart-2' : ''}`}
+                className={cn(
+                  'text-[15px] font-semibold',
+                  totalSystemCombinations > maxCombinations &&
+                    'font-bold text-chart-2',
+                )}
               >
-                {totalSystemCombinations}/2048
+                {totalSystemCombinations}/{maxCombinations}
               </span>
             </div>
 
             <Separator />
 
-            <div className="text-searchResultText relative top-[2px] flex w-full flex-row items-center justify-between px-3">
+            <div className="relative top-[2px] flex w-full flex-row items-center justify-between px-3 text-searchResultText">
               <div className="flex items-center space-x-2">
                 <span className="text-[16px] font-semibold">
                   {t('amount').toUpperCase()}
@@ -1579,7 +1590,7 @@ export default function BettingSlip({
 
             <Separator />
 
-            <div className="bg-backgroundBetslip text-searchResultText relative top-[29px] flex w-full flex-row items-center justify-between px-3 pb-[19px]">
+            <div className="relative top-[29px] flex w-full flex-row items-center justify-between bg-backgroundBetslip px-3 pb-[19px] text-searchResultText">
               <span className="text-[17px] font-semibold tabular-nums">
                 {t('potential_win').toUpperCase()}
               </span>
@@ -1592,6 +1603,11 @@ export default function BettingSlip({
       </CardFooter>
 
       <div className="bg-backgroundBetslip">
+        {betMode === 'SYSTEM' && totalSystemCombinations > maxCombinations && (
+          <div className="mx-3 mt-2 rounded border border-notCollected bg-notCollected px-3 py-2 text-center text-sm font-semibold text-notCollected-foreground">
+            {t('combinations_limit_exceeded')}
+          </div>
+        )}
         <div className="w-full p-3 pb-[24px] pt-[9px]">
           <Button
             variant="betNow"
