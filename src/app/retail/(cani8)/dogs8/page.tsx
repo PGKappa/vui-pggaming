@@ -11,6 +11,7 @@ import {
 } from '@/retail-lib/carousel-sync'
 import { useContext, useEffect, useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { ScrollArea } from '@/retail-components/ui/scroll-area'
 
 export default function Dogs8Page() {
   const { t } = useTranslation()
@@ -87,9 +88,10 @@ export default function Dogs8Page() {
   }, [selectedEvent, upcomingEvents])
 
   return (
-    <div className="relative bottom-[5px] flex h-full flex-row overflow-hidden">
-      <div className="flex flex-col">
-        <div className="bg-betslip flex h-[109px] w-[1508px] flex-row items-center justify-center pb-[2px] pr-2">
+    <div className="relative bottom-[5px] flex h-[945px] min-w-[1200px] flex-row overflow-hidden">
+      {/* LEFT COLUMN - si allarga/stringe in base alla risoluzione */}
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+        <div className="bg-betslip flex h-[99px] w-full flex-row items-center justify-center pb-[2px] pr-2">
           <UpcomingEventsCarousel
             selectedEvent={selectedEvent}
             setSelectedEvent={(event) => {
@@ -99,9 +101,8 @@ export default function Dogs8Page() {
           />
         </div>
 
-        {/* Main content area */}
-        <div className="bg-betslip flex h-full flex-row gap-2 overflow-hidden pr-2 pt-[2px]">
-          <div className="flex h-[921px] w-[1500px] flex-col gap-2 overflow-y-auto pb-16">
+        <div className="bg-betslip flex flex-1 flex-row gap-2 overflow-hidden pr-2 pt-[2px]">
+          <ScrollArea className="h-full w-full">
             {!!searchEventResults ? (
               <SearchEventResults />
             ) : selectedEvent ? (
@@ -111,12 +112,12 @@ export default function Dogs8Page() {
                 {t('no_event_selected')}
               </div>
             )}
-          </div>
+          </ScrollArea>
         </div>
       </div>
 
-      {/* RIGHT COLUMN - Betting slip */}
-      <div className="relative right-2 h-[937px] w-[410px] bg-background text-foreground">
+      {/* RIGHT COLUMN - larghezza fissa, sempre ancorata a destra */}
+      <div className="relative right-1 h-[950px] w-[400px] shrink-0 bg-background text-foreground">
         <BettingSlip selectedEvent={selectedEvent} />
       </div>
     </div>
