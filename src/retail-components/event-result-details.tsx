@@ -111,6 +111,10 @@ export default function EventResultDetails({
         parsed = null
       }
 
+      if (parsed?.ret_code !== undefined && parsed.ret_code !== 1024) {
+        throw new Error(`API error: ret_code ${parsed.ret_code}`)
+      }
+
       const url = extractReplayUrl(parsed) || extractReplayUrl(rawText)
       if (!url) {
         throw new Error('Replay URL not found in API response')
@@ -201,7 +205,7 @@ export default function EventResultDetails({
                   playing
                   width="100%"
                   height="100%"
-                  muted={false}
+                  muted
                   style={{ backgroundColor: '#000' }}
                 />
               ) : (
