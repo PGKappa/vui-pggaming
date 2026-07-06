@@ -1,12 +1,15 @@
 import { RootContext } from '@/retail-contexts/root-context'
 import { Discipline, EventResult, RaceResult } from '@/retail-lib/types'
-import { createPGVirtualAPICall } from '@/retail-lib/utils'
+import { getRacerColors, createPGVirtualAPICall } from '@/retail-lib/utils'
 import { format } from 'date-fns'
+import { t } from 'i18next'
+import Image from 'next/image'
+import { X } from 'lucide-react'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import EventResultDetails from '@/retail-components/event-result-details'
 import LoadingSpinner from './loading-spinner'
+import ReactPlayer from 'react-player/lazy'
 import {
   Accordion,
   AccordionContent,
@@ -23,11 +26,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select'
+import { getLayoutConfig } from '@/retail-lib/layout-config'
+
+function formatDateForAPI(date: Date) {
+  const day = String(date.getDate()).padStart(2, '0')
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const year = date.getFullYear()
+  return `${day}/${month}/${year}`
+}
 
 const dates = Array.from({ length: 10 }, (_, index) => {
   const date = new Date()
   date.setDate(date.getDate() - index)
-  return date.toLocaleDateString('it-IT')
+  return formatDateForAPI(date)
 })
 
 const timeSlots = [
@@ -49,9 +60,23 @@ const searchResultsCache = new Map<
 >()
 const SEARCH_CACHE_TTL_MS = 5 * 60 * 1000
 
+function getPalId(item: any): string {
+  return String(item?.ext_pal_id ?? item?.int_pal_id ?? item?.pal_id ?? '')
+}
+
+function getEventId(item: any): string {
+  return String(item?.int_event_id ?? item?.event_id ?? item?.id ?? '')
+}
+
 export default function SearchEventResults() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const rootContext = useContext(RootContext)
+  const initCode = rootContext.initCode
+  const operator = rootContext.operator
+  const timezone = rootContext.getTimezone?.() || 'Europe/Rome'
+  const { disciplineSelectMinWidth } = getLayoutConfig(
+    i18n.language,
+  ).searchEventResults
 
   const [selectedDiscipline, setSelectedDiscipline] = useState<
     Discipline | 'NONE'
@@ -79,13 +104,13 @@ export default function SearchEventResults() {
 
   const fetchDetailedEventResult = useCallback(
     async (extId: string, eventId: string) => {
-      if (!rootContext.initCode || !rootContext.operator) return null
+      if (!initCode || !operator) return null
       try {
         const response = await createPGVirtualAPICall(
           `/api/event/results/${extId}/${eventId}`,
-          rootContext.initCode,
+          initCode,
           undefined,
-          rootContext.operator,
+          operator,
         )
         if (!response.ok) {
           console.warn('Response not ok:', response.status)
@@ -99,7 +124,7 @@ export default function SearchEventResults() {
         return null
       }
     },
-    [rootContext.initCode, rootContext.operator],
+    [initCode, operator],
   )
 
   useEffect(() => {
@@ -161,7 +186,7 @@ export default function SearchEventResults() {
               '/api/event/results/list',
               rootContext.initCode,
               { method: 'POST', body: JSON.stringify(requestBody) },
-              rootContext.operator,
+              operator,
             )
             if (!response.ok) throw new Error('Failed to fetch racing events')
             const data = await response.json()
@@ -254,7 +279,7 @@ export default function SearchEventResults() {
           '/api/event/results/list',
           rootContext.initCode,
           { method: 'POST', body: JSON.stringify(requestBody) },
-          rootContext.operator,
+          operator,
         )
         if (!response.ok)
           throw new Error(`HTTP error! status: ${response.status}`)
@@ -389,9 +414,9 @@ export default function SearchEventResults() {
               startTime = new Date()
             }
             return {
-              id: result.int_event_id,
-              extId: result.ext_pal_id,
-              name: result.round_name || `Soccer Match ${result.int_event_id}`,
+              id: Number(getEventId(result)),
+              extId: getPalId(result),
+              name: result.round_name || `Soccer Match ${getEventId(result)}`,
               startTime,
               discipline: Discipline.SOCCER,
               jornada: result.round_number,
@@ -449,9 +474,9 @@ export default function SearchEventResults() {
               startTime = new Date()
             }
             return {
-              id: result.int_event_id,
-              extId: result.ext_pal_id,
-              name: result.name || `${discipline} Event ${result.int_event_id}`,
+              id: Number(getEventId(result)),
+              extId: getPalId(result),
+              name: result.name || `${discipline} Event ${getEventId(result)}`,
               startTime,
               discipline,
             } as EventResult
@@ -587,7 +612,7 @@ export default function SearchEventResults() {
 
   return (
     <div className="flex h-full flex-col gap-1">
-      <div className="flex h-16 w-full items-center gap-2 bg-accent px-[24px] min-[1400px]:px-[60px] min-[1600px]:px-[100px] min-[1750px]:px-[130px] min-[1920px]:px-[167px]">
+      <div className="flex h-16 w-full items-center gap-2 bg-accent px-[24px] min-[1400px]:px-[60px] min-[1600px]:px-[100px] min-[1750px]:px-[130px] min-[1920px]:pl-[14px] min-[1920px]:pr-[167px]">
         {/* DISCIPLINA */}
         <Select
           value={selectedDiscipline.toString()}
@@ -599,43 +624,32 @@ export default function SearchEventResults() {
             )
           }}
         >
-          <SelectTrigger className="h-[48px] min-w-0 flex-[1.5] border-none bg-background pl-[16px] pr-[5px] text-[16px] text-foreground">
+          <SelectTrigger
+            className={`h-[48px] ${disciplineSelectMinWidth} flex-1 border-none bg-background pl-[16px] pr-[5px] text-[16px] text-foreground`}
+          >
             <SelectValue placeholder={t('sport')} />
           </SelectTrigger>
           <SelectContent className="bg-white p-0">
             <SelectItem className="text-[14px]" value="NONE">
               {t('discipline').toUpperCase()}
             </SelectItem>
-            {((): { discipline: Discipline; key: string }[] => {
-              const cfg = rootContext?.getNavbarConfig?.() ?? {
-                showDogs6: true,
-                showDogs8: true,
-                showHorses: true,
-                showFootball: true,
-              }
-              return [
-                cfg.showDogs6 && {
-                  discipline: Discipline.DOGS,
-                  key: 'dog_racing',
-                },
-                cfg.showDogs8 && {
-                  discipline: Discipline.DOGS8,
-                  key: 'dog8_racing',
-                },
-                cfg.showHorses && {
-                  discipline: Discipline.HORSES,
-                  key: 'horse_racing',
-                },
-                cfg.showFootball && {
-                  discipline: Discipline.SOCCER,
-                  key: 'football',
-                },
-              ].filter(Boolean) as { discipline: Discipline; key: string }[]
-            })().map(({ discipline: d, key }) => (
-              <SelectItem className="text-[14px]" key={d} value={d}>
-                {t(key).toUpperCase()}
-              </SelectItem>
-            ))}
+            {[
+              Discipline.DOGS,
+              Discipline.DOGS8,
+              Discipline.HORSES,
+            ].map((d) => {
+              const translationKey =
+                d === 'DOGS'
+                  ? 'dog_racing'
+                  : d === 'DOGS8'
+                    ? 'dog8_racing'
+                    : 'horse_racing'
+              return (
+                <SelectItem className="text-[14px]" key={d} value={d}>
+                  {t(translationKey).toUpperCase()}
+                </SelectItem>
+              )
+            })}
           </SelectContent>
         </Select>
 
@@ -661,7 +675,9 @@ export default function SearchEventResults() {
           onValueChange={(value) => setSelectedDate(value)}
           disabled={lastTenGames}
         >
-          <SelectTrigger className="ml-[2px] mr-[10px] h-[48px] min-w-0 flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground">
+          <SelectTrigger
+            className={`ml-[2px] mr-[10px] h-[48px] ${disciplineSelectMinWidth} flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground`}
+          >
             <SelectValue placeholder={t('date')} />
           </SelectTrigger>
           <SelectContent className="bg-white p-0">
@@ -682,7 +698,9 @@ export default function SearchEventResults() {
           onValueChange={setSelectedTimeSlot}
           disabled={lastTenGames}
         >
-          <SelectTrigger className="mr-2 h-[48px] min-w-0 flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground">
+          <SelectTrigger
+            className={`mr-2 h-[48px] ${disciplineSelectMinWidth} flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground`}
+          >
             <SelectValue placeholder={t('time_slot')} />
           </SelectTrigger>
           <SelectContent className="bg-white p-0">
@@ -699,7 +717,7 @@ export default function SearchEventResults() {
 
         {/* CERCA */}
         <Button
-          className="ml-2 mr-4 h-[48px] min-w-0 flex-1 bg-tertiary text-[16px] font-bold uppercase text-bet-foreground hover:opacity-90"
+          className={`ml-2 mr-4 h-[48px] ${disciplineSelectMinWidth} flex-1 bg-tertiary text-[16px] font-bold text-bet-foreground hover:opacity-90`}
           disabled={selectedDiscipline === 'NONE'}
           onClick={handleSearch}
         >
@@ -708,7 +726,7 @@ export default function SearchEventResults() {
 
         {/* RESET */}
         <Button
-          className="h-[48px] min-w-0 flex-1 bg-tertiary text-[16px] font-bold text-tertiary-foreground"
+          className={`h-[48px] ${disciplineSelectMinWidth} flex-1 bg-tertiary text-[15px] text-tertiary-foreground`}
           disabled={!selectedDate && !selectedDiscipline && !selectedTimeSlot}
           onClick={handleReset}
         >
@@ -730,7 +748,7 @@ export default function SearchEventResults() {
             <ScrollArea className="pb-20">
               <Accordion
                 type="multiple"
-                className="space-y-2"
+                className="max-w-[1500px] space-y-2"
                 value={openResults}
                 onValueChange={setOpenResults}
               >
@@ -743,8 +761,8 @@ export default function SearchEventResults() {
                       className="gap-0"
                     >
                       <AccordionTrigger className="pointer-events-none border-b-0 bg-accent p-0 pl-2 text-base text-accent-foreground hover:no-underline [&[data-state=open]>svg]:-rotate-90">
-                        <div className="relative top-1.5 mb-[7px] flex h-[46px] w-full flex-row items-center justify-between gap-4 pl-[9px] uppercase tabular-nums text-white">
-                          <div className="flex flex-row items-center gap-4 pb-[5px] text-[16px] font-semibold">
+                        <div className="relative top-1.5 mb-[7px] flex h-[46px] min-w-0 flex-1 flex-row items-center justify-between space-x-4 pl-[9px] uppercase tabular-nums text-white">
+                          <div className="flex flex-row items-center space-x-4 pb-[5px] text-[16px] font-semibold">
                             <span className="whitespace-nowrap text-[16px]">
                               {eventResult.discipline === 'DOGS'
                                 ? t('dog_races_label')
@@ -786,7 +804,7 @@ export default function SearchEventResults() {
                             </span>
                           </div>
                         </div>
-                        <div className="pointer-events-auto flex items-center justify-center">
+                        <div className="pointer-events-auto flex shrink-0 items-center justify-center">
                           <svg
                             width="25"
                             height="25"
@@ -828,6 +846,859 @@ export default function SearchEventResults() {
           </div>
         )}
       </div>
+    </div>
+  )
+}
+
+function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
+  const rootContext = useContext(RootContext)
+  const [detailedResult, setDetailedResult] = useState<any>(null)
+  const [showReplay, setShowReplay] = useState(false)
+  const [replayUrl, setReplayUrl] = useState<string | null>(null)
+  const [loadingReplay, setLoadingReplay] = useState(false)
+  const [replayError, setReplayError] = useState<string | null>(null)
+
+  const extractReplayUrl = (payload: any): string | null => {
+    if (typeof payload === 'string' && payload.trim()) return payload.trim()
+
+    const candidates = [
+      payload?.video?.src,
+      payload?.video?.url,
+      payload?.replayUrl,
+      payload?.replay_url,
+      payload?.videoUrl,
+      payload?.video_url,
+      payload?.streamUrl,
+      payload?.stream_url,
+      payload?.url,
+      payload?.playlist,
+      payload?.hls,
+      payload?.data?.video?.src,
+      payload?.data?.replayUrl,
+      payload?.data?.videoUrl,
+      payload?.data?.url,
+      payload?.result?.replayUrl,
+      payload?.result?.videoUrl,
+      payload?.result?.url,
+    ]
+
+    for (const candidate of candidates) {
+      if (typeof candidate === 'string' && candidate.trim()) {
+        return candidate.trim()
+      }
+    }
+
+    return null
+  }
+
+  const fetchReplay = useCallback(async () => {
+    if (!rootContext.initCode || !rootContext.operator) {
+      setReplayError(t('login_required'))
+      setShowReplay(true)
+      return
+    }
+    if (!eventResult.extId) {
+      setReplayError(t('no_detailed_results'))
+      setShowReplay(true)
+      return
+    }
+
+    setShowReplay(true)
+    setReplayError(null)
+    setReplayUrl(null)
+    setLoadingReplay(true)
+
+    try {
+      const gameId =
+        eventResult.discipline === Discipline.HORSES
+          ? 'horses6'
+          : eventResult.discipline === Discipline.DOGS8
+            ? 'dogs8'
+            : 'dogs6'
+      const response = await createPGVirtualAPICall(
+        '/api/event/results/replay',
+        rootContext.initCode,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            channelId: '',
+            eventId: String(eventResult.id),
+            gameId,
+            palimpsestId: eventResult.extId,
+          }),
+        },
+        rootContext.operator,
+      )
+
+      const rawText = await response.text()
+      let data: any = null
+      try {
+        data = rawText ? JSON.parse(rawText) : null
+      } catch {
+        data = null
+      }
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`)
+      }
+
+      if (data?.ret_code !== undefined && data.ret_code !== 1024) {
+        throw new Error(data?.description || `API error ${data.ret_code}`)
+      }
+
+      const url = extractReplayUrl(data) || extractReplayUrl(rawText)
+      if (!url) {
+        throw new Error('Replay URL not found in API response')
+      }
+
+      setReplayUrl(url)
+    } catch (error) {
+      console.error('Error fetching replay:', error)
+      setReplayError(t('failed_fetch_results'))
+    } finally {
+      setLoadingReplay(false)
+    }
+  }, [
+    rootContext.initCode,
+    rootContext.operator,
+    eventResult.extId,
+    eventResult.id,
+    eventResult.discipline,
+  ])
+
+  useEffect(() => {
+    setShowReplay(false)
+    setReplayUrl(null)
+    setReplayError(null)
+    setLoadingReplay(false)
+  }, [eventResult.id, eventResult.extId, eventResult.discipline])
+
+  useEffect(() => {
+    if (eventResult.result && eventResult.result.odds) {
+      setDetailedResult(eventResult.result)
+      return
+    }
+    if (!eventResult.extId) {
+      setDetailedResult(eventResult.result || null)
+      return
+    }
+    setDetailedResult(eventResult.result || null)
+  }, [eventResult])
+
+  if (!detailedResult) {
+    return (
+      <div className="p-4 text-center text-muted-foreground">
+        {t('no_detailed_results')}
+      </div>
+    )
+  }
+
+  if (
+    (eventResult.discipline === Discipline.HORSES ||
+      eventResult.discipline === Discipline.DOGS ||
+      eventResult.discipline === Discipline.DOGS8) &&
+    detailedResult
+  ) {
+    if (detailedResult.odds) {
+      const raceResult = detailedResult as RaceResult
+
+      const extractExacta = (exacta: any) => {
+        const results: Array<{ combination: string; odds: string }> = []
+        Object.entries(exacta).forEach(([first, secondObj]: [string, any]) => {
+          if (typeof secondObj === 'object') {
+            Object.entries(secondObj).forEach(
+              ([second, odds]: [string, any]) => {
+                results.push({
+                  combination: `${first}-${second}`,
+                  odds: String(odds),
+                })
+              },
+            )
+          }
+        })
+        return results
+      }
+
+      const extractQuinella = (quinella: any) => {
+        const results: Array<{ combination: string; odds: string }> = []
+        Object.entries(quinella).forEach(
+          ([first, secondObj]: [string, any]) => {
+            if (typeof secondObj === 'object') {
+              Object.entries(secondObj).forEach(
+                ([second, odds]: [string, any]) => {
+                  results.push({
+                    combination: `${first}-${second}`,
+                    odds: String(odds),
+                  })
+                },
+              )
+            }
+          },
+        )
+        return results
+      }
+
+      const extractTrifecta = (trifecta: any) => {
+        const results: Array<{ combination: string; odds: string }> = []
+        Object.entries(trifecta).forEach(
+          ([first, secondObj]: [string, any]) => {
+            if (typeof secondObj === 'object') {
+              Object.entries(secondObj).forEach(
+                ([second, thirdObj]: [string, any]) => {
+                  if (typeof thirdObj === 'object') {
+                    Object.entries(thirdObj).forEach(
+                      ([third, odds]: [string, any]) => {
+                        results.push({
+                          combination: `${first}-${second}-${third}`,
+                          odds: String(odds),
+                        })
+                      },
+                    )
+                  }
+                },
+              )
+            }
+          },
+        )
+        return results
+      }
+
+      const extractBoxedTrifecta = (boxedtrifecta: any) => {
+        const results: Array<{ combination: string; odds: string }> = []
+        Object.entries(boxedtrifecta).forEach(
+          ([first, secondObj]: [string, any]) => {
+            if (typeof secondObj === 'object') {
+              Object.entries(secondObj).forEach(
+                ([second, thirdObj]: [string, any]) => {
+                  if (typeof thirdObj === 'object') {
+                    Object.entries(thirdObj).forEach(
+                      ([third, odds]: [string, any]) => {
+                        results.push({
+                          combination: `${first}-${second}-${third}`,
+                          odds: String(odds),
+                        })
+                      },
+                    )
+                  }
+                },
+              )
+            }
+          },
+        )
+        return results
+      }
+
+      if (showReplay) {
+        return (
+          <div className="relative mb-[-48px] flex flex-col items-center">
+            <button
+              onClick={() => {
+                setShowReplay(false)
+                setReplayUrl(null)
+                setReplayError(null)
+              }}
+              className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-background/60 text-foreground hover:bg-background/80"
+              aria-label="Close replay"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <div className="flex h-[660px] w-full items-center justify-center bg-black">
+              {loadingReplay ? (
+                <LoadingSpinner />
+              ) : replayError ? (
+                <div className="flex flex-col items-center gap-3 p-6 text-center text-neutral-300">
+                  <div>{replayError}</div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="bg-white/5 text-white"
+                    onClick={fetchReplay}
+                  >
+                    RETRY
+                  </Button>
+                </div>
+              ) : replayUrl ? (
+                <ReactPlayer
+                  url={replayUrl}
+                  controls
+                  playing
+                  width="100%"
+                  height="100%"
+                  muted
+                  style={{ backgroundColor: '#000' }}
+                  onError={(error) => {
+                    console.error('Video playback error:', error)
+                    setReplayError(t('failed_fetch_results'))
+                  }}
+                />
+              ) : (
+                <div className="text-neutral-300">{t('no_detailed_results')}</div>
+              )}
+            </div>
+          </div>
+        )
+      }
+
+      return (
+        <div className="mb-[-48px] space-y-4">
+          {detailedResult.arrival &&
+            Array.isArray(detailedResult.arrival) &&
+            detailedResult.arrival.length > 0 && (
+              <div className="mb-[-8px] border-b">
+                <div className="mt-[7px] h-[45px] bg-secondary py-2 text-center">
+                  <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">
+                    {t('arrival_order').toUpperCase()}
+                  </div>
+                </div>
+                <div className="mr-[40px] flex h-[79px] items-center justify-center gap-[147px] p-4">
+                  {detailedResult.arrival
+                    .slice(0, 3)
+                    .map((competitor: any, index: number) => {
+                      const imageSrc =
+                        index === 0
+                          ? '/cockade_gold.png'
+                          : index === 1
+                            ? '/cockade_silver.png'
+                            : '/cockade_bronze.png'
+                      const medalNumber = String(index + 1)
+                      return (
+                        <div
+                          key={competitor.number || index}
+                          className="flex items-center gap-3"
+                        >
+                          <div className="relative flex h-11 w-11 items-center justify-center">
+                            <Image
+                              src={imageSrc}
+                              alt={medalNumber}
+                              width={48}
+                              height={48}
+                              className="absolute"
+                            />
+                            <div className="relative pb-[11px] text-[23px] font-bold">
+                              {medalNumber}
+                            </div>
+                          </div>
+                          <div
+                            className="flex h-[33px] w-[33px] items-center justify-center rounded-md text-[21px] font-semibold"
+                            style={
+                              getRacerColors(
+                                competitor.number,
+                                eventResult.discipline as
+                                  | 'DOGS'
+                                  | 'DOGS8'
+                                  | 'HORSES',
+                              ).style
+                            }
+                          >
+                            {competitor.number}
+                          </div>
+                          <div className="relative right-[1px] max-w-0 pr-10 pt-[1px] text-[17px] font-semibold">
+                            {competitor.name}
+                          </div>
+                        </div>
+                      )
+                    })}
+                </div>
+              </div>
+            )}
+
+          <div className="grid grid-cols-3">
+            {raceResult.odds.winner && (
+              <div className="border-b">
+                <div className="h-[45px] bg-secondary py-2 text-center">
+                  <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">
+                    {t('winner').toUpperCase()}
+                  </div>
+                </div>
+                <div className="space-y-3 p-3">
+                  {Object.entries(raceResult.odds.winner).map(
+                    ([number, odds]) => (
+                      <div
+                        key={number}
+                        className="flex items-center justify-between"
+                      >
+                        <span className="ml-3 flex items-center gap-3">
+                          <div
+                            className="flex h-[33px] w-[33px] items-center justify-center rounded-md text-[21px] font-semibold"
+                            style={
+                              getRacerColors(
+                                parseInt(number),
+                                eventResult.discipline as
+                                  | 'DOGS'
+                                  | 'DOGS8'
+                                  | 'HORSES',
+                              ).style
+                            }
+                          >
+                            {number}
+                          </div>
+                          <span className="text-[17px] font-semibold">
+                            {odds}
+                          </span>
+                        </span>
+                      </div>
+                    ),
+                  )}
+                </div>
+              </div>
+            )}
+            {raceResult.odds.placed && (
+              <div className="border-b border-l">
+                <div className="h-[45px] bg-secondary py-2 text-center">
+                  <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">
+                    {t('place_2').toUpperCase()}
+                  </div>
+                </div>
+                <div className="space-y-3 p-3">
+                  {Object.entries(raceResult.odds.placed).map(
+                    ([number, odds]) => (
+                      <div
+                        key={number}
+                        className="flex items-center justify-between"
+                      >
+                        <span className="ml-3 flex items-center gap-3">
+                          <div
+                            className="flex h-[33px] w-[33px] items-center justify-center rounded-md text-[21px] font-semibold"
+                            style={
+                              getRacerColors(
+                                parseInt(number),
+                                eventResult.discipline as
+                                  | 'DOGS'
+                                  | 'DOGS8'
+                                  | 'HORSES',
+                              ).style
+                            }
+                          >
+                            {number}
+                          </div>
+                          <span className="text-[17px] font-semibold">
+                            {odds}
+                          </span>
+                        </span>
+                      </div>
+                    ),
+                  )}
+                </div>
+              </div>
+            )}
+            {raceResult.odds.show && (
+              <div className="border-b border-l">
+                <div className="h-[45px] bg-secondary py-2 text-center">
+                  <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">
+                    {t('show_3').toUpperCase()}
+                  </div>
+                </div>
+                <div className="space-y-3 p-3">
+                  {Object.entries(raceResult.odds.show).map(
+                    ([number, odds]) => (
+                      <div
+                        key={number}
+                        className="flex items-center justify-between"
+                      >
+                        <span className="ml-3 flex items-center gap-3">
+                          <div
+                            className="flex h-[33px] w-[33px] items-center justify-center rounded-md text-[21px] font-semibold"
+                            style={
+                              getRacerColors(
+                                parseInt(number),
+                                eventResult.discipline as
+                                  | 'DOGS'
+                                  | 'DOGS8'
+                                  | 'HORSES',
+                              ).style
+                            }
+                          >
+                            {number}
+                          </div>
+                          <span className="text-[17px] font-semibold">
+                            {odds}
+                          </span>
+                        </span>
+                      </div>
+                    ),
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="grid grid-cols-4">
+            {raceResult.odds.exacta && (
+              <div className="relative bottom-2 border-b">
+                <div className="h-[45px] bg-secondary py-2 text-center">
+                  <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">
+                    {t('exacta').toUpperCase()}
+                  </div>
+                </div>
+                <div className="space-y-2 p-3">
+                  {extractExacta(raceResult.odds.exacta).map(
+                    ({ combination, odds }) => (
+                      <div
+                        key={combination}
+                        className="flex items-center justify-between"
+                      >
+                        <span className="ml-3 flex items-center gap-3">
+                          {combination.split('-').map((num, idx) => (
+                            <div
+                              key={idx}
+                              className="flex h-[33px] w-[33px] items-center justify-center rounded-md text-[21px] font-semibold"
+                              style={
+                                getRacerColors(
+                                  parseInt(num),
+                                  eventResult.discipline as
+                                    | 'DOGS'
+                                    | 'DOGS8'
+                                    | 'HORSES',
+                                ).style
+                              }
+                            >
+                              {num}
+                            </div>
+                          ))}
+                        </span>
+                        <span className="mr-3 text-[17px] font-semibold">
+                          {odds}
+                        </span>
+                      </div>
+                    ),
+                  )}
+                </div>
+              </div>
+            )}
+            {raceResult.odds.quinella && (
+              <div className="relative bottom-2 border-b border-l">
+                <div className="h-[45px] bg-secondary py-2 text-center">
+                  <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">
+                    {t('quinella').toUpperCase()}
+                  </div>
+                </div>
+                <div className="space-y-2 p-3">
+                  {extractQuinella(raceResult.odds.quinella).map(
+                    ({ combination, odds }) => (
+                      <div
+                        key={combination}
+                        className="flex items-center justify-between"
+                      >
+                        <span className="ml-3 flex items-center gap-3">
+                          {combination.split('-').map((num, idx) => (
+                            <div
+                              key={idx}
+                              className="flex h-[33px] w-[33px] items-center justify-center rounded-md text-[21px] font-semibold"
+                              style={
+                                getRacerColors(
+                                  parseInt(num),
+                                  eventResult.discipline as
+                                    | 'DOGS'
+                                    | 'DOGS8'
+                                    | 'HORSES',
+                                ).style
+                              }
+                            >
+                              {num}
+                            </div>
+                          ))}
+                        </span>
+                        <span className="mr-3 text-[17px] font-semibold">
+                          {odds}
+                        </span>
+                      </div>
+                    ),
+                  )}
+                </div>
+              </div>
+            )}
+            {raceResult.odds.trifecta && (
+              <div className="relative bottom-2 border-b border-l">
+                <div className="h-[45px] bg-secondary py-2 text-center">
+                  <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">
+                    {t('trifecta').toUpperCase()}
+                  </div>
+                </div>
+                <div className="space-y-2 p-3">
+                  {extractTrifecta(raceResult.odds.trifecta).map(
+                    ({ combination, odds }) => (
+                      <div
+                        key={combination}
+                        className="flex items-center justify-between"
+                      >
+                        <span className="ml-3 flex items-center gap-3">
+                          {combination.split('-').map((num, idx) => (
+                            <div
+                              key={idx}
+                              className="flex h-[33px] w-[33px] items-center justify-center rounded-md text-[21px] font-semibold"
+                              style={
+                                getRacerColors(
+                                  parseInt(num),
+                                  eventResult.discipline as
+                                    | 'DOGS'
+                                    | 'DOGS8'
+                                    | 'HORSES',
+                                ).style
+                              }
+                            >
+                              {num}
+                            </div>
+                          ))}
+                        </span>
+                        <span className="mr-3 text-[17px] font-semibold">
+                          {odds}
+                        </span>
+                      </div>
+                    ),
+                  )}
+                </div>
+              </div>
+            )}
+            {raceResult.odds.boxedtrifecta && (
+              <div className="relative bottom-2 border-b border-l">
+                <div className="h-[45px] bg-secondary py-2 text-center">
+                  <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">
+                    {t('boxed_trifecta').toUpperCase()}
+                  </div>
+                </div>
+                <div className="space-y-2 p-3">
+                  {extractBoxedTrifecta(raceResult.odds.boxedtrifecta).map(
+                    ({ combination, odds }) => (
+                      <div
+                        key={combination}
+                        className="flex items-center justify-between"
+                      >
+                        <span className="ml-3 flex items-center justify-center gap-3">
+                          {combination.split('-').map((num, idx) => (
+                            <div
+                              key={idx}
+                              className="flex h-[33px] w-[33px] items-center justify-center rounded-md text-[21px] font-semibold"
+                              style={
+                                getRacerColors(
+                                  parseInt(num),
+                                  eventResult.discipline as
+                                    | 'DOGS'
+                                    | 'DOGS8'
+                                    | 'HORSES',
+                                ).style
+                              }
+                            >
+                              {num}
+                            </div>
+                          ))}
+                        </span>
+                        <span className="mr-3 text-[17px] font-semibold">
+                          {odds}
+                        </span>
+                      </div>
+                    ),
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="grid grid-cols-2">
+            {raceResult.odds.evenodd && (
+              <div className="relative bottom-4 border-b">
+                <div className="h-[45px] bg-secondary py-2 text-center">
+                  <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">
+                    {t('even_odd').toUpperCase()}
+                  </div>
+                </div>
+                <div className="flex items-center justify-center">
+                  {raceResult.odds.evenodd.even && (
+                    <div className="text-center">
+                      <div className="py-2 text-[16px] font-semibold">
+                        <span className="relative left-[6px] mr-[644px]">
+                          {t('even').toUpperCase()}
+                        </span>{' '}
+                        <span className="relative right-[6px]">
+                          {raceResult.odds.evenodd.even}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                  {raceResult.odds.evenodd.odd && (
+                    <div className="text-center">
+                      <div className="py-2 text-[16px] font-semibold">
+                        <span className="relative right-[5px] mr-[586px]">
+                          {t('odd').toUpperCase()}
+                        </span>{' '}
+                        <span className="relative left-[22px] mr-[17px]">
+                          {raceResult.odds.evenodd.odd}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+            {raceResult.odds.underover && (
+              <div className="relative bottom-4 border-b border-l">
+                <div className="h-[45px] bg-secondary py-2 text-center">
+                  <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">
+                    {t('under_over')} 3.5
+                  </div>
+                </div>
+                <div className="flex items-center justify-center">
+                  {raceResult.odds.underover.under && (
+                    <div className="text-center">
+                      <div className="py-2 text-[16px] font-semibold">
+                        <span className="relative left-[2px] mr-[591px]">
+                          {t('under_full').toUpperCase()}
+                        </span>{' '}
+                        <span className="relative left-[14px] mr-4">
+                          {raceResult.odds.underover.under}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                  {raceResult.odds.underover.over && (
+                    <div className="text-center">
+                      <div className="py-2 text-[16px] font-semibold">
+                        <span className="relative left-1 mr-[635px]">
+                          {t('over_full').toUpperCase()}
+                        </span>{' '}
+                        <span className="relative right-[6px]">
+                          {raceResult.odds.underover.over}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 space-x-1">
+            {raceResult.raceDuration && (
+              <div className="border">
+                <div className="bg-accent py-2 text-center">
+                  <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                    {t('race_duration').toUpperCase()}
+                  </div>
+                </div>
+                <div className="p-3 text-center">
+                  <div className="text-[16px] font-semibold">
+                    {raceResult.raceDuration} {t('seconds')}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {(eventResult.discipline === Discipline.DOGS ||
+            eventResult.discipline === Discipline.DOGS8 ||
+            eventResult.discipline === Discipline.HORSES) && (
+            <div className="relative bottom-[23px] flex justify-center pb-11">
+              <Button
+                onClick={fetchReplay}
+                disabled={loadingReplay}
+                className="h-[50px] w-[300px] bg-green-600 text-[18px] font-bold text-white shadow-lg hover:bg-green-700"
+              >
+                {loadingReplay ? <LoadingSpinner /> : t('show_replay')}
+              </Button>
+            </div>
+          )}
+        </div>
+      )
+    }
+
+    return (
+      <div className="p-4 text-center text-muted-foreground">
+        {t('event_completed_detailed_results')}
+        <div className="mt-2 text-xs">
+          DEBUG: {JSON.stringify(Object.keys(detailedResult))}
+        </div>
+      </div>
+    )
+  }
+
+  if (eventResult.discipline === Discipline.SOCCER) {
+    return (
+      <div className="mb-[-16px] space-y-4">
+        <div className="pt-[7px]">
+          <div className="bg-accent py-2 text-center">
+            <div className="text-[16px] font-bold uppercase text-accent-foreground">
+              {t('match_result').toUpperCase()}
+            </div>
+          </div>
+          <div className="pt-4 text-center">
+            <div className="mb-1 text-[18px] font-bold">
+              {detailedResult.teams}
+            </div>
+            <div className="text-[24px] font-bold">
+              {detailedResult.score1} - {detailedResult.score2}
+            </div>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-y-2">
+          {detailedResult.odds?.oneXTwo && (
+            <div className="border border-l-0 border-r-0">
+              <div className="bg-accent py-2 text-center">
+                <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                  1X2
+                </div>
+              </div>
+              <div className="p-3 text-center">
+                <div className="text-[17px] font-semibold">
+                  {detailedResult.odds.oneXTwo.odds}
+                </div>
+              </div>
+            </div>
+          )}
+          {detailedResult.odds?.doubleChance && (
+            <div className="border border-r-0">
+              <div className="bg-accent py-2 text-center">
+                <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                  {t('double_chance').toUpperCase()}
+                </div>
+              </div>
+              <div className="p-3 text-center">
+                <div className="text-[17px] font-semibold">
+                  {detailedResult.odds.doubleChance.odds}
+                </div>
+              </div>
+            </div>
+          )}
+          {detailedResult.odds?.firstScorer && (
+            <div className="border border-l-0 border-r-0">
+              <div className="bg-accent py-2 text-center">
+                <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                  {t('first_scorer').toUpperCase()}
+                </div>
+              </div>
+              <div className="p-3 text-center">
+                <div className="mb-1 text-[16px]">
+                  {detailedResult.odds.firstScorer.teamLabel}
+                </div>
+                <div className="text-[17px] font-semibold">
+                  {detailedResult.odds.firstScorer.odds}
+                </div>
+              </div>
+            </div>
+          )}
+          {detailedResult.odds?.sumGoals && (
+            <div className="border border-r-0">
+              <div className="bg-accent py-2 text-center">
+                <div className="text-[16px] font-bold uppercase text-accent-foreground">
+                  {t('total_goals').toUpperCase()}
+                </div>
+              </div>
+              <div className="p-3 text-center">
+                <div className="mb-1 text-[16px]">
+                  {detailedResult.odds.sumGoals.value}
+                </div>
+                <div className="text-[17px] font-semibold">
+                  {detailedResult.odds.sumGoals.odds}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="p-4 text-center text-muted-foreground">
+      {t('event_completed_detailed_results')}
     </div>
   )
 }
