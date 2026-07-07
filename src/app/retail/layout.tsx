@@ -64,11 +64,11 @@ export default function RetailLayout({
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                gap: 4px;
+                gap: 32px;
               }
               #static-splash .splash-logo {
                 width: 400px;
-                height: 150px;
+                height: 200px;
                 object-fit: contain;
                 opacity: 0;
                 transition: opacity 0.2s ease-in;
@@ -77,9 +77,6 @@ export default function RetailLayout({
                 opacity: 1;
               }
               #static-splash .splash-spinner {
-                position: absolute;
-                top: 60%;
-                left: 48%;
                 width: 64px;
                 height: 64px;
                 border: 4px solid #1e3a5f;
@@ -137,7 +134,7 @@ function SkinBody({ children }: { children: React.ReactNode }) {
             src="/splashscreen-empty.png"
             alt="PGV Virtual"
             className="splash-logo"
-            style={{ objectFit: 'contain', width: 400, height: 150 }}
+            style={{ objectFit: 'contain', width: 600, height: 400 }}
           />
           <div className="splash-spinner"></div>
         </div>
@@ -201,10 +198,13 @@ function RetailShell({ children }: { children: React.ReactNode }) {
       splashscreenImage && !splashscreenImage.includes('empty')
 
     if (logoElement && hasRealImage) {
-      // Handle case where path may or may not start with /
-      const imagePath = splashscreenImage.startsWith('/')
+      // Absolute URLs (http/https) are used as-is; local filenames are rooted at /
+      const isAbsoluteUrl = /^https?:\/\//i.test(splashscreenImage)
+      const imagePath = isAbsoluteUrl
         ? splashscreenImage
-        : `/${splashscreenImage}`
+        : splashscreenImage.startsWith('/')
+          ? splashscreenImage
+          : `/${splashscreenImage}`
       const preloadImg = new Image()
       preloadImg.onload = () => {
         logoElement.src = imagePath
