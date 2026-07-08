@@ -99,7 +99,7 @@ function NavbarContent() {
               height={20}
               className="size-8 object-contain"
             />
-            <span className="text-base font-bold text-secondary-foreground">
+            <span className="text-base font-bold text-secondary-foreground text-[1.1rem]">
               6
             </span>
           </Link>
@@ -122,7 +122,7 @@ function NavbarContent() {
               height={20}
               className="size-8 object-contain"
             />
-            <span className="text-base font-bold text-secondary-foreground">
+            <span className="text-base font-bold text-secondary-foreground text-[1.1rem]">
               8
             </span>
           </Link>
@@ -145,7 +145,7 @@ function NavbarContent() {
               height={20}
               className="size-8 object-contain"
             />
-            <span className="text-base font-bold text-secondary-foreground">
+            <span className="text-base font-bold text-secondary-foreground text-[1.1rem]">
               6
             </span>
           </Link>

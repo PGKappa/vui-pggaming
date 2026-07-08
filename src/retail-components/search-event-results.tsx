@@ -640,10 +640,10 @@ export default function SearchEventResults() {
             ].map((d) => {
               const translationKey =
                 d === 'DOGS'
-                  ? 'dog_racing'
+                  ? 'dog6_racing'
                   : d === 'DOGS8'
                     ? 'dog8_racing'
-                    : 'horse_racing'
+                    : 'horse6_racing'
               return (
                 <SelectItem className="text-[14px]" key={d} value={d}>
                   {t(translationKey).toUpperCase()}
@@ -765,11 +765,11 @@ export default function SearchEventResults() {
                           <div className="flex flex-row items-center space-x-4 pb-[5px] text-[16px] font-semibold">
                             <span className="whitespace-nowrap text-[16px]">
                               {eventResult.discipline === 'DOGS'
-                                ? t('dog_races_label')
+                                ? t('dog6_races_label')
                                 : eventResult.discipline === 'DOGS8'
                                   ? t('dog8_races_label')
                                   : eventResult.discipline === 'HORSES'
-                                    ? t('horse_races_label')
+                                    ? t('horse6_races_label')
                                     : eventResult.discipline === 'SOCCER'
                                       ? t('football_label')
                                       : eventResult.discipline}
