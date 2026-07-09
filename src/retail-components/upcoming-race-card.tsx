@@ -396,21 +396,21 @@ export default function UpcomingRaceCard({
     return (
       <TableHeader className="h-14 bg-card-header text-[16px] text-card-header-foreground">
         <TableRow>
-          <TableHead className="w-[16%] min-w-0 text-center font-semibold min-[1440px]:w-[14%]">
+          <TableHead className="w-[25%] min-w-0 text-center font-semibold min-[1440px]:w-[15%]">
             <span className="inline-block h-full w-full align-middle leading-[54px]">
               {t('starters_list').toUpperCase()}
             </span>
           </TableHead>
           <TableHead className="w-[1px] bg-border p-0" />
 
-          <TableHead className="w-[18%] min-w-0 text-center font-semibold min-[1440px]:w-[16%]">
+          <TableHead className="w-[25%] min-w-0 text-center font-semibold min-[1440px]:w-[17%]">
             <span className="inline-block h-full w-full align-middle leading-[54px]">
               {t('performance').toUpperCase()}
             </span>
           </TableHead>
           <TableHead className="w-[1px] bg-border p-0" />
 
-          <TableHead className="hidden w-[14%] min-w-0 text-center font-semibold min-[1440px]:table-cell">
+          <TableHead className="hidden w-[18%] min-w-0 text-center font-semibold min-[1440px]:table-cell">
             <span className="inline-block h-full w-full align-middle leading-[54px]">
               {t('history').toUpperCase()}
             </span>
@@ -419,19 +419,19 @@ export default function UpcomingRaceCard({
 
           {activeTab === 'main' && (
             <>
-              <TableHead className="w-[21%] min-w-0 overflow-hidden text-center font-bold min-[1440px]:w-[18%]">
+              <TableHead className="w-[17%] min-w-0 overflow-hidden text-center font-bold min-[1440px]:w-[16%]">
                 <span className="inline-block h-full w-full align-middle leading-[54px]">
                   {t('winner').toUpperCase()}
                 </span>
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
-              <TableHead className="w-[21%] min-w-0 overflow-hidden text-center font-semibold min-[1440px]:w-[18%]">
+              <TableHead className="w-[17%] min-w-0 overflow-hidden text-center font-semibold min-[1440px]:w-[16%]">
                 <span className="inline-block h-full w-full align-middle leading-[54px]">
                   {t('place_2').toUpperCase()}
                 </span>
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
-              <TableHead className="w-[24%] min-w-0 overflow-hidden text-center font-semibold min-[1440px]:w-[20%]">
+              <TableHead className="w-[16%] min-w-0 overflow-hidden text-center font-semibold min-[1440px]:w-[18%]">
                 <span className="inline-block h-full w-full align-middle leading-[54px]">
                   {t('show_3').toUpperCase()}
                 </span>
@@ -479,7 +479,7 @@ export default function UpcomingRaceCard({
     if (activeTab === 'main') {
       return (
         <>
-          <TableCell className="max-w-0 overflow-hidden p-2 text-center">
+          <TableCell className="max-w-0 overflow-hidden px-1 py-2 text-center">
             <BetEntryToggle
               marketName={t('winner')}
               apiMarketName="winner"
@@ -504,7 +504,7 @@ export default function UpcomingRaceCard({
                   (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
               }}
               variant="racecard"
-              className="mx-auto h-[49px] w-full max-w-[112px] bg-betEntry pt-[0px] text-[18px] tabular-nums text-betEntry-foreground hover:opacity-85 min-[1400px]:max-w-[120px]"
+              className="mx-auto h-[49px] w-full max-w-[100px] bg-betEntry px-1 pt-[0px] text-[18px] tabular-nums text-betEntry-foreground hover:opacity-85 min-[1400px]:max-w-[108px]"
               onToggle={() => {
                 betAddedFromUIRef.current = true
               }}
@@ -512,7 +512,7 @@ export default function UpcomingRaceCard({
           </TableCell>
           <TableCell className="w-[1px] bg-border p-0" />
 
-          <TableCell className="max-w-0 overflow-hidden p-2 text-center">
+          <TableCell className="max-w-0 overflow-hidden px-1 py-2 text-center">
             <BetEntryToggle
               marketName={t('placed')}
               apiMarketName="placed"
@@ -537,7 +537,7 @@ export default function UpcomingRaceCard({
                   (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
               }}
               variant="racecard"
-              className="mx-auto h-[49px] w-full max-w-[112px] bg-betEntry pt-[0px] text-[18px] tabular-nums text-betEntry-foreground hover:opacity-85 min-[1400px]:max-w-[120px]"
+              className="mx-auto h-[49px] w-full max-w-[100px] bg-betEntry px-1 pt-[0px] text-[18px] tabular-nums text-betEntry-foreground hover:opacity-85 min-[1400px]:max-w-[108px]"
               onToggle={() => {
                 betAddedFromUIRef.current = true
               }}
@@ -545,7 +545,7 @@ export default function UpcomingRaceCard({
           </TableCell>
           <TableCell className="w-[1px] bg-border p-0" />
 
-          <TableCell className="max-w-0 overflow-hidden p-2 text-center">
+          <TableCell className="max-w-0 overflow-hidden px-1 py-2 text-center">
             <BetEntryToggle
               marketName={t('show')}
               apiMarketName="show"
@@ -570,7 +570,7 @@ export default function UpcomingRaceCard({
                   (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
               }}
               variant="racecard"
-              className="mx-auto h-[49px] w-full max-w-[112px] bg-betEntry pt-[0px] text-[18px] tabular-nums text-betEntry-foreground hover:opacity-85 min-[1400px]:max-w-[120px]"
+              className="mx-auto h-[49px] w-full max-w-[100px] bg-betEntry px-1 pt-[0px] text-[18px] tabular-nums text-betEntry-foreground hover:opacity-85 min-[1400px]:max-w-[108px]"
               onToggle={() => {
                 betAddedFromUIRef.current = true
               }}
@@ -756,24 +756,152 @@ export default function UpcomingRaceCard({
     return null
   }
 
-  // ─────────────────────────────────────────────────────────────────────────
-  // renderSpecialMarkets: TableBody separato dentro la stessa <Table>.
-  // Le celle ereditano le larghezze di colonna esatte → separatori sempre
-  // allineati a qualsiasi viewport.
-  //
-  // Colonne (activeTab === 'main'):
-  //   0 PARTENTI  1 sep  2 PERFORMANCE  3 sep(hidden<1440)
-  //   4 STORICO(hidden)  5 sep ← DA ALLINEARE
-  //   6 VINCENTE  7 sep  8 PIAZZATO  9 sep  10 PODIO
-  //
-  // PARI/DISPARI → colSpan 3 (col 6+7+8)
-  // sep centrale → col 9  (allineato con col 5)
-  // UNDER/OVER   → col 10
-  // ─────────────────────────────────────────────────────────────────────────
+  // renderSpecialMarkets: TableBody nella stessa <Table>.
+  // ≥1401px e <1280px: colSpan 6/5 allineato alle colonne tabella.
+  // 1280–1400px: griglia 50/50 indipendente (non allineata al separatore).
   const renderSpecialMarkets = () => {
     if (activeTab !== 'main' || !raceInfo?.odds) {
       return null
     }
+
+    const evenOddBlock = (splitBorder = false) => (
+      <>
+        <div
+          className={cn(
+            'flex h-16 items-center justify-center bg-accent text-[16px] font-bold text-accent-foreground',
+            splitBorder && 'border-r',
+          )}
+        >
+          {t('even_odd').toUpperCase()}
+        </div>
+        <div className="flex h-[66px]">
+          <div className="flex flex-1 items-center justify-center px-4 min-[1400px]:pl-12 min-[1400px]:pr-8 min-[1600px]:pl-16">
+            <BetEntryToggle
+              marketName={t('even_odd')}
+              apiMarketName="even/odd"
+              bet={{
+                discipline: race.discipline,
+                event: {
+                  name: race.name,
+                  number: race.id,
+                  startingAt: race.time,
+                  extId: race.extId,
+                  palimpsestId: race.palimpsestId,
+                },
+                competitors: 'Even',
+                option: {
+                  outcome: 'even',
+                  decPrice: parseFloat(raceInfo.odds.evenodd?.even || '0'),
+                },
+                track: race.trackName || 'Track 6',
+              }}
+              variant="matchcard"
+              className="h-[49px] w-full text-[16px] text-black"
+              onToggle={() => {
+                betAddedFromUIRef.current = true
+              }}
+            />
+          </div>
+          <div
+            className={cn(
+              'flex flex-1 items-center justify-center px-4 min-[1400px]:px-12 min-[1600px]:px-16',
+              splitBorder && 'border-r',
+            )}
+          >
+            <BetEntryToggle
+              marketName={t('even_odd')}
+              apiMarketName="even/odd"
+              bet={{
+                discipline: race.discipline,
+                event: {
+                  name: race.name,
+                  number: race.id,
+                  startingAt: race.time,
+                  extId: race.extId,
+                  palimpsestId: race.palimpsestId,
+                },
+                competitors: 'Odd',
+                option: {
+                  outcome: 'odd',
+                  decPrice: parseFloat(raceInfo.odds.evenodd?.odd || '0'),
+                },
+                track: race.trackName || 'Track 6',
+              }}
+              variant="matchcard"
+              className="h-[49px] w-full text-[16px] text-black"
+              onToggle={() => {
+                betAddedFromUIRef.current = true
+              }}
+            />
+          </div>
+        </div>
+      </>
+    )
+
+    const underOverBlock = () => (
+      <>
+        <div className="flex h-16 items-center justify-center bg-accent text-[16px] font-bold text-accent-foreground">
+          {t('under_over').toUpperCase()}{' '}
+          {race.discipline === 'DOGS8' ? '4.5' : '3.5'}
+        </div>
+        <div className="flex h-[66px]">
+          <div className="flex flex-1 items-center justify-center px-4 min-[1400px]:px-12 min-[1600px]:px-16">
+            <BetEntryToggle
+              marketName={t('under_over')}
+              apiMarketName="under/over"
+              bet={{
+                discipline: race.discipline,
+                event: {
+                  name: race.name,
+                  number: race.id,
+                  startingAt: race.time,
+                  extId: race.extId,
+                  palimpsestId: race.palimpsestId,
+                },
+                competitors: 'Under',
+                option: {
+                  outcome: 'under',
+                  decPrice: parseFloat(raceInfo.odds.underover?.under || '0'),
+                },
+                track: race.trackName || 'Track 6',
+              }}
+              variant="matchcard"
+              className="h-[49px] w-full text-[16px] text-black"
+              onToggle={() => {
+                betAddedFromUIRef.current = true
+              }}
+            />
+          </div>
+          <div className="flex flex-1 items-center justify-center px-4 min-[1400px]:px-12 min-[1600px]:px-16">
+            <BetEntryToggle
+              marketName={t('under_over')}
+              apiMarketName="under/over"
+              bet={{
+                discipline: race.discipline,
+                event: {
+                  name: race.name,
+                  number: race.id,
+                  startingAt: race.time,
+                  extId: race.extId,
+                  palimpsestId: race.palimpsestId,
+                },
+                competitors: 'Over',
+                option: {
+                  outcome: 'over',
+                  decPrice: parseFloat(raceInfo.odds.underover?.over || '0'),
+                },
+                track: race.trackName || 'Track 6',
+              }}
+              variant="matchcard"
+              className="h-[49px] w-full text-[16px] text-black"
+              onToggle={() => {
+                betAddedFromUIRef.current = true
+              }}
+            />
+          </div>
+        </div>
+      </>
+    )
 
     return (
       <TableBody>
@@ -781,135 +909,23 @@ export default function UpcomingRaceCard({
           <TableCell colSpan={11} className="h-2 p-0" />
         </TableRow>
 
-        <TableRow className="border-0 hover:bg-transparent">
-          {/* PARI / DISPARI — metà sinistra: colSpan 5 (PARTENTI + sep + PERFORMANCE + sep(hidden) + STORICO(hidden)) + sep */}
-          <TableCell colSpan={6} className="p-0">
-            <div className="flex h-16 items-center justify-center border-r bg-accent text-[16px] font-bold text-accent-foreground">
-              {t('even_odd').toUpperCase()}
-            </div>
-            <div className="flex h-[66px]">
-              <div className="flex flex-1 items-center justify-center pl-8 min-[1400px]:pl-12 min-[1600px]:pl-16">
-                <BetEntryToggle
-                  marketName={t('even_odd')}
-                  apiMarketName="even/odd"
-                  bet={{
-                    discipline: race.discipline,
-                    event: {
-                      name: race.name,
-                      number: race.id,
-                      startingAt: race.time,
-                      extId: race.extId,
-                      palimpsestId: race.palimpsestId,
-                    },
-                    competitors: 'Even',
-                    option: {
-                      outcome: 'even',
-                      decPrice: parseFloat(raceInfo.odds.evenodd?.even || '0'),
-                    },
-                    track: race.trackName || 'Track 6',
-                  }}
-                  variant="matchcard"
-                  className="h-[49px] w-full text-[16px] text-black"
-                  onToggle={() => {
-                    betAddedFromUIRef.current = true
-                  }}
-                />
-              </div>
-              <div className="flex flex-1 items-center justify-center border-r pl-8 pr-8 min-[1400px]:pl-12 min-[1400px]:pr-12 min-[1600px]:pl-16 min-[1600px]:pr-16">
-                <BetEntryToggle
-                  marketName={t('even_odd')}
-                  apiMarketName="even/odd"
-                  bet={{
-                    discipline: race.discipline,
-                    event: {
-                      name: race.name,
-                      number: race.id,
-                      startingAt: race.time,
-                      extId: race.extId,
-                      palimpsestId: race.palimpsestId,
-                    },
-                    competitors: 'Odd',
-                    option: {
-                      outcome: 'odd',
-                      decPrice: parseFloat(raceInfo.odds.evenodd?.odd || '0'),
-                    },
-                    track: race.trackName || 'Track 6',
-                  }}
-                  variant="matchcard"
-                  className="h-[49px] w-full text-[16px] text-black"
-                  onToggle={() => {
-                    betAddedFromUIRef.current = true
-                  }}
-                />
-              </div>
+        {/* 1280–1400px: due metà uguali, indipendenti dalle colonne tabella */}
+        <TableRow className="hidden border-0 hover:bg-transparent min-[1280px]:max-[1400px]:table-row">
+          <TableCell colSpan={11} className="p-0">
+            <div className="grid grid-cols-2">
+              <div>{evenOddBlock(true)}</div>
+              <div>{underOverBlock()}</div>
             </div>
           </TableCell>
+        </TableRow>
 
-          {/* UNDER / OVER — metà destra: colSpan 5 (VINCENTE + sep + PIAZZATO + sep + PODIO) */}
+        {/* Altre risoluzioni: allineato alle colonne tabella */}
+        <TableRow className="border-0 hover:bg-transparent min-[1280px]:max-[1400px]:hidden">
+          <TableCell colSpan={6} className="p-0">
+            {evenOddBlock(true)}
+          </TableCell>
           <TableCell colSpan={5} className="p-0">
-            <div className="flex h-16 items-center justify-center bg-accent text-[16px] font-bold text-accent-foreground">
-              {t('under_over').toUpperCase()} {race.discipline === 'DOGS8' ? '4.5' : '3.5'}
-            </div>
-            <div className="flex h-[66px]">
-              <div className="flex flex-1 items-center justify-center pl-8 pr-8 min-[1400px]:pl-12 min-[1400px]:pr-12 min-[1600px]:pl-16 min-[1600px]:pr-16">
-                <BetEntryToggle
-                  marketName={t('under_over')}
-                  apiMarketName="under/over"
-                  bet={{
-                    discipline: race.discipline,
-                    event: {
-                      name: race.name,
-                      number: race.id,
-                      startingAt: race.time,
-                      extId: race.extId,
-                      palimpsestId: race.palimpsestId,
-                    },
-                    competitors: 'Under',
-                    option: {
-                      outcome: 'under',
-                      decPrice: parseFloat(
-                        raceInfo.odds.underover?.under || '0',
-                      ),
-                    },
-                    track: race.trackName || 'Track 6',
-                  }}
-                  variant="matchcard"
-                  className="h-[49px] w-full text-[16px] text-black"
-                  onToggle={() => {
-                    betAddedFromUIRef.current = true
-                  }}
-                />
-              </div>
-              <div className="flex flex-1 items-center justify-center pr-8 min-[1400px]:pr-12 min-[1600px]:pr-16">
-                <BetEntryToggle
-                  marketName={t('under_over')}
-                  apiMarketName="under/over"
-                  bet={{
-                    discipline: race.discipline,
-                    event: {
-                      name: race.name,
-                      number: race.id,
-                      startingAt: race.time,
-                      extId: race.extId,
-                      palimpsestId: race.palimpsestId,
-                    },
-                    competitors: 'Over',
-                    option: {
-                      outcome: 'over',
-                      decPrice: parseFloat(
-                        raceInfo.odds.underover?.over || '0',
-                      ),
-                    },
-                    track: race.trackName || 'Track 6',
-                  }}
-                  variant="matchcard"
-                  className="h-[49px] w-full text-[16px] text-black"
-                  onToggle={() => {
-                    betAddedFromUIRef.current = true
-                  }}
-                />
-              </div>
-            </div>
+            {underOverBlock()}
           </TableCell>
         </TableRow>
       </TableBody>
