@@ -74,7 +74,7 @@ export default function SearchEventResults() {
   const initCode = rootContext.initCode
   const operator = rootContext.operator
   const timezone = rootContext.getTimezone?.() || 'Europe/Rome'
-  const { disciplineSelectMinWidth } = getLayoutConfig(
+  const { filterControlClass, filterButtonClass } = getLayoutConfig(
     i18n.language,
   ).searchEventResults
 
@@ -612,8 +612,9 @@ export default function SearchEventResults() {
 
   return (
     <div className="flex h-full flex-col gap-1">
-      <div className="flex h-16 w-full items-center gap-2 bg-accent px-[24px] min-[1400px]:px-[60px] min-[1600px]:px-[100px] min-[1750px]:px-[130px] min-[1920px]:pl-[14px] min-[1920px]:pr-[167px]">
+      <div className="flex h-16 w-full min-w-0 items-center gap-2 bg-accent px-[24px] min-[1400px]:px-[60px] min-[1600px]:px-[100px] min-[1750px]:px-[130px] min-[1920px]:pl-[14px] min-[1920px]:pr-[167px]">
         {/* DISCIPLINA */}
+        <div className="min-w-0 flex-1 basis-0">
         <Select
           value={selectedDiscipline.toString()}
           onValueChange={(value) => {
@@ -624,9 +625,7 @@ export default function SearchEventResults() {
             )
           }}
         >
-          <SelectTrigger
-            className={`h-[48px] ${disciplineSelectMinWidth} flex-1 border-none bg-background pl-[16px] pr-[5px] text-[16px] text-foreground`}
-          >
+          <SelectTrigger className={filterControlClass}>
             <SelectValue placeholder={t('sport')} />
           </SelectTrigger>
           <SelectContent className="bg-white p-0">
@@ -652,6 +651,7 @@ export default function SearchEventResults() {
             })}
           </SelectContent>
         </Select>
+        </div>
 
         {/* LAST 10 GAMES */}
         <div className="ml-1 flex shrink-0 flex-row items-center">
@@ -670,14 +670,13 @@ export default function SearchEventResults() {
         </div>
 
         {/* DATA */}
+        <div className="min-w-0 flex-1 basis-0">
         <Select
           value={selectedDate}
           onValueChange={(value) => setSelectedDate(value)}
           disabled={lastTenGames}
         >
-          <SelectTrigger
-            className={`ml-[2px] mr-[10px] h-[48px] ${disciplineSelectMinWidth} flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground`}
-          >
+          <SelectTrigger className={`ml-[2px] mr-[10px] ${filterControlClass}`}>
             <SelectValue placeholder={t('date')} />
           </SelectTrigger>
           <SelectContent className="bg-white p-0">
@@ -691,16 +690,16 @@ export default function SearchEventResults() {
             ))}
           </SelectContent>
         </Select>
+        </div>
 
         {/* FASCIA ORARIA */}
+        <div className="min-w-0 flex-1 basis-0">
         <Select
           value={selectedTimeSlot}
           onValueChange={setSelectedTimeSlot}
           disabled={lastTenGames}
         >
-          <SelectTrigger
-            className={`mr-2 h-[48px] ${disciplineSelectMinWidth} flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground`}
-          >
+          <SelectTrigger className={`mr-2 ${filterControlClass}`}>
             <SelectValue placeholder={t('time_slot')} />
           </SelectTrigger>
           <SelectContent className="bg-white p-0">
@@ -714,10 +713,11 @@ export default function SearchEventResults() {
             ))}
           </SelectContent>
         </Select>
+        </div>
 
         {/* CERCA */}
         <Button
-          className={`ml-2 mr-4 h-[48px] ${disciplineSelectMinWidth} flex-1 bg-tertiary text-[16px] font-bold text-bet-foreground hover:opacity-90`}
+          className={`ml-2 mr-4 ${filterButtonClass} bg-tertiary text-bet-foreground hover:opacity-90`}
           disabled={selectedDiscipline === 'NONE'}
           onClick={handleSearch}
         >
@@ -726,7 +726,7 @@ export default function SearchEventResults() {
 
         {/* RESET */}
         <Button
-          className={`h-[48px] ${disciplineSelectMinWidth} flex-1 bg-tertiary text-[15px] text-tertiary-foreground`}
+          className={`${filterButtonClass} bg-tertiary text-[15px] text-tertiary-foreground`}
           disabled={!selectedDate && !selectedDiscipline && !selectedTimeSlot}
           onClick={handleReset}
         >

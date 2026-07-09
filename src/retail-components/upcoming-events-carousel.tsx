@@ -75,11 +75,8 @@ export function UpcomingEventsCarousel(props: {
   // per evitare competizione tra meccanismi multipli
 
   return (
-    <Carousel
-      className="w-full px-9"
-      opts={{ align: 'start', skipSnaps: false }}
-    >
-      <CarouselContent className="bg-white">
+    <Carousel className="w-full" opts={{ align: 'start', skipSnaps: false }}>
+      <CarouselContent className="bg-white !mr-0 pl-10 pr-10 min-[1400px]:px-10 min-[1600px]:px-11 min-[1730px]:px-12">
         {isLoadingEvents ? (
           Array.from({ length: 6 }).map((_, index) => (
             <div
@@ -158,7 +155,7 @@ function UpcomingEventItem(props: {
 
   return (
     <CarouselItem
-      className={`relative flex h-[88px] ${layout.carousel.itemBasis} cursor-pointer flex-row items-center justify-center overflow-hidden border-l-8 border-l-background px-2 py-2 text-[15px] last:border-r-background hover:opacity-95 ${
+      className={`relative flex h-[88px] ${layout.carousel.itemBasis} cursor-pointer flex-row items-center justify-center overflow-hidden border-l-8 border-l-background px-2 py-2 text-[15px] first:border-l-0 last:border-r-background hover:opacity-95 ${
         event.id === props.selectedEvent?.id &&
         event.discipline === props.selectedEvent?.discipline
           ? 'bg-selectedEvent text-tertiary-foreground'

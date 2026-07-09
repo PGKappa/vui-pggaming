@@ -392,26 +392,31 @@ export default function UpcomingRaceCard({
     })
   }
 
+  const tableHeaderLabelClass =
+    'flex h-full w-full items-center justify-center overflow-hidden px-0.5 text-center leading-[1.15]'
+  const tableHeaderDefaultLabelClass = `${tableHeaderLabelClass} text-[13px] min-[1400px]:text-[15px] min-[1600px]:text-[16px]`
+  const tableHeaderBetLabelClass = `${tableHeaderLabelClass} text-[10px] min-[1320px]:text-[11px] min-[1400px]:text-[12px] min-[1600px]:text-[14px] min-[1920px]:text-[16px]`
+
   const renderTableHeader = () => {
     return (
-      <TableHeader className="h-14 bg-card-header text-[16px] text-card-header-foreground">
+      <TableHeader className="h-14 bg-card-header text-card-header-foreground">
         <TableRow>
-          <TableHead className="w-[249px] min-w-[150px] text-center font-semibold">
-            <span className="inline-block h-full w-full align-middle leading-[54px]">
+          <TableHead className="w-[16%] min-w-0 text-center font-semibold min-[1440px]:w-[14%]">
+            <span className={tableHeaderDefaultLabelClass}>
               {t('starters_list').toUpperCase()}
             </span>
           </TableHead>
           <TableHead className="w-[1px] bg-border p-0" />
 
-          <TableHead className="w-[249px] min-w-[140px] text-center font-semibold">
-            <span className="inline-block h-full w-full align-middle leading-[54px]">
+          <TableHead className="w-[18%] min-w-0 text-center font-semibold min-[1440px]:w-[16%]">
+            <span className={tableHeaderDefaultLabelClass}>
               {t('performance').toUpperCase()}
             </span>
           </TableHead>
           <TableHead className="w-[1px] bg-border p-0" />
 
-          <TableHead className="hidden w-[249px] min-w-[130px] text-center font-semibold min-[1440px]:table-cell">
-            <span className="inline-block h-full w-full align-middle leading-[54px]">
+          <TableHead className="hidden w-[14%] min-w-0 text-center font-semibold min-[1440px]:table-cell">
+            <span className={tableHeaderDefaultLabelClass}>
               {t('history').toUpperCase()}
             </span>
           </TableHead>
@@ -419,20 +424,20 @@ export default function UpcomingRaceCard({
 
           {activeTab === 'main' && (
             <>
-              <TableHead className="w-[249px] min-w-[100px] text-center font-bold">
-                <span className="inline-block h-full w-full align-middle leading-[54px]">
+              <TableHead className="w-[21%] min-w-0 overflow-hidden text-center font-bold min-[1440px]:w-[18%]">
+                <span className={tableHeaderBetLabelClass}>
                   {t('winner').toUpperCase()}
                 </span>
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
-              <TableHead className="w-[249px] min-w-[100px] text-center font-semibold">
-                <span className="inline-block h-full w-full align-middle leading-[54px]">
+              <TableHead className="w-[21%] min-w-0 overflow-hidden text-center font-semibold min-[1440px]:w-[18%]">
+                <span className={tableHeaderBetLabelClass}>
                   {t('place_2').toUpperCase()}
                 </span>
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
-              <TableHead className="w-[249px] min-w-[100px] text-center font-semibold">
-                <span className="inline-block h-full w-full align-middle leading-[54px]">
+              <TableHead className="w-[24%] min-w-0 overflow-hidden text-center font-semibold min-[1440px]:w-[20%]">
+                <span className={tableHeaderBetLabelClass}>
                   {t('show_3').toUpperCase()}
                 </span>
               </TableHead>
@@ -442,13 +447,13 @@ export default function UpcomingRaceCard({
           {activeTab === 'couples' && (
             <>
               <TableHead className="text-center font-bold" colSpan={2}>
-                <span className="inline-block h-full w-full align-middle leading-[54px]">
+                <span className={tableHeaderDefaultLabelClass}>
                   {t('exacta').toUpperCase()}
                 </span>
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
               <TableHead className="text-center font-bold" colSpan={2}>
-                <span className="inline-block h-full w-full align-middle leading-[54px]">
+                <span className={tableHeaderDefaultLabelClass}>
                   {t('quinella').toUpperCase()}
                 </span>
               </TableHead>
@@ -458,13 +463,13 @@ export default function UpcomingRaceCard({
           {activeTab === 'triplets' && (
             <>
               <TableHead className="text-center font-bold" colSpan={3}>
-                <span className="inline-block h-full w-full align-middle leading-[54px]">
+                <span className={tableHeaderDefaultLabelClass}>
                   {t('trifecta').toUpperCase()}
                 </span>
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
               <TableHead className="text-center font-bold" colSpan={2}>
-                <span className="inline-block h-full w-full align-middle leading-[54px]">
+                <span className={tableHeaderDefaultLabelClass}>
                   {t('boxed_trifecta').toUpperCase()}
                 </span>
               </TableHead>
@@ -479,7 +484,7 @@ export default function UpcomingRaceCard({
     if (activeTab === 'main') {
       return (
         <>
-          <TableCell className="p-2 text-center">
+          <TableCell className="max-w-0 overflow-hidden p-2 text-center">
             <BetEntryToggle
               marketName={t('winner')}
               apiMarketName="winner"
@@ -504,7 +509,7 @@ export default function UpcomingRaceCard({
                   (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
               }}
               variant="racecard"
-              className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] tabular-nums text-betEntry-foreground hover:opacity-85"
+              className="mx-auto h-[49px] w-full max-w-[112px] bg-betEntry pt-[0px] text-[18px] tabular-nums text-betEntry-foreground hover:opacity-85 min-[1400px]:max-w-[120px]"
               onToggle={() => {
                 betAddedFromUIRef.current = true
               }}
@@ -512,7 +517,7 @@ export default function UpcomingRaceCard({
           </TableCell>
           <TableCell className="w-[1px] bg-border p-0" />
 
-          <TableCell className="p-2 text-center">
+          <TableCell className="max-w-0 overflow-hidden p-2 text-center">
             <BetEntryToggle
               marketName={t('placed')}
               apiMarketName="placed"
@@ -537,7 +542,7 @@ export default function UpcomingRaceCard({
                   (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
               }}
               variant="racecard"
-              className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] tabular-nums text-betEntry-foreground hover:opacity-85"
+              className="mx-auto h-[49px] w-full max-w-[112px] bg-betEntry pt-[0px] text-[18px] tabular-nums text-betEntry-foreground hover:opacity-85 min-[1400px]:max-w-[120px]"
               onToggle={() => {
                 betAddedFromUIRef.current = true
               }}
@@ -545,7 +550,7 @@ export default function UpcomingRaceCard({
           </TableCell>
           <TableCell className="w-[1px] bg-border p-0" />
 
-          <TableCell className="p-2 text-center">
+          <TableCell className="max-w-0 overflow-hidden p-2 text-center">
             <BetEntryToggle
               marketName={t('show')}
               apiMarketName="show"
@@ -570,7 +575,7 @@ export default function UpcomingRaceCard({
                   (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
               }}
               variant="racecard"
-              className="h-[49px] w-[120px] bg-betEntry pt-[0px] text-[18px] tabular-nums text-betEntry-foreground hover:opacity-85"
+              className="mx-auto h-[49px] w-full max-w-[112px] bg-betEntry pt-[0px] text-[18px] tabular-nums text-betEntry-foreground hover:opacity-85 min-[1400px]:max-w-[120px]"
               onToggle={() => {
                 betAddedFromUIRef.current = true
               }}
@@ -788,7 +793,7 @@ export default function UpcomingRaceCard({
               {t('even_odd').toUpperCase()}
             </div>
             <div className="flex h-[66px]">
-              <div className="flex flex-1 items-center justify-center pl-16">
+              <div className="flex flex-1 items-center justify-center pl-8 min-[1400px]:pl-12 min-[1600px]:pl-16">
                 <BetEntryToggle
                   marketName={t('even_odd')}
                   apiMarketName="even/odd"
@@ -815,7 +820,7 @@ export default function UpcomingRaceCard({
                   }}
                 />
               </div>
-              <div className="flex flex-1 items-center justify-center border-r pl-16 pr-16">
+              <div className="flex flex-1 items-center justify-center border-r pl-8 pr-8 min-[1400px]:pl-12 min-[1400px]:pr-12 min-[1600px]:pl-16 min-[1600px]:pr-16">
                 <BetEntryToggle
                   marketName={t('even_odd')}
                   apiMarketName="even/odd"
@@ -851,7 +856,7 @@ export default function UpcomingRaceCard({
               {t('under_over').toUpperCase()} {race.discipline === 'DOGS8' ? '4.5' : '3.5'}
             </div>
             <div className="flex h-[66px]">
-              <div className="flex flex-1 items-center justify-center pl-16 pr-16">
+              <div className="flex flex-1 items-center justify-center pl-8 pr-8 min-[1400px]:pl-12 min-[1400px]:pr-12 min-[1600px]:pl-16 min-[1600px]:pr-16">
                 <BetEntryToggle
                   marketName={t('under_over')}
                   apiMarketName="under/over"
@@ -880,7 +885,7 @@ export default function UpcomingRaceCard({
                   }}
                 />
               </div>
-              <div className="flex flex-1 items-center justify-center pr-16">
+              <div className="flex flex-1 items-center justify-center pr-8 min-[1400px]:pr-12 min-[1600px]:pr-16">
                 <BetEntryToggle
                   marketName={t('under_over')}
                   apiMarketName="under/over"
@@ -918,7 +923,7 @@ export default function UpcomingRaceCard({
 
   return (
     <>
-      <Card className="h-full w-full">
+      <Card className="h-full w-full overflow-hidden">
         <CardHeader className="flex h-[73px] flex-row items-center justify-between px-[12px]">
           <div className="flex items-center space-x-2">
             {Object.entries(tabConfig).map(([key, config]) => {
@@ -929,7 +934,7 @@ export default function UpcomingRaceCard({
                   key={key}
                   variant={isActive ? 'marketSelected' : 'market'}
                   className={cn(
-                    'h-12 w-[140px] px-[18px] pb-0 text-[16px] font-semibold uppercase transition-colors',
+                    'h-12 w-[126px] px-[14px] pb-0 text-[16px] font-semibold uppercase transition-colors min-[1400px]:w-[135px] min-[1400px]:px-[16px] min-[1600px]:w-[140px] min-[1600px]:px-[18px]',
                     !isActive && 'hover:bg-navbarHover', // L'hover viene applicato solo se NON è attivo
                   )}
                   onClick={() => handleTabChange(key as TabType)}
@@ -974,7 +979,7 @@ export default function UpcomingRaceCard({
         </CardHeader>
 
         <CardContent>
-          <Table>
+          <Table className="table-fixed">
             {renderTableHeader()}
 
             <TableBody>
@@ -998,7 +1003,7 @@ export default function UpcomingRaceCard({
                           {racer.number}
                         </div>
                         <div>
-                          <div className="pl-1 pt-0.5 text-[17px] font-semibold">
+                          <div className="truncate pl-1 pt-0.5 text-[17px] font-semibold">
                             {racer.name}
                           </div>
                         </div>
@@ -1007,18 +1012,14 @@ export default function UpcomingRaceCard({
 
                     <TableCell className="w-[1px] bg-border p-0" />
 
-                    <TableCell className="p-3 text-[15px] font-bold">
-                      <div className="flex items-center justify-center gap-3">
-                        <div className="flex space-x-1">
-                          <div className="flex flex-col items-center justify-center">
-                            {racer.performance}%
-                            <Progress
-                              value={racer.performance}
-                              className="relative bottom-[0px] w-[189px] [&>div]:rounded-r-full [&>div]:bg-tertiary"
-                              style={{ height: '8px' }}
-                            />
-                          </div>
-                        </div>
+                    <TableCell className="p-2 text-[15px] font-bold">
+                      <div className="flex w-full min-w-0 flex-col items-stretch justify-center gap-1 px-1">
+                        <span className="text-center">{racer.performance}%</span>
+                        <Progress
+                          value={racer.performance}
+                          className="relative w-full [&>div]:rounded-r-full [&>div]:bg-tertiary"
+                          style={{ height: '10px' }}
+                        />
                       </div>
                     </TableCell>
 

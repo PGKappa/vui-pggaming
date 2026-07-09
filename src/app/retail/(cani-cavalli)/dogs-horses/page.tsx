@@ -69,7 +69,7 @@ export default function Home() {
   }, [carouselEvents])
 
   return (
-    <div className="relative bottom-[5px] flex h-[945px] min-w-[1200px] flex-row overflow-hidden">
+    <div className="relative bottom-[5px] flex h-[945px] min-w-0 flex-row overflow-hidden">
       {/* LEFT COLUMN - si allarga/stringe in base alla risoluzione */}
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         <div className="bg-betslip flex h-[99px] w-full flex-row items-center justify-center pb-[2px] pr-2">

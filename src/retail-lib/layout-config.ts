@@ -15,7 +15,8 @@ type BettingSlipLayoutConfig = {
 }
 type SearchEventResultsLayoutConfig = {
   disciplineSelectLeft: string
-  disciplineSelectMinWidth: string
+  filterControlClass: string
+  filterButtonClass: string
   searchBarPaddingRight: string
 }
 export type LayoutConfig = {
@@ -27,7 +28,7 @@ export type LayoutConfig = {
 const layoutByLanguage: Record<string, LayoutConfig> = {
   en: {
     carousel: {
-      itemBasis: 'basis-1/5 min-[1500px]:basis-1/6',
+      itemBasis: 'basis-1/4 min-[1400px]:basis-1/5 min-[1500px]:basis-1/6',
       imageOffset: {
         SOCCER: 'bottom-[4px] right-[10px]',
         HORSES: 'bottom-[4px] right-[9px]',
@@ -53,13 +54,16 @@ const layoutByLanguage: Record<string, LayoutConfig> = {
     },
     searchEventResults: {
       disciplineSelectLeft: 'left-5',
-      disciplineSelectMinWidth: 'min-w-[186px]',
+      filterControlClass:
+        'h-[48px] w-full min-w-0 border-none bg-background pl-[16px] pr-[5px] text-[14px] text-foreground [&>span]:truncate min-[1400px]:text-[15px] min-[1600px]:pl-[17px] min-[1600px]:text-[16px] min-[1920px]:min-w-[186px]',
+      filterButtonClass:
+        'h-[48px] min-w-0 flex-1 basis-0 text-[14px] font-bold min-[1400px]:text-[15px] min-[1600px]:text-[16px] min-[1920px]:min-w-[186px]',
       searchBarPaddingRight: '161px',
     },
   },
   es: {
     carousel: {
-      itemBasis: 'basis-1/5',
+      itemBasis: 'basis-1/4 min-[1400px]:basis-1/5',
       imageOffset: {
         SOCCER: 'bottom-[4px] right-[40px]',
         HORSES: 'bottom-[4px] right-[10px]',
@@ -85,13 +89,16 @@ const layoutByLanguage: Record<string, LayoutConfig> = {
     },
     searchEventResults: {
       disciplineSelectLeft: 'right-11',
-      disciplineSelectMinWidth: 'min-w-[240px]',
+      filterControlClass:
+        'h-[48px] w-full min-w-0 border-none bg-background pl-[16px] pr-[5px] text-[13px] text-foreground [&>span]:truncate min-[1400px]:text-[14px] min-[1600px]:pl-[17px] min-[1600px]:text-[15px] min-[1920px]:min-w-[240px] min-[1920px]:text-[16px]',
+      filterButtonClass:
+        'h-[48px] min-w-0 flex-1 basis-0 text-[13px] font-bold min-[1400px]:text-[14px] min-[1600px]:text-[15px] min-[1920px]:min-w-[240px] min-[1920px]:text-[16px]',
       searchBarPaddingRight: '95px',
     },
   },
   it: {
     carousel: {
-      itemBasis: 'basis-1/5 min-[1500px]:basis-1/6',
+      itemBasis: 'basis-1/4 min-[1400px]:basis-1/5 min-[1500px]:basis-1/6',
       imageOffset: {
         SOCCER: 'bottom-[4px] right-[10px]',
         HORSES: 'bottom-[4px] right-[13px]',
@@ -117,7 +124,10 @@ const layoutByLanguage: Record<string, LayoutConfig> = {
     },
     searchEventResults: {
       disciplineSelectLeft: 'left-5',
-      disciplineSelectMinWidth: 'min-w-[186px]',
+      filterControlClass:
+        'h-[48px] w-full min-w-0 border-none bg-background pl-[16px] pr-[5px] text-[14px] text-foreground [&>span]:truncate min-[1400px]:text-[15px] min-[1600px]:pl-[17px] min-[1600px]:text-[16px] min-[1920px]:min-w-[186px]',
+      filterButtonClass:
+        'h-[48px] min-w-0 flex-1 basis-0 text-[14px] font-bold min-[1400px]:text-[15px] min-[1600px]:text-[16px] min-[1920px]:min-w-[186px]',
       searchBarPaddingRight: '161px',
     },
   },
