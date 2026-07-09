@@ -665,7 +665,8 @@ export default function SearchEventResults() {
             htmlFor="last10"
             className="whitespace-nowrap px-2 py-3 text-[15px] font-semibold text-background"
           >
-            {t('last_10_games')}
+            <span className="min-[1400px]:hidden">{t('last_10_games_short')}</span>
+            <span className="hidden min-[1400px]:inline">{t('last_10_games')}</span>
           </label>
         </div>
 

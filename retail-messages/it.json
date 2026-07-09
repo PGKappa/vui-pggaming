@@ -54,6 +54,7 @@
   "discipline": "Disciplina",
   "sport": "Sport",
   "last_10_games": "Ultime 10 Gare",
+  "last_10_games_short": "Ultime 10",
   "reset": "CANCELLA",
   "no_results_found": "Nessun risultato trovato",
   "upcoming_events": "Prossimi Eventi",
