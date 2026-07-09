@@ -250,7 +250,7 @@ function RetailShell({ children }: { children: React.ReactNode }) {
   return (
     <>
       <Navbar />
-      <main className="h-full gap-2 overflow-hidden">
+      <main className="h-full min-w-[1280px] gap-2 overflow-hidden">
         <div className="h-full p-2">
           <BetsContextProvider>{children}</BetsContextProvider>
         </div>

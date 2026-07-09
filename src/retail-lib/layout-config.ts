@@ -27,7 +27,7 @@ export type LayoutConfig = {
 const layoutByLanguage: Record<string, LayoutConfig> = {
   en: {
     carousel: {
-      itemBasis: 'basis-1/5 min-[1500px]:basis-1/6',
+      itemBasis: 'basis-1/4 min-[1400px]:basis-1/5 min-[1500px]:basis-1/6',
       imageOffset: {
         SOCCER: 'bottom-[4px] right-[10px]',
         HORSES: 'bottom-[4px] right-[9px]',
@@ -59,7 +59,7 @@ const layoutByLanguage: Record<string, LayoutConfig> = {
   },
   es: {
     carousel: {
-      itemBasis: 'basis-1/5',
+      itemBasis: 'basis-1/4 min-[1400px]:basis-1/5',
       imageOffset: {
         SOCCER: 'bottom-[4px] right-[10px]',
         HORSES: 'bottom-[4px] right-[5px]',
@@ -91,7 +91,7 @@ const layoutByLanguage: Record<string, LayoutConfig> = {
   },
   it: {
     carousel: {
-      itemBasis: 'basis-1/5 min-[1500px]:basis-1/6',
+      itemBasis: 'basis-1/4 min-[1400px]:basis-1/5 min-[1500px]:basis-1/6',
       imageOffset: {
         SOCCER: 'bottom-[4px] right-[10px]',
         HORSES: 'bottom-[4px] right-[13px]',

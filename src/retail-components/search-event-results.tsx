@@ -632,7 +632,7 @@ export default function SearchEventResults() {
 
   return (
     <div className="flex h-full flex-col space-y-1">
-      <div className="flex h-16 w-full items-center space-x-2 bg-accent px-[24px] min-[1400px]:px-[60px] min-[1600px]:px-[100px] min-[1750px]:px-[130px] min-[1920px]:px-[167px]">
+      <div className="flex h-16 w-full items-center space-x-2 bg-accent px-[16px] min-[1400px]:px-[60px] min-[1600px]:px-[100px] min-[1750px]:px-[130px] min-[1920px]:px-[167px]">
         {/* DISCIPLINA */}
         <Select
           value={selectedDiscipline.toString()}
