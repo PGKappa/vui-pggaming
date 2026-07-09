@@ -77,12 +77,22 @@ export default function RetailLayout({
                 opacity: 1;
               }
               #static-splash .splash-spinner {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                margin-top: -32px;
+                margin-left: -32px;
                 width: 64px;
                 height: 64px;
                 border: 4px solid #1e3a5f;
                 border-top-color: transparent;
                 border-radius: 50%;
                 animation: spin 1s linear infinite;
+              }
+              #static-splash.has-image .splash-spinner {
+                position: static;
+                margin-top: 0;
+                margin-left: 0;
               }
               #static-splash .splash-versions {
                 position: absolute;
@@ -193,6 +203,7 @@ function RetailShell({ children }: { children: React.ReactNode }) {
     const logoElement = document.querySelector(
       '#static-splash .splash-logo',
     ) as HTMLImageElement
+    const splashElement = document.getElementById('static-splash')
 
     // Check if we have a non-empty splashscreen image
     const hasRealImage =
@@ -209,6 +220,7 @@ function RetailShell({ children }: { children: React.ReactNode }) {
       preloadImg.onload = () => {
         logoElement.src = imagePath
         logoElement.classList.add('loaded')
+        splashElement?.classList.add('has-image')
         if (apiVersionEl) apiVersionEl.textContent = `API: ${apiVersion}`
         if (feVersionEl) feVersionEl.textContent = `FE: ${feVersion}`
         if (versionsContainer) versionsContainer.classList.add('loaded')
