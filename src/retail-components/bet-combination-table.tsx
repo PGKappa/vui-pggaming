@@ -93,7 +93,7 @@ export default function BetCombinationsTable({
                 outcome: `${racer1}-${racer2}`,
                 decPrice: parseFloat(odds),
               },
-              track: race.trackName || 'Track 6',
+              track: race.trackName || (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
             })
           }
         })
@@ -134,7 +134,7 @@ export default function BetCombinationsTable({
                           outcome: `${racer1}-${racer2}`,
                           decPrice: parseFloat(odds),
                         },
-                        track: race.trackName || 'Track 6',
+                        track: race.trackName || (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
                       })
                     }
                   }
@@ -173,7 +173,7 @@ export default function BetCombinationsTable({
                       outcome: `${racer1}-${racer2}`,
                       decPrice: parseFloat(odds),
                     },
-                    track: race.trackName || 'Track 6',
+                    track: race.trackName || (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
                   })
                 }
               }
@@ -208,7 +208,7 @@ export default function BetCombinationsTable({
                         outcome: `${racer1}-${racer2}`,
                         decPrice: parseFloat(odds),
                       },
-                      track: race.trackName || 'Track 6',
+                      track: race.trackName || (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
                     })
                   }
                 }
@@ -262,7 +262,7 @@ export default function BetCombinationsTable({
                   outcome: `${racer1}-${racer2}-${racer3}`,
                   decPrice: parseFloat(odds),
                 },
-                track: race.trackName || 'Track 6',
+                track: race.trackName || (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
               })
             }
           })
@@ -321,7 +321,7 @@ export default function BetCombinationsTable({
                               outcome: `${combinationKey}`,
                               decPrice: parseFloat(odds),
                             },
-                            track: race.trackName || 'Track 6',
+                            track: race.trackName || (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
                           })
                         }
                       }
@@ -381,7 +381,7 @@ export default function BetCombinationsTable({
                               outcome: `${combinationKey}`,
                               decPrice: parseFloat(odds),
                             },
-                            track: race.trackName || 'Track 6',
+                            track: race.trackName || (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
                           })
                         }
                       }
@@ -420,7 +420,7 @@ export default function BetCombinationsTable({
                         outcome: `${combinationKey}`,
                         decPrice: parseFloat(odds),
                       },
-                      track: race.trackName || 'Track 6',
+                      track: race.trackName || (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
                     })
                   }
                 }
@@ -470,7 +470,7 @@ export default function BetCombinationsTable({
                             outcome: `${combinationKey}`,
                             decPrice: parseFloat(odds),
                           },
-                          track: race.trackName || 'Track 6',
+                          track: race.trackName || (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
                         })
                       }
                     }
@@ -614,17 +614,17 @@ export default function BetCombinationsTable({
         <CardTitle className="mr-[1px] flex items-center justify-center text-[16px] text-white">
           {getTitle()}
         </CardTitle>
-        <div className="flex justify-end gap-2">
+        <div className="flex justify-end space-x-2">
           <Button
             variant="navbar"
-            className="h-10 w-fit rounded-[1px] px-[18px] pt-[1px] text-[15px] font-semibold text-white"
+            className="h-10 w-fit rounded-[1px] px-[18px] pt-[1px] text-[15px] font-semibold text-white active:bg-betHover hover:bg-navbarHover"
             onClick={handleSortClick}
           >
             {getSortButtonText()}
           </Button>
           <Button
             variant="navbar"
-            className="h-10 w-fit rounded-[1px] px-[18px] pt-[1px] text-[15px] font-semibold text-white"
+            className="h-10 w-[183px] rounded-[1px] px-[18px] pt-[1px] text-[15px] font-semibold text-white active:bg-betHover hover:bg-navbarHover"
             onClick={() => {
               if (onBeforeToggle) onBeforeToggle()
               if (allBetsSelected) {
@@ -645,15 +645,15 @@ export default function BetCombinationsTable({
               : `${t('select_all').toUpperCase()}`}
           </Button>
 
-          <div className="flex h-10 min-w-fit items-center justify-center rounded-[1px] bg-background px-[18px] text-accent">
+          <div className="flex h-10 min-w-[63px] items-center justify-center rounded-[1px] bg-background px-[18px] text-accent">
             <span className="pt-[1px] text-[16px] font-semibold">
               {combinations.length}
             </span>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="p-2">
-        <div className="grid grid-cols-12 gap-2 pb-16">
+      <CardContent className="p-0 pr-2">
+        <div className="grid grid-cols-12 gap-2 pb-6 pt-2">
           {combinations.map((bet) => (
             <BetEntryToggle
               key={bet.option.outcome}

@@ -8,7 +8,13 @@ import Image from 'next/image'
 import { RootContext } from '@/retail-contexts/root-context'
 import { SkinContext, SkinType } from '@/retail-contexts/skin-context'
 
-type Discipline = 'soccer' | 'racing'
+type Discipline =
+  | 'soccer'
+  | 'dogs6'
+  | 'horses6'
+  | 'dogs8'
+  | 'horses8'
+  | 'racing'
 
 interface DraggableCodeListProps {
   discipline: Discipline
@@ -16,9 +22,15 @@ interface DraggableCodeListProps {
 }
 
 // Configurazione immagini basata su disciplina, lingua e skin
-const getImageConfig = (discipline: Discipline, language: string, skin: SkinType = SkinType.DEFAULT) => {
+const getImageConfig = (
+  discipline: Discipline,
+  language: string,
+  skin: SkinType = SkinType.DEFAULT,
+) => {
+  const isStanleybet = skin === SkinType.STANLEYBET
+
   if (discipline === 'soccer') {
-    if(language === 'es') {
+    if (language === 'es') {
       return {
         image: '/futbol-codes-image.png',
         alt: 'Códigos de apuestas de fútbol',
@@ -32,7 +44,32 @@ const getImageConfig = (discipline: Discipline, language: string, skin: SkinType
     }
   }
 
-  // Racing: cambia immagine in base alla lingua e skin
+  // 8 corridors: dogs8 and horses8
+  if (discipline === 'dogs8' || discipline === 'horses8') {
+    if (language === 'es') {
+      return {
+        image: '/galgoscaballos8-codes-image.png',
+        alt: 'Códigos de apuestas galgos y caballos 8',
+        title: 'Racing Code List',
+      }
+    }
+    if (language === 'it') {
+      return {
+        image: isStanleybet
+          ? '/cani-cavalli8-codes-image-stanley.png'
+          : '/cani-cavalli8-codes-image.png',
+        alt: 'Codici scommesse cani e cavalli 8',
+        title: 'Elenco Codici Corse',
+      }
+    }
+    return {
+      image: '/dogs-horses8-codes-image.png',
+      alt: 'Dogs and horses 8 betting codes',
+      title: 'Racing Code List',
+    }
+  }
+
+  // 6 corridors: dogs6, horses6, and legacy 'racing'
   if (language === 'es') {
     return {
       image: '/galgoscaballos-codes-image.png',
@@ -40,19 +77,17 @@ const getImageConfig = (discipline: Discipline, language: string, skin: SkinType
       title: 'Racing Code List',
     }
   }
-
   if (language === 'it') {
-    const isStanleybet = skin === SkinType.STANLEYBET
     return {
-      image: isStanleybet ? '/cani-cavalli-codes-image-rosso.png' : '/cani-cavalli-codes-image.png',
+      image: isStanleybet
+        ? '/cani-cavalli-codes-image-stanley.png'
+        : '/cani-cavalli-codes-image.png',
       alt: 'Codici scommesse cani e cavalli',
       title: 'Elenco Codici Corse',
     }
   }
-
-  // Default inglese per racing
   return {
-    image: '/dogshorses-codes-image.png',
+    image: '/dogs-horses-codes-image.png',
     alt: 'Dogs and horses betting codes',
     title: 'Racing Code List',
   }
@@ -93,7 +128,13 @@ export default function DraggableCodeList({
 
   // Quando l'immagine viene caricata, aggiorna le proporzioni reali e mostra il container
   const handleImageLoad = useCallback(
-    ({ naturalWidth, naturalHeight }: { naturalWidth: number; naturalHeight: number }) => {
+    ({
+      naturalWidth,
+      naturalHeight,
+    }: {
+      naturalWidth: number
+      naturalHeight: number
+    }) => {
       const ratio = naturalHeight / naturalWidth
       setImageRatio(ratio)
       setSize((prev) => ({
@@ -322,7 +363,7 @@ export default function DraggableCodeList({
       <Button
         variant="ghost"
         size="icon"
-        className="h-12 w-12 bg-bet text-[18px] font-normal text-tertiary-foreground hover:opacity-90"
+        className="h-12 w-12 bg-infoBackground text-[18px] font-normal text-tertiary-foreground hover:opacity-90"
         onClick={() => setIsOpen(!isOpen)}
       >
         i
@@ -341,7 +382,7 @@ export default function DraggableCodeList({
           }}
         >
           <div
-            className="flex h-14 shrink-0 cursor-move select-none items-center justify-center border-black bg-accent border-b"
+            className="flex h-14 shrink-0 cursor-move select-none items-center justify-center border-black bg-accent"
             onMouseDown={handleMouseDown}
             onTouchStart={handleTouchStart}
           >
@@ -349,17 +390,17 @@ export default function DraggableCodeList({
               {t('code_list').toUpperCase()}
             </h2>
 
-            <div className="absolute right-4 flex items-center gap-2">
+            <div className="absolute right-4 flex items-center space-x-2 bg-transparent">
               <Button
                 variant={'ghost'}
                 size="icon"
                 onClick={handlePrint}
                 title="Print"
-                className="hover:bg-accent/20"
+                className="bg-transparent hover:bg-accent/20"
               >
                 <Printer
                   className="h-4 w-4 text-accent-foreground"
-                  style={{ scale: 1.5 }}
+                  style={{ zoom: 1.3 }}
                 />
               </Button>
               <Button
@@ -367,11 +408,11 @@ export default function DraggableCodeList({
                 size="icon"
                 onClick={handleClose}
                 title="Close"
-                className="hover:bg-accent/20"
+                className="bg-transparent hover:bg-accent/20"
               >
                 <X
                   className="h-4 w-4 text-accent-foreground"
-                  style={{ scale: 1.5 }}
+                  style={{ zoom: 1.3 }}
                 />
               </Button>
             </div>

@@ -17,6 +17,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -74,7 +75,8 @@ function getDisciplinesFromUrl(pathname: string): Discipline[] {
 
   // Support both English and Italian slugs
   if (p.includes('dogs-horses') || p.includes('cani-cavalli'))
-    return [Discipline.DOGS, Discipline.HORSES]
+    return [Discipline.DOGS, Discipline.DOGS8, Discipline.HORSES]
+  if (p.includes('dogs8') || p.includes('cani8')) return [Discipline.DOGS8]
   if (p.includes('horses') || p.includes('cavalli')) return [Discipline.HORSES]
   if (p.includes('dogs') || p.includes('cani')) return [Discipline.DOGS]
   if (p.includes('calcio') || p.includes('football') || p.includes('soccer'))
@@ -89,7 +91,7 @@ export default function EventsContextProvider(props: {
   const { t } = useTranslation()
   const pathname = usePathname()
   const cashierContext = useContext(CashierContext)
-  const { initCode, operator, getTimezone } = cashierContext
+  const { initCode, operator, getTimezone, isLoadingCashier } = cashierContext
 
   const [upcomingEvents, setUpcomingEvents] = useState<UpcomingEvent[]>([])
   const [eventResults, setEventResults] = useState<EventResult[]>([])
@@ -110,11 +112,8 @@ export default function EventsContextProvider(props: {
   )
   const [isLoadingEventDetails, setIsLoadingEventDetails] = useState(false)
 
-  // Se initCode non è ancora disponibile da CashierContext, prova localStorage
-  const effectiveInitCode =
-    initCode ||
-    (typeof window !== 'undefined' ? localStorage.getItem('initCode') : null) ||
-    undefined
+  // Usa solo initCode dal CashierContext
+  const effectiveInitCode = initCode || undefined
 
   const setActiveDrawer = useCallback((drawerId?: string) => {
     setActiveDrawerId(drawerId)
@@ -240,6 +239,7 @@ export default function EventsContextProvider(props: {
       try {
         const shouldFetchRacing =
           disciplines.includes(Discipline.DOGS) ||
+          disciplines.includes(Discipline.DOGS8) ||
           disciplines.includes(Discipline.HORSES)
 
         const allUpcomingEvents: UpcomingEvent[] = []
@@ -265,7 +265,13 @@ export default function EventsContextProvider(props: {
             const dogChannel =
               channels.find(
                 (c: any) =>
-                  typeof c?.name === 'string' && /dog|grey/i.test(c.name),
+                  // Match dogs6 / dog6 but NOT dogs8 — use negative lookahead on the digit
+                  (typeof c?.game_id === 'string' &&
+                    /^dogs?(?!8)/i.test(c.game_id)) ||
+                  (typeof c?.name === 'string' &&
+                    /dog|grey/i.test(c.name) &&
+                    !/8/.test(c.name) &&
+                    !/8/.test(c.game_id || '')),
               ) || channels[0] // Fallback to first channel
 
             if (dogChannel?.next_events) {
@@ -300,12 +306,53 @@ export default function EventsContextProvider(props: {
               allUpcomingEvents.push(...dogEvents)
             }
 
+            // Dogs8
+            const dog8Channel = channels.find(
+              (c: any) =>
+                // Cerca nel game_id (dogs8) o nel name (Dog8, Grey8, etc)
+                (typeof c?.game_id === 'string' && /dogs?8/i.test(c.game_id)) ||
+                (typeof c?.name === 'string' && /dog.*8|grey.*8/i.test(c.name)),
+            ) // NO fallback - solo se esiste esplicitamente
+
+            if (dog8Channel?.next_events) {
+              const dog8Events = dog8Channel.next_events.map(
+                (event: any, idx: number): UpcomingEvent => {
+                  let startTime: Date
+                  if (
+                    event.start_time &&
+                    typeof event.start_time === 'string'
+                  ) {
+                    const [hours, minutes] = event.start_time.split(':')
+                    startTime = new Date()
+                    startTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
+                  } else if (event.since && typeof event.since === 'number') {
+                    startTime = new Date(Date.now() + event.since * 1000)
+                  } else {
+                    startTime = parseAPIDate(event.time, timezone)
+                  }
+
+                  return {
+                    id: parseInt(event.int_event_id),
+                    extId: event.ext_pal_id,
+                    duration: dog8Channel.duration?.[idx] || 3,
+                    name: 'Dog8',
+                    startTime: event.start_time,
+                    time: startTime,
+                    discipline: Discipline.DOGS8,
+                    trackName: dog8Channel.track_name,
+                  }
+                },
+              )
+              allUpcomingEvents.push(...dog8Events)
+            }
+
             // Horses
-            const horseChannel =
-              channels.find(
-                (c: any) =>
-                  typeof c?.name === 'string' && /horse|cavall/i.test(c.name),
-              ) || channels[1] // Fallback to second channel
+            const horseChannel = channels.find(
+              (c: any) =>
+                // Cerca nel game_id (horse) o nel name (Horse, Cavall, etc)
+                (typeof c?.game_id === 'string' && /horse/i.test(c.game_id)) ||
+                (typeof c?.name === 'string' && /horse|cavall/i.test(c.name)),
+            ) // NO fallback - solo se esiste esplicitamente
 
             if (horseChannel?.next_events) {
               const horseEvents = horseChannel.next_events.map(
@@ -327,6 +374,7 @@ export default function EventsContextProvider(props: {
                   return {
                     id: parseInt(event.int_event_id),
                     extId: event.ext_pal_id,
+                    palimpsestId: event.ext_pal_id || event.int_pal_id,
                     duration: horseChannel.duration?.[idx] || 3,
                     name: 'Horse',
                     startTime: event.start_time,
@@ -362,12 +410,12 @@ export default function EventsContextProvider(props: {
   useEffect(() => {
     const disciplines = getDisciplinesFromUrl(pathname)
 
-    // Unifica cache per racing: dogs e horses usano la stessa API, quindi usa una chiave condivisa
+    // Unifica cache per racing: dogs, dogs8 e horses usano la stessa API, quindi usa una chiave condivisa
     const normalizedDisciplines = disciplines.includes(Discipline.SOCCER)
       ? disciplines
-      : [Discipline.DOGS, Discipline.HORSES]
+      : [Discipline.DOGS, Discipline.DOGS8, Discipline.HORSES]
 
-    if (!effectiveInitCode || disciplines.length === 0) {
+    if (!effectiveInitCode || disciplines.length === 0 || isLoadingCashier) {
       setIsLoadingEvents(false)
       return
     }
@@ -423,6 +471,7 @@ export default function EventsContextProvider(props: {
 
         const shouldFetchRacing =
           disciplines.includes(Discipline.DOGS) ||
+          disciplines.includes(Discipline.DOGS8) ||
           disciplines.includes(Discipline.HORSES)
         const shouldFetchSoccer = disciplines.includes(Discipline.SOCCER)
 
@@ -444,11 +493,16 @@ export default function EventsContextProvider(props: {
               ? racingData.channels
               : []
 
-            // Dogs - solo next_events
             const dogChannel =
               channels.find(
                 (c: any) =>
-                  typeof c?.name === 'string' && /dog|grey/i.test(c.name),
+                  // Match dogs6 / dog6 but NOT dogs8 — use negative lookahead on the digit
+                  (typeof c?.game_id === 'string' &&
+                    /^dogs?(?!8)/i.test(c.game_id)) ||
+                  (typeof c?.name === 'string' &&
+                    /dog|grey/i.test(c.name) &&
+                    !/8/.test(c.name) &&
+                    !/8/.test(c.game_id || '')),
               ) || channels[0]
 
             if (dogChannel?.next_events) {
@@ -471,6 +525,7 @@ export default function EventsContextProvider(props: {
                   return {
                     id: parseInt(event.int_event_id),
                     extId: event.ext_pal_id,
+                    palimpsestId: event.ext_pal_id || event.int_pal_id,
                     duration: dogChannel.duration?.[idx] || 3,
                     name: 'Dog',
                     startTime: event.start_time,
@@ -483,12 +538,53 @@ export default function EventsContextProvider(props: {
               allUpcomingEvents.push(...dogEvents)
             }
 
+            // Dogs8 - solo next_events
+            const dog8Channel = channels.find(
+              (c: any) =>
+                // Cerca nel game_id (dogs8) o nel name (Dog8, Grey8, etc)
+                (typeof c?.game_id === 'string' && /dogs?8/i.test(c.game_id)) ||
+                (typeof c?.name === 'string' && /dog.*8|grey.*8/i.test(c.name)),
+            ) // NO fallback - solo se esiste esplicitamente
+
+            if (dog8Channel?.next_events) {
+              const dog8Events = dog8Channel.next_events.map(
+                (event: any, idx: number): UpcomingEvent => {
+                  let startTime: Date
+                  if (
+                    event.start_time &&
+                    typeof event.start_time === 'string'
+                  ) {
+                    const [hours, minutes] = event.start_time.split(':')
+                    startTime = new Date()
+                    startTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
+                  } else if (event.since && typeof event.since === 'number') {
+                    startTime = new Date(Date.now() + event.since * 1000)
+                  } else {
+                    startTime = parseAPIDate(event.time, timezone)
+                  }
+
+                  return {
+                    id: parseInt(event.int_event_id),
+                    extId: event.ext_pal_id,
+                    duration: dog8Channel.duration?.[idx] || 3,
+                    name: 'Dog8',
+                    startTime: event.start_time,
+                    time: startTime,
+                    discipline: Discipline.DOGS8,
+                    trackName: dog8Channel.track_name,
+                  }
+                },
+              )
+              allUpcomingEvents.push(...dog8Events)
+            }
+
             // Horses - solo next_events
-            const horseChannel =
-              channels.find(
-                (c: any) =>
-                  typeof c?.name === 'string' && /horse|cavall/i.test(c.name),
-              ) || channels[1]
+            const horseChannel = channels.find(
+              (c: any) =>
+                // Cerca nel game_id (horse) o nel name (Horse, Cavall, etc)
+                (typeof c?.game_id === 'string' && /horse/i.test(c.game_id)) ||
+                (typeof c?.name === 'string' && /horse|cavall/i.test(c.name)),
+            ) // NO fallback - solo se esiste esplicitamente
 
             if (horseChannel?.next_events) {
               const horseEvents = horseChannel.next_events.map(
@@ -510,6 +606,7 @@ export default function EventsContextProvider(props: {
                   return {
                     id: parseInt(event.int_event_id),
                     extId: event.ext_pal_id,
+                    palimpsestId: event.ext_pal_id || event.int_pal_id,
                     duration: horseChannel.duration?.[idx] || 3,
                     name: 'Horse',
                     startTime: event.start_time,
@@ -737,11 +834,16 @@ export default function EventsContextProvider(props: {
     pathname,
     operator,
     effectiveInitCode,
+    isLoadingCashier,
     getTimezone,
     activeDisciplines,
     fetchEventsInBackground,
     t,
   ])
+
+  // Ref per accedere a upcomingEvents nel polling senza causare re-esecuzione
+  const upcomingEventsRef = useRef(upcomingEvents)
+  upcomingEventsRef.current = upcomingEvents
 
   // Polling periodico per mantenere il carosello aggiornato
   useEffect(() => {
@@ -759,12 +861,15 @@ export default function EventsContextProvider(props: {
       return
     }
 
-    // Normalizza le discipline per racing (DOGS + HORSES usano stessa API)
+    // Normalizza le discipline per racing (DOGS, DOGS8 e HORSES usano stessa API)
     const isRacing = disciplines.some(
-      (d) => d === Discipline.DOGS || d === Discipline.HORSES,
+      (d) =>
+        d === Discipline.DOGS ||
+        d === Discipline.DOGS8 ||
+        d === Discipline.HORSES,
     )
     const normalizedDisciplines = isRacing
-      ? [Discipline.DOGS, Discipline.HORSES]
+      ? [Discipline.DOGS, Discipline.DOGS8, Discipline.HORSES]
       : disciplines
 
     const cacheKey = `${effectiveInitCode}:${normalizedDisciplines.sort().join('+')}`
@@ -776,7 +881,7 @@ export default function EventsContextProvider(props: {
       const now = new Date()
 
       // Conta gli eventi futuri (non ancora scaduti)
-      const futureEvents = upcomingEvents.filter((event) => {
+      const futureEvents = upcomingEventsRef.current.filter((event) => {
         const eventTime =
           event.time instanceof Date ? event.time : new Date(event.time)
         return eventTime > now
@@ -810,13 +915,7 @@ export default function EventsContextProvider(props: {
       clearInterval(checkIntervalId)
       clearInterval(pollingIntervalId)
     }
-  }, [
-    pathname,
-    effectiveInitCode,
-    operator,
-    fetchEventsInBackground,
-    upcomingEvents,
-  ])
+  }, [pathname, effectiveInitCode, operator, fetchEventsInBackground])
 
   return (
     <EventsContext.Provider

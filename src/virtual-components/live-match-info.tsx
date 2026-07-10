@@ -233,7 +233,7 @@ export default function LiveMatchInfo() {
                   onClick={() => setIsLatecomersOpen(true)}
                   title="Late Comers"
                 >
-                  <Clock style={{ scale: 1.5 }} />
+                  <Clock style={{ zoom: 1.3 }} />
                 </Button>
               )}
             </div>

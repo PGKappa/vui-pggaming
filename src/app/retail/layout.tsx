@@ -3,6 +3,7 @@
 import InactivityBridge from '@/retail-components/inactivity-bridge'
 import Navbar from '@/retail-components/navbar'
 import { Toaster } from '@/retail-components/ui/sonner'
+/* import UrlDebugBar from '@/retail-components/url-debug-bar' */
 import ZoomBlocker from '@/retail-components/zoom-blocker'
 import BetsContextProvider from '@/retail-contexts/bets-context'
 import CashierContextProvider from '@/retail-contexts/cashier-context'
@@ -63,11 +64,11 @@ export default function RetailLayout({
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                gap: 4px;
+                gap: 32px;
               }
               #static-splash .splash-logo {
                 width: 400px;
-                height: 150px;
+                height: 200px;
                 object-fit: contain;
                 opacity: 0;
                 transition: opacity 0.2s ease-in;
@@ -77,8 +78,10 @@ export default function RetailLayout({
               }
               #static-splash .splash-spinner {
                 position: absolute;
-                top: 60%;
-                left: 48%;
+                top: 50%;
+                left: 50%;
+                margin-top: -32px;
+                margin-left: -32px;
                 width: 64px;
                 height: 64px;
                 border: 4px solid #1e3a5f;
@@ -86,17 +89,26 @@ export default function RetailLayout({
                 border-radius: 50%;
                 animation: spin 1s linear infinite;
               }
-              #static-splash .splash-version {
+              #static-splash.has-image .splash-spinner {
+                position: static;
+                margin-top: 0;
+                margin-left: 0;
+              }
+              #static-splash .splash-versions {
                 position: absolute;
                 bottom: 32px;
                 left: 50%;
                 transform: translateX(-50%);
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 2px;
                 font-size: 14px;
                 color: #6b7280;
                 opacity: 0;
                 transition: opacity 0.2s ease-in;
               }
-              #static-splash .splash-version.loaded {
+              #static-splash .splash-versions.loaded {
                 opacity: 1;
               }
               @keyframes spin {
@@ -109,20 +121,6 @@ export default function RetailLayout({
           }}
         />
       </head>
-      {/* Splash screen statico inline - appare ISTANTANEAMENTE */}
-      <div id="static-splash">
-        <div className="splash-content">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/splashscreen-empty.png"
-            alt="PGV Virtual"
-            className="splash-logo"
-            style={{ objectFit: 'contain', width: 400, height: 150 }}
-          />
-          <div className="splash-spinner"></div>
-        </div>
-        <span className="splash-version"></span>
-      </div>
       <SkinProvider>
         <SkinBody>{children}</SkinBody>
       </SkinProvider>
@@ -138,12 +136,27 @@ function SkinBody({ children }: { children: React.ReactNode }) {
     <body
       className={`${inter.variable} ${skin} flex h-screen flex-col overflow-hidden font-inter antialiased`}
     >
+      {/* Splash screen statico inline - appare ISTANTANEAMENTE */}
+      <div id="static-splash">
+        <div className="splash-content">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/splashscreen-empty.png"
+            alt="PGV Virtual"
+            className="splash-logo"
+            style={{ objectFit: 'contain', width: 600, height: 400 }}
+          />
+          <div className="splash-spinner"></div>
+        </div>
+        <span className="splash-version"></span>
+      </div>
       {/* Toaster globale - visibile anche durante lo splash screen */}
       <Toaster position="top-right" />
       <InactivityBridge />
       <ZoomBlocker />
       <CashierContextProvider>
         <EventsContextProvider key={pathname}>
+          {/* <UrlDebugBar /> */}
           <RootContextProvider>
             <RetailShell>{children}</RetailShell>
           </RootContextProvider>
@@ -157,67 +170,87 @@ function SkinBody({ children }: { children: React.ReactNode }) {
 let hasAppLoaded = false
 
 function RetailShell({ children }: { children: React.ReactNode }) {
+  const { t } = useTranslation()
   const {
     isLoadingEvents,
     isLoadingCashier,
+    hasCashierError,
     upcomingEvents,
     eventResults,
     getVersion,
     getSplashscreen,
   } = useContext(RootContext)
 
+  const feVersion = process.env.NEXT_PUBLIC_FE_VERSION || 'dev'
+
   // Update splash screen with API data
   useEffect(() => {
-    const version = getVersion?.() || 'v1.0'
+    const apiVersion = getVersion?.() || 'v1.0'
     const splashscreenImage = getSplashscreen?.() || 'splashscreen-empty.png'
 
     // Update version text
-    const versionElement = document.querySelector(
-      '#static-splash .splash-version',
+    const versionsContainer = document.querySelector(
+      '#static-splash .splash-versions',
+    )
+    const apiVersionEl = document.querySelector(
+      '#static-splash .splash-version-api',
+    )
+    const feVersionEl = document.querySelector(
+      '#static-splash .splash-version-fe',
     )
 
     // Update splash image
     const logoElement = document.querySelector(
       '#static-splash .splash-logo',
     ) as HTMLImageElement
+    const splashElement = document.getElementById('static-splash')
 
     // Check if we have a non-empty splashscreen image
     const hasRealImage =
       splashscreenImage && !splashscreenImage.includes('empty')
 
     if (logoElement && hasRealImage) {
-      // Handle case where path may or may not start with /
-      const imagePath = splashscreenImage.startsWith('/')
+      const isAbsoluteUrl = /^https?:\/\//i.test(splashscreenImage)
+      const imagePath = isAbsoluteUrl
         ? splashscreenImage
-        : `/${splashscreenImage}`
+        : splashscreenImage.startsWith('/')
+          ? splashscreenImage
+          : `/${splashscreenImage}`
       const preloadImg = new Image()
       preloadImg.onload = () => {
         logoElement.src = imagePath
         logoElement.classList.add('loaded')
-        if (versionElement) {
-          versionElement.textContent = version
-          versionElement.classList.add('loaded')
-        }
+        splashElement?.classList.add('has-image')
+        if (apiVersionEl) apiVersionEl.textContent = `API: ${apiVersion}`
+        if (feVersionEl) feVersionEl.textContent = `FE: ${feVersion}`
+        if (versionsContainer) versionsContainer.classList.add('loaded')
       }
       preloadImg.onerror = () => {
-        if (versionElement) {
-          versionElement.textContent = version
-          versionElement.classList.add('loaded')
-        }
+        if (apiVersionEl) apiVersionEl.textContent = `API: ${apiVersion}`
+        if (feVersionEl) feVersionEl.textContent = `FE: ${feVersion}`
+        if (versionsContainer) versionsContainer.classList.add('loaded')
       }
       preloadImg.src = imagePath
     } else {
-      if (versionElement) {
-        versionElement.textContent = version
-        versionElement.classList.add('loaded')
-      }
+      if (apiVersionEl) apiVersionEl.textContent = `API: ${apiVersion}`
+      if (feVersionEl) feVersionEl.textContent = `FE: ${feVersion}`
+      if (versionsContainer) versionsContainer.classList.add('loaded')
     }
-  }, [isLoadingCashier, getVersion, getSplashscreen])
+  }, [isLoadingCashier, getVersion, getSplashscreen, feVersion])
+
+  useEffect(() => {
+    // Hide splash immediately when cashier fails — don't leave the user staring at the loading screen
+    if (hasCashierError) {
+      const splash = document.getElementById('static-splash')
+      if (splash) splash.classList.add('hidden')
+    }
+  }, [hasCashierError])
 
   useEffect(() => {
     // Solo al primo caricamento
     if (
       !hasAppLoaded &&
+      !hasCashierError &&
       !isLoadingEvents &&
       !isLoadingCashier &&
       ((upcomingEvents?.length ?? 0) > 0 || (eventResults?.length ?? 0) > 0)
@@ -233,18 +266,40 @@ function RetailShell({ children }: { children: React.ReactNode }) {
         }
       }, 900) // 900ms per dare tempo di vedere versione e logo
     }
-  }, [isLoadingEvents, isLoadingCashier, upcomingEvents, eventResults])
+  }, [
+    hasCashierError,
+    isLoadingEvents,
+    isLoadingCashier,
+    upcomingEvents,
+    eventResults,
+  ])
+
+  if (hasCashierError) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-3 bg-background px-6 text-center">
+        <div className="text-5xl">⚠️</div>
+        <h1 className="text-2xl font-bold text-destructive">
+          {t('cashier_error_title')}
+        </h1>
+        <p className="text-accent">{t('cashier_unavailable_detail')}</p>
+        <button
+          className="mt-4 rounded-lg bg-accent px-6 py-3 text-[14px] font-bold uppercase tracking-[1.5px] text-white"
+          onClick={() => window.location.reload()}
+        >
+          {t('reload')}
+        </button>
+      </div>
+    )
+  }
 
   return (
     <>
       <Navbar />
       <main className="h-full gap-2 overflow-hidden">
-  <div className="p-2 h-full">
-    <BetsContextProvider>
-      {children}
-    </BetsContextProvider>
-  </div>
-</main>
+        <div className="h-full p-2">
+          <BetsContextProvider>{children}</BetsContextProvider>
+        </div>
+      </main>
     </>
   )
 }

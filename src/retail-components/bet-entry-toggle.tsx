@@ -64,7 +64,9 @@ export default function BetEntryToggle(props: {
   const formatOutcome = (outcome: string, marketName: string): string => {
     // Per cani e cavalli usa le label complete, per il calcio usa le abbreviazioni
     const isRacing =
-      props.bet.discipline === 'DOGS' || props.bet.discipline === 'HORSES'
+      props.bet.discipline === 'DOGS' ||
+      props.bet.discipline === 'DOGS8' ||
+      props.bet.discipline === 'HORSES'
     const underLabel = isRacing
       ? t('under_full') || 'Under'
       : t('under') || 'Un'
@@ -112,7 +114,14 @@ export default function BetEntryToggle(props: {
       return outcome
     }
 
-    const valueMatch = marketName.match(/(\d+\.?\d*)/)
+    // Prefer value in parentheses e.g. "(1.5)" over first digit in "1x2"
+    const allNumMatches = [...marketName.matchAll(/(\d+\.?\d*)/g)]
+    const parenMatch = marketName.match(/\((\d+\.?\d*)\)/)
+    const valueMatch =
+      parenMatch ||
+      (allNumMatches.length > 0
+        ? allNumMatches[allNumMatches.length - 1]
+        : null)
     const value = valueMatch ? valueMatch[1] : ''
 
     if (outcome.includes('+')) {
@@ -188,6 +197,7 @@ export default function BetEntryToggle(props: {
               discipline: props.bet.discipline,
               competitors: props.bet.competitors,
               option: props.bet.option,
+              track: props.bet.track,
             },
             props.apiMarketName || props.marketName,
           )

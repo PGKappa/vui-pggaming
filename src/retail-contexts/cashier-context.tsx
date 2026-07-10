@@ -1,7 +1,11 @@
 'use client'
 
 import { User } from '@/retail-lib/types'
-import { BASE_API_URL, fetchCashierInit } from '@/retail-lib/utils'
+import {
+  BASE_API_URL,
+  fetchCashierInit,
+  setRetailHeaders,
+} from '@/retail-lib/utils'
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -9,6 +13,7 @@ import { toast } from 'sonner'
 export type CashierContextType = {
   initCode?: string
   operator?: string
+  terminalId?: string
   userData?: User
   cashierData?: any
   hasCashierError?: boolean
@@ -32,6 +37,20 @@ export type CashierContextType = {
   getTranslation?: (key: string, fallback?: string) => string
   getVersion?: () => string
   getSplashscreen?: () => string
+  getMaxEvents?: () => number
+  getMaxSelections?: () => number
+  getMaxCombinations?: () => number
+  getActiveMixDisciplines?: () => string[]
+  getNavbarConfig?: () => NavbarConfig
+}
+
+export type NavbarConfig = {
+  showDogs6: boolean
+  showDogs8: boolean
+  showHorses: boolean
+  /** Show the dogs-horses mix button (true when ≥2 racing disciplines are present) */
+  showMix: boolean
+  showFootball: boolean
 }
 
 const defaultCashierContext: CashierContextType = {
@@ -51,6 +70,18 @@ const defaultCashierContext: CashierContextType = {
   getTranslation: (key: string, fallback?: string) => fallback || key,
   getVersion: () => 'v1.0',
   getSplashscreen: () => 'splashscreen-empty.png',
+  getMaxEvents: () => 10,
+  getMaxSelections: () => 100,
+  getMaxCombinations: () => 512,
+  getActiveMixDisciplines: () => ['DOGS', 'HORSES'],
+  // Default: show everything before cashier data is loaded
+  getNavbarConfig: () => ({
+    showDogs6: true,
+    showDogs8: true,
+    showHorses: true,
+    showMix: true,
+    showFootball: true,
+  }),
 }
 
 export const CashierContext = createContext<CashierContextType>(
@@ -70,7 +101,7 @@ function createContextDataFromCashierData(
     playerId: `${cashierData.configs?.user_type}-${cashierData.configs?.terminals?.[0] || 'unknown'}`,
     currency: cashierData.intl?.currency || 'EUR',
     lang: cashierData.dictInfo?.lang || 'it',
-    level: 1,
+    level: cashierData.configs?.user_type === 'operator' ? 1 : 2,
     group: [cashierData.configs?.ui_type || 'retail'],
   } as User
 
@@ -136,7 +167,28 @@ function createContextDataFromCashierData(
   const getTimezone = () => cashierData.intl?.timezone || 'Europe/Rome'
   const getStakeButtons = () => {
     const buttons = cashierData.intl?.stake_buttons
-    return Array.isArray(buttons) ? buttons : [1, 2, 5, 10]
+    if (Array.isArray(buttons)) {
+      return buttons
+        .map((v: string | number) =>
+          typeof v === 'number'
+            ? v
+            : parseFloat(
+                String(v)
+                  .replace(/[^0-9.,]/g, '')
+                  .replace(',', '.'),
+              ),
+        )
+        .filter((n: number) => !isNaN(n) && n > 0)
+    }
+    if (typeof buttons === 'string') {
+      return buttons
+        .split(',')
+        .map((s: string) =>
+          parseFloat(s.replace(/[^0-9.,]/g, '').replace(',', '.')),
+        )
+        .filter((n: number) => !isNaN(n) && n > 0)
+    }
+    return [1, 2, 5, 10]
   }
   const getMinStake = () => {
     const minStake = cashierData.intl?.min_stake
@@ -149,9 +201,9 @@ function createContextDataFromCashierData(
   }
   const getMinBet = () => {
     const minBet = cashierData.intl?.min_bet
-    if (minBet) {
+    if (minBet !== undefined && minBet !== null) {
       const parsed = typeof minBet === 'string' ? parseFloat(minBet) : minBet
-      if (!isNaN(parsed) && parsed > 0) return parsed
+      if (!isNaN(parsed) && parsed >= 0) return parsed
     }
     return 0.05
   }
@@ -166,6 +218,133 @@ function createContextDataFromCashierData(
   const getVersion = () => cashierData.intl?.version || 'v1.0'
   const getSplashscreen = () =>
     cashierData.intl?.splashscreen || 'splashscreen-empty.png'
+
+  const getMaxEvents = () => {
+    const val =
+      cashierData?.intl?.MAX_EVENTS ??
+      cashierData?.intl?.max_events ??
+      cashierData?.MAX_EVENTS ??
+      cashierData?.max_events
+
+    if (val !== undefined && val !== null) {
+      const parsed = typeof val === 'string' ? parseInt(val, 10) : val
+      if (!isNaN(parsed) && parsed > 0) return parsed
+    }
+    return 10
+  }
+
+  const getMaxSelections = () => {
+    const val =
+      cashierData?.intl?.MAX_SELECTIONS ??
+      cashierData?.intl?.max_selections ??
+      cashierData?.MAX_SELECTIONS ??
+      cashierData?.max_selections
+
+    if (val !== undefined && val !== null) {
+      const parsed = typeof val === 'string' ? parseInt(val, 10) : val
+      if (!isNaN(parsed) && parsed > 0) return parsed
+    }
+    return 100
+  }
+
+  const getMaxCombinations = () => {
+    const val =
+      cashierData?.intl?.MAX_COMBINATIONS ??
+      cashierData?.intl?.max_combinations ??
+      cashierData?.intl?.max_combination ??
+      cashierData?.MAX_COMBINATIONS ??
+      cashierData?.max_combinations
+
+    if (val !== undefined && val !== null) {
+      const parsed = typeof val === 'string' ? parseInt(val, 10) : val
+      if (!isNaN(parsed) && parsed > 0) return parsed
+    }
+    return 512
+  }
+  // Returns which disciplines are actually present in the cashier channels
+  // for the mixed dogs-horses page. Falls back to ['DOGS','HORSES'] when no
+  // recognised channels are found (e.g. before cashier data is loaded).
+  const getActiveMixDisciplines = (): string[] => {
+    const channels: any[] = cashierData.channels || []
+    const result: string[] = []
+    const hasDogs = channels.some(
+      (c) =>
+        (typeof c?.game_id === 'string' && /dogs?6|dog[^8]/i.test(c.game_id)) ||
+        (typeof c?.name === 'string' &&
+          /dog|grey/i.test(c.name) &&
+          !/8/.test(c.name) &&
+          !/8/.test(c.game_id || '')),
+    )
+    if (hasDogs) result.push('DOGS')
+    const hasDogs8 = channels.some(
+      (c) =>
+        (typeof c?.game_id === 'string' && /dogs?8/i.test(c.game_id)) ||
+        (typeof c?.name === 'string' && /dog.*8|grey.*8/i.test(c.name)),
+    )
+    if (hasDogs8) result.push('DOGS8')
+    const hasHorses = channels.some(
+      (c) =>
+        (typeof c?.game_id === 'string' && /horse/i.test(c.game_id)) ||
+        (typeof c?.name === 'string' && /horse|cavall/i.test(c.name)),
+    )
+    if (hasHorses) result.push('HORSES')
+    // Fallback: nothing matched yet → return the minimum expected set
+    if (result.length === 0) return ['DOGS', 'HORSES']
+    return result
+  }
+
+  const getNavbarConfig = (): NavbarConfig => {
+    const channels: any[] = cashierData.channels || []
+
+    const hasDogs6 = channels.some(
+      (c) =>
+        (typeof c?.game_id === 'string' && /^dogs?(?!8)/i.test(c.game_id)) ||
+        (typeof c?.name === 'string' &&
+          /dog|grey/i.test(c.name) &&
+          !/8/.test(c.name) &&
+          !/8/.test(c.game_id || '')),
+    )
+    const hasDogs8 = channels.some(
+      (c) =>
+        (typeof c?.game_id === 'string' && /dogs?8/i.test(c.game_id)) ||
+        (typeof c?.name === 'string' && /dog.*8|grey.*8/i.test(c.name)),
+    )
+    const hasHorses = channels.some(
+      (c) =>
+        (typeof c?.game_id === 'string' && /horse/i.test(c.game_id)) ||
+        (typeof c?.name === 'string' && /horse|cavall/i.test(c.name)),
+    )
+
+    // Show the mix button when at least 2 racing disciplines are present
+    const racingCount = [hasDogs6, hasDogs8, hasHorses].filter(Boolean).length
+    const showMix = racingCount >= 2
+
+    // Football flag: checked in multiple possible locations in the cashier response
+    const showFootball =
+      cashierData.football === true ||
+      cashierData.configs?.football === true ||
+      cashierData.intl?.football === true
+
+    // If no channel game_ids are recognised (cashier doesn't expose them yet),
+    // fall back to showing all buttons so the navbar is never empty.
+    if (!hasDogs6 && !hasDogs8 && !hasHorses) {
+      return {
+        showDogs6: true,
+        showDogs8: true,
+        showHorses: true,
+        showMix: true,
+        showFootball,
+      }
+    }
+
+    return {
+      showDogs6: hasDogs6,
+      showDogs8: hasDogs8,
+      showHorses: hasHorses,
+      showMix,
+      showFootball,
+    }
+  }
 
   return {
     initCode,
@@ -186,6 +365,11 @@ function createContextDataFromCashierData(
     getTranslation,
     getVersion,
     getSplashscreen,
+    getMaxEvents,
+    getMaxSelections,
+    getMaxCombinations,
+    getActiveMixDisciplines,
+    getNavbarConfig,
   }
 }
 
@@ -263,6 +447,7 @@ export default function CashierContextProvider(props: {
 }) {
   const [initCode, setInitCode] = useState<string | undefined>(undefined)
   const [operator, setOperator] = useState<string | undefined>(undefined)
+  const [terminalId, setTerminalId] = useState<string | undefined>(undefined)
   const [cashierContext, setCashierContext] = useState<CashierContextType>(
     defaultCashierContext,
   )
@@ -276,11 +461,30 @@ export default function CashierContextProvider(props: {
     const urlInitCode = params.get('init_code')
     // Accetta sia 'operator' che 'partner' come parametro URL (operator ha precedenza)
     const urlOperator = params.get('operator') || params.get('partner')
+    const urlShopId = params.get('shopID')
+    const urlTerminalId = params.get('terminalID')
+
+    // Salva Shop-Id e Terminal-Id per tutte le API call
+    const effectiveShopId =
+      urlShopId || localStorage.getItem('shopId') || undefined
+    const effectiveTerminalId =
+      urlTerminalId || localStorage.getItem('terminalId') || undefined
+    setRetailHeaders(effectiveShopId, effectiveTerminalId)
+    setTerminalId(effectiveTerminalId)
+
+    if (!effectiveShopId) {
+      console.warn('Shop-Id is missing from URL and localStorage')
+    }
+    if (!effectiveTerminalId) {
+      console.warn('Terminal-Id is missing from URL and localStorage')
+    }
 
     if (urlInitCode) {
       // Se l'initCode è cambiato, pulisci la sessione precedente
       clearSessionStorageForNewInitCode(urlInitCode)
       setInitCode(urlInitCode)
+      if (urlShopId) localStorage.setItem('shopId', urlShopId)
+      if (urlTerminalId) localStorage.setItem('terminalId', urlTerminalId)
       if (urlOperator) {
         setOperator(urlOperator)
         localStorage.setItem('operator', urlOperator)
@@ -302,8 +506,11 @@ export default function CashierContextProvider(props: {
         if (storedInitCode && !storedOperator) {
           console.error('Operator is missing from localStorage')
           toast.error(t('operator_not_found'))
-          setHasCashierError(true)
+        } else {
+          // No initCode at all — terminal is not configured
+          console.error('No initCode found in URL or localStorage')
         }
+        setHasCashierError(true)
         setIsLoading(false)
       }
     }
@@ -399,6 +606,7 @@ export default function CashierContextProvider(props: {
       ...cashierContext,
       initCode,
       operator,
+      terminalId,
       apiRequest,
       hasCashierError,
       isLoadingCashier: isLoading,
@@ -408,6 +616,7 @@ export default function CashierContextProvider(props: {
       apiRequest,
       initCode,
       operator,
+      terminalId,
       hasCashierError,
       isLoading,
     ],

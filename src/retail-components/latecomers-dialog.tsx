@@ -15,7 +15,7 @@ type LatecomersDialogProps = {
   isOpen: boolean
   onOpenChange: (open: boolean) => void
   raceInfo: UpcomingRace | undefined
-  discipline: 'DOGS' | 'HORSES'
+  discipline: 'DOGS' | 'DOGS8' | 'HORSES'
 }
 
 export default function LatecomersDialog({
@@ -29,7 +29,7 @@ export default function LatecomersDialog({
       return (
         <div key={racerNumber} className="flex items-center gap-2">
           <div
-            className={`flex h-8 w-8 items-center justify-center rounded text-[21px] tabular-nums font-semibold ${(() => {
+            className={`flex h-8 w-8 items-center justify-center rounded text-[21px] font-semibold tabular-nums ${(() => {
               const colors = getRacerColors(racerNumber, discipline)
               return `${colors.bg} ${colors.text} ${colors.border}`
             })()}`}
@@ -89,8 +89,8 @@ export default function LatecomersDialog({
         <div className="p-0">
           {latecomersData.length > 0 ? (
             <Table style={{ borderCollapse: 'collapse' }}>
-              <TableHeader className="h-[64px] bg-secondary text-secondary-foreground">
-                <TableRow>
+              <TableHeader className="bg-secondary text-secondary-foreground">
+                  <TableRow className="h-16">
                   <TableHead className="w-1/3 border-r border-border text-center text-[16px] font-bold">
                     {t('market')}
                   </TableHead>
@@ -109,7 +109,7 @@ export default function LatecomersDialog({
                       {item.market}
                     </TableCell>
                     <TableCell className="w-1/3 border-r border-border bg-white p-4">
-                      <div className="flex flex-wrap gap-4 text-[16px] ml-[15px]">
+                      <div className="ml-[15px] flex flex-wrap space-x-4 text-[16px]">
                         {formatRacers(item.racers)}
                       </div>
                     </TableCell>

@@ -105,10 +105,15 @@ export function getCombinations(
   return result
 }
 
-export function generateSystemGroups(entries: BetEntry[]): SystemGroup[] {
+export function generateSystemGroups(
+  entries: BetEntry[],
+  limits?: { maxSelections?: number; maxEvents?: number },
+): SystemGroup[] {
   const groups: SystemGroup[] = []
+  const maxSelections = limits?.maxSelections ?? 100
+  const maxEvents = limits?.maxEvents ?? 10
 
-  if (entries.length > 50) {
+  if (entries.length > maxSelections) {
     console.warn(
       'Too many bet entries for system groups generation:',
       entries.length,
@@ -124,7 +129,7 @@ export function generateSystemGroups(entries: BetEntry[]): SystemGroup[] {
   })
   const eventsNumber = eventsSet.size
 
-  if (eventsNumber > 15) {
+  if (eventsNumber > maxEvents) {
     console.warn('Too many events for system groups generation:', eventsNumber)
     return groups
   }
@@ -140,14 +145,26 @@ export function generateSystemGroups(entries: BetEntry[]): SystemGroup[] {
     }
   })
 
-  for (let size = 1; size <= eventsNumber; size++) {
+  // Average options per event, used to estimate combination count before computing
+  const avgOptionsPerEvent = entries.length / Math.max(eventsNumber, 1)
+
+  for (let size = 1; size <= Math.min(eventsNumber, maxEvents); size++) {
+    let nCk = 1
+    for (let i = 0; i < size; i++) {
+      nCk = (nCk * (eventsNumber - i)) / (i + 1)
+    }
+    const estimated = nCk * Math.pow(avgOptionsPerEvent, size)
+    if (estimated > 50_000) break
+
     const combos = getCombinations(nonFixedEntries, size, fixedEntries)
     if (combos.length === 0) continue
-    const minWin = Math.min(
-      ...combos.map((combo) =>
-        combo.reduce((acc, entry) => acc * entry.bet.option.decPrice, 1),
-      ),
-    )
+    const minWin = combos.reduce((min, combo) => {
+      const win = combo.reduce(
+        (acc, entry) => acc * entry.bet.option.decPrice,
+        1,
+      )
+      return win < min ? win : min
+    }, Infinity)
     const maxWin = combos.reduce(
       (acc, combo) =>
         acc + combo.reduce((acc, entry) => acc * entry.bet.option.decPrice, 1),

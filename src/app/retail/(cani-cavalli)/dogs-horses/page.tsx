@@ -1,7 +1,6 @@
 'use client'
 import BettingSlip from '@/retail-components/betting-slip'
 import SearchEventResults from '@/retail-components/search-event-results'
-import { ScrollArea } from '@/retail-components/ui/scroll-area'
 import { UpcomingEventsCarousel } from '@/retail-components/upcoming-events-carousel'
 import UpcomingRaceCard from '@/retail-components/upcoming-race-card'
 import { RootContext } from '@/retail-contexts/root-context'
@@ -12,6 +11,7 @@ import {
 } from '@/retail-lib/carousel-sync'
 import { useContext, useEffect, useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { ScrollArea } from '@/retail-components/ui/scroll-area'
 
 export default function Home() {
   const { t } = useTranslation()
@@ -22,84 +22,59 @@ export default function Home() {
     undefined,
   )
 
-  // SINCRONIZZAZIONE PERFETTA CON CAROSELLO
+  // Dynamically derive which disciplines are present from the actual events
+  // returned by the API. All three racing disciplines are fetched, but only
+  // the ones with real events are shown. Before events load, all three are
+  // included so nothing is hidden prematurely.
+  const activeDisciplines = useMemo((): Discipline[] => {
+    const all = [Discipline.DOGS, Discipline.DOGS8, Discipline.HORSES]
+    if (!upcomingEvents?.length) return all
+    const present = new Set(upcomingEvents.map((e) => e.discipline))
+    const filtered = all.filter((d) => present.has(d))
+    return filtered.length > 0 ? filtered : all
+  }, [upcomingEvents])
+
   const carouselEvents = useMemo(
-    () =>
-      getCarouselFilteredEvents(upcomingEvents, [
-        Discipline.DOGS,
-        Discipline.HORSES,
-      ]),
-    [upcomingEvents],
+    () => getCarouselFilteredEvents(upcomingEvents, activeDisciplines),
+    [upcomingEvents, activeDisciplines],
   )
 
-  const futureEvents = useMemo(
-    () => getFutureEventsFromCarousel(carouselEvents),
-    [carouselEvents],
-  )
-
-  // AUTO-SELEZIONE: Solo se non c'è evento selezionato o se l'evento selezionato non esiste più
+  // SELEZIONE UNIFICATA: un solo meccanismo per evitare competizioni
   useEffect(() => {
-    // Se c'è un evento selezionato, verifica che esista ancora
-    if (selectedEvent) {
-      const stillExists = carouselEvents.some((e) => e.id === selectedEvent.id)
-      if (stillExists) {
-        return // Evento ancora valido, non cambiare
-      }
-    }
+    const pickEvent = () => {
+      setSelectedEvent((prev) => {
+        const futureEvts = getFutureEventsFromCarousel(carouselEvents)
 
-    // Auto-seleziona il primo evento futuro
-    if (futureEvents && futureEvents.length > 0 && futureEvents[0]) {
-      setSelectedEvent(futureEvents[0])
-    } else if (carouselEvents && carouselEvents.length > 0) {
-      setSelectedEvent(carouselEvents[0])
-    } else {
-      setSelectedEvent(undefined)
-    }
-  }, [futureEvents, carouselEvents, selectedEvent])
-
-  // AUTO-AGGIORNAMENTO
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (selectedEvent) {
-        const now = new Date()
-        const eventTime =
-          selectedEvent.time instanceof Date
-            ? selectedEvent.time
-            : new Date(selectedEvent.time)
-
-        if (eventTime <= now) {
-          // Refresh degli eventi
-          const freshFutureEvents = getFutureEventsFromCarousel(
-            getCarouselFilteredEvents(upcomingEvents, [
-              Discipline.DOGS,
-              Discipline.HORSES,
-            ]),
-          )
-
-          if (freshFutureEvents.length > 0) {
-            setSelectedEvent(freshFutureEvents[0])
-          } else {
-            // Nessun evento futuro, prendi il più recente
-            const allEvents = getCarouselFilteredEvents(upcomingEvents, [
-              Discipline.DOGS,
-              Discipline.HORSES,
-            ])
-            if (allEvents.length > 0) {
-              setSelectedEvent(allEvents[allEvents.length - 1])
-            }
+        if (prev) {
+          const stillInCarousel = carouselEvents.some((e) => e.id === prev.id)
+          if (stillInCarousel) {
+            const now = new Date()
+            const eventTime =
+              prev.time instanceof Date ? prev.time : new Date(prev.time)
+            if (eventTime > now) return prev // still valid and not expired
+            // Expired → pick next future
+            if (futureEvts.length > 0) return futureEvts[0]
+            return prev // nothing better available
           }
+          // Gone from carousel → pick new
         }
-      }
-    }, 500)
 
+        return futureEvts[0] ?? carouselEvents[0] ?? undefined
+      })
+    }
+
+    pickEvent()
+    const interval = setInterval(pickEvent, 500)
     return () => clearInterval(interval)
-  }, [selectedEvent, upcomingEvents])
+  }, [carouselEvents])
 
   return (
-    <div className="relative bottom-[5px] flex h-full flex-row overflow-hidden">
-      <div className="flex flex-col">
-        <div className="bg-betslip flex h-[109px] w-[1508px] flex-row items-center justify-center pb-[2px] pr-2">
+    <div className="relative bottom-[5px] flex h-[945px] min-w-[1200px] flex-row overflow-hidden">
+      {/* LEFT COLUMN - si allarga/stringe in base alla risoluzione */}
+      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+        <div className="bg-betslip flex h-[99px] w-full flex-row items-center justify-center pb-[2px] pr-2">
           <UpcomingEventsCarousel
+            disciplines={activeDisciplines}
             selectedEvent={selectedEvent}
             setSelectedEvent={(event) => {
               setSelectedEvent(event)
@@ -108,26 +83,23 @@ export default function Home() {
           />
         </div>
 
-        {/* Main content area */}
-        <div className="bg-betslip flex h-full flex-row gap-2 overflow-hidden pr-2 pt-[2px]">
-          <div className="flex h-[921px] w-[1500px] flex-col gap-2 overflow-y-auto">
-            <ScrollArea className="h-full w-full">
-              {!!searchEventResults ? (
-                <SearchEventResults />
-              ) : selectedEvent ? (
-                <UpcomingRaceCard race={selectedEvent} />
-              ) : (
-                <div className="flex h-full items-center justify-center">
-                  {t('no_event_selected')}
-                </div>
-              )}
-            </ScrollArea>
-          </div>
+        <div className="bg-betslip flex flex-1 flex-row gap-2 overflow-hidden pr-2 pt-[2px]">
+          <ScrollArea className="h-full w-full">
+            {!!searchEventResults ? (
+              <SearchEventResults />
+            ) : selectedEvent ? (
+              <UpcomingRaceCard race={selectedEvent} />
+            ) : (
+              <div className="flex h-full items-center justify-center">
+                {t('no_event_selected')}
+              </div>
+            )}
+          </ScrollArea>
         </div>
       </div>
 
-      {/* RIGHT COLUMN - Betting slip */}
-      <div className="relative right-2 h-[937px] w-[410px] bg-background text-foreground">
+      {/* RIGHT COLUMN - larghezza fissa, sempre ancorata a destra */}
+      <div className="relative right-1 h-[950px] w-[400px] shrink-0 bg-background text-foreground">
         <BettingSlip selectedEvent={selectedEvent} />
       </div>
     </div>

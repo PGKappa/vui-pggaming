@@ -19,15 +19,21 @@ import Image from 'next/image'
 export function UpcomingEventsCarousel(props: {
   selectedEvent?: UpcomingEvent
   setSelectedEvent: (event: UpcomingEvent) => void
+  /** Override the disciplines shown. When provided, pathname-based detection is skipped. */
+  disciplines?: Discipline[]
 }) {
   const { upcomingEvents, isLoadingEvents } = useContext(RootContext)
   const { t } = useTranslation()
   const pathname = usePathname()
 
   const disciplines = useMemo(() => {
+    if (props.disciplines) return props.disciplines
     const path = (pathname || '/').toLowerCase()
     if (path.includes('dogs-horses') || path.includes('cani-cavalli')) {
-      return [Discipline.DOGS, Discipline.HORSES]
+      return [Discipline.DOGS, Discipline.DOGS8, Discipline.HORSES]
+    } else if (path.includes('dogs8') || path.includes('cani8')) {
+      // IMPORTANTE: controllare dogs8 PRIMA di dogs!
+      return [Discipline.DOGS8]
     } else if (path.includes('dogs') || path.includes('cani')) {
       return [Discipline.DOGS]
     } else if (path.includes('horses') || path.includes('cavalli')) {
@@ -35,14 +41,18 @@ export function UpcomingEventsCarousel(props: {
     } else {
       return [Discipline.SOCCER]
     }
-  }, [pathname])
+  }, [pathname, props.disciplines])
 
   const filteredAndSortedEvents = useMemo(() => {
     const events = upcomingEvents || []
-    const filtered = events.filter((event) => disciplines.includes(event.discipline))
+    const filtered = events.filter((event) =>
+      disciplines.includes(event.discipline),
+    )
     return filtered.sort((a, b) => {
-      const timeA = a.time instanceof Date ? a.time.getTime() : new Date(a.time).getTime()
-      const timeB = b.time instanceof Date ? b.time.getTime() : new Date(b.time).getTime()
+      const timeA =
+        a.time instanceof Date ? a.time.getTime() : new Date(a.time).getTime()
+      const timeB =
+        b.time instanceof Date ? b.time.getTime() : new Date(b.time).getTime()
       return timeA - timeB
     })
   }, [upcomingEvents, disciplines])
@@ -61,25 +71,14 @@ export function UpcomingEventsCarousel(props: {
     }, 0)
   }, [filteredAndSortedEvents, nowMs])
 
-  useEffect(() => {
-    if (filteredAndSortedEvents.length === 0) return
-    const selectedEventStillExists = props.selectedEvent
-      ? filteredAndSortedEvents.some(
-          (event) =>
-            event.id === props.selectedEvent?.id &&
-            event.discipline === props.selectedEvent?.discipline,
-        )
-      : false
-    if (!props.selectedEvent || !selectedEventStillExists) {
-      props.setSelectedEvent(filteredAndSortedEvents[0])
-    }
-  }, [filteredAndSortedEvents, props])
+  // Auto-selezione RIMOSSA: la logica è gestita SOLO dalla pagina (pickEvent)
+  // per evitare competizione tra meccanismi multipli
 
   return (
     <Carousel
-  className="w-full px-9"
-  opts={{ align: 'start', skipSnaps: false }}
->
+      className="w-full px-9"
+      opts={{ align: 'start', skipSnaps: false }}
+    >
       <CarouselContent className="bg-white">
         {isLoadingEvents ? (
           Array.from({ length: 6 }).map((_, index) => (
@@ -159,10 +158,10 @@ function UpcomingEventItem(props: {
 
   return (
     <CarouselItem
-      className={`relative flex h-[88px] ${layout.carousel.itemBasis} cursor-pointer flex-row items-center justify-center gap-3 overflow-hidden border-l-8 border-l-background px-2 py-2 text-[15px] last:border-r-background ${
+      className={`relative flex h-[88px] ${layout.carousel.itemBasis} cursor-pointer flex-row items-center justify-center overflow-hidden border-l-8 border-l-background px-2 py-2 text-[15px] last:border-r-background hover:opacity-95 ${
         event.id === props.selectedEvent?.id &&
         event.discipline === props.selectedEvent?.discipline
-          ? 'bg-selectedEvent/90 text-tertiary-foreground'
+          ? 'bg-selectedEvent text-tertiary-foreground'
           : 'bg-secondary text-secondary-foreground'
       }`}
       onClick={() => props.setSelectedEvent(event)}
@@ -171,14 +170,14 @@ function UpcomingEventItem(props: {
         src={
           event.discipline === 'SOCCER'
             ? '/calciatore_blu.png'
-            : event.discipline === 'DOGS'
+            : event.discipline === 'DOGS' || event.discipline === 'DOGS8'
               ? '/cane_blu.png'
               : '/cavallo_blu.png'
         }
         alt={event.discipline}
         width={40}
         height={20}
-         className={`relative hidden min-[1730px]:block size-14 object-contain ${imageOffset}`}
+        className={`relative hidden size-14 object-contain min-[1730px]:block ${imageOffset}`}
       />
 
       <div className={`relative ${textOffset} flex flex-col items-start`}>
@@ -188,8 +187,10 @@ function UpcomingEventItem(props: {
           {event.discipline === 'SOCCER'
             ? event.name
             : event.discipline === 'HORSES'
-              ? t('horse_races_label')
-              : t('dog_races_label')}
+              ? t('horse6_races_label')
+              : event.discipline === 'DOGS8'
+                ? t('dog8_races_label')
+                : t('dog6_races_label')}
         </span>
         <span
           className={`relative ${eventSubtitleBottom} whitespace-nowrap ${eventSubtitleFontSize} font-normal uppercase`}
@@ -213,8 +214,8 @@ function UpcomingEventItem(props: {
 
       <Progress
         value={progressValue}
-        className={`pointer-events-none absolute inset-x-0 bottom-0 ${progressBarHeight} rounded-none bg-navbarButton`}
-        indicatorClassName="bg-tertiary"
+        className={`pointer-events-none absolute inset-x-0 bottom-0 ${progressBarHeight} rounded-none bg-loading1`}
+        indicatorClassName="bg-loading2"
       />
     </CarouselItem>
   )

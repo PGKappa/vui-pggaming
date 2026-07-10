@@ -37,16 +37,35 @@ export default function EventBets(props: {
   // Helper to translate market names - usa normalizeMarketName centralizzato
   const getTranslatedMarket = (market: string) => {
     const normalized = normalizeMarketName(market)
+
+    // Handle under/over with value: 'underover_1.5', 'home_underover_1.5', etc.
+    const underoverMatch = normalized.match(
+      /^(?:(home|away)_)?underover_(\d+\.?\d*)$/,
+    )
+    if (underoverMatch) {
+      const prefix = underoverMatch[1] // 'home', 'away', or undefined
+      const value = underoverMatch[2] // '1.5', '2.5', etc.
+      const valueKey = value.replace('.', '_') // '1_5', '2_5', etc.
+      if (prefix === 'home') {
+        return t(`market_casa_under_over_${valueKey}`)
+      } else if (prefix === 'away') {
+        return t(`market_trasferta_under_over_${valueKey}`)
+      } else {
+        return t(`market_under_over_${valueKey}`)
+      }
+    }
+
+    // 'market_*' keys map directly to i18n — t() will handle them
     return t(normalized)
   }
 
   return (
     <TooltipProvider>
       <li>
-        <div className="flex h-[90px] flex-col gap-0 border border-betSlip-foreground p-1">
+        <div className="flex h-[89px] flex-col gap-0 border border-betSlip-foreground p-1">
           <div className="flex flex-row justify-between">
             <div className={betMode === 'SYSTEM' ? 'visible' : 'invisible'}>
-              <div className="relative bottom-[1px] flex flex-row items-center gap-2 pl-1">
+              <div className="relative bottom-[2px] flex flex-row items-center space-x-2 pl-1">
                 <Checkbox
                   checked={eventBets[0].fixed}
                   onCheckedChange={() => toggleEventBetsFixed(eventKey)}
@@ -60,7 +79,7 @@ export default function EventBets(props: {
               <TooltipTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="group size-7"
+                  className="group size-7 bg-transparent"
                   size="icon"
                   onClick={() => removeEventBets(eventKey)}
                 >
@@ -69,7 +88,7 @@ export default function EventBets(props: {
                     alt="Bin"
                     width={40}
                     height={20}
-                    className="mb-[4px] ml-[6px] size-[17px] object-contain"
+                    className="mb-[4px] ml-[5px] size-[17px] object-contain bg-transparent"
                   />
                 </Button>
               </TooltipTrigger>
@@ -83,14 +102,16 @@ export default function EventBets(props: {
                 ? t('football')
                 : eventBets[0].bet.discipline === 'DOGS'
                   ? t('dog_races_label')
-                  : t('horse_races_label')}
+                  : eventBets[0].bet.discipline === 'DOGS8'
+                    ? t('dog8_races_label')
+                    : t('horse_races_label')}
             </span>
 
-            <div className="flex items-center gap-2">
-              <span className="relative left-[1px] text-[15px] font-bold tabular-nums">
+            <div className="flex items-center space-x-2 mr-1">
+              <span className="text-[15px] font-bold tabular-nums">
                 {format(eventBets[0].bet.event.startingAt, 'HH:mm')}
               </span>
-              <Badge className="mr-[4px] h-[27px] w-[61px] items-center justify-center bg-accent text-[14px] tabular-nums text-[#99a6b1]">
+              <Badge className="mr-[4px] h-[27px] w-[61px] items-center justify-center bg-accent text-[14px] tabular-nums text-white">
                 {timeToMatchStart}
               </Badge>
             </div>
@@ -102,7 +123,7 @@ export default function EventBets(props: {
               </span>
               <span className="text-[10px]">|</span>
               {eventBets[0].bet.event.roundId && (
-                <span className="relative mr-[220px] text-[13px] font-bold text-accent">
+                <span className="relative mr-[200px] text-[13px] font-bold text-accent">
                   {t('round').toUpperCase()} {eventBets[0].bet.event.roundId}
                 </span>
               )}
@@ -117,7 +138,10 @@ export default function EventBets(props: {
                     if (num) return t(`track_${num}`)
                     return track
                   }
-                  return t('track_6')
+                  // Fallback basato sulla disciplina
+                  return eventBets[0].bet.discipline === 'DOGS8'
+                    ? t('track_8')
+                    : t('track_6')
                 })()}
               </span>
               <span className="text-[10px]">|</span>
@@ -132,7 +156,7 @@ export default function EventBets(props: {
           )}
         </div>
 
-        <div className="-space-y-[8px] border border-t-0 border-betSlip-foreground bg-primary-foreground pb-[3px] pl-2 pr-[1px] pt-[1px] tabular-nums">
+        <div className="-space-y-[8px] border border-t-0 border-betSlip-foreground bg-primary-foreground pt-[2px] pl-[7px] pr-2 tabular-nums">
           {eventBets.map((betEntry) => {
             // Usa normalizeMarketName per riconoscere mercati principali
             const normalized = normalizeMarketName(betEntry.market)
@@ -141,7 +165,7 @@ export default function EventBets(props: {
               normalized === 'placed' ||
               normalized === 'show'
 
-            // Traduci anche Even, Odd, Under, Over
+            // Traduci anche Even, Odd, Under, Over, Yes, No
             const outcomeLower = betEntry.bet.option.outcome.toLowerCase()
             const isTranslatableOutcome =
               outcomeLower === 'even' ||
@@ -151,12 +175,53 @@ export default function EventBets(props: {
               outcomeLower === 'dispari' ||
               outcomeLower === 'impar' ||
               outcomeLower === 'under' ||
-              outcomeLower === 'over'
+              outcomeLower === 'u' ||
+              outcomeLower === 'over' ||
+              outcomeLower === 'o' ||
+              outcomeLower === 'yes' ||
+              outcomeLower === 'sì' ||
+              outcomeLower === 'sí' ||
+              outcomeLower === 'да' ||
+              outcomeLower === 'no'
 
             let outcomeDisplay = betEntry.bet.option.outcome
 
             if (isMainMarket && betEntry.bet.competitors) {
               outcomeDisplay = `${betEntry.bet.option.outcome} ${betEntry.bet.competitors}`
+            } else if (
+              normalized.startsWith('market_combo') &&
+              betEntry.bet.option.outcome.includes('+')
+            ) {
+              // Translate combo outcomes: "X+U" → "X + Menos 1.5", "1+O" → "1 + Más 2.5", "2+G" → "2 + G"
+              const [result, suffix] = betEntry.bet.option.outcome.split('+')
+              const sufLower = suffix?.toLowerCase() ?? ''
+              // Extract value from market name using last number (e.g. "1.5" from "Under/Over (1.5)")
+              const allMatches = [...betEntry.market.matchAll(/(\d+\.?\d*)/g)]
+              const valueStr =
+                allMatches.length > 0
+                  ? allMatches[allMatches.length - 1][1]
+                  : ''
+              if (
+                sufLower === 'u' ||
+                sufLower === 'under' ||
+                sufLower === 'me' ||
+                sufLower === 'menos'
+              ) {
+                outcomeDisplay = `${result} + ${t('under_full')}${valueStr ? ` ${valueStr}` : ''}`
+              } else if (
+                sufLower === 'o' ||
+                sufLower === 'over' ||
+                sufLower === 'ma' ||
+                sufLower === 'más'
+              ) {
+                outcomeDisplay = `${result} + ${t('over_full')}${valueStr ? ` ${valueStr}` : ''}`
+              } else if (sufLower === 'g' || sufLower === 'gg') {
+                outcomeDisplay = `${result} + G`
+              } else if (sufLower === 'ng') {
+                outcomeDisplay = `${result} + NG`
+              } else {
+                outcomeDisplay = `${result} + ${suffix}`
+              }
             } else if (isTranslatableOutcome) {
               // Traduci usando le chiavi minuscole
               if (
@@ -171,18 +236,19 @@ export default function EventBets(props: {
                 outcomeLower === 'impar'
               ) {
                 outcomeDisplay = t('odd')
-              } else if (outcomeLower === 'under') {
-                // Per cani e cavalli usa la versione completa
-                const isRacing =
-                  betEntry.bet.discipline === 'DOGS' ||
-                  betEntry.bet.discipline === 'HORSES'
-                outcomeDisplay = isRacing ? t('under_full') : t('under')
-              } else if (outcomeLower === 'over') {
-                // Per cani e cavalli usa la versione completa
-                const isRacing =
-                  betEntry.bet.discipline === 'DOGS' ||
-                  betEntry.bet.discipline === 'HORSES'
-                outcomeDisplay = isRacing ? t('over_full') : t('over')
+              } else if (outcomeLower === 'under' || outcomeLower === 'u') {
+                outcomeDisplay = t('under_full')
+              } else if (outcomeLower === 'over' || outcomeLower === 'o') {
+                outcomeDisplay = t('over_full')
+              } else if (
+                outcomeLower === 'yes' ||
+                outcomeLower === 'sì' ||
+                outcomeLower === 'sí' ||
+                outcomeLower === 'да'
+              ) {
+                outcomeDisplay = t('yes')
+              } else if (outcomeLower === 'no') {
+                outcomeDisplay = t('no')
               }
             }
 
@@ -192,21 +258,21 @@ export default function EventBets(props: {
             return (
               <div
                 key={betEntry.id}
-                className="flex items-center pr-[8px] text-sm"
+                className="flex items-center  text-sm"
               >
-                <span className="mr-[1px] w-[126px] text-[13px] capitalize">
+                <span className="mr-[1px] w-[126px] text-[12px] capitalize break-all">
                   {translatedMarket}
                 </span>
-                <span className="ml-[0px] w-[109px] text-left text-[13px] font-normal">
+                <span className="ml-[0px] w-[118px] text-left text-[13px] font-normal break-all">
                   {outcomeDisplay}
                 </span>
-                <span className="relative right-[3px] grid w-[101px] justify-end break-all text-[13px] font-semibold leading-tight">
+                <span className="relative right-1 grid w-[96px] justify-end break-all text-[13px] font-semibold">
                   {betEntry.bet.option.decPrice.toFixed(2)}
                 </span>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-[40px] w-[24px] flex-shrink-0 translate-x-[3px]"
+                  className="h-[40px] w-[24px] flex-shrink-0 translate-x-[3px] translate-y-[-2px] bg-transparent"
                   onClick={() => {
                     removeBet(
                       betEntry.market,

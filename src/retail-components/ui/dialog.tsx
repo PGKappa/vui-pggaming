@@ -14,15 +14,25 @@ const DialogPortal = DialogPrimitive.Portal
 
 const DialogClose = DialogPrimitive.Close
 
+
+
+
 const DialogOverlay = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Overlay>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Overlay
+
     ref={ref}
-    className={cn('fixed inset-0 z-50 bg-black/80', className)}
+
+    className={cn(
+  "fixed inset-0 z-50 bg-[rgba(43,45,49,0.6)]",
+  className
+)}
+
     {...props}
-  />
+
+  /> 
 ))
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 
@@ -41,8 +51,8 @@ const DialogContent = React.forwardRef<
       {...props}
     >
       {children}
-      <DialogPrimitive.Close className="absolute right-4 top-4">
-        <X className="h-6 w-6 text-primary-foreground" />
+      <DialogPrimitive.Close className="absolute right-4 top-5 bg-transparent">
+        <X className="h-6 w-6 text-primary-foreground bg-transparent" />
       </DialogPrimitive.Close>
     </DialogPrimitive.Content>
   </DialogPortal>
@@ -53,7 +63,7 @@ const DialogHeader = ({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('bg-betHistory p-5 text-center', className)} {...props} />
+  <div className={cn(' p-5 text-center', className)} {...props} />
 )
 DialogHeader.displayName = 'DialogHeader'
 

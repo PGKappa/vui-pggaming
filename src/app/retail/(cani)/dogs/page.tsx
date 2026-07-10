@@ -1,7 +1,6 @@
 'use client'
 import BettingSlip from '@/retail-components/betting-slip'
 import SearchEventResults from '@/retail-components/search-event-results'
-import { ScrollArea } from '@/retail-components/ui/scroll-area'
 import { UpcomingEventsCarousel } from '@/retail-components/upcoming-events-carousel'
 import UpcomingRaceCard from '@/retail-components/upcoming-race-card'
 import { RootContext } from '@/retail-contexts/root-context'
@@ -12,6 +11,7 @@ import {
 } from '@/retail-lib/carousel-sync'
 import { useContext, useEffect, useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { ScrollArea } from '@/retail-components/ui/scroll-area'
 
 export default function Home() {
   const { t } = useTranslation()
@@ -27,59 +27,37 @@ export default function Home() {
     [upcomingEvents],
   )
 
-  const futureEvents = useMemo(
-    () => getFutureEventsFromCarousel(carouselEvents),
-    [carouselEvents],
-  )
-
+  // SELEZIONE UNIFICATA: un solo meccanismo per evitare competizioni
   useEffect(() => {
-    if (selectedEvent) {
-      const stillExists = carouselEvents.some((e) => e.id === selectedEvent.id)
-      if (stillExists) return
-    }
+    const pickEvent = () => {
+      setSelectedEvent((prev) => {
+        const futureEvts = getFutureEventsFromCarousel(carouselEvents)
 
-    if (futureEvents && futureEvents.length > 0 && futureEvents[0]) {
-      setSelectedEvent(futureEvents[0])
-    } else if (carouselEvents && carouselEvents.length > 0) {
-      setSelectedEvent(carouselEvents[0])
-    } else {
-      setSelectedEvent(undefined)
-    }
-  }, [futureEvents, carouselEvents, selectedEvent])
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (selectedEvent) {
-        const now = new Date()
-        const eventTime =
-          selectedEvent.time instanceof Date
-            ? selectedEvent.time
-            : new Date(selectedEvent.time)
-
-        if (eventTime <= now) {
-          const freshFutureEvents = getFutureEventsFromCarousel(
-            getCarouselFilteredEvents(upcomingEvents, [Discipline.DOGS]),
-          )
-
-          if (freshFutureEvents.length > 0) {
-            setSelectedEvent(freshFutureEvents[0])
-          } else {
-            const allEvents = getCarouselFilteredEvents(upcomingEvents, [
-              Discipline.DOGS,
-            ])
-            if (allEvents.length > 0) {
-              setSelectedEvent(allEvents[allEvents.length - 1])
-            }
+        if (prev) {
+          const stillInCarousel = carouselEvents.some((e) => e.id === prev.id)
+          if (stillInCarousel) {
+            const now = new Date()
+            const eventTime =
+              prev.time instanceof Date ? prev.time : new Date(prev.time)
+            if (eventTime > now) return prev // still valid and not expired
+            // Expired → pick next future
+            if (futureEvts.length > 0) return futureEvts[0]
+            return prev // nothing better available
           }
+          // Gone from carousel → pick new
         }
-      }
-    }, 500)
 
+        return futureEvts[0] ?? carouselEvents[0] ?? undefined
+      })
+    }
+
+    pickEvent()
+    const interval = setInterval(pickEvent, 500)
     return () => clearInterval(interval)
-  }, [selectedEvent, upcomingEvents])
+  }, [carouselEvents])
 
   return (
-    <div className="relative bottom-[5px] flex h-full min-w-[1200px] flex-row overflow-hidden">
+    <div className="relative bottom-[5px] flex h-[945px] min-w-[1200px] flex-row overflow-hidden">
       {/* LEFT COLUMN - si allarga/stringe in base alla risoluzione */}
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         <div className="bg-betslip flex h-[99px] w-full flex-row items-center justify-center pb-[2px] pr-2">
@@ -108,7 +86,7 @@ export default function Home() {
       </div>
 
       {/* RIGHT COLUMN - larghezza fissa, sempre ancorata a destra */}
-      <div className="h-[950px] w-[400px] relative right-1 shrink-0 bg-background text-foreground">
+      <div className="relative right-1 h-[950px] w-[400px] shrink-0 bg-background text-foreground">
         <BettingSlip selectedEvent={selectedEvent} />
       </div>
     </div>

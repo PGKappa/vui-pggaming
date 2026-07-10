@@ -35,7 +35,6 @@ export default function InactivityBridge() {
             event.data.type === 'session-expired'))
 
       if (isInactivityMessage) {
-
         try {
           // Pulisce completamente il localStorage
           localStorage.clear()

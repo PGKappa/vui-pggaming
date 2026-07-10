@@ -208,7 +208,7 @@ const CarouselPrevious = React.forwardRef<
       className={cn(
         'absolute',
         orientation === 'horizontal'
-          ? '-left-0 top-[51%] h-[88px] w-[35px] -translate-y-1/2 rounded-[1px] bg-carouselArrow hover:bg-carouselArrow disabled:!opacity-100 text-background'
+          ? '-left-0 top-[51%] h-[88px] w-[35px] -translate-y-1/2 rounded-[1px] bg-carouselArrow hover:opacity/95 disabled:!opacity-100 text-background'
           : '-top-12 left-1/2 -translate-x-1/2 rotate-90',
         className,
       )}
@@ -217,7 +217,7 @@ const CarouselPrevious = React.forwardRef<
       {...props}
     >
       <ChevronLeft
-        style={{ scale: 1.7 }}
+        style={{ zoom: 1.2 }}
         className={cn(!canScrollPrev && '!opacity-70')}
       />
       <span className="sr-only">Previous slide</span>
@@ -240,7 +240,7 @@ const CarouselNext = React.forwardRef<
       className={cn(
         'absolute flex items-center justify-center',
         orientation === 'horizontal'
-          ? '-right-0 top-[51%]  h-[88px] w-[35px] -translate-y-1/2 rounded-[1px] bg-carouselArrow/90 hover:bg-carouselArrow/90 disabled:!opacity-100 text-background'
+          ? '-right-0 top-[51%]  h-[88px] w-[35px] -translate-y-1/2 rounded-[1px] bg-carouselArrow hover:opacity-95 disabled:!opacity-100 text-background'
           : '-bottom-12 left-1/2 -translate-x-1/2 rotate-90',
         className,
       )}
@@ -249,7 +249,7 @@ const CarouselNext = React.forwardRef<
       {...props}
     >
       <ChevronRight
-        style={{ scale: 1.7 }}
+        style={{ zoom: 1.2 }}
         className={cn(!canScrollNext && '!opacity-70')}
       />
       <span className="sr-only">Next slide</span>

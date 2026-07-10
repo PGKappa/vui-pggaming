@@ -1,6 +1,7 @@
 'use client'
 
 import { CashierContext } from '@/retail-contexts/cashier-context'
+import type { NavbarConfig } from '@/retail-contexts/cashier-context'
 import { EventsContext } from '@/retail-contexts/events-context'
 import { EventResult, TeamRanking, UpcomingEvent } from '@/retail-lib/types'
 import { User } from '@/retail-lib/types'
@@ -16,6 +17,7 @@ export type RootContextType = {
   // === Da CashierContext ===
   initCode?: string
   operator?: string
+  terminalId?: string
   userData?: User
   cashierData?: any
   hasCashierError?: boolean
@@ -34,6 +36,11 @@ export type RootContextType = {
   getTranslation?: (key: string, fallback?: string) => string
   getVersion?: () => string
   getSplashscreen?: () => string
+  getMaxEvents?: () => number
+  getMaxSelections?: () => number
+  getMaxCombinations?: () => number
+  getActiveMixDisciplines?: () => string[]
+  getNavbarConfig?: () => NavbarConfig
   // === Da EventsContext (per backward-compatibility) ===
   upcomingEvents?: UpcomingEvent[]
   searchEventResults?: EventResult[]
@@ -59,6 +66,17 @@ const defaultRootContext: RootContextType = {
   getTranslation: (key: string, fallback?: string) => fallback || key,
   getVersion: () => 'v1.0',
   getSplashscreen: () => 'splashscreen-empty.png',
+  getMaxEvents: () => 10,
+  getMaxSelections: () => 100,
+  getMaxCombinations: () => 512,
+  getActiveMixDisciplines: () => ['DOGS', 'HORSES'],
+  getNavbarConfig: () => ({
+    showDogs6: true,
+    showDogs8: true,
+    showHorses: true,
+    showMix: true,
+    showFootball: true,
+  }),
   isLoadingEvents: false,
   upcomingEvents: [],
   eventResults: [],
@@ -86,6 +104,7 @@ export default function RootContextProvider(props: {
     () => ({
       initCode: cashierContext.initCode,
       operator: cashierContext.operator,
+      terminalId: cashierContext.terminalId,
       userData: cashierContext.userData,
       cashierData: cashierContext.cashierData,
       hasCashierError: cashierContext.hasCashierError,
@@ -104,6 +123,11 @@ export default function RootContextProvider(props: {
       getTranslation: cashierContext.getTranslation,
       getVersion: cashierContext.getVersion,
       getSplashscreen: cashierContext.getSplashscreen,
+      getMaxEvents: cashierContext.getMaxEvents,
+      getMaxSelections: cashierContext.getMaxSelections,
+      getMaxCombinations: cashierContext.getMaxCombinations,
+      getActiveMixDisciplines: cashierContext.getActiveMixDisciplines,
+      getNavbarConfig: cashierContext.getNavbarConfig,
       upcomingEvents: eventsContext.upcomingEvents,
       searchEventResults: eventsContext.searchEventResults,
       setSearchEventResults: eventsContext.setSearchEventResults,
@@ -117,6 +141,7 @@ export default function RootContextProvider(props: {
     [
       cashierContext.initCode,
       cashierContext.operator,
+      cashierContext.terminalId,
       cashierContext.userData,
       cashierContext.cashierData,
       cashierContext.hasCashierError,
@@ -135,6 +160,11 @@ export default function RootContextProvider(props: {
       cashierContext.getTranslation,
       cashierContext.getVersion,
       cashierContext.getSplashscreen,
+      cashierContext.getMaxEvents,
+      cashierContext.getMaxSelections,
+      cashierContext.getMaxCombinations,
+      cashierContext.getActiveMixDisciplines,
+      cashierContext.getNavbarConfig,
       eventsContext.upcomingEvents,
       eventsContext.searchEventResults,
       eventsContext.setSearchEventResults,

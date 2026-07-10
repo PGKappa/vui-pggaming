@@ -15,8 +15,17 @@ function NavbarContent() {
   const searchParams = useSearchParams()
   const pathname = usePathname()
 
-  const { eventResults, setSearchEventResults } = useContext(RootContext)
+  const { eventResults, setSearchEventResults, getNavbarConfig } =
+    useContext(RootContext)
   const [isInfoDialogOpen, setIsInfoDialogOpen] = useState(false)
+
+  const navCfg = getNavbarConfig?.() ?? {
+    showDogs6: true,
+    showDogs8: true,
+    showHorses: true,
+    showMix: true,
+    showFootball: true,
+  }
 
   // Helper per creare link preservando TUTTI i parametri URL
   const buildHref = (path: string) => {
@@ -34,7 +43,7 @@ function NavbarContent() {
       return `https://d190050z3qr0m1.cloudfront.net/public/Soccer_Gaming_manual_${lang}.html`
     } else {
       // Per cani e cavalli
-      return `https://d190050z3qr0m1.cloudfront.net/public/Gaming_manual_${lang}.html`
+      return `https://d190050z3qr0m1.cloudfront.net/public/RD-RH_Gamingmanual_${lang}.html`
     }
   }
 
@@ -43,89 +52,127 @@ function NavbarContent() {
       className="flex h-16 w-full flex-row items-center justify-start bg-accent p-3"
       suppressHydrationWarning={true}
     >
-      <div className="relative left-[8px] flex flex-row items-center gap-[8px]">
-        <Link
-          href={buildHref('/retail/dogs-horses')}
-          className={cn(
-            'flex h-12 w-28 flex-row items-center justify-between px-4 py-1 text-foreground transition-colors hover:opacity-90',
-            pathname.includes('/retail/dogs-horses')
-              ? 'bg-tertiary'
-              : 'bg-secondary',
-          )}
-        >
-          <Image
-            src="/dog.png"
-            alt="Dogs"
-            width={40}
-            height={20}
-            className="size-8 object-contain"
-          />
-          <Image
-            src="/horse.png"
-            alt="Horses"
-            width={40}
-            height={20}
-            className="size-8 object-contain"
-          />
-        </Link>
+      <div className="relative left-[8px] flex flex-row items-center space-x-2">
+        {navCfg.showMix && (
+          <Link
+            href={buildHref('/retail/dogs-horses')}
+            className={cn(
+              'flex h-12 w-24 flex-row items-center justify-between px-4 py-1 text-foreground transition-colors hover:opacity-90',
+              pathname.includes('/retail/dogs-horses')
+                ? 'bg-tertiary'
+                : 'bg-secondary',
+            )}
+          >
+            <Image
+              src="/dog.png"
+              alt="Dogs"
+              width={40}
+              height={20}
+              className="size-8 object-contain"
+            />
+            <Image
+              src="/horse.png"
+              alt="Horses"
+              width={40}
+              height={20}
+              className="size-8 object-contain"
+            />
+          </Link>
+        )}
 
-        <Link
-          href={buildHref('/retail/dogs')}
-          className={cn(
-            'flex h-12 w-24 flex-row items-center justify-center px-4 py-1 text-foreground transition-colors hover:opacity-90',
-            pathname.includes('/retail/dogs') &&
-              !pathname.includes('/retail/dogs-horses')
-              ? 'bg-tertiary'
-              : 'bg-secondary',
-          )}
-        >
-          <Image
-            src="/dog.png"
-            alt="Dogs"
-            width={40}
-            height={20}
-            className="size-8 object-contain"
-          />
-        </Link>
+        {navCfg.showDogs6 && (
+          <Link
+            href={buildHref('/retail/dogs')}
+            className={cn(
+              'flex h-12 w-24 flex-row items-center justify-center gap-1 px-3 py-1 text-foreground transition-colors hover:opacity-90',
+              pathname.includes('/retail/dogs') &&
+                !pathname.includes('/retail/dogs-horses') &&
+                !pathname.includes('/retail/dogs8')
+                ? 'bg-tertiary'
+                : 'bg-secondary',
+            )}
+          >
+            <Image
+              src="/dog.png"
+              alt="Dogs"
+              width={40}
+              height={20}
+              className="size-8 object-contain"
+            />
+            <span className="text-base font-bold text-secondary-foreground !text-[22px] relative left-[2px]">
+              6
+            </span>
+          </Link>
+        )}
 
-        <Link
-          href={buildHref('/retail/horses')}
-          className={cn(
-            'hover:*opacity-90 flex h-12 w-24 flex-row items-center justify-center px-4 py-1 text-foreground transition-colors',
-            pathname.includes('/retail/horses')
-              ? 'bg-tertiary'
-              : 'bg-secondary',
-          )}
-        >
-          <Image
-            src="/horse.png"
-            alt="Horses"
-            width={40}
-            height={20}
-            className="size-8 object-contain"
-          />
-        </Link>
+        {navCfg.showDogs8 && (
+          <Link
+            href={buildHref('/retail/dogs8')}
+            className={cn(
+              'flex h-12 w-24 flex-row items-center justify-center gap-1 px-3 py-1 text-foreground transition-colors hover:opacity-90',
+              pathname.includes('/retail/dogs8')
+                ? 'bg-tertiary'
+                : 'bg-secondary',
+            )}
+          >
+            <Image
+              src="/dog.png"
+              alt="Dogs 8"
+              width={40}
+              height={20}
+              className="size-8 object-contain"
+            />
+            <span className="text-base font-bold text-secondary-foreground !text-[22px] relative left-[2px]">
+              8
+            </span>
+          </Link>
+        )}
 
-        <Link
-          href={buildHref('/retail/calcio')}
-          className={cn(
-            'flex h-12 w-24 flex-row items-center justify-center gap-3 px-4 py-1 text-foreground transition-colors',
-            pathname.includes('/retail/calcio')
-              ? 'bg-tertiary'
-              : 'bg-secondary',
-          )}
-        >
-          <Image
-            src="/soccer.png"
-            alt="Calcio"
-            width={40}
-            height={20}
-            className="size-8 object-contain brightness-0 invert filter"
-          />
-        </Link>
+        {navCfg.showHorses && (
+          <Link
+            href={buildHref('/retail/horses')}
+            className={cn(
+              'flex h-12 w-24 flex-row items-center justify-center gap-1 px-3 py-1 text-foreground transition-colors hover:opacity-90',
+              pathname.includes('/retail/horses')
+                ? 'bg-tertiary'
+                : 'bg-secondary',
+            )}
+          >
+            <Image
+              src="/horse.png"
+              alt="Horses"
+              width={40}
+              height={20}
+              className="size-8 object-contain"
+            />
+            <span className="text-base font-bold text-secondary-foreground !text-[22px] relative left-[2px]">
+              6
+            </span>
+          </Link>
+        )}
+
+        {navCfg.showFootball && (
+          <Link
+            href={buildHref('/retail/calcio')}
+            className={cn(
+              'flex h-12 w-24 flex-row items-center justify-center gap-2 px-3 py-1 text-foreground transition-colors',
+              pathname.includes('/retail/calcio')
+                ? 'bg-tertiary'
+                : 'bg-secondary',
+            )}
+          >
+            <Image
+              src="/soccer.png"
+              alt="Calcio"
+              width={40}
+              height={20}
+              className="size-8 object-contain brightness-0 invert filter"
+            />
+          </Link>
+        )}
       </div>
 
-      <div className="relative right-2 flex w-full justify-end gap-[8px]">
+      <div className="relative right-2 flex w-full justify-end space-x-2">
         <Button
           className="h-12 w-fit p-[18px] hover:opacity-95"
           variant="ticketButton"
@@ -190,7 +237,7 @@ function NavbarContent() {
 
 export default function Navbar() {
   return (
-    <Suspense fallback={<div className="flex h-16 w-full bg-accent" />}>
+    <Suspense fallback={<div className="flex h-16 w-full bg-navbarTop" />}>
       <NavbarContent />
     </Suspense>
   )

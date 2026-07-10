@@ -85,7 +85,7 @@ export type UpcomingMatch = {
 export type UpcomingEvent = {
   id: number
   extId?: string
-  palimpsestId?: number
+  palimpsestId?: string
   discipline: Discipline
   name: string
   startTime: string
@@ -161,6 +161,7 @@ export enum Discipline {
   DOGS = 'DOGS',
   HORSES = 'HORSES',
   SOCCER = 'SOCCER',
+  DOGS8 = 'DOGS8',
 }
 
 export type EventResult = {
@@ -200,6 +201,8 @@ export type Bet = {
     number: number
     startingAt: Date
     roundId?: number
+    extId?: string
+    palimpsestId?: string
   }
   discipline: Discipline
   competitors: string
@@ -300,4 +303,110 @@ export type TeamRanking = {
   goalsAgainst: number
   goalDifference: number
   last8: Array<'W' | 'L' | 'D'>
+}
+
+export type TicketListRequest = {
+  dateStart: string
+  dateEnd: string
+  offset: number
+  itemsPerPage: number
+  terminal: number
+  status: number
+  payment: number
+  enablePagination: boolean
+  accountingMode: boolean
+}
+
+export type TicketListItem = {
+  ticket_id: number
+  time: [string, number, string, string, string, string]
+  amount: string
+  amount_won: string
+  saldo?: string
+  intl: {
+    currency: string
+    locale: string
+    timezone: string
+  }
+  terminal_id: string
+  status: number
+}
+
+export type TicketListInfo = {
+  count: number
+  count_paid: number
+  count_won: number
+  tot_in: string
+  tot_cancelled: number | string
+  tot_out: string
+  tot_profit: number
+  grandtotal: {
+    in: number
+    cancelled: number | string
+    out: string
+  }
+}
+
+export type TicketListResponse = {
+  ret_code: number
+  description: string
+  info: TicketListInfo
+  items: TicketListItem[]
+}
+
+export type TicketDetailSelection = {
+  game: {
+    dict: {
+      misc: { name: string }
+      markets: Record<string, string>
+      runners?: Record<string, string>
+    }
+    constraints: Record<string, string>
+  }
+  trackName: string
+  channelName: string
+  gameDuration: number
+  startTime: string
+  gameId: string
+  channelId: number
+  palimpsestId: string
+  eventId: number
+  isBanker: string
+  status: string
+  markets: {
+    description: string
+    selections: {
+      description: string
+      odds: string
+      status: number
+    }[]
+  }[]
+}
+
+export type TicketDetailInfo = {
+  betType: string
+  ticket_id: number
+  time: [number, number, number, number, number, number]
+  intl: {
+    currency: string
+    locale: string
+    timezone: string
+  }
+  amount: string
+  amount_won: string
+  status: number
+  selections: TicketDetailSelection[]
+  system: Record<string, string>
+}
+
+export type TicketDetailResponse = {
+  ret_code: number
+  description?: string
+  info: TicketDetailInfo
+}
+
+export type TicketPayResponse = {
+  ret_code: string | number
+  description: string
+  print?: string
 }
