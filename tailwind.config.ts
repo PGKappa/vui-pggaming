@@ -10,8 +10,10 @@ export default {
     'dp',
     'sc',
     'retail-default',
+    'basis-1/4',
     'basis-1/5',
     'basis-1/6',
+    'min-[1400px]:basis-1/5',
     'min-[1500px]:basis-1/6',
   ],
   content: [
@@ -30,6 +32,7 @@ export default {
     extend: {
       screens: {
         '3xl': '1920px',
+        retail: '1280px',
       },
       fontFamily: {
         sans: ['Arial', 'sans-serif'],
