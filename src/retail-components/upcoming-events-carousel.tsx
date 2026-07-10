@@ -22,9 +22,23 @@ export function UpcomingEventsCarousel(props: {
   /** Override the disciplines shown. When provided, pathname-based detection is skipped. */
   disciplines?: Discipline[]
 }) {
-  const { upcomingEvents, isLoadingEvents } = useContext(RootContext)
+  const rootContext = useContext(RootContext)
+  const { upcomingEvents, isLoadingEvents } = rootContext
   const { t } = useTranslation()
   const pathname = usePathname()
+  const lang = rootContext?.userData?.lang || 'en'
+  const layout = getLayoutConfig(lang)
+
+  const [slidesPerView, setSlidesPerView] = useState(4)
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(min-width: 1400px)')
+    const updateSlidesPerView = () =>
+      setSlidesPerView(mediaQuery.matches ? 5 : 4)
+    updateSlidesPerView()
+    mediaQuery.addEventListener('change', updateSlidesPerView)
+    return () => mediaQuery.removeEventListener('change', updateSlidesPerView)
+  }, [])
 
   const disciplines = useMemo(() => {
     if (props.disciplines) return props.disciplines
@@ -75,13 +89,25 @@ export function UpcomingEventsCarousel(props: {
   // per evitare competizione tra meccanismi multipli
 
   return (
-    <Carousel className="w-full" opts={{ align: 'start', skipSnaps: false }}>
-      <CarouselContent className="bg-white !mr-0 pl-10 pr-10 min-[1400px]:px-10 min-[1600px]:px-11 min-[1730px]:px-12">
+    <Carousel
+      key={slidesPerView}
+      className="w-full"
+      opts={{
+        align: 'start',
+        containScroll: 'trimSnaps',
+        slidesToScroll: 1,
+        skipSnaps: false,
+      }}
+    >
+      <CarouselContent
+        viewportClassName="px-[43px] [--carousel-slide-size:25%] min-[1400px]:[--carousel-slide-size:20%]"
+        className="bg-white !mr-0"
+      >
         {isLoadingEvents ? (
-          Array.from({ length: 6 }).map((_, index) => (
-            <div
+          Array.from({ length: slidesPerView }).map((_, index) => (
+            <CarouselItem
               key={`skeleton-${index}`}
-              className="flex h-[72px] basis-1/6 items-center justify-center gap-3 bg-muted/30 py-2"
+              className={`flex items-center justify-center gap-3 bg-muted/30 py-2 ${layout.carousel.itemBasis}`}
             >
               <Skeleton className="h-12 w-12 rounded" />
               <div className="flex flex-col gap-2">
@@ -89,7 +115,7 @@ export function UpcomingEventsCarousel(props: {
                 <Skeleton className="h-4 w-16" />
                 <Skeleton className="h-3 w-24" />
               </div>
-            </div>
+            </CarouselItem>
           ))
         ) : filteredAndSortedEvents.length > 0 ? (
           filteredAndSortedEvents.map((event, index) => (
@@ -155,7 +181,7 @@ function UpcomingEventItem(props: {
 
   return (
     <CarouselItem
-      className={`relative flex h-[88px] ${layout.carousel.itemBasis} cursor-pointer flex-row items-center justify-center overflow-hidden border-l-8 border-l-background px-2 py-2 text-[15px] first:border-l-0 last:border-r-background hover:opacity-95 ${
+      className={`relative flex h-[88px] ${layout.carousel.itemBasis} cursor-pointer flex-row items-center justify-center overflow-hidden border-l-8 border-l-background px-2 py-2 text-[15px] first:border-l-0 hover:opacity-95 ${
         event.id === props.selectedEvent?.id &&
         event.discipline === props.selectedEvent?.discipline
           ? 'bg-selectedEvent text-tertiary-foreground'

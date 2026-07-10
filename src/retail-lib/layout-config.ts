@@ -28,7 +28,8 @@ export type LayoutConfig = {
 const layoutByLanguage: Record<string, LayoutConfig> = {
   en: {
     carousel: {
-      itemBasis: 'basis-1/4 min-[1400px]:basis-1/5 min-[1500px]:basis-1/6',
+      itemBasis:
+        'box-border min-w-0 shrink-0 grow-0 flex-[0_0_var(--carousel-slide-size)]',
       imageOffset: {
         SOCCER: 'bottom-[4px] right-[10px]',
         HORSES: 'bottom-[4px] right-[9px]',
@@ -63,7 +64,8 @@ const layoutByLanguage: Record<string, LayoutConfig> = {
   },
   es: {
     carousel: {
-      itemBasis: 'basis-1/4 min-[1400px]:basis-1/5',
+      itemBasis:
+        'box-border min-w-0 shrink-0 grow-0 flex-[0_0_var(--carousel-slide-size)]',
       imageOffset: {
         SOCCER: 'bottom-[4px] right-[40px]',
         HORSES: 'bottom-[4px] right-[10px]',
@@ -98,7 +100,8 @@ const layoutByLanguage: Record<string, LayoutConfig> = {
   },
   it: {
     carousel: {
-      itemBasis: 'basis-1/4 min-[1400px]:basis-1/5 min-[1500px]:basis-1/6',
+      itemBasis:
+        'box-border min-w-0 shrink-0 grow-0 flex-[0_0_var(--carousel-slide-size)]',
       imageOffset: {
         SOCCER: 'bottom-[4px] right-[10px]',
         HORSES: 'bottom-[4px] right-[13px]',
