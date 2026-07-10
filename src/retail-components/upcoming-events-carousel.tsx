@@ -174,10 +174,48 @@ function UpcomingEventItem(props: {
     layout.carousel.imageOffset[event.discipline] ?? 'bottom-[4px] right-[10px]'
   const textOffset =
     layout.carousel.textOffset[event.discipline] ?? 'right-[3px]'
+  const textOffsetFrom1400 =
+    layout.carousel.textOffsetFrom1400[event.discipline] ?? textOffset
+  const textContainerClass = layout.carousel.textContainerClass
+  const textInnerClass = layout.carousel.textInnerClass
   const progressBarHeight = layout.carousel.progressBarHeight
   const eventNameFontSize = layout.carousel.eventNameFontSize
   const eventSubtitleFontSize = layout.carousel.eventSubtitleFontSize
   const eventSubtitleBottom = layout.carousel.eventSubtitleBottom
+
+  const eventTextContent = (
+    <>
+      <span
+        className={`relative bottom-[7px] whitespace-nowrap ${eventNameFontSize} font-semibold uppercase`}
+      >
+        {event.discipline === 'SOCCER'
+          ? event.name
+          : event.discipline === 'HORSES'
+            ? t('horse6_races_label')
+            : event.discipline === 'DOGS8'
+              ? t('dog8_races_label')
+              : t('dog6_races_label')}
+      </span>
+      <span
+        className={`relative ${eventSubtitleBottom} whitespace-nowrap ${eventSubtitleFontSize} font-normal uppercase`}
+      >
+        {event.discipline === 'SOCCER'
+          ? `${t('round')} ${event.id}`
+          : (() => {
+              const trackNum = event.trackName?.match(/\d+/)?.[0] || '6'
+              return `${t('track')} ${trackNum}`
+            })()}
+      </span>
+      <div className="flex flex-row gap-2">
+        <span className="relative bottom-[1px] text-[14px] font-semibold tabular-nums">
+          {event.startTime}
+        </span>
+        <span className="relative bottom-[1px] left-[8px] min-w-[56px] bg-white px-2 py-[1px] pt-0 text-[14px] font-semibold tabular-nums text-black">
+          {timeToEventStart}
+        </span>
+      </div>
+    </>
+  )
 
   return (
     <CarouselItem
@@ -203,36 +241,20 @@ function UpcomingEventItem(props: {
         className={`relative hidden size-14 object-contain min-[1730px]:block ${imageOffset}`}
       />
 
-      <div className={`relative ${textOffset} flex flex-col items-start`}>
-        <span
-          className={`relative bottom-[7px] whitespace-nowrap ${eventNameFontSize} font-semibold uppercase`}
+      <div
+        className={`relative flex w-full flex-col max-[1399px]:flex min-[1400px]:hidden ${textContainerClass}`}
+      >
+        <div
+          className={`relative flex flex-col items-start ${textInnerClass} ${textOffset}`}
         >
-          {event.discipline === 'SOCCER'
-            ? event.name
-            : event.discipline === 'HORSES'
-              ? t('horse6_races_label')
-              : event.discipline === 'DOGS8'
-                ? t('dog8_races_label')
-                : t('dog6_races_label')}
-        </span>
-        <span
-          className={`relative ${eventSubtitleBottom} whitespace-nowrap ${eventSubtitleFontSize} font-normal uppercase`}
-        >
-          {event.discipline === 'SOCCER'
-            ? `${t('round')} ${event.id}`
-            : (() => {
-                const trackNum = event.trackName?.match(/\d+/)?.[0] || '6'
-                return `${t('track')} ${trackNum}`
-              })()}
-        </span>
-        <div className="flex flex-row gap-2">
-          <span className="relative bottom-[1px] text-[14px] font-semibold tabular-nums">
-            {event.startTime}
-          </span>
-          <span className="relative bottom-[1px] left-[8px] min-w-[56px] bg-white px-2 py-[1px] pt-0 text-[14px] font-semibold tabular-nums text-black">
-            {timeToEventStart}
-          </span>
+          {eventTextContent}
         </div>
+      </div>
+
+      <div
+        className={`relative hidden min-[1400px]:flex flex-col items-start ${textOffsetFrom1400}`}
+      >
+        {eventTextContent}
       </div>
 
       <Progress

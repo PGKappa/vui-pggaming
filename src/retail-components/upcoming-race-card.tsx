@@ -426,13 +426,13 @@ export default function UpcomingRaceCard({
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
               <TableHead className="w-[17%] min-w-0 overflow-hidden text-center font-semibold min-[1440px]:w-[16%]">
-                <span className="inline-block h-full w-full align-middle leading-[54px]">
+                <span className="flex h-full w-full items-center justify-center whitespace-normal px-0.5 text-center text-[11px] leading-tight min-[1400px]:px-0 min-[1400px]:text-[16px] min-[1400px]:leading-normal">
                   {t('place_2').toUpperCase()}
                 </span>
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
               <TableHead className="w-[16%] min-w-0 overflow-hidden text-center font-semibold min-[1440px]:w-[18%]">
-                <span className="inline-block h-full w-full align-middle leading-[54px]">
+                <span className="flex h-full w-full items-center justify-center whitespace-normal px-0.5 text-center text-[11px] leading-tight min-[1400px]:px-0 min-[1400px]:text-[16px] min-[1400px]:leading-normal">
                   {t('show_3').toUpperCase()}
                 </span>
               </TableHead>
