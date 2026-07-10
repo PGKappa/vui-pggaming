@@ -8,9 +8,9 @@ import {
 import { Progress } from '@/retail-components/ui/progress'
 import { Skeleton } from '@/retail-components/ui/skeleton'
 import { RootContext } from '@/retail-contexts/root-context'
-import { getLayoutConfig } from '@/retail-lib/layout-config'
+import { getLayoutConfig, resolveCarouselSlidesPerView } from '@/retail-lib/layout-config'
 import { Discipline, UpcomingEvent } from '@/retail-lib/types'
-import { useContext, useEffect, useMemo, useState } from 'react'
+import { useContext, useEffect, useMemo, useState, type CSSProperties } from 'react'
 import { useTranslation } from 'react-i18next'
 import useTimeLeft from '@/retail-lib/use-time-left'
 import { usePathname } from 'next/navigation'
@@ -32,13 +32,17 @@ export function UpcomingEventsCarousel(props: {
   const [slidesPerView, setSlidesPerView] = useState(4)
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(min-width: 1400px)')
     const updateSlidesPerView = () =>
-      setSlidesPerView(mediaQuery.matches ? 5 : 4)
+      setSlidesPerView(
+        resolveCarouselSlidesPerView(
+          layout.carousel.slidesPerView,
+          window.innerWidth,
+        ),
+      )
     updateSlidesPerView()
-    mediaQuery.addEventListener('change', updateSlidesPerView)
-    return () => mediaQuery.removeEventListener('change', updateSlidesPerView)
-  }, [])
+    window.addEventListener('resize', updateSlidesPerView)
+    return () => window.removeEventListener('resize', updateSlidesPerView)
+  }, [layout.carousel.slidesPerView])
 
   const disciplines = useMemo(() => {
     if (props.disciplines) return props.disciplines
@@ -88,10 +92,12 @@ export function UpcomingEventsCarousel(props: {
   // Auto-selezione RIMOSSA: la logica è gestita SOLO dalla pagina (pickEvent)
   // per evitare competizione tra meccanismi multipli
 
+  const slideSize = `${100 / slidesPerView}%`
+
   return (
     <Carousel
       key={slidesPerView}
-      className="w-full"
+      className="w-full px-[43px]"
       opts={{
         align: 'start',
         containScroll: 'trimSnaps',
@@ -100,7 +106,9 @@ export function UpcomingEventsCarousel(props: {
       }}
     >
       <CarouselContent
-        viewportClassName="px-[43px] [--carousel-slide-size:25%] min-[1400px]:[--carousel-slide-size:20%]"
+        viewportStyle={
+          { '--carousel-slide-size': slideSize } as CSSProperties
+        }
         className="bg-white !mr-0"
       >
         {isLoadingEvents ? (

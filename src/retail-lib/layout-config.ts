@@ -7,6 +7,15 @@ type CarouselOffsetAtBreakpoints = {
   from1920?: string
 }
 
+type CarouselSlidesPerViewAtBreakpoints = {
+  /** < 1400px */
+  below1400: number
+  /** ≥ 1400px */
+  from1400?: number
+  /** ≥ 1920px */
+  from1920?: number
+}
+
 type CarouselOffsetsByDiscipline = Record<
   'SOCCER' | 'HORSES' | 'DOGS' | 'DOGS8',
   CarouselOffsetAtBreakpoints
@@ -24,6 +33,10 @@ type CarouselLayoutSource = {
   textInnerClass?: CarouselOffsetAtBreakpoints
   /** Classi solo sul titolo evento (es. centrato a basse risoluzioni). */
   eventTitleClass?: CarouselOffsetAtBreakpoints
+  /** Card visibili per riga nel carousel. */
+  slidesPerView?: CarouselSlidesPerViewAtBreakpoints
+  /** Larghezza slide (--carousel-slide-size sul viewport). */
+  viewportSlideSize?: CarouselOffsetAtBreakpoints
   progressBarHeight: string
   eventNameFontSize: string
   eventSubtitleFontSize: string
@@ -38,6 +51,8 @@ type CarouselLayoutConfig = {
   textContainerClass: string
   textInnerClass: string
   eventTitleClass: string
+  slidesPerView: CarouselSlidesPerViewAtBreakpoints
+  viewportSlideSizeClass: string
   progressBarHeight: string
   eventNameFontSize: string
   eventSubtitleFontSize: string
@@ -106,6 +121,16 @@ const defaultTextInnerClass: CarouselOffsetAtBreakpoints = {
   below1400: 'w-full',
 }
 
+const defaultSlidesPerView: CarouselSlidesPerViewAtBreakpoints = {
+  below1400: 4,
+  from1400: 5,
+}
+
+const defaultViewportSlideSize: CarouselOffsetAtBreakpoints = {
+  below1400: '25%',
+  from1400: '20%',
+}
+
 const defaultEventTitleClass: CarouselOffsetAtBreakpoints = {
   below1400: '',
 }
@@ -121,6 +146,31 @@ function resolveOffsetsFrom1400(
         breakpointOffset.below1400,
     ]),
   )
+}
+
+function buildViewportSlideSizeClass(
+  sizes: CarouselOffsetAtBreakpoints,
+): string {
+  const at1400 = sizes.from1400 ?? sizes.below1400
+  const at1920 = sizes.from1920 ?? at1400
+
+  const parts = [`[--carousel-slide-size:${sizes.below1400}]`]
+  if (at1400 !== sizes.below1400) {
+    parts.push(`min-[1400px]:[--carousel-slide-size:${at1400}]`)
+  }
+  if (at1920 !== at1400) {
+    parts.push(`min-[1920px]:[--carousel-slide-size:${at1920}]`)
+  }
+  return parts.join(' ')
+}
+
+export function resolveCarouselSlidesPerView(
+  config: CarouselSlidesPerViewAtBreakpoints,
+  width: number,
+): number {
+  if (width >= 1920 && config.from1920 !== undefined) return config.from1920
+  if (width >= 1400) return config.from1400 ?? config.below1400
+  return config.below1400
 }
 
 function buildCarouselLayout(source: CarouselLayoutSource): CarouselLayoutConfig {
@@ -144,6 +194,10 @@ function buildCarouselLayout(source: CarouselLayoutSource): CarouselLayoutConfig
     eventTitleClass: resolveOffsetClasses(
       source.eventTitleClass ?? defaultEventTitleClass,
     ),
+    slidesPerView: source.slidesPerView ?? defaultSlidesPerView,
+    viewportSlideSizeClass: buildViewportSlideSizeClass(
+      source.viewportSlideSize ?? defaultViewportSlideSize,
+    ),
   }
 }
 
@@ -162,20 +216,26 @@ const layoutByLanguage: Record<string, LayoutConfig> = {
         //   from1920: 'bottom-[4px] right-[14px]',
         // },
         SOCCER: { below1400: 'bottom-[4px] right-[10px]' },
-        HORSES: { below1400: 'bottom-[4px] right-[9px]' },
-        DOGS: { below1400: 'bottom-[4px] right-[11px]' },
-        DOGS8: { below1400: 'bottom-[4px] right-[11px]' },
+        HORSES: { below1400: 'bottom-[4px] right-[6px]' },
+        DOGS: { below1400: 'bottom-[4px] right-[13px]' },
+        DOGS8: { below1400: 'bottom-[4px] right-[13px]' },
       },
       textOffset: {
         SOCCER: { below1400: 'right-[3px]' },
-        HORSES: { below1400: 'right-[6px]' },
-        DOGS: { below1400: 'right-[6px]' },
-        DOGS8: { below1400: 'right-[6px]' },
+        HORSES: { below1400: 'left-[14px]' },
+        DOGS: { below1400: 'left-[5px]' },
+        DOGS8: { below1400: 'left-[5px]' },
       },
       progressBarHeight: 'h-[6px]',
       eventNameFontSize: 'text-[14px]',
       eventSubtitleFontSize: 'text-[13px]',
       eventSubtitleBottom: 'bottom-[5px]',
+      slidesPerView: { below1400: 4, from1400: 5, from1920: 6 },
+      viewportSlideSize: {
+        below1400: '25%',
+        from1400: '20%',
+        from1920: '16.666667%',
+      },
     }),
     eventBets: {
       eventIdMargin: 'mr-[255px]',
@@ -197,21 +257,21 @@ const layoutByLanguage: Record<string, LayoutConfig> = {
       itemBasis: carouselItemBasis,
       imageOffset: {
         SOCCER: { below1400: 'bottom-[4px] right-[40px]' },
-        HORSES: { below1400: 'bottom-[4px] right-[10px]' },
-        DOGS: { below1400: 'bottom-[4px] right-[18px]' },
-        DOGS8: { below1400: 'bottom-[4px] right-[18px]' },
+        HORSES: { below1400: 'bottom-[4px] right-[7px]' },
+        DOGS: { below1400: 'bottom-[4px] right-[14px]' },
+        DOGS8: { below1400: 'bottom-[4px] right-[14px]' },
       },
       textOffset: {
         SOCCER: { below1400: '' },
-        HORSES: { below1400: '' },
-        DOGS: { below1400: '' },
-        DOGS8: { below1400: '' },
+        HORSES: { below1400: 'right-[2px]' },
+        DOGS: { below1400: 'left-[2px]' },
+        DOGS8: { below1400: 'left-[2px]' },
       },
       textOffsetFrom1400: {
         SOCCER: { below1400: 'right-[25px]' },
-        HORSES: { below1400: 'left-[6px]' },
-        DOGS: { below1400: 'right-[2px]' },
-        DOGS8: { below1400: 'right-[2px]' },
+        HORSES: { below1400: 'left-[10px]' },
+        DOGS: { below1400: 'left-[3px]' },
+        DOGS8: { below1400: 'left-[3px]' },
       },
       textContainerClass: {
         below1400: 'items-center',
