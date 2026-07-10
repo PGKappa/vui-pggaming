@@ -218,6 +218,7 @@ function RetailShell({ children }: { children: React.ReactNode }) {
       splashscreenImage && !splashscreenImage.includes('empty')
 
     if (logoElement && hasRealImage) {
+      // Absolute URLs (http/https) are used as-is; local filenames are rooted at /
       const isAbsoluteUrl = /^https?:\/\//i.test(splashscreenImage)
       const imagePath = isAbsoluteUrl
         ? splashscreenImage
