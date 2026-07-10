@@ -8,9 +8,9 @@ import {
 import { Progress } from '@/retail-components/ui/progress'
 import { Skeleton } from '@/retail-components/ui/skeleton'
 import { RootContext } from '@/retail-contexts/root-context'
-import { getLayoutConfig } from '@/retail-lib/layout-config'
+import { getLayoutConfig, resolveCarouselSlidesPerView } from '@/retail-lib/layout-config'
 import { Discipline, UpcomingEvent } from '@/retail-lib/types'
-import { useContext, useEffect, useMemo, useState } from 'react'
+import { useContext, useEffect, useMemo, useState, type CSSProperties } from 'react'
 import { useTranslation } from 'react-i18next'
 import useTimeLeft from '@/retail-lib/use-time-left'
 import { usePathname } from 'next/navigation'
@@ -22,9 +22,27 @@ export function UpcomingEventsCarousel(props: {
   /** Override the disciplines shown. When provided, pathname-based detection is skipped. */
   disciplines?: Discipline[]
 }) {
-  const { upcomingEvents, isLoadingEvents } = useContext(RootContext)
+  const rootContext = useContext(RootContext)
+  const { upcomingEvents, isLoadingEvents } = rootContext
   const { t } = useTranslation()
   const pathname = usePathname()
+  const lang = rootContext?.userData?.lang || 'en'
+  const layout = getLayoutConfig(lang)
+
+  const [slidesPerView, setSlidesPerView] = useState(4)
+
+  useEffect(() => {
+    const updateSlidesPerView = () =>
+      setSlidesPerView(
+        resolveCarouselSlidesPerView(
+          layout.carousel.slidesPerView,
+          window.innerWidth,
+        ),
+      )
+    updateSlidesPerView()
+    window.addEventListener('resize', updateSlidesPerView)
+    return () => window.removeEventListener('resize', updateSlidesPerView)
+  }, [layout.carousel.slidesPerView])
 
   const disciplines = useMemo(() => {
     if (props.disciplines) return props.disciplines
@@ -74,17 +92,30 @@ export function UpcomingEventsCarousel(props: {
   // Auto-selezione RIMOSSA: la logica è gestita SOLO dalla pagina (pickEvent)
   // per evitare competizione tra meccanismi multipli
 
+  const slideSize = `${100 / slidesPerView}%`
+
   return (
     <Carousel
-      className="w-full px-9"
-      opts={{ align: 'start', skipSnaps: false }}
+      key={slidesPerView}
+      className="w-full px-[43px]"
+      opts={{
+        align: 'start',
+        containScroll: 'trimSnaps',
+        slidesToScroll: 1,
+        skipSnaps: false,
+      }}
     >
-      <CarouselContent className="bg-white">
+      <CarouselContent
+        viewportStyle={
+          { '--carousel-slide-size': slideSize } as CSSProperties
+        }
+        className="bg-white !mr-0"
+      >
         {isLoadingEvents ? (
-          Array.from({ length: 6 }).map((_, index) => (
-            <div
+          Array.from({ length: slidesPerView }).map((_, index) => (
+            <CarouselItem
               key={`skeleton-${index}`}
-              className="flex h-[72px] basis-1/6 items-center justify-center gap-3 bg-muted/30 py-2"
+              className={`flex items-center justify-center gap-3 bg-muted/30 py-2 ${layout.carousel.itemBasis}`}
             >
               <Skeleton className="h-12 w-12 rounded" />
               <div className="flex flex-col gap-2">
@@ -92,7 +123,7 @@ export function UpcomingEventsCarousel(props: {
                 <Skeleton className="h-4 w-16" />
                 <Skeleton className="h-3 w-24" />
               </div>
-            </div>
+            </CarouselItem>
           ))
         ) : filteredAndSortedEvents.length > 0 ? (
           filteredAndSortedEvents.map((event, index) => (
@@ -151,14 +182,52 @@ function UpcomingEventItem(props: {
     layout.carousel.imageOffset[event.discipline] ?? 'bottom-[4px] right-[10px]'
   const textOffset =
     layout.carousel.textOffset[event.discipline] ?? 'right-[3px]'
+  const textOffsetFrom1400 =
+    layout.carousel.textOffsetFrom1400[event.discipline] ?? textOffset
+  const textContainerClass = layout.carousel.textContainerClass
+  const textInnerClass = layout.carousel.textInnerClass
   const progressBarHeight = layout.carousel.progressBarHeight
   const eventNameFontSize = layout.carousel.eventNameFontSize
   const eventSubtitleFontSize = layout.carousel.eventSubtitleFontSize
   const eventSubtitleBottom = layout.carousel.eventSubtitleBottom
 
+  const eventTextContent = (
+    <>
+      <span
+        className={`relative bottom-[7px] whitespace-nowrap ${eventNameFontSize} font-semibold uppercase`}
+      >
+        {event.discipline === 'SOCCER'
+          ? event.name
+          : event.discipline === 'HORSES'
+            ? t('horse6_races_label')
+            : event.discipline === 'DOGS8'
+              ? t('dog8_races_label')
+              : t('dog6_races_label')}
+      </span>
+      <span
+        className={`relative ${eventSubtitleBottom} whitespace-nowrap ${eventSubtitleFontSize} font-normal uppercase`}
+      >
+        {event.discipline === 'SOCCER'
+          ? `${t('round')} ${event.id}`
+          : (() => {
+              const trackNum = event.trackName?.match(/\d+/)?.[0] || '6'
+              return `${t('track')} ${trackNum}`
+            })()}
+      </span>
+      <div className="flex flex-row gap-2">
+        <span className="relative bottom-[1px] text-[14px] font-semibold tabular-nums">
+          {event.startTime}
+        </span>
+        <span className="relative bottom-[1px] left-[8px] min-w-[56px] bg-white px-2 py-[1px] pt-0 text-[14px] font-semibold tabular-nums text-black">
+          {timeToEventStart}
+        </span>
+      </div>
+    </>
+  )
+
   return (
     <CarouselItem
-      className={`relative flex h-[88px] ${layout.carousel.itemBasis} cursor-pointer flex-row items-center justify-center overflow-hidden border-l-8 border-l-background px-2 py-2 text-[15px] last:border-r-background hover:opacity-95 ${
+      className={`relative flex h-[88px] ${layout.carousel.itemBasis} cursor-pointer flex-row items-center justify-center overflow-hidden border-l-8 border-l-background px-2 py-2 text-[15px] first:border-l-0 hover:opacity-95 ${
         event.id === props.selectedEvent?.id &&
         event.discipline === props.selectedEvent?.discipline
           ? 'bg-selectedEvent text-tertiary-foreground'
@@ -180,36 +249,20 @@ function UpcomingEventItem(props: {
         className={`relative hidden size-14 object-contain min-[1730px]:block ${imageOffset}`}
       />
 
-      <div className={`relative ${textOffset} flex flex-col items-start`}>
-        <span
-          className={`relative bottom-[7px] whitespace-nowrap ${eventNameFontSize} font-semibold uppercase`}
+      <div
+        className={`relative flex w-full flex-col max-[1399px]:flex min-[1400px]:hidden ${textContainerClass}`}
+      >
+        <div
+          className={`relative flex flex-col items-start ${textInnerClass} ${textOffset}`}
         >
-          {event.discipline === 'SOCCER'
-            ? event.name
-            : event.discipline === 'HORSES'
-              ? t('horse_races_label')
-              : event.discipline === 'DOGS8'
-                ? t('dog8_races_label')
-                : t('dog_races_label')}
-        </span>
-        <span
-          className={`relative ${eventSubtitleBottom} whitespace-nowrap ${eventSubtitleFontSize} font-normal uppercase`}
-        >
-          {event.discipline === 'SOCCER'
-            ? `${t('round')} ${event.id}`
-            : (() => {
-                const trackNum = event.trackName?.match(/\d+/)?.[0] || '6'
-                return `${t('track')} ${trackNum}`
-              })()}
-        </span>
-        <div className="flex flex-row gap-2">
-          <span className="relative bottom-[1px] text-[14px] font-semibold tabular-nums">
-            {event.startTime}
-          </span>
-          <span className="relative bottom-[1px] left-[8px] min-w-[56px] bg-white px-2 py-[1px] pt-0 text-[14px] font-semibold tabular-nums text-black">
-            {timeToEventStart}
-          </span>
+          {eventTextContent}
         </div>
+      </div>
+
+      <div
+        className={`relative hidden min-[1400px]:flex flex-col items-start ${textOffsetFrom1400}`}
+      >
+        {eventTextContent}
       </div>
 
       <Progress

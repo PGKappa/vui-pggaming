@@ -12,6 +12,9 @@ import RootContextProvider, {
   RootContext,
 } from '@/retail-contexts/root-context'
 import SkinProvider, { SkinContext } from '@/retail-contexts/skin-context'
+import { RETAIL_VIEWPORT } from '@/retail-lib/viewport-config'
+import { useRetailCompactHeight } from '@/retail-lib/use-retail-compact-height'
+import { cn } from '@/retail-lib/utils'
 import { Inter } from 'next/font/google'
 import { usePathname } from 'next/navigation'
 import { useContext, useEffect } from 'react'
@@ -64,11 +67,11 @@ export default function RetailLayout({
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                gap: 4px;
+                gap: 32px;
               }
               #static-splash .splash-logo {
                 width: 400px;
-                height: 150px;
+                height: 200px;
                 object-fit: contain;
                 opacity: 0;
                 transition: opacity 0.2s ease-in;
@@ -78,14 +81,21 @@ export default function RetailLayout({
               }
               #static-splash .splash-spinner {
                 position: absolute;
-                top: 60%;
-                left: 48%;
+                top: 50%;
+                left: 50%;
+                margin-top: -32px;
+                margin-left: -32px;
                 width: 64px;
                 height: 64px;
                 border: 4px solid #1e3a5f;
                 border-top-color: transparent;
                 border-radius: 50%;
                 animation: spin 1s linear infinite;
+              }
+              #static-splash.has-image .splash-spinner {
+                position: static;
+                margin-top: 0;
+                margin-left: 0;
               }
               #static-splash .splash-versions {
                 position: absolute;
@@ -124,10 +134,14 @@ export default function RetailLayout({
 function SkinBody({ children }: { children: React.ReactNode }) {
   const [skin] = useContext(SkinContext)
   const pathname = usePathname()
+  const isCompactHeight = useRetailCompactHeight()
 
   return (
     <body
-      className={`${inter.variable} ${skin} flex h-screen flex-col overflow-hidden font-inter antialiased`}
+      className={cn(
+        `${inter.variable} ${skin} flex flex-col font-inter antialiased`,
+        isCompactHeight ? 'h-screen overflow-y-auto' : 'h-screen overflow-hidden',
+      )}
     >
       {/* Splash screen statico inline - appare ISTANTANEAMENTE */}
       <div id="static-splash">
@@ -137,7 +151,7 @@ function SkinBody({ children }: { children: React.ReactNode }) {
             src="/splashscreen-empty.png"
             alt="PGV Virtual"
             className="splash-logo"
-            style={{ objectFit: 'contain', width: 400, height: 150 }}
+            style={{ objectFit: 'contain', width: 600, height: 400 }}
           />
           <div className="splash-spinner"></div>
         </div>
@@ -164,6 +178,7 @@ let hasAppLoaded = false
 
 function RetailShell({ children }: { children: React.ReactNode }) {
   const { t } = useTranslation()
+  const isCompactHeight = useRetailCompactHeight()
   const {
     isLoadingEvents,
     isLoadingCashier,
@@ -196,20 +211,24 @@ function RetailShell({ children }: { children: React.ReactNode }) {
     const logoElement = document.querySelector(
       '#static-splash .splash-logo',
     ) as HTMLImageElement
+    const splashElement = document.getElementById('static-splash')
 
     // Check if we have a non-empty splashscreen image
     const hasRealImage =
       splashscreenImage && !splashscreenImage.includes('empty')
 
     if (logoElement && hasRealImage) {
-      // Handle case where path may or may not start with /
-      const imagePath = splashscreenImage.startsWith('/')
+      const isAbsoluteUrl = /^https?:\/\//i.test(splashscreenImage)
+      const imagePath = isAbsoluteUrl
         ? splashscreenImage
-        : `/${splashscreenImage}`
+        : splashscreenImage.startsWith('/')
+          ? splashscreenImage
+          : `/${splashscreenImage}`
       const preloadImg = new Image()
       preloadImg.onload = () => {
         logoElement.src = imagePath
         logoElement.classList.add('loaded')
+        splashElement?.classList.add('has-image')
         if (apiVersionEl) apiVersionEl.textContent = `API: ${apiVersion}`
         if (feVersionEl) feVersionEl.textContent = `FE: ${feVersion}`
         if (versionsContainer) versionsContainer.classList.add('loaded')
@@ -283,12 +302,29 @@ function RetailShell({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <Navbar />
-      <main className="h-full gap-2 overflow-hidden">
-        <div className="h-full p-2">
-          <BetsContextProvider>{children}</BetsContextProvider>
-        </div>
-      </main>
+      <div
+        className={cn(
+          'flex flex-col',
+          isCompactHeight ? 'min-h-0' : 'h-full min-h-0',
+        )}
+        style={
+          isCompactHeight
+            ? { minHeight: RETAIL_VIEWPORT.HEIGHT }
+            : undefined
+        }
+      >
+        <Navbar />
+        <main
+          className={cn(
+            'min-w-[1280px] gap-2',
+            isCompactHeight ? 'min-h-0 flex-1' : 'h-full overflow-hidden',
+          )}
+        >
+          <div className={cn('p-2', !isCompactHeight && 'h-full')}>
+            <BetsContextProvider>{children}</BetsContextProvider>
+          </div>
+        </main>
+      </div>
     </>
   )
 }

@@ -99,7 +99,7 @@ function NavbarContent() {
               height={20}
               className="size-8 object-contain"
             />
-            <span className="text-base font-bold text-secondary-foreground">
+            <span className="text-base font-bold text-secondary-foreground !text-[22px] relative left-[2px]">
               6
             </span>
           </Link>
@@ -122,7 +122,7 @@ function NavbarContent() {
               height={20}
               className="size-8 object-contain"
             />
-            <span className="text-base font-bold text-secondary-foreground">
+            <span className="text-base font-bold text-secondary-foreground !text-[22px] relative left-[2px]">
               8
             </span>
           </Link>
@@ -145,7 +145,7 @@ function NavbarContent() {
               height={20}
               className="size-8 object-contain"
             />
-            <span className="text-base font-bold text-secondary-foreground">
+            <span className="text-base font-bold text-secondary-foreground !text-[22px] relative left-[2px]">
               6
             </span>
           </Link>
@@ -155,7 +155,7 @@ function NavbarContent() {
           <Link
             href={buildHref('/retail/calcio')}
             className={cn(
-              'flex h-12 w-24 flex-row items-center justify-center gap-3 px-4 py-1 text-foreground transition-colors',
+              'flex h-12 w-24 flex-row items-center justify-center gap-2 px-3 py-1 text-foreground transition-colors',
               pathname.includes('/retail/calcio')
                 ? 'bg-tertiary'
                 : 'bg-secondary',

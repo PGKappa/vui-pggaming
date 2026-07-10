@@ -1,4 +1,6 @@
 'use client'
+
+import { RETAIL_VIEWPORT } from '@/retail-lib/viewport-config'
 import { useEffect, useState } from 'react'
 
 export default function ResolutionGate({
@@ -10,9 +12,10 @@ export default function ResolutionGate({
 
   useEffect(() => {
     const update = () => {
-      const width = window.innerWidth
-      const height = window.innerHeight
-      setDimensions({ width, height })
+      setDimensions({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      })
     }
 
     update()
@@ -20,7 +23,12 @@ export default function ResolutionGate({
     return () => window.removeEventListener('resize', update)
   }, [])
 
-  if (dimensions.width !== 1920 || dimensions.height < 1020) {
+  const isSupported =
+    dimensions.width >= RETAIL_VIEWPORT.MIN_WIDTH &&
+    dimensions.width <= RETAIL_VIEWPORT.MAX_WIDTH &&
+    dimensions.height >= RETAIL_VIEWPORT.HEIGHT
+
+  if (!isSupported) {
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-white">
         <div className="border border-gray-200 bg-white px-8 py-6 text-center shadow-md">
@@ -28,7 +36,9 @@ export default function ResolutionGate({
             Retail Resolution Not Supported
           </h1>
           <p className="mt-2 text-lg text-gray-600">
-            This application requires a 1920x1080 pixel resolution (Full HD).
+            This application requires a resolution between{' '}
+            {RETAIL_VIEWPORT.MIN_WIDTH}x{RETAIL_VIEWPORT.HEIGHT} and{' '}
+            {RETAIL_VIEWPORT.MAX_WIDTH}x{RETAIL_VIEWPORT.HEIGHT}.
           </p>
           <p className="text-lg text-gray-600">
             Current resolution: {dimensions.width}x{dimensions.height}
@@ -42,7 +52,13 @@ export default function ResolutionGate({
   }
 
   return (
-    <div className="fixed left-0 top-0 h-[1020px] w-[1920px] overflow-hidden">
+    <div
+      className="fixed left-0 top-0 overflow-hidden"
+      style={{
+        width: dimensions.width,
+        height: RETAIL_VIEWPORT.HEIGHT,
+      }}
+    >
       {children}
     </div>
   )

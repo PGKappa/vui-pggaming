@@ -422,6 +422,9 @@
     --plusButton: 353 100% 44%;
     --plusButton-foreground: 0 0% 100%;
 
+    --minusButton: 353 100% 44%;
+    --minusButton-foreground: 0 0% 100%;
+
     --minusButtonDark: 0, 0%, 20%;
     --minusButtonDark-foreground: 0 0% 100%;
 

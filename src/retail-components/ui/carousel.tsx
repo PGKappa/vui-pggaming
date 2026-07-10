@@ -152,16 +152,23 @@ Carousel.displayName = 'Carousel'
 
 const CarouselContent = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => {
+  React.HTMLAttributes<HTMLDivElement> & {
+    viewportClassName?: string
+    viewportStyle?: React.CSSProperties
+  }
+>(({ className, viewportClassName, viewportStyle, ...props }, ref) => {
   const { carouselRef, orientation } = useCarousel()
 
   return (
-    <div ref={carouselRef} className="overflow-hidden">
+    <div
+      ref={carouselRef}
+      className={cn('overflow-hidden', viewportClassName)}
+      style={viewportStyle}
+    >
       <div
         ref={ref}
         className={cn(
-          'flex h-[88px] gap-0 mt-[1px] mr-2',
+          'flex h-[88px] gap-0 mt-[1px]',
           orientation === 'horizontal' ? '' : '-mt-4 flex-col',
           className,
         )}
@@ -184,8 +191,8 @@ const CarouselItem = React.forwardRef<
       role="group"
       aria-roledescription="slide"
       className={cn(
-        'h-16  shrink-0 grow-0 basis-full bg-navbarButton text-foreground',
-        orientation === 'horizontal' ? '' : 'pt-4',
+        'min-w-0 shrink-0 grow-0 bg-navbarButton text-foreground',
+        orientation === 'horizontal' ? 'h-[88px]' : 'h-16 basis-full pt-4',
         className,
       )}
       {...props}
