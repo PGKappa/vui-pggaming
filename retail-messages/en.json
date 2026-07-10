@@ -55,6 +55,7 @@
   "discipline": "Discipline",
   "sport": "Sport",
   "last_10_games": "Last 10 Games",
+  "last_10_games_short": "Last 10",
   "reset": "Reset",
   "no_results_found": "No results found",
   "upcoming_events": "Upcoming Events",
