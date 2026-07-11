@@ -290,6 +290,23 @@ export default function TicketListPageContent({
     </div>
   )
 
+  const ticketFilterFieldClass =
+    'h-[38px] w-[170px] text-[13px] min-[1400px]:w-[200px] min-[1400px]:text-[14px] min-[1600px]:w-[235px] min-[1750px]:w-[270px] 3xl:h-[44px] 3xl:w-[286px] 3xl:text-[15px]'
+
+  const ticketFilterSelectTriggerClass = cn(
+    'w-full bg-background pl-[15px] pr-[12px] uppercase text-foreground [&>span]:truncate',
+    ticketFilterFieldClass,
+  )
+
+  const ticketFilterReloadClass =
+    'text-bold shrink-0 bg-tertiary uppercase text-tertiary-foreground h-[34px] min-w-[72px] px-2 text-[11px] min-[1400px]:min-w-[85px] min-[1400px]:text-[12px] min-[1600px]:min-w-[95px] 3xl:h-[42px] 3xl:w-[106px] 3xl:min-w-[106px] 3xl:text-[15px]'
+
+  const calcioFilterDateClass =
+    'h-[38px] w-[165px] justify-center text-[14px] min-[1400px]:w-[185px] min-[1600px]:w-[200px] 3xl:h-[38px] 3xl:w-[209px] 3xl:text-[15px]'
+
+  const calcioFilterSelectClass =
+    'h-[38px] w-[120px] bg-background pl-[15px] pr-[12px] text-[14px] text-foreground min-[1400px]:w-[135px] min-[1600px]:w-[145px] 3xl:h-[38px] 3xl:w-[149px] 3xl:text-[15px] [&>span]:truncate'
+
   const getDisciplineLabel = (ticketId: number) => {
     const d = disciplineMap[ticketId]
     if (!d) return '...'
@@ -376,20 +393,20 @@ export default function TicketListPageContent({
 
       {/* Filter Bar */}
       {isCalcio ? (
-        <div className="flex flex-col items-center gap-4 px-4 pb-8 pt-10" style={{ borderLeft: '1px solid white' }}>
-          <div className="flex items-center gap-8">
+        <div className="flex flex-col items-center gap-4 px-4 pb-8 pt-10 3xl:px-8" style={{ borderLeft: '1px solid white' }}>
+          <div className="flex w-full max-w-[1100px] flex-wrap items-center justify-center gap-3 3xl:max-w-none 3xl:gap-8">
             {/* Data - calcio */}
-            <div className="mr-20 flex flex-row items-center gap-2 bg-badge text-background">
-              {dateRangeButton('h-[38px] w-[209px] justify-center text-[15px]')}
+            <div className="inline-flex items-center bg-badge text-background 3xl:mr-20">
+              {dateRangeButton(calcioFilterDateClass)}
             </div>
 
             {/* Terminale - calcio */}
-            <div className="mr-20 flex flex-row items-center gap-2 bg-badge text-background">
+            <div className="inline-flex items-center bg-badge text-background 3xl:mr-20">
               <Select
                 value={terminal === 'all' ? '' : terminal}
                 onValueChange={(v) => setTerminal(v || 'all')}
               >
-                <SelectTrigger className="h-[38px] w-[149px] bg-background pl-[15px] pr-[12px] text-[15px] text-foreground">
+                <SelectTrigger className={calcioFilterSelectClass}>
                   <SelectValue placeholder={t('terminal')} />
                 </SelectTrigger>
                 <SelectContent className="bg-white p-0 text-[13px] uppercase">
@@ -404,12 +421,12 @@ export default function TicketListPageContent({
             </div>
 
             {/* Stato - calcio */}
-            <div className="mr-20 flex flex-row items-center gap-2 bg-badge text-background">
+            <div className="inline-flex items-center bg-badge text-background 3xl:mr-20">
               <Select
                 value={statusSelectValue === 'all' ? '' : statusSelectValue}
                 onValueChange={handleStatusChange}
               >
-                <SelectTrigger className="h-[38px] w-[149px] bg-background pl-[15px] pr-[12px] text-[15px] text-foreground">
+                <SelectTrigger className={calcioFilterSelectClass}>
                   <SelectValue placeholder={t('status')} />
                 </SelectTrigger>
                 <SelectContent className="bg-white p-0 text-[13px] uppercase">
@@ -425,12 +442,12 @@ export default function TicketListPageContent({
             </div>
 
             {/* Disciplina - calcio */}
-            <div className="mr-20 flex flex-row items-center gap-2 bg-badge text-background">
+            <div className="inline-flex items-center bg-badge text-background 3xl:mr-20">
               <Select
                 value={discipline === 'all' ? '' : discipline}
                 onValueChange={(v) => setDiscipline(v || 'all')}
               >
-                <SelectTrigger className="h-[38px] w-[149px] bg-background pl-[15px] pr-[12px] text-[15px] text-foreground">
+                <SelectTrigger className={calcioFilterSelectClass}>
                   <SelectValue placeholder={t('discipline')} />
                 </SelectTrigger>
                 <SelectContent className="bg-white p-0 text-[13px] uppercase">
@@ -446,29 +463,29 @@ export default function TicketListPageContent({
 
             <Button
               onClick={fetchTickets}
-              className="text-bold w-[80px] bg-tertiary text-[14px] text-tertiary-foreground"
+              className="text-bold shrink-0 bg-tertiary text-[13px] text-tertiary-foreground min-[1400px]:text-[14px] 3xl:w-[80px] 3xl:text-[14px]"
             >
               {t('reload')}
             </Button>
           </div>
         </div>
       ) : (
-        <div className="flex h-[61px] shrink-0 justify-center bg-secondary pb-3 lg:pb-5" style={{ borderLeft: '1px solid white' }}>
-          <div className="relative left-[60px] flex flex-wrap items-center space-x-5 uppercase lg:bottom-[3px] lg:space-x-4">
+        <div className="flex h-[61px] shrink-0 justify-center bg-secondary px-4 pb-3 3xl:px-16 3xl:pb-5" style={{ borderLeft: '1px solid white' }}>
+          <div className="flex items-center justify-center gap-2 3xl:gap-4 3xl:relative 3xl:bottom-[3px]">
             {/* Data - standard */}
-            <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
+            <div className="inline-flex items-center bg-accent text-background">
               {dateRangeButton(
-                'h-[38px] w-[149px] justify-center text-[15px] lg:h-[44px] lg:w-[286px] uppercase',
+                cn(ticketFilterFieldClass, 'justify-center uppercase'),
               )}
             </div>
 
             {/* Disciplina - standard */}
-            <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
+            <div className="inline-flex items-center bg-accent text-background">
               <Select
                 value={discipline === 'all' ? '' : discipline}
                 onValueChange={(v) => setDiscipline(v || 'all')}
               >
-                <SelectTrigger className="h-[38px] w-[84px] bg-background pl-[15px] pr-[12px] text-[15px] uppercase text-foreground lg:h-[44px] lg:w-[286px]">
+                <SelectTrigger className={ticketFilterSelectTriggerClass}>
                   <SelectValue placeholder={t('discipline')} />
                 </SelectTrigger>
                 <SelectContent className="bg-white p-0 text-[13px] uppercase">
@@ -483,12 +500,12 @@ export default function TicketListPageContent({
             </div>
 
             {/* Terminale - standard */}
-            <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
+            <div className="inline-flex items-center bg-accent text-background">
               <Select
                 value={terminal === 'all' ? '' : terminal}
                 onValueChange={(v) => setTerminal(v || 'all')}
               >
-                <SelectTrigger className="h-[38px] w-[84px] bg-background pl-[15px] pr-[12px] text-[15px] uppercase text-foreground lg:h-[44px] lg:w-[286px]">
+                <SelectTrigger className={ticketFilterSelectTriggerClass}>
                   <SelectValue placeholder={t('terminal')} />
                 </SelectTrigger>
                 <SelectContent className="bg-white p-0 text-[13px] uppercase">
@@ -503,12 +520,12 @@ export default function TicketListPageContent({
             </div>
 
             {/* Stato - standard */}
-            <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
+            <div className="inline-flex items-center bg-accent text-background">
               <Select
                 value={statusSelectValue === 'all' ? '' : statusSelectValue}
                 onValueChange={handleStatusChange}
               >
-                <SelectTrigger className="h-[38px] w-[79px] bg-background pl-[15px] pr-[12px] text-[15px] uppercase text-foreground lg:h-[44px] lg:w-[286px]">
+                <SelectTrigger className={ticketFilterSelectTriggerClass}>
                   <SelectValue placeholder={t('status')} />
                 </SelectTrigger>
                 <SelectContent className="bg-white p-0 text-[13px] uppercase">
@@ -522,10 +539,7 @@ export default function TicketListPageContent({
                 </SelectContent>
               </Select>
             </div>
-            <Button
-              onClick={fetchTickets}
-              className="text-bold relative left-2 h-7 w-[60px] bg-tertiary text-[10px] uppercase text-tertiary-foreground lg:h-[42px] lg:w-[106px] lg:text-[15px]"
-            >
+            <Button onClick={fetchTickets} className={ticketFilterReloadClass}>
               {t('reload')}
             </Button>
           </div>

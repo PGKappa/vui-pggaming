@@ -222,7 +222,7 @@ function NavbarContent() {
               }}
               className={cn(
                 buttonVariants({ variant: 'ticketButton', size: 'lg' }),
-                'h-12 w-[168px] p-[18px] pb-5 hover:bg-navbarHover',
+                'h-12 w-[155px] p-[14px] pb-5 hover:bg-navbarHover min-[1400px]:w-[168px] min-[1400px]:p-[18px]',
               )}
             >
               <span className="text-[14px] font-semibold text-searchResultText">
@@ -239,7 +239,7 @@ function NavbarContent() {
               }}
               className={cn(
                 buttonVariants({ variant: 'ticketButton', size: 'lg' }),
-                'h-12 w-[168px] p-[18px] pb-5 hover:bg-navbarHover',
+                'h-12 w-[155px] p-[14px] pb-5 hover:bg-navbarHover min-[1400px]:w-[168px] min-[1400px]:p-[18px]',
               )}
             >
               <span className="text-[14px] font-semibold text-searchResultText">

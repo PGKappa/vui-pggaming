@@ -632,7 +632,7 @@ export default function SearchEventResults() {
 
   return (
     <div className="flex h-full flex-col space-y-1">
-      <div className="flex h-16 w-full items-center space-x-2 bg-accent px-[24px] min-[1400px]:px-[60px] min-[1600px]:px-[100px] min-[1750px]:px-[130px] min-[1920px]:px-[167px]">
+      <div className="flex h-16 w-full items-center gap-1 bg-accent px-[16px] min-[1400px]:gap-2 min-[1400px]:px-[60px] min-[1600px]:px-[100px] min-[1750px]:px-[130px] min-[1920px]:px-[167px]">
         {/* DISCIPLINA */}
         <Select
           value={selectedDiscipline.toString()}
@@ -644,7 +644,7 @@ export default function SearchEventResults() {
             )
           }}
         >
-          <SelectTrigger className="mr-1 h-[46px] min-w-0 flex-1 border-none bg-background pl-[16px] pr-[5px] text-[16px] text-foreground tabular-nums">
+          <SelectTrigger className="mr-0 h-[46px] min-w-0 flex-1 border-none bg-background pl-[12px] pr-[4px] text-[16px] text-foreground tabular-nums min-[1400px]:mr-1 min-[1400px]:pl-[16px] min-[1400px]:pr-[5px]">
             <SelectValue placeholder={t('sport')} />
           </SelectTrigger>
           <SelectContent className="bg-white p-0">
@@ -670,7 +670,7 @@ export default function SearchEventResults() {
         </Select>
 
         {/* LAST 10 GAMES */}
-        <div className="ml-1.5 flex shrink-0 flex-row items-center">
+        <div className="ml-0.5 flex shrink-0 flex-row items-center min-[1400px]:ml-1.5">
           <Checkbox
             id="last10"
             className="h-6 w-6 border-0 bg-background text-foreground"
@@ -679,9 +679,10 @@ export default function SearchEventResults() {
           />
           <label
             htmlFor="last10"
-            className="mr-[-4px] whitespace-nowrap px-2 py-3 text-[15px] font-semibold text-background"
+            className="mr-0 whitespace-nowrap px-1 py-3 text-[15px] font-semibold text-background min-[1400px]:mr-[-4px] min-[1400px]:px-2"
           >
-            {t('last_10_games')}
+            <span className="min-[1400px]:hidden">{t('last_10_short')}</span>
+            <span className="hidden min-[1400px]:inline">{t('last_10_games')}</span>
           </label>
         </div>
 
@@ -691,7 +692,7 @@ export default function SearchEventResults() {
           onValueChange={(value) => setSelectedDate(value)}
           disabled={lastTenGames}
         >
-          <SelectTrigger className="h-[46px] min-w-0 flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground tabular-nums disabled:opacity-95">
+          <SelectTrigger className="h-[46px] min-w-0 flex-1 border-none bg-background pl-[12px] pr-[4px] text-[16px] text-foreground tabular-nums disabled:opacity-95 min-[1400px]:pl-[17px] min-[1400px]:pr-[5px]">
             <SelectValue placeholder={t('date')} />
           </SelectTrigger>
           <SelectContent className="bg-white p-0">
@@ -712,7 +713,7 @@ export default function SearchEventResults() {
           onValueChange={setSelectedTimeSlot}
           disabled={lastTenGames}
         >
-          <SelectTrigger className="relative left-[10px] h-[46px] min-w-0 flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground tabular-nums disabled:opacity-95">
+          <SelectTrigger className="relative left-0 h-[46px] min-w-0 flex-1 border-none bg-background pl-[12px] pr-[4px] text-[16px] text-foreground tabular-nums disabled:opacity-95 min-[1400px]:left-[10px] min-[1400px]:pl-[17px] min-[1400px]:pr-[5px]">
             <SelectValue placeholder={t('time_slot')} />
           </SelectTrigger>
           <SelectContent className="bg-white p-0">
@@ -729,7 +730,7 @@ export default function SearchEventResults() {
 
         {/* CERCA */}
         <Button
-          className="relative left-[26px] ml-2 mr-4 h-[46px] min-w-0 flex-1 bg-searchResButton text-[16px] font-bold text-bet-foreground hover:opacity-90 disabled:opacity-85"
+          className="relative left-0 ml-0.5 mr-1.5 h-[46px] min-w-0 flex-1 bg-searchResButton text-[16px] font-bold text-bet-foreground hover:opacity-90 disabled:opacity-85 min-[1400px]:left-[26px] min-[1400px]:ml-2 min-[1400px]:mr-4"
           disabled={selectedDiscipline === 'NONE'}
           onClick={handleSearch}
         >
@@ -738,7 +739,7 @@ export default function SearchEventResults() {
 
         {/* RESET */}
         <Button
-          className="relative left-[42px] h-[46px] min-w-0 flex-1 bg-searchResButton text-[15px] text-tertiary-foreground"
+          className="relative left-0 h-[46px] min-w-0 flex-1 bg-searchResButton text-[15px] text-tertiary-foreground min-[1400px]:left-[42px]"
           disabled={!selectedDate && !selectedDiscipline && !selectedTimeSlot}
           onClick={handleReset}
         >
