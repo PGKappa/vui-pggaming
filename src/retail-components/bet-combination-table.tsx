@@ -609,22 +609,22 @@ export default function BetCombinationsTable({
 
   return (
     <Card className="mt-2">
-      <CardHeader className="grid h-14 grid-cols-3 items-center bg-accent px-3 text-accent-foreground">
-        <div />
-        <CardTitle className="mr-[1px] flex items-center justify-center text-[16px] text-white">
+      <CardHeader className="relative grid h-14 grid-cols-3 items-center bg-accent px-3 text-accent-foreground max-[1399px]:flex max-[1399px]:justify-end max-[1399px]:px-2">
+        <div className="max-[1399px]:hidden" />
+        <CardTitle className="mr-[1px] flex min-w-0 items-center justify-center truncate text-[16px] text-white max-[1399px]:pointer-events-none max-[1399px]:absolute max-[1399px]:inset-0 max-[1399px]:mr-0 max-[1399px]:text-[13px]">
           {getTitle()}
         </CardTitle>
-        <div className="flex justify-end space-x-2">
+        <div className="relative z-10 flex min-w-0 justify-end space-x-2 max-[1399px]:gap-1 max-[1399px]:space-x-0">
           <Button
             variant="navbar"
-            className="h-10 w-fit rounded-[1px] px-[18px] pt-[1px] text-[15px] font-semibold text-white active:bg-betHover hover:bg-navbarHover"
+            className="h-10 w-fit shrink-0 rounded-[1px] px-[18px] pt-[1px] text-[15px] font-semibold text-white active:bg-betHover hover:bg-navbarHover max-[1399px]:h-9 max-[1399px]:px-2 max-[1399px]:text-[12px]"
             onClick={handleSortClick}
           >
             {getSortButtonText()}
           </Button>
           <Button
             variant="navbar"
-            className="h-10 w-[183px] rounded-[1px] px-[18px] pt-[1px] text-[15px] font-semibold text-white active:bg-betHover hover:bg-navbarHover"
+            className="h-10 w-[183px] shrink-0 rounded-[1px] px-[18px] pt-[1px] text-[15px] font-semibold text-white active:bg-betHover hover:bg-navbarHover max-[1399px]:h-9 max-[1399px]:w-auto max-[1399px]:px-2 max-[1399px]:text-[12px]"
             onClick={() => {
               if (onBeforeToggle) onBeforeToggle()
               if (allBetsSelected) {
@@ -645,8 +645,8 @@ export default function BetCombinationsTable({
               : `${t('select_all').toUpperCase()}`}
           </Button>
 
-          <div className="flex h-10 min-w-[63px] items-center justify-center rounded-[1px] bg-background px-[18px] text-accent">
-            <span className="pt-[1px] text-[16px] font-semibold">
+          <div className="flex h-10 min-w-[63px] shrink-0 items-center justify-center rounded-[1px] bg-background px-[18px] text-accent max-[1399px]:h-9 max-[1399px]:min-w-[44px] max-[1399px]:px-2">
+            <span className="pt-[1px] text-[16px] font-semibold max-[1399px]:text-[13px]">
               {combinations.length}
             </span>
           </div>

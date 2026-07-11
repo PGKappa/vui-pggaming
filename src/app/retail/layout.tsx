@@ -36,7 +36,7 @@ export default function RetailLayout({
   }, [])
 
   return (
-    <html lang={i18n.language}>
+    <html lang={i18n.language} className="retail-app">
       <head>
         <title>PG Gaming</title>
         <meta name="description" content="Gaming platform" />
@@ -262,8 +262,8 @@ function RetailShell({ children }: { children: React.ReactNode }) {
   return (
     <>
       <Navbar />
-      <main className="h-full gap-2 overflow-hidden">
-        <div className="h-full p-2">
+      <main className="retail-main-scroll h-full min-w-[1280px] gap-2 overflow-hidden">
+        <div className="retail-main-inner h-full p-2">
           <BetsContextProvider>{children}</BetsContextProvider>
         </div>
       </main>
