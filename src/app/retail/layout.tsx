@@ -57,8 +57,8 @@ export default function RetailLayout({
                 align-items: center;
                 justify-content: center;
                 background: white;
-                width: 1920px;
-                height: 1020px;
+                width: 100%;
+                height: 100%;
               }
               #static-splash .splash-content {
                 display: flex;
@@ -67,14 +67,13 @@ export default function RetailLayout({
                 gap: 32px;
               }
               #static-splash .splash-logo {
+                display: none;
                 width: 400px;
                 height: 200px;
                 object-fit: contain;
-                opacity: 0;
-                transition: opacity 0.2s ease-in;
               }
-              #static-splash .splash-logo.loaded {
-                opacity: 1;
+              #static-splash.has-image .splash-logo {
+                display: block;
               }
               #static-splash .splash-spinner {
                 position: absolute;
@@ -93,23 +92,6 @@ export default function RetailLayout({
                 position: static;
                 margin-top: 0;
                 margin-left: 0;
-              }
-              #static-splash .splash-versions {
-                position: absolute;
-                bottom: 32px;
-                left: 50%;
-                transform: translateX(-50%);
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                gap: 2px;
-                font-size: 14px;
-                color: #6b7280;
-                opacity: 0;
-                transition: opacity 0.2s ease-in;
-              }
-              #static-splash .splash-versions.loaded {
-                opacity: 1;
               }
               @keyframes spin {
                 to { transform: rotate(360deg); }
@@ -142,13 +124,12 @@ function SkinBody({ children }: { children: React.ReactNode }) {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/splashscreen-empty.png"
-            alt="PGV Virtual"
+            alt=""
             className="splash-logo"
             style={{ objectFit: 'contain', width: 600, height: 400 }}
           />
           <div className="splash-spinner"></div>
         </div>
-        <span className="splash-version"></span>
       </div>
       {/* Toaster globale - visibile anche durante lo splash screen */}
       <Toaster position="top-right" />
@@ -176,40 +157,21 @@ function RetailShell({ children }: { children: React.ReactNode }) {
     isLoadingCashier,
     upcomingEvents,
     eventResults,
-    getVersion,
     getSplashscreen,
   } = useContext(RootContext)
 
-  const feVersion = process.env.NEXT_PUBLIC_FE_VERSION || 'dev'
-
-  // Update splash screen with API data
+  // Carica splash personalizzato dall'API, se presente
   useEffect(() => {
-    const apiVersion = getVersion?.() || 'v1.0'
     const splashscreenImage = getSplashscreen?.() || 'splashscreen-empty.png'
-
-    // Update version text
-    const versionsContainer = document.querySelector(
-      '#static-splash .splash-versions',
-    )
-    const apiVersionEl = document.querySelector(
-      '#static-splash .splash-version-api',
-    )
-    const feVersionEl = document.querySelector(
-      '#static-splash .splash-version-fe',
-    )
-
-    // Update splash image
     const logoElement = document.querySelector(
       '#static-splash .splash-logo',
     ) as HTMLImageElement
     const splashElement = document.getElementById('static-splash')
 
-    // Check if we have a non-empty splashscreen image
     const hasRealImage =
       splashscreenImage && !splashscreenImage.includes('empty')
 
     if (logoElement && hasRealImage) {
-      // Absolute URLs (http/https) are used as-is; local filenames are rooted at /
       const isAbsoluteUrl = /^https?:\/\//i.test(splashscreenImage)
       const imagePath = isAbsoluteUrl
         ? splashscreenImage
@@ -219,24 +181,13 @@ function RetailShell({ children }: { children: React.ReactNode }) {
       const preloadImg = new Image()
       preloadImg.onload = () => {
         logoElement.src = imagePath
-        logoElement.classList.add('loaded')
         splashElement?.classList.add('has-image')
-        if (apiVersionEl) apiVersionEl.textContent = `API: ${apiVersion}`
-        if (feVersionEl) feVersionEl.textContent = `FE: ${feVersion}`
-        if (versionsContainer) versionsContainer.classList.add('loaded')
-      }
-      preloadImg.onerror = () => {
-        if (apiVersionEl) apiVersionEl.textContent = `API: ${apiVersion}`
-        if (feVersionEl) feVersionEl.textContent = `FE: ${feVersion}`
-        if (versionsContainer) versionsContainer.classList.add('loaded')
       }
       preloadImg.src = imagePath
-    } else {
-      if (apiVersionEl) apiVersionEl.textContent = `API: ${apiVersion}`
-      if (feVersionEl) feVersionEl.textContent = `FE: ${feVersion}`
-      if (versionsContainer) versionsContainer.classList.add('loaded')
+    } else if (logoElement) {
+      logoElement.style.display = 'none'
     }
-  }, [isLoadingCashier, getVersion, getSplashscreen, feVersion])
+  }, [isLoadingCashier, getSplashscreen])
 
   useEffect(() => {
     // Solo al primo caricamento
@@ -248,14 +199,14 @@ function RetailShell({ children }: { children: React.ReactNode }) {
     ) {
       hasAppLoaded = true
 
-      // Aspetta un minimo di tempo per mostrare versione e logo
+      // Breve pausa prima di nascondere lo splash
       setTimeout(() => {
         // Nasconde lo splash screen statico
         const splash = document.getElementById('static-splash')
         if (splash) {
           splash.classList.add('hidden')
         }
-      }, 900) // 900ms per dare tempo di vedere versione e logo
+      }, 900)
     }
   }, [isLoadingEvents, isLoadingCashier, upcomingEvents, eventResults])
 
