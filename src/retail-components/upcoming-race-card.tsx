@@ -370,21 +370,21 @@ export default function UpcomingRaceCard({
     return (
       <TableHeader className="h-14 bg-card-header text-[16px] text-card-header-foreground">
         <TableRow>
-          <TableHead className="w-[18%] min-w-0 text-center font-semibold max-[1399px]:w-1/4 min-[1440px]:w-[14%]">
+          <TableHead className="w-[18%] min-w-0 text-center font-semibold max-[1399px]:w-1/4 min-[1400px]:max-[1439px]:w-1/4 min-[1440px]:w-1/6">
             <span className='inline-block w-full h-full leading-[54px] align-middle'>
               {t('starters_list').toUpperCase()}
             </span>
           </TableHead>
           <TableHead className="w-[1px] bg-border p-0" />
 
-          <TableHead className="w-[22%] min-w-0 text-center font-semibold max-[1399px]:w-1/4 min-[1440px]:w-[16%]">
+          <TableHead className="w-[22%] min-w-0 text-center font-semibold max-[1399px]:w-1/4 min-[1400px]:max-[1439px]:w-1/4 min-[1440px]:w-1/6">
             <span className='inline-block w-full h-full leading-[54px] align-middle'>
               {t('performance').toUpperCase()}
             </span>
           </TableHead>
           <TableHead className="w-[1px] bg-border p-0" />
 
-          <TableHead className="hidden w-[14%] min-w-0 text-center font-semibold min-[1440px]:table-cell">
+          <TableHead className="hidden w-[14%] min-w-0 text-center font-semibold min-[1440px]:table-cell min-[1440px]:w-1/6">
             <span className='inline-block w-full h-full leading-[54px] align-middle'>
               {t('history').toUpperCase()}
               </span>
@@ -393,19 +393,19 @@ export default function UpcomingRaceCard({
 
           {activeTab === 'main' && (
             <>
-              <TableHead className="w-[20%] min-w-0 text-center font-bold max-[1399px]:w-1/6 min-[1440px]:w-[18%]">
+              <TableHead className="w-[20%] min-w-0 text-center font-bold max-[1399px]:w-1/6 min-[1400px]:w-1/6">
                 <span className='inline-block w-full h-full leading-[54px] align-middle'>
                   {t('winner').toUpperCase()}
                 </span>
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
-              <TableHead className="w-[20%] min-w-0 text-center font-semibold max-[1399px]:w-1/6 min-[1440px]:w-[18%]">
+              <TableHead className="w-[20%] min-w-0 text-center font-semibold max-[1399px]:w-1/6 min-[1400px]:w-1/6">
                 <span className='inline-block w-full h-full leading-[54px] align-middle'>
                   {t('place_2').toUpperCase()}
                 </span>
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
-              <TableHead className="w-[20%] min-w-0 text-center font-semibold max-[1399px]:w-1/6 min-[1440px]:w-[20%]">
+              <TableHead className="w-[20%] min-w-0 text-center font-semibold max-[1399px]:w-1/6 min-[1400px]:w-1/6">
                 <span className='inline-block w-full h-full leading-[54px] align-middle'>
                   {t('show_3').toUpperCase()}
                 </span>
