@@ -11,6 +11,30 @@
   display: none;
 }
 
+/* Retail: enable full-page vertical scroll when viewport height is below 1080px */
+@media (max-height: 1079px) {
+  html.retail-app {
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  html.retail-app body {
+    height: auto !important;
+    min-height: 100vh;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+  }
+
+  html.retail-app .retail-main-scroll {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  html.retail-app .retail-main-inner {
+    height: auto !important;
+  }
+}
+
 
 @layer base {
 
