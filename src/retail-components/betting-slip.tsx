@@ -965,6 +965,22 @@ export default function BettingSlip({
               return t('track_6')
             }
 
+            const getPalimpsestId = (entry: (typeof betEntries)[0]) => {
+              const eventAny = entry.bet.event as any
+              // Look up by BOTH id AND discipline to get correct palimpsestId per discipline
+              const liveEvent = rootContext?.upcomingEvents?.find(
+                (e) =>
+                  e.id === entry.bet.event.number &&
+                  e.discipline === entry.bet.discipline,
+              )
+              return (
+                eventAny.palimpsestId ||
+                eventAny.extId ||
+                liveEvent?.extId ||
+                liveEvent?.palimpsestId
+              )
+            }
+
             const eventGroups = betEntries.reduce(
               (groups, entry) => {
                 const groupKey = `${entry.bet.discipline}-${entry.bet.event.number}`
@@ -976,6 +992,7 @@ export default function BettingSlip({
                     discipline: entry.bet.discipline,
                     channelId: getChannelId(entry.bet.discipline),
                     trackName: buildTrackName(entry),
+                    palimpsestId: getPalimpsestId(entry),
                     isBanker: false,
                     markets: [],
                   }
