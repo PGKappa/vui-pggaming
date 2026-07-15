@@ -60,8 +60,8 @@ export default function RetailLayout({
                 align-items: center;
                 justify-content: center;
                 background: white;
-                width: 1920px;
-                height: 1020px;
+                width: 100vw;
+                height: 100vh;
               }
               #static-splash .splash-content {
                 display: flex;
@@ -80,11 +80,9 @@ export default function RetailLayout({
                 opacity: 1;
               }
               #static-splash .splash-spinner {
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                margin-top: -32px;
-                margin-left: -32px;
+                position: fixed;
+                top: calc(50% - 32px);
+                left: calc(50% - 32px);
                 width: 64px;
                 height: 64px;
                 border: 4px solid #1e3a5f;
@@ -94,8 +92,8 @@ export default function RetailLayout({
               }
               #static-splash.has-image .splash-spinner {
                 position: static;
-                margin-top: 0;
-                margin-left: 0;
+                top: auto;
+                left: auto;
               }
               #static-splash .splash-versions {
                 position: absolute;
