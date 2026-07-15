@@ -609,22 +609,21 @@ export default function BetCombinationsTable({
 
   return (
     <Card className="mt-2">
-      <CardHeader className="grid h-14 grid-cols-3 items-center bg-accent px-3 text-accent-foreground">
-        <div />
-        <CardTitle className="mr-[1px] flex items-center justify-center text-[16px] text-white">
+      <CardHeader className="relative flex h-14 items-center justify-end bg-accent px-3 text-accent-foreground">
+        <CardTitle className="pointer-events-none absolute inset-0 flex items-center justify-center text-[16px] text-white">
           {getTitle()}
         </CardTitle>
-        <div className="flex justify-end space-x-2">
+        <div className="relative z-10 flex space-x-2 min-[1280px]:max-[1399px]:space-x-1.5">
           <Button
             variant="navbar"
-            className="h-10 w-fit rounded-[1px] px-[18px] pt-[1px] text-[15px] font-semibold text-white active:bg-betHover hover:bg-navbarHover"
+            className="h-10 w-fit rounded-[1px] px-[18px] pt-[1px] text-[15px] font-semibold text-white active:bg-betHover hover:bg-navbarHover min-[1280px]:max-[1399px]:h-8 min-[1280px]:max-[1399px]:px-3 min-[1280px]:max-[1399px]:text-xs"
             onClick={handleSortClick}
           >
             {getSortButtonText()}
           </Button>
           <Button
             variant="navbar"
-            className="h-10 w-[183px] rounded-[1px] px-[18px] pt-[1px] text-[15px] font-semibold text-white active:bg-betHover hover:bg-navbarHover"
+            className="h-10 w-[183px] rounded-[1px] px-[18px] pt-[1px] text-[15px] font-semibold text-white active:bg-betHover hover:bg-navbarHover min-[1280px]:max-[1399px]:h-8 min-[1280px]:max-[1399px]:w-[146px] min-[1280px]:max-[1399px]:px-3 min-[1280px]:max-[1399px]:text-xs"
             onClick={() => {
               if (onBeforeToggle) onBeforeToggle()
               if (allBetsSelected) {
@@ -645,8 +644,8 @@ export default function BetCombinationsTable({
               : `${t('select_all').toUpperCase()}`}
           </Button>
 
-          <div className="flex h-10 min-w-[63px] items-center justify-center rounded-[1px] bg-background px-[18px] text-accent">
-            <span className="pt-[1px] text-[16px] font-semibold">
+          <div className="flex h-10 min-w-[63px] items-center justify-center rounded-[1px] bg-background px-[18px] text-accent min-[1280px]:max-[1399px]:h-8 min-[1280px]:max-[1399px]:min-w-[50px] min-[1280px]:max-[1399px]:px-3">
+            <span className="pt-[1px] text-[16px] font-semibold min-[1280px]:max-[1399px]:text-xs">
               {combinations.length}
             </span>
           </div>

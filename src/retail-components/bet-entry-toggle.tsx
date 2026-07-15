@@ -214,7 +214,11 @@ export default function BetEntryToggle(props: {
             : props.variant === 'racecard'
               ? 'rounded-sm text-center text-[19px]'
               : props.variant === 'racecombination'
-                ? 'flex h-[51px] flex-col pb-[3px] text-[18px] tabular-nums'
+                ? cn(
+                    'flex h-[51px] flex-col pb-[3px] text-[18px] tabular-nums min-[1280px]:max-[1399px]:text-[17px]',
+                    props.marketName === 'Trifecta' &&
+                      'min-[1280px]:max-[1399px]:text-[15px]',
+                  )
                 : '',
         props.className,
       )}
