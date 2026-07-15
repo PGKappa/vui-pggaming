@@ -3,10 +3,24 @@
 import * as React from 'react'
 import { Drawer as DrawerPrimitive } from 'vaul'
 
+import { useRetailCompactHeight } from '@/retail-lib/use-retail-compact-height'
+import { RETAIL_VIEWPORT } from '@/retail-lib/viewport-config'
 import { cn } from '@/retail-lib/utils'
 
+function useDrawerPortalContainer() {
+  const [container, setContainer] = React.useState<HTMLElement | undefined>(
+    undefined,
+  )
+
+  React.useLayoutEffect(() => {
+    setContainer(document.body)
+  }, [])
+
+  return container
+}
+
 const Drawer = ({
-  shouldScaleBackground = true,
+  shouldScaleBackground = false,
   ...props
 }: React.ComponentProps<typeof DrawerPrimitive.Root>) => (
   <DrawerPrimitive.Root
@@ -37,22 +51,37 @@ DrawerOverlay.displayName = DrawerPrimitive.Overlay.displayName
 const DrawerContent = React.forwardRef<
   React.ElementRef<typeof DrawerPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DrawerPrimitive.Content>
->(({ className, children, ...props }, ref) => (
-  <DrawerPortal>
-    <DrawerOverlay />
-    <DrawerPrimitive.Content
-      ref={ref}
-      className={cn(
-        'fixed inset-x-0 bottom-0 z-50 mt-24 mb-16 flex h-auto flex-col border bg-background',
-        className,
-      )}
-      {...props}
-    >
-      {/* <div className="mx-auto mt-4 h-2 w-[100px] rounded-full bg-muted" /> */}
-      {children}
-    </DrawerPrimitive.Content>
-  </DrawerPortal>
-))
+>(({ className, children, style, ...props }, ref) => {
+  const isCompactHeight = useRetailCompactHeight()
+  const portalContainer = useDrawerPortalContainer()
+  const topOffset = isCompactHeight
+    ? RETAIL_VIEWPORT.COMPACT_DRAWER_TOP_OFFSET
+    : RETAIL_VIEWPORT.DRAWER_TOP_OFFSET
+  const bottomOffset = RETAIL_VIEWPORT.DRAWER_BOTTOM_OFFSET
+
+  return (
+    <DrawerPortal container={portalContainer}>
+      <DrawerOverlay />
+      <DrawerPrimitive.Content
+        ref={ref}
+        className={cn(
+          'pointer-events-auto fixed inset-x-0 z-50 flex h-auto flex-col border bg-background',
+          className,
+        )}
+        style={
+          {
+            bottom: `${bottomOffset}px`,
+            maxHeight: `calc(100dvh - ${bottomOffset + topOffset}px)`,
+            ...style,
+          } as React.CSSProperties
+        }
+        {...props}
+      >
+        {children}
+      </DrawerPrimitive.Content>
+    </DrawerPortal>
+  )
+})
 DrawerContent.displayName = 'DrawerContent'
 
 const DrawerHeader = ({
