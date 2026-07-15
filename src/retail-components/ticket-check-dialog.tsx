@@ -867,6 +867,7 @@ export default function TicketCheckDialog({
                       <div className="text-center">
                         <button
                           className="w-[260px] cursor-pointer rounded-lg border-0 bg-replay py-3 text-[14px] font-bold uppercase tracking-[1.5px] text-white disabled:opacity-60"
+                          style={{ display: 'none' }}
                           disabled={replayVideos[0]?.loading}
                           onClick={handleOpenReplay}
                         >
