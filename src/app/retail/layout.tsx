@@ -13,7 +13,7 @@ import RootContextProvider, {
 } from '@/retail-contexts/root-context'
 import SkinProvider, { SkinContext } from '@/retail-contexts/skin-context'
 import { RETAIL_VIEWPORT } from '@/retail-lib/viewport-config'
-import { useRetailCompactHeight } from '@/retail-lib/use-retail-compact-height'
+import { useRetailPageScroll } from '@/retail-lib/use-retail-compact-height'
 import { cn } from '@/retail-lib/utils'
 import { Inter } from 'next/font/google'
 import { usePathname } from 'next/navigation'
@@ -132,13 +132,15 @@ export default function RetailLayout({
 function SkinBody({ children }: { children: React.ReactNode }) {
   const [skin] = useContext(SkinContext)
   const pathname = usePathname()
-  const isCompactHeight = useRetailCompactHeight()
+  const isPageScroll = useRetailPageScroll()
 
   return (
     <body
       className={cn(
         `${inter.variable} ${skin} flex flex-col font-inter antialiased`,
-        isCompactHeight ? 'h-screen overflow-y-auto' : 'h-screen overflow-hidden',
+        isPageScroll
+          ? 'min-h-screen overflow-y-auto'
+          : 'h-screen overflow-hidden',
       )}
     >
       {/* Splash screen statico inline - appare ISTANTANEAMENTE */}
@@ -176,7 +178,7 @@ let hasAppLoaded = false
 
 function RetailShell({ children }: { children: React.ReactNode }) {
   const { t } = useTranslation()
-  const isCompactHeight = useRetailCompactHeight()
+  const isPageScroll = useRetailPageScroll()
   const {
     isLoadingEvents,
     isLoadingCashier,
@@ -303,10 +305,12 @@ function RetailShell({ children }: { children: React.ReactNode }) {
       <div
         className={cn(
           'flex flex-col',
-          isCompactHeight ? 'min-h-0' : 'h-full min-h-0',
+          isPageScroll
+            ? 'shrink-0'
+            : 'min-h-0 flex-1 overflow-hidden',
         )}
         style={
-          isCompactHeight
+          isPageScroll
             ? { minHeight: RETAIL_VIEWPORT.HEIGHT }
             : undefined
         }
@@ -314,11 +318,11 @@ function RetailShell({ children }: { children: React.ReactNode }) {
         <Navbar />
         <main
           className={cn(
-            'min-w-[1280px] gap-2',
-            isCompactHeight ? 'min-h-0 flex-1' : 'h-full overflow-hidden',
+            'min-w-[1280px]',
+            isPageScroll ? 'shrink-0' : 'min-h-0 flex-1 overflow-hidden',
           )}
         >
-          <div className={cn('p-2', !isCompactHeight && 'h-full')}>
+          <div className={cn('p-2', !isPageScroll && 'h-full')}>
             <BetsContextProvider>{children}</BetsContextProvider>
           </div>
         </main>
