@@ -471,7 +471,7 @@ export default function TicketListPageContent({
         </div>
       ) : (
         <div className="flex h-[61px] shrink-0 justify-center bg-secondary px-4 pb-3 3xl:px-16 3xl:pb-5" style={{ borderLeft: '1px solid white' }}>
-          <div className="flex items-center justify-center gap-2 3xl:gap-4 3xl:relative 3xl:bottom-[3px]">
+          <div className="flex items-center justify-center !space-x-4 3xl:space-x-2 3xl:relative 3xl:bottom-[3px]">
             {/* Data - standard */}
             <div className="inline-flex items-center bg-accent text-background">
               {dateRangeButton(
@@ -554,12 +554,15 @@ export default function TicketListPageContent({
           di sincronizzare percentuali o pixel. La riga TOTALI è sticky bottom-0
           quindi rimane sempre visibile durante lo scroll.
           ──────────────────────────────────────────────────────────────────────── */}
-      <div className="flex flex-1 flex-col overflow-y-hidden bg-white text-black">
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-white text-black">
         {/* Tabella dati — flex-1 per occupare lo spazio residuo quando ci sono poche righe */}
         <div className="flex-1" ref={tableWrapperRef}>
           <table
             className={cn(
-              'h-full w-full table-fixed border-collapse',
+              // h-full solo con pageSize 15: riempie lo schermo senza compressione.
+              // Con 50/100 l'altezza segue il contenuto così overflow-y-auto può scrollare.
+              'w-full table-fixed border-collapse',
+              pageSize === '15' && 'h-full',
               isCalcio ? 'text-[12px]' : '',
             )}
           >
