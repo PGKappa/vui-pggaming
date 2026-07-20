@@ -128,12 +128,14 @@ export default function TicketCheckDialog({
   ticketId,
   ticketCandidates,
   terminalId,
+  onPaid,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   ticketId: number | null
   ticketCandidates?: Array<string | number>
   terminalId?: string
+  onPaid?: () => void
 }) {
   const { t } = useTranslation()
   const rootContext = useContext(RootContext)
@@ -235,6 +237,7 @@ export default function TicketCheckDialog({
         }
         setPayResult('success')
         fetchTicket(ticketInfo.ticket_id)
+        onPaid?.()
       } else {
         setPayResult(data.description || t('pay_error', 'Errore nel pagamento'))
       }
@@ -249,6 +252,7 @@ export default function TicketCheckDialog({
     rootContext?.operator,
     fetchTicket,
     handlePrintCdd,
+    onPaid,
     t,
   ])
 
@@ -278,6 +282,7 @@ export default function TicketCheckDialog({
         setPinMode(false)
         setPinInput('')
         fetchTicket(ticketInfo.ticket_id)
+        onPaid?.()
       } else {
         setPinError(data.description || t('pin_error', 'PIN non corretto'))
         setPinInput('')
@@ -294,6 +299,7 @@ export default function TicketCheckDialog({
     rootContext?.operator,
     pinInput,
     fetchTicket,
+    onPaid,
     t,
   ])
 
