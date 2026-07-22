@@ -3,28 +3,60 @@
 import { RETAIL_VIEWPORT } from '@/retail-lib/viewport-config'
 import { useEffect, useState } from 'react'
 
+type ScreenWithAvail = Screen & { availTop?: number }
+
 /**
  * Visible content height ending exactly above the Windows taskbar (work area).
- * When a maximized browser window overlaps the taskbar, innerHeight alone is too tall.
+ * Uses the most conservative measure so lower resolutions stay clear of the taskbar.
  */
 export function getRetailVisibleHeight(): number {
   if (typeof window === 'undefined') return 0
 
-  const inner = window.visualViewport?.height ?? window.innerHeight
-  const screen = window.screen as Screen & { availTop?: number }
+  const visual = window.visualViewport?.height
+  const inner = window.innerHeight
+  const client = document.documentElement?.clientHeight || inner
+  const screen = window.screen as ScreenWithAvail
   const availTop = screen.availTop ?? 0
-  const availHeight = screen.availHeight ?? inner
+  const availHeight = screen.availHeight || inner
+  const screenHeight = screen.height || inner
+  const taskbarHeight = Math.max(0, screenHeight - availHeight)
   const availBottom = availTop + availHeight
-  const chrome = Math.max(0, window.outerHeight - window.innerHeight)
-  const windowBottom = window.screenY + window.outerHeight
-  const taskbarOverlap = Math.max(0, Math.ceil(windowBottom - availBottom))
-  // Hard cap: content must fit between window chrome and the desktop work area
-  const maxFromWorkArea = Math.floor(availBottom - window.screenY - chrome)
+  const outer = window.outerHeight
+  const chrome = Math.max(0, outer - inner)
+  const screenY = window.screenY
+  const overlap = Math.max(0, Math.ceil(screenY + outer - availBottom))
+  const fromWorkArea = Math.floor(availBottom - screenY - chrome)
 
-  return Math.max(
-    0,
-    Math.round(Math.min(inner - taskbarOverlap, maxFromWorkArea, inner)),
+  const candidates = [
+    visual,
+    inner,
+    client,
+    fromWorkArea,
+    inner - overlap,
+    client - overlap,
+  ].filter(
+    (n): n is number =>
+      typeof n === 'number' && Number.isFinite(n) && n > 0,
   )
+
+  // Maximized / near-fullscreen: always cap against the desktop work area.
+  // At lower resolutions this is where the taskbar most often covers the footer.
+  const maximizedLike =
+    overlap > 0 ||
+    outer >= availHeight - 16 ||
+    outer >= screenHeight - 16 ||
+    Math.abs(outer - availHeight) <= 16 ||
+    Math.abs(outer - screenHeight) <= 16
+
+  if (taskbarHeight > 0 && maximizedLike) {
+    candidates.push(availHeight - chrome)
+    if (outer >= screenHeight - 16 || overlap > 0) {
+      candidates.push(inner - taskbarHeight)
+      candidates.push(client - taskbarHeight)
+    }
+  }
+
+  return Math.max(0, Math.round(Math.min(...candidates)))
 }
 
 /**

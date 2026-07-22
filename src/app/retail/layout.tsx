@@ -53,7 +53,7 @@ export default function RetailLayout({
         {/* Height ends above Windows taskbar (desktop work area) before React hydrates */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var i=(window.visualViewport&&window.visualViewport.height)||window.innerHeight;var at=window.screen&&window.screen.availTop||0;var ah=(window.screen&&window.screen.availHeight)||i;var ab=at+ah;var ch=Math.max(0,window.outerHeight-window.innerHeight);var ov=Math.max(0,Math.ceil(window.screenY+window.outerHeight-ab));var mx=Math.floor(ab-window.screenY-ch);document.documentElement.style.setProperty('--retail-app-height',Math.max(0,Math.round(Math.min(i-ov,mx,i)))+'px')}catch(e){}})();`,
+            __html: `(function(){try{var v=window.visualViewport&&window.visualViewport.height;var i=window.innerHeight;var c=(document.documentElement&&document.documentElement.clientHeight)||i;var s=window.screen||{};var at=s.availTop||0;var ah=s.availHeight||i;var sh=s.height||i;var tb=Math.max(0,sh-ah);var ab=at+ah;var o=window.outerHeight;var ch=Math.max(0,o-i);var ov=Math.max(0,Math.ceil(window.screenY+o-ab));var fw=Math.floor(ab-window.screenY-ch);var a=[v,i,c,fw,i-ov,c-ov].filter(function(n){return typeof n==='number'&&isFinite(n)&&n>0});var maxed=ov>0||o>=ah-16||o>=sh-16||Math.abs(o-ah)<=16||Math.abs(o-sh)<=16;if(tb>0&&maxed){a.push(ah-ch);if(o>=sh-16||ov>0){a.push(i-tb);a.push(c-tb)}}document.documentElement.style.setProperty('--retail-app-height',Math.max(0,Math.round(Math.min.apply(null,a)))+'px')}catch(e){}})();`,
           }}
         />
         {/* Inline CSS per splash screen istantaneo - viene caricato PRIMA di React */}
@@ -149,7 +149,7 @@ function SkinBody({ children }: { children: React.ReactNode }) {
       className={cn(
         `${inter.variable} ${skin} flex flex-col font-inter antialiased`,
         isPageScroll
-          ? 'min-h-[var(--retail-app-height,100dvh)] overflow-y-auto'
+          ? 'h-[var(--retail-app-height,100dvh)] overflow-y-auto'
           : 'h-[var(--retail-app-height,100dvh)] overflow-hidden',
       )}
     >
