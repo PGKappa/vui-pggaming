@@ -11,8 +11,9 @@ export function getRetailVisibleHeight(): number {
   if (typeof window === 'undefined') return 0
 
   const inner = window.visualViewport?.height ?? window.innerHeight
-  const availTop = window.screen?.availTop ?? 0
-  const availHeight = window.screen?.availHeight ?? inner
+  const screen = window.screen as Screen & { availTop?: number }
+  const availTop = screen.availTop ?? 0
+  const availHeight = screen.availHeight ?? inner
   const availBottom = availTop + availHeight
   const chrome = Math.max(0, window.outerHeight - window.innerHeight)
   const windowBottom = window.screenY + window.outerHeight
