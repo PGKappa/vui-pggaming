@@ -13,7 +13,10 @@ import RootContextProvider, {
 } from '@/retail-contexts/root-context'
 import SkinProvider, { SkinContext } from '@/retail-contexts/skin-context'
 import { RETAIL_VIEWPORT } from '@/retail-lib/viewport-config'
-import { useRetailPageScroll } from '@/retail-lib/use-retail-compact-height'
+import {
+  useRetailAppHeight,
+  useRetailPageScroll,
+} from '@/retail-lib/use-retail-compact-height'
 import { cn } from '@/retail-lib/utils'
 import { Inter } from 'next/font/google'
 import { usePathname } from 'next/navigation'
@@ -47,6 +50,12 @@ export default function RetailLayout({
           name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
         />
+        {/* Visible viewport height before React — avoids 100vh under Windows taskbar when maximized */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var h=window.visualViewport&&window.visualViewport.height||window.innerHeight;document.documentElement.style.setProperty('--retail-app-height',Math.round(h)+'px')}catch(e){}})();`,
+          }}
+        />
         {/* Inline CSS per splash screen istantaneo - viene caricato PRIMA di React */}
         <style
           dangerouslySetInnerHTML={{
@@ -61,7 +70,7 @@ export default function RetailLayout({
                 justify-content: center;
                 background: white;
                 width: 100vw;
-                height: 100vh;
+                height: var(--retail-app-height, 100dvh);
               }
               #static-splash .splash-content {
                 display: flex;
@@ -133,14 +142,15 @@ function SkinBody({ children }: { children: React.ReactNode }) {
   const [skin] = useContext(SkinContext)
   const pathname = usePathname()
   const isPageScroll = useRetailPageScroll()
+  useRetailAppHeight()
 
   return (
     <body
       className={cn(
         `${inter.variable} ${skin} flex flex-col font-inter antialiased`,
         isPageScroll
-          ? 'min-h-screen overflow-y-auto'
-          : 'h-screen overflow-hidden',
+          ? 'min-h-[var(--retail-app-height,100dvh)] overflow-y-auto'
+          : 'h-[var(--retail-app-height,100dvh)] overflow-hidden',
       )}
     >
       {/* Splash screen statico inline - appare ISTANTANEAMENTE */}

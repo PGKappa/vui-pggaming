@@ -601,6 +601,10 @@
     @apply border-border outline-ring/50;
   }
 
+  html {
+    height: var(--retail-app-height, 100dvh);
+  }
+
   body {
     @apply bg-background text-foreground;
   }
