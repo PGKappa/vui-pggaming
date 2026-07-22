@@ -32,7 +32,7 @@ export default function NumericKeypadDrawer(props: {
     ? RETAIL_VIEWPORT.COMPACT_DRAWER_TOP_OFFSET
     : RETAIL_VIEWPORT.DRAWER_TOP_OFFSET
   const drawerBottomOffset = isCompactHeight
-    ? RETAIL_VIEWPORT.BETSLIP_FOOTER_RAISE
+    ? 0
     : RETAIL_VIEWPORT.DRAWER_BOTTOM_OFFSET
   const {
     activeDrawerId,
@@ -255,7 +255,7 @@ export default function NumericKeypadDrawer(props: {
         className="ml-auto mr-2 flex w-[400px] flex-col border-0"
         style={{
           bottom: drawerBottomOffset,
-          maxHeight: `calc(100dvh - ${drawerTopOffset + drawerBottomOffset}px)`,
+          maxHeight: `calc(var(--retail-app-height, 100dvh) - ${drawerTopOffset + drawerBottomOffset}px)`,
         }}
       >
         <DrawerHeader className="relative h-[45px] bg-accent text-accent-foreground">
