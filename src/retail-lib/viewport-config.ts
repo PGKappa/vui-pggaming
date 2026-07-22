@@ -16,10 +16,8 @@ export const RETAIL_VIEWPORT = {
   /** Original betting slip column height */
   BETSLIP_HEIGHT: 950,
   BETSLIP_WIDTH: 400,
-  /** Extra raise of APOSTAR / FastBet footer (must match drawer bottom) */
-  BETSLIP_FOOTER_RAISE: 40,
-  /** Space reserved above the raised FASTBET bar */
-  DRAWER_BOTTOM_OFFSET: 104,
+  /** Space reserved above the FASTBET bar (matches drawer mb-16) */
+  DRAWER_BOTTOM_OFFSET: 64,
   /** Top clearance for amount drawer at full height */
   DRAWER_TOP_OFFSET: 96,
   /** Top clearance for FASTBET drawer at full height (below navbar + carousel) */
