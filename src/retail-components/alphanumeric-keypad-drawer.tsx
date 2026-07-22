@@ -192,7 +192,7 @@ export default function AlphanumericKeypadDrawer(props: {
         className="ml-[8px] flex w-[calc(100vw-420px)] flex-col border-0"
         style={{
           bottom: drawerBottomOffset,
-          maxHeight: `calc(100dvh - ${drawerTopOffset + drawerBottomOffset}px)`,
+          maxHeight: `calc(var(--retail-app-height, 100dvh) - ${drawerTopOffset + drawerBottomOffset}px)`,
         }}
       >
         <DrawerHeader className="relative bg-accent text-accent-foreground">

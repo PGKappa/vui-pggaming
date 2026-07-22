@@ -71,7 +71,7 @@ const DrawerContent = React.forwardRef<
         style={
           {
             bottom: `${bottomOffset}px`,
-            maxHeight: `calc(100dvh - ${bottomOffset + topOffset}px)`,
+            maxHeight: `calc(var(--retail-app-height, 100dvh) - ${bottomOffset + topOffset}px)`,
             ...style,
           } as React.CSSProperties
         }
