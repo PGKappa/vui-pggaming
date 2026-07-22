@@ -3,6 +3,32 @@
 import { RETAIL_VIEWPORT } from '@/retail-lib/viewport-config'
 import { useEffect, useState } from 'react'
 
+/**
+ * Locks the app height to the visible window (window.innerHeight).
+ * Avoids 100vh overlapping the Windows taskbar in a maximized (non-fullscreen) window.
+ */
+export function useRetailAppHeight() {
+  useEffect(() => {
+    const root = document.documentElement
+
+    const update = () => {
+      const height = window.visualViewport?.height ?? window.innerHeight
+      root.style.setProperty('--retail-app-height', `${Math.round(height)}px`)
+    }
+
+    update()
+    window.addEventListener('resize', update)
+    window.visualViewport?.addEventListener('resize', update)
+    window.visualViewport?.addEventListener('scroll', update)
+
+    return () => {
+      window.removeEventListener('resize', update)
+      window.visualViewport?.removeEventListener('resize', update)
+      window.visualViewport?.removeEventListener('scroll', update)
+    }
+  }, [])
+}
+
 /** True when viewport height is below the scroll threshold (default 1080px). */
 export function useRetailCompactHeight() {
   const [isCompactHeight, setIsCompactHeight] = useState(false)

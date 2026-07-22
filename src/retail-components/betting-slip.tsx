@@ -1690,8 +1690,8 @@ export default function BettingSlip({
 
         <div
           className={cn(
-            'w-full bg-betSlip-header p-3',
-            useTightLayout ? 'pb-2 pt-2' : 'relative bottom-2 pb-[15px] pt-[9px]',
+            'flex w-full items-center bg-betSlip-header px-3',
+            useTightLayout ? 'py-2' : 'py-3',
           )}
         >
           {selectedEvent?.discipline === 'SOCCER' ? (
