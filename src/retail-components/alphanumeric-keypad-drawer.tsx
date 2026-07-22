@@ -29,7 +29,7 @@ export default function AlphanumericKeypadDrawer(props: {
     ? RETAIL_VIEWPORT.COMPACT_DRAWER_TOP_OFFSET
     : RETAIL_VIEWPORT.FASTBET_DRAWER_TOP_OFFSET
   const drawerBottomOffset = isCompactHeight
-    ? 0
+    ? RETAIL_VIEWPORT.BETSLIP_FOOTER_RAISE
     : RETAIL_VIEWPORT.DRAWER_BOTTOM_OFFSET
   const { activeDrawerId, setActiveDrawer } = useContext(RootContext)
   const [value, setValue] = useState(props.value)
@@ -192,7 +192,7 @@ export default function AlphanumericKeypadDrawer(props: {
         className="ml-[8px] flex w-[calc(100vw-420px)] flex-col border-0"
         style={{
           bottom: drawerBottomOffset,
-          maxHeight: `calc(var(--retail-app-height, 100dvh) - ${drawerTopOffset + drawerBottomOffset}px)`,
+          maxHeight: `calc(100dvh - ${drawerTopOffset + drawerBottomOffset}px)`,
         }}
       >
         <DrawerHeader className="relative bg-accent text-accent-foreground">
