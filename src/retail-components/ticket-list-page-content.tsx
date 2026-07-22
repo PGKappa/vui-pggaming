@@ -884,6 +884,7 @@ export default function TicketListPageContent({
         ticketId={selectedTicketId}
         ticketCandidates={selectedTicketCandidates}
         terminalId={selectedTerminalId ?? undefined}
+        onPaid={fetchTickets}
       />
     </div>
   )

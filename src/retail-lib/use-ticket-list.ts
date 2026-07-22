@@ -10,20 +10,34 @@ import { createPGVirtualAPICall } from '@/retail-lib/utils'
 import { format } from 'date-fns'
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 
-const STATUS_MAP: Record<string, number> = {
-  all: 0,
-  active: 1,
-  cancelled: 2,
-  void: 3,
-  won: 4,
-  lost: 5,
-  paid: 6,
+// Matches a ticket's raw `status` code against the "Stato" filter dropdown value.
+function statusMatchesItem(itemStatus: number, filterStatus: string): boolean {
+  switch (filterStatus) {
+    case 'active':
+      return itemStatus === 1
+    case 'won':
+      return itemStatus === 4
+    case 'lost':
+      return itemStatus === 5 || itemStatus === 9
+    case 'cancelled':
+      return itemStatus === 2 || itemStatus === 3
+    case 'all':
+    default:
+      return true
+  }
 }
 
-const PAYMENT_MAP: Record<string, number> = {
-  all: 0,
-  paid: 1,
-  unpaid: 2,
+// Matches a ticket's raw `status` code against the "paid"/"unpaid" filter dropdown value.
+function paymentMatchesItem(itemStatus: number, filterPayment: string): boolean {
+  switch (filterPayment) {
+    case 'paid':
+      return itemStatus === 6
+    case 'unpaid':
+      return itemStatus === 4
+    case 'all':
+    default:
+      return true
+  }
 }
 
 export function parseTicketTime(time: TicketListItem['time']): Date {
@@ -75,6 +89,7 @@ export function getStatusDisplay(status: number): {
         translationKey: 'won',
       }
     case 5: // LOST
+    case 9: // LOST
       return {
         label: 'Lost',
         colorClass: 'bg-ticket-lost',
@@ -248,8 +263,11 @@ export function useTicketList() {
         offset: 0,
         itemsPerPage: 9999,
         terminal: -1,
-        status: STATUS_MAP[s] ?? 0,
-        payment: PAYMENT_MAP[p] ?? 0,
+        // Status/payment filtering is applied client-side in `filteredItems` below —
+        // the backend's status/payment filter codes don't reliably match item.status,
+        // so we always fetch everything for the date range and filter locally.
+        status: 0,
+        payment: 0,
         enablePagination: true,
         accountingMode: false,
       }
@@ -327,7 +345,13 @@ export function useTicketList() {
         return d.includes('dogs') && d.includes('horses')
       return d.includes(appliedFilters.discipline)
     })()
-    return terminalMatch && disciplineMatch
+    // "paid"/"unpaid" and "Stato" are mutually exclusive in the UI
+    // (see handleStatusChange in ticket-list-page-content.tsx).
+    const statusMatch =
+      appliedFilters.payment !== 'all'
+        ? paymentMatchesItem(i.status, appliedFilters.payment)
+        : statusMatchesItem(i.status, appliedFilters.status)
+    return terminalMatch && disciplineMatch && statusMatch
   })
 
   const perPage = parseInt(pageSize)
