@@ -1702,7 +1702,8 @@ export default function BettingSlip({
         </div>
       </div>
 
-      {selectedEvent && <div className="w-full bg-white"></div>}
+      {/* Compensa i 40px tolti all'area bianca: alza APOSTAR + FastBet */}
+      <div className="h-[40px] shrink-0" />
     </Card>
     </div>
   )
