@@ -57,7 +57,9 @@ const DrawerContent = React.forwardRef<
   const topOffset = isCompactHeight
     ? RETAIL_VIEWPORT.COMPACT_DRAWER_TOP_OFFSET
     : RETAIL_VIEWPORT.DRAWER_TOP_OFFSET
-  const bottomOffset = RETAIL_VIEWPORT.DRAWER_BOTTOM_OFFSET
+  const bottomOffset = isCompactHeight
+    ? RETAIL_VIEWPORT.BETSLIP_FOOTER_RAISE
+    : RETAIL_VIEWPORT.DRAWER_BOTTOM_OFFSET
 
   return (
     <DrawerPortal container={portalContainer}>

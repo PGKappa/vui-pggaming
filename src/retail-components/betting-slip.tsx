@@ -50,6 +50,7 @@ import {
 } from '@/retail-components/ui/tooltip'
 import { ScrollAreaB } from './ui/betting-slip-scroll-area'
 import { useRetailCompactHeight, useRetailPageScroll, useRetailOriginalLayout } from '@/retail-lib/use-retail-compact-height'
+import { RETAIL_VIEWPORT } from '@/retail-lib/viewport-config'
 
 export type BetMode = 'SINGLE' | 'MULTIPLE' | 'SYSTEM'
 
@@ -1703,7 +1704,10 @@ export default function BettingSlip({
       </div>
 
       {/* Compensa i 40px tolti all'area bianca: alza APOSTAR + FastBet */}
-      <div className="h-[40px] shrink-0" />
+      <div
+        className="shrink-0"
+        style={{ height: RETAIL_VIEWPORT.BETSLIP_FOOTER_RAISE }}
+      />
     </Card>
     </div>
   )
