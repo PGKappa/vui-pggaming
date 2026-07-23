@@ -105,7 +105,7 @@ export default function Dogs8Page() {
   return (
     <div
       className={cn(
-        'relative flex min-w-[1200px] flex-row',
+        'relative flex min-w-[1280px] flex-row',
         isOriginalLayout && 'bottom-[5px]',
         useFixedHeights
           ? 'h-[945px] overflow-hidden'

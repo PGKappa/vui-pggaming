@@ -148,9 +148,10 @@ function SkinBody({ children }: { children: React.ReactNode }) {
     <body
       className={cn(
         `${inter.variable} ${skin} flex flex-col font-inter antialiased`,
+        // Below 1280px: overflow-x-auto so the full min-width layout can be scrolled
         isPageScroll
-          ? 'min-h-[var(--retail-app-height,100dvh)] overflow-y-auto'
-          : 'h-[var(--retail-app-height,100dvh)] overflow-hidden',
+          ? 'min-h-[var(--retail-app-height,100dvh)] overflow-x-auto overflow-y-auto'
+          : 'h-[var(--retail-app-height,100dvh)] overflow-x-auto overflow-y-hidden',
       )}
     >
       {/* Splash screen statico inline - appare ISTANTANEAMENTE */}
@@ -314,10 +315,11 @@ function RetailShell({ children }: { children: React.ReactNode }) {
     <>
       <div
         className={cn(
-          'flex flex-col',
+          // Keep full layout width ≥1280 so narrow viewports get a horizontal scrollbar
+          'flex min-w-[1280px] flex-col',
           isPageScroll
             ? 'shrink-0'
-            : 'min-h-0 flex-1 overflow-hidden',
+            : 'min-h-0 flex-1 overflow-y-hidden',
         )}
         style={
           isPageScroll
