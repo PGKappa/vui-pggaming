@@ -90,7 +90,7 @@ export default function Home() {
   return (
     <div
       className={cn(
-        'flex min-w-0 flex-row overflow-hidden',
+        'flex min-w-[1280px] flex-row overflow-hidden',
         useFixedHeights ? 'h-[945px]' : 'h-full',
       )}
     >
