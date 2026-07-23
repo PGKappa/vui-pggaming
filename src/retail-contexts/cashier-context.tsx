@@ -482,6 +482,12 @@ export default function CashierContextProvider(props: {
           operator,
         )
         if (!response.ok) throw new Error(`Keepalive HTTP ${response.status}`)
+        const data = await response.json()
+        if (data?.ret_code !== 1024) {
+          throw new Error(
+            `Keepalive ret_code ${data?.ret_code}: ${data?.description}`,
+          )
+        }
       } catch (error) {
         console.error('Keepalive check failed:', error)
         toast.error(t('keepalive_error'))
