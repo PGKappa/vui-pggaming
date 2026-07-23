@@ -315,6 +315,7 @@
   "cashier_initialized": "Cashier initialized",
   "cashier_unavailable": "Cashier unavailable",
   "retrying_cashier": "Retrying cashier...",
+  "keepalive_error": "Connection lost. Reloading the page...",
   "no_last_ticket": "There is no last ticket to restore",
   "duplicate_bet_found": "Duplicate bet found",
   "api_request_failed": "API request failed",
