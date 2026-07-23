@@ -6,6 +6,11 @@ export const RETAIL_VIEWPORT = {
   SCROLL_THRESHOLD: 1080,
   /** Exact height that uses the original fixed layout (no adaptive changes) */
   ORIGINAL_HEIGHT: 1080,
+  /**
+   * 1600×900 (and similar): maximized windows often draw under the Windows
+   * taskbar — apply work-area capping only at this height.
+   */
+  TASKBAR_FIX_HEIGHT: 900,
   /** Original main content row height */
   PAGE_CONTENT_HEIGHT: 945,
   /**
