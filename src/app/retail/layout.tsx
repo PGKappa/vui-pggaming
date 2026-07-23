@@ -53,7 +53,7 @@ export default function RetailLayout({
         {/* Visible viewport height before React — avoids 100vh under Windows taskbar when maximized */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var h=window.visualViewport&&window.visualViewport.height||window.innerHeight;document.documentElement.style.setProperty('--retail-app-height',Math.round(h)+'px')}catch(e){}})();`,
+            __html: `(function(){try{var v=window.visualViewport&&window.visualViewport.height;var i=window.innerHeight;var h=v&&v>0?v:i;var s=window.screen||{};var sh=s.height||0;var ah=s.availHeight||0;if((sh===900||Math.round(i)===900)&&ah>0&&ah<(sh||i)){var ch=Math.max(0,(window.outerHeight||i)-i);h=Math.min(h,Math.max(0,ah-ch))}document.documentElement.style.setProperty('--retail-app-height',Math.round(Math.max(0,h))+'px')}catch(e){}})();`,
           }}
         />
         {/* Inline CSS per splash screen istantaneo - viene caricato PRIMA di React */}

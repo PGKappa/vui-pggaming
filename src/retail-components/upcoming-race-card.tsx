@@ -26,7 +26,11 @@ import {
 } from './ui/table'
 import { Toggle } from './ui/toggle'
 import { Check } from 'lucide-react'
-import { useRetailCompactHeight, useRetailOriginalLayout } from '@/retail-lib/use-retail-compact-height'
+import {
+  useRetailCompactHeight,
+  useRetailOriginalLayout,
+  useRetailTaskbarFixHeight,
+} from '@/retail-lib/use-retail-compact-height'
 
 type UpcomingRaceCardProps = {
   race: UpcomingEvent
@@ -66,6 +70,7 @@ export default function UpcomingRaceCard({
   const rootContext = useContext(RootContext)
   const isCompactHeight = useRetailCompactHeight()
   const isOriginalLayout = useRetailOriginalLayout()
+  const isTaskbarFixHeight = useRetailTaskbarFixHeight()
 
   const [marketType, setMarketType] = useState<
     'exacta' | 'quinella' | 'trifecta' | 'boxtrifecta'
@@ -810,17 +815,23 @@ export default function UpcomingRaceCard({
       return null
     }
 
+    // At 900px (taskbar overlap): slightly shorter so odds stay above the bar
+    const marketHeaderH = isTaskbarFixHeight ? 'h-12' : 'h-16'
+    const marketOddsH = isTaskbarFixHeight ? 'h-[56px]' : 'h-[66px]'
+    const marketBtnH = isTaskbarFixHeight ? 'h-[42px]' : 'h-[49px]'
+
     const evenOddBlock = (splitBorder = false) => (
       <>
         <div
           className={cn(
-            'flex h-16 items-center justify-center bg-accent text-[16px] font-bold text-accent-foreground',
+            'flex items-center justify-center bg-accent text-[16px] font-bold text-accent-foreground',
+            marketHeaderH,
             splitBorder && 'border-r',
           )}
         >
           {t('even_odd').toUpperCase()}
         </div>
-        <div className="flex h-[66px]">
+        <div className={cn('flex', marketOddsH)}>
           <div className="flex flex-1 items-center justify-center px-4 min-[1400px]:pl-12 min-[1400px]:pr-8 min-[1600px]:pl-16">
             <BetEntryToggle
               marketName={t('even_odd')}
@@ -842,7 +853,7 @@ export default function UpcomingRaceCard({
                 track: race.trackName || 'Track 6',
               }}
               variant="matchcard"
-              className="h-[49px] w-full text-[16px] text-black"
+              className={cn(marketBtnH, 'w-full text-[16px] text-black')}
               onToggle={() => {
                 betAddedFromUIRef.current = true
               }}
@@ -874,7 +885,7 @@ export default function UpcomingRaceCard({
                 track: race.trackName || 'Track 6',
               }}
               variant="matchcard"
-              className="h-[49px] w-full text-[16px] text-black"
+              className={cn(marketBtnH, 'w-full text-[16px] text-black')}
               onToggle={() => {
                 betAddedFromUIRef.current = true
               }}
@@ -886,11 +897,16 @@ export default function UpcomingRaceCard({
 
     const underOverBlock = () => (
       <>
-        <div className="flex h-16 items-center justify-center bg-accent text-[16px] font-bold text-accent-foreground">
+        <div
+          className={cn(
+            'flex items-center justify-center bg-accent text-[16px] font-bold text-accent-foreground',
+            marketHeaderH,
+          )}
+        >
           {t('under_over').toUpperCase()}{' '}
           {race.discipline === 'DOGS8' ? '4.5' : '3.5'}
         </div>
-        <div className="flex h-[66px]">
+        <div className={cn('flex', marketOddsH)}>
           <div className="flex flex-1 items-center justify-center px-4 min-[1400px]:px-12 min-[1600px]:px-16">
             <BetEntryToggle
               marketName={t('under_over')}
@@ -912,7 +928,7 @@ export default function UpcomingRaceCard({
                 track: race.trackName || 'Track 6',
               }}
               variant="matchcard"
-              className="h-[49px] w-full text-[16px] text-black"
+              className={cn(marketBtnH, 'w-full text-[16px] text-black')}
               onToggle={() => {
                 betAddedFromUIRef.current = true
               }}
@@ -939,7 +955,7 @@ export default function UpcomingRaceCard({
                 track: race.trackName || 'Track 6',
               }}
               variant="matchcard"
-              className="h-[49px] w-full text-[16px] text-black"
+              className={cn(marketBtnH, 'w-full text-[16px] text-black')}
               onToggle={() => {
                 betAddedFromUIRef.current = true
               }}
@@ -980,7 +996,13 @@ export default function UpcomingRaceCard({
 
   return (
     <>
-      <Card className="h-full w-full overflow-hidden">
+      <Card
+        className={cn(
+          'w-full',
+          // At 900px allow natural height so PAR/IMPAR odds stay reachable via scroll
+          isTaskbarFixHeight ? 'min-h-0' : 'h-full overflow-hidden',
+        )}
+      >
         <CardHeader className="flex h-[73px] flex-row items-center justify-between px-[12px]">
           <div className="flex items-center space-x-2">
             {Object.entries(tabConfig).map(([key, config]) => {

@@ -3,17 +3,54 @@
 import { RETAIL_VIEWPORT } from '@/retail-lib/viewport-config'
 import { useEffect, useState } from 'react'
 
+/** True when the display/window is the 900px height that needs the taskbar fix. */
+function isTaskbarFixHeight(innerHeight: number, screenHeight: number) {
+  return (
+    screenHeight === RETAIL_VIEWPORT.TASKBAR_FIX_HEIGHT ||
+    Math.round(innerHeight) === RETAIL_VIEWPORT.TASKBAR_FIX_HEIGHT
+  )
+}
+
+/**
+ * Visible app height. At 900px only, caps to the desktop work area so content
+ * ends above the Windows taskbar when the window is maximized.
+ */
+export function getRetailAppHeight(): number {
+  if (typeof window === 'undefined') return 0
+
+  const visual = window.visualViewport?.height
+  const inner = window.innerHeight
+  const height = visual && visual > 0 ? visual : inner
+  const screenHeight = window.screen?.height ?? 0
+  const availHeight = window.screen?.availHeight ?? 0
+
+  if (
+    isTaskbarFixHeight(inner, screenHeight) &&
+    availHeight > 0 &&
+    availHeight < (screenHeight || inner)
+  ) {
+    const chrome = Math.max(0, window.outerHeight - window.innerHeight)
+    const fromWorkArea = Math.max(0, availHeight - chrome)
+    return Math.max(0, Math.round(Math.min(height, fromWorkArea)))
+  }
+
+  return Math.max(0, Math.round(height))
+}
+
 /**
  * Locks the app height to the visible window (window.innerHeight).
- * Avoids 100vh overlapping the Windows taskbar in a maximized (non-fullscreen) window.
+ * At 900px, also respects the Windows work area so maximized windows stay
+ * above the taskbar.
  */
 export function useRetailAppHeight() {
   useEffect(() => {
     const root = document.documentElement
 
     const update = () => {
-      const height = window.visualViewport?.height ?? window.innerHeight
-      root.style.setProperty('--retail-app-height', `${Math.round(height)}px`)
+      root.style.setProperty(
+        '--retail-app-height',
+        `${getRetailAppHeight()}px`,
+      )
     }
 
     update()
@@ -86,6 +123,24 @@ export function useRetailOriginalLayout() {
   }, [])
 
   return isOriginalLayout
+}
+
+/** True at exactly 900px — needs taskbar-safe layout for special markets. */
+export function useRetailTaskbarFixHeight() {
+  const [isTaskbarFix, setIsTaskbarFix] = useState(false)
+
+  useEffect(() => {
+    const update = () => {
+      const screenHeight = window.screen?.height ?? 0
+      setIsTaskbarFix(isTaskbarFixHeight(window.innerHeight, screenHeight))
+    }
+
+    update()
+    window.addEventListener('resize', update)
+    return () => window.removeEventListener('resize', update)
+  }, [])
+
+  return isTaskbarFix
 }
 
 /** @deprecated Use useRetailPageScroll */
