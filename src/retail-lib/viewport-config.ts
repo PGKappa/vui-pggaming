@@ -4,6 +4,16 @@ export const RETAIL_VIEWPORT = {
   MAX_WIDTH: 1920,
   HEIGHT: 1020,
   SCROLL_THRESHOLD: 1080,
+  /**
+   * Screen/device height threshold (NOT the browser content viewport).
+   * ≤840 (e.g. 1366×768): betslip fixed 900px, page scrolls.
+   * >840 (e.g. 1600×900): betslip sticky, fits the window.
+   */
+  PAGE_SCROLL_HEIGHT: 840,
+  /** Navbar height (h-16) — used for sticky betslip offset */
+  NAVBAR_HEIGHT: 64,
+  /** Main bottom padding (pb-2) */
+  MAIN_BOTTOM_PADDING: 8,
   BETSLIP_WIDTH: 400,
   /** Space reserved above the FASTBET bar (matches drawer mb-16) */
   DRAWER_BOTTOM_OFFSET: 64,

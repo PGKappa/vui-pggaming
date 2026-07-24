@@ -615,6 +615,136 @@
   display: none;
 }
 
+/*
+ * Race page + betslip height modes — driven by DEVICE height (screen),
+ * not the shrunk content viewport under browser chrome.
+ * ≤840 (1366×768): fixed 900px betslip, page scrolls
+ * >840 (1600×900): sticky betslip fitted to the window
+ */
+.retail-page-row {
+  position: relative;
+  display: flex;
+  min-width: 1200px;
+  flex-direction: row;
+  align-items: flex-start;
+}
+
+.retail-left-col {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+}
+
+.retail-race-body {
+  min-width: 0;
+  flex: 1;
+  padding-right: 0.5rem;
+  padding-top: 2px;
+}
+
+.retail-betslip-col {
+  display: flex;
+  width: 400px;
+  flex-shrink: 0;
+  flex-direction: column;
+  align-self: flex-start;
+  position: sticky;
+  top: 4rem;
+  height: calc(100dvh - 4rem - 0.5rem);
+}
+
+.retail-betslip-col--calcio {
+  width: 410px;
+  margin-top: -5px;
+  padding-right: 0.5rem;
+}
+
+.retail-shell {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+}
+
+.retail-navbar-wrap {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  flex-shrink: 0;
+}
+
+/* PAR/IMPAR + MENOS/MÁS: equal 50/50 below 1400 (e.g. 1280); table colSpan above */
+.special-markets-equal {
+  display: none;
+  margin-top: 0.5rem;
+  min-width: 0;
+  overflow: hidden;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.special-markets-equal > * {
+  min-width: 0;
+  overflow: hidden;
+}
+
+@media (max-width: 1399px) {
+  .special-markets-equal {
+    display: grid;
+  }
+
+  .special-markets-table {
+    display: none;
+  }
+
+  /* 1280 range: narrower betslip so the full column fits in the viewport */
+  .retail-betslip-col {
+    width: 360px;
+  }
+
+  .retail-betslip-col--calcio {
+    width: 370px;
+  }
+
+  .retail-page-row {
+    min-width: 0;
+  }
+}
+
+@media (max-device-height: 840px) {
+  .retail-page-row {
+    height: 895px;
+    align-items: stretch;
+    overflow: hidden;
+  }
+
+  .retail-left-col {
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .retail-race-body {
+    display: flex;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .retail-betslip-col {
+    position: relative;
+    top: auto;
+    right: 0.25rem;
+    height: 900px;
+    align-self: auto;
+  }
+
+  .retail-shell {
+    min-height: 1020px;
+  }
+
+  .retail-navbar-wrap {
+    position: relative;
+  }
+}
+
 /* Custom Draggable Styles */
 .draggable-window {
   user-select: none;
@@ -699,7 +829,7 @@
 }
 
 
-body>main>div>div>div.h-\[950px\].w-\[400px\].relative.right-1.shrink-0.bg-background.text-foreground>div>div.grid.grid-cols-2.text-center>div.relative.top-\[5px\].col-span-2.flex.h-\[52px\].w-full.flex-row.items-center.justify-between.bg-accent.px-5>button {
+body>main>div>div>div.retail-betslip-col>div>div.grid.grid-cols-2.text-center>div.relative.top-\[5px\].col-span-2.flex.h-\[52px\].w-full.flex-row.items-center.justify-between.bg-accent.px-5>button {
   background: transparent;
 }
 
@@ -709,7 +839,7 @@ body>main>div>div>div.h-\[950px\].w-\[400px\].relative.right-1.shrink-0.bg-backg
 }
 
 
-body>main>div>div>div.h-\[950px\].w-\[400px\].relative.right-1.shrink-0.bg-background.text-foreground>div>div.p-0.pt-0.relative.mb-\[26px\].flex.flex-col.bg-backgroundBetslip>div.relative.top-3.w-full>div {
+body>main>div>div>div.retail-betslip-col>div>div.p-0.pt-0.relative.mb-\[26px\].flex.flex-col.bg-backgroundBetslip>div.relative.top-3.w-full>div {
   background-color: white;
   position: relative;
   bottom: 8px;

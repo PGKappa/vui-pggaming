@@ -12,7 +12,6 @@ import RootContextProvider, {
   RootContext,
 } from '@/retail-contexts/root-context'
 import SkinProvider, { SkinContext } from '@/retail-contexts/skin-context'
-import { cn } from '@/retail-lib/utils'
 import { Inter } from 'next/font/google'
 import { usePathname } from 'next/navigation'
 import { useContext, useEffect } from 'react'
@@ -131,11 +130,13 @@ function SkinBody({ children }: { children: React.ReactNode }) {
   const [skin] = useContext(SkinContext)
   const pathname = usePathname()
 
+  useEffect(() => {
+    document.documentElement.classList.remove('h-dvh', 'overflow-hidden')
+  }, [])
+
   return (
     <body
-      className={cn(
-        `${inter.variable} ${skin} flex h-screen flex-col overflow-hidden font-inter antialiased`,
-      )}
+      className={`${inter.variable} ${skin} flex min-h-dvh flex-col overflow-y-auto font-inter antialiased`}
     >
       {/* Splash screen statico inline - appare ISTANTANEAMENTE */}
       <div id="static-splash">
@@ -295,10 +296,12 @@ function RetailShell({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <div className="flex h-full min-h-0 flex-col">
-        <Navbar />
-        <main className="min-h-0 min-w-[1280px] flex-1 overflow-hidden">
-          <div className="h-full min-h-0 px-2 pb-2 pt-0">
+      <div className="retail-shell">
+        <div className="retail-navbar-wrap">
+          <Navbar />
+        </div>
+        <main className="min-w-[1280px]">
+          <div className="px-2 pb-2 pt-0">
             <BetsContextProvider>{children}</BetsContextProvider>
           </div>
         </main>

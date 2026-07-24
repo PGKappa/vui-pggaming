@@ -23,6 +23,7 @@ import {
   createPGVirtualAPICall,
   normalizeMarketName,
 } from '@/retail-lib/utils'
+import { useRetailPageScroll } from '@/retail-lib/use-retail-compact-height'
 import {
   ChevronDown,
   CornerDownLeft,
@@ -49,7 +50,6 @@ import {
   TooltipTrigger,
 } from '@/retail-components/ui/tooltip'
 import { ScrollAreaB } from './ui/betting-slip-scroll-area'
-import { getLayoutConfig } from '@/retail-lib/layout-config'
 
 export type BetMode = 'SINGLE' | 'MULTIPLE' | 'SYSTEM'
 
@@ -82,6 +82,9 @@ export default function BettingSlip({
   } = useContext(BetsContext)
 
   const rootContext = useContext(RootContext)
+  const isPageScroll = useRetailPageScroll()
+  // ≤840 screen height: full fixed-height betslip. Taller screens: compact to fit window.
+  const fitToViewport = !isPageScroll
 
   const currencySymbol = rootContext?.getCurrencySymbol?.() || '$'
   const stakeButtons = rootContext?.getStakeButtons?.() || [
@@ -117,9 +120,6 @@ export default function BettingSlip({
     {},
   )
   const [allGroupsSelected, setAllGroupsSelected] = useState(false)
-
-  const currentLanguage = rootContext?.userData?.lang || 'en'
-  const layoutConfig = getLayoutConfig(currentLanguage)
 
   const baseSystemGroups = useMemo(() => {
     if (betMode !== 'SYSTEM') return []
@@ -458,7 +458,9 @@ export default function BettingSlip({
     const groupHeight = 59
     const expandedHeight = 63
     const numGroups = systemGroups.length
-    const groupsToShow = Math.min(Math.max(numGroups, 1), 3)
+    // ≤840px: show 2 groups; above: show up to 3
+    const maxVisible = isPageScroll ? 2 : 3
+    const groupsToShow = Math.min(Math.max(numGroups, 1), maxVisible)
     const baseHeight = groupHeight * groupsToShow
 
     // Espande solo se c'è un solo gruppo e questo è aperto
@@ -469,7 +471,7 @@ export default function BettingSlip({
     const isSingleGroup = numGroups === 1
 
     return baseHeight + (isSingleGroup && isLastGroupOpen ? expandedHeight : 0)
-  }, [systemGroups, systemGroupsOpen])
+  }, [systemGroups, systemGroupsOpen, isPageScroll])
 
   useEffect(() => {
     if (betMode === 'SYSTEM') {
@@ -1101,10 +1103,10 @@ export default function BettingSlip({
 
   return (
     <Card
-      className="ml-2 flex h-full w-full flex-col overflow-hidden bg-primary-foreground text-betSlip-foreground"
+      className="grid h-full min-h-0 w-full flex-1 grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden bg-primary-foreground text-betSlip-foreground"
       data-testid="betting-slip"
     >
-      <div className="grid shrink-0 grid-cols-2 text-center">
+      <div className="grid grid-cols-2 text-center">
         <div className="relative top-[5px] col-span-2 flex h-[52px] w-full flex-row items-center justify-between bg-accent px-5 pb-0.5">
           <span className="items-start pb-[3px] pl-[132px] text-[14px] font-semibold text-accent-foreground">
             {t('bet_slip').toUpperCase()} ({betEntries.length})
@@ -1178,9 +1180,9 @@ export default function BettingSlip({
         </div>
       </div>
 
-      <CardContent className="min-h-0 w-full flex-1 overflow-hidden bg-white p-2 text-betSlip-foreground">
+      <CardContent className="min-h-0 w-full overflow-hidden bg-white p-2 text-betSlip-foreground">
         {betEntries.length === 0 ? (
-          <div className="relative flex h-full items-start justify-center pt-2">
+          <div className="relative flex h-full min-h-0 items-start justify-center pt-2">
             <span className="text-[15px] font-normal leading-none">
               {t('no_selection')}
             </span>
@@ -1209,14 +1211,25 @@ export default function BettingSlip({
         )}
       </CardContent>
 
-      <Separator className="shrink-0" />
+      <div className="flex min-h-0 flex-col">
+      <Separator />
 
-      <CardFooter className="relative flex shrink-0 flex-col bg-backgroundBetslip pb-7">
+      <CardFooter
+        className={cn(
+          'relative flex shrink-0 flex-col bg-backgroundBetslip',
+          fitToViewport ? 'pb-2' : 'pb-7',
+        )}
+      >
         {betMode !== 'SYSTEM' ? (
           <>
             <div className="relative h-[30px] w-full bg-accent py-3"></div>
 
-            <div className="relative top-[12px] flex w-full flex-row items-center justify-between px-4 pt-[9px] text-black">
+            <div
+              className={cn(
+                'flex w-full flex-row items-center justify-between px-4 pt-[9px] text-black',
+                !fitToViewport && 'relative top-[12px]',
+              )}
+            >
               <span className="relative bottom-[3px] text-[15px] font-semibold">
                 {t('total_odd').toUpperCase()}
               </span>
@@ -1226,7 +1239,12 @@ export default function BettingSlip({
             </div>
             <Separator />
 
-            <div className="relative top-[19px] grid w-full grid-cols-5 space-x-2 p-2">
+            <div
+              className={cn(
+                'grid w-full grid-cols-5 space-x-2 p-2',
+                !fitToViewport && 'relative top-[19px]',
+              )}
+            >
               {stakeButtons.map((amount, index) => {
                 const numericAmount =
                   typeof amount === 'number'
@@ -1252,7 +1270,12 @@ export default function BettingSlip({
               })}
             </div>
 
-            <div className="relative top-[17px] flex w-full flex-row items-center justify-between px-4 py-[18px] text-searchResultText">
+            <div
+              className={cn(
+                'flex w-full flex-row items-center justify-between px-4 text-searchResultText',
+                fitToViewport ? 'py-2' : 'relative top-[17px] py-[18px]',
+              )}
+            >
               <div className="flex items-center space-x-2">
                 <span className="pt-[1px] text-[15px] font-semibold">
                   {t('amount').toUpperCase()}
@@ -1271,7 +1294,14 @@ export default function BettingSlip({
 
             <Separator />
 
-            <div className="relative top-[27px] flex w-full flex-row items-center justify-between bg-backgroundBetslip px-4 py-[12px] pb-[16px] pt-0 text-searchResultText">
+            <div
+              className={cn(
+                'flex w-full flex-row items-center justify-between bg-backgroundBetslip px-4 text-searchResultText',
+                fitToViewport
+                  ? 'py-2'
+                  : 'relative top-[27px] py-[12px] pb-[16px] pt-0',
+              )}
+            >
               <span className="relative bottom-[1px] text-[17px] font-semibold">
                 {t('potential_win').toUpperCase()}
               </span>
@@ -1286,11 +1316,11 @@ export default function BettingSlip({
               type="single"
               value={accordionOpen}
               onValueChange={setAccordionOpen}
-              className="relative top-3 w-full"
+              className="w-full"
             >
               <AccordionItem value="combinations" className="border-none">
-                <div className="relative bottom-[4px] h-[30px] w-full bg-accent px-4 text-[13px] text-accent-foreground hover:no-underline">
-                  <span className="relative bottom-1">
+                <div className="relative flex h-[34px] w-full items-center justify-between bg-accent px-4 text-[13px] text-accent-foreground hover:no-underline">
+                  <span className="leading-none">
                     {t('combinations').toUpperCase()}
                   </span>
                   <button
@@ -1299,15 +1329,17 @@ export default function BettingSlip({
                         accordionOpen === 'combinations' ? '' : 'combinations',
                       )
                     }
-                    className={`relative ${layoutConfig.bettingSlip.combinationsButtonLeft} top-[3px] transition-transform duration-200`}
+                    className="ml-2 flex items-center justify-center bg-transparent transition-transform duration-200"
                     style={{
+                      width: '20px',
+                      height: '20px',
                       transform:
                         accordionOpen === 'combinations'
                           ? 'rotate(180deg)'
                           : 'rotate(0deg)',
                     }}
                   >
-                    <ChevronDown className="w-5 shrink-0" />
+                    <ChevronDown className="relative left-1 w-5 shrink-0" />
                   </button>
                 </div>
                 <AccordionContent className="pb-0">
@@ -1624,7 +1656,12 @@ export default function BettingSlip({
             {t('combinations_limit_exceeded')}
           </div>
         )}
-        <div className="w-full p-3 pb-3 pt-[9px]">
+        <div
+          className={cn(
+            'w-full p-3 pb-3',
+            fitToViewport ? 'pt-2' : 'pt-[9px]',
+          )}
+        >
           <Button
             variant="betNow"
             onClick={handleBetNow}
@@ -1641,13 +1678,25 @@ export default function BettingSlip({
           </Button>
         </div>
 
-        <div className="w-full bg-betSlip-header p-3 pb-3 pt-[9px]">
+        <div
+          className={cn(
+            'w-full bg-betSlip-header p-3',
+            fitToViewport
+              ? 'pb-3 pt-2'
+              : 'relative bottom-2 pb-[15px] pt-[9px]',
+          )}
+        >
           {selectedEvent?.discipline === 'SOCCER' ? (
             <SoccerFastBet selectedEvent={selectedEvent} />
           ) : (
             <RacingFastBet selectedEvent={selectedEvent} />
           )}
         </div>
+      </div>
+
+      {selectedEvent && !fitToViewport && (
+        <div className="w-full shrink-0 bg-white"></div>
+      )}
       </div>
     </Card>
   )
