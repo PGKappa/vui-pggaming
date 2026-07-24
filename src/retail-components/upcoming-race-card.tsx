@@ -1068,7 +1068,8 @@ export default function UpcomingRaceCard({
                     key={racer.number}
                     className={cn(
                       'border-b border-border text-[19px]',
-                      !isOriginalLayout && 'h-[64px]',
+                      !isOriginalLayout &&
+                        (isTaskbarFixHeight ? 'h-[62px]' : 'h-[64px]'),
                     )}
                   >
                     <TableCell
