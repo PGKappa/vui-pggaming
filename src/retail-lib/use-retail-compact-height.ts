@@ -105,9 +105,10 @@ export function useRetailPageScroll() {
   useEffect(() => {
     const update = () => {
       const { innerWidth: width, innerHeight: height } = window
-      // Below 720: always. Exactly 1280x720 (and other widths ≤1280 at 720): also enable.
+      // Below 1280 wide or 720 tall: page-level scroll so betslip stays reachable.
       setIsPageScroll(
-        height < RETAIL_VIEWPORT.BETSLIP_SCROLL_THRESHOLD ||
+        width < RETAIL_VIEWPORT.MIN_WIDTH ||
+          height < RETAIL_VIEWPORT.BETSLIP_SCROLL_THRESHOLD ||
           (width <= RETAIL_VIEWPORT.MIN_WIDTH &&
             height <= RETAIL_VIEWPORT.BETSLIP_SCROLL_THRESHOLD),
       )

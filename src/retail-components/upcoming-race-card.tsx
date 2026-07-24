@@ -29,6 +29,7 @@ import { Check } from 'lucide-react'
 import {
   useRetailCompactHeight,
   useRetailOriginalLayout,
+  useRetailPageScroll,
   useRetailTaskbarFixHeight,
 } from '@/retail-lib/use-retail-compact-height'
 
@@ -70,6 +71,7 @@ export default function UpcomingRaceCard({
   const rootContext = useContext(RootContext)
   const isCompactHeight = useRetailCompactHeight()
   const isOriginalLayout = useRetailOriginalLayout()
+  const isPageScroll = useRetailPageScroll()
   const isTaskbarFixHeight = useRetailTaskbarFixHeight()
 
   const [marketType, setMarketType] = useState<
@@ -909,8 +911,8 @@ export default function UpcomingRaceCard({
   }
 
   // renderSpecialMarkets: TableBody nella stessa <Table>.
-  // ≥1401px e <1280px: colSpan 6/5 allineato alle colonne tabella.
-  // 1280–1400px: griglia 50/50 indipendente (non allineata al separatore).
+  // ≤1400px (incluso page-scroll <1280×720): griglia 50/50, niente scroll orizzontale.
+  // ≥1401px: colSpan 6/5 allineato alle colonne tabella.
   const renderSpecialMarkets = () => {
     if (activeTab !== 'main' || !raceInfo?.odds) {
       return null
@@ -920,6 +922,13 @@ export default function UpcomingRaceCard({
     const marketHeaderH = isTaskbarFixHeight ? 'h-12' : 'h-16'
     const marketOddsH = isTaskbarFixHeight ? 'h-[56px]' : 'h-[66px]'
     const marketBtnH = isTaskbarFixHeight ? 'h-[42px]' : 'h-[49px]'
+    // Tighter side padding below 1280×720 so the two halves fit without H-scroll
+    const marketPad = isPageScroll
+      ? 'px-2'
+      : 'px-4 min-[1400px]:px-12 min-[1600px]:px-16'
+    const marketPadEvenLeft = isPageScroll
+      ? 'px-2'
+      : 'px-4 min-[1400px]:pl-12 min-[1400px]:pr-8 min-[1600px]:pl-16'
 
     const evenOddBlock = (splitBorder = false) => (
       <>
@@ -932,8 +941,13 @@ export default function UpcomingRaceCard({
         >
           {t('even_odd').toUpperCase()}
         </div>
-        <div className={cn('flex', marketOddsH)}>
-          <div className="flex flex-1 items-center justify-center px-4 min-[1400px]:pl-12 min-[1400px]:pr-8 min-[1600px]:pl-16">
+        <div className={cn('flex min-w-0', marketOddsH)}>
+          <div
+            className={cn(
+              'flex min-w-0 flex-1 items-center justify-center',
+              marketPadEvenLeft,
+            )}
+          >
             <BetEntryToggle
               marketName={t('even_odd')}
               apiMarketName="even/odd"
@@ -954,7 +968,7 @@ export default function UpcomingRaceCard({
                 track: race.trackName || 'Track 6',
               }}
               variant="matchcard"
-              className={cn(marketBtnH, 'w-full text-[16px] text-black')}
+              className={cn(marketBtnH, 'w-full min-w-0 text-[16px] text-black')}
               onToggle={() => {
                 betAddedFromUIRef.current = true
               }}
@@ -962,7 +976,8 @@ export default function UpcomingRaceCard({
           </div>
           <div
             className={cn(
-              'flex flex-1 items-center justify-center px-4 min-[1400px]:px-12 min-[1600px]:px-16',
+              'flex min-w-0 flex-1 items-center justify-center',
+              marketPad,
               splitBorder && 'border-r',
             )}
           >
@@ -986,7 +1001,7 @@ export default function UpcomingRaceCard({
                 track: race.trackName || 'Track 6',
               }}
               variant="matchcard"
-              className={cn(marketBtnH, 'w-full text-[16px] text-black')}
+              className={cn(marketBtnH, 'w-full min-w-0 text-[16px] text-black')}
               onToggle={() => {
                 betAddedFromUIRef.current = true
               }}
@@ -1007,8 +1022,13 @@ export default function UpcomingRaceCard({
           {t('under_over').toUpperCase()}{' '}
           {race.discipline === 'DOGS8' ? '4.5' : '3.5'}
         </div>
-        <div className={cn('flex', marketOddsH)}>
-          <div className="flex flex-1 items-center justify-center px-4 min-[1400px]:px-12 min-[1600px]:px-16">
+        <div className={cn('flex min-w-0', marketOddsH)}>
+          <div
+            className={cn(
+              'flex min-w-0 flex-1 items-center justify-center',
+              marketPad,
+            )}
+          >
             <BetEntryToggle
               marketName={t('under_over')}
               apiMarketName="under/over"
@@ -1029,13 +1049,18 @@ export default function UpcomingRaceCard({
                 track: race.trackName || 'Track 6',
               }}
               variant="matchcard"
-              className={cn(marketBtnH, 'w-full text-[16px] text-black')}
+              className={cn(marketBtnH, 'w-full min-w-0 text-[16px] text-black')}
               onToggle={() => {
                 betAddedFromUIRef.current = true
               }}
             />
           </div>
-          <div className="flex flex-1 items-center justify-center px-4 min-[1400px]:px-12 min-[1600px]:px-16">
+          <div
+            className={cn(
+              'flex min-w-0 flex-1 items-center justify-center',
+              marketPad,
+            )}
+          >
             <BetEntryToggle
               marketName={t('under_over')}
               apiMarketName="under/over"
@@ -1056,7 +1081,7 @@ export default function UpcomingRaceCard({
                 track: race.trackName || 'Track 6',
               }}
               variant="matchcard"
-              className={cn(marketBtnH, 'w-full text-[16px] text-black')}
+              className={cn(marketBtnH, 'w-full min-w-0 text-[16px] text-black')}
               onToggle={() => {
                 betAddedFromUIRef.current = true
               }}
@@ -1072,18 +1097,18 @@ export default function UpcomingRaceCard({
           <TableCell colSpan={11} className="h-2 p-0" />
         </TableRow>
 
-        {/* 1280–1400px: due metà uguali, indipendenti dalle colonne tabella */}
-        <TableRow className="hidden border-0 hover:bg-transparent min-[1280px]:max-[1400px]:table-row">
-          <TableCell colSpan={11} className="p-0">
-            <div className="grid grid-cols-2">
-              <div>{evenOddBlock(true)}</div>
-              <div>{underOverBlock()}</div>
+        {/* ≤1400px (anche <1280×720): due metà uguali, senza overflow orizzontale */}
+        <TableRow className="hidden border-0 hover:bg-transparent max-[1400px]:table-row">
+          <TableCell colSpan={11} className="max-w-0 overflow-hidden p-0">
+            <div className="grid w-full min-w-0 grid-cols-2">
+              <div className="min-w-0 overflow-hidden">{evenOddBlock(true)}</div>
+              <div className="min-w-0 overflow-hidden">{underOverBlock()}</div>
             </div>
           </TableCell>
         </TableRow>
 
-        {/* Altre risoluzioni: allineato alle colonne tabella */}
-        <TableRow className="border-0 hover:bg-transparent min-[1280px]:max-[1400px]:hidden">
+        {/* ≥1401px: allineato alle colonne tabella */}
+        <TableRow className="border-0 hover:bg-transparent max-[1400px]:hidden">
           <TableCell colSpan={6} className="p-0">
             {evenOddBlock(true)}
           </TableCell>

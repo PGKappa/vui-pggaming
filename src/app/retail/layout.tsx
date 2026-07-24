@@ -144,11 +144,24 @@ function SkinBody({ children }: { children: React.ReactNode }) {
   const isPageScroll = useRetailPageScroll()
   useRetailAppHeight()
 
+  // Keep html scrolling in sync — body overflow alone is not enough when html has a fixed height.
+  useEffect(() => {
+    const root = document.documentElement
+    root.classList.toggle('retail-page-scroll', isPageScroll)
+    root.style.overflowX = 'auto'
+    root.style.overflowY = isPageScroll ? 'auto' : 'hidden'
+    return () => {
+      root.classList.remove('retail-page-scroll')
+      root.style.overflowX = ''
+      root.style.overflowY = ''
+    }
+  }, [isPageScroll])
+
   return (
     <body
       className={cn(
-        `${inter.variable} ${skin} flex flex-col font-inter antialiased`,
-        // Below 1280px: overflow-x-auto so the full min-width layout can be scrolled
+        `${inter.variable} ${skin} flex flex-col items-start font-inter antialiased`,
+        // items-start: keep min-w-[1280px] children at 1280 so overflow-x can reach the betslip
         isPageScroll
           ? 'min-h-[var(--retail-app-height,100dvh)] overflow-x-auto overflow-y-auto'
           : 'h-[var(--retail-app-height,100dvh)] overflow-x-auto overflow-y-hidden',
@@ -315,11 +328,11 @@ function RetailShell({ children }: { children: React.ReactNode }) {
     <>
       <div
         className={cn(
-          // Keep full layout width ≥1280 so narrow viewports get a horizontal scrollbar
-          'flex min-w-[1280px] flex-col',
+          // Fixed 1280 width below min viewport so horizontal page scroll can reach the betslip
+          'flex w-[1280px] min-w-[1280px] flex-col',
           isPageScroll
             ? 'shrink-0'
-            : 'min-h-0 flex-1 overflow-y-hidden',
+            : 'min-h-0 w-full min-w-[1280px] flex-1 overflow-y-hidden',
         )}
         style={
           isPageScroll
@@ -330,7 +343,7 @@ function RetailShell({ children }: { children: React.ReactNode }) {
         <Navbar />
         <main
           className={cn(
-            'min-w-[1280px]',
+            'w-full min-w-[1280px]',
             isPageScroll ? 'shrink-0' : 'min-h-0 flex-1 overflow-hidden',
           )}
         >
