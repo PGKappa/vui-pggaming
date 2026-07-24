@@ -301,6 +301,7 @@
   "max_tuple_error": "Il massimo per le scommesse sistema è la 10-pla",
   "max_combinations_error": "Massimo {{max}} combinazioni per scommessa sistema",
   "combinations_limit_exceeded": "Limite combinazioni superato",
+  "ticket_not_playable": "Ticket non giocabile: limite di eventi, selezioni o combinazioni superato",
   "failed_fetch_results": "Errore nel recupero dei risultati",
   "http_error": "Errore",
   "collected": "Pagato",
