@@ -7,10 +7,13 @@ export const RETAIL_VIEWPORT = {
   /** Exact height that uses the original fixed layout (no adaptive changes) */
   ORIGINAL_HEIGHT: 1080,
   /**
-   * 1600×900 (and similar): maximized windows often draw under the Windows
-   * taskbar — apply work-area capping only at this height.
+   * Heights where maximized windows often draw under the Windows taskbar —
+   * apply work-area capping so content stays above the bar.
    */
   TASKBAR_FIX_HEIGHT: 900,
+  /** Inclusive range (e.g. 1080p with taskbar / windowed overlap). */
+  TASKBAR_FIX_HEIGHT_MIN: 1010,
+  TASKBAR_FIX_HEIGHT_MAX: 1080,
   /** Original main content row height */
   PAGE_CONTENT_HEIGHT: 945,
   /**

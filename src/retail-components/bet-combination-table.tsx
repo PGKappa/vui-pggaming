@@ -608,7 +608,7 @@ export default function BetCombinationsTable({
   }
 
   return (
-    <Card className="mt-2">
+    <Card className="retail-bet-combinations mt-2">
       <CardHeader className="relative flex h-14 items-center justify-end bg-accent px-3 text-accent-foreground">
         <CardTitle className="pointer-events-none absolute inset-0 flex items-center justify-center text-[16px] text-white">
           {getTitle()}
@@ -651,8 +651,8 @@ export default function BetCombinationsTable({
           </div>
         </div>
       </CardHeader>
-      <CardContent className="p-0 pr-2 [@media(min-height:1010px)_and_(max-height:1080px)]:pb-[24px]">
-        <div className="grid grid-cols-12 gap-2 pb-6 pt-2 [@media(min-height:1010px)_and_(max-height:1080px)]:pb-[44px]">
+      <CardContent className="retail-bet-combinations-content p-0 pr-2">
+        <div className="retail-bet-combinations-grid grid grid-cols-12 gap-2 pb-6 pt-2">
           {combinations.map((bet) => (
             <BetEntryToggle
               key={bet.option.outcome}

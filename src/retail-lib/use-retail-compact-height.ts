@@ -3,7 +3,7 @@
 import { RETAIL_VIEWPORT } from '@/retail-lib/viewport-config'
 import { useEffect, useState } from 'react'
 
-/** True when the display/window is the 900px height that needs the taskbar fix. */
+/** True when UI should use the compact 900px taskbar layout tweaks. */
 function isTaskbarFixHeight(innerHeight: number, screenHeight: number) {
   return (
     screenHeight === RETAIL_VIEWPORT.TASKBAR_FIX_HEIGHT ||
@@ -12,8 +12,23 @@ function isTaskbarFixHeight(innerHeight: number, screenHeight: number) {
 }
 
 /**
- * Visible app height. At 900px only, caps to the desktop work area so content
- * ends above the Windows taskbar when the window is maximized.
+ * True when app height should cap to the Windows work area (taskbar visible).
+ * Covers 900px and the 1010–1080 range where maximized windows often overlap.
+ */
+function needsTaskbarWorkAreaCap(innerHeight: number, screenHeight: number) {
+  const h = Math.round(innerHeight)
+  return (
+    isTaskbarFixHeight(innerHeight, screenHeight) ||
+    (h >= RETAIL_VIEWPORT.TASKBAR_FIX_HEIGHT_MIN &&
+      h <= RETAIL_VIEWPORT.TASKBAR_FIX_HEIGHT_MAX) ||
+    (screenHeight >= RETAIL_VIEWPORT.TASKBAR_FIX_HEIGHT_MIN &&
+      screenHeight <= RETAIL_VIEWPORT.TASKBAR_FIX_HEIGHT_MAX)
+  )
+}
+
+/**
+ * Visible app height. At 900px and 1010–1080px, caps to the desktop work area
+ * so content ends above the Windows taskbar when the window is maximized.
  */
 export function getRetailAppHeight(): number {
   if (typeof window === 'undefined') return 0
@@ -25,7 +40,7 @@ export function getRetailAppHeight(): number {
   const availHeight = window.screen?.availHeight ?? 0
 
   if (
-    isTaskbarFixHeight(inner, screenHeight) &&
+    needsTaskbarWorkAreaCap(inner, screenHeight) &&
     availHeight > 0 &&
     availHeight < (screenHeight || inner)
   ) {
@@ -39,8 +54,8 @@ export function getRetailAppHeight(): number {
 
 /**
  * Locks the app height to the visible window (window.innerHeight).
- * At 900px, also respects the Windows work area so maximized windows stay
- * above the taskbar.
+ * At 900px and 1010–1080px, also respects the Windows work area so maximized
+ * windows stay above the taskbar.
  */
 export function useRetailAppHeight() {
   useEffect(() => {

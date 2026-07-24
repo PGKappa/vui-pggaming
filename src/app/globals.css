@@ -732,4 +732,15 @@ body > div.relative.z-50.flex.h-16.w-full.flex-row.items-center.justify-start.bg
   background: transparent !important;
 }
 
+/* 1010–1080: keep trifecta/exacta combination odds above Windows taskbar */
+@media (min-height: 1010px) and (max-height: 1080px) {
+  .retail-bet-combinations-content {
+    padding-bottom: 24px;
+  }
+
+  .retail-bet-combinations-grid {
+    padding-bottom: 44px;
+  }
+}
+
 
