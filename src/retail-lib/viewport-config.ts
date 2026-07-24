@@ -4,30 +4,9 @@ export const RETAIL_VIEWPORT = {
   MAX_WIDTH: 1920,
   HEIGHT: 1020,
   SCROLL_THRESHOLD: 1080,
-  /** Exact height that uses the original fixed layout (no adaptive changes) */
-  ORIGINAL_HEIGHT: 1080,
-  /**
-   * Heights where maximized windows often draw under the Windows taskbar —
-   * apply work-area capping so content stays above the bar.
-   */
-  TASKBAR_FIX_HEIGHT: 900,
-  /** Inclusive range (e.g. 1080p with taskbar / windowed overlap). */
-  TASKBAR_FIX_HEIGHT_MIN: 1010,
-  TASKBAR_FIX_HEIGHT_MAX: 1080,
-  /** Original main content row height */
-  PAGE_CONTENT_HEIGHT: 945,
-  /**
-   * At/below this height (with width ≤1280 for the exact 720 boundary) the page
-   * uses a single scrollbar with original layout sizes.
-   */
-  BETSLIP_SCROLL_THRESHOLD: 720,
-  /** Original betting slip column height */
-  BETSLIP_HEIGHT: 950,
   BETSLIP_WIDTH: 400,
-  /** Extra raise of APOSTAR / FastBet footer (must match drawer bottom) */
-  BETSLIP_FOOTER_RAISE: 40,
-  /** Space reserved above the raised FASTBET bar */
-  DRAWER_BOTTOM_OFFSET: 104,
+  /** Space reserved above the FASTBET bar (matches drawer mb-16) */
+  DRAWER_BOTTOM_OFFSET: 64,
   /** Top clearance for amount drawer at full height */
   DRAWER_TOP_OFFSET: 96,
   /** Top clearance for FASTBET drawer at full height (below navbar + carousel) */

@@ -601,16 +601,6 @@
     @apply border-border outline-ring/50;
   }
 
-  html {
-    height: var(--retail-app-height, 100dvh);
-    overflow: hidden;
-  }
-
-  html.retail-page-scroll {
-    height: var(--retail-app-height, 100dvh);
-    overflow: hidden;
-  }
-
   body {
     @apply bg-background text-foreground;
   }
@@ -709,7 +699,7 @@
 }
 
 
-body>main>div>div>div.h-full.w-\[400px\].relative.right-1.shrink-0.bg-background.text-foreground>div>div.grid.shrink-0.grid-cols-2.text-center>div.relative.top-\[5px\].col-span-2.flex.h-\[52px\].w-full.flex-row.items-center.justify-between.bg-accent.px-5>button {
+body>main>div>div>div.h-\[950px\].w-\[400px\].relative.right-1.shrink-0.bg-background.text-foreground>div>div.grid.grid-cols-2.text-center>div.relative.top-\[5px\].col-span-2.flex.h-\[52px\].w-full.flex-row.items-center.justify-between.bg-accent.px-5>button {
   background: transparent;
 }
 
@@ -719,8 +709,10 @@ body>main>div>div>div.h-full.w-\[400px\].relative.right-1.shrink-0.bg-background
 }
 
 
-body>main>div>div>div.h-full.w-\[400px\].relative.right-1.shrink-0.bg-background.text-foreground>div>div.p-0.pt-0.relative.flex.shrink-0.flex-col.bg-backgroundBetslip>div.relative.top-3.w-full>div {
+body>main>div>div>div.h-\[950px\].w-\[400px\].relative.right-1.shrink-0.bg-background.text-foreground>div>div.p-0.pt-0.relative.mb-\[26px\].flex.flex-col.bg-backgroundBetslip>div.relative.top-3.w-full>div {
   background-color: white;
+  position: relative;
+  bottom: 8px;
 }
 
 
@@ -736,17 +728,6 @@ body>main>div>div>div.h-full.w-\[400px\].relative.right-1.shrink-0.bg-background
 
 body > div.relative.z-50.flex.h-16.w-full.flex-row.items-center.justify-start.bg-navbarBg.p-3 > div.relative.left-1.flex.w-full.justify-end.space-x-2 > button.flex.h-12.w-12.items-center.justify-center.bg-transparent > svg > path{
   background: transparent !important;
-}
-
-/* 1010–1080: keep trifecta/exacta combination odds above Windows taskbar */
-@media (min-height: 1010px) and (max-height: 1080px) {
-  .retail-bet-combinations-content {
-    padding-bottom: 24px;
-  }
-
-  .retail-bet-combinations-grid {
-    padding-bottom: 44px;
-  }
 }
 
 

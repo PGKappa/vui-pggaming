@@ -32,7 +32,7 @@ export default function NumericKeypadDrawer(props: {
     ? RETAIL_VIEWPORT.COMPACT_DRAWER_TOP_OFFSET
     : RETAIL_VIEWPORT.DRAWER_TOP_OFFSET
   const drawerBottomOffset = isCompactHeight
-    ? RETAIL_VIEWPORT.BETSLIP_FOOTER_RAISE
+    ? 0
     : RETAIL_VIEWPORT.DRAWER_BOTTOM_OFFSET
   const {
     activeDrawerId,

@@ -17,11 +17,6 @@ import {
   getCarouselFilteredEvents,
   getFutureEventsFromCarousel,
 } from '@/retail-lib/carousel-sync'
-import {
-  useRetailPageScroll,
-  useRetailOriginalLayout,
-} from '@/retail-lib/use-retail-compact-height'
-import { cn } from '@/retail-lib/utils'
 import { useContext, useEffect, useRef, useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -29,9 +24,6 @@ export default function Home() {
   const { t } = useTranslation()
   const { upcomingEvents, searchEventResults, setSearchEventResults } =
     useContext(RootContext)
-  const isPageScroll = useRetailPageScroll()
-  const isOriginalLayout = useRetailOriginalLayout()
-  const useFixedHeights = isPageScroll || isOriginalLayout
 
   const [matchBetOptions, setMatchBetOptions] = useState<{
     round: {
@@ -88,19 +80,9 @@ export default function Home() {
   }, [carouselEvents])
 
   return (
-    <div
-      className={cn(
-        'flex min-w-[1280px] flex-row overflow-hidden',
-        useFixedHeights ? 'h-[945px]' : 'h-full',
-      )}
-    >
-      <div
-        className={cn(
-          'flex min-h-0 min-w-0 flex-1 flex-col gap-2 overflow-hidden',
-          useFixedHeights && 'h-full',
-        )}
-      >
-        <div className="bg-betslip flex h-[88px] w-full shrink-0 flex-row items-center justify-center pb-[2px]">
+    <div className="flex h-full min-w-0 flex-row overflow-hidden">
+      <div className="flex min-w-0 flex-1 flex-col gap-2 overflow-hidden">
+        <div className="bg-betslip flex h-[88px] w-full flex-row items-center justify-center pb-[2px]">
           <UpcomingEventsCarousel
             selectedEvent={selectedEvent}
             setSelectedEvent={(event) => {
@@ -112,12 +94,7 @@ export default function Home() {
           />
         </div>
 
-        <div
-          className={cn(
-            'flex min-h-0 w-full flex-col gap-2 tabular-nums',
-            useFixedHeights ? 'h-[942px]' : 'flex-1',
-          )}
-        >
+        <div className="flex h-[942px] w-full flex-col gap-2 tabular-nums">
           {!!searchEventResults ? (
             <SearchEventResults />
           ) : selectedEvent ? (
@@ -129,12 +106,7 @@ export default function Home() {
                 close={() => setMatchBetOptions(undefined)}
               />
             ) : (
-              <div
-                className={cn(
-                  'relative min-h-0',
-                  useFixedHeights ? 'h-[942px]' : 'h-full',
-                )}
-              >
+              <div className="relative h-[942px]">
                 {/* Scroll principale della pagina */}
                 <div className="h-full overflow-hidden">
                   <div
@@ -142,12 +114,7 @@ export default function Home() {
                     className="no-scrollbar h-full overflow-y-scroll"
                   >
                     {/* Sezione UpcomingRoundCard con scrollbar custom interna */}
-                    <div
-                      className={cn(
-                        'relative flex-shrink-0 overflow-hidden',
-                        useFixedHeights ? 'h-[810px]' : 'h-[min(810px,100%)]',
-                      )}
-                    >
+                    <div className="relative h-[810px] flex-shrink-0 overflow-hidden">
                       <div className="h-full overflow-hidden">
                         <div
                           ref={scrollContainerRef}
@@ -204,12 +171,7 @@ export default function Home() {
                 </div>
 
                 {/* Scrollbar custom per tutta la pagina - limitata all'altezza della sezione eventi */}
-                <div
-                  className={cn(
-                    'pointer-events-none absolute right-0 top-0 z-20',
-                    useFixedHeights ? 'h-[810px]' : 'h-[min(810px,100%)]',
-                  )}
-                >
+                <div className="pointer-events-none absolute right-0 top-0 z-20 h-[810px]">
                   <CustomScrollbar contentRef={pageScrollRef} />
                 </div>
               </div>
@@ -222,12 +184,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div
-        className={cn(
-          'mt-[-5px] w-[410px] shrink-0 bg-background pr-2 text-foreground',
-          useFixedHeights ? 'h-[937px]' : 'h-full',
-        )}
-      >
+      <div className="mt-[-5px] h-[937px] w-[410px] shrink-0 bg-background pr-2 text-foreground">
         <BettingSlip selectedEvent={selectedEvent} />
       </div>
     </div>
