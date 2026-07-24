@@ -1,11 +1,10 @@
 import { Bet, UpcomingEvent, UpcomingRace } from '@/retail-lib/types'
-import { useContext, useEffect, useMemo, useState } from 'react'
+import { useContext, useMemo, useState } from 'react'
 import BetEntryToggle from './bet-entry-toggle'
 import { Button } from './ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { BetsContext } from '@/retail-contexts/bets-context'
 import { useTranslation } from 'react-i18next'
-import { cn } from '@/retail-lib/utils'
 
 type BetCombinationsTableProps = {
   race: UpcomingEvent
@@ -29,17 +28,6 @@ export default function BetCombinationsTable({
   onBeforeToggle,
 }: BetCombinationsTableProps) {
   const { t } = useTranslation()
-  const [is1010To1080Height, setIs1010To1080Height] = useState(false)
-
-  useEffect(() => {
-    const update = () => {
-      const height = Math.round(window.innerHeight)
-      setIs1010To1080Height(height >= 1010 && height <= 1080)
-    }
-    update()
-    window.addEventListener('resize', update)
-    return () => window.removeEventListener('resize', update)
-  }, [])
 
   const [sortMode, setSortMode] = useState<'default' | 'asc' | 'desc'>(
     'default',
@@ -663,15 +651,8 @@ export default function BetCombinationsTable({
           </div>
         </div>
       </CardHeader>
-      <CardContent
-        className={cn('p-0 pr-2', is1010To1080Height && 'pb-[24px]')}
-      >
-        <div
-          className={cn(
-            'grid grid-cols-12 gap-2 pt-2',
-            is1010To1080Height ? 'pb-[44px]' : 'pb-6',
-          )}
-        >
+      <CardContent className="p-0 pr-2 [@media(min-height:1010px)_and_(max-height:1080px)]:pb-[24px]">
+        <div className="grid grid-cols-12 gap-2 pb-6 pt-2 [@media(min-height:1010px)_and_(max-height:1080px)]:pb-[44px]">
           {combinations.map((bet) => (
             <BetEntryToggle
               key={bet.option.outcome}
