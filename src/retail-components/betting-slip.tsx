@@ -49,7 +49,12 @@ import {
   TooltipTrigger,
 } from '@/retail-components/ui/tooltip'
 import { ScrollAreaB } from './ui/betting-slip-scroll-area'
-import { useRetailCompactHeight, useRetailPageScroll, useRetailOriginalLayout } from '@/retail-lib/use-retail-compact-height'
+import {
+  useRetailCompactHeight,
+  useRetailPageScroll,
+  useRetailOriginalLayout,
+  useRetailTaskbarFixHeight,
+} from '@/retail-lib/use-retail-compact-height'
 import { RETAIL_VIEWPORT } from '@/retail-lib/viewport-config'
 
 export type BetMode = 'SINGLE' | 'MULTIPLE' | 'SYSTEM'
@@ -122,6 +127,7 @@ export default function BettingSlip({
   const isCompactHeight = useRetailCompactHeight()
   const isPageScroll = useRetailPageScroll()
   const isOriginalLayout = useRetailOriginalLayout()
+  const isTaskbarFixHeight = useRetailTaskbarFixHeight()
   /** Tight spacing when fitting without page-scroll (720–1080px). */
   const useTightLayout = isCompactHeight && !isPageScroll
   /** Avoid Combinaciones bar offsets that clip at 1080 and at page-scroll (e.g. 1280×720). */
@@ -1110,7 +1116,10 @@ export default function BettingSlip({
   return (
     <div className="h-full w-full overflow-hidden">
       <Card
-        className="ml-2 flex h-full w-full flex-col overflow-hidden bg-primary-foreground text-betSlip-foreground"
+        className={cn(
+          'ml-2 flex w-full flex-col overflow-hidden bg-primary-foreground text-betSlip-foreground',
+          isTaskbarFixHeight ? 'h-[744px]' : 'h-full',
+        )}
         data-testid="betting-slip"
       >
       <div className="grid shrink-0 grid-cols-2 text-center">
