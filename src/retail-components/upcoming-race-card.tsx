@@ -768,9 +768,151 @@ export default function UpcomingRaceCard({
     return null
   }
 
-  // renderSpecialMarkets: TableBody nella stessa <Table>.
-  // ≥1401px e <1280px: colSpan 6/5 allineato alle colonne tabella.
-  // 1280–1400px: griglia 50/50 indipendente (non allineata al separatore).
+  // Special markets:
+  // — at ~1280 (and <1400): equal 50/50 blocks outside the table (no horizontal scroll)
+  // — ≥1400: colSpan 6/5 aligned to table columns
+  const renderSpecialMarketsEqual = () => {
+    if (activeTab !== 'main' || !raceInfo?.odds) {
+      return null
+    }
+
+    const evenOddBlock = (
+      <>
+        <div className="flex h-16 items-center justify-center border-r bg-accent text-[16px] font-bold text-accent-foreground">
+          {t('even_odd').toUpperCase()}
+        </div>
+        <div className="flex h-[66px] border-r">
+          <div className="flex min-w-0 flex-1 items-center justify-center px-2">
+            <BetEntryToggle
+              marketName={t('even_odd')}
+              apiMarketName="even/odd"
+              bet={{
+                discipline: race.discipline,
+                event: {
+                  name: race.name,
+                  number: race.id,
+                  startingAt: race.time,
+                  extId: race.extId,
+                  palimpsestId: race.palimpsestId,
+                },
+                competitors: 'Even',
+                option: {
+                  outcome: 'even',
+                  decPrice: parseFloat(raceInfo.odds.evenodd?.even || '0'),
+                },
+                track: race.trackName || 'Track 6',
+              }}
+              variant="matchcard"
+              className="h-[49px] w-full min-w-0 text-[16px] text-black"
+              onToggle={() => {
+                betAddedFromUIRef.current = true
+              }}
+            />
+          </div>
+          <div className="flex min-w-0 flex-1 items-center justify-center px-2">
+            <BetEntryToggle
+              marketName={t('even_odd')}
+              apiMarketName="even/odd"
+              bet={{
+                discipline: race.discipline,
+                event: {
+                  name: race.name,
+                  number: race.id,
+                  startingAt: race.time,
+                  extId: race.extId,
+                  palimpsestId: race.palimpsestId,
+                },
+                competitors: 'Odd',
+                option: {
+                  outcome: 'odd',
+                  decPrice: parseFloat(raceInfo.odds.evenodd?.odd || '0'),
+                },
+                track: race.trackName || 'Track 6',
+              }}
+              variant="matchcard"
+              className="h-[49px] w-full min-w-0 text-[16px] text-black"
+              onToggle={() => {
+                betAddedFromUIRef.current = true
+              }}
+            />
+          </div>
+        </div>
+      </>
+    )
+
+    const underOverBlock = (
+      <>
+        <div className="flex h-16 items-center justify-center bg-accent text-[16px] font-bold text-accent-foreground">
+          {t('under_over').toUpperCase()}{' '}
+          {race.discipline === 'DOGS8' ? '4.5' : '3.5'}
+        </div>
+        <div className="flex h-[66px]">
+          <div className="flex min-w-0 flex-1 items-center justify-center px-2">
+            <BetEntryToggle
+              marketName={t('under_over')}
+              apiMarketName="under/over"
+              bet={{
+                discipline: race.discipline,
+                event: {
+                  name: race.name,
+                  number: race.id,
+                  startingAt: race.time,
+                  extId: race.extId,
+                  palimpsestId: race.palimpsestId,
+                },
+                competitors: 'Under',
+                option: {
+                  outcome: 'under',
+                  decPrice: parseFloat(raceInfo.odds.underover?.under || '0'),
+                },
+                track: race.trackName || 'Track 6',
+              }}
+              variant="matchcard"
+              className="h-[49px] w-full min-w-0 text-[16px] text-black"
+              onToggle={() => {
+                betAddedFromUIRef.current = true
+              }}
+            />
+          </div>
+          <div className="flex min-w-0 flex-1 items-center justify-center px-2">
+            <BetEntryToggle
+              marketName={t('under_over')}
+              apiMarketName="under/over"
+              bet={{
+                discipline: race.discipline,
+                event: {
+                  name: race.name,
+                  number: race.id,
+                  startingAt: race.time,
+                  extId: race.extId,
+                  palimpsestId: race.palimpsestId,
+                },
+                competitors: 'Over',
+                option: {
+                  outcome: 'over',
+                  decPrice: parseFloat(raceInfo.odds.underover?.over || '0'),
+                },
+                track: race.trackName || 'Track 6',
+              }}
+              variant="matchcard"
+              className="h-[49px] w-full min-w-0 text-[16px] text-black"
+              onToggle={() => {
+                betAddedFromUIRef.current = true
+              }}
+            />
+          </div>
+        </div>
+      </>
+    )
+
+    return (
+      <div className="special-markets-equal">
+        <div>{evenOddBlock}</div>
+        <div>{underOverBlock}</div>
+      </div>
+    )
+  }
+
   const renderSpecialMarkets = () => {
     if (activeTab !== 'main' || !raceInfo?.odds) {
       return null
@@ -916,23 +1058,12 @@ export default function UpcomingRaceCard({
     )
 
     return (
-      <TableBody>
+      <TableBody className="special-markets-table">
         <TableRow className="border-0 hover:bg-transparent">
           <TableCell colSpan={11} className="h-2 p-0" />
         </TableRow>
 
-        {/* 1280–1400px: due metà uguali, indipendenti dalle colonne tabella */}
-        <TableRow className="hidden border-0 hover:bg-transparent min-[1280px]:max-[1400px]:table-row">
-          <TableCell colSpan={11} className="p-0">
-            <div className="grid grid-cols-2">
-              <div>{evenOddBlock(true)}</div>
-              <div>{underOverBlock()}</div>
-            </div>
-          </TableCell>
-        </TableRow>
-
-        {/* Altre risoluzioni: allineato alle colonne tabella */}
-        <TableRow className="border-0 hover:bg-transparent min-[1280px]:max-[1400px]:hidden">
+        <TableRow className="border-0 hover:bg-transparent">
           <TableCell colSpan={6} className="p-0">
             {evenOddBlock(true)}
           </TableCell>
@@ -1001,8 +1132,8 @@ export default function UpcomingRaceCard({
           </div>
         </CardHeader>
 
-        <CardContent>
-          <Table className="table-fixed">
+        <CardContent className="min-w-0 overflow-x-hidden">
+          <Table className="table-fixed" containerClassName="overflow-x-hidden">
             {renderTableHeader()}
 
             <TableBody>
@@ -1075,9 +1206,12 @@ export default function UpcomingRaceCard({
               )}
             </TableBody>
 
-            {/* Mercati speciali: TableBody separato dentro la stessa Table */}
+            {/* ≥1400: mercati allineati alle colonne tabella */}
             {renderSpecialMarkets()}
           </Table>
+
+          {/* 1280–1399: due blocchi 50/50 fuori dalla table (niente scroll orizzontale) */}
+          {renderSpecialMarketsEqual()}
         </CardContent>
       </Card>
 

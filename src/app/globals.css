@@ -673,6 +673,43 @@
   flex-shrink: 0;
 }
 
+/* PAR/IMPAR + MENOS/MÁS: equal 50/50 below 1400 (e.g. 1280); table colSpan above */
+.special-markets-equal {
+  display: none;
+  margin-top: 0.5rem;
+  min-width: 0;
+  overflow: hidden;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.special-markets-equal > * {
+  min-width: 0;
+  overflow: hidden;
+}
+
+@media (max-width: 1399px) {
+  .special-markets-equal {
+    display: grid;
+  }
+
+  .special-markets-table {
+    display: none;
+  }
+
+  /* 1280 range: narrower betslip so the full column fits in the viewport */
+  .retail-betslip-col {
+    width: 360px;
+  }
+
+  .retail-betslip-col--calcio {
+    width: 370px;
+  }
+
+  .retail-page-row {
+    min-width: 0;
+  }
+}
+
 @media (max-device-height: 840px) {
   .retail-page-row {
     height: 895px;
