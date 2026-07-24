@@ -12,11 +12,6 @@ import RootContextProvider, {
   RootContext,
 } from '@/retail-contexts/root-context'
 import SkinProvider, { SkinContext } from '@/retail-contexts/skin-context'
-import { RETAIL_VIEWPORT } from '@/retail-lib/viewport-config'
-import {
-  useRetailAppHeight,
-  useRetailPageScroll,
-} from '@/retail-lib/use-retail-compact-height'
 import { cn } from '@/retail-lib/utils'
 import { Inter } from 'next/font/google'
 import { usePathname } from 'next/navigation'
@@ -50,12 +45,6 @@ export default function RetailLayout({
           name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
         />
-        {/* Visible viewport height before React — avoids 100vh under Windows taskbar when maximized */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var v=window.visualViewport&&window.visualViewport.height;var i=window.innerHeight;var h=v&&v>0?v:i;var s=window.screen||{};var sh=s.height||0;var ah=s.availHeight||0;var hr=Math.round(i);var needsCap=sh===900||hr===900||(hr>=1010&&hr<=1080)||(sh>=1010&&sh<=1080);if(needsCap&&ah>0&&ah<(sh||i)){var ch=Math.max(0,(window.outerHeight||i)-i);h=Math.min(h,Math.max(0,ah-ch))}document.documentElement.style.setProperty('--retail-app-height',Math.round(Math.max(0,h))+'px')}catch(e){}})();`,
-          }}
-        />
         {/* Inline CSS per splash screen istantaneo - viene caricato PRIMA di React */}
         <style
           dangerouslySetInnerHTML={{
@@ -70,7 +59,7 @@ export default function RetailLayout({
                 justify-content: center;
                 background: white;
                 width: 100vw;
-                height: var(--retail-app-height, 100dvh);
+                height: 100vh;
               }
               #static-splash .splash-content {
                 display: flex;
@@ -141,26 +130,11 @@ export default function RetailLayout({
 function SkinBody({ children }: { children: React.ReactNode }) {
   const [skin] = useContext(SkinContext)
   const pathname = usePathname()
-  const isPageScroll = useRetailPageScroll()
-  useRetailAppHeight()
-
-  // Viewport-sized scrollport so H/V scrollbars stay on the visible window edge
-  // (not at the bottom of a taller-than-window body, which hides them in windowed mode).
-  useEffect(() => {
-    const root = document.documentElement
-    root.classList.toggle('retail-page-scroll', isPageScroll)
-    root.style.overflow = 'hidden'
-    return () => {
-      root.classList.remove('retail-page-scroll')
-      root.style.overflow = ''
-    }
-  }, [isPageScroll])
 
   return (
     <body
       className={cn(
-        `${inter.variable} ${skin} relative font-inter antialiased`,
-        'h-[var(--retail-app-height,100dvh)] overflow-hidden',
+        `${inter.variable} ${skin} flex h-screen flex-col overflow-hidden font-inter antialiased`,
       )}
     >
       {/* Splash screen statico inline - appare ISTANTANEAMENTE */}
@@ -185,17 +159,7 @@ function SkinBody({ children }: { children: React.ReactNode }) {
         <EventsContextProvider key={pathname}>
           {/* <UrlDebugBar /> */}
           <RootContextProvider>
-            {/* Absolute fill: H-scrollbar stays on the visible window, also in windowed mode */}
-            <div
-              className={cn(
-                'absolute inset-0',
-                isPageScroll
-                  ? 'overflow-auto'
-                  : 'overflow-x-auto overflow-y-hidden',
-              )}
-            >
-              <RetailShell>{children}</RetailShell>
-            </div>
+            <RetailShell>{children}</RetailShell>
           </RootContextProvider>
         </EventsContextProvider>
       </CashierContextProvider>
@@ -208,7 +172,6 @@ let hasAppLoaded = false
 
 function RetailShell({ children }: { children: React.ReactNode }) {
   const { t } = useTranslation()
-  const isPageScroll = useRetailPageScroll()
   const {
     isLoadingEvents,
     isLoadingCashier,
@@ -332,28 +295,10 @@ function RetailShell({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <div
-        className={cn(
-          // Fixed 1280 width below min viewport so horizontal page scroll can reach the betslip
-          'flex w-[1280px] min-w-[1280px] flex-col',
-          isPageScroll
-            ? 'shrink-0'
-            : 'h-full min-h-0 w-full min-w-[1280px] flex-1 overflow-y-hidden',
-        )}
-        style={
-          isPageScroll
-            ? { minHeight: RETAIL_VIEWPORT.HEIGHT }
-            : undefined
-        }
-      >
+      <div className="flex h-full min-h-0 flex-col">
         <Navbar />
-        <main
-          className={cn(
-            'w-full min-w-[1280px]',
-            isPageScroll ? 'shrink-0' : 'min-h-0 flex-1 overflow-hidden',
-          )}
-        >
-          <div className={cn('p-2', !isPageScroll && 'h-full')}>
+        <main className="min-h-0 min-w-[1280px] flex-1 overflow-hidden">
+          <div className="h-full min-h-0 px-2 pb-2 pt-0">
             <BetsContextProvider>{children}</BetsContextProvider>
           </div>
         </main>

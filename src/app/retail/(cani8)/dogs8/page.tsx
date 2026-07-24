@@ -9,8 +9,6 @@ import {
   getCarouselFilteredEvents,
   getFutureEventsFromCarousel,
 } from '@/retail-lib/carousel-sync'
-import { useRetailPageScroll, useRetailOriginalLayout } from '@/retail-lib/use-retail-compact-height'
-import { cn } from '@/retail-lib/utils'
 import { useContext, useEffect, useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ScrollArea } from '@/retail-components/ui/scroll-area'
@@ -19,9 +17,6 @@ export default function Dogs8Page() {
   const { t } = useTranslation()
   const { upcomingEvents, searchEventResults, setSearchEventResults } =
     useContext(RootContext)
-  const isPageScroll = useRetailPageScroll()
-  const isOriginalLayout = useRetailOriginalLayout()
-  const useFixedHeights = isPageScroll || isOriginalLayout
 
   const [selectedEvent, setSelectedEvent] = useState<UpcomingEvent | undefined>(
     undefined,
@@ -92,34 +87,11 @@ export default function Dogs8Page() {
     return () => clearInterval(interval)
   }, [selectedEvent, upcomingEvents])
 
-  const mainContent = !!searchEventResults ? (
-    <SearchEventResults />
-  ) : selectedEvent ? (
-    <UpcomingRaceCard race={selectedEvent} />
-  ) : (
-    <div className="flex h-full items-center justify-center">
-      {t('no_event_selected')}
-    </div>
-  )
-
   return (
-    <div
-      className={cn(
-        'relative flex min-w-[1280px] flex-row',
-        isOriginalLayout && 'bottom-[5px]',
-        useFixedHeights
-          ? 'h-[945px] overflow-hidden'
-          : 'h-full overflow-hidden',
-      )}
-    >
+    <div className="relative flex h-full min-h-0 min-w-[1200px] flex-row overflow-hidden">
       {/* LEFT COLUMN - si allarga/stringe in base alla risoluzione */}
-      <div
-        className={cn(
-          'flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden',
-          useFixedHeights && 'h-full',
-        )}
-      >
-        <div className="bg-betslip flex h-[99px] w-full shrink-0 flex-row items-center justify-center pb-[2px] pr-2">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+        <div className="bg-betslip flex h-[99px] w-full shrink-0 flex-row items-center justify-center pr-2">
           <UpcomingEventsCarousel
             selectedEvent={selectedEvent}
             setSelectedEvent={(event) => {
@@ -129,18 +101,23 @@ export default function Dogs8Page() {
           />
         </div>
 
-        <div className="bg-betslip flex min-h-0 flex-1 flex-row gap-2 overflow-hidden pr-2 pt-[2px]">
-          <ScrollArea className="h-full w-full">{mainContent}</ScrollArea>
+        <div className="bg-betslip flex min-h-0 flex-1 flex-row gap-2 overflow-hidden pr-2">
+          <ScrollArea className="h-full w-full">
+            {!!searchEventResults ? (
+              <SearchEventResults />
+            ) : selectedEvent ? (
+              <UpcomingRaceCard race={selectedEvent} />
+            ) : (
+              <div className="flex h-full items-center justify-center">
+                {t('no_event_selected')}
+              </div>
+            )}
+          </ScrollArea>
         </div>
       </div>
 
       {/* RIGHT COLUMN - larghezza fissa, sempre ancorata a destra */}
-      <div
-        className={cn(
-          'relative right-1 w-[400px] shrink-0 bg-background text-foreground',
-          useFixedHeights ? 'h-[950px]' : 'h-full',
-        )}
-      >
+      <div className="relative right-1 h-full w-[400px] shrink-0 bg-background text-foreground">
         <BettingSlip selectedEvent={selectedEvent} />
       </div>
     </div>

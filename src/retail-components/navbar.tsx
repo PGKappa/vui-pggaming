@@ -49,7 +49,7 @@ function NavbarContent() {
 
   return (
     <div
-      className="flex h-16 w-full shrink-0 flex-row items-center justify-start bg-accent p-3"
+      className="flex h-16 w-full flex-row items-center justify-start bg-accent p-3"
       suppressHydrationWarning={true}
     >
       <div className="relative left-[8px] flex flex-row items-center space-x-2">

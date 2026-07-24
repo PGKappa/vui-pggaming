@@ -26,12 +26,6 @@ import {
 } from './ui/table'
 import { Toggle } from './ui/toggle'
 import { Check } from 'lucide-react'
-import {
-  useRetailCompactHeight,
-  useRetailOriginalLayout,
-  useRetailPageScroll,
-  useRetailTaskbarFixHeight,
-} from '@/retail-lib/use-retail-compact-height'
 
 type UpcomingRaceCardProps = {
   race: UpcomingEvent
@@ -69,10 +63,6 @@ export default function UpcomingRaceCard({
 
   const { betEntries } = useContext(BetsContext)
   const rootContext = useContext(RootContext)
-  const isCompactHeight = useRetailCompactHeight()
-  const isOriginalLayout = useRetailOriginalLayout()
-  const isPageScroll = useRetailPageScroll()
-  const isTaskbarFixHeight = useRetailTaskbarFixHeight()
 
   const [marketType, setMarketType] = useState<
     'exacta' | 'quinella' | 'trifecta' | 'boxtrifecta'
@@ -452,7 +442,7 @@ export default function UpcomingRaceCard({
           {activeTab === 'couples' && (
             <>
               <TableHead
-                className="w-[25%] min-w-0 text-center font-bold min-[1400px]:max-[1439px]:w-[25%] min-[1440px]:w-[26%] min-[1920px]:w-[25%]"
+                className="w-[25%] min-w-0 text-center font-bold min-[1440px]:w-[26%]"
                 colSpan={2}
               >
                 <span className="inline-block h-full w-full align-middle leading-[54px]">
@@ -461,7 +451,7 @@ export default function UpcomingRaceCard({
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
               <TableHead
-                className="w-[25%] min-w-0 text-center font-bold min-[1400px]:max-[1439px]:w-[25%] min-[1440px]:w-[24%] min-[1920px]:w-[25%]"
+                className="w-[25%] min-w-0 text-center font-bold min-[1440px]:w-[24%]"
                 colSpan={2}
               >
                 <span className="inline-block h-full w-full align-middle leading-[54px]">
@@ -474,7 +464,7 @@ export default function UpcomingRaceCard({
           {activeTab === 'triplets' && (
             <>
               <TableHead
-                className="w-[25%] min-w-0 text-center font-bold min-[1400px]:max-[1439px]:w-[25%] min-[1440px]:w-[32%] min-[1920px]:w-[25%]"
+                className="w-[30%] min-w-0 text-center font-bold min-[1440px]:w-[32%]"
                 colSpan={3}
               >
                 <span className="inline-block h-full w-full align-middle leading-[54px]">
@@ -483,15 +473,11 @@ export default function UpcomingRaceCard({
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
               <TableHead
-                className="w-[25%] min-w-0 text-center font-bold min-[1400px]:max-[1439px]:w-[25%] min-[1440px]:w-[18%] min-[1920px]:w-[25%]"
+                className="w-[20%] min-w-0 text-center font-bold min-[1440px]:w-[18%]"
                 colSpan={2}
               >
                 <span className="inline-block h-full w-full align-middle leading-[54px]">
-                  {t(
-                    isCompactHeight
-                      ? 'boxed_trifecta_short'
-                      : 'boxed_trifecta',
-                  ).toUpperCase()}
+                  {t('boxed_trifecta').toUpperCase()}
                 </span>
               </TableHead>
             </>
@@ -503,17 +489,9 @@ export default function UpcomingRaceCard({
 
   const renderTabSpecificCells = (racer: UpcomingRace['racers'][number]) => {
     if (activeTab === 'main') {
-      const cellPad = isOriginalLayout ? 'py-2' : 'py-[7px]'
-      const oddBtnHeight = isOriginalLayout ? 'h-[49px]' : 'h-[48px]'
-
       return (
         <>
-          <TableCell
-            className={cn(
-              'max-w-0 overflow-hidden px-1 text-center',
-              cellPad,
-            )}
-          >
+          <TableCell className="max-w-0 overflow-hidden px-1 py-2 text-center">
             <BetEntryToggle
               marketName={t('winner')}
               apiMarketName="winner"
@@ -538,10 +516,7 @@ export default function UpcomingRaceCard({
                   (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
               }}
               variant="racecard"
-              className={cn(
-                'mx-auto w-full max-w-[100px] bg-betEntry px-1 pt-[0px] text-[18px] tabular-nums text-betEntry-foreground hover:opacity-85 min-[1400px]:max-w-[108px]',
-                oddBtnHeight,
-              )}
+              className="mx-auto h-[49px] w-full max-w-[100px] bg-betEntry px-1 pt-[0px] text-[18px] tabular-nums text-betEntry-foreground hover:opacity-85 min-[1400px]:max-w-[108px]"
               onToggle={() => {
                 betAddedFromUIRef.current = true
               }}
@@ -549,12 +524,7 @@ export default function UpcomingRaceCard({
           </TableCell>
           <TableCell className="w-[1px] bg-border p-0" />
 
-          <TableCell
-            className={cn(
-              'max-w-0 overflow-hidden px-1 text-center',
-              cellPad,
-            )}
-          >
+          <TableCell className="max-w-0 overflow-hidden px-1 py-2 text-center">
             <BetEntryToggle
               marketName={t('placed')}
               apiMarketName="placed"
@@ -579,10 +549,7 @@ export default function UpcomingRaceCard({
                   (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
               }}
               variant="racecard"
-              className={cn(
-                'mx-auto w-full max-w-[100px] bg-betEntry px-1 pt-[0px] text-[18px] tabular-nums text-betEntry-foreground hover:opacity-85 min-[1400px]:max-w-[108px]',
-                oddBtnHeight,
-              )}
+              className="mx-auto h-[49px] w-full max-w-[100px] bg-betEntry px-1 pt-[0px] text-[18px] tabular-nums text-betEntry-foreground hover:opacity-85 min-[1400px]:max-w-[108px]"
               onToggle={() => {
                 betAddedFromUIRef.current = true
               }}
@@ -590,12 +557,7 @@ export default function UpcomingRaceCard({
           </TableCell>
           <TableCell className="w-[1px] bg-border p-0" />
 
-          <TableCell
-            className={cn(
-              'max-w-0 overflow-hidden px-1 text-center',
-              cellPad,
-            )}
-          >
+          <TableCell className="max-w-0 overflow-hidden px-1 py-2 text-center">
             <BetEntryToggle
               marketName={t('show')}
               apiMarketName="show"
@@ -620,10 +582,7 @@ export default function UpcomingRaceCard({
                   (race.discipline === 'DOGS8' ? 'Track 8' : 'Track 6'),
               }}
               variant="racecard"
-              className={cn(
-                'mx-auto w-full max-w-[100px] bg-betEntry px-1 pt-[0px] text-[18px] tabular-nums text-betEntry-foreground hover:opacity-85 min-[1400px]:max-w-[108px]',
-                oddBtnHeight,
-              )}
+              className="mx-auto h-[49px] w-full max-w-[100px] bg-betEntry px-1 pt-[0px] text-[18px] tabular-nums text-betEntry-foreground hover:opacity-85 min-[1400px]:max-w-[108px]"
               onToggle={() => {
                 betAddedFromUIRef.current = true
               }}
@@ -636,50 +595,28 @@ export default function UpcomingRaceCard({
       return (
         <>
           <TableCell
-            className={cn(
-              'h-16 max-w-0 cursor-pointer overflow-hidden text-center',
-              isOriginalLayout
-                ? 'px-1 min-[1400px]:max-[1439px]:px-2 min-[1400px]:max-[1439px]:!pr-2 min-[1400px]:max-[1439px]:pl-2 min-[1440px]:max-[1919px]:!pr-0 min-[1440px]:max-[1919px]:pl-10 min-[1920px]:!pr-2 min-[1920px]:pl-2'
-                : 'px-2 min-[1400px]:max-[1439px]:px-2.5 min-[1440px]:max-[1919px]:pl-3 min-[1440px]:max-[1919px]:pr-2 min-[1920px]:px-3',
-              isAnyOrderMode && 'bg-gray-300',
-            )}
+            className={`h-16 max-w-0 cursor-pointer overflow-hidden px-1 text-center min-[1400px]:!pr-0 min-[1400px]:pl-10 ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
             onClick={handleMarketTypeToggle}
           >
             <Toggle
               pressed={position1Selection.includes(racer.number)}
               onPressedChange={() => togglePosition1Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className={cn(
-                'relative mx-auto h-10 w-full border-betEntry-border pt-[2px] tabular-nums',
-                isOriginalLayout
-                  ? 'max-w-[72px] min-[1280px]:max-w-[88px] min-[1400px]:max-[1439px]:left-0 min-[1400px]:max-[1439px]:right-0 min-[1400px]:max-[1439px]:h-12 min-[1400px]:max-[1439px]:max-w-[100px] min-[1440px]:max-[1919px]:right-[2px] min-[1440px]:h-12 min-[1440px]:max-[1919px]:max-w-[117px] min-[1920px]:left-0 min-[1920px]:right-0 min-[1920px]:max-w-[110px]'
-                  : 'max-w-[68px] min-[1280px]:max-w-[84px] min-[1400px]:max-[1439px]:h-12 min-[1400px]:max-[1439px]:max-w-[96px] min-[1440px]:h-12 min-[1440px]:max-[1919px]:max-w-[110px] min-[1920px]:max-w-[104px]',
-              )}
+              className="relative mx-auto h-10 w-full max-w-[72px] border-betEntry-border pt-[2px] tabular-nums min-[1280px]:max-w-[88px] min-[1400px]:right-[2px] min-[1400px]:h-12 min-[1400px]:max-w-[117px]"
             >
               <span className="text-[17px] min-[1400px]:text-[19px]">1°</span>
             </Toggle>
           </TableCell>
 
           <TableCell
-            className={cn(
-              'max-w-0 cursor-pointer overflow-hidden text-center',
-              isOriginalLayout
-                ? 'px-1 min-[1400px]:max-[1439px]:px-2 min-[1400px]:max-[1439px]:!pl-2 min-[1400px]:max-[1439px]:pr-2 min-[1440px]:max-[1919px]:!pl-0 min-[1440px]:max-[1919px]:pr-10 min-[1920px]:!pl-2 min-[1920px]:pr-2'
-                : 'px-2 min-[1400px]:max-[1439px]:px-2.5 min-[1440px]:max-[1919px]:pl-2 min-[1440px]:max-[1919px]:pr-3 min-[1920px]:px-3',
-              isAnyOrderMode && 'bg-gray-300',
-            )}
+            className={`max-w-0 cursor-pointer overflow-hidden px-1 text-center min-[1400px]:!pl-0 min-[1400px]:pr-10 ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
             onClick={handleMarketTypeToggle}
           >
             <Toggle
               pressed={position2Selection.includes(racer.number)}
               onPressedChange={() => togglePosition2Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className={cn(
-                'relative mx-auto h-10 w-full border-betEntry-border pt-[2px]',
-                isOriginalLayout
-                  ? 'max-w-[72px] min-[1280px]:max-w-[88px] min-[1400px]:max-[1439px]:left-0 min-[1400px]:max-[1439px]:h-12 min-[1400px]:max-[1439px]:max-w-[100px] min-[1440px]:max-[1919px]:left-[2px] min-[1440px]:h-12 min-[1440px]:max-[1919px]:max-w-[118px] min-[1920px]:left-0 min-[1920px]:max-w-[110px]'
-                  : 'max-w-[68px] min-[1280px]:max-w-[84px] min-[1400px]:max-[1439px]:h-12 min-[1400px]:max-[1439px]:max-w-[96px] min-[1440px]:h-12 min-[1440px]:max-[1919px]:max-w-[110px] min-[1920px]:max-w-[104px]',
-              )}
+              className="relative mx-auto h-10 w-full max-w-[72px] border-betEntry-border pt-[2px] min-[1280px]:max-w-[88px] min-[1400px]:left-[2px] min-[1400px]:h-12 min-[1400px]:max-w-[118px]"
             >
               <span className="text-[17px] min-[1400px]:text-[19px]">2°</span>
             </Toggle>
@@ -693,25 +630,13 @@ export default function UpcomingRaceCard({
               onClick={handleMarketTypeToggle}
             >
               <div
-                className={cn(
-                  'flex flex-1 items-center justify-center',
-                  isOriginalLayout
-                    ? 'p-1 min-[1400px]:p-2'
-                    : 'px-2 py-1 min-[1400px]:px-2.5 min-[1400px]:py-2 min-[1440px]:max-[1919px]:pl-3 min-[1440px]:max-[1919px]:pr-2 min-[1920px]:px-3',
-                  !isAnyOrderMode && 'bg-gray-300',
-                )}
+                className={`flex flex-1 items-center justify-center p-1 min-[1400px]:p-2 ${!isAnyOrderMode ? 'bg-gray-300' : ''}`}
               >
                 <Toggle
                   pressed={fixedSelection.includes(racer.number)}
                   onPressedChange={() => toggleFixedSelection(racer.number)}
                   onClick={(e) => e.stopPropagation()}
-                  className={cn(
-                    'relative mx-auto h-10 w-full border-betEntry-border pt-[2px]',
-                    isOriginalLayout
-                      ? 'max-w-[44px] min-[1280px]:max-w-[52px] min-[1400px]:max-[1439px]:left-0 min-[1400px]:max-[1439px]:h-12 min-[1400px]:max-[1439px]:max-w-[56px] min-[1440px]:max-[1919px]:left-[17px] min-[1440px]:h-12 min-[1440px]:max-w-[56px] min-[1920px]:left-0'
-                      : 'max-w-[40px] min-[1280px]:max-w-[48px] min-[1400px]:max-[1439px]:h-12 min-[1400px]:max-[1439px]:max-w-[52px] min-[1440px]:h-12 min-[1440px]:max-w-[52px]',
-                    fixedSelection.includes(racer.number) && 'text-white',
-                  )}
+                  className={`relative mx-auto h-10 w-full max-w-[44px] border-betEntry-border pt-[2px] min-[1280px]:max-w-[52px] min-[1400px]:left-[17px] min-[1400px]:h-12 min-[1400px]:max-w-[56px] ${fixedSelection.includes(racer.number) ? 'text-white' : ''}`}
                 >
                   <span className="text-[17px] min-[1400px]:text-[19px]">F</span>
                 </Toggle>
@@ -725,24 +650,13 @@ export default function UpcomingRaceCard({
               onClick={handleMarketTypeToggle}
             >
               <div
-                className={cn(
-                  'flex flex-1 items-center justify-center',
-                  isOriginalLayout
-                    ? 'p-1 min-[1400px]:p-2'
-                    : 'px-2 py-1 min-[1400px]:px-2.5 min-[1400px]:py-2 min-[1440px]:max-[1919px]:pl-2 min-[1440px]:max-[1919px]:pr-3 min-[1920px]:px-3',
-                  !isAnyOrderMode && 'bg-gray-300',
-                )}
+                className={`flex flex-1 items-center justify-center p-1 min-[1400px]:p-2 ${!isAnyOrderMode ? 'bg-gray-300' : ''}`}
               >
                 <Toggle
                   pressed={disorderSelection.includes(racer.number)}
                   onPressedChange={() => toggleDisorderSelection(racer.number)}
                   onClick={(e) => e.stopPropagation()}
-                  className={cn(
-                    'relative mx-auto h-10 w-full border-betEntry-border pt-[2px]',
-                    isOriginalLayout
-                      ? 'max-w-[72px] min-[1280px]:max-w-[88px] min-[1400px]:max-[1439px]:right-0 min-[1400px]:max-[1439px]:h-12 min-[1400px]:max-[1439px]:max-w-[100px] min-[1440px]:max-[1919px]:right-[4px] min-[1440px]:h-12 min-[1440px]:max-[1919px]:max-w-[117px] min-[1920px]:right-0 min-[1920px]:max-w-[110px]'
-                      : 'max-w-[68px] min-[1280px]:max-w-[84px] min-[1400px]:max-[1439px]:h-12 min-[1400px]:max-[1439px]:max-w-[96px] min-[1440px]:h-12 min-[1440px]:max-[1919px]:max-w-[110px] min-[1920px]:max-w-[104px]',
-                  )}
+                  className="relative mx-auto h-10 w-full max-w-[72px] border-betEntry-border pt-[2px] min-[1280px]:max-w-[88px] min-[1400px]:right-[4px] min-[1400px]:h-12 min-[1400px]:max-w-[117px]"
                 >
                   {disorderSelection.includes(racer.number) && (
                     <Check
@@ -761,75 +675,42 @@ export default function UpcomingRaceCard({
       return (
         <>
           <TableCell
-            className={cn(
-              'h-16 max-w-0 cursor-pointer overflow-hidden text-center',
-              isOriginalLayout
-                ? 'px-1 min-[1400px]:max-[1439px]:px-2 min-[1920px]:px-2'
-                : 'px-2 min-[1400px]:max-[1439px]:px-2.5 min-[1440px]:max-[1919px]:pl-3 min-[1440px]:max-[1919px]:pr-2 min-[1920px]:px-3',
-              isAnyOrderMode && 'bg-gray-300',
-            )}
+            className={`h-16 max-w-0 cursor-pointer overflow-hidden px-1 text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
             onClick={handleMarketTypeToggle}
           >
             <Toggle
               pressed={position1Selection.includes(racer.number)}
               onPressedChange={() => togglePosition1Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className={cn(
-                'relative mx-auto h-10 w-full border-betEntry-border pt-[2px] tabular-nums',
-                isOriginalLayout
-                  ? 'max-w-[60px] min-[1280px]:max-w-[72px] min-[1400px]:max-[1439px]:left-0 min-[1400px]:max-[1439px]:h-12 min-[1400px]:max-[1439px]:max-w-[90px] min-[1440px]:max-[1919px]:left-[11px] min-[1440px]:h-12 min-[1440px]:max-[1919px]:max-w-[116px] min-[1920px]:left-0 min-[1920px]:max-w-[100px]'
-                  : 'max-w-[56px] min-[1280px]:max-w-[68px] min-[1400px]:max-[1439px]:h-12 min-[1400px]:max-[1439px]:max-w-[84px] min-[1440px]:h-12 min-[1440px]:max-[1919px]:max-w-[108px] min-[1920px]:max-w-[96px]',
-              )}
+              className="relative mx-auto h-10 w-full max-w-[60px] border-betEntry-border pt-[2px] tabular-nums min-[1280px]:max-w-[72px] min-[1400px]:left-[11px] min-[1400px]:h-12 min-[1400px]:max-w-[116px]"
             >
               <span className="text-[17px] min-[1400px]:text-[19px]">1°</span>
             </Toggle>
           </TableCell>
 
           <TableCell
-            className={cn(
-              'max-w-0 cursor-pointer overflow-hidden text-center',
-              isOriginalLayout
-                ? 'px-1 min-[1400px]:max-[1439px]:px-2 min-[1920px]:px-2'
-                : 'px-2 min-[1400px]:max-[1439px]:px-2.5 min-[1440px]:max-[1919px]:px-2 min-[1920px]:px-3',
-              isAnyOrderMode && 'bg-gray-300',
-            )}
+            className={`max-w-0 cursor-pointer overflow-hidden px-1 text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
             onClick={handleMarketTypeToggle}
           >
             <Toggle
               pressed={position2Selection.includes(racer.number)}
               onPressedChange={() => togglePosition2Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className={cn(
-                'relative mx-auto h-10 w-full border-betEntry-border pt-[2px] tabular-nums',
-                isOriginalLayout
-                  ? 'max-w-[60px] min-[1280px]:max-w-[72px] min-[1400px]:max-[1439px]:h-12 min-[1400px]:max-[1439px]:max-w-[90px] min-[1440px]:h-12 min-[1440px]:max-[1919px]:max-w-[116px] min-[1920px]:max-w-[100px]'
-                  : 'max-w-[56px] min-[1280px]:max-w-[68px] min-[1400px]:max-[1439px]:h-12 min-[1400px]:max-[1439px]:max-w-[84px] min-[1440px]:h-12 min-[1440px]:max-[1919px]:max-w-[108px] min-[1920px]:max-w-[96px]',
-              )}
+              className="relative mx-auto h-10 w-full max-w-[60px] border-betEntry-border pt-[2px] tabular-nums min-[1280px]:max-w-[72px] min-[1400px]:h-12 min-[1400px]:max-w-[116px]"
             >
               <span className="text-[17px] min-[1400px]:text-[19px]">2°</span>
             </Toggle>
           </TableCell>
 
           <TableCell
-            className={cn(
-              'max-w-0 cursor-pointer overflow-hidden text-center',
-              isOriginalLayout
-                ? 'px-1 min-[1400px]:max-[1439px]:px-2 min-[1920px]:px-2'
-                : 'px-2 min-[1400px]:max-[1439px]:px-2.5 min-[1440px]:max-[1919px]:pl-2 min-[1440px]:max-[1919px]:pr-3 min-[1920px]:px-3',
-              isAnyOrderMode && 'bg-gray-300',
-            )}
+            className={`max-w-0 cursor-pointer overflow-hidden px-1 text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
             onClick={handleMarketTypeToggle}
           >
             <Toggle
               pressed={position3Selection.includes(racer.number)}
               onPressedChange={() => togglePosition3Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className={cn(
-                'relative mx-auto h-10 w-full border-betEntry-border pt-[2px] tabular-nums',
-                isOriginalLayout
-                  ? 'max-w-[60px] min-[1280px]:max-w-[72px] min-[1400px]:max-[1439px]:right-0 min-[1400px]:max-[1439px]:h-12 min-[1400px]:max-[1439px]:max-w-[90px] min-[1440px]:max-[1919px]:right-[12px] min-[1440px]:h-12 min-[1440px]:max-[1919px]:max-w-[116px] min-[1920px]:right-0 min-[1920px]:max-w-[100px]'
-                  : 'max-w-[56px] min-[1280px]:max-w-[68px] min-[1400px]:max-[1439px]:h-12 min-[1400px]:max-[1439px]:max-w-[84px] min-[1440px]:h-12 min-[1440px]:max-[1919px]:max-w-[108px] min-[1920px]:max-w-[96px]',
-              )}
+              className="relative mx-auto h-10 w-full max-w-[60px] border-betEntry-border pt-[2px] tabular-nums min-[1280px]:max-w-[72px] min-[1400px]:right-[12px] min-[1400px]:h-12 min-[1400px]:max-w-[116px]"
             >
               <span className="text-[17px] min-[1400px]:text-[19px]">3°</span>
             </Toggle>
@@ -843,25 +724,13 @@ export default function UpcomingRaceCard({
               onClick={handleMarketTypeToggle}
             >
               <div
-                className={cn(
-                  'flex flex-1 items-center justify-center',
-                  isOriginalLayout
-                    ? 'p-1 min-[1400px]:p-2 min-[1400px]:max-[1439px]:pl-2 min-[1920px]:pl-2'
-                    : 'px-2 py-1 min-[1400px]:px-2.5 min-[1400px]:py-2 min-[1440px]:max-[1919px]:pl-3 min-[1440px]:max-[1919px]:pr-2 min-[1920px]:px-3',
-                  !isAnyOrderMode && 'bg-gray-300',
-                )}
+                className={`flex flex-1 items-center justify-center p-1 min-[1400px]:py-2 min-[1400px]:pl-[2px] ${!isAnyOrderMode ? 'bg-gray-300' : ''}`}
               >
                 <Toggle
                   pressed={fixedSelection.includes(racer.number)}
                   onPressedChange={() => toggleFixedSelection(racer.number)}
                   onClick={(e) => e.stopPropagation()}
-                  className={cn(
-                    'relative mx-auto h-10 w-full border-betEntry-border pt-[2px]',
-                    isOriginalLayout
-                      ? 'max-w-[44px] min-[1280px]:max-w-[52px] min-[1400px]:max-[1439px]:left-0 min-[1400px]:max-[1439px]:h-12 min-[1400px]:max-[1439px]:max-w-[56px] min-[1440px]:max-[1919px]:left-[17px] min-[1440px]:h-12 min-[1440px]:max-w-[56px] min-[1920px]:left-0'
-                      : 'max-w-[40px] min-[1280px]:max-w-[48px] min-[1400px]:max-[1439px]:h-12 min-[1400px]:max-[1439px]:max-w-[52px] min-[1440px]:h-12 min-[1440px]:max-w-[52px]',
-                    fixedSelection.includes(racer.number) && 'text-white',
-                  )}
+                  className={`relative mx-auto h-10 w-full max-w-[44px] border-betEntry-border pt-[2px] min-[1280px]:max-w-[52px] min-[1400px]:left-[17px] min-[1400px]:h-12 min-[1400px]:max-w-[56px] ${fixedSelection.includes(racer.number) ? 'text-white' : ''}`}
                 >
                   <span className="text-[17px] min-[1400px]:text-[19px]">F</span>
                 </Toggle>
@@ -875,24 +744,13 @@ export default function UpcomingRaceCard({
               onClick={handleMarketTypeToggle}
             >
               <div
-                className={cn(
-                  'flex flex-1 items-center justify-center',
-                  isOriginalLayout
-                    ? 'p-1 min-[1400px]:p-2'
-                    : 'px-2 py-1 min-[1400px]:px-2.5 min-[1400px]:py-2 min-[1440px]:max-[1919px]:pl-2 min-[1440px]:max-[1919px]:pr-3 min-[1920px]:px-3',
-                  !isAnyOrderMode && 'bg-gray-300',
-                )}
+                className={`flex flex-1 items-center justify-center p-1 min-[1400px]:p-2 ${!isAnyOrderMode ? 'bg-gray-300' : ''}`}
               >
                 <Toggle
                   pressed={disorderSelection.includes(racer.number)}
                   onPressedChange={() => toggleDisorderSelection(racer.number)}
                   onClick={(e) => e.stopPropagation()}
-                  className={cn(
-                    'relative mx-auto h-10 w-full border-betEntry-border pt-[2px] tabular-nums',
-                    isOriginalLayout
-                      ? 'max-w-[60px] min-[1280px]:max-w-[72px] min-[1400px]:max-[1439px]:left-0 min-[1400px]:max-[1439px]:h-12 min-[1400px]:max-[1439px]:max-w-[90px] min-[1440px]:max-[1919px]:left-[3px] min-[1440px]:h-12 min-[1440px]:max-[1919px]:max-w-[116px] min-[1920px]:left-0 min-[1920px]:max-w-[100px]'
-                      : 'max-w-[56px] min-[1280px]:max-w-[68px] min-[1400px]:max-[1439px]:h-12 min-[1400px]:max-[1439px]:max-w-[84px] min-[1440px]:h-12 min-[1440px]:max-[1919px]:max-w-[108px] min-[1920px]:max-w-[96px]',
-                  )}
+                  className="relative mx-auto h-10 w-full max-w-[60px] border-betEntry-border pt-[2px] tabular-nums min-[1280px]:max-w-[72px] min-[1400px]:left-[3px] min-[1400px]:h-12 min-[1400px]:max-w-[116px]"
                 >
                   {disorderSelection.includes(racer.number) && (
                     <Check
@@ -911,43 +769,25 @@ export default function UpcomingRaceCard({
   }
 
   // renderSpecialMarkets: TableBody nella stessa <Table>.
-  // ≤1400px (incluso page-scroll <1280×720): griglia 50/50, niente scroll orizzontale.
-  // ≥1401px: colSpan 6/5 allineato alle colonne tabella.
+  // ≥1401px e <1280px: colSpan 6/5 allineato alle colonne tabella.
+  // 1280–1400px: griglia 50/50 indipendente (non allineata al separatore).
   const renderSpecialMarkets = () => {
     if (activeTab !== 'main' || !raceInfo?.odds) {
       return null
     }
 
-    // At 900px (taskbar overlap): slightly shorter so odds stay above the bar
-    const marketHeaderH = isTaskbarFixHeight ? 'h-12' : 'h-16'
-    const marketOddsH = isTaskbarFixHeight ? 'h-[56px]' : 'h-[66px]'
-    const marketBtnH = isTaskbarFixHeight ? 'h-[42px]' : 'h-[49px]'
-    // Tighter side padding below 1280×720 so the two halves fit without H-scroll
-    const marketPad = isPageScroll
-      ? 'px-2'
-      : 'px-4 min-[1400px]:px-12 min-[1600px]:px-16'
-    const marketPadEvenLeft = isPageScroll
-      ? 'px-2'
-      : 'px-4 min-[1400px]:pl-12 min-[1400px]:pr-8 min-[1600px]:pl-16'
-
     const evenOddBlock = (splitBorder = false) => (
       <>
         <div
           className={cn(
-            'flex items-center justify-center bg-accent text-[16px] font-bold text-accent-foreground',
-            marketHeaderH,
+            'flex h-16 items-center justify-center bg-accent text-[16px] font-bold text-accent-foreground',
             splitBorder && 'border-r',
           )}
         >
           {t('even_odd').toUpperCase()}
         </div>
-        <div className={cn('flex min-w-0', marketOddsH)}>
-          <div
-            className={cn(
-              'flex min-w-0 flex-1 items-center justify-center',
-              marketPadEvenLeft,
-            )}
-          >
+        <div className="flex h-[66px]">
+          <div className="flex flex-1 items-center justify-center px-4 min-[1400px]:pl-12 min-[1400px]:pr-8 min-[1600px]:pl-16">
             <BetEntryToggle
               marketName={t('even_odd')}
               apiMarketName="even/odd"
@@ -968,7 +808,7 @@ export default function UpcomingRaceCard({
                 track: race.trackName || 'Track 6',
               }}
               variant="matchcard"
-              className={cn(marketBtnH, 'w-full min-w-0 text-[16px] text-black')}
+              className="h-[49px] w-full text-[16px] text-black"
               onToggle={() => {
                 betAddedFromUIRef.current = true
               }}
@@ -976,8 +816,7 @@ export default function UpcomingRaceCard({
           </div>
           <div
             className={cn(
-              'flex min-w-0 flex-1 items-center justify-center',
-              marketPad,
+              'flex flex-1 items-center justify-center px-4 min-[1400px]:px-12 min-[1600px]:px-16',
               splitBorder && 'border-r',
             )}
           >
@@ -1001,7 +840,7 @@ export default function UpcomingRaceCard({
                 track: race.trackName || 'Track 6',
               }}
               variant="matchcard"
-              className={cn(marketBtnH, 'w-full min-w-0 text-[16px] text-black')}
+              className="h-[49px] w-full text-[16px] text-black"
               onToggle={() => {
                 betAddedFromUIRef.current = true
               }}
@@ -1013,22 +852,12 @@ export default function UpcomingRaceCard({
 
     const underOverBlock = () => (
       <>
-        <div
-          className={cn(
-            'flex items-center justify-center bg-accent text-[16px] font-bold text-accent-foreground',
-            marketHeaderH,
-          )}
-        >
+        <div className="flex h-16 items-center justify-center bg-accent text-[16px] font-bold text-accent-foreground">
           {t('under_over').toUpperCase()}{' '}
           {race.discipline === 'DOGS8' ? '4.5' : '3.5'}
         </div>
-        <div className={cn('flex min-w-0', marketOddsH)}>
-          <div
-            className={cn(
-              'flex min-w-0 flex-1 items-center justify-center',
-              marketPad,
-            )}
-          >
+        <div className="flex h-[66px]">
+          <div className="flex flex-1 items-center justify-center px-4 min-[1400px]:px-12 min-[1600px]:px-16">
             <BetEntryToggle
               marketName={t('under_over')}
               apiMarketName="under/over"
@@ -1049,18 +878,13 @@ export default function UpcomingRaceCard({
                 track: race.trackName || 'Track 6',
               }}
               variant="matchcard"
-              className={cn(marketBtnH, 'w-full min-w-0 text-[16px] text-black')}
+              className="h-[49px] w-full text-[16px] text-black"
               onToggle={() => {
                 betAddedFromUIRef.current = true
               }}
             />
           </div>
-          <div
-            className={cn(
-              'flex min-w-0 flex-1 items-center justify-center',
-              marketPad,
-            )}
-          >
+          <div className="flex flex-1 items-center justify-center px-4 min-[1400px]:px-12 min-[1600px]:px-16">
             <BetEntryToggle
               marketName={t('under_over')}
               apiMarketName="under/over"
@@ -1081,7 +905,7 @@ export default function UpcomingRaceCard({
                 track: race.trackName || 'Track 6',
               }}
               variant="matchcard"
-              className={cn(marketBtnH, 'w-full min-w-0 text-[16px] text-black')}
+              className="h-[49px] w-full text-[16px] text-black"
               onToggle={() => {
                 betAddedFromUIRef.current = true
               }}
@@ -1097,18 +921,18 @@ export default function UpcomingRaceCard({
           <TableCell colSpan={11} className="h-2 p-0" />
         </TableRow>
 
-        {/* ≤1400px (anche <1280×720): due metà uguali, senza overflow orizzontale */}
-        <TableRow className="hidden border-0 hover:bg-transparent max-[1400px]:table-row">
-          <TableCell colSpan={11} className="max-w-0 overflow-hidden p-0">
-            <div className="grid w-full min-w-0 grid-cols-2">
-              <div className="min-w-0 overflow-hidden">{evenOddBlock(true)}</div>
-              <div className="min-w-0 overflow-hidden">{underOverBlock()}</div>
+        {/* 1280–1400px: due metà uguali, indipendenti dalle colonne tabella */}
+        <TableRow className="hidden border-0 hover:bg-transparent min-[1280px]:max-[1400px]:table-row">
+          <TableCell colSpan={11} className="p-0">
+            <div className="grid grid-cols-2">
+              <div>{evenOddBlock(true)}</div>
+              <div>{underOverBlock()}</div>
             </div>
           </TableCell>
         </TableRow>
 
-        {/* ≥1401px: allineato alle colonne tabella */}
-        <TableRow className="border-0 hover:bg-transparent max-[1400px]:hidden">
+        {/* Altre risoluzioni: allineato alle colonne tabella */}
+        <TableRow className="border-0 hover:bg-transparent min-[1280px]:max-[1400px]:hidden">
           <TableCell colSpan={6} className="p-0">
             {evenOddBlock(true)}
           </TableCell>
@@ -1122,13 +946,7 @@ export default function UpcomingRaceCard({
 
   return (
     <>
-      <Card
-        className={cn(
-          'w-full',
-          // At 900px allow natural height so PAR/IMPAR odds stay reachable via scroll
-          isTaskbarFixHeight ? 'min-h-0' : 'h-full overflow-hidden',
-        )}
-      >
+      <Card className="h-full w-full overflow-hidden">
         <CardHeader className="flex h-[73px] flex-row items-center justify-between px-[12px]">
           <div className="flex items-center space-x-2">
             {Object.entries(tabConfig).map(([key, config]) => {
@@ -1184,12 +1002,7 @@ export default function UpcomingRaceCard({
         </CardHeader>
 
         <CardContent>
-          <Table
-            className={cn(
-              'table-fixed',
-              isTaskbarFixHeight && 'relative bottom-4',
-            )}
-          >
+          <Table className="table-fixed">
             {renderTableHeader()}
 
             <TableBody>
@@ -1197,18 +1010,9 @@ export default function UpcomingRaceCard({
                 raceInfo.racers.map((racer) => (
                   <TableRow
                     key={racer.number}
-                    className={cn(
-                      'border-b border-border text-[19px]',
-                      !isOriginalLayout &&
-                        (isTaskbarFixHeight ? 'h-[62px]' : 'h-[64px]'),
-                    )}
+                    className="border-b border-border text-[19px]"
                   >
-                    <TableCell
-                      className={cn(
-                        'relative left-1 px-2 text-[18px]',
-                        isOriginalLayout ? 'p-2' : 'py-[7px]',
-                      )}
-                    >
+                    <TableCell className="relative left-1 p-2 text-[18px]">
                       <div className="flex items-center space-x-[7px]">
                         <div
                           className="flex h-[33px] w-[33px] items-center justify-center rounded-md text-[21px] font-semibold tabular-nums"
@@ -1231,12 +1035,7 @@ export default function UpcomingRaceCard({
 
                     <TableCell className="w-[1px] bg-border p-0" />
 
-                    <TableCell
-                      className={cn(
-                        'px-2 text-[15px] font-bold',
-                        isOriginalLayout ? 'p-2' : 'py-[7px]',
-                      )}
-                    >
+                    <TableCell className="p-2 text-[15px] font-bold">
                       <div className="flex w-full min-w-0 flex-col items-stretch justify-center gap-1 px-1">
                         <span className="text-center">{racer.performance}%</span>
                         <Progress
