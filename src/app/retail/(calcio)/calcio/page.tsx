@@ -80,9 +80,9 @@ export default function Home() {
   }, [carouselEvents])
 
   return (
-    <div className="flex h-full min-w-0 flex-row overflow-hidden">
-      <div className="flex min-w-0 flex-1 flex-col gap-2 overflow-hidden">
-        <div className="bg-betslip flex h-[88px] w-full flex-row items-center justify-center pb-[2px]">
+    <div className="flex h-full min-h-0 min-w-0 flex-row overflow-hidden">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-2 overflow-hidden">
+        <div className="bg-betslip flex h-[88px] w-full shrink-0 flex-row items-center justify-center pb-[2px]">
           <UpcomingEventsCarousel
             selectedEvent={selectedEvent}
             setSelectedEvent={(event) => {
@@ -94,7 +94,7 @@ export default function Home() {
           />
         </div>
 
-        <div className="flex h-[942px] w-full flex-col gap-2 tabular-nums">
+        <div className="flex min-h-0 w-full flex-1 flex-col gap-2 tabular-nums">
           {!!searchEventResults ? (
             <SearchEventResults />
           ) : selectedEvent ? (
@@ -184,7 +184,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="mt-[-5px] h-[937px] w-[410px] shrink-0 bg-background pr-2 text-foreground">
+      <div className="mt-[-5px] h-full w-[410px] shrink-0 bg-background pr-2 text-foreground">
         <BettingSlip selectedEvent={selectedEvent} />
       </div>
     </div>

@@ -88,10 +88,10 @@ export default function Dogs8Page() {
   }, [selectedEvent, upcomingEvents])
 
   return (
-    <div className="relative bottom-[5px] flex h-[945px] min-w-[1200px] flex-row overflow-hidden">
+    <div className="relative flex h-full min-h-0 min-w-[1200px] flex-row overflow-hidden">
       {/* LEFT COLUMN - si allarga/stringe in base alla risoluzione */}
-      <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-        <div className="bg-betslip flex h-[99px] w-full flex-row items-center justify-center pb-[2px] pr-2">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+        <div className="bg-betslip flex h-[99px] w-full shrink-0 flex-row items-center justify-center pr-2">
           <UpcomingEventsCarousel
             selectedEvent={selectedEvent}
             setSelectedEvent={(event) => {
@@ -101,7 +101,7 @@ export default function Dogs8Page() {
           />
         </div>
 
-        <div className="bg-betslip flex flex-1 flex-row gap-2 overflow-hidden pr-2 pt-[2px]">
+        <div className="bg-betslip flex min-h-0 flex-1 flex-row gap-2 overflow-hidden pr-2">
           <ScrollArea className="h-full w-full">
             {!!searchEventResults ? (
               <SearchEventResults />
@@ -117,7 +117,7 @@ export default function Dogs8Page() {
       </div>
 
       {/* RIGHT COLUMN - larghezza fissa, sempre ancorata a destra */}
-      <div className="relative right-1 h-[950px] w-[400px] shrink-0 bg-background text-foreground">
+      <div className="relative right-1 h-full w-[400px] shrink-0 bg-background text-foreground">
         <BettingSlip selectedEvent={selectedEvent} />
       </div>
     </div>

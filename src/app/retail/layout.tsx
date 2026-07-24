@@ -12,8 +12,6 @@ import RootContextProvider, {
   RootContext,
 } from '@/retail-contexts/root-context'
 import SkinProvider, { SkinContext } from '@/retail-contexts/skin-context'
-import { RETAIL_VIEWPORT } from '@/retail-lib/viewport-config'
-import { useRetailCompactHeight } from '@/retail-lib/use-retail-compact-height'
 import { cn } from '@/retail-lib/utils'
 import { Inter } from 'next/font/google'
 import { usePathname } from 'next/navigation'
@@ -132,13 +130,11 @@ export default function RetailLayout({
 function SkinBody({ children }: { children: React.ReactNode }) {
   const [skin] = useContext(SkinContext)
   const pathname = usePathname()
-  const isCompactHeight = useRetailCompactHeight()
 
   return (
     <body
       className={cn(
-        `${inter.variable} ${skin} flex flex-col font-inter antialiased`,
-        isCompactHeight ? 'h-screen overflow-y-auto' : 'h-screen overflow-hidden',
+        `${inter.variable} ${skin} flex h-screen flex-col overflow-hidden font-inter antialiased`,
       )}
     >
       {/* Splash screen statico inline - appare ISTANTANEAMENTE */}
@@ -176,7 +172,6 @@ let hasAppLoaded = false
 
 function RetailShell({ children }: { children: React.ReactNode }) {
   const { t } = useTranslation()
-  const isCompactHeight = useRetailCompactHeight()
   const {
     isLoadingEvents,
     isLoadingCashier,
@@ -300,25 +295,10 @@ function RetailShell({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <div
-        className={cn(
-          'flex flex-col',
-          isCompactHeight ? 'min-h-0' : 'h-full min-h-0',
-        )}
-        style={
-          isCompactHeight
-            ? { minHeight: RETAIL_VIEWPORT.HEIGHT }
-            : undefined
-        }
-      >
+      <div className="flex h-full min-h-0 flex-col">
         <Navbar />
-        <main
-          className={cn(
-            'min-w-[1280px] gap-2',
-            isCompactHeight ? 'min-h-0 flex-1' : 'h-full overflow-hidden',
-          )}
-        >
-          <div className={cn('p-2', !isCompactHeight && 'h-full')}>
+        <main className="min-h-0 min-w-[1280px] flex-1 overflow-hidden">
+          <div className="h-full min-h-0 px-2 pb-2 pt-0">
             <BetsContextProvider>{children}</BetsContextProvider>
           </div>
         </main>

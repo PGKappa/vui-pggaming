@@ -1104,7 +1104,7 @@ export default function BettingSlip({
       className="ml-2 flex h-full w-full flex-col overflow-hidden bg-primary-foreground text-betSlip-foreground"
       data-testid="betting-slip"
     >
-      <div className="grid grid-cols-2 text-center">
+      <div className="grid shrink-0 grid-cols-2 text-center">
         <div className="relative top-[5px] col-span-2 flex h-[52px] w-full flex-row items-center justify-between bg-accent px-5 pb-0.5">
           <span className="items-start pb-[3px] pl-[132px] text-[14px] font-semibold text-accent-foreground">
             {t('bet_slip').toUpperCase()} ({betEntries.length})
@@ -1178,7 +1178,7 @@ export default function BettingSlip({
         </div>
       </div>
 
-      <CardContent className="h-full w-full overflow-hidden bg-white p-2 text-betSlip-foreground">
+      <CardContent className="min-h-0 w-full flex-1 overflow-hidden bg-white p-2 text-betSlip-foreground">
         {betEntries.length === 0 ? (
           <div className="relative flex h-full items-start justify-center pt-2">
             <span className="text-[15px] font-normal leading-none">
@@ -1209,14 +1209,14 @@ export default function BettingSlip({
         )}
       </CardContent>
 
-      <Separator />
+      <Separator className="shrink-0" />
 
-      <CardFooter className="relative mb-[26px] flex flex-col bg-backgroundBetslip">
+      <CardFooter className="relative flex shrink-0 flex-col bg-backgroundBetslip pb-7">
         {betMode !== 'SYSTEM' ? (
           <>
             <div className="relative h-[30px] w-full bg-accent py-3"></div>
 
-            <div className="relative top-[12px] flex w-full flex-row items-center justify-between px-4 pt-[9px] text-backgroundBetslip-foreground">
+            <div className="relative top-[12px] flex w-full flex-row items-center justify-between px-4 pt-[9px] text-black">
               <span className="relative bottom-[3px] text-[15px] font-semibold">
                 {t('total_odd').toUpperCase()}
               </span>
@@ -1618,13 +1618,13 @@ export default function BettingSlip({
         )}
       </CardFooter>
 
-      <div className="bg-backgroundBetslip">
+      <div className="shrink-0 bg-backgroundBetslip">
         {betMode === 'SYSTEM' && totalSystemCombinations > maxCombinations && (
           <div className="mx-3 mt-2 rounded border border-destructive bg-destructive/10 px-3 py-2 text-center text-sm font-semibold text-destructive">
             {t('combinations_limit_exceeded')}
           </div>
         )}
-        <div className="w-full p-3 pb-[24px] pt-[9px]">
+        <div className="w-full p-3 pb-3 pt-[9px]">
           <Button
             variant="betNow"
             onClick={handleBetNow}
@@ -1641,7 +1641,7 @@ export default function BettingSlip({
           </Button>
         </div>
 
-        <div className="relative bottom-2 w-full bg-betSlip-header p-3 pb-[15px] pt-[9px]">
+        <div className="w-full bg-betSlip-header p-3 pb-3 pt-[9px]">
           {selectedEvent?.discipline === 'SOCCER' ? (
             <SoccerFastBet selectedEvent={selectedEvent} />
           ) : (
@@ -1649,8 +1649,6 @@ export default function BettingSlip({
           )}
         </div>
       </div>
-
-      {selectedEvent && <div className="w-full bg-white"></div>}
     </Card>
   )
 }
