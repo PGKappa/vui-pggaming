@@ -260,6 +260,7 @@
   "max_tuple_error": "Maximum system bet is 10-ple",
   "max_combinations_error": "Maximum {{max}} combinations per system bet",
   "combinations_limit_exceeded": "Combination limit exceeded",
+  "ticket_not_playable": "Ticket not playable: events, selections, or combinations limit exceeded",
   "select_at_least_one_group": "Select at least one group to distribute the amount",
   "submitting": "Submitting...",
   "bet_submitted_successfully": "Bet submitted successfully!",

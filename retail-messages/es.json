@@ -311,6 +311,7 @@
   "max_tuple_error": "El máximo para las apuestas del sistema es la 10-pla",
   "max_combinations_error": "Máximo {{max}} combinaciones por apuesta de sistema",
   "combinations_limit_exceeded": "Límite de combinaciones superado",
+  "ticket_not_playable": "Ticket no jugable: límite de eventos, selecciones o combinaciones superado",
   "submitting": "Enviando...",
   "bet_submitted_successfully": "Apuesta enviada correctamente!",
   "bet_submission_error": "Error al enviar la apuesta. Inténtalo de nuevo.",
