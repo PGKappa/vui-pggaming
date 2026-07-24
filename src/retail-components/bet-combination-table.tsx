@@ -663,7 +663,9 @@ export default function BetCombinationsTable({
           </div>
         </div>
       </CardHeader>
-      <CardContent className="p-0 pr-2">
+      <CardContent
+        className={cn('p-0 pr-2', is1010To1080Height && 'pb-[24px]')}
+      >
         <div
           className={cn(
             'grid grid-cols-12 gap-2 pt-2',
