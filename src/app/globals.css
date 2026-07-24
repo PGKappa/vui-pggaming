@@ -603,13 +603,12 @@
 
   html {
     height: var(--retail-app-height, 100dvh);
-    overflow-x: auto;
+    overflow: hidden;
   }
 
   html.retail-page-scroll {
-    height: auto;
-    min-height: var(--retail-app-height, 100dvh);
-    overflow-y: auto;
+    height: var(--retail-app-height, 100dvh);
+    overflow: hidden;
   }
 
   body {

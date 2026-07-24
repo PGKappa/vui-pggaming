@@ -144,27 +144,23 @@ function SkinBody({ children }: { children: React.ReactNode }) {
   const isPageScroll = useRetailPageScroll()
   useRetailAppHeight()
 
-  // Keep html scrolling in sync — body overflow alone is not enough when html has a fixed height.
+  // Viewport-sized scrollport so H/V scrollbars stay on the visible window edge
+  // (not at the bottom of a taller-than-window body, which hides them in windowed mode).
   useEffect(() => {
     const root = document.documentElement
     root.classList.toggle('retail-page-scroll', isPageScroll)
-    root.style.overflowX = 'auto'
-    root.style.overflowY = isPageScroll ? 'auto' : 'hidden'
+    root.style.overflow = 'hidden'
     return () => {
       root.classList.remove('retail-page-scroll')
-      root.style.overflowX = ''
-      root.style.overflowY = ''
+      root.style.overflow = ''
     }
   }, [isPageScroll])
 
   return (
     <body
       className={cn(
-        `${inter.variable} ${skin} flex flex-col items-start font-inter antialiased`,
-        // items-start: keep min-w-[1280px] children at 1280 so overflow-x can reach the betslip
-        isPageScroll
-          ? 'min-h-[var(--retail-app-height,100dvh)] overflow-x-auto overflow-y-auto'
-          : 'h-[var(--retail-app-height,100dvh)] overflow-x-auto overflow-y-hidden',
+        `${inter.variable} ${skin} relative font-inter antialiased`,
+        'h-[var(--retail-app-height,100dvh)] overflow-hidden',
       )}
     >
       {/* Splash screen statico inline - appare ISTANTANEAMENTE */}
@@ -189,7 +185,17 @@ function SkinBody({ children }: { children: React.ReactNode }) {
         <EventsContextProvider key={pathname}>
           {/* <UrlDebugBar /> */}
           <RootContextProvider>
-            <RetailShell>{children}</RetailShell>
+            {/* Absolute fill: H-scrollbar stays on the visible window, also in windowed mode */}
+            <div
+              className={cn(
+                'absolute inset-0',
+                isPageScroll
+                  ? 'overflow-auto'
+                  : 'overflow-x-auto overflow-y-hidden',
+              )}
+            >
+              <RetailShell>{children}</RetailShell>
+            </div>
           </RootContextProvider>
         </EventsContextProvider>
       </CashierContextProvider>
@@ -332,7 +338,7 @@ function RetailShell({ children }: { children: React.ReactNode }) {
           'flex w-[1280px] min-w-[1280px] flex-col',
           isPageScroll
             ? 'shrink-0'
-            : 'min-h-0 w-full min-w-[1280px] flex-1 overflow-y-hidden',
+            : 'h-full min-h-0 w-full min-w-[1280px] flex-1 overflow-y-hidden',
         )}
         style={
           isPageScroll
