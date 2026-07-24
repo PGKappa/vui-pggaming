@@ -1058,7 +1058,12 @@ export default function UpcomingRaceCard({
         </CardHeader>
 
         <CardContent>
-          <Table className="table-fixed">
+          <Table
+            className={cn(
+              'table-fixed',
+              isTaskbarFixHeight && 'relative bottom-4',
+            )}
+          >
             {renderTableHeader()}
 
             <TableBody>
