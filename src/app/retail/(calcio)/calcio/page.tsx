@@ -13,17 +13,12 @@ import {
   UpcomingRound,
   Discipline,
 } from '@/retail-lib/types'
-import {
-  getCarouselFilteredEvents,
-  getFutureEventsFromCarousel,
-} from '@/retail-lib/carousel-sync'
-import { useBetslipViewportHeight } from '@/retail-lib/use-retail-compact-height'
+import { getCarouselFilteredEvents, getFutureEventsFromCarousel } from '@/retail-lib/carousel-sync'
 import { useContext, useEffect, useRef, useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
 export default function Home() {
   const { t } = useTranslation()
-  const betslipHeight = useBetslipViewportHeight()
   const { upcomingEvents, searchEventResults, setSearchEventResults } =
     useContext(RootContext)
 
@@ -82,8 +77,8 @@ export default function Home() {
   }, [carouselEvents])
 
   return (
-    <div className="flex min-w-0 flex-row items-start">
-      <div className="flex min-w-0 flex-1 flex-col gap-2">
+    <div className="retail-page-row min-w-0">
+      <div className="retail-left-col gap-2">
         <div className="bg-betslip flex h-[88px] w-full shrink-0 flex-row items-center justify-center pb-[2px]">
           <UpcomingEventsCarousel
             selectedEvent={selectedEvent}
@@ -179,15 +174,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div
-        className="sticky top-16 mt-[-5px] flex w-[410px] shrink-0 flex-col self-start bg-background pr-2 text-foreground"
-        style={{
-          height:
-            betslipHeight != null
-              ? betslipHeight
-              : 'calc(100dvh - 4rem - 0.5rem)',
-        }}
-      >
+      <div className="retail-betslip-col retail-betslip-col--calcio bg-background text-foreground">
         <BettingSlip selectedEvent={selectedEvent} />
       </div>
     </div>

@@ -5,8 +5,9 @@ export const RETAIL_VIEWPORT = {
   HEIGHT: 1020,
   SCROLL_THRESHOLD: 1080,
   /**
-   * At/below this viewport height, SYSTEM combinaciones shows 2 rows (scroll for more).
-   * Above this, up to 3 rows are visible.
+   * Screen/device height threshold (NOT the browser content viewport).
+   * ≤840 (e.g. 1366×768): betslip fixed 900px, page scrolls.
+   * >840 (e.g. 1600×900): betslip sticky, fits the window.
    */
   PAGE_SCROLL_HEIGHT: 840,
   /** Navbar height (h-16) — used for sticky betslip offset */

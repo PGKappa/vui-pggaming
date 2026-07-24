@@ -296,8 +296,8 @@ function RetailShell({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <div className="flex min-h-0 flex-col">
-        <div className="sticky top-0 z-20 shrink-0">
+      <div className="retail-shell">
+        <div className="retail-navbar-wrap">
           <Navbar />
         </div>
         <main className="min-w-[1280px]">

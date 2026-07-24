@@ -20,36 +20,44 @@ export function useRetailCompactHeight() {
   return isCompactHeight
 }
 
-function readViewportHeight() {
-  return window.visualViewport?.height ?? window.innerHeight
+const PAGE_SCROLL_MQ = `(max-device-height: ${RETAIL_VIEWPORT.PAGE_SCROLL_HEIGHT}px)`
+
+function readIsPageScroll() {
+  if (typeof window === 'undefined') return false
+  // Device/screen height — NOT visualViewport (browser chrome must not flip the mode).
+  if (typeof window.matchMedia === 'function') {
+    return window.matchMedia(PAGE_SCROLL_MQ).matches
+  }
+  return window.screen.height <= RETAIL_VIEWPORT.PAGE_SCROLL_HEIGHT
 }
 
 /**
- * True when viewport is ≤840px — used for compact combinaciones (2 rows).
+ * True when the *screen* height is ≤840px (e.g. 1366×768).
+ * In that mode the betslip uses fixed 900px height and the page scrolls.
+ * On taller screens (e.g. 1600×900) the betslip stays sticky and fits the window,
+ * even if browser chrome makes the usable viewport shorter than 840.
  */
 export function useRetailPageScroll() {
-  const [isPageScroll, setIsPageScroll] = useState(false)
+  const [isPageScroll, setIsPageScroll] = useState(readIsPageScroll)
 
   useEffect(() => {
-    const update = () => {
-      setIsPageScroll(readViewportHeight() <= RETAIL_VIEWPORT.PAGE_SCROLL_HEIGHT)
-    }
-
+    const mq = window.matchMedia(PAGE_SCROLL_MQ)
+    const update = () => setIsPageScroll(mq.matches)
     update()
-    window.addEventListener('resize', update)
-    window.visualViewport?.addEventListener('resize', update)
-    return () => {
-      window.removeEventListener('resize', update)
-      window.visualViewport?.removeEventListener('resize', update)
-    }
+    mq.addEventListener('change', update)
+    return () => mq.removeEventListener('change', update)
   }, [])
 
   return isPageScroll
 }
 
+function readViewportHeight() {
+  return window.innerHeight
+}
+
 /**
- * Live betslip column height in px: visual viewport minus navbar and bottom padding.
- * Updates on window / visualViewport resize so windowed ↔ fullscreen adapts.
+ * Live betslip column height in px: window height minus navbar and bottom padding.
+ * Only used when sticky (screen taller than 840).
  */
 export function useBetslipViewportHeight() {
   const [height, setHeight] = useState<number | null>(null)
@@ -71,13 +79,7 @@ export function useBetslipViewportHeight() {
 
     update()
     window.addEventListener('resize', update)
-    window.visualViewport?.addEventListener('resize', update)
-    window.visualViewport?.addEventListener('scroll', update)
-    return () => {
-      window.removeEventListener('resize', update)
-      window.visualViewport?.removeEventListener('resize', update)
-      window.visualViewport?.removeEventListener('scroll', update)
-    }
+    return () => window.removeEventListener('resize', update)
   }, [])
 
   return height

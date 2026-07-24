@@ -9,13 +9,14 @@ import {
   getCarouselFilteredEvents,
   getFutureEventsFromCarousel,
 } from '@/retail-lib/carousel-sync'
-import { useBetslipViewportHeight } from '@/retail-lib/use-retail-compact-height'
+import { useRetailPageScroll } from '@/retail-lib/use-retail-compact-height'
 import { useContext, useEffect, useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { ScrollArea } from '@/retail-components/ui/scroll-area'
 
 export default function Home() {
   const { t } = useTranslation()
-  const betslipHeight = useBetslipViewportHeight()
+  const isPageScroll = useRetailPageScroll()
   const { upcomingEvents, searchEventResults, setSearchEventResults } =
     useContext(RootContext)
 
@@ -65,8 +66,8 @@ export default function Home() {
   )
 
   return (
-    <div className="relative flex min-w-[1200px] flex-row items-start">
-      <div className="flex min-w-0 flex-1 flex-col">
+    <div className="retail-page-row">
+      <div className="retail-left-col">
         <div className="bg-betslip flex h-[99px] w-full shrink-0 flex-row items-center justify-center pr-2">
           <UpcomingEventsCarousel
             selectedEvent={selectedEvent}
@@ -77,20 +78,16 @@ export default function Home() {
           />
         </div>
 
-        <div className="bg-betslip min-w-0 flex-1 pr-2 pt-[2px]">
-          {raceContent}
+        <div className="retail-race-body bg-betslip">
+          {isPageScroll ? (
+            <ScrollArea className="h-full w-full">{raceContent}</ScrollArea>
+          ) : (
+            raceContent
+          )}
         </div>
       </div>
 
-      <div
-        className="sticky top-16 flex w-[400px] shrink-0 flex-col self-start bg-background text-foreground"
-        style={{
-          height:
-            betslipHeight != null
-              ? betslipHeight
-              : 'calc(100dvh - 4rem - 0.5rem)',
-        }}
-      >
+      <div className="retail-betslip-col bg-background text-foreground">
         <BettingSlip selectedEvent={selectedEvent} />
       </div>
     </div>

@@ -82,9 +82,9 @@ export default function BettingSlip({
   } = useContext(BetsContext)
 
   const rootContext = useContext(RootContext)
-  // Sticky column is always viewport-sized; keep footer compact so APOSTAR/FASTBET fit.
-  const fitToViewport = true
-  const isCompactCombinations = useRetailPageScroll()
+  const isPageScroll = useRetailPageScroll()
+  // ≤840 screen height: full fixed-height betslip. Taller screens: compact to fit window.
+  const fitToViewport = !isPageScroll
 
   const currencySymbol = rootContext?.getCurrencySymbol?.() || '$'
   const stakeButtons = rootContext?.getStakeButtons?.() || [
@@ -459,7 +459,7 @@ export default function BettingSlip({
     const expandedHeight = 63
     const numGroups = systemGroups.length
     // ≤840px: show 2 groups; above: show up to 3
-    const maxVisible = isCompactCombinations ? 2 : 3
+    const maxVisible = isPageScroll ? 2 : 3
     const groupsToShow = Math.min(Math.max(numGroups, 1), maxVisible)
     const baseHeight = groupHeight * groupsToShow
 
@@ -471,7 +471,7 @@ export default function BettingSlip({
     const isSingleGroup = numGroups === 1
 
     return baseHeight + (isSingleGroup && isLastGroupOpen ? expandedHeight : 0)
-  }, [systemGroups, systemGroupsOpen, isCompactCombinations])
+  }, [systemGroups, systemGroupsOpen, isPageScroll])
 
   useEffect(() => {
     if (betMode === 'SYSTEM') {
