@@ -1,11 +1,10 @@
 import { Bet, UpcomingEvent, UpcomingRace } from '@/retail-lib/types'
-import { useContext, useMemo, useState } from 'react'
+import { useContext, useEffect, useMemo, useState } from 'react'
 import BetEntryToggle from './bet-entry-toggle'
 import { Button } from './ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { BetsContext } from '@/retail-contexts/bets-context'
 import { useTranslation } from 'react-i18next'
-import { useRetailOriginalLayout } from '@/retail-lib/use-retail-compact-height'
 import { cn } from '@/retail-lib/utils'
 
 type BetCombinationsTableProps = {
@@ -30,7 +29,16 @@ export default function BetCombinationsTable({
   onBeforeToggle,
 }: BetCombinationsTableProps) {
   const { t } = useTranslation()
-  const isOriginalLayout = useRetailOriginalLayout()
+  const [is1010Height, setIs1010Height] = useState(false)
+
+  useEffect(() => {
+    const update = () => {
+      setIs1010Height(Math.round(window.innerHeight) === 1010)
+    }
+    update()
+    window.addEventListener('resize', update)
+    return () => window.removeEventListener('resize', update)
+  }, [])
 
   const [sortMode, setSortMode] = useState<'default' | 'asc' | 'desc'>(
     'default',
@@ -658,7 +666,7 @@ export default function BetCombinationsTable({
         <div
           className={cn(
             'grid grid-cols-12 gap-2 pt-2',
-            isOriginalLayout ? 'pb-[44px]' : 'pb-6',
+            is1010Height ? 'pb-[44px]' : 'pb-6',
           )}
         >
           {combinations.map((bet) => (
