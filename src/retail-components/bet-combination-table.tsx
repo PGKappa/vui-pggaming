@@ -29,11 +29,12 @@ export default function BetCombinationsTable({
   onBeforeToggle,
 }: BetCombinationsTableProps) {
   const { t } = useTranslation()
-  const [is1010Height, setIs1010Height] = useState(false)
+  const [is1010To1080Height, setIs1010To1080Height] = useState(false)
 
   useEffect(() => {
     const update = () => {
-      setIs1010Height(Math.round(window.innerHeight) === 1010)
+      const height = Math.round(window.innerHeight)
+      setIs1010To1080Height(height >= 1010 && height <= 1080)
     }
     update()
     window.addEventListener('resize', update)
@@ -666,7 +667,7 @@ export default function BetCombinationsTable({
         <div
           className={cn(
             'grid grid-cols-12 gap-2 pt-2',
-            is1010Height ? 'pb-[44px]' : 'pb-6',
+            is1010To1080Height ? 'pb-[44px]' : 'pb-6',
           )}
         >
           {combinations.map((bet) => (
