@@ -17,11 +17,13 @@ import {
   getCarouselFilteredEvents,
   getFutureEventsFromCarousel,
 } from '@/retail-lib/carousel-sync'
+import { useBetslipViewportHeight } from '@/retail-lib/use-retail-compact-height'
 import { useContext, useEffect, useRef, useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
 export default function Home() {
   const { t } = useTranslation()
+  const betslipHeight = useBetslipViewportHeight()
   const { upcomingEvents, searchEventResults, setSearchEventResults } =
     useContext(RootContext)
 
@@ -80,8 +82,8 @@ export default function Home() {
   }, [carouselEvents])
 
   return (
-    <div className="flex h-full min-h-0 min-w-0 flex-row overflow-hidden">
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col gap-2 overflow-hidden">
+    <div className="flex min-w-0 flex-row items-start">
+      <div className="flex min-w-0 flex-1 flex-col gap-2">
         <div className="bg-betslip flex h-[88px] w-full shrink-0 flex-row items-center justify-center pb-[2px]">
           <UpcomingEventsCarousel
             selectedEvent={selectedEvent}
@@ -94,7 +96,7 @@ export default function Home() {
           />
         </div>
 
-        <div className="flex min-h-0 w-full flex-1 flex-col gap-2 tabular-nums">
+        <div className="flex w-full flex-col gap-2 tabular-nums">
           {!!searchEventResults ? (
             <SearchEventResults />
           ) : selectedEvent ? (
@@ -120,8 +122,6 @@ export default function Home() {
                           ref={scrollContainerRef}
                           className="no-scrollbar h-full overflow-y-scroll"
                           onWheel={(e) => {
-                            // Se siamo al top o al bottom della scrollbar interna,
-                            // lascia che lo scroll si propaghi alla pagina principale
                             const element = scrollContainerRef.current
                             if (element) {
                               const isAtTop = element.scrollTop === 0
@@ -133,10 +133,8 @@ export default function Home() {
                                 (isAtTop && e.deltaY < 0) ||
                                 (isAtBottom && e.deltaY > 0)
                               ) {
-                                // Lascia propagare lo scroll
                                 return
                               }
-                              // Blocca la propagazione se siamo nel mezzo
                               e.stopPropagation()
                             }
                           }}
@@ -154,13 +152,11 @@ export default function Home() {
                         </div>
                       </div>
 
-                      {/* Scrollbar custom per UpcomingRoundCard */}
                       <div className="pointer-events-none absolute right-0 top-0 z-10 h-full">
                         <CustomScrollbar contentRef={scrollContainerRef} />
                       </div>
                     </div>
 
-                    {/* Leaderboard con la sua scrollbar separata */}
                     <div className="relative bottom-[15px]">
                       <Leaderboard
                         isExpanded={isLeaderboardExpanded}
@@ -170,7 +166,6 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Scrollbar custom per tutta la pagina - limitata all'altezza della sezione eventi */}
                 <div className="pointer-events-none absolute right-0 top-0 z-20 h-[810px]">
                   <CustomScrollbar contentRef={pageScrollRef} />
                 </div>
@@ -184,7 +179,14 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="mt-[-5px] h-full w-[410px] shrink-0 bg-background pr-2 text-foreground">
+      <div
+        className="sticky top-16 mt-[-5px] flex w-[410px] shrink-0 flex-col self-start bg-background pr-2 text-foreground"
+        style={
+          betslipHeight != null
+            ? { height: betslipHeight }
+            : { height: 'calc(100dvh - 4rem - 0.5rem)' }
+        }
+      >
         <BettingSlip selectedEvent={selectedEvent} />
       </div>
     </div>

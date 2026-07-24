@@ -9,12 +9,13 @@ import {
   getCarouselFilteredEvents,
   getFutureEventsFromCarousel,
 } from '@/retail-lib/carousel-sync'
+import { useBetslipViewportHeight } from '@/retail-lib/use-retail-compact-height'
 import { useContext, useEffect, useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ScrollArea } from '@/retail-components/ui/scroll-area'
 
 export default function Home() {
   const { t } = useTranslation()
+  const betslipHeight = useBetslipViewportHeight()
   const { upcomingEvents, searchEventResults, setSearchEventResults } =
     useContext(RootContext)
 
@@ -27,7 +28,6 @@ export default function Home() {
     [upcomingEvents],
   )
 
-  // SELEZIONE UNIFICATA: un solo meccanismo per evitare competizioni
   useEffect(() => {
     const pickEvent = () => {
       setSelectedEvent((prev) => {
@@ -39,12 +39,10 @@ export default function Home() {
             const now = new Date()
             const eventTime =
               prev.time instanceof Date ? prev.time : new Date(prev.time)
-            if (eventTime > now) return prev // still valid and not expired
-            // Expired → pick next future
+            if (eventTime > now) return prev
             if (futureEvts.length > 0) return futureEvts[0]
-            return prev // nothing better available
+            return prev
           }
-          // Gone from carousel → pick new
         }
 
         return futureEvts[0] ?? carouselEvents[0] ?? undefined
@@ -57,9 +55,8 @@ export default function Home() {
   }, [carouselEvents])
 
   return (
-    <div className="relative flex h-full min-h-0 min-w-[1200px] flex-row overflow-hidden">
-      {/* LEFT COLUMN - si allarga/stringe in base alla risoluzione */}
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+    <div className="relative flex min-w-[1200px] flex-row items-start">
+      <div className="flex min-w-0 flex-1 flex-col">
         <div className="bg-betslip flex h-[99px] w-full shrink-0 flex-row items-center justify-center pr-2">
           <UpcomingEventsCarousel
             selectedEvent={selectedEvent}
@@ -70,23 +67,27 @@ export default function Home() {
           />
         </div>
 
-        <div className="bg-betslip flex min-h-0 flex-1 flex-row gap-2 overflow-hidden pr-2">
-          <ScrollArea className="h-full w-full">
-            {!!searchEventResults ? (
-              <SearchEventResults />
-            ) : selectedEvent ? (
-              <UpcomingRaceCard race={selectedEvent} />
-            ) : (
-              <div className="flex h-full items-center justify-center">
-                {t('no_event_selected')}
-              </div>
-            )}
-          </ScrollArea>
+        <div className="bg-betslip min-w-0 flex-1 pr-2 pt-[2px]">
+          {!!searchEventResults ? (
+            <SearchEventResults />
+          ) : selectedEvent ? (
+            <UpcomingRaceCard race={selectedEvent} />
+          ) : (
+            <div className="flex h-full items-center justify-center">
+              {t('no_event_selected')}
+            </div>
+          )}
         </div>
       </div>
 
-      {/* RIGHT COLUMN - larghezza fissa, sempre ancorata a destra */}
-      <div className="relative right-1 h-full w-[400px] shrink-0 bg-background text-foreground">
+      <div
+        className="sticky top-16 flex w-[400px] shrink-0 flex-col self-start bg-background text-foreground"
+        style={
+          betslipHeight != null
+            ? { height: betslipHeight }
+            : { height: 'calc(100dvh - 4rem - 0.5rem)' }
+        }
+      >
         <BettingSlip selectedEvent={selectedEvent} />
       </div>
     </div>

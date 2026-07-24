@@ -9,12 +9,13 @@ import {
   getCarouselFilteredEvents,
   getFutureEventsFromCarousel,
 } from '@/retail-lib/carousel-sync'
+import { useBetslipViewportHeight } from '@/retail-lib/use-retail-compact-height'
 import { useContext, useEffect, useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ScrollArea } from '@/retail-components/ui/scroll-area'
 
 export default function Dogs8Page() {
   const { t } = useTranslation()
+  const betslipHeight = useBetslipViewportHeight()
   const { upcomingEvents, searchEventResults, setSearchEventResults } =
     useContext(RootContext)
 
@@ -22,7 +23,6 @@ export default function Dogs8Page() {
     undefined,
   )
 
-  // SINCRONIZZAZIONE PERFETTA CON CAROSELLO
   const carouselEvents = useMemo(
     () => getCarouselFilteredEvents(upcomingEvents, [Discipline.DOGS8]),
     [upcomingEvents],
@@ -33,17 +33,14 @@ export default function Dogs8Page() {
     [carouselEvents],
   )
 
-  // AUTO-SELEZIONE: Solo se non c'è evento selezionato o se l'evento selezionato non esiste più
   useEffect(() => {
-    // Se c'è un evento selezionato, verifica che esista ancora
     if (selectedEvent) {
       const stillExists = carouselEvents.some((e) => e.id === selectedEvent.id)
       if (stillExists) {
-        return // Evento ancora valido, non cambiare
+        return
       }
     }
 
-    // Auto-seleziona il primo evento futuro
     if (futureEvents && futureEvents.length > 0 && futureEvents[0]) {
       setSelectedEvent(futureEvents[0])
     } else if (carouselEvents && carouselEvents.length > 0) {
@@ -53,7 +50,6 @@ export default function Dogs8Page() {
     }
   }, [futureEvents, carouselEvents, selectedEvent])
 
-  // AUTO-AGGIORNAMENTO
   useEffect(() => {
     const interval = setInterval(() => {
       if (selectedEvent) {
@@ -64,7 +60,6 @@ export default function Dogs8Page() {
             : new Date(selectedEvent.time)
 
         if (eventTime <= now) {
-          // Refresh degli eventi
           const freshFutureEvents = getFutureEventsFromCarousel(
             getCarouselFilteredEvents(upcomingEvents, [Discipline.DOGS8]),
           )
@@ -72,7 +67,6 @@ export default function Dogs8Page() {
           if (freshFutureEvents.length > 0) {
             setSelectedEvent(freshFutureEvents[0])
           } else {
-            // Nessun evento futuro, prendi il più recente
             const allEvents = getCarouselFilteredEvents(upcomingEvents, [
               Discipline.DOGS8,
             ])
@@ -88,9 +82,8 @@ export default function Dogs8Page() {
   }, [selectedEvent, upcomingEvents])
 
   return (
-    <div className="relative flex h-full min-h-0 min-w-[1200px] flex-row overflow-hidden">
-      {/* LEFT COLUMN - si allarga/stringe in base alla risoluzione */}
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+    <div className="relative flex min-w-[1200px] flex-row items-start">
+      <div className="flex min-w-0 flex-1 flex-col">
         <div className="bg-betslip flex h-[99px] w-full shrink-0 flex-row items-center justify-center pr-2">
           <UpcomingEventsCarousel
             selectedEvent={selectedEvent}
@@ -101,23 +94,27 @@ export default function Dogs8Page() {
           />
         </div>
 
-        <div className="bg-betslip flex min-h-0 flex-1 flex-row gap-2 overflow-hidden pr-2">
-          <ScrollArea className="h-full w-full">
-            {!!searchEventResults ? (
-              <SearchEventResults />
-            ) : selectedEvent ? (
-              <UpcomingRaceCard race={selectedEvent} />
-            ) : (
-              <div className="flex h-full items-center justify-center">
-                {t('no_event_selected')}
-              </div>
-            )}
-          </ScrollArea>
+        <div className="bg-betslip min-w-0 flex-1 pr-2 pt-[2px]">
+          {!!searchEventResults ? (
+            <SearchEventResults />
+          ) : selectedEvent ? (
+            <UpcomingRaceCard race={selectedEvent} />
+          ) : (
+            <div className="flex h-full items-center justify-center">
+              {t('no_event_selected')}
+            </div>
+          )}
         </div>
       </div>
 
-      {/* RIGHT COLUMN - larghezza fissa, sempre ancorata a destra */}
-      <div className="relative right-1 h-full w-[400px] shrink-0 bg-background text-foreground">
+      <div
+        className="sticky top-16 flex w-[400px] shrink-0 flex-col self-start bg-background text-foreground"
+        style={
+          betslipHeight != null
+            ? { height: betslipHeight }
+            : { height: 'calc(100dvh - 4rem - 0.5rem)' }
+        }
+      >
         <BettingSlip selectedEvent={selectedEvent} />
       </div>
     </div>

@@ -595,28 +595,28 @@ export default function UpcomingRaceCard({
       return (
         <>
           <TableCell
-            className={`h-16 max-w-0 cursor-pointer overflow-hidden px-1 text-center min-[1400px]:!pr-0 min-[1400px]:pl-10 ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
+            className={`max-w-0 cursor-pointer overflow-hidden px-1 py-2 text-center min-[1400px]:!pr-0 min-[1400px]:pl-10 ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
             onClick={handleMarketTypeToggle}
           >
             <Toggle
               pressed={position1Selection.includes(racer.number)}
               onPressedChange={() => togglePosition1Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className="relative mx-auto h-10 w-full max-w-[72px] border-betEntry-border pt-[2px] tabular-nums min-[1280px]:max-w-[88px] min-[1400px]:right-[2px] min-[1400px]:h-12 min-[1400px]:max-w-[117px]"
+              className="relative mx-auto h-[49px] w-full max-w-[72px] border-betEntry-border pt-[2px] tabular-nums min-[1280px]:max-w-[88px] min-[1400px]:right-[2px] min-[1400px]:max-w-[117px]"
             >
               <span className="text-[17px] min-[1400px]:text-[19px]">1°</span>
             </Toggle>
           </TableCell>
 
           <TableCell
-            className={`max-w-0 cursor-pointer overflow-hidden px-1 text-center min-[1400px]:!pl-0 min-[1400px]:pr-10 ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
+            className={`max-w-0 cursor-pointer overflow-hidden px-1 py-2 text-center min-[1400px]:!pl-0 min-[1400px]:pr-10 ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
             onClick={handleMarketTypeToggle}
           >
             <Toggle
               pressed={position2Selection.includes(racer.number)}
               onPressedChange={() => togglePosition2Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className="relative mx-auto h-10 w-full max-w-[72px] border-betEntry-border pt-[2px] min-[1280px]:max-w-[88px] min-[1400px]:left-[2px] min-[1400px]:h-12 min-[1400px]:max-w-[118px]"
+              className="relative mx-auto h-[49px] w-full max-w-[72px] border-betEntry-border pt-[2px] min-[1280px]:max-w-[88px] min-[1400px]:left-[2px] min-[1400px]:max-w-[118px]"
             >
               <span className="text-[17px] min-[1400px]:text-[19px]">2°</span>
             </Toggle>
@@ -624,19 +624,19 @@ export default function UpcomingRaceCard({
 
           <TableCell className="w-[1px] bg-border p-0" />
 
-          <TableCell className="max-w-0 overflow-hidden p-0">
+          <TableCell className="max-w-0 overflow-hidden px-1 py-2">
             <div
               className="flex h-full cursor-pointer flex-col text-center"
               onClick={handleMarketTypeToggle}
             >
               <div
-                className={`flex flex-1 items-center justify-center p-1 min-[1400px]:p-2 ${!isAnyOrderMode ? 'bg-gray-300' : ''}`}
+                className={`flex flex-1 items-center justify-center ${!isAnyOrderMode ? 'bg-gray-300' : ''}`}
               >
                 <Toggle
                   pressed={fixedSelection.includes(racer.number)}
                   onPressedChange={() => toggleFixedSelection(racer.number)}
                   onClick={(e) => e.stopPropagation()}
-                  className={`relative mx-auto h-10 w-full max-w-[44px] border-betEntry-border pt-[2px] min-[1280px]:max-w-[52px] min-[1400px]:left-[17px] min-[1400px]:h-12 min-[1400px]:max-w-[56px] ${fixedSelection.includes(racer.number) ? 'text-white' : ''}`}
+                  className={`relative mx-auto h-[49px] w-full max-w-[44px] border-betEntry-border pt-[2px] min-[1280px]:max-w-[52px] min-[1400px]:left-[17px] min-[1400px]:max-w-[56px] ${fixedSelection.includes(racer.number) ? 'text-white' : ''}`}
                 >
                   <span className="text-[17px] min-[1400px]:text-[19px]">F</span>
                 </Toggle>
@@ -644,19 +644,19 @@ export default function UpcomingRaceCard({
             </div>
           </TableCell>
 
-          <TableCell className="max-w-0 overflow-hidden p-0">
+          <TableCell className="max-w-0 overflow-hidden px-1 py-2">
             <div
               className="flex h-full cursor-pointer flex-col text-center"
               onClick={handleMarketTypeToggle}
             >
               <div
-                className={`flex flex-1 items-center justify-center p-1 min-[1400px]:p-2 ${!isAnyOrderMode ? 'bg-gray-300' : ''}`}
+                className={`flex flex-1 items-center justify-center ${!isAnyOrderMode ? 'bg-gray-300' : ''}`}
               >
                 <Toggle
                   pressed={disorderSelection.includes(racer.number)}
                   onPressedChange={() => toggleDisorderSelection(racer.number)}
                   onClick={(e) => e.stopPropagation()}
-                  className="relative mx-auto h-10 w-full max-w-[72px] border-betEntry-border pt-[2px] min-[1280px]:max-w-[88px] min-[1400px]:right-[4px] min-[1400px]:h-12 min-[1400px]:max-w-[117px]"
+                  className="relative mx-auto h-[49px] w-full max-w-[72px] border-betEntry-border pt-[2px] min-[1280px]:max-w-[88px] min-[1400px]:right-[4px] min-[1400px]:max-w-[117px]"
                 >
                   {disorderSelection.includes(racer.number) && (
                     <Check
@@ -675,42 +675,42 @@ export default function UpcomingRaceCard({
       return (
         <>
           <TableCell
-            className={`h-16 max-w-0 cursor-pointer overflow-hidden px-1 text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
+            className={`max-w-0 cursor-pointer overflow-hidden px-1 py-2 text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
             onClick={handleMarketTypeToggle}
           >
             <Toggle
               pressed={position1Selection.includes(racer.number)}
               onPressedChange={() => togglePosition1Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className="relative mx-auto h-10 w-full max-w-[60px] border-betEntry-border pt-[2px] tabular-nums min-[1280px]:max-w-[72px] min-[1400px]:left-[11px] min-[1400px]:h-12 min-[1400px]:max-w-[116px]"
+              className="relative mx-auto h-[49px] w-full max-w-[60px] border-betEntry-border pt-[2px] tabular-nums min-[1280px]:max-w-[72px] min-[1400px]:left-[11px] min-[1400px]:max-w-[116px]"
             >
               <span className="text-[17px] min-[1400px]:text-[19px]">1°</span>
             </Toggle>
           </TableCell>
 
           <TableCell
-            className={`max-w-0 cursor-pointer overflow-hidden px-1 text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
+            className={`max-w-0 cursor-pointer overflow-hidden px-1 py-2 text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
             onClick={handleMarketTypeToggle}
           >
             <Toggle
               pressed={position2Selection.includes(racer.number)}
               onPressedChange={() => togglePosition2Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className="relative mx-auto h-10 w-full max-w-[60px] border-betEntry-border pt-[2px] tabular-nums min-[1280px]:max-w-[72px] min-[1400px]:h-12 min-[1400px]:max-w-[116px]"
+              className="relative mx-auto h-[49px] w-full max-w-[60px] border-betEntry-border pt-[2px] tabular-nums min-[1280px]:max-w-[72px] min-[1400px]:max-w-[116px]"
             >
               <span className="text-[17px] min-[1400px]:text-[19px]">2°</span>
             </Toggle>
           </TableCell>
 
           <TableCell
-            className={`max-w-0 cursor-pointer overflow-hidden px-1 text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
+            className={`max-w-0 cursor-pointer overflow-hidden px-1 py-2 text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
             onClick={handleMarketTypeToggle}
           >
             <Toggle
               pressed={position3Selection.includes(racer.number)}
               onPressedChange={() => togglePosition3Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className="relative mx-auto h-10 w-full max-w-[60px] border-betEntry-border pt-[2px] tabular-nums min-[1280px]:max-w-[72px] min-[1400px]:right-[12px] min-[1400px]:h-12 min-[1400px]:max-w-[116px]"
+              className="relative mx-auto h-[49px] w-full max-w-[60px] border-betEntry-border pt-[2px] tabular-nums min-[1280px]:max-w-[72px] min-[1400px]:right-[12px] min-[1400px]:max-w-[116px]"
             >
               <span className="text-[17px] min-[1400px]:text-[19px]">3°</span>
             </Toggle>
@@ -718,19 +718,19 @@ export default function UpcomingRaceCard({
 
           <TableCell className="w-[1px] bg-border p-0" />
 
-          <TableCell className="max-w-0 overflow-hidden p-0">
+          <TableCell className="max-w-0 overflow-hidden px-1 py-2">
             <div
               className="flex h-full cursor-pointer flex-col"
               onClick={handleMarketTypeToggle}
             >
               <div
-                className={`flex flex-1 items-center justify-center p-1 min-[1400px]:py-2 min-[1400px]:pl-[2px] ${!isAnyOrderMode ? 'bg-gray-300' : ''}`}
+                className={`flex flex-1 items-center justify-center min-[1400px]:pl-[2px] ${!isAnyOrderMode ? 'bg-gray-300' : ''}`}
               >
                 <Toggle
                   pressed={fixedSelection.includes(racer.number)}
                   onPressedChange={() => toggleFixedSelection(racer.number)}
                   onClick={(e) => e.stopPropagation()}
-                  className={`relative mx-auto h-10 w-full max-w-[44px] border-betEntry-border pt-[2px] min-[1280px]:max-w-[52px] min-[1400px]:left-[17px] min-[1400px]:h-12 min-[1400px]:max-w-[56px] ${fixedSelection.includes(racer.number) ? 'text-white' : ''}`}
+                  className={`relative mx-auto h-[49px] w-full max-w-[44px] border-betEntry-border pt-[2px] min-[1280px]:max-w-[52px] min-[1400px]:left-[17px] min-[1400px]:max-w-[56px] ${fixedSelection.includes(racer.number) ? 'text-white' : ''}`}
                 >
                   <span className="text-[17px] min-[1400px]:text-[19px]">F</span>
                 </Toggle>
@@ -738,19 +738,19 @@ export default function UpcomingRaceCard({
             </div>
           </TableCell>
 
-          <TableCell className="max-w-0 overflow-hidden p-0">
+          <TableCell className="max-w-0 overflow-hidden px-1 py-2">
             <div
               className="flex h-full cursor-pointer flex-col"
               onClick={handleMarketTypeToggle}
             >
               <div
-                className={`flex flex-1 items-center justify-center p-1 min-[1400px]:p-2 ${!isAnyOrderMode ? 'bg-gray-300' : ''}`}
+                className={`flex flex-1 items-center justify-center ${!isAnyOrderMode ? 'bg-gray-300' : ''}`}
               >
                 <Toggle
                   pressed={disorderSelection.includes(racer.number)}
                   onPressedChange={() => toggleDisorderSelection(racer.number)}
                   onClick={(e) => e.stopPropagation()}
-                  className="relative mx-auto h-10 w-full max-w-[60px] border-betEntry-border pt-[2px] tabular-nums min-[1280px]:max-w-[72px] min-[1400px]:left-[3px] min-[1400px]:h-12 min-[1400px]:max-w-[116px]"
+                  className="relative mx-auto h-[49px] w-full max-w-[60px] border-betEntry-border pt-[2px] tabular-nums min-[1280px]:max-w-[72px] min-[1400px]:left-[3px] min-[1400px]:max-w-[116px]"
                 >
                   {disorderSelection.includes(racer.number) && (
                     <Check
