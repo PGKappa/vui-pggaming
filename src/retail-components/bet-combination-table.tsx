@@ -5,6 +5,8 @@ import { Button } from './ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { BetsContext } from '@/retail-contexts/bets-context'
 import { useTranslation } from 'react-i18next'
+import { useRetailOriginalLayout } from '@/retail-lib/use-retail-compact-height'
+import { cn } from '@/retail-lib/utils'
 
 type BetCombinationsTableProps = {
   race: UpcomingEvent
@@ -28,6 +30,7 @@ export default function BetCombinationsTable({
   onBeforeToggle,
 }: BetCombinationsTableProps) {
   const { t } = useTranslation()
+  const isOriginalLayout = useRetailOriginalLayout()
 
   const [sortMode, setSortMode] = useState<'default' | 'asc' | 'desc'>(
     'default',
@@ -652,7 +655,12 @@ export default function BetCombinationsTable({
         </div>
       </CardHeader>
       <CardContent className="p-0 pr-2">
-        <div className="grid grid-cols-12 gap-2 pb-6 pt-2">
+        <div
+          className={cn(
+            'grid grid-cols-12 gap-2 pt-2',
+            isOriginalLayout ? 'pb-[44px]' : 'pb-6',
+          )}
+        >
           {combinations.map((bet) => (
             <BetEntryToggle
               key={bet.option.outcome}
