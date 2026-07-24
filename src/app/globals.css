@@ -699,7 +699,7 @@
 }
 
 
-body>main>div>div>div.h-\[950px\].w-\[400px\].relative.right-1.shrink-0.bg-background.text-foreground>div>div.grid.grid-cols-2.text-center>div.relative.top-\[5px\].col-span-2.flex.h-\[52px\].w-full.flex-row.items-center.justify-between.bg-accent.px-5>button {
+body>main>div>div>div.sticky.top-16.flex.w-\[400px\].shrink-0.flex-col.self-start.bg-background.text-foreground>div>div.grid.grid-cols-2.text-center>div.relative.top-\[5px\].col-span-2.flex.h-\[52px\].w-full.flex-row.items-center.justify-between.bg-accent.px-5>button {
   background: transparent;
 }
 
@@ -709,7 +709,7 @@ body>main>div>div>div.h-\[950px\].w-\[400px\].relative.right-1.shrink-0.bg-backg
 }
 
 
-body>main>div>div>div.h-\[950px\].w-\[400px\].relative.right-1.shrink-0.bg-background.text-foreground>div>div.p-0.pt-0.relative.mb-\[26px\].flex.flex-col.bg-backgroundBetslip>div.relative.top-3.w-full>div {
+body>main>div>div>div.sticky.top-16.flex.w-\[400px\].shrink-0.flex-col.self-start.bg-background.text-foreground>div>div.p-0.pt-0.relative.mb-\[26px\].flex.flex-col.bg-backgroundBetslip>div.relative.top-3.w-full>div {
   background-color: white;
   position: relative;
   bottom: 8px;

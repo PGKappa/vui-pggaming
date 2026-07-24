@@ -181,11 +181,12 @@ export default function Home() {
 
       <div
         className="sticky top-16 mt-[-5px] flex w-[410px] shrink-0 flex-col self-start bg-background pr-2 text-foreground"
-        style={
-          betslipHeight != null
-            ? { height: betslipHeight }
-            : { height: 'calc(100dvh - 4rem - 0.5rem)' }
-        }
+        style={{
+          height:
+            betslipHeight != null
+              ? betslipHeight
+              : 'calc(100dvh - 4rem - 0.5rem)',
+        }}
       >
         <BettingSlip selectedEvent={selectedEvent} />
       </div>

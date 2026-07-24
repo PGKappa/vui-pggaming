@@ -5,9 +5,8 @@ export const RETAIL_VIEWPORT = {
   HEIGHT: 1020,
   SCROLL_THRESHOLD: 1080,
   /**
-   * At/below this viewport height the betslip keeps its full fixed height
-   * (page scrolls). Above this, only the betslip fits to the viewport;
-   * the rest of the page may scroll.
+   * At/below this viewport height, SYSTEM combinaciones shows 2 rows (scroll for more).
+   * Above this, up to 3 rows are visible.
    */
   PAGE_SCROLL_HEIGHT: 840,
   /** Navbar height (h-16) — used for sticky betslip offset */

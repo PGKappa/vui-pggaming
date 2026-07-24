@@ -62,6 +62,16 @@ export default function Home() {
     return () => clearInterval(interval)
   }, [carouselEvents])
 
+  const raceContent = !!searchEventResults ? (
+    <SearchEventResults />
+  ) : selectedEvent ? (
+    <UpcomingRaceCard race={selectedEvent} />
+  ) : (
+    <div className="flex h-full items-center justify-center">
+      {t('no_event_selected')}
+    </div>
+  )
+
   return (
     <div className="relative flex min-w-[1200px] flex-row items-start">
       <div className="flex min-w-0 flex-1 flex-col">
@@ -77,25 +87,18 @@ export default function Home() {
         </div>
 
         <div className="bg-betslip min-w-0 flex-1 pr-2 pt-[2px]">
-          {!!searchEventResults ? (
-            <SearchEventResults />
-          ) : selectedEvent ? (
-            <UpcomingRaceCard race={selectedEvent} />
-          ) : (
-            <div className="flex h-full items-center justify-center">
-              {t('no_event_selected')}
-            </div>
-          )}
+          {raceContent}
         </div>
       </div>
 
       <div
         className="sticky top-16 flex w-[400px] shrink-0 flex-col self-start bg-background text-foreground"
-        style={
-          betslipHeight != null
-            ? { height: betslipHeight }
-            : { height: 'calc(100dvh - 4rem - 0.5rem)' }
-        }
+        style={{
+          height:
+            betslipHeight != null
+              ? betslipHeight
+              : 'calc(100dvh - 4rem - 0.5rem)',
+        }}
       >
         <BettingSlip selectedEvent={selectedEvent} />
       </div>

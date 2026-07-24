@@ -458,7 +458,7 @@ export default function BettingSlip({
     const groupHeight = 59
     const expandedHeight = 63
     const numGroups = systemGroups.length
-    // ≤840px: show 2 groups (scroll for Simple/Doble/Triple); above: show up to 3
+    // ≤840px: show 2 groups; above: show up to 3
     const maxVisible = isCompactCombinations ? 2 : 3
     const groupsToShow = Math.min(Math.max(numGroups, 1), maxVisible)
     const baseHeight = groupHeight * groupsToShow

@@ -25,8 +25,7 @@ function readViewportHeight() {
 }
 
 /**
- * True when viewport is ≤840px — left column uses fixed layout heights.
- * Betslip still fits to the viewport (sticky); only the page/left content scrolls.
+ * True when viewport is ≤840px — used for compact combinaciones (2 rows).
  */
 export function useRetailPageScroll() {
   const [isPageScroll, setIsPageScroll] = useState(false)
