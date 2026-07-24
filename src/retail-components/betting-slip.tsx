@@ -357,6 +357,11 @@ export default function BettingSlip({
     const finalValue = Math.max(0, isNaN(numValue) ? 0 : numValue)
     const roundedValue = Math.round(finalValue * 100) / 100
     setSystemGroupStakes((prev) => ({ ...prev, [groupName]: roundedValue }))
+    // Keep selectedGroups in sync with the actual stake — a group with a
+    // stake > 0 must always count as "selected", otherwise the displayed
+    // combinations total (filtered by selectedGroups) can silently diverge
+    // from what's actually sent to the API (filtered by stake > 0).
+    setSelectedGroups((prev) => ({ ...prev, [groupName]: roundedValue > 0 }))
   }
 
   const handleDirectAmountInput = (value: number) => {
@@ -424,32 +429,32 @@ export default function BettingSlip({
     setAllGroupsSelected(allSelected)
   }
 
+  // Filtered by `stake > 0` — the exact predicate used when building the
+  // ticket payload (see handleBetNow) — so these totals can never diverge
+  // from what actually gets sent to the API, regardless of checkbox state.
   const totalSystemStake = useMemo(() => {
     return systemGroups
-      .filter((group) => selectedGroups[group.name])
+      .filter((group) => group.stake > 0)
       .reduce((sum, group) => sum + group.stake, 0)
-  }, [systemGroups, selectedGroups])
+  }, [systemGroups])
 
   const actualTotalStake = useMemo(() => {
     return systemGroups
-      .filter((group) => selectedGroups[group.name] && group.stake > 0)
+      .filter((group) => group.stake > 0)
       .reduce((sum, group) => sum + group.stake * group.combinations.length, 0)
-  }, [systemGroups, selectedGroups])
+  }, [systemGroups])
 
   const totalSystemCombinations = useMemo(() => {
     return systemGroups
-      .filter((group) => selectedGroups[group.name])
+      .filter((group) => group.stake > 0)
       .reduce((sum, group) => sum + group.combinations.length, 0)
-  }, [systemGroups, selectedGroups])
+  }, [systemGroups])
 
   const totalSystemPotentialWin = useMemo(() => {
     return systemGroups
-      .filter((group) => selectedGroups[group.name])
-      .reduce((sum, group) => {
-        if (group.stake === 0) return sum
-        return sum + group.maxWin * group.stake
-      }, 0)
-  }, [systemGroups, selectedGroups])
+      .filter((group) => group.stake > 0)
+      .reduce((sum, group) => sum + group.maxWin * group.stake, 0)
+  }, [systemGroups])
 
   const scrollAreaHeight = useMemo(() => {
     const groupHeight = 59
@@ -745,6 +750,30 @@ export default function BettingSlip({
           markets,
         }
       })
+
+      // Hard, final validation on the exact object about to be sent — recomputed
+      // fresh here (not from possibly-stale UI state) using the same `stake > 0`
+      // predicate as the payload below. The backend performs no validation of
+      // its own, so this is the only thing standing between the user and a
+      // ticket that exceeds the events/selections/combinations limits.
+      if (betMode === 'SYSTEM') {
+        const finalCombinations = systemGroups
+          .filter((group) => group.stake > 0)
+          .reduce((sum, group) => sum + group.combinations.length, 0)
+        if (
+          finalCombinations > maxCombinations ||
+          systemEventsCount > maxEvents ||
+          betEntries.length > maxSelections
+        ) {
+          toast.error(t('ticket_not_playable'))
+          setIsSubmitting(false)
+          return
+        }
+      } else if (betEntries.length > maxSelections) {
+        toast.error(t('ticket_not_playable'))
+        setIsSubmitting(false)
+        return
+      }
 
       const ticketType = getTicketType(betEntries)
       const ticketMode = getTicketMode(betMode, betEntries)
@@ -1615,7 +1644,11 @@ export default function BettingSlip({
             disabled={
               isSubmitting ||
               (betMode !== 'SYSTEM' && global <= 0) ||
-              (betMode === 'SYSTEM' && totalSystemStake <= 0)
+              (betMode === 'SYSTEM' && totalSystemStake <= 0) ||
+              (betMode === 'SYSTEM' &&
+                totalSystemCombinations > maxCombinations) ||
+              (betMode === 'SYSTEM' && systemEventsCount > maxEvents) ||
+              betEntries.length > maxSelections
             }
             className="h-12 w-full text-[18px] font-bold"
           >
