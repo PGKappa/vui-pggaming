@@ -76,7 +76,7 @@ export default function Home() {
   return (
     <div className="retail-page-row">
       <div className="retail-left-col">
-        <div className="bg-betslip flex h-[99px] w-full shrink-0 flex-row items-center justify-center pr-2">
+        <div className="bg-betslip flex h-[102px] w-full shrink-0 flex-row items-center justify-center pr-2">
           <UpcomingEventsCarousel
             disciplines={activeDisciplines}
             selectedEvent={selectedEvent}

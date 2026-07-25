@@ -1218,7 +1218,7 @@ export default function BettingSlip({
           <>
             <div className="h-[30px] w-full bg-accent" />
 
-            <div className="flex w-full flex-row items-center justify-between px-4 py-3 text-black">
+            <div className="relative top-[7px] flex w-full flex-row items-center justify-between px-4 py-3 text-black">
               <span className="text-[15px] font-semibold">
                 {t('total_odd').toUpperCase()}
               </span>
@@ -1273,7 +1273,7 @@ export default function BettingSlip({
 
             <Separator />
 
-            <div className="flex w-full flex-row items-center justify-between bg-backgroundBetslip px-4 py-3 text-searchResultText">
+            <div className="relative top-[3px] flex w-full flex-row items-center justify-between bg-backgroundBetslip px-4 py-3 text-searchResultText">
               <span className="text-[17px] font-semibold">
                 {t('potential_win').toUpperCase()}
               </span>
@@ -1574,7 +1574,7 @@ export default function BettingSlip({
 
             <Separator />
 
-            <div className="flex w-full flex-row items-center justify-between bg-backgroundBetslip px-4 py-3 text-searchResultText">
+            <div className="relative top-[7px] flex w-full flex-row items-center justify-between bg-backgroundBetslip px-4 py-3 text-searchResultText">
               <span className="text-[15px] font-semibold">
                 {t('total_combinations').toUpperCase()}
               </span>
@@ -1610,7 +1610,7 @@ export default function BettingSlip({
 
             <Separator />
 
-            <div className="flex w-full flex-row items-center justify-between bg-backgroundBetslip px-4 py-3 text-searchResultText">
+            <div className="relative top-[3px] flex w-full flex-row items-center justify-between bg-backgroundBetslip px-4 py-3 text-searchResultText">
               <span className="text-[17px] font-semibold tabular-nums">
                 {t('potential_win').toUpperCase()}
               </span>
