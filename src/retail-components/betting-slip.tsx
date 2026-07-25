@@ -1315,13 +1315,13 @@ export default function BettingSlip({
                   </button>
                 </div>
                 <AccordionContent className="pb-0">
-                  <div className="h-[44px] border-b bg-white px-4 pb-2">
-                    <div className="relative bottom-[1px] flex items-center justify-between space-x-2">
+                  <div className="flex h-[54px] items-center border-b bg-white px-4">
+                    <div className="relative bottom-[3px] flex w-full items-center justify-between space-x-2">
                       <Checkbox
                         checked={allGroupsSelected}
                         onCheckedChange={handleAllGroupsToggle}
                       />
-                      <div className="relative top-[1px] mr-[3px] flex h-[33px] items-center space-x-2">
+                      <div className="mr-[3px] flex h-[33px] items-center space-x-2">
                         <span className="mr-[4px] text-[12px] font-semibold">
                           {t('divide').toUpperCase()}
                         </span>
