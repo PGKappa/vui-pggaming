@@ -9,6 +9,40 @@
 
 .no-scrollbar::-webkit-scrollbar {
   display: none;
+  width: 0;
+  height: 0;
+}
+
+/* Hide vertical page scrollbar (no layout shift); keep horizontal for <1280 */
+html.no-scrollbar {
+  height: 100%;
+  overflow: hidden;
+}
+
+html.no-scrollbar body {
+  height: 100%;
+  overflow-x: auto;
+  overflow-y: auto;
+  /* Do not set scrollbar-width: Chromium would ignore ::-webkit-scrollbar */
+  -ms-overflow-style: -ms-autohiding-scrollbar;
+}
+
+/* Vertical track width 0 = invisible; horizontal height kept for <1280 */
+html.no-scrollbar body::-webkit-scrollbar {
+  width: 0;
+  height: 10px;
+}
+
+html.no-scrollbar body::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 4px;
+}
+
+/* Firefox: hide both axes (no per-axis API); scroll still works */
+@supports not (selector(::-webkit-scrollbar)) {
+  html.no-scrollbar body {
+    scrollbar-width: none;
+  }
 }
 
 
@@ -606,20 +640,10 @@
   }
 }
 
-.no-scrollbar {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-
 /*
- * Race page + betslip height modes — driven by DEVICE height (screen),
- * not the shrunk content viewport under browser chrome.
- * ≤840 (1366×768): fixed 900px betslip, page scrolls
- * >840 (1600×900): sticky betslip fitted to the window
+ * Race page + betslip height modes — driven by VIEWPORT height.
+ * ≤839: fixed 900px betslip (full height), page scrolls
+ * ≥840: sticky betslip fitted to the window
  */
 .retail-page-row {
   position: relative;
@@ -662,6 +686,7 @@
 
 .retail-shell {
   display: flex;
+  min-width: 1280px;
   min-height: 0;
   flex-direction: column;
 }
@@ -671,15 +696,18 @@
   top: 0;
   z-index: 20;
   flex-shrink: 0;
+  width: 100%;
+  min-width: 1280px;
 }
 
-/* PAR/IMPAR + MENOS/MÁS: equal 50/50 below 1400 (e.g. 1280); table colSpan above */
+/* PAR/IMPAR + MENOS/MÁS: equal 50/50 below 1440; table colSpan 6/5 from 1440 (history cols visible) */
 .special-markets-equal {
   display: none;
   margin-top: 0.5rem;
   min-width: 0;
   overflow: hidden;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  border-bottom: 1px solid hsl(var(--border));
 }
 
 .special-markets-equal > * {
@@ -687,7 +715,7 @@
   overflow: hidden;
 }
 
-@media (max-width: 1399px) {
+@media (max-width: 1439px) {
   .special-markets-equal {
     display: grid;
   }
@@ -695,7 +723,9 @@
   .special-markets-table {
     display: none;
   }
+}
 
+@media (max-width: 1399px) {
   /* 1280 range: narrower betslip so the full column fits in the viewport */
   .retail-betslip-col {
     width: 360px;
@@ -710,9 +740,9 @@
   }
 }
 
-@media (max-device-height: 840px) {
+@media (max-height: 839px) {
   .retail-page-row {
-    height: 895px;
+    height: 900px;
     align-items: stretch;
     overflow: hidden;
   }
@@ -731,13 +761,13 @@
   .retail-betslip-col {
     position: relative;
     top: auto;
-    right: 0.25rem;
     height: 900px;
     align-self: auto;
   }
 
+  /* navbar (64) + betslip (900) + main pb-2 (8) */
   .retail-shell {
-    min-height: 1020px;
+    min-height: 972px;
   }
 
   .retail-navbar-wrap {
@@ -795,7 +825,7 @@
 
 
 .h-9>svg:nth-child(1) {
-  scale: 1.3;
+  scale: 1;
 }
 
 /* Chevron rotation animations - SVG-based */

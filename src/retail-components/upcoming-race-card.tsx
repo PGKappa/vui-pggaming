@@ -711,8 +711,8 @@ export default function UpcomingRaceCard({
   }
 
   // Special markets:
-  // — at ~1280 (and <1400): equal 50/50 blocks outside the table (no horizontal scroll)
-  // — ≥1400: colSpan 6/5 aligned to table columns
+  // — <1440: equal 50/50 blocks outside the table (history cols hidden; colSpan would misalign)
+  // — ≥1440: colSpan 6/5 aligned to table columns
   const renderSpecialMarketsEqual = () => {
     if (activeTab !== 'main' || !raceInfo?.odds) {
       return null
@@ -871,7 +871,7 @@ export default function UpcomingRaceCard({
           {t('even_odd').toUpperCase()}
         </div>
         <div className="flex h-[66px]">
-          <div className="flex flex-1 items-center justify-center px-4 min-[1400px]:pl-12 min-[1400px]:pr-8 min-[1600px]:pl-16">
+          <div className="flex flex-1 items-center justify-center px-4 min-[1440px]:pl-12 min-[1440px]:pr-8 min-[1600px]:pl-16">
             <BetEntryToggle
               marketName={t('even_odd')}
               apiMarketName="even/odd"
@@ -900,7 +900,7 @@ export default function UpcomingRaceCard({
           </div>
           <div
             className={cn(
-              'flex flex-1 items-center justify-center px-4 min-[1400px]:px-12 min-[1600px]:px-16',
+              'flex flex-1 items-center justify-center px-4 min-[1440px]:px-12 min-[1600px]:px-16',
               splitBorder && 'border-r',
             )}
           >
@@ -941,7 +941,7 @@ export default function UpcomingRaceCard({
           {race.discipline === 'DOGS8' ? '4.5' : '3.5'}
         </div>
         <div className="flex h-[66px]">
-          <div className="flex flex-1 items-center justify-center px-4 min-[1400px]:px-12 min-[1600px]:px-16">
+          <div className="flex flex-1 items-center justify-center px-4 min-[1440px]:px-12 min-[1600px]:px-16">
             <BetEntryToggle
               marketName={t('under_over')}
               apiMarketName="under/over"
@@ -968,7 +968,7 @@ export default function UpcomingRaceCard({
               }}
             />
           </div>
-          <div className="flex flex-1 items-center justify-center px-4 min-[1400px]:px-12 min-[1600px]:px-16">
+          <div className="flex flex-1 items-center justify-center px-4 min-[1440px]:px-12 min-[1600px]:px-16">
             <BetEntryToggle
               marketName={t('under_over')}
               apiMarketName="under/over"
@@ -1122,7 +1122,7 @@ export default function UpcomingRaceCard({
                     <TableCell className="hidden w-[1px] bg-border p-0 min-[1440px]:table-cell" />
 
                     <TableCell className="hidden min-[1440px]:table-cell">
-                      <div className="flex items-center justify-center space-x-[10px]">
+                      <div className="flex items-center justify-center gap-1.5 min-[1600px]:gap-2 min-[1760px]:gap-2.5 min-[1920px]:gap-[10px]">
                         <MedalsHistory history={racer.history} />
                       </div>
                     </TableCell>
@@ -1148,11 +1148,11 @@ export default function UpcomingRaceCard({
               )}
             </TableBody>
 
-            {/* ≥1400: mercati allineati alle colonne tabella */}
+            {/* ≥1440: mercati allineati alle colonne tabella (history visibile) */}
             {renderSpecialMarkets()}
           </Table>
 
-          {/* 1280–1399: due blocchi 50/50 fuori dalla table (niente scroll orizzontale) */}
+          {/* <1440: due blocchi 50/50 fuori dalla table */}
           {renderSpecialMarketsEqual()}
         </CardContent>
       </Card>
