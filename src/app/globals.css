@@ -726,15 +726,6 @@ html.no-scrollbar body::-webkit-scrollbar-thumb {
 }
 
 @media (max-width: 1399px) {
-  /* 1280 range: narrower betslip so the full column fits in the viewport */
-  .retail-betslip-col {
-    width: 360px;
-  }
-
-  .retail-betslip-col--calcio {
-    width: 370px;
-  }
-
   .retail-page-row {
     min-width: 0;
   }
