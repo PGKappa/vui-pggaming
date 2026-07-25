@@ -84,7 +84,6 @@ export default function BettingSlip({
   const rootContext = useContext(RootContext)
   const isPageScroll = useRetailPageScroll()
   // ≤839 viewport height: full fixed-height betslip. ≥840: compact to fit window.
-  const fitToViewport = !isPageScroll
 
   const currencySymbol = rootContext?.getCurrencySymbol?.() || '$'
   const stakeButtons = rootContext?.getStakeButtons?.() || [
@@ -1214,37 +1213,22 @@ export default function BettingSlip({
       <div className="flex min-h-0 flex-col">
       <Separator />
 
-      <CardFooter
-        className={cn(
-          'relative flex shrink-0 flex-col bg-backgroundBetslip',
-          fitToViewport ? 'pb-2' : 'pb-7',
-        )}
-      >
+      <CardFooter className="relative flex shrink-0 flex-col bg-backgroundBetslip pb-0">
         {betMode !== 'SYSTEM' ? (
           <>
-            <div className="relative h-[30px] w-full bg-accent py-3"></div>
+            <div className="h-[30px] w-full bg-accent" />
 
-            <div
-              className={cn(
-                'flex w-full flex-row items-center justify-between px-4 pt-[9px] text-black',
-                !fitToViewport && 'relative top-[12px]',
-              )}
-            >
-              <span className="relative bottom-[3px] text-[15px] font-semibold">
+            <div className="flex w-full flex-row items-center justify-between px-4 py-3 text-black">
+              <span className="text-[15px] font-semibold">
                 {t('total_odd').toUpperCase()}
               </span>
-              <span className="relative bottom-[3px] text-[15px] font-bold tabular-nums">
+              <span className="text-[15px] font-bold tabular-nums">
                 {totalOdds.toFixed(2)}
               </span>
             </div>
             <Separator />
 
-            <div
-              className={cn(
-                'grid w-full grid-cols-5 space-x-2 p-2',
-                !fitToViewport && 'relative top-[19px]',
-              )}
-            >
+            <div className="grid w-full grid-cols-5 gap-2 px-2 py-3">
               {stakeButtons.map((amount, index) => {
                 const numericAmount =
                   typeof amount === 'number'
@@ -1270,14 +1254,9 @@ export default function BettingSlip({
               })}
             </div>
 
-            <div
-              className={cn(
-                'flex w-full flex-row items-center justify-between px-4 text-searchResultText',
-                fitToViewport ? 'py-2' : 'relative top-[17px] py-[18px]',
-              )}
-            >
+            <div className="flex w-full flex-row items-center justify-between px-4 py-3 text-searchResultText">
               <div className="flex items-center space-x-2">
-                <span className="pt-[1px] text-[15px] font-semibold">
+                <span className="text-[15px] font-semibold">
                   {t('amount').toUpperCase()}
                 </span>
               </div>
@@ -1294,15 +1273,8 @@ export default function BettingSlip({
 
             <Separator />
 
-            <div
-              className={cn(
-                'flex w-full flex-row items-center justify-between bg-backgroundBetslip px-4 text-searchResultText',
-                fitToViewport
-                  ? 'py-2'
-                  : 'relative top-[27px] py-[12px] pb-[16px] pt-0',
-              )}
-            >
-              <span className="relative bottom-[1px] text-[17px] font-semibold">
+            <div className="flex w-full flex-row items-center justify-between bg-backgroundBetslip px-4 py-3 text-searchResultText">
+              <span className="text-[17px] font-semibold">
                 {t('potential_win').toUpperCase()}
               </span>
               <span className="text-[17px] font-semibold tabular-nums">
@@ -1656,12 +1628,7 @@ export default function BettingSlip({
             {t('combinations_limit_exceeded')}
           </div>
         )}
-        <div
-          className={cn(
-            'w-full p-3 pb-3',
-            fitToViewport ? 'pt-2' : 'pt-[9px]',
-          )}
-        >
+        <div className="w-full px-3 pb-3 pt-4">
           <Button
             variant="betNow"
             onClick={handleBetNow}
