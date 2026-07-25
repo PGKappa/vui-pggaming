@@ -36,7 +36,7 @@ export default function RetailLayout({
   }, [])
 
   return (
-    <html lang={i18n.language}>
+    <html lang={i18n.language} className="no-scrollbar">
       <head>
         <title>PG Gaming</title>
         <meta name="description" content="Gaming platform" />
@@ -136,7 +136,7 @@ function SkinBody({ children }: { children: React.ReactNode }) {
 
   return (
     <body
-      className={`${inter.variable} ${skin} flex min-h-dvh flex-col overflow-y-auto font-inter antialiased`}
+      className={`${inter.variable} ${skin} no-scrollbar flex h-full min-h-dvh flex-col overflow-y-auto font-inter antialiased`}
     >
       {/* Splash screen statico inline - appare ISTANTANEAMENTE */}
       <div id="static-splash">

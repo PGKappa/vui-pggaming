@@ -9,6 +9,30 @@
 
 .no-scrollbar::-webkit-scrollbar {
   display: none;
+  width: 0;
+  height: 0;
+}
+
+/* Document/viewport scrollbar (page scroll below 840px height) */
+html.no-scrollbar {
+  height: 100%;
+  overflow: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html.no-scrollbar body {
+  height: 100%;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html.no-scrollbar::-webkit-scrollbar,
+html.no-scrollbar body::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 
@@ -606,15 +630,6 @@
   }
 }
 
-.no-scrollbar {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-
 /*
  * Race page + betslip height modes — driven by VIEWPORT height.
  * ≤839: fixed 900px betslip (full height), page scrolls
@@ -733,7 +748,6 @@
   .retail-betslip-col {
     position: relative;
     top: auto;
-    right: 0.25rem;
     height: 900px;
     align-self: auto;
   }
