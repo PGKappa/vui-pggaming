@@ -641,9 +641,7 @@ html.no-scrollbar body::-webkit-scrollbar-thumb {
 }
 
 /*
- * Race page + betslip height modes — driven by VIEWPORT height.
- * ≤839: fixed 900px betslip (full height), page scrolls
- * ≥840: sticky betslip fitted to the window
+ * Race page + sticky betslip — fitted to the viewport height.
  */
 .retail-page-row {
   position: relative;
@@ -729,41 +727,6 @@ html.no-scrollbar body::-webkit-scrollbar-thumb {
 @media (max-width: 1399px) {
   .retail-page-row {
     min-width: 0;
-  }
-}
-
-@media (max-height: 839px) {
-  .retail-page-row {
-    height: 900px;
-    align-items: stretch;
-    overflow: hidden;
-  }
-
-  .retail-left-col {
-    min-height: 0;
-    overflow: hidden;
-  }
-
-  .retail-race-body {
-    display: flex;
-    min-height: 0;
-    overflow: hidden;
-  }
-
-  .retail-betslip-col {
-    position: relative;
-    top: auto;
-    height: 897px;
-    align-self: auto;
-  }
-
-  /* navbar (64) + betslip (900) + main pb-2 (8) */
-  .retail-shell {
-    min-height: 972px;
-  }
-
-  .retail-navbar-wrap {
-    position: relative;
   }
 }
 

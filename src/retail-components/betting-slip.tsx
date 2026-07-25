@@ -23,7 +23,6 @@ import {
   createPGVirtualAPICall,
   normalizeMarketName,
 } from '@/retail-lib/utils'
-import { useRetailPageScroll } from '@/retail-lib/use-retail-compact-height'
 import {
   ChevronDown,
   CornerDownLeft,
@@ -82,8 +81,7 @@ export default function BettingSlip({
   } = useContext(BetsContext)
 
   const rootContext = useContext(RootContext)
-  const isPageScroll = useRetailPageScroll()
-  // ≤839 viewport height: full fixed-height betslip. ≥840: compact to fit window.
+  // Betslip always sticky / fitted to viewport.
 
   const currencySymbol = rootContext?.getCurrencySymbol?.() || '$'
   const stakeButtons = rootContext?.getStakeButtons?.() || [
@@ -457,8 +455,7 @@ export default function BettingSlip({
     const groupHeight = 59
     const expandedHeight = 63
     const numGroups = systemGroups.length
-    // ≤839px: show 2 groups; ≥840: show up to 3
-    const maxVisible = isPageScroll ? 2 : 3
+    const maxVisible = 3
     const groupsToShow = Math.min(Math.max(numGroups, 1), maxVisible)
     const baseHeight = groupHeight * groupsToShow
 
@@ -470,7 +467,7 @@ export default function BettingSlip({
     const isSingleGroup = numGroups === 1
 
     return baseHeight + (isSingleGroup && isLastGroupOpen ? expandedHeight : 0)
-  }, [systemGroups, systemGroupsOpen, isPageScroll])
+  }, [systemGroups, systemGroupsOpen])
 
   useEffect(() => {
     if (betMode === 'SYSTEM') {
