@@ -5,9 +5,8 @@ export const RETAIL_VIEWPORT = {
   HEIGHT: 1020,
   SCROLL_THRESHOLD: 1080,
   /**
-   * Viewport height threshold (browser window, not device screen).
-   * ≤839: betslip fixed 900px (not sticky), page scrolls.
-   * ≥840: betslip sticky, fits the window.
+   * @deprecated Page-scroll / full-height betslip mode removed —
+   * betslip is always sticky and fitted to the window.
    */
   PAGE_SCROLL_HEIGHT: 839,
   /** Navbar height (h-16) — used for sticky betslip offset */

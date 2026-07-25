@@ -23,7 +23,6 @@ import {
   createPGVirtualAPICall,
   normalizeMarketName,
 } from '@/retail-lib/utils'
-import { useRetailPageScroll } from '@/retail-lib/use-retail-compact-height'
 import {
   ChevronDown,
   CornerDownLeft,
@@ -82,8 +81,7 @@ export default function BettingSlip({
   } = useContext(BetsContext)
 
   const rootContext = useContext(RootContext)
-  const isPageScroll = useRetailPageScroll()
-  // ≤839 viewport height: full fixed-height betslip. ≥840: compact to fit window.
+  // Betslip always sticky / fitted to viewport.
 
   const currencySymbol = rootContext?.getCurrencySymbol?.() || '$'
   const stakeButtons = rootContext?.getStakeButtons?.() || [
@@ -457,8 +455,7 @@ export default function BettingSlip({
     const groupHeight = 59
     const expandedHeight = 63
     const numGroups = systemGroups.length
-    // ≤839px: show 2 groups; ≥840: show up to 3
-    const maxVisible = isPageScroll ? 2 : 3
+    const maxVisible = 3
     const groupsToShow = Math.min(Math.max(numGroups, 1), maxVisible)
     const baseHeight = groupHeight * groupsToShow
 
@@ -470,7 +467,7 @@ export default function BettingSlip({
     const isSingleGroup = numGroups === 1
 
     return baseHeight + (isSingleGroup && isLastGroupOpen ? expandedHeight : 0)
-  }, [systemGroups, systemGroupsOpen, isPageScroll])
+  }, [systemGroups, systemGroupsOpen])
 
   useEffect(() => {
     if (betMode === 'SYSTEM') {
@@ -1218,7 +1215,7 @@ export default function BettingSlip({
           <>
             <div className="h-[30px] w-full bg-accent" />
 
-            <div className="flex w-full flex-row items-center justify-between px-4 py-3 text-black">
+            <div className="relative top-[7px] flex w-full flex-row items-center justify-between px-4 py-3 text-black">
               <span className="text-[15px] font-semibold">
                 {t('total_odd').toUpperCase()}
               </span>
@@ -1273,7 +1270,7 @@ export default function BettingSlip({
 
             <Separator />
 
-            <div className="flex w-full flex-row items-center justify-between bg-backgroundBetslip px-4 py-3 text-searchResultText">
+            <div className="relative top-[3px] flex w-full flex-row items-center justify-between bg-backgroundBetslip px-4 py-3 text-searchResultText">
               <span className="text-[17px] font-semibold">
                 {t('potential_win').toUpperCase()}
               </span>
@@ -1315,13 +1312,13 @@ export default function BettingSlip({
                   </button>
                 </div>
                 <AccordionContent className="pb-0">
-                  <div className="h-[44px] border-b bg-white px-4 pb-2">
-                    <div className="relative bottom-[1px] flex items-center justify-between space-x-2">
+                  <div className="flex h-[54px] items-center border-b bg-white px-4">
+                    <div className="relative bottom-[3px] flex w-full items-center justify-between space-x-2">
                       <Checkbox
                         checked={allGroupsSelected}
                         onCheckedChange={handleAllGroupsToggle}
                       />
-                      <div className="relative top-[1px] mr-[3px] flex h-[33px] items-center space-x-2">
+                      <div className="mr-[3px] flex h-[33px] items-center space-x-2">
                         <span className="mr-[4px] text-[12px] font-semibold">
                           {t('divide').toUpperCase()}
                         </span>
@@ -1574,7 +1571,7 @@ export default function BettingSlip({
 
             <Separator />
 
-            <div className="flex w-full flex-row items-center justify-between bg-backgroundBetslip px-4 py-3 text-searchResultText">
+            <div className="relative top-[7px] flex w-full flex-row items-center justify-between bg-backgroundBetslip px-4 py-3 text-searchResultText">
               <span className="text-[15px] font-semibold">
                 {t('total_combinations').toUpperCase()}
               </span>
@@ -1610,7 +1607,7 @@ export default function BettingSlip({
 
             <Separator />
 
-            <div className="flex w-full flex-row items-center justify-between bg-backgroundBetslip px-4 py-3 text-searchResultText">
+            <div className="relative top-[3px] flex w-full flex-row items-center justify-between bg-backgroundBetslip px-4 py-3 text-searchResultText">
               <span className="text-[17px] font-semibold tabular-nums">
                 {t('potential_win').toUpperCase()}
               </span>

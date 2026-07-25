@@ -60,6 +60,8 @@ export default function UpcomingRaceCard({
   const [fixedSelection, setFixedSelection] = useState<number[]>([])
   const [isLoading, setIsLoading] = useState(!moduleHasLoadedOnce)
   const [isLatecomersDialogOpen, setIsLatecomersDialogOpen] = useState(false)
+  const [isNarrowViewport, setIsNarrowViewport] = useState(false)
+  const [showHistoryInCompact, setShowHistoryInCompact] = useState(false)
 
   const { betEntries } = useContext(BetsContext)
   const rootContext = useContext(RootContext)
@@ -69,6 +71,25 @@ export default function UpcomingRaceCard({
   >(() => {
     return activeTab === 'triplets' ? 'trifecta' : 'exacta'
   })
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 1439px)')
+    const update = () => setIsNarrowViewport(mq.matches)
+    update()
+    mq.addEventListener('change', update)
+    return () => mq.removeEventListener('change', update)
+  }, [])
+
+  useEffect(() => {
+    if (!isNarrowViewport) {
+      setShowHistoryInCompact(false)
+      return
+    }
+    const id = window.setInterval(() => {
+      setShowHistoryInCompact((prev) => !prev)
+    }, 7000)
+    return () => window.clearInterval(id)
+  }, [isNarrowViewport])
 
   useEffect(() => {
     if (activeTab === 'couples') {
@@ -405,7 +426,9 @@ export default function UpcomingRaceCard({
 
           <TableHead className="w-[25%] min-w-0 text-center font-semibold min-[1440px]:w-[17%]">
             <span className="inline-block h-full w-full align-middle leading-[54px]">
-              {t('performance').toUpperCase()}
+              {isNarrowViewport && showHistoryInCompact
+                ? t('history').toUpperCase()
+                : t('performance').toUpperCase()}
             </span>
           </TableHead>
           <TableHead className="w-[1px] bg-border p-0" />
@@ -1109,14 +1132,22 @@ export default function UpcomingRaceCard({
                     <TableCell className="w-[1px] bg-border p-0" />
 
                     <TableCell className="p-2 text-[15px] font-bold">
-                      <div className="flex w-full min-w-0 flex-col items-stretch justify-center gap-1 px-1">
-                        <span className="text-center">{racer.performance}%</span>
-                        <Progress
-                          value={racer.performance}
-                          className="relative w-full [&>div]:rounded-r-full [&>div]:bg-tertiary"
-                          style={{ height: '10px' }}
-                        />
-                      </div>
+                      {isNarrowViewport && showHistoryInCompact ? (
+                        <div className="flex items-center justify-center gap-1.5 min-[1600px]:gap-2 min-[1760px]:gap-2.5 min-[1920px]:gap-[10px]">
+                          <MedalsHistory history={racer.history} />
+                        </div>
+                      ) : (
+                        <div className="flex w-full min-w-0 flex-col items-stretch justify-center gap-1 px-1">
+                          <span className="text-center">
+                            {racer.performance}%
+                          </span>
+                          <Progress
+                            value={racer.performance}
+                            className="relative w-full [&>div]:rounded-r-full [&>div]:bg-tertiary"
+                            style={{ height: '10px' }}
+                          />
+                        </div>
+                      )}
                     </TableCell>
 
                     <TableCell className="hidden w-[1px] bg-border p-0 min-[1440px]:table-cell" />

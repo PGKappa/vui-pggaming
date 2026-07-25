@@ -9,14 +9,11 @@ import {
   getCarouselFilteredEvents,
   getFutureEventsFromCarousel,
 } from '@/retail-lib/carousel-sync'
-import { useRetailPageScroll } from '@/retail-lib/use-retail-compact-height'
 import { useContext, useEffect, useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ScrollArea } from '@/retail-components/ui/scroll-area'
 
 export default function Dogs8Page() {
   const { t } = useTranslation()
-  const isPageScroll = useRetailPageScroll()
   const { upcomingEvents, searchEventResults, setSearchEventResults } =
     useContext(RootContext)
 
@@ -95,7 +92,7 @@ export default function Dogs8Page() {
   return (
     <div className="retail-page-row">
       <div className="retail-left-col">
-        <div className="bg-betslip flex h-[99px] w-full shrink-0 flex-row items-center justify-center pr-2">
+        <div className="bg-betslip flex h-[102px] w-full shrink-0 flex-row items-center justify-center pr-2">
           <UpcomingEventsCarousel
             selectedEvent={selectedEvent}
             setSelectedEvent={(event) => {
@@ -105,13 +102,7 @@ export default function Dogs8Page() {
           />
         </div>
 
-        <div className="retail-race-body bg-betslip">
-          {isPageScroll ? (
-            <ScrollArea className="h-full w-full">{raceContent}</ScrollArea>
-          ) : (
-            raceContent
-          )}
-        </div>
+        <div className="retail-race-body bg-betslip">{raceContent}</div>
       </div>
 
       <div className="retail-betslip-col bg-background text-foreground">
