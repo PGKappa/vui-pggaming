@@ -1574,7 +1574,7 @@ export default function BettingSlip({
 
             <Separator />
 
-            <div className="relative bottom-[1px] flex w-full flex-row items-center justify-between bg-backgroundBetslip px-3 py-[27px] pb-[15px] text-searchResultText">
+            <div className="flex w-full flex-row items-center justify-between bg-backgroundBetslip px-4 py-3 text-searchResultText">
               <span className="text-[15px] font-semibold">
                 {t('total_combinations').toUpperCase()}
               </span>
@@ -1591,16 +1591,16 @@ export default function BettingSlip({
 
             <Separator />
 
-            <div className="relative top-[2px] flex w-full flex-row items-center justify-between px-3 text-searchResultText">
+            <div className="flex w-full flex-row items-center justify-between px-4 py-3 text-searchResultText">
               <div className="flex items-center space-x-2">
-                <span className="text-[16px] font-semibold">
+                <span className="text-[15px] font-semibold">
                   {t('amount').toUpperCase()}
                 </span>
               </div>
               <NumericKeypadDrawer
                 value={global}
                 setValue={handleDirectAmountInput}
-                inputWidth="w-[220px] border text-[16px]  text-black"
+                inputWidth="w-[220px] border text-[16px] text-black"
                 triggerLabel={t('amount')}
                 showPlusMinus={false}
                 drawerId="system-amount"
@@ -1610,7 +1610,7 @@ export default function BettingSlip({
 
             <Separator />
 
-            <div className="relative top-[29px] flex w-full flex-row items-center justify-between bg-backgroundBetslip px-3 pb-[19px] text-searchResultText">
+            <div className="flex w-full flex-row items-center justify-between bg-backgroundBetslip px-4 py-3 text-searchResultText">
               <span className="text-[17px] font-semibold tabular-nums">
                 {t('potential_win').toUpperCase()}
               </span>
