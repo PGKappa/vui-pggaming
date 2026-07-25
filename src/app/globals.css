@@ -616,10 +616,9 @@
 }
 
 /*
- * Race page + betslip height modes — driven by DEVICE height (screen),
- * not the shrunk content viewport under browser chrome.
- * ≤840 (1366×768): fixed 900px betslip, page scrolls
- * >840 (1600×900): sticky betslip fitted to the window
+ * Race page + betslip height modes — driven by VIEWPORT height.
+ * ≤839: fixed 900px betslip (full height), page scrolls
+ * ≥840: sticky betslip fitted to the window
  */
 .retail-page-row {
   position: relative;
@@ -713,7 +712,7 @@
   }
 }
 
-@media (max-device-height: 840px) {
+@media (max-height: 839px) {
   .retail-page-row {
     height: 895px;
     align-items: stretch;

@@ -83,7 +83,7 @@ export default function BettingSlip({
 
   const rootContext = useContext(RootContext)
   const isPageScroll = useRetailPageScroll()
-  // ≤840 screen height: full fixed-height betslip. Taller screens: compact to fit window.
+  // ≤839 viewport height: full fixed-height betslip. ≥840: compact to fit window.
   const fitToViewport = !isPageScroll
 
   const currencySymbol = rootContext?.getCurrencySymbol?.() || '$'
@@ -458,7 +458,7 @@ export default function BettingSlip({
     const groupHeight = 59
     const expandedHeight = 63
     const numGroups = systemGroups.length
-    // ≤840px: show 2 groups; above: show up to 3
+    // ≤839px: show 2 groups; ≥840: show up to 3
     const maxVisible = isPageScroll ? 2 : 3
     const groupsToShow = Math.min(Math.max(numGroups, 1), maxVisible)
     const baseHeight = groupHeight * groupsToShow

@@ -20,22 +20,20 @@ export function useRetailCompactHeight() {
   return isCompactHeight
 }
 
-const PAGE_SCROLL_MQ = `(max-device-height: ${RETAIL_VIEWPORT.PAGE_SCROLL_HEIGHT}px)`
+const PAGE_SCROLL_MQ = `(max-height: ${RETAIL_VIEWPORT.PAGE_SCROLL_HEIGHT}px)`
 
 function readIsPageScroll() {
   if (typeof window === 'undefined') return false
-  // Device/screen height — NOT visualViewport (browser chrome must not flip the mode).
   if (typeof window.matchMedia === 'function') {
     return window.matchMedia(PAGE_SCROLL_MQ).matches
   }
-  return window.screen.height <= RETAIL_VIEWPORT.PAGE_SCROLL_HEIGHT
+  return window.innerHeight <= RETAIL_VIEWPORT.PAGE_SCROLL_HEIGHT
 }
 
 /**
- * True when the *screen* height is ≤840px (e.g. 1366×768).
- * In that mode the betslip uses fixed 900px height and the page scrolls.
- * On taller screens (e.g. 1600×900) the betslip stays sticky and fits the window,
- * even if browser chrome makes the usable viewport shorter than 840.
+ * True when the *viewport* height is ≤839px.
+ * In that mode the betslip uses fixed 900px height (not sticky) and the page scrolls.
+ * From 840px up the betslip stays sticky and fits the window.
  */
 export function useRetailPageScroll() {
   const [isPageScroll, setIsPageScroll] = useState(readIsPageScroll)
@@ -57,7 +55,7 @@ function readViewportHeight() {
 
 /**
  * Live betslip column height in px: window height minus navbar and bottom padding.
- * Only used when sticky (screen taller than 840).
+ * Only used when sticky (viewport ≥840).
  */
 export function useBetslipViewportHeight() {
   const [height, setHeight] = useState<number | null>(null)
