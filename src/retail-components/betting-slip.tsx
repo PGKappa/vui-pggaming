@@ -1133,7 +1133,7 @@ export default function BettingSlip({
           </TooltipProvider>
         </div>
 
-        <div className="flex h-[41px] w-[400px] flex-row">
+        <div className="col-span-2 flex h-[41px] w-full flex-row">
           <div
             className={`relative flex w-full flex-col items-center justify-center border-b-4 pb-0${
               isSystemToggleEnabled ? 'cursor-pointer' : ''
