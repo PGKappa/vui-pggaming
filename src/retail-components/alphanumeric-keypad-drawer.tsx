@@ -180,7 +180,7 @@ export default function AlphanumericKeypadDrawer(props: {
           <Input
             type="text"
             value={value}
-            className="h-10 w-full bg-white pl-10 text-center text-[16px] font-normal text-black placeholder:text-black tabular-nums"
+            className="h-12 w-full bg-white pl-10 text-center text-[16px] font-normal leading-none text-black placeholder:text-black tabular-nums"
             placeholder={props.placeholder || 'FASTBET'}
             readOnly
             onClick={openDrawer}

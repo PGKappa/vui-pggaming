@@ -1678,14 +1678,7 @@ export default function BettingSlip({
           </Button>
         </div>
 
-        <div
-          className={cn(
-            'w-full bg-betSlip-header p-3',
-            fitToViewport
-              ? 'pb-3 pt-2'
-              : 'relative bottom-2 pb-[15px] pt-[9px]',
-          )}
-        >
+        <div className="flex w-full items-center bg-betSlip-header px-3 py-2">
           {selectedEvent?.discipline === 'SOCCER' ? (
             <SoccerFastBet selectedEvent={selectedEvent} />
           ) : (
@@ -1693,10 +1686,6 @@ export default function BettingSlip({
           )}
         </div>
       </div>
-
-      {selectedEvent && !fitToViewport && (
-        <div className="w-full shrink-0 bg-white"></div>
-      )}
       </div>
     </Card>
   )
