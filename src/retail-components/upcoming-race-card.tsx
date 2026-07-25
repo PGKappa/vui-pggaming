@@ -1122,7 +1122,7 @@ export default function UpcomingRaceCard({
                     <TableCell className="hidden w-[1px] bg-border p-0 min-[1440px]:table-cell" />
 
                     <TableCell className="hidden min-[1440px]:table-cell">
-                      <div className="flex items-center justify-center space-x-[10px]">
+                      <div className="flex items-center justify-center gap-1.5 min-[1600px]:gap-2 min-[1760px]:gap-2.5 min-[1920px]:gap-[10px]">
                         <MedalsHistory history={racer.history} />
                       </div>
                     </TableCell>
