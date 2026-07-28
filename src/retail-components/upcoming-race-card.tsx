@@ -609,22 +609,22 @@ export default function UpcomingRaceCard({
             className={`max-w-0 cursor-pointer overflow-hidden px-2 py-2 ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
             onClick={handleMarketTypeToggle}
           >
-            <div className="mx-auto flex w-full max-w-[280px] items-center justify-center gap-2 min-[1440px]:gap-[2.375rem]">
+            <div className="flex w-full items-center justify-center gap-2 px-1 min-[1280px]:gap-[10px] min-[1280px]:px-0 min-[1360px]:gap-[16px] min-[1360px]:px-[1px] min-[1440px]:gap-[22px] min-[1440px]:px-[3px] min-[1600px]:gap-[42px] min-[1600px]:px-[13px] min-[1760px]:gap-[64px] min-[1760px]:px-[24px] min-[1920px]:gap-[84px] min-[1920px]:px-[34px]">
               <Toggle
                 pressed={position1Selection.includes(racer.number)}
                 onPressedChange={() => togglePosition1Selection(racer.number)}
                 onClick={(e) => e.stopPropagation()}
-                className="h-[49px] min-w-0 max-w-[117px] flex-1 border-betEntry-border pt-[2px] tabular-nums"
+                className="h-[49px] w-[110px] flex-none border-betEntry-border pt-[2px] tabular-nums min-[1280px]:w-[90px] min-[1380px]:w-[110px]"
               >
-                <span className="text-[17px] min-[1440px]:text-[19px]">1°</span>
+                <span className="text-[19px]">1°</span>
               </Toggle>
               <Toggle
                 pressed={position2Selection.includes(racer.number)}
                 onPressedChange={() => togglePosition2Selection(racer.number)}
                 onClick={(e) => e.stopPropagation()}
-                className="h-[49px] min-w-0 max-w-[118px] flex-1 border-betEntry-border pt-[2px]"
+                className="h-[49px] w-[110px] flex-none border-betEntry-border pt-[2px] min-[1280px]:w-[90px] min-[1380px]:w-[110px]"
               >
-                <span className="text-[17px] min-[1440px]:text-[19px]">2°</span>
+                <span className="text-[19px]">2°</span>
               </Toggle>
             </div>
           </TableCell>
@@ -1139,7 +1139,7 @@ export default function UpcomingRaceCard({
 
                       <TableCell className="p-2 text-[15px] font-bold">
                         {isNarrowViewport && showHistoryInCompact ? (
-                          <div className="flex items-center justify-center gap-3 min-[1600px]:gap-3.5 min-[1760px]:gap-4 min-[1920px]:gap-[18px]">
+                          <div className="flex items-center justify-center gap-4 min-[1280px]:gap-2 min-[1380px]:gap-4 min-[1600px]:gap-4 min-[1760px]:gap-5 min-[1920px]:gap-[22px]">
                             <MedalsHistory history={racer.history} />
                           </div>
                         ) : (
