@@ -616,14 +616,14 @@ export default function BetCombinationsTable({
         <div className="relative z-10 flex space-x-2 min-[1280px]:max-[1399px]:space-x-1.5">
           <Button
             variant="navbar"
-            className="h-10 w-fit rounded-[1px] px-[18px] pt-[1px] text-[15px] font-semibold text-white active:bg-betHover hover:bg-navbarHover min-[1280px]:max-[1399px]:h-8 min-[1280px]:max-[1399px]:px-3 min-[1280px]:max-[1399px]:text-xs"
+            className="h-10 w-fit rounded-[1px] px-[18px] pt-[1px] text-[15px] font-semibold text-white transition-opacity hover:opacity-80 min-[1280px]:max-[1399px]:h-8 min-[1280px]:max-[1399px]:px-3 min-[1280px]:max-[1399px]:text-xs"
             onClick={handleSortClick}
           >
             {getSortButtonText()}
           </Button>
           <Button
             variant="navbar"
-            className="h-10 w-[183px] rounded-[1px] px-[18px] pt-[1px] text-[15px] font-semibold text-white active:bg-betHover hover:bg-navbarHover min-[1280px]:max-[1399px]:h-8 min-[1280px]:max-[1399px]:w-[146px] min-[1280px]:max-[1399px]:px-3 min-[1280px]:max-[1399px]:text-xs"
+            className="h-10 w-[183px] rounded-[1px] px-[18px] pt-[1px] text-[15px] font-semibold text-white transition-opacity hover:opacity-80 min-[1280px]:max-[1399px]:h-8 min-[1280px]:max-[1399px]:w-[146px] min-[1280px]:max-[1399px]:px-3 min-[1280px]:max-[1399px]:text-xs"
             onClick={() => {
               if (onBeforeToggle) onBeforeToggle()
               if (allBetsSelected) {
@@ -652,7 +652,7 @@ export default function BetCombinationsTable({
         </div>
       </CardHeader>
       <CardContent className="p-0 pr-2">
-        <div className="grid grid-cols-12 gap-2 pb-6 pt-2">
+        <div className="grid grid-cols-12 gap-2 pt-2">
           {combinations.map((bet) => (
             <BetEntryToggle
               key={bet.option.outcome}
