@@ -696,6 +696,7 @@ html.no-scrollbar body::-webkit-scrollbar-track,
   display: flex;
   min-width: 1280px;
   min-height: 0;
+  flex-shrink: 0;
   flex-direction: column;
 }
 
