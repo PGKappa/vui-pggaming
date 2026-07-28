@@ -169,7 +169,9 @@ export function resolveCarouselSlidesPerView(
   width: number,
 ): number {
   if (width >= 1920 && config.from1920 !== undefined) return config.from1920
-  if (width >= 1400) return config.from1400 ?? config.below1400
+  // 1830, not 1400: the discipline icon (min-[1830px]:block) needs the wider
+  // card that only 1830+ provides, so slide count must switch at the same point.
+  if (width >= 1830) return config.from1400 ?? config.below1400
   return config.below1400
 }
 
