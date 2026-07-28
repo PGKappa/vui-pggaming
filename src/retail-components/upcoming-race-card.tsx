@@ -1053,8 +1053,8 @@ export default function UpcomingRaceCard({
                   key={key}
                   variant={isActive ? 'marketSelected' : 'market'}
                   className={cn(
-                    'h-12 w-[126px] px-[14px] pb-0 text-[16px] font-semibold uppercase transition-colors min-[1400px]:w-[135px] min-[1400px]:px-[16px] min-[1600px]:w-[140px] min-[1600px]:px-[18px]',
-                    !isActive && 'hover:bg-navbarHover', // L'hover viene applicato solo se NON è attivo
+                    'h-12 w-[126px] px-[14px] pb-0 text-[16px] font-semibold uppercase transition-opacity min-[1400px]:w-[135px] min-[1400px]:px-[16px] min-[1600px]:w-[140px] min-[1600px]:px-[18px]',
+                    !isActive && 'hover:opacity-80', // L'hover viene applicato solo se NON è attivo
                   )}
                   onClick={() => handleTabChange(key as TabType)}
                 >
