@@ -1251,7 +1251,7 @@ export default function BettingSlip({
               })}
             </div>
 
-            <div className="flex w-full flex-row items-center justify-between px-4 py-3 text-searchResultText">
+            <div className="flex w-full flex-row items-center justify-between px-4 py-3 text-searchResultText mt-2">
               <div className="flex items-center space-x-2">
                 <span className="text-[15px] font-semibold">
                   {t('amount').toUpperCase()}
@@ -1588,7 +1588,7 @@ export default function BettingSlip({
 
             <Separator />
 
-            <div className="flex w-full flex-row items-center justify-between px-4 py-3 text-searchResultText">
+            <div className="flex w-full flex-row items-center justify-between px-4 py-3 text-searchResultText mt-2">
               <div className="flex items-center space-x-2">
                 <span className="text-[15px] font-semibold">
                   {t('amount').toUpperCase()}
