@@ -221,7 +221,7 @@ export default function EventResultDetails({
               <Button
                 variant="outline"
                 size="sm"
-                className="min-w-[160px] bg-background text-foreground hover:bg-muted"
+                className="min-w-[160px] bg-background text-foreground transition-opacity hover:opacity-80"
                 onClick={() => setShowReplay(false)}
               >
                 RESULTS
@@ -752,7 +752,7 @@ export default function EventResultDetails({
             <Button
               variant="outline"
               size="sm"
-              className="min-w-[160px] border-border bg-background text-foreground hover:bg-muted"
+              className="min-w-[160px] border-border bg-background text-foreground transition-opacity hover:opacity-80"
               onClick={handleOpenReplay}
             >
               REPLAY
@@ -769,7 +769,7 @@ export default function EventResultDetails({
           <Button
             variant="outline"
             size="sm"
-            className="min-w-[140px] border-border bg-background text-foreground hover:bg-muted"
+            className="min-w-[140px] border-border bg-background text-foreground transition-opacity hover:opacity-80"
             onClick={handleOpenReplay}
           >
             REPLAY
@@ -867,7 +867,7 @@ export default function EventResultDetails({
             <Button
               variant="outline"
               size="sm"
-              className="min-w-[160px] bg-background text-foreground hover:bg-muted"
+              className="min-w-[160px] bg-background text-foreground transition-opacity hover:opacity-80"
               onClick={handleOpenReplay}
             >
               REPLAY

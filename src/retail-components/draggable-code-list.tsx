@@ -398,7 +398,7 @@ export default function DraggableCodeList({
                 size="icon"
                 onClick={handlePrint}
                 title="Print"
-                className="cursor-pointer bg-transparent hover:bg-accent/20"
+                className="cursor-pointer bg-transparent transition-opacity hover:opacity-80"
               >
                 <Printer
                   className="h-4 w-4 text-accent-foreground"
@@ -410,7 +410,7 @@ export default function DraggableCodeList({
                 size="icon"
                 onClick={handleClose}
                 title="Close"
-                className="cursor-pointer bg-transparent hover:bg-accent/20"
+                className="cursor-pointer bg-transparent transition-opacity hover:opacity-80"
               >
                 <X
                   className="h-4 w-4 text-accent-foreground"

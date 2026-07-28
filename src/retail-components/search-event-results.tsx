@@ -1102,7 +1102,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                 setReplayUrl(null)
                 setReplayError(null)
               }}
-              className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-background/60 text-foreground hover:bg-background/80"
+              className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-background/60 text-foreground transition-opacity hover:opacity-80"
               aria-label="Close replay"
             >
               <X className="h-5 w-5" />
@@ -1595,7 +1595,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
               <Button
                 onClick={fetchReplay}
                 disabled={loadingReplay}
-                className="h-[50px] w-[300px] bg-green-600 text-[18px] font-bold text-white shadow-lg hover:bg-green-700"
+                className="h-[50px] w-[300px] bg-green-600 text-[18px] font-bold text-white shadow-lg transition-opacity hover:opacity-80"
               >
                 {loadingReplay ? <LoadingSpinner /> : t('show_replay')}
               </Button>
