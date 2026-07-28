@@ -71,19 +71,33 @@ function formatTicketDate(time: TicketDetailInfo['time']): string {
   return `${d}/${m}/${year}`
 }
 
-function combinationOddsSum(odds: number[], k: number): number {
-  let total = 0
-  function enumerate(start: number, current: number[], depth: number) {
-    if (depth === k) {
-      total += current.reduce((a, b) => a * b, 1)
+// Prodotti delle quote di tutte le combinazioni REALI di dimensione `size`,
+// rispettando il vincolo che le selezioni fisse (banker) sono sempre incluse
+// in ogni combinazione — le uniche scelte libere sono fra le non fisse.
+// Mirror di getCombinations/generateSystemGroups in retail-lib/system-bets.ts,
+// adattato a lavorare su semplici array di quote invece che su BetEntry[].
+function comboOddsProductsForSize(
+  fixedOdds: number[],
+  nonFixedOdds: number[],
+  size: number,
+): number[] {
+  const needed = size - fixedOdds.length
+  if (needed < 0 || needed > nonFixedOdds.length) return []
+  const fixedProduct = fixedOdds.reduce((a, b) => a * b, 1)
+  if (needed === 0) return [fixedProduct]
+
+  const products: number[] = []
+  function enumerate(start: number, product: number, depth: number) {
+    if (depth === needed) {
+      products.push(product)
       return
     }
-    for (let i = start; i < odds.length; i++) {
-      enumerate(i + 1, [...current, odds[i]], depth + 1)
+    for (let i = start; i < nonFixedOdds.length; i++) {
+      enumerate(i + 1, product * nonFixedOdds[i], depth + 1)
     }
   }
-  enumerate(0, [], 0)
-  return total
+  enumerate(0, fixedProduct, 0)
+  return products
 }
 
 function computeMinMaxWin(info: TicketDetailInfo): {
@@ -92,31 +106,46 @@ function computeMinMaxWin(info: TicketDetailInfo): {
 } {
   const amount = parseFloat(String(info.amount)) || 0
   const systemKeys = Object.keys(info.system)
-  const odds: number[] = info.selections.map((sel) => {
+  const selectionOdds = info.selections.map((sel) => {
+    let odds = 1
     for (const market of sel.markets) {
       for (const s of market.selections) {
         const o = parseFloat(s.odds)
-        if (o > 0) return o
+        if (o > 0) {
+          odds = o
+          break
+        }
       }
     }
-    return 1
+    return { odds, isBanker: String(sel.isBanker) === 'true' }
   })
-  const n = odds.length
+  const n = selectionOdds.length
   if (n === 0) return { minWin: 0, maxWin: 0 }
   if (systemKeys.length === 0) {
-    const prod = odds.reduce((a, b) => a * b, 1)
+    const prod = selectionOdds.reduce((a, s) => a * s.odds, 1)
     return { minWin: prod * amount, maxWin: prod * amount }
   }
-  const sorted = [...odds].sort((a, b) => a - b)
+  const fixedOdds = selectionOdds.filter((s) => s.isBanker).map((s) => s.odds)
+  const nonFixedOdds = selectionOdds
+    .filter((s) => !s.isBanker)
+    .map((s) => s.odds)
+
   let minWin = Infinity
   let maxWin = 0
   for (const k of systemKeys) {
     const kNum = parseInt(k)
-    const stakePerCombo = parseFloat(info.system[k]) || 0
     if (isNaN(kNum) || kNum < 1 || kNum > n) continue
-    const minProduct = sorted.slice(0, kNum).reduce((a, b) => a * b, 1)
+    const combos = comboOddsProductsForSize(fixedOdds, nonFixedOdds, kNum)
+    if (combos.length === 0) continue
+    // info.system[k] è la puntata TOTALE per questa taglia di sistema (stesso
+    // valore inviato in placeBet.system in betting-slip.tsx) — va quindi
+    // divisa per il numero REALE di combinazioni per ottenere la puntata
+    // per combinazione.
+    const tierTotalStake = parseFloat(info.system[k]) || 0
+    const stakePerCombo = tierTotalStake / combos.length
+    const minProduct = Math.min(...combos)
     minWin = Math.min(minWin, minProduct * stakePerCombo)
-    const combsSum = combinationOddsSum(odds, kNum)
+    const combsSum = combos.reduce((a, b) => a + b, 0)
     maxWin += combsSum * stakePerCombo
   }
   return { minWin: minWin === Infinity ? 0 : minWin, maxWin }
