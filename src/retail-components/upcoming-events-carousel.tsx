@@ -246,7 +246,7 @@ function UpcomingEventItem(props: {
         alt={event.discipline}
         width={40}
         height={20}
-        className={`relative hidden size-14 object-contain min-[1730px]:block ${imageOffset}`}
+        className={`relative hidden size-14 object-contain min-[1830px]:block ${imageOffset}`}
       />
 
       <div

@@ -609,22 +609,22 @@ export default function UpcomingRaceCard({
             className={`max-w-0 cursor-pointer overflow-hidden px-2 py-2 ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
             onClick={handleMarketTypeToggle}
           >
-            <div className="mx-auto flex w-full items-center justify-center gap-2 min-[1400px]:max-w-[280px] min-[1400px]:gap-[2.375rem]">
+            <div className="mx-auto flex w-full max-w-[280px] items-center justify-center gap-2 min-[1440px]:gap-[2.375rem]">
               <Toggle
                 pressed={position1Selection.includes(racer.number)}
                 onPressedChange={() => togglePosition1Selection(racer.number)}
                 onClick={(e) => e.stopPropagation()}
-                className="h-[49px] min-w-0 flex-1 border-betEntry-border pt-[2px] tabular-nums min-[1400px]:w-[117px] min-[1400px]:max-w-[117px] min-[1400px]:flex-none"
+                className="h-[49px] min-w-0 max-w-[117px] flex-1 border-betEntry-border pt-[2px] tabular-nums"
               >
-                <span className="text-[17px] min-[1400px]:text-[19px]">1°</span>
+                <span className="text-[17px] min-[1440px]:text-[19px]">1°</span>
               </Toggle>
               <Toggle
                 pressed={position2Selection.includes(racer.number)}
                 onPressedChange={() => togglePosition2Selection(racer.number)}
                 onClick={(e) => e.stopPropagation()}
-                className="h-[49px] min-w-0 flex-1 border-betEntry-border pt-[2px] min-[1400px]:w-[118px] min-[1400px]:max-w-[118px] min-[1400px]:flex-none"
+                className="h-[49px] min-w-0 max-w-[118px] flex-1 border-betEntry-border pt-[2px]"
               >
-                <span className="text-[17px] min-[1400px]:text-[19px]">2°</span>
+                <span className="text-[17px] min-[1440px]:text-[19px]">2°</span>
               </Toggle>
             </div>
           </TableCell>
@@ -635,24 +635,24 @@ export default function UpcomingRaceCard({
             className={`max-w-0 cursor-pointer overflow-hidden px-2 py-2 ${!isAnyOrderMode ? 'bg-gray-300' : ''}`}
             onClick={handleMarketTypeToggle}
           >
-            <div className="mx-auto flex w-full items-center justify-center gap-2 min-[1400px]:max-w-[220px] min-[1400px]:gap-[2.375rem]">
+            <div className="mx-auto flex w-full max-w-[220px] items-center justify-center gap-2 min-[1440px]:gap-[2.375rem]">
               <Toggle
                 pressed={fixedSelection.includes(racer.number)}
                 onPressedChange={() => toggleFixedSelection(racer.number)}
                 onClick={(e) => e.stopPropagation()}
-                className={`h-[49px] min-w-0 flex-1 border-betEntry-border pt-[2px] min-[1400px]:w-[56px] min-[1400px]:max-w-[56px] min-[1400px]:flex-none ${fixedSelection.includes(racer.number) ? 'text-white' : ''}`}
+                className={`h-[49px] min-w-0 max-w-[56px] flex-1 border-betEntry-border pt-[2px] ${fixedSelection.includes(racer.number) ? 'text-white' : ''}`}
               >
-                <span className="text-[17px] min-[1400px]:text-[19px]">F</span>
+                <span className="text-[17px] min-[1440px]:text-[19px]">F</span>
               </Toggle>
               <Toggle
                 pressed={disorderSelection.includes(racer.number)}
                 onPressedChange={() => toggleDisorderSelection(racer.number)}
                 onClick={(e) => e.stopPropagation()}
-                className="h-[49px] min-w-0 flex-1 border-betEntry-border pt-[2px] min-[1400px]:w-[117px] min-[1400px]:max-w-[117px] min-[1400px]:flex-none"
+                className="h-[49px] min-w-0 max-w-[117px] flex-1 border-betEntry-border pt-[2px]"
               >
                 {disorderSelection.includes(racer.number) && (
                   <Check
-                    className="h-8 w-8 text-background min-[1400px]:h-12 min-[1400px]:w-12"
+                    className="h-8 w-8 text-background min-[1440px]:h-12 min-[1440px]:w-12"
                     style={{ zoom: 1.3 }}
                   />
                 )}
@@ -1139,7 +1139,7 @@ export default function UpcomingRaceCard({
 
                       <TableCell className="p-2 text-[15px] font-bold">
                         {isNarrowViewport && showHistoryInCompact ? (
-                          <div className="flex items-center justify-center gap-1.5 min-[1600px]:gap-2 min-[1760px]:gap-2.5 min-[1920px]:gap-[10px]">
+                          <div className="flex items-center justify-center gap-3 min-[1600px]:gap-3.5 min-[1760px]:gap-4 min-[1920px]:gap-[18px]">
                             <MedalsHistory history={racer.history} />
                           </div>
                         ) : (
