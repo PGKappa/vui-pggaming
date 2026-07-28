@@ -1139,7 +1139,7 @@ export default function UpcomingRaceCard({
 
                       <TableCell className="p-2 text-[15px] font-bold">
                         {isNarrowViewport && showHistoryInCompact ? (
-                          <div className="flex items-center justify-center gap-3 min-[1600px]:gap-3.5 min-[1760px]:gap-4 min-[1920px]:gap-[18px]">
+                          <div className="flex items-center justify-center gap-4 min-[1600px]:gap-4 min-[1760px]:gap-5 min-[1920px]:gap-[22px]">
                             <MedalsHistory history={racer.history} />
                           </div>
                         ) : (
