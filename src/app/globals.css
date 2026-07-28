@@ -679,7 +679,10 @@ html.no-scrollbar body::-webkit-scrollbar-track,
   flex-direction: column;
   padding-right: 0.5rem;
   padding-top: 2px;
-  height: calc(840px - 4rem - 0.5rem - 102px);
+  height: max(
+    calc(100dvh - 4rem - 0.5rem - 102px),
+    calc(840px - 4rem - 0.5rem - 102px)
+  );
   overflow: hidden;
 }
 
@@ -692,7 +695,10 @@ html.no-scrollbar body::-webkit-scrollbar-track,
   position: sticky;
   top: calc(4rem + 3px);
   margin-top: 3px;
-  height: calc(840px - 4rem - 0.5rem - 3px);
+  height: max(
+    calc(100dvh - 4rem - 0.5rem - 3px),
+    calc(840px - 4rem - 0.5rem - 3px)
+  );
 }
 
 .retail-betslip-col--calcio {
