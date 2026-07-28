@@ -37,20 +37,25 @@ html.no-scrollbar body::-webkit-scrollbar,
 
 html.no-scrollbar body::-webkit-scrollbar-thumb,
 .retail-shell ::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.35);
-  border-radius: 4px;
+  background: #cdd2dc;
+  border-radius: 0;
+}
+
+html.no-scrollbar body::-webkit-scrollbar-thumb:hover,
+.retail-shell ::-webkit-scrollbar-thumb:hover {
+  background: #b8bec9;
 }
 
 html.no-scrollbar body::-webkit-scrollbar-track,
 .retail-shell ::-webkit-scrollbar-track {
-  background: transparent;
+  background: #e5e7eb;
 }
 
 @supports not (selector(::-webkit-scrollbar)) {
   html.no-scrollbar body,
   .retail-shell * {
     scrollbar-width: thin;
-    scrollbar-color: rgba(0, 0, 0, 0.35) transparent;
+    scrollbar-color: #cdd2dc #e5e7eb;
   }
 }
 
@@ -668,10 +673,14 @@ html.no-scrollbar body::-webkit-scrollbar-track,
 }
 
 .retail-race-body {
+  display: flex;
   min-width: 0;
-  flex: 1;
+  flex: 0 0 auto;
+  flex-direction: column;
   padding-right: 0.5rem;
   padding-top: 2px;
+  height: calc(840px - 4rem - 0.5rem - 102px);
+  overflow: hidden;
 }
 
 .retail-betslip-col {

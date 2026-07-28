@@ -1042,166 +1042,173 @@ export default function UpcomingRaceCard({
 
   return (
     <>
-      <Card className="h-full w-full overflow-hidden">
-        <CardHeader className="flex h-[73px] flex-row items-center justify-between px-[12px]">
-          <div className="flex items-center space-x-2">
-            {Object.entries(tabConfig).map(([key, config]) => {
-              const isActive = activeTab === key
+      <div className="h-full overflow-y-auto">
+        <Card className="w-full overflow-hidden">
+          <CardHeader className="flex h-[73px] flex-row items-center justify-between px-[12px]">
+            <div className="flex items-center space-x-2">
+              {Object.entries(tabConfig).map(([key, config]) => {
+                const isActive = activeTab === key
 
-              return (
-                <Button
-                  key={key}
-                  variant={isActive ? 'marketSelected' : 'market'}
-                  className={cn(
-                    'h-12 w-[126px] px-[14px] pb-0 text-[16px] font-semibold uppercase transition-opacity min-[1400px]:w-[135px] min-[1400px]:px-[16px] min-[1600px]:w-[140px] min-[1600px]:px-[18px]',
-                    !isActive && 'hover:opacity-80', // L'hover viene applicato solo se NON è attivo
-                  )}
-                  onClick={() => handleTabChange(key as TabType)}
-                >
-                  {config.name}
-                </Button>
-              )
-            })}
-          </div>
+                return (
+                  <Button
+                    key={key}
+                    variant={isActive ? 'marketSelected' : 'market'}
+                    className={cn(
+                      'h-12 w-[126px] px-[14px] pb-0 text-[16px] font-semibold uppercase transition-opacity min-[1400px]:w-[135px] min-[1400px]:px-[16px] min-[1600px]:w-[140px] min-[1600px]:px-[18px]',
+                      !isActive && 'hover:opacity-80', // L'hover viene applicato solo se NON è attivo
+                    )}
+                    onClick={() => handleTabChange(key as TabType)}
+                  >
+                    {config.name}
+                  </Button>
+                )
+              })}
+            </div>
 
-          <div className="flex items-center gap-2">
-            <span className="p-[10px] text-[15px] font-semibold tabular-nums text-tertiary-foreground">
-              {'ID'} {race.id}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="p-[10px] text-[15px] font-semibold tabular-nums text-tertiary-foreground">
+                {'ID'} {race.id}
+              </span>
 
-            {(activeTab === 'couples' || activeTab === 'triplets') &&
-              (position1Selection.length > 0 ||
-                position2Selection.length > 0 ||
-                position3Selection.length > 0 ||
-                disorderSelection.length > 0 ||
-                fixedSelection.length > 0) && (
+              {(activeTab === 'couples' || activeTab === 'triplets') &&
+                (position1Selection.length > 0 ||
+                  position2Selection.length > 0 ||
+                  position3Selection.length > 0 ||
+                  disorderSelection.length > 0 ||
+                  fixedSelection.length > 0) && (
+                  <Button
+                    variant="ghost"
+                    className="h-12 w-fit bg-secondary px-4 text-[15px] font-semibold text-secondary-foreground"
+                    onClick={clearSelections}
+                  >
+                    {t('clear_all').toUpperCase()}
+                  </Button>
+                )}
+
+              {shouldShowInfoButton() && (
                 <Button
                   variant="ghost"
-                  className="h-12 w-fit bg-secondary px-4 text-[15px] font-semibold text-secondary-foreground"
-                  onClick={clearSelections}
+                  size="icon"
+                  className="h-12 w-fit border-border bg-secondary px-[18px] pt-[1px] text-[15px] font-semibold text-secondary-foreground hover:bg-navbarHover"
+                  onClick={() => setIsLatecomersDialogOpen(true)}
                 >
-                  {t('clear_all').toUpperCase()}
+                  <span>{t('latecomers').toUpperCase()}</span>
                 </Button>
               )}
+            </div>
+          </CardHeader>
 
-            {shouldShowInfoButton() && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-12 w-fit border-border bg-secondary px-[18px] pt-[1px] text-[15px] font-semibold text-secondary-foreground hover:bg-navbarHover"
-                onClick={() => setIsLatecomersDialogOpen(true)}
-              >
-                <span>{t('latecomers').toUpperCase()}</span>
-              </Button>
-            )}
-          </div>
-        </CardHeader>
+          <CardContent className="min-w-0 overflow-x-hidden">
+            <Table
+              className="table-fixed"
+              containerClassName="overflow-x-hidden"
+            >
+              {renderTableHeader()}
 
-        <CardContent className="min-w-0 overflow-x-hidden">
-          <Table className="table-fixed" containerClassName="overflow-x-hidden">
-            {renderTableHeader()}
-
-            <TableBody>
-              {!isLoading && raceInfo?.racers && raceInfo.racers.length > 0 ? (
-                raceInfo.racers.map((racer) => (
-                  <TableRow
-                    key={racer.number}
-                    className="border-b border-border text-[19px]"
-                  >
-                    <TableCell className="relative left-1 p-2 text-[18px]">
-                      <div className="flex items-center space-x-[7px]">
-                        <div
-                          className="flex h-[33px] w-[33px] items-center justify-center rounded-md text-[21px] font-semibold tabular-nums"
-                          style={
-                            getRacerColors(
-                              racer.number,
-                              race.discipline as 'DOGS' | 'DOGS8' | 'HORSES',
-                            ).style
-                          }
-                        >
-                          {racer.number}
-                        </div>
-                        <div>
-                          <div className="truncate pl-1 pt-0.5 text-[17px] font-semibold">
-                            {racer.name}
+              <TableBody>
+                {!isLoading &&
+                raceInfo?.racers &&
+                raceInfo.racers.length > 0 ? (
+                  raceInfo.racers.map((racer) => (
+                    <TableRow
+                      key={racer.number}
+                      className="border-b border-border text-[19px]"
+                    >
+                      <TableCell className="relative left-1 p-2 text-[18px]">
+                        <div className="flex items-center space-x-[7px]">
+                          <div
+                            className="flex h-[33px] w-[33px] items-center justify-center rounded-md text-[21px] font-semibold tabular-nums"
+                            style={
+                              getRacerColors(
+                                racer.number,
+                                race.discipline as 'DOGS' | 'DOGS8' | 'HORSES',
+                              ).style
+                            }
+                          >
+                            {racer.number}
+                          </div>
+                          <div>
+                            <div className="truncate pl-1 pt-0.5 text-[17px] font-semibold">
+                              {racer.name}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </TableCell>
+                      </TableCell>
 
-                    <TableCell className="w-[1px] bg-border p-0" />
+                      <TableCell className="w-[1px] bg-border p-0" />
 
-                    <TableCell className="p-2 text-[15px] font-bold">
-                      {isNarrowViewport && showHistoryInCompact ? (
+                      <TableCell className="p-2 text-[15px] font-bold">
+                        {isNarrowViewport && showHistoryInCompact ? (
+                          <div className="flex items-center justify-center gap-1.5 min-[1600px]:gap-2 min-[1760px]:gap-2.5 min-[1920px]:gap-[10px]">
+                            <MedalsHistory history={racer.history} />
+                          </div>
+                        ) : (
+                          <div className="flex w-full min-w-0 flex-col items-stretch justify-center gap-1 px-1">
+                            <span className="text-center">
+                              {racer.performance}%
+                            </span>
+                            <Progress
+                              value={racer.performance}
+                              className="relative w-full [&>div]:rounded-r-full [&>div]:bg-tertiary"
+                              style={{ height: '10px' }}
+                            />
+                          </div>
+                        )}
+                      </TableCell>
+
+                      <TableCell className="hidden w-[1px] bg-border p-0 min-[1440px]:table-cell" />
+
+                      <TableCell className="hidden min-[1440px]:table-cell">
                         <div className="flex items-center justify-center gap-1.5 min-[1600px]:gap-2 min-[1760px]:gap-2.5 min-[1920px]:gap-[10px]">
                           <MedalsHistory history={racer.history} />
                         </div>
-                      ) : (
-                        <div className="flex w-full min-w-0 flex-col items-stretch justify-center gap-1 px-1">
-                          <span className="text-center">
-                            {racer.performance}%
-                          </span>
-                          <Progress
-                            value={racer.performance}
-                            className="relative w-full [&>div]:rounded-r-full [&>div]:bg-tertiary"
-                            style={{ height: '10px' }}
-                          />
-                        </div>
-                      )}
+                      </TableCell>
+
+                      <TableCell className="w-[1px] bg-border p-0" />
+
+                      {renderTabSpecificCells(racer)}
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow className="border-none">
+                    <TableCell
+                      colSpan={12}
+                      className="border-none py-6 text-center text-[19px]"
+                    >
+                      {isLoading
+                        ? `${t('loading')}...`
+                        : raceInfo
+                          ? `${t('no_racers_available')}`
+                          : `${t('load_failed')}`}
                     </TableCell>
-
-                    <TableCell className="hidden w-[1px] bg-border p-0 min-[1440px]:table-cell" />
-
-                    <TableCell className="hidden min-[1440px]:table-cell">
-                      <div className="flex items-center justify-center gap-1.5 min-[1600px]:gap-2 min-[1760px]:gap-2.5 min-[1920px]:gap-[10px]">
-                        <MedalsHistory history={racer.history} />
-                      </div>
-                    </TableCell>
-
-                    <TableCell className="w-[1px] bg-border p-0" />
-
-                    {renderTabSpecificCells(racer)}
                   </TableRow>
-                ))
-              ) : (
-                <TableRow className="border-none">
-                  <TableCell
-                    colSpan={12}
-                    className="border-none py-6 text-center text-[19px]"
-                  >
-                    {isLoading
-                      ? `${t('loading')}...`
-                      : raceInfo
-                        ? `${t('no_racers_available')}`
-                        : `${t('load_failed')}`}
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
+                )}
+              </TableBody>
 
-            {/* ≥1440: mercati allineati alle colonne tabella (history visibile) */}
-            {renderSpecialMarkets()}
-          </Table>
+              {/* ≥1440: mercati allineati alle colonne tabella (history visibile) */}
+              {renderSpecialMarkets()}
+            </Table>
 
-          {/* <1440: due blocchi 50/50 fuori dalla table */}
-          {renderSpecialMarketsEqual()}
-        </CardContent>
-      </Card>
+            {/* <1440: due blocchi 50/50 fuori dalla table */}
+            {renderSpecialMarketsEqual()}
+          </CardContent>
+        </Card>
 
-      {!isLoading && raceInfo && tabConfig[activeTab].showCombinations && (
-        <BetCombinationsTable
-          race={{ ...race, data: raceInfo }}
-          position1Selection={position1Selection}
-          position2Selection={position2Selection}
-          position3Selection={position3Selection}
-          disorderSelection={disorderSelection}
-          fixedSelection={fixedSelection}
-          marketType={marketType}
-          onBeforeToggle={() => {
-            betAddedFromUIRef.current = true
-          }}
-        />
-      )}
+        {!isLoading && raceInfo && tabConfig[activeTab].showCombinations && (
+          <BetCombinationsTable
+            race={{ ...race, data: raceInfo }}
+            position1Selection={position1Selection}
+            position2Selection={position2Selection}
+            position3Selection={position3Selection}
+            disorderSelection={disorderSelection}
+            fixedSelection={fixedSelection}
+            marketType={marketType}
+            onBeforeToggle={() => {
+              betAddedFromUIRef.current = true
+            }}
+          />
+        )}
+      </div>
 
       <LatecomersDialog
         isOpen={isLatecomersDialogOpen}
