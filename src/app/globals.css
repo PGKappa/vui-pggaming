@@ -709,7 +709,7 @@ html.no-scrollbar body::-webkit-scrollbar-track,
 
 .retail-shell {
   display: flex;
-  min-width: 1280px;
+  min-width: 1275px;
   min-height: 0;
   flex-shrink: 0;
   flex-direction: column;
@@ -721,7 +721,7 @@ html.no-scrollbar body::-webkit-scrollbar-track,
   z-index: 20;
   flex-shrink: 0;
   width: 100%;
-  min-width: 1280px;
+  min-width: 1275px;
 }
 
 /* PAR/IMPAR + MENOS/MÁS: equal 50/50 below 1440; table colSpan 6/5 from 1440 (history cols visible) */
