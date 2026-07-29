@@ -609,7 +609,7 @@ export default function UpcomingRaceCard({
             className={`max-w-0 cursor-pointer overflow-hidden px-2 py-2 ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
             onClick={handleMarketTypeToggle}
           >
-            <div className="flex w-full items-center justify-center gap-[10px] px-0 min-[1360px]:gap-[16px] min-[1360px]:px-[1px] min-[1440px]:gap-[22px] min-[1440px]:px-[3px] min-[1600px]:gap-[42px] min-[1600px]:px-[13px] min-[1760px]:gap-[64px] min-[1760px]:px-[24px] min-[1920px]:gap-[84px] min-[1920px]:px-[34px]">
+            <div className="flex w-full items-center justify-center gap-[10px] px-0 min-[1360px]:gap-[8px] min-[1360px]:px-[1px] min-[1440px]:gap-[11px] min-[1440px]:px-[3px] min-[1600px]:gap-[21px] min-[1600px]:px-[13px] min-[1760px]:gap-[32px] min-[1760px]:px-[24px] min-[1920px]:gap-[42px] min-[1920px]:px-[34px]">
               <Toggle
                 pressed={position1Selection.includes(racer.number)}
                 onPressedChange={() => togglePosition1Selection(racer.number)}
