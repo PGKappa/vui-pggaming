@@ -246,21 +246,21 @@ function UpcomingEventItem(props: {
         alt={event.discipline}
         width={40}
         height={20}
-        className={`relative hidden size-14 object-contain min-[1830px]:block ${imageOffset}`}
+        className={`relative block size-14 object-contain ${imageOffset}`}
       />
 
       <div
-        className={`relative flex w-full flex-col max-[1399px]:flex min-[1400px]:hidden ${textContainerClass}`}
+        className={`relative flex flex-col max-[1399px]:flex min-[1400px]:hidden ${textContainerClass}`}
       >
         <div
-          className={`relative flex flex-col items-start ${textInnerClass} ${textOffset}`}
+          className={`relative flex flex-col items-start text-left ${textInnerClass} ${textOffset}`}
         >
           {eventTextContent}
         </div>
       </div>
 
       <div
-        className={`relative hidden min-[1400px]:flex flex-col items-start ${textOffsetFrom1400}`}
+        className={`relative hidden min-[1400px]:flex flex-col items-start text-left ${textOffsetFrom1400}`}
       >
         {eventTextContent}
       </div>

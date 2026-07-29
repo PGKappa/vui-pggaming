@@ -8,10 +8,12 @@ type CarouselOffsetAtBreakpoints = {
 }
 
 type CarouselSlidesPerViewAtBreakpoints = {
-  /** < 1400px */
-  below1400: number
-  /** ≥ 1400px */
-  from1400?: number
+  /** < 1520px */
+  below1520: number
+  /** ≥ 1520px, < 1790px */
+  from1520?: number
+  /** ≥ 1790px, < 1920px */
+  from1790?: number
   /** ≥ 1920px */
   from1920?: number
 }
@@ -114,7 +116,7 @@ function resolveOffsetsByDiscipline(
 }
 
 const defaultTextContainerClass: CarouselOffsetAtBreakpoints = {
-  below1400: 'items-start text-left',
+  below1400: 'items-center text-center',
 }
 
 const defaultTextInnerClass: CarouselOffsetAtBreakpoints = {
@@ -122,8 +124,9 @@ const defaultTextInnerClass: CarouselOffsetAtBreakpoints = {
 }
 
 const defaultSlidesPerView: CarouselSlidesPerViewAtBreakpoints = {
-  below1400: 4,
-  from1400: 5,
+  below1520: 3,
+  from1520: 4,
+  from1790: 5,
 }
 
 const defaultViewportSlideSize: CarouselOffsetAtBreakpoints = {
@@ -169,10 +172,9 @@ export function resolveCarouselSlidesPerView(
   width: number,
 ): number {
   if (width >= 1920 && config.from1920 !== undefined) return config.from1920
-  // 1830, not 1400: the discipline icon (min-[1830px]:block) needs the wider
-  // card that only 1830+ provides, so slide count must switch at the same point.
-  if (width >= 1830) return config.from1400 ?? config.below1400
-  return config.below1400
+  if (width >= 1790 && config.from1790 !== undefined) return config.from1790
+  if (width >= 1520 && config.from1520 !== undefined) return config.from1520
+  return config.below1520
 }
 
 function buildCarouselLayout(source: CarouselLayoutSource): CarouselLayoutConfig {
@@ -232,7 +234,7 @@ const layoutByLanguage: Record<string, LayoutConfig> = {
       eventNameFontSize: 'text-[14px]',
       eventSubtitleFontSize: 'text-[13px]',
       eventSubtitleBottom: 'bottom-[5px]',
-      slidesPerView: { below1400: 4, from1400: 5, from1920: 6 },
+      slidesPerView: { below1520: 3, from1520: 4, from1790: 5, from1920: 6 },
       viewportSlideSize: {
         below1400: '25%',
         from1400: '20%',
