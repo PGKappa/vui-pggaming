@@ -134,11 +134,30 @@ export function generateSystemGroups(
     return groups
   }
 
+  // La classificazione fisso/non-fisso va fatta per EVENTO, non per singola
+  // selezione: se un evento ha almeno una selezione marcata "fissa" (banker),
+  // TUTTE le sue selezioni sono alternative dello stesso slot obbligatorio —
+  // esattamente come il backend tratta un evento banker con più esiti nello
+  // stesso selection object. Se si classificasse per singola selezione, una
+  // nuova selezione aggiunta a un evento già fisso verrebbe scartata dal
+  // generatore di combinazioni (il suo evento risulta già "occupato" dalla
+  // selezione fissa), facendo apparire il conteggio combinazioni bloccato su
+  // un valore vecchio mentre il ticket realmente inviato (che include TUTTE
+  // le selezioni dell'evento banker) ne contiene molte di più.
+  const fixedEventKeys = new Set<string>()
+  entries.forEach((entry) => {
+    if (entry.fixed) {
+      const eventKey = `${entry.bet.discipline}-${entry.bet.event.number}`
+      fixedEventKeys.add(eventKey)
+    }
+  })
+
   const nonFixedEntries: BetEntry[] = []
   const fixedEntries: BetEntry[] = []
 
   entries.forEach((entry) => {
-    if (entry.fixed) {
+    const eventKey = `${entry.bet.discipline}-${entry.bet.event.number}`
+    if (fixedEventKeys.has(eventKey)) {
       fixedEntries.push(entry)
     } else {
       nonFixedEntries.push(entry)

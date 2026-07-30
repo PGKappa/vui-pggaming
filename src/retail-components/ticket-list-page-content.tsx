@@ -337,21 +337,29 @@ export default function TicketListPageContent({
       extra,
     )
 
+  // Saldo = vinto - giocato (segno reale): positivo solo se la vincita supera
+  // l'importo giocato. Usiamo SEMPRE questo confronto per decidere il colore,
+  // non lo status del ticket — uno stato "vincente" (4/6) può comunque avere
+  // vinto meno di quanto giocato (es. sistema con solo alcune combinazioni
+  // vincenti), quindi lo status da solo non basta a decidere rosso/nero.
   const getItemSaldo = (item: (typeof items)[number]) =>
     item.saldo !== undefined
       ? parseFloat(item.saldo)
       : parseFloat(item.amount_won || '0') - parseFloat(item.amount || '0')
 
-  const totalSaldo = items.reduce(
-    (acc, item) => acc + Math.abs(getItemSaldo(item)),
+  const totalPlayed = items.reduce(
+    (acc, item) => acc + (parseFloat(item.amount || '0') || 0),
     0,
   )
-  const winningSaldo = items.reduce((acc, item) => {
-    if (item.status === 4 || item.status === 6)
-      return acc + Math.abs(getItemSaldo(item))
-    return acc
-  }, 0)
-  const netSaldo = totalSaldo - winningSaldo
+  const totalWon = items.reduce(
+    (acc, item) => acc + (parseFloat(item.amount_won || '0') || 0),
+    0,
+  )
+  // Come per il singolo ticket: il valore mostrato è sempre senza segno
+  // (giocato - vinto), rosso solo quando il totale vinto supera il totale
+  // giocato.
+  const netSaldo = Math.abs(totalPlayed - totalWon)
+  const totalIsProfit = totalWon > totalPlayed
 
   const totalBorder = '0.5px solid rgba(255,255,255,0.4)'
   const totalCellStyle = { border: totalBorder }
@@ -667,9 +675,7 @@ export default function TicketListPageContent({
                           <span
                             className={cn(
                               'font-medium tabular-nums',
-                              item.status === 4 || item.status === 6
-                                ? 'text-ticket-lost'
-                                : '',
+                              getItemSaldo(item) > 0 ? 'text-ticket-lost' : '',
                             )}
                           >
                             {formatCurrency(
@@ -758,7 +764,9 @@ export default function TicketListPageContent({
                     backgroundColor:
                       'color-mix(in srgb, hsl(var(--secondary)) 90%, white)',
                   }}
-                  className={totalCellClass()}
+                  className={totalCellClass(
+                    totalIsProfit ? 'text-ticket-lost' : '',
+                  )}
                 >
                   {formatCurrency(netSaldo, currencySymbol)}
                 </td>

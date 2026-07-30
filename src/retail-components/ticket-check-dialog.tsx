@@ -20,6 +20,7 @@ import {
   TicketPayResponse,
 } from '@/retail-lib/types'
 import { createPGVirtualAPICall } from '@/retail-lib/utils'
+import { format } from 'date-fns'
 import { useTranslation } from 'react-i18next'
 import { useCallback, useContext, useEffect, useState } from 'react'
 import { RootContext } from '@/retail-contexts/root-context'
@@ -69,6 +70,19 @@ function formatTicketDate(time: TicketDetailInfo['time']): string {
   const d = String(day).padStart(2, '0')
   const m = String(month + 1).padStart(2, '0')
   return `${d}/${m}/${year}`
+}
+
+// sel.startTime a volte arriva come timestamp ISO (es. "2026-07-11T08:40:00.000Z",
+// in UTC) invece che come stringa già formattata in orario locale — se lo
+// trattiamo come testo e basta, l'orario mostrato resta in UTC e diverge
+// dalla ricevuta stampata (che converte correttamente in orario locale).
+// Se sel.startTime è un vero timestamp, lo convertiamo esplicitamente
+// all'orario locale; altrimenti lo lasciamo come arriva (già formattato).
+function toLocalEventTime(rawStartTime: string): string {
+  if (!/^\d{4}-\d{2}-\d{2}T/.test(rawStartTime)) return rawStartTime
+  const parsed = new Date(rawStartTime)
+  if (isNaN(parsed.getTime())) return rawStartTime
+  return `${format(parsed, 'dd/MM/yyyy')} - ${format(parsed, 'HH:mm')}`
 }
 
 // Prodotti delle quote di tutte le combinazioni REALI di dimensione `size`,
@@ -138,17 +152,28 @@ function computeMinMaxWin(info: TicketDetailInfo): {
     const combos = comboOddsProductsForSize(fixedOdds, nonFixedOdds, kNum)
     if (combos.length === 0) continue
     // info.system[k] è la puntata TOTALE per questa taglia di sistema (stesso
-    // valore inviato in placeBet.system in betting-slip.tsx) — va quindi
-    // divisa per il numero REALE di combinazioni per ottenere la puntata
-    // per combinazione.
+    // valore inviato in placeBet.system in betting-slip.tsx, già arrotondato
+    // a 2 decimali in quel momento) — va quindi divisa per il numero REALE
+    // di combinazioni per ottenere la puntata per combinazione. La puntata
+    // per combinazione è sempre un valore "pulito" a 2 decimali (viene
+    // sempre arrotondata così quando l'operatore la inserisce), quindi
+    // arrotondiamo subito il risultato della divisione: altrimenti il rumore
+    // di virgola mobile introdotto dalla divisione si accumula su centinaia
+    // di combinazioni e può spostare l'ultimo centesimo del totale rispetto
+    // alla ricevuta stampata (che usa la puntata per combinazione originale,
+    // già pulita, non ricavata da una divisione).
     const tierTotalStake = parseFloat(info.system[k]) || 0
-    const stakePerCombo = tierTotalStake / combos.length
+    const stakePerCombo =
+      Math.round((tierTotalStake / combos.length) * 100) / 100
     const minProduct = Math.min(...combos)
     minWin = Math.min(minWin, minProduct * stakePerCombo)
     const combsSum = combos.reduce((a, b) => a + b, 0)
     maxWin += combsSum * stakePerCombo
   }
-  return { minWin: minWin === Infinity ? 0 : minWin, maxWin }
+  return {
+    minWin: Math.round((minWin === Infinity ? 0 : minWin) * 100) / 100,
+    maxWin: Math.round(maxWin * 100) / 100,
+  }
 }
 
 export default function TicketCheckDialog({
@@ -698,14 +723,16 @@ export default function TicketCheckDialog({
                           style={{ color: '#aaa' }}
                         >
                           {(() => {
-                            const [datePart, timePart] = sel.startTime.includes(
-                              ' - ',
+                            const normalizedStartTime = toLocalEventTime(
+                              sel.startTime,
                             )
-                              ? sel.startTime.split(' - ')
-                              : [
-                                  formatTicketDate(ticketInfo.time),
-                                  sel.startTime,
-                                ]
+                            const [datePart, timePart] =
+                              normalizedStartTime.includes(' - ')
+                                ? normalizedStartTime.split(' - ')
+                                : [
+                                    formatTicketDate(ticketInfo.time),
+                                    normalizedStartTime,
+                                  ]
                             return (
                               <>
                                 {datePart && (
@@ -818,7 +845,7 @@ export default function TicketCheckDialog({
                                   className="text-[11px] font-semibold"
                                   style={{ color: '#ccc' }}
                                 >
-                                  {currentSel.startTime}
+                                  {toLocalEventTime(currentSel.startTime)}
                                 </span>
                                 <span
                                   className="text-[11px]"
