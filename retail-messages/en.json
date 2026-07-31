@@ -24,6 +24,8 @@
   "total": "Total",
   "total_odd": "Total Odd",
   "total_combinations": "Total Combinations",
+  "of": "of",
+  "fixed_selections": "Fixed Selections",
   "total_played": "Total Played",
   "potential_win": "Potential Win",
   "remove_all": "Remove All",

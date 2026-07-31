@@ -114,13 +114,14 @@ function comboOddsProductsForSize(
   return products
 }
 
-function computeMinMaxWin(info: TicketDetailInfo): {
-  minWin: number
-  maxWin: number
-} {
-  const amount = parseFloat(String(info.amount)) || 0
-  const systemKeys = Object.keys(info.system)
-  const selectionOdds = info.selections.map((sel) => {
+// Quota "rappresentativa" di una selezione (la prima positiva trovata) più
+// il suo stato di selezione fissa (banker) — logica condivisa tra il calcolo
+// vincita min/max e il riepilogo del sistema, così i due restano sempre
+// coerenti fra loro.
+function getSelectionOddsAndBanker(
+  info: TicketDetailInfo,
+): { odds: number; isBanker: boolean }[] {
+  return info.selections.map((sel) => {
     let odds = 1
     for (const market of sel.markets) {
       for (const s of market.selections) {
@@ -133,6 +134,61 @@ function computeMinMaxWin(info: TicketDetailInfo): {
     }
     return { odds, isBanker: String(sel.isBanker) === 'true' }
   })
+}
+
+// Riepilogo del sistema per il Dettaglio Ticket: quali taglie sono state
+// giocate, importo e numero di combinazioni per ciascuna, totale
+// combinazioni, e quante selezioni sono fisse — mirror di come queste
+// informazioni vengono già mostrate sulla ricevuta stampata (systemGroupsInfo
+// in betting-slip.tsx).
+function computeSystemSummary(info: TicketDetailInfo): {
+  totalSelections: number
+  levels: { size: number; stakeTotal: number; combinations: number }[]
+  totalCombinations: number
+  fixedCount: number
+} | null {
+  const systemKeys = Object.keys(info.system)
+  if (systemKeys.length === 0) return null
+
+  const selectionOdds = getSelectionOddsAndBanker(info)
+  const n = selectionOdds.length
+  const fixedOdds = selectionOdds.filter((s) => s.isBanker).map((s) => s.odds)
+  const nonFixedOdds = selectionOdds
+    .filter((s) => !s.isBanker)
+    .map((s) => s.odds)
+
+  const levels = systemKeys
+    .map((k) => {
+      const size = parseInt(k)
+      if (isNaN(size) || size < 1 || size > n) return null
+      const combos = comboOddsProductsForSize(fixedOdds, nonFixedOdds, size)
+      if (combos.length === 0) return null
+      return {
+        size,
+        stakeTotal: parseFloat(info.system[k]) || 0,
+        combinations: combos.length,
+      }
+    })
+    .filter((l): l is { size: number; stakeTotal: number; combinations: number } =>
+      l !== null,
+    )
+    .sort((a, b) => a.size - b.size)
+
+  return {
+    totalSelections: n,
+    levels,
+    totalCombinations: levels.reduce((sum, l) => sum + l.combinations, 0),
+    fixedCount: fixedOdds.length,
+  }
+}
+
+function computeMinMaxWin(info: TicketDetailInfo): {
+  minWin: number
+  maxWin: number
+} {
+  const amount = parseFloat(String(info.amount)) || 0
+  const systemKeys = Object.keys(info.system)
+  const selectionOdds = getSelectionOddsAndBanker(info)
   const n = selectionOdds.length
   if (n === 0) return { minWin: 0, maxWin: 0 }
   if (systemKeys.length === 0) {
@@ -479,6 +535,8 @@ export default function TicketCheckDialog({
     ? computeMinMaxWin(ticketInfo)
     : { minWin: 0, maxWin: 0 }
 
+  const systemSummary = ticketInfo ? computeSystemSummary(ticketInfo) : null
+
   const totalSelections =
     ticketInfo?.selections.reduce(
       (acc, sel) =>
@@ -676,6 +734,79 @@ export default function TicketCheckDialog({
                     </span>
                   </div>
 
+                  {/* RIEPILOGO SISTEMA: taglie giocate, importo e
+                      combinazioni per taglia, totale combinazioni e
+                      selezioni fisse — le stesse informazioni già presenti
+                      sulla ricevuta stampata (systemGroupsInfo). */}
+                  {systemSummary && (
+                    <div
+                      className="mb-4 rounded-xl p-[14px] px-4"
+                      style={{ background: '#2a2a2a' }}
+                    >
+                      <div
+                        className="mb-3 text-center text-[13px] font-bold uppercase tracking-[0.8px]"
+                        style={{ color: '#ccc' }}
+                      >
+                        {t('system', 'Sistema')}{' '}
+                        {systemSummary.levels.map((l) => l.size).join(',')}{' '}
+                        {t('of', 'di')} {systemSummary.totalSelections}
+                      </div>
+
+                      {systemSummary.levels.map((level) => (
+                        <div
+                          key={level.size}
+                          className="flex items-center justify-between py-[8px]"
+                          style={{ borderTop: '1px solid #363636' }}
+                        >
+                          <span
+                            className="text-[12.5px] font-semibold tracking-[0.4px]"
+                            style={{ color: '#ccc' }}
+                          >
+                            {level.size} {t('comb', 'Comb.')}:{' '}
+                            {level.combinations}
+                          </span>
+                          <span
+                            className="text-[12.5px] font-semibold tracking-[0.4px]"
+                            style={{ color: '#ccc' }}
+                          >
+                            {fmt(level.stakeTotal)}
+                          </span>
+                        </div>
+                      ))}
+
+                      <div
+                        className="flex items-center justify-between pt-[10px]"
+                        style={{
+                          marginTop: '4px',
+                          borderTop: '1px solid #444',
+                        }}
+                      >
+                        <span
+                          className="text-[12.5px] font-bold uppercase tracking-[0.4px]"
+                          style={{ color: '#aaa' }}
+                        >
+                          {t('total_combinations', 'Totale Combinazioni')}
+                        </span>
+                        <span
+                          className="text-[12.5px] font-bold tracking-[0.4px]"
+                          style={{ color: '#aaa' }}
+                        >
+                          {systemSummary.totalCombinations}
+                        </span>
+                      </div>
+
+                      {systemSummary.fixedCount > 0 && (
+                        <div
+                          className="mt-2 text-center text-[11.5px] font-semibold uppercase tracking-[0.4px]"
+                          style={{ color: '#f0a500' }}
+                        >
+                          {systemSummary.fixedCount}{' '}
+                          {t('fixed_selections', 'Selezioni Fisse')}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   {/* DEBUG: simula CDD */}
                   {isDebug &&
                     !cddXml &&
@@ -710,6 +841,14 @@ export default function TicketCheckDialog({
                           style={{ color: '#aaa' }}
                         >
                           {sel.game.dict.misc.name} {sel.channelName}
+                          {String(sel.isBanker) === 'true' && (
+                            <span
+                              className="ml-2 rounded px-[6px] py-[2px] text-[10px] font-bold uppercase tracking-[0.4px] text-white"
+                              style={{ background: '#f0a500' }}
+                            >
+                              {t('fixed', 'Fissa')}
+                            </span>
+                          )}
                           <br />
                           <span
                             className="font-normal"
