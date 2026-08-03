@@ -587,8 +587,8 @@ export default function TicketCheckDialog({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent
           aria-describedby={undefined}
-          className="flex max-h-[calc(100vh-40px)] w-[600px] max-w-[600px] flex-col overflow-hidden border-0 p-0 shadow-[0_8px_32px_rgba(0,0,0,0.5)]"
-          style={{ background: '#1e1e1e', borderRadius: '12px 12px 1px 1px' }}
+          className="flex max-h-[calc(100vh-40px)] w-[600px] max-w-[600px] flex-col overflow-hidden border-0 p-0"
+          style={{ background: '#1e1e1e', borderRadius: '12px 12px 0 0' }}
         >
           {/* HEADER */}
           <DialogHeader
@@ -630,7 +630,7 @@ export default function TicketCheckDialog({
                 className="min-h-0 flex-1 overflow-y-auto"
                 style={{ background: '#212121' }}
               >
-                <div className="px-5">
+                <div className="flex min-h-full flex-col px-5">
                   {/* CODICE + STATO */}
                   <div className="flex items-center justify-between pb-4 pt-5">
                     <div>
@@ -783,7 +783,10 @@ export default function TicketCheckDialog({
                   <hr style={{ borderColor: '#3a3a3a' }} />
 
                   {/* TIPO label */}
-                  <div className="py-[13px] text-center">
+                  <div
+                    className="flex items-center justify-center text-center"
+                    style={{ height: '60px' }}
+                  >
                     <span
                       className="text-[17px] font-semibold uppercase tracking-[1.5px]"
                       style={{ color: '#888' }}
@@ -817,7 +820,7 @@ export default function TicketCheckDialog({
                     <div
                       key={idx}
                       className="mb-[30px] p-[14px] px-4"
-                      style={{ background: '#2a2a2a', borderRadius: '1px' }}
+                      style={{ background: '#2a2a2a' }}
                     >
                       {/* Card header */}
                       <div className="mb-[14px] flex items-start justify-between">
@@ -905,6 +908,7 @@ export default function TicketCheckDialog({
                     </div>
                   ))}
 
+                  <div className="flex flex-1 flex-col justify-center">
                   {/* COMBINAZIONI: taglie giocate, importo e combinazioni
                       per taglia, totale combinazioni — le stesse
                       informazioni già presenti sulla ricevuta stampata
@@ -961,16 +965,19 @@ export default function TicketCheckDialog({
                         </div>
                       ))}
                       <div
-                        className="flex items-baseline justify-between py-[9px]"
+                        className="flex items-baseline gap-2 py-[9px]"
                         style={{ borderTop: '1px solid #444' }}
                       >
                         <span
                           className="text-[15px] font-semibold uppercase tracking-[0.8px]"
-                          style={{ color: '#888' }}
+                          style={{ color: '#888', position: 'relative', top: '17px' }}
                         >
                           {t('total_combinations', 'Totale Combinazioni')}
                         </span>
-                        <span className="text-[15px] font-bold text-white">
+                        <span
+                          className="text-[15px] font-bold text-white"
+                          style={{ position: 'relative', top: '17px' }}
+                        >
                           {systemSummary.totalCombinations}
                         </span>
                       </div>
@@ -978,7 +985,7 @@ export default function TicketCheckDialog({
                   )}
 
                   {/* VIDEO REPLAY */}
-                  <div className="pb-4">
+                  <div>
                     {showReplayPlayer ? (
                       <div
                         className="overflow-hidden rounded-xl"
@@ -1094,7 +1101,7 @@ export default function TicketCheckDialog({
                         )}
                       </div>
                     ) : (
-                      <div className="text-center">
+                      <div className="text-center" style={{ height: '33px' }}>
                         <button
                           className="w-[260px] cursor-pointer rounded-lg border-0 bg-replay py-3 text-[14px] font-bold uppercase tracking-[1.5px] text-white disabled:opacity-60"
                           style={{ display: 'none' }}
@@ -1254,17 +1261,27 @@ export default function TicketCheckDialog({
                         </div>
                       </div>
                     )}
+                  </div>
                 </div>
               </div>
 
               {/* FOOTER */}
               {!pinMode && (
-                <div className="relative shrink-0 bg-accent px-5 pb-[16px] pt-[20px]">
-                  <div className="mb-[17px] text-center text-[22px] font-bold uppercase tracking-[1px] text-white">
+                <div
+                  className="relative flex shrink-0 flex-col justify-center bg-accent px-5"
+                  style={{ height: '128px' }}
+                >
+                  <div
+                    className="relative mb-[17px] text-center text-[22px] font-bold uppercase tracking-[1px] text-white"
+                    style={{ top: '2px' }}
+                  >
                     {t('total_winning', 'TOTALE VINCITA')}{' '}
                     {fmt(ticketInfo.amount_won)}
                   </div>
-                  <div className="relative mb-2 flex min-h-[44px] items-center justify-center">
+                  <div
+                    className="relative flex min-h-[44px] items-center justify-center"
+                    style={{ top: '-4px' }}
+                  >
                     {/* PAGA: winner, not paid, no CDD pending */}
                     {statusInfo.isWinner &&
                       !statusInfo.isPaid &&
@@ -1273,7 +1290,7 @@ export default function TicketCheckDialog({
                         <button
                           onClick={() => setShowPayConfirm(true)}
                           disabled={paying}
-                          className="block w-[160px] cursor-pointer rounded-lg border-0 py-3 text-center text-[15px] font-bold uppercase tracking-[2px] text-white"
+                          className="flex h-[32px] w-[124px] cursor-pointer items-center justify-center rounded-lg border-0 text-center text-[14px] font-bold uppercase tracking-[1.5px] text-white"
                           style={{
                             background: '#2a2a2a',
                             opacity: paying ? 0.5 : 1,
