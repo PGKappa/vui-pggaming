@@ -34,7 +34,11 @@ export default function MatchBettingOptions(props: {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
   const ref = useDetectClickOutside({
-    onTriggered: props.close,
+    onTriggered: (e) => {
+      const target = e.target as HTMLElement | null
+      if (target?.closest('[data-testid="betting-slip"]')) return
+      props.close()
+    },
   })
 
   return (
