@@ -45,6 +45,26 @@ function getDetailStatus(status: number): {
   }
 }
 
+const COMBO_SIZE_LABELS: Record<number, { key: string; label: string }> = {
+  1: { key: 'combo_single', label: 'Singola' },
+  2: { key: 'combo_double', label: 'Doppia' },
+  3: { key: 'combo_treble', label: 'Tripla' },
+  4: { key: 'combo_fourfold', label: 'Quadrupla' },
+  5: { key: 'combo_fivefold', label: 'Quintupla' },
+  6: { key: 'combo_sixfold', label: 'Sestupla' },
+  7: { key: 'combo_sevenfold', label: 'Settupla' },
+  8: { key: 'combo_eightfold', label: 'Ottupla' },
+  9: { key: 'combo_ninefold', label: 'Novupla' },
+  10: { key: 'combo_tenfold', label: 'Decupla' },
+}
+function getComboSizeLabel(
+  size: number,
+  t: (key: string, fallback: string) => string,
+): string {
+  const entry = COMBO_SIZE_LABELS[size]
+  return entry ? t(entry.key, entry.label) : `${t('system', 'Sistema')} ${size}`
+}
+
 function getBetTypeLabel(
   betType: string,
   system: Record<string, string>,
@@ -567,15 +587,15 @@ export default function TicketCheckDialog({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent
           aria-describedby={undefined}
-          className="flex max-h-[calc(100vh-40px)] w-[500px] max-w-[500px] flex-col overflow-hidden rounded-xl border-0 p-0 shadow-[0_8px_32px_rgba(0,0,0,0.5)]"
-          style={{ background: '#1e1e1e' }}
+          className="flex max-h-[calc(100vh-40px)] w-[600px] max-w-[600px] flex-col overflow-hidden border-0 p-0 shadow-[0_8px_32px_rgba(0,0,0,0.5)]"
+          style={{ background: '#1e1e1e', borderRadius: '12px 12px 1px 1px' }}
         >
           {/* HEADER */}
           <DialogHeader
-            className="shrink-0 bg-accent"
+            className="shrink-0 bg-accent text-center"
             style={{ padding: '18px 20px' }}
           >
-            <DialogTitle className="m-0 text-[22px] font-bold tracking-[1px] text-white">
+            <DialogTitle className="m-0 text-[18px] font-bold tracking-[1px] text-white">
               {t('ticket_details', 'DETTAGLI TICKET')}
             </DialogTitle>
           </DialogHeader>
@@ -615,21 +635,22 @@ export default function TicketCheckDialog({
                   <div className="flex items-center justify-between pb-4 pt-5">
                     <div>
                       <div
-                        className="mb-1 text-[11px] font-semibold uppercase tracking-[0.8px]"
+                        className="mb-1 text-[16px] font-semibold uppercase tracking-[0.8px]"
                         style={{ color: '#888' }}
                       >
                         {t('code', 'CODICE')}
                       </div>
-                      <div className="text-[26px] font-bold tracking-[1px] text-white">
+                      <div className="text-[16px] font-bold tracking-[1px] text-white">
                         {ticketInfo.ticket_id}
                       </div>
                     </div>
                     {statusInfo.isWinner && (
                       <div
-                        className="flex items-center gap-2 rounded-lg px-[18px] py-[10px] text-[13px] font-bold uppercase tracking-[1px] text-white"
+                        className="flex items-center gap-2 px-[18px] py-[10px] text-[14px] font-bold uppercase tracking-[1px] text-white"
                         style={{
-                          background: '#2d7a3a',
+                          background: 'rgba(58,158,74,0.2)',
                           border: '2px solid #3a9e4a',
+                          borderRadius: '2px',
                         }}
                       >
                         {statusInfo.isPaid
@@ -637,39 +658,41 @@ export default function TicketCheckDialog({
                           : t('winning', 'VINCENTE')}
                         <span
                           className="h-[9px] w-[9px] shrink-0 rounded-full"
-                          style={{ background: '#4cce5e' }}
+                          style={{ background: '#3a9e4a' }}
                         />
                       </div>
                     )}
                     {!statusInfo.isWinner &&
                       statusInfo.translationKey === 'lost' && (
                         <div
-                          className="flex items-center gap-2 rounded-lg px-[18px] py-[10px] text-[13px] font-bold uppercase tracking-[1px] text-white"
+                          className="flex items-center gap-2 px-[18px] py-[10px] text-[14px] font-bold uppercase tracking-[1px] text-white"
                           style={{
-                            background: '#7a2d2d',
+                            background: 'rgba(158,58,58,0.2)',
                             border: '2px solid #9e3a3a',
+                            borderRadius: '2px',
                           }}
                         >
                           {t('lost', 'PERDENTE')}
                           <span
                             className="h-[9px] w-[9px] shrink-0 rounded-full"
-                            style={{ background: '#cc4444' }}
+                            style={{ background: '#9e3a3a' }}
                           />
                         </div>
                       )}
                     {!statusInfo.isWinner &&
                       statusInfo.translationKey === 'pending' && (
                         <div
-                          className="flex items-center gap-2 rounded-lg px-[18px] py-[10px] text-[13px] font-bold uppercase tracking-[1px] text-white"
+                          className="flex items-center gap-2 px-[18px] py-[10px] text-[14px] font-bold uppercase tracking-[1px] text-white"
                           style={{
-                            background: '#5a5a1a',
+                            background: 'rgba(138,138,42,0.2)',
                             border: '2px solid #8a8a2a',
+                            borderRadius: '2px',
                           }}
                         >
                           {t('pending', 'IN ATTESA')}
                           <span
                             className="h-[9px] w-[9px] shrink-0 rounded-full"
-                            style={{ background: '#cccc44' }}
+                            style={{ background: '#8a8a2a' }}
                           />
                         </div>
                       )}
@@ -679,24 +702,24 @@ export default function TicketCheckDialog({
                   <div className="flex items-end justify-between py-[14px]">
                     <div>
                       <div
-                        className="mb-1 text-[11px] font-semibold uppercase tracking-[0.8px]"
+                        className="mb-1 text-[16px] font-semibold uppercase tracking-[0.8px]"
                         style={{ color: '#888' }}
                       >
                         {t('date_hour', 'DATA E ORA')}
                       </div>
-                      <div className="text-[19px] font-bold text-white">
+                      <div className="text-[16px] font-bold text-white">
                         {formatTicketTime(ticketInfo.time)}
                       </div>
                     </div>
                     {terminalId && (
                       <div className="text-right">
                         <div
-                          className="mb-1 text-[11px] font-semibold uppercase tracking-[0.8px]"
+                          className="mb-1 text-[16px] font-semibold uppercase tracking-[0.8px]"
                           style={{ color: '#888' }}
                         >
                           {t('terminal', 'TERMINALE')}
                         </div>
-                        <div className="text-[19px] font-bold text-white">
+                        <div className="text-[16px] font-bold text-white">
                           {terminalId}
                         </div>
                       </div>
@@ -708,24 +731,24 @@ export default function TicketCheckDialog({
                   <div className="flex items-end pb-5 pt-[14px]">
                     <div className="flex-1">
                       <div
-                        className="mb-1 text-[11px] font-semibold uppercase tracking-[0.8px]"
+                        className="mb-1 text-[16px] font-semibold uppercase tracking-[0.8px]"
                         style={{ color: '#888' }}
                       >
                         {t('stake', 'PUNTATA')}
                       </div>
-                      <div className="text-[19px] font-bold text-white">
+                      <div className="text-[16px] font-bold text-white">
                         {fmt(ticketInfo.amount)}
                       </div>
                     </div>
                     {betTypeKey === 'multiple' ? (
                       <div className="flex-1 text-right">
                         <div
-                          className="mb-1 text-[11px] font-semibold uppercase tracking-[0.8px]"
+                          className="mb-1 text-[16px] font-semibold uppercase tracking-[0.8px]"
                           style={{ color: '#888' }}
                         >
                           {t('potential_payout', 'PAGAMENTO POTENZIALE')}
                         </div>
-                        <div className="text-[19px] font-bold text-background">
+                        <div className="text-[16px] font-bold text-background">
                           {fmt(minMaxWin.maxWin)}
                         </div>
                       </div>
@@ -733,23 +756,23 @@ export default function TicketCheckDialog({
                       <>
                         <div className="flex-1 text-center">
                           <div
-                            className="mb-1 text-[11px] font-semibold uppercase tracking-[0.8px]"
+                            className="mb-1 text-[16px] font-semibold uppercase tracking-[0.8px]"
                             style={{ color: '#888' }}
                           >
                             {t('min_win', 'MIN WIN')}
                           </div>
-                          <div className="text-[19px] font-bold text-white">
+                          <div className="text-[16px] font-bold text-white">
                             {fmt(minMaxWin.minWin)}
                           </div>
                         </div>
                         <div className="flex-1 text-right">
                           <div
-                            className="mb-1 text-[11px] font-semibold uppercase tracking-[0.8px]"
+                            className="mb-1 text-[16px] font-semibold uppercase tracking-[0.8px]"
                             style={{ color: '#888' }}
                           >
                             {t('max_win', 'MAX WIN')}
                           </div>
-                          <div className="text-[19px] font-bold text-white">
+                          <div className="text-[16px] font-bold text-white">
                             {fmt(minMaxWin.maxWin)}
                           </div>
                         </div>
@@ -760,87 +783,14 @@ export default function TicketCheckDialog({
                   <hr style={{ borderColor: '#3a3a3a' }} />
 
                   {/* TIPO label */}
-                  <div className="py-[18px] text-center">
+                  <div className="py-[13px] text-center">
                     <span
-                      className="text-[12px] font-semibold uppercase tracking-[1.5px]"
+                      className="text-[17px] font-semibold uppercase tracking-[1.5px]"
                       style={{ color: '#888' }}
                     >
                       {t(betTypeKey)}
                     </span>
                   </div>
-
-                  {/* RIEPILOGO SISTEMA: taglie giocate, importo e
-                      combinazioni per taglia, totale combinazioni e
-                      selezioni fisse — le stesse informazioni già presenti
-                      sulla ricevuta stampata (systemGroupsInfo). */}
-                  {systemSummary && betTypeKey === 'system' && (
-                    <div
-                      className="mb-4 rounded-xl p-[14px] px-4"
-                      style={{ background: '#2a2a2a' }}
-                    >
-                      <div
-                        className="mb-3 text-center text-[13px] font-bold uppercase tracking-[0.8px]"
-                        style={{ color: '#ccc' }}
-                      >
-                        {t('system', 'Sistema')}{' '}
-                        {systemSummary.levels.map((l) => l.size).join(',')}{' '}
-                        {t('of', 'di')} {systemSummary.totalSelections}
-                      </div>
-
-                      {systemSummary.levels.map((level) => (
-                        <div
-                          key={level.size}
-                          className="flex items-center justify-between py-[8px]"
-                          style={{ borderTop: '1px solid #363636' }}
-                        >
-                          <span
-                            className="text-[12.5px] font-semibold tracking-[0.4px]"
-                            style={{ color: '#ccc' }}
-                          >
-                            {level.size} {t('comb', 'Comb.')}:{' '}
-                            {level.combinations}
-                          </span>
-                          <span
-                            className="text-[12.5px] font-semibold tracking-[0.4px]"
-                            style={{ color: '#ccc' }}
-                          >
-                            {fmt(level.stakeTotal)}
-                          </span>
-                        </div>
-                      ))}
-
-                      <div
-                        className="flex items-center justify-between pt-[10px]"
-                        style={{
-                          marginTop: '4px',
-                          borderTop: '1px solid #444',
-                        }}
-                      >
-                        <span
-                          className="text-[12.5px] font-bold uppercase tracking-[0.4px]"
-                          style={{ color: '#aaa' }}
-                        >
-                          {t('total_combinations', 'Totale Combinazioni')}
-                        </span>
-                        <span
-                          className="text-[12.5px] font-bold tracking-[0.4px]"
-                          style={{ color: '#aaa' }}
-                        >
-                          {systemSummary.totalCombinations}
-                        </span>
-                      </div>
-
-                      {systemSummary.fixedCount > 0 && (
-                        <div
-                          className="mt-2 text-center text-[11.5px] font-semibold uppercase tracking-[0.4px]"
-                          style={{ color: '#f0a500' }}
-                        >
-                          {systemSummary.fixedCount}{' '}
-                          {t('fixed_selections', 'Selezioni Fisse')}
-                        </div>
-                      )}
-                    </div>
-                  )}
 
                   {/* DEBUG: simula CDD */}
                   {isDebug &&
@@ -866,13 +816,13 @@ export default function TicketCheckDialog({
                   {ticketInfo.selections.map((sel, idx) => (
                     <div
                       key={idx}
-                      className="mb-4 rounded-xl p-[14px] px-4"
-                      style={{ background: '#2a2a2a' }}
+                      className="mb-[30px] p-[14px] px-4"
+                      style={{ background: '#2a2a2a', borderRadius: '1px' }}
                     >
                       {/* Card header */}
                       <div className="mb-[14px] flex items-start justify-between">
                         <div
-                          className="text-[12px] font-bold leading-[1.6] tracking-[0.5px]"
+                          className="text-[15px] font-bold uppercase leading-[1.6] tracking-[0.5px]"
                           style={{ color: '#aaa' }}
                         >
                           {sel.game.dict.misc.name} {sel.channelName}
@@ -886,41 +836,26 @@ export default function TicketCheckDialog({
                           )}
                           <br />
                           <span
-                            className="font-normal"
+                            className="text-[14px] font-normal"
                             style={{ color: '#777' }}
                           >
                             {sel.trackName}
                           </span>
                         </div>
                         <div
-                          className="text-right text-[12px] font-semibold leading-[1.6] tracking-[0.4px]"
+                          className="text-right text-[15px] font-semibold leading-[1.6] tracking-[0.4px]"
                           style={{ color: '#aaa' }}
                         >
                           {(() => {
                             const normalizedStartTime = toLocalEventTime(
                               sel.startTime,
                             )
-                            const [datePart, timePart] =
-                              normalizedStartTime.includes(' - ')
-                                ? normalizedStartTime.split(' - ')
-                                : [
-                                    formatTicketDate(ticketInfo.time),
-                                    normalizedStartTime,
-                                  ]
-                            return (
-                              <>
-                                {datePart && (
-                                  <>
-                                    {datePart}
-                                    <br />
-                                  </>
-                                )}
-                                {timePart}
-                              </>
-                            )
+                            return normalizedStartTime.includes(' - ')
+                              ? normalizedStartTime
+                              : `${formatTicketDate(ticketInfo.time)} - ${normalizedStartTime}`
                           })()}
                           <br />
-                          <span style={{ color: '#666' }}>
+                          <span className="text-[14px]" style={{ color: '#666' }}>
                             {t('event', 'Evento')} {sel.eventId}
                           </span>
                         </div>
@@ -970,17 +905,76 @@ export default function TicketCheckDialog({
                     </div>
                   ))}
 
-                  {/* SELEZIONI TOTALI */}
-                  {totalSelections > 0 && (
-                    <div className="pb-5 pt-2">
-                      <span
-                        className="text-[12px] font-semibold tracking-[0.6px]"
-                        style={{ color: '#888' }}
+                  {/* COMBINAZIONI: taglie giocate, importo e combinazioni
+                      per taglia, totale combinazioni — le stesse
+                      informazioni già presenti sulla ricevuta stampata
+                      (systemGroupsInfo). */}
+                  {systemSummary && betTypeKey === 'system' && (
+                    <>
+                      <hr style={{ borderColor: '#3a3a3a', marginBottom: '16px' }} />
+                      <div
+                        className="mb-[14px] text-center text-[17px] font-bold uppercase text-white"
                       >
-                        {t('total_selections', 'SELEZIONI TOTALI')}:{' '}
-                        {totalSelections}
-                      </span>
-                    </div>
+                        {t('combinations', 'Combinazioni')}
+                      </div>
+                      <div className="mb-2 grid grid-cols-3">
+                        <div
+                          className="text-left text-[14px] font-semibold uppercase tracking-[0.8px]"
+                          style={{ color: '#888' }}
+                        >
+                          {t('quantity', 'Quantità')}
+                        </div>
+                        <div
+                          className="text-center text-[14px] font-semibold uppercase tracking-[0.8px]"
+                          style={{ color: '#888' }}
+                        >
+                          {t('combination', 'Combinazione')}
+                        </div>
+                        <div
+                          className="text-right text-[14px] font-semibold uppercase tracking-[0.8px]"
+                          style={{ color: '#888' }}
+                        >
+                          {t('amount', 'Importo')}
+                        </div>
+                      </div>
+                      {systemSummary.levels.map((level) => (
+                        <div
+                          key={level.size}
+                          className="grid grid-cols-3 py-[8px]"
+                          style={{ borderTop: '1px solid #363636' }}
+                        >
+                          <div
+                            className="text-left text-[14px] font-semibold"
+                            style={{ color: '#ccc' }}
+                          >
+                            {level.combinations}
+                          </div>
+                          <div
+                            className="text-center text-[14px] font-semibold"
+                            style={{ color: '#ccc' }}
+                          >
+                            {getComboSizeLabel(level.size, t)}
+                          </div>
+                          <div className="text-right text-[14px] font-bold text-white">
+                            {fmt(level.stakeTotal)}
+                          </div>
+                        </div>
+                      ))}
+                      <div
+                        className="flex items-baseline justify-between py-[9px]"
+                        style={{ borderTop: '1px solid #444' }}
+                      >
+                        <span
+                          className="text-[15px] font-semibold uppercase tracking-[0.8px]"
+                          style={{ color: '#888' }}
+                        >
+                          {t('total_combinations', 'Totale Combinazioni')}
+                        </span>
+                        <span className="text-[15px] font-bold text-white">
+                          {systemSummary.totalCombinations}
+                        </span>
+                      </div>
+                    </>
                   )}
 
                   {/* VIDEO REPLAY */}
@@ -1266,82 +1260,81 @@ export default function TicketCheckDialog({
               {/* FOOTER */}
               {!pinMode && (
                 <div className="relative shrink-0 bg-accent px-5 pb-[16px] pt-[20px]">
-                  <div className="mb-[30px] text-center text-[25px] font-bold tracking-[1px] text-white">
+                  <div className="mb-[17px] text-center text-[22px] font-bold uppercase tracking-[1px] text-white">
                     {t('total_winning', 'TOTALE VINCITA')}{' '}
                     {fmt(ticketInfo.amount_won)}
                   </div>
-                  {/* PAGA: winner, not paid, no CDD pending */}
-                  {statusInfo.isWinner &&
-                    !statusInfo.isPaid &&
-                    !cddRequired &&
-                    !cddXml && (
-                      <button
-                        onClick={() => setShowPayConfirm(true)}
-                        disabled={paying}
-                        className="mx-auto mb-[35px] block w-[160px] cursor-pointer rounded-lg border-0 py-3 text-center text-[15px] font-bold uppercase tracking-[2px] text-white"
-                        style={{
-                          background: '#2a2a2a',
-                          opacity: paying ? 0.5 : 1,
-                        }}
-                      >
-                        {paying ? '...' : t('pay', 'PAGA')}
-                      </button>
-                    )}
-                  {/* CDD actions: winner, not paid, CDD required by server */}
-                  {statusInfo.isWinner &&
-                    !statusInfo.isPaid &&
-                    (cddRequired || cddXml) && (
-                      <div className="mb-4 flex gap-2">
+                  <div className="relative mb-2 flex min-h-[44px] items-center justify-center">
+                    {/* PAGA: winner, not paid, no CDD pending */}
+                    {statusInfo.isWinner &&
+                      !statusInfo.isPaid &&
+                      !cddRequired &&
+                      !cddXml && (
                         <button
-                          className="flex-1 rounded-lg border-0 py-3 text-[13px] font-bold uppercase tracking-[1px] text-white"
+                          onClick={() => setShowPayConfirm(true)}
+                          disabled={paying}
+                          className="block w-[160px] cursor-pointer rounded-lg border-0 py-3 text-center text-[15px] font-bold uppercase tracking-[2px] text-white"
                           style={{
-                            background: '#7a5a1a',
-                            border: '2px solid #9e7a2a',
-                          }}
-                          disabled={!cddXml}
-                          onClick={() => cddXml && handlePrintCdd(cddXml)}
-                        >
-                          {t('reprint_cdd', 'RISTAMPA CDD')}
-                        </button>
-                        <button
-                          className="flex-1 rounded-lg border-0 bg-accent py-3 text-[13px] font-bold uppercase tracking-[1px] text-white"
-                          onClick={() => {
-                            setPinMode(true)
-                            setPinInput('')
-                            setPinError(null)
+                            background: '#2a2a2a',
+                            opacity: paying ? 0.5 : 1,
                           }}
                         >
-                          {t('insert_pin_cdd', 'INSERISCI PIN CDD')}
+                          {paying ? '...' : t('pay', 'PAGA')}
                         </button>
-                      </div>
-                    )}
-                  {(!statusInfo.isWinner || statusInfo.isPaid) && (
-                    <div className="mb-[35px] h-[46px]" />
-                  )}
-                  {/* Print button */}
-                  <button
-                    className="absolute bottom-[14px] right-[16px] flex cursor-pointer items-center justify-center rounded-lg border-0 p-[10px] px-[12px]"
-                    style={{ background: '#2a2a2a' }}
-                    onClick={() => {
-                      if (cddXml) {
-                        handlePrintCdd(cddXml)
-                      } else if (typeof window.Bubble === 'function') {
-                        window.Bubble(
-                          'print',
-                          String(ticketInfo?.ticket_id ?? ''),
-                        )
-                      }
-                    }}
-                  >
-                    <svg
-                      viewBox="0 0 24 24"
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      style={{ fill: '#ccc' }}
+                      )}
+                    {/* CDD actions: winner, not paid, CDD required by server */}
+                    {statusInfo.isWinner &&
+                      !statusInfo.isPaid &&
+                      (cddRequired || cddXml) && (
+                        <div className="flex w-full gap-2 pr-[52px]">
+                          <button
+                            className="flex-1 rounded-lg border-0 py-3 text-[13px] font-bold uppercase tracking-[1px] text-white"
+                            style={{
+                              background: '#7a5a1a',
+                              border: '2px solid #9e7a2a',
+                            }}
+                            disabled={!cddXml}
+                            onClick={() => cddXml && handlePrintCdd(cddXml)}
+                          >
+                            {t('reprint_cdd', 'RISTAMPA CDD')}
+                          </button>
+                          <button
+                            className="flex-1 rounded-lg border-0 bg-accent py-3 text-[13px] font-bold uppercase tracking-[1px] text-white"
+                            onClick={() => {
+                              setPinMode(true)
+                              setPinInput('')
+                              setPinError(null)
+                            }}
+                          >
+                            {t('insert_pin_cdd', 'INSERISCI PIN CDD')}
+                          </button>
+                        </div>
+                      )}
+                    {/* Print button */}
+                    <button
+                      className="absolute right-0 top-1/2 flex -translate-y-1/2 cursor-pointer items-center justify-center rounded-lg border-0 p-[10px] px-[12px]"
+                      style={{ background: '#2a2a2a' }}
+                      onClick={() => {
+                        if (cddXml) {
+                          handlePrintCdd(cddXml)
+                        } else if (typeof window.Bubble === 'function') {
+                          window.Bubble(
+                            'print',
+                            String(ticketInfo?.ticket_id ?? ''),
+                          )
+                        }
+                      }}
                     >
-                      <path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z" />
-                    </svg>
-                  </button>
+                      <svg
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-7 w-7"
+                        style={{ fill: '#ccc' }}
+                      >
+                        <path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
               )}
             </>
