@@ -58,6 +58,10 @@ const searchResultsCache = new Map<
 >()
 const SEARCH_CACHE_TTL_MS = 5 * 60 * 1000
 
+// Detailed odds for a single race, fetched lazily on expand and cached
+// so re-opening an already-viewed race doesn't refetch.
+const raceDetailCache = new Map<string, RaceResult>()
+
 function getPalId(item: any): string {
   return String(item?.ext_pal_id ?? item?.int_pal_id ?? item?.pal_id ?? '')
 }
@@ -96,31 +100,6 @@ export default function SearchEventResults() {
   const [contextResultsSnapshot, setContextResultsSnapshot] = useState<
     EventResult[]
   >([])
-
-  const fetchDetailedEventResult = useCallback(
-    async (extId: string, eventId: string) => {
-      if (!initCode || !operator) return null
-      try {
-        const response = await createPGVirtualAPICall(
-          `/api/event/results/${extId}/${eventId}`,
-          initCode,
-          undefined,
-          operator,
-        )
-        if (!response.ok) {
-          console.warn('Response not ok:', response.status)
-          return null
-        }
-        const data = await response.json()
-        if (data.ret_code && !data.odds && !data.arrival) return null
-        return data
-      } catch (error) {
-        console.error('Error fetching detailed result:', error)
-        return null
-      }
-    },
-    [initCode, operator],
-  )
 
   useEffect(() => {
     if (searchTrigger === 0) return
@@ -190,45 +169,40 @@ export default function SearchEventResults() {
               return
             }
             const limitedItems = data.items.slice(0, 10)
-            const results: EventResult[] = await Promise.all(
-              limitedItems.map(async (event: any) => {
-                const palId = getPalId(event)
-                const eventId = getEventId(event)
-                const detailedResult = await fetchDetailedEventResult(
-                  palId,
-                  eventId,
-                )
-                let startTime: Date
-                try {
-                  startTime = event.time ? new Date(event.time) : new Date()
-                  if (event.start_time && event.start_time.includes(':')) {
-                    const [hours, minutes] = event.start_time.split(':')
-                    startTime.setHours(parseInt(hours, 10))
-                    startTime.setMinutes(parseInt(minutes, 10))
-                    startTime.setSeconds(0)
-                  }
-                } catch {
-                  startTime = new Date()
+            // Detailed odds/results are fetched lazily by EventResultDetails
+            // when a race is actually expanded, so the list appears instantly.
+            const results: EventResult[] = limitedItems.map((event: any) => {
+              const palId = getPalId(event)
+              const eventId = getEventId(event)
+              let startTime: Date
+              try {
+                startTime = event.time ? new Date(event.time) : new Date()
+                if (event.start_time && event.start_time.includes(':')) {
+                  const [hours, minutes] = event.start_time.split(':')
+                  startTime.setHours(parseInt(hours, 10))
+                  startTime.setMinutes(parseInt(minutes, 10))
+                  startTime.setSeconds(0)
                 }
-                return {
-                  id: Number(eventId),
-                  extId: palId,
-                  name: `${confirmedDiscipline === Discipline.DOGS ? 'Dog' : 'Horse'} Race ${eventId}`,
-                  startTime,
-                  discipline: confirmedDiscipline,
-                  track: event.track_name || event.track || '6',
-                  result: detailedResult || {
-                    podium:
-                      event.arrival?.map((competitor: any, index: number) => ({
-                        name: competitor.name,
-                        number: competitor.number,
-                        position: index + 1,
-                      })) || [],
-                    odds: {},
-                  },
-                }
-              }),
-            )
+              } catch {
+                startTime = new Date()
+              }
+              return {
+                id: Number(eventId),
+                extId: palId,
+                name: `${confirmedDiscipline === Discipline.DOGS ? 'Dog' : 'Horse'} Race ${eventId}`,
+                startTime,
+                discipline: confirmedDiscipline,
+                track: event.track_name || event.track || '6',
+                result: {
+                  arrival:
+                    event.arrival?.map((competitor: any) => ({
+                      name: competitor.name,
+                      number: competitor.number,
+                    })) || [],
+                  odds: {},
+                },
+              }
+            })
             setFetchedResults(results)
             searchResultsCache.set(cacheKey, { timestamp: Date.now(), results })
           } catch {
@@ -322,78 +296,47 @@ export default function SearchEventResults() {
             }
           }
 
-          results = await Promise.all(
-            filteredItems.map(async (result: any) => {
-              const palId = getPalId(result)
-              const eventId = getEventId(result)
-              const detailedResult = await fetchDetailedEventResult(
-                palId,
-                eventId,
-              )
-              let startTime: Date
-              try {
-                startTime = result.time
-                  ? new Date(result.time)
-                  : new Date(date.split('/').reverse().join('-'))
-                if (result.start_time && result.start_time.includes(':')) {
-                  const [hours, minutes] = result.start_time.split(':')
-                  startTime.setHours(parseInt(hours, 10))
-                  startTime.setMinutes(parseInt(minutes, 10))
-                  startTime.setSeconds(0)
-                }
-              } catch {
-                startTime = new Date()
+          // Detailed odds/results are fetched lazily by EventResultDetails
+          // when a race is actually expanded, so the list appears instantly.
+          results = filteredItems.map((result: any) => {
+            const palId = getPalId(result)
+            const eventId = getEventId(result)
+            let startTime: Date
+            try {
+              startTime = result.time
+                ? new Date(result.time)
+                : new Date(date.split('/').reverse().join('-'))
+              if (result.start_time && result.start_time.includes(':')) {
+                const [hours, minutes] = result.start_time.split(':')
+                startTime.setHours(parseInt(hours, 10))
+                startTime.setMinutes(parseInt(minutes, 10))
+                startTime.setSeconds(0)
               }
+            } catch {
+              startTime = new Date()
+            }
 
-              let raceResult = detailedResult
-              if (!detailedResult) {
-                raceResult = {
-                  arrival:
-                    (
-                      result.arrival as Array<{ name: string; number: number }>
-                    )?.map((item: any) => ({
-                      name: item.name,
-                      number: item.number,
-                    })) || [],
-                  odds: {},
-                } as RaceResult
-              } else if (
-                detailedResult &&
-                !detailedResult.arrival &&
-                result.arrival
-              ) {
-                raceResult = {
-                  ...detailedResult,
-                  arrival:
-                    (
-                      result.arrival as Array<{ name: string; number: number }>
-                    )?.map((item: any) => ({
-                      name: item.name,
-                      number: item.number,
-                    })) || [],
-                } as RaceResult
-              }
+            const raceResult: RaceResult = {
+              arrival:
+                (
+                  result.arrival as Array<{ name: string; number: number }>
+                )?.map((item: any) => ({
+                  name: item.name,
+                  number: item.number,
+                })) || [],
+              odds: {},
+            } as RaceResult
 
-              return {
-                id: Number(eventId),
-                extId: palId,
-                name:
-                  detailedResult?.track_name ||
-                  result.track_name ||
-                  `${discipline} Race ${eventId}`,
-                startTime,
-                discipline,
-                track:
-                  detailedResult?.track_name ||
-                  result.track_name ||
-                  result.track,
-                result: raceResult,
-              } as EventResult
-            }),
-          )
-          results = results.filter(
-            (r: EventResult | null) => r !== null,
-          ) as EventResult[]
+            return {
+              id: Number(eventId),
+              extId: palId,
+              name: result.track_name || `${discipline} Race ${eventId}`,
+              startTime,
+              discipline,
+              track: result.track_name || result.track,
+              result: raceResult,
+            } as EventResult
+          })
         } else if (discipline === Discipline.SOCCER) {
           let filteredItems = data.items
           if (confirmedTimeSlot !== 'ALL') {
@@ -524,7 +467,6 @@ export default function SearchEventResults() {
     confirmedLastTenGames,
     confirmedTimeSlot,
     contextResultsSnapshot,
-    fetchDetailedEventResult,
     initCode,
     operator,
     timezone,
@@ -866,6 +808,7 @@ export default function SearchEventResults() {
 function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
   const rootContext = useContext(RootContext)
   const [detailedResult, setDetailedResult] = useState<any>(null)
+  const [isLoadingDetail, setIsLoadingDetail] = useState(false)
   const [showReplay, setShowReplay] = useState(false)
   const [replayUrl, setReplayUrl] = useState<string | null>(null)
   const [loadingReplay, setLoadingReplay] = useState(false)
@@ -916,16 +859,70 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
   ])
 
   useEffect(() => {
-    if (eventResult.result && eventResult.result.odds) {
-      setDetailedResult(eventResult.result)
+    const existing = eventResult.result as RaceResult | undefined
+    const hasOdds = !!existing?.odds && Object.keys(existing.odds).length > 0
+    if (hasOdds) {
+      setDetailedResult(existing)
       return
     }
-    if (!eventResult.extId) {
-      setDetailedResult(eventResult.result || null)
+
+    setDetailedResult(existing || null)
+
+    const cacheKey = eventResult.extId && `${eventResult.extId}-${eventResult.id}`
+    if (
+      !cacheKey ||
+      (eventResult.discipline !== Discipline.HORSES &&
+        eventResult.discipline !== Discipline.DOGS) ||
+      !rootContext.initCode ||
+      !rootContext.operator
+    ) {
       return
     }
-    setDetailedResult(eventResult.result || null)
-  }, [eventResult])
+
+    const cached = raceDetailCache.get(cacheKey)
+    if (cached) {
+      setDetailedResult(cached)
+      return
+    }
+
+    let cancelled = false
+    setIsLoadingDetail(true)
+    createPGVirtualAPICall(
+      `/api/event/results/${eventResult.extId}/${eventResult.id}`,
+      rootContext.initCode,
+      undefined,
+      rootContext.operator,
+    )
+      .then((response) => (response.ok ? response.json() : null))
+      .then((data) => {
+        if (cancelled || !data || (data.ret_code && !data.odds && !data.arrival))
+          return
+        const merged: RaceResult = {
+          ...data,
+          arrival: data.arrival?.length ? data.arrival : existing?.arrival,
+        }
+        raceDetailCache.set(cacheKey, merged)
+        setDetailedResult(merged)
+      })
+      .catch((error) => {
+        console.error('Error fetching detailed result:', error)
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoadingDetail(false)
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [eventResult, rootContext.initCode, rootContext.operator])
+
+  if (isLoadingDetail && (!detailedResult?.odds || Object.keys(detailedResult.odds).length === 0)) {
+    return (
+      <div className="flex justify-center p-4">
+        <LoadingSpinner />
+      </div>
+    )
+  }
 
   if (!detailedResult) {
     return (
