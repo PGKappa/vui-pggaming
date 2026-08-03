@@ -88,6 +88,7 @@
   "select_date_and_time_slot": "Please select a date and a time slot",
   "date": "Date",
   "time_slot": "Time Slot",
+  "all_time_slots": "All",
   "cancel": "Cancel",
   "search": "Search",
   "football": "Football",

@@ -549,7 +549,8 @@ export default function SearchEventResults() {
     setContextResultsSnapshot(rootContext.eventResults || [])
     setConfirmedDiscipline(selectedDiscipline)
     const effectiveDate = lastTenGames ? 'ALL' : selectedDate
-    const effectiveTimeSlot = lastTenGames ? 'ALL' : selectedTimeSlot
+    const effectiveTimeSlot =
+      lastTenGames || selectedTimeSlot === 'TUTTE' ? 'ALL' : selectedTimeSlot
     setConfirmedDate(effectiveDate)
     setConfirmedTimeSlot(effectiveTimeSlot)
     setConfirmedLastTenGames(lastTenGames)
@@ -719,6 +720,9 @@ export default function SearchEventResults() {
           <SelectContent className="bg-white p-0">
             <SelectItem className="text-[14px]" value="ALL">
               {t('time_slot').toUpperCase()}
+            </SelectItem>
+            <SelectItem className="text-[14px]" value="TUTTE">
+              {t('all_time_slots').toUpperCase()}
             </SelectItem>
             {timeSlots.map((slot) => (
               <SelectItem className="text-[14px] tabular-nums" key={slot} value={slot}>

@@ -83,6 +83,7 @@
   "select_date_and_time_slot": "Выберите дату и временной интервал",
   "date": "Дата",
   "time_slot": "Время",
+  "all_time_slots": "Все",
   "cancel": "Отмена",
   "search": "Поиск",
   "football": "Футбол",

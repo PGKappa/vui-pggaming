@@ -85,6 +85,7 @@
   "select_date_and_time_slot": "Seleziona una data e una fascia oraria",
   "date": "Data",
   "time_slot": "Fascia Oraria",
+  "all_time_slots": "Tutte",
   "cancel": "Annulla",
   "search": "Cerca",
   "football": "Calcio",
