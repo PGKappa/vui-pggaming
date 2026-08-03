@@ -48,9 +48,15 @@ function getDetailStatus(status: number): {
 function getBetTypeLabel(
   betType: string,
   system: Record<string, string>,
-): string {
+  totalSelections: number,
+): 'single' | 'multiple' | 'system' {
   const keys = Object.keys(system)
   if (betType === '2' || keys.length > 1) return 'system'
+  if (keys.length === 1) {
+    const tierSize = parseInt(keys[0])
+    if (!isNaN(tierSize) && tierSize < totalSelections) return 'system'
+  }
+  if (totalSelections > 1) return 'multiple'
   return 'single'
 }
 
@@ -114,13 +120,24 @@ function comboOddsProductsForSize(
   return products
 }
 
-// Quota "rappresentativa" di una selezione (la prima positiva trovata) più
-// il suo stato di selezione fissa (banker) — logica condivisa tra il calcolo
-// vincita min/max e il riepilogo del sistema, così i due restano sempre
-// coerenti fra loro.
 function getSelectionOddsAndBanker(
   info: TicketDetailInfo,
 ): { odds: number; isBanker: boolean }[] {
+  const distinctEvents = new Set(info.selections.map((sel) => sel.eventId))
+
+  if (distinctEvents.size === 1 && info.selections.length > 0) {
+    const sel = info.selections[0]
+    const isBanker = String(sel.isBanker) === 'true'
+    const flattened: { odds: number; isBanker: boolean }[] = []
+    for (const market of sel.markets) {
+      for (const s of market.selections) {
+        const o = parseFloat(s.odds)
+        if (o > 0) flattened.push({ odds: o, isBanker })
+      }
+    }
+    return flattened.length > 0 ? flattened : [{ odds: 1, isBanker }]
+  }
+
   return info.selections.map((sel) => {
     let odds = 1
     for (const market of sel.markets) {
@@ -527,15 +544,6 @@ export default function TicketCheckDialog({
   }
 
   const statusInfo = ticketInfo ? getDetailStatus(ticketInfo.status) : null
-  const betTypeKey = ticketInfo
-    ? getBetTypeLabel(ticketInfo.betType, ticketInfo.system)
-    : 'single'
-
-  const minMaxWin = ticketInfo
-    ? computeMinMaxWin(ticketInfo)
-    : { minWin: 0, maxWin: 0 }
-
-  const systemSummary = ticketInfo ? computeSystemSummary(ticketInfo) : null
 
   const totalSelections =
     ticketInfo?.selections.reduce(
@@ -543,6 +551,16 @@ export default function TicketCheckDialog({
         acc + sel.markets.reduce((a, m) => a + m.selections.length, 0),
       0,
     ) ?? 0
+
+  const betTypeKey = ticketInfo
+    ? getBetTypeLabel(ticketInfo.betType, ticketInfo.system, totalSelections)
+    : 'single'
+
+  const minMaxWin = ticketInfo
+    ? computeMinMaxWin(ticketInfo)
+    : { minWin: 0, maxWin: 0 }
+
+  const systemSummary = ticketInfo ? computeSystemSummary(ticketInfo) : null
 
   return (
     <>
@@ -685,7 +703,8 @@ export default function TicketCheckDialog({
                     )}
                   </div>
 
-                  {/* PUNTATA / MIN WIN / MAX WIN */}
+                  {/* PUNTATA / MIN WIN / MAX WIN — per le Multiple si mostra
+                      solo il Pagamento Potenziale. */}
                   <div className="flex items-end pb-5 pt-[14px]">
                     <div className="flex-1">
                       <div
@@ -698,28 +717,44 @@ export default function TicketCheckDialog({
                         {fmt(ticketInfo.amount)}
                       </div>
                     </div>
-                    <div className="flex-1 text-center">
-                      <div
-                        className="mb-1 text-[11px] font-semibold uppercase tracking-[0.8px]"
-                        style={{ color: '#888' }}
-                      >
-                        {t('min_win', 'MIN WIN')}
+                    {betTypeKey === 'multiple' ? (
+                      <div className="flex-1 text-right">
+                        <div
+                          className="mb-1 text-[11px] font-semibold uppercase tracking-[0.8px]"
+                          style={{ color: '#888' }}
+                        >
+                          {t('potential_payout', 'PAGAMENTO POTENZIALE')}
+                        </div>
+                        <div className="text-[19px] font-bold text-background">
+                          {fmt(minMaxWin.maxWin)}
+                        </div>
                       </div>
-                      <div className="text-[19px] font-bold text-white">
-                        {fmt(minMaxWin.minWin)}
-                      </div>
-                    </div>
-                    <div className="flex-1 text-right">
-                      <div
-                        className="mb-1 text-[11px] font-semibold uppercase tracking-[0.8px]"
-                        style={{ color: '#888' }}
-                      >
-                        {t('max_win', 'MAX WIN')}
-                      </div>
-                      <div className="text-[19px] font-bold text-white">
-                        {fmt(minMaxWin.maxWin)}
-                      </div>
-                    </div>
+                    ) : (
+                      <>
+                        <div className="flex-1 text-center">
+                          <div
+                            className="mb-1 text-[11px] font-semibold uppercase tracking-[0.8px]"
+                            style={{ color: '#888' }}
+                          >
+                            {t('min_win', 'MIN WIN')}
+                          </div>
+                          <div className="text-[19px] font-bold text-white">
+                            {fmt(minMaxWin.minWin)}
+                          </div>
+                        </div>
+                        <div className="flex-1 text-right">
+                          <div
+                            className="mb-1 text-[11px] font-semibold uppercase tracking-[0.8px]"
+                            style={{ color: '#888' }}
+                          >
+                            {t('max_win', 'MAX WIN')}
+                          </div>
+                          <div className="text-[19px] font-bold text-white">
+                            {fmt(minMaxWin.maxWin)}
+                          </div>
+                        </div>
+                      </>
+                    )}
                   </div>
 
                   <hr style={{ borderColor: '#3a3a3a' }} />
@@ -738,7 +773,7 @@ export default function TicketCheckDialog({
                       combinazioni per taglia, totale combinazioni e
                       selezioni fisse — le stesse informazioni già presenti
                       sulla ricevuta stampata (systemGroupsInfo). */}
-                  {systemSummary && (
+                  {systemSummary && betTypeKey === 'system' && (
                     <div
                       className="mb-4 rounded-xl p-[14px] px-4"
                       style={{ background: '#2a2a2a' }}
