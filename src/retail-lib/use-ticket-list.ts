@@ -139,6 +139,7 @@ export function useTicketList() {
   const [loading, setLoading] = useState(false)
   const [availableTerminals, setAvailableTerminals] = useState<string[]>([])
   const [disciplineMap, setDisciplineMap] = useState<Record<number, string>>({})
+  const requestedDisciplineIdsRef = React.useRef<Set<number>>(new Set())
 
   const currencySymbol = rootContext.getCurrencySymbol?.() ?? '€'
 
@@ -251,6 +252,7 @@ export function useTicketList() {
     setCurrentPage(1)
     setLoading(true)
     setDisciplineMap({})
+    requestedDisciplineIdsRef.current.clear()
 
     try {
       const body = {
@@ -310,7 +312,6 @@ export function useTicketList() {
             )
             return merged
           })
-          fetchDisciplines(rawItems)
         }
       } else {
         setAllItems([])
@@ -323,7 +324,7 @@ export function useTicketList() {
     } finally {
       setLoading(false)
     }
-  }, [rootContext.initCode, rootContext.operator, fetchDisciplines])
+  }, [rootContext.initCode, rootContext.operator])
 
   const didMount = React.useRef(false)
   useEffect(() => {
@@ -360,6 +361,17 @@ export function useTicketList() {
     (currentPage - 1) * perPage,
     currentPage * perPage,
   )
+
+  useEffect(() => {
+    const needsFullSet = appliedFilters.discipline !== 'all'
+    const targetItems = needsFullSet ? allItems : items
+    const toFetch = targetItems.filter(
+      (i) => !requestedDisciplineIdsRef.current.has(i.ticket_id),
+    )
+    if (toFetch.length === 0) return
+    toFetch.forEach((i) => requestedDisciplineIdsRef.current.add(i.ticket_id))
+    fetchDisciplines(toFetch)
+  }, [allItems, items, appliedFilters.discipline, fetchDisciplines])
 
   const setPageSizeAndReset = useCallback((v: string) => {
     setPageSize(v)
