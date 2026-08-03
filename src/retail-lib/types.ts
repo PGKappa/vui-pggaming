@@ -329,6 +329,13 @@ export type TicketListItem = {
   }
   terminal_id: string
   status: number
+  // Alcuni backend includono anche un codice ticket alfanumerico separato
+  // dall'ID numerico (usato come fallback di ricerca in ticket-list-page-content).
+  ticket_code?: string
+  code?: string
+  ticketId?: number
+  ext_ticket_id?: string | number
+  ticket_ref?: string
 }
 
 export type TicketListInfo = {

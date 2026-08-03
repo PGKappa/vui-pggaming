@@ -36,10 +36,12 @@ export default function TicketCheckPageContent(
 ) {
   const { t } = useTranslation()
   const [code, setCode] = useState('')
+  const [hasError, setHasError] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [ticketId, setTicketId] = useState<number | null>(null)
 
   const handleClick = (val: string) => {
+    setHasError(false)
     if (val === '⌫') {
       setCode((prev) => prev.slice(0, -1))
     } else {
@@ -48,10 +50,21 @@ export default function TicketCheckPageContent(
   }
 
   const handleSubmit = () => {
-    const id = parseInt(code, 10)
-    if (!isNaN(id) && id > 0) {
+    const trimmed = code.trim()
+    // Il ticket viene sempre cercato per ID numerico (/api/ticket/{id}):
+    // un codice con lettere non troncato silenziosamente da parseInt (es.
+    // "12A" -> 12 cercherebbe il ticket sbagliato senza avvisare l'utente).
+    if (!/^\d+$/.test(trimmed)) {
+      setHasError(true)
+      return
+    }
+    const id = parseInt(trimmed, 10)
+    if (id > 0) {
+      setHasError(false)
       setTicketId(id)
       setDialogOpen(true)
+    } else {
+      setHasError(true)
     }
   }
 
@@ -106,10 +119,18 @@ export default function TicketCheckPageContent(
           </p>
 
           <Input
-            className="relative bottom-[110px] mt-10 h-10 w-[370px] rounded-md bg-white text-center text-[20px] font-bold text-foreground"
+            className={cn(
+              'relative bottom-[110px] mt-10 h-10 w-[370px] rounded-md bg-white text-center text-[20px] font-bold text-foreground',
+              hasError && 'border-2 border-red-600',
+            )}
             readOnly
             value={code}
           />
+          {hasError && (
+            <p className="relative bottom-[100px] text-[14px] font-semibold text-red-700">
+              {t('invalid_ticket_code', 'Codice non valido')}
+            </p>
+          )}
 
           <div className="relative top-[15px] mt-40 flex flex-row items-start space-x-6">
             <div className="flex flex-col space-y-2">
@@ -199,10 +220,18 @@ export default function TicketCheckPageContent(
           </p>
 
           <Input
-            className="h-10 w-full max-w-[320px] rounded-md bg-white text-center text-[16px] font-bold text-foreground"
+            className={cn(
+              'h-10 w-full max-w-[320px] rounded-md bg-white text-center text-[16px] font-bold text-foreground',
+              hasError && 'border-2 border-red-600',
+            )}
             readOnly
             value={code}
           />
+          {hasError && (
+            <p className="text-[12px] font-semibold text-red-700">
+              {t('invalid_ticket_code', 'Codice non valido')}
+            </p>
+          )}
 
           <div className="mt-2 flex flex-row items-start gap-3">
             <div className="flex flex-col gap-1">

@@ -5,10 +5,11 @@ import {
   TicketListItem,
   TicketListInfo,
   TicketListResponse,
+  TicketDetailSelection,
 } from '@/retail-lib/types'
 import { createPGVirtualAPICall } from '@/retail-lib/utils'
 import { format } from 'date-fns'
-import React, { useCallback, useContext, useEffect, useState } from 'react'
+import React, { useCallback, useContext, useState } from 'react'
 
 // Matches a ticket's raw `status` code against the "Stato" filter dropdown value.
 function statusMatchesItem(itemStatus: number, filterStatus: string): boolean {
@@ -168,13 +169,22 @@ export function useTicketList() {
     discipline,
   })
 
+  // Incrementato a ogni fetchTickets: permette a fetchDisciplines di
+  // riconoscere di essere diventata "obsoleta" (es. l'utente ha premuto
+  // Reload due volte di fila) e smettere di scrivere in disciplineMap,
+  // evitando che risposte in volo della fetch precedente inquinino lo
+  // stato con discipline non coerenti col dataset corrente.
+  const fetchGenerationRef = React.useRef(0)
+
   const fetchDisciplines = useCallback(
-    async (items: TicketListItem[]) => {
+    async (items: TicketListItem[], generation: number) => {
       if (!rootContext.initCode || !rootContext.operator) return
 
       const BATCH_SIZE = 10
 
       for (let i = 0; i < items.length; i += BATCH_SIZE) {
+        if (generation !== fetchGenerationRef.current) return
+
         const batch = items.slice(i, i + BATCH_SIZE)
         const batchMap: Record<number, string> = {}
 
@@ -189,18 +199,13 @@ export function useTicketList() {
               )
               const data = await response.json()
               if (data.ret_code === 1024 && data.info?.selections?.length > 0) {
-                const gameIds = data.info.selections.map(
-                  (s: any) => s.gameId ?? '',
-                )
-                const hasDogs = gameIds.some((g: string) =>
-                  g.startsWith('dogs'),
-                )
-                const hasHorses = gameIds.some((g: string) =>
-                  g.startsWith('horse'),
-                )
+                const gameIds = (
+                  data.info.selections as TicketDetailSelection[]
+                ).map((s) => s.gameId ?? '')
+                const hasDogs = gameIds.some((g) => g.startsWith('dogs'))
+                const hasHorses = gameIds.some((g) => g.startsWith('horse'))
                 const hasSoccer = gameIds.some(
-                  (g: string) =>
-                    g.startsWith('soccer') || g.startsWith('calcio'),
+                  (g) => g.startsWith('soccer') || g.startsWith('calcio'),
                 )
 
                 if (hasDogs && hasHorses && hasSoccer)
@@ -216,124 +221,177 @@ export function useTicketList() {
                 else if (hasSoccer) batchMap[item.ticket_id] = 'soccer'
                 else batchMap[item.ticket_id] = 'other'
               }
-            } catch {
-              // skip silently
+            } catch (err) {
+              console.warn(
+                `[TicketList] Failed to resolve discipline for ticket ${item.ticket_id}:`,
+                err,
+              )
             }
           }),
         )
 
+        if (generation !== fetchGenerationRef.current) return
         setDisciplineMap((prev) => ({ ...prev, ...batchMap }))
       }
     },
     [rootContext.initCode, rootContext.operator],
   )
 
-  const fetchTickets = useCallback(async () => {
-    if (!rootContext.initCode || !rootContext.operator) return
+  type Filters = typeof appliedFilters
 
-    const {
-      dateFrom: df,
-      dateTo: dt,
-      status: s,
-      payment: p,
-      terminal: term,
-      discipline: disc,
-    } = filtersRef.current
+  // Cache in memoria delle pagine già scaricate per la ricerca corrente
+  // (chiave "pagina:dimensione"): tornare su una pagina già vista (es.
+  // avanti poi indietro) è istantaneo, senza rifare la richiesta al backend.
+  // Viene svuotata a ogni nuova ricerca (Reload), perché i risultati
+  // dipendono dai filtri/periodo appena applicati.
+  const pageCacheRef = React.useRef<
+    Map<string, { items: TicketListItem[]; info: TicketListInfo | null }>
+  >(new Map())
+  const pageCacheKey = (page: number, size: number) => `${page}:${size}`
 
-    setAppliedFilters({
-      dateFrom: df,
-      dateTo: dt,
-      status: s,
-      payment: p,
-      terminal: term,
-      discipline: disc,
-    })
-    setCurrentPage(1)
-    setLoading(true)
-    setDisciplineMap({})
+  // Scarica UNA sola pagina dal backend (offset/itemsPerPage reali), non più
+  // l'intero periodo: per range di date lunghi questo evita di scaricare e
+  // risolvere la disciplina di migliaia di ticket solo per mostrarne 15.
+  // Contropartita accettata: i filtri Terminale/Stato/Pagamento/Disciplina
+  // vengono applicati SOLO ai ticket della pagina scaricata (non su tutto il
+  // periodo), quindi con un filtro attivo una pagina può mostrare meno di
+  // `pageSize` righe pur essendocene altre altrove nel periodo.
+  const runFetch = useCallback(
+    async (page: number, size: number, filters: Filters) => {
+      if (!rootContext.initCode || !rootContext.operator) return
 
-    try {
-      const body = {
-        dateStart: df
-          ? format(df, 'dd-MM-yyyy')
-          : format(new Date(), 'dd-MM-yyyy'),
-        dateEnd: dt
-          ? format(dt, 'dd-MM-yyyy')
-          : format(new Date(), 'dd-MM-yyyy'),
-        offset: 0,
-        itemsPerPage: 9999,
-        terminal: -1,
-        // Status/payment filtering is applied client-side in `filteredItems` below —
-        // the backend's status/payment filter codes don't reliably match item.status,
-        // so we always fetch everything for the date range and filter locally.
-        status: 0,
-        payment: 0,
-        enablePagination: true,
-        accountingMode: false,
-      }
+      const generation = ++fetchGenerationRef.current
+      setLoading(true)
 
-      const response = await createPGVirtualAPICall(
-        '/api/ticket/list',
-        rootContext.initCode,
-        { method: 'POST', body: JSON.stringify(body) },
-        rootContext.operator,
-      )
-
-      const data: TicketListResponse = await response.json()
-
-      if (data.ret_code === 1024) {
-        const rawItems = data.items ?? []
-        const knownStatuses = new Set([1, 4, 5, 6, 9])
-        const unknownStatuses = [
-          ...new Set(rawItems.map((i) => i.status)),
-        ].filter((s) => !knownStatuses.has(s))
-        if (unknownStatuses.length > 0) {
-          console.warn(
-            '[TicketList] Unknown status codes in response:',
-            unknownStatuses,
-          )
-        } else {
-          console.log(
-            '[TicketList] All status codes known:',
-            [...new Set(rawItems.map((i) => i.status))].sort(),
-          )
+      try {
+        const body = {
+          dateStart: filters.dateFrom
+            ? format(filters.dateFrom, 'dd-MM-yyyy')
+            : format(new Date(), 'dd-MM-yyyy'),
+          dateEnd: filters.dateTo
+            ? format(filters.dateTo, 'dd-MM-yyyy')
+            : format(new Date(), 'dd-MM-yyyy'),
+          offset: (page - 1) * size,
+          itemsPerPage: size,
+          terminal: -1,
+          // Status/payment filtering is applied client-side in `filteredItems` below —
+          // the backend's status/payment filter codes don't reliably match item.status,
+          // so we ask the backend for the raw page and filter locally.
+          status: 0,
+          payment: 0,
+          enablePagination: true,
+          accountingMode: false,
         }
-        setAllItems(rawItems)
-        setInfo(data.info ?? null)
-        if (rawItems.length) {
-          const terminalIds = [
-            ...new Set(rawItems.map((i) => String(i.terminal_id))),
-          ].sort((a, b) => parseInt(a) - parseInt(b))
-          setAvailableTerminals((prev) => {
-            const merged = [...new Set([...prev, ...terminalIds])].sort(
-              (a, b) => parseInt(a) - parseInt(b),
+
+        const response = await createPGVirtualAPICall(
+          '/api/ticket/list',
+          rootContext.initCode,
+          { method: 'POST', body: JSON.stringify(body) },
+          rootContext.operator,
+        )
+
+        const data: TicketListResponse = await response.json()
+
+        if (generation !== fetchGenerationRef.current) return
+
+        if (data.ret_code === 1024) {
+          const rawItems = data.items ?? []
+          const knownStatuses = new Set([1, 4, 5, 6, 9])
+          const unknownStatuses = [
+            ...new Set(rawItems.map((i) => i.status)),
+          ].filter((s) => !knownStatuses.has(s))
+          if (unknownStatuses.length > 0) {
+            console.warn(
+              '[TicketList] Unknown status codes in response:',
+              unknownStatuses,
             )
-            return merged
+          }
+          setAllItems(rawItems)
+          setInfo(data.info ?? null)
+          pageCacheRef.current.set(pageCacheKey(page, size), {
+            items: rawItems,
+            info: data.info ?? null,
           })
-          fetchDisciplines(rawItems)
+          if (rawItems.length) {
+            const terminalIds = [
+              ...new Set(rawItems.map((i) => String(i.terminal_id))),
+            ].sort((a, b) => parseInt(a) - parseInt(b))
+            setAvailableTerminals((prev) => {
+              const merged = [...new Set([...prev, ...terminalIds])].sort(
+                (a, b) => parseInt(a) - parseInt(b),
+              )
+              return merged
+            })
+            fetchDisciplines(rawItems, generation)
+          }
+        } else {
+          setAllItems([])
+          setInfo(data.info ?? null)
         }
-      } else {
+      } catch (err) {
+        console.error('Failed to fetch ticket list:', err)
         setAllItems([])
-        setInfo(data.info ?? null)
+        setInfo(null)
+      } finally {
+        if (generation === fetchGenerationRef.current) setLoading(false)
       }
-    } catch (err) {
-      console.error('Failed to fetch ticket list:', err)
-      setAllItems([])
-      setInfo(null)
-    } finally {
-      setLoading(false)
-    }
-  }, [rootContext.initCode, rootContext.operator, fetchDisciplines])
+    },
+    [rootContext.initCode, rootContext.operator, fetchDisciplines],
+  )
 
-  const didMount = React.useRef(false)
-  useEffect(() => {
-    if (!didMount.current) {
-      didMount.current = true
-      fetchTickets()
-    }
-  }, [fetchTickets])
+  // Reload: applica i filtri in sospeso (dropdown/date modificati ma non
+  // ancora confermati) e riparte dalla pagina 1. Il ticket_id è univoco a
+  // livello globale, quindi non serve svuotare disciplineMap: i risultati
+  // già risolti restano validi anche per il nuovo periodo/filtri.
+  const fetchTickets = useCallback(() => {
+    const filters = filtersRef.current
+    setAppliedFilters(filters)
+    setCurrentPage(1)
+    pageCacheRef.current.clear()
+    return runFetch(1, parseInt(pageSize), filters)
+  }, [runFetch, pageSize])
 
-  const filteredItems = allItems.filter((i) => {
+  // Nessun fetch automatico al mount: la ricerca è sempre manuale, avviata
+  // dall'utente con il pulsante "Reload" dopo aver impostato i filtri.
+
+  // Cambio pagina/dimensione pagina: richiesta diretta al backend per la
+  // pagina richiesta, senza toccare i filtri già applicati.
+  const goToPage = useCallback(
+    (page: number) => {
+      setCurrentPage(page)
+      const size = parseInt(pageSize)
+      const cached = pageCacheRef.current.get(pageCacheKey(page, size))
+      if (cached) {
+        setAllItems(cached.items)
+        setInfo(cached.info)
+        return
+      }
+      runFetch(page, size, appliedFilters)
+    },
+    [runFetch, pageSize, appliedFilters],
+  )
+
+  const setPageSizeAndReset = useCallback(
+    (v: string) => {
+      setPageSize(v)
+      setCurrentPage(1)
+      const size = parseInt(v)
+      const cached = pageCacheRef.current.get(pageCacheKey(1, size))
+      if (cached) {
+        setAllItems(cached.items)
+        setInfo(cached.info)
+        return
+      }
+      runFetch(1, size, appliedFilters)
+    },
+    [runFetch, appliedFilters],
+  )
+
+  // `allItems` è già solo la pagina scaricata dal backend: qui applichiamo i
+  // filtri client-side (necessari perché i codici status/payment del backend
+  // non sono affidabili e la disciplina non è nella risposta di /list) SOLO
+  // a quella pagina, non all'intero periodo.
+  const items = allItems.filter((i) => {
     const terminalMatch =
       appliedFilters.terminal === 'all' ||
       String(i.terminal_id) === appliedFilters.terminal
@@ -355,16 +413,7 @@ export function useTicketList() {
   })
 
   const perPage = parseInt(pageSize)
-  const totalPages = Math.max(1, Math.ceil(filteredItems.length / perPage))
-  const items = filteredItems.slice(
-    (currentPage - 1) * perPage,
-    currentPage * perPage,
-  )
-
-  const setPageSizeAndReset = useCallback((v: string) => {
-    setPageSize(v)
-    setCurrentPage(1)
-  }, [])
+  const totalPages = Math.max(1, Math.ceil((info?.count ?? 0) / perPage))
 
   return {
     terminal,
@@ -382,7 +431,7 @@ export function useTicketList() {
     pageSize,
     setPageSize: setPageSizeAndReset,
     currentPage,
-    setCurrentPage,
+    setCurrentPage: goToPage,
     totalPages,
     items,
     info,

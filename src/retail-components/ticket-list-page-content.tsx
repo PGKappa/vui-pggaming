@@ -23,6 +23,7 @@ import {
   getStatusDisplay,
   formatCurrency,
 } from '@/retail-lib/use-ticket-list'
+import { TicketListItem } from '@/retail-lib/types'
 import { cn } from '@/retail-lib/utils'
 import { ChevronDown } from 'lucide-react'
 import { format } from 'date-fns'
@@ -80,14 +81,23 @@ export default function TicketListPageContent({
     disciplineMap,
   } = useTicketList()
 
-  const buildTicketCandidates = (item: { ticket_id: number }) => {
-    const raw = item as unknown as Record<string, unknown>
+  const buildTicketCandidates = (
+    item: Pick<
+      TicketListItem,
+      | 'ticket_id'
+      | 'ticket_code'
+      | 'code'
+      | 'ticketId'
+      | 'ext_ticket_id'
+      | 'ticket_ref'
+    >,
+  ) => {
     const candidates = [
-      raw.ticket_code,
-      raw.code,
-      raw.ticketId,
-      raw.ext_ticket_id,
-      raw.ticket_ref,
+      item.ticket_code,
+      item.code,
+      item.ticketId,
+      item.ext_ticket_id,
+      item.ticket_ref,
       item.ticket_id,
     ]
       .filter(
@@ -613,7 +623,12 @@ export default function TicketListPageContent({
               ) : items.length === 0 ? (
                 <tr>
                   <td colSpan={9} className="p-8 text-center text-gray-400">
-                    {t('no_tickets_found')}
+                    {info === null
+                      ? t(
+                          'set_filters_and_reload',
+                          'Imposta i filtri e premi Reload per cercare',
+                        )
+                      : t('no_tickets_found')}
                   </td>
                 </tr>
               ) : (

@@ -518,7 +518,7 @@ export default function TicketCheckDialog({
     const newIndex =
       direction === 'next'
         ? Math.min(replayIndex + 1, uniqueReplaySelections.length - 1)
-        : Math.max(replayIndex - 0 - 1, 0)
+        : Math.max(replayIndex - 1, 0)
     setReplayIndex(newIndex)
     // Lazy-load if not yet fetched
     if (!replayVideos[newIndex]?.url && !replayVideos[newIndex]?.loading) {
