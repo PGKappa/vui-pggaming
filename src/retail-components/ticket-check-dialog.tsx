@@ -740,7 +740,7 @@ export default function TicketCheckDialog({
                       </div>
                     </div>
                     {betTypeKey === 'multiple' ? (
-                      <div className="flex-1 text-right">
+                      <div className="flex-1 text-center">
                         <div
                           className="mb-1 text-[16px] font-semibold uppercase tracking-[0.8px]"
                           style={{ color: '#888' }}
@@ -752,7 +752,7 @@ export default function TicketCheckDialog({
                         </div>
                       </div>
                     ) : betTypeKey === 'single' ? (
-                      <div className="flex-1 text-right">
+                      <div className="flex-1 text-center">
                         <div
                           className="mb-1 text-[16px] font-semibold uppercase tracking-[0.8px]"
                           style={{ color: '#888' }}
