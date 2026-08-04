@@ -43,12 +43,14 @@ function paymentMatchesItem(itemStatus: number, filterPayment: string): boolean 
 export function parseTicketTime(time: TicketListItem['time']): Date {
   const [year, month, day, hour, min, sec] = time
   return new Date(
-    parseInt(String(year)),
-    Number(month),
-    parseInt(String(day)),
-    parseInt(String(hour)),
-    parseInt(String(min)),
-    parseInt(String(sec)),
+    Date.UTC(
+      parseInt(String(year)),
+      Number(month),
+      parseInt(String(day)),
+      parseInt(String(hour)),
+      parseInt(String(min)),
+      parseInt(String(sec)),
+    ),
   )
 }
 
