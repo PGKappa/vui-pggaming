@@ -193,7 +193,7 @@ export default function TicketCheckPageContent(
           </h1>
         </div>
 
-        <div className="relative z-10 flex min-h-0 flex-1 flex-col items-center justify-center gap-3 px-4 py-2">
+        <div className="relative z-10 flex min-h-0 flex-1 flex-col items-center justify-center space-y-3 px-4 py-2">
           <p className="max-w-[560px] text-center text-[15px] font-semibold leading-snug">
             {t('scan_or_enter_code')}
           </p>
@@ -204,10 +204,10 @@ export default function TicketCheckPageContent(
             value={code}
           />
 
-          <div className="mt-2 flex flex-row items-start gap-3">
-            <div className="flex flex-col gap-1">
+          <div className="mt-2 flex flex-row items-start space-x-3">
+            <div className="flex flex-col space-y-1">
               {LETTER_LAYOUT.map((row, rowIdx) => (
-                <div key={rowIdx} className="flex justify-center gap-1">
+                <div key={rowIdx} className="flex justify-center space-x-1">
                   {row.map((key) => (
                     <Button
                       key={key}
@@ -221,9 +221,9 @@ export default function TicketCheckPageContent(
               ))}
             </div>
 
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col space-y-1">
               {NUMPAD_LAYOUT.map((row, rowIdx) => (
-                <div key={rowIdx} className="flex justify-center gap-1">
+                <div key={rowIdx} className="flex justify-center space-x-1">
                   {row.map((key) => (
                     <Button
                       key={key}

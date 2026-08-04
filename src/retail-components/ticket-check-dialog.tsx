@@ -646,7 +646,7 @@ export default function TicketCheckDialog({
                     </div>
                     {statusInfo.isWinner && (
                       <div
-                        className="flex items-center gap-2 px-[18px] py-[10px] text-[14px] font-bold uppercase tracking-[1px] text-white"
+                        className="flex items-center px-[18px] py-[10px] text-[14px] font-bold uppercase tracking-[1px] text-white"
                         style={{
                           background: 'rgba(58,158,74,0.2)',
                           border: '2px solid #3a9e4a',
@@ -657,7 +657,7 @@ export default function TicketCheckDialog({
                           ? t('paid', 'PAGATO')
                           : t('winning', 'VINCENTE')}
                         <span
-                          className="h-[9px] w-[9px] shrink-0 rounded-full"
+                          className="ml-3 h-[9px] w-[9px] shrink-0 rounded-full"
                           style={{ background: '#3a9e4a' }}
                         />
                       </div>
@@ -665,7 +665,7 @@ export default function TicketCheckDialog({
                     {!statusInfo.isWinner &&
                       statusInfo.translationKey === 'lost' && (
                         <div
-                          className="flex items-center gap-2 px-[18px] py-[10px] text-[14px] font-bold uppercase tracking-[1px] text-white"
+                          className="flex items-center px-[18px] py-[10px] text-[14px] font-bold uppercase tracking-[1px] text-white"
                           style={{
                             background: 'rgba(158,58,58,0.2)',
                             border: '2px solid #9e3a3a',
@@ -674,7 +674,7 @@ export default function TicketCheckDialog({
                         >
                           {t('lost', 'PERDENTE')}
                           <span
-                            className="h-[9px] w-[9px] shrink-0 rounded-full"
+                            className="ml-3 h-[9px] w-[9px] shrink-0 rounded-full"
                             style={{ background: '#9e3a3a' }}
                           />
                         </div>
@@ -682,7 +682,7 @@ export default function TicketCheckDialog({
                     {!statusInfo.isWinner &&
                       statusInfo.translationKey === 'pending' && (
                         <div
-                          className="flex items-center gap-2 px-[18px] py-[10px] text-[14px] font-bold uppercase tracking-[1px] text-white"
+                          className="flex items-center px-[18px] py-[10px] text-[14px] font-bold uppercase tracking-[1px] text-white"
                           style={{
                             background: 'rgba(138,138,42,0.2)',
                             border: '2px solid #8a8a2a',
@@ -691,7 +691,7 @@ export default function TicketCheckDialog({
                         >
                           {t('pending', 'IN ATTESA')}
                           <span
-                            className="h-[9px] w-[9px] shrink-0 rounded-full"
+                            className="ml-3 h-[9px] w-[9px] shrink-0 rounded-full"
                             style={{ background: '#8a8a2a' }}
                           />
                         </div>
@@ -897,7 +897,7 @@ export default function TicketCheckDialog({
                               })()}
                             </span>
                             <span
-                              className="flex flex-1 items-center justify-end gap-2 text-[12.5px] font-semibold tracking-[0.4px]"
+                              className="flex flex-1 items-center justify-end space-x-2 text-[12.5px] font-semibold tracking-[0.4px]"
                               style={{ color: '#ccc' }}
                             >
                               Q. {s.odds}
@@ -965,7 +965,7 @@ export default function TicketCheckDialog({
                         </div>
                       ))}
                       <div
-                        className="flex items-baseline gap-2 py-[9px]"
+                        className="flex items-baseline space-x-2 py-[9px]"
                         style={{ borderTop: '1px solid #444' }}
                       >
                         <span
@@ -1141,8 +1141,8 @@ export default function TicketCheckDialog({
                               {t('insert_pin_cdd', 'INSERISCI PIN CDD')}
                             </span>
                           </div>
-                          <div className="flex flex-col gap-3 p-4">
-                            <div className="flex items-center gap-2">
+                          <div className="flex flex-col space-y-3 p-4">
+                            <div className="flex items-center space-x-2">
                               <div
                                 className="flex h-12 flex-1 items-center justify-end rounded-lg px-3 text-[22px] font-bold tracking-widest text-white"
                                 style={{
@@ -1303,7 +1303,7 @@ export default function TicketCheckDialog({
                     {statusInfo.isWinner &&
                       !statusInfo.isPaid &&
                       (cddRequired || cddXml) && (
-                        <div className="flex w-full gap-2 pr-[52px]">
+                        <div className="flex w-full space-x-2 pr-[52px]">
                           <button
                             className="flex-1 rounded-lg border-0 py-3 text-[13px] font-bold uppercase tracking-[1px] text-white"
                             style={{
@@ -1329,7 +1329,7 @@ export default function TicketCheckDialog({
                       )}
                     {/* Print button */}
                     <button
-                      className="absolute right-0 top-1/2 flex -translate-y-1/2 cursor-pointer items-center justify-center rounded-lg border-0 p-[10px] px-[12px]"
+                      className="absolute right-[18px] top-1/2 flex -translate-y-1/2 cursor-pointer items-center justify-center rounded-lg border-0 p-[10px] px-[12px]"
                       style={{ background: '#2a2a2a' }}
                       onClick={() => {
                         if (cddXml) {
@@ -1390,7 +1390,7 @@ export default function TicketCheckDialog({
             >
               {t('confirm_payment_question', 'Vuoi confermare il pagamento?')}
             </div>
-            <div className="flex gap-3">
+            <div className="flex space-x-3">
               <button
                 onClick={() => setShowPayConfirm(false)}
                 className="flex-1 cursor-pointer rounded-lg border-0 py-[14px] text-[13px] font-bold uppercase tracking-[1.5px]"
