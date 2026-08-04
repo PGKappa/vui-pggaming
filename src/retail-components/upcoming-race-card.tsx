@@ -342,6 +342,10 @@ export default function UpcomingRaceCard({
     setFixedSelection([])
   }
 
+  useEffect(() => {
+    clearSelections()
+  }, [race.id, race.discipline])
+
   const toggleFixedSelection = (competitorId: number) => {
     if (!isAnyOrderMode) {
       if (activeTab === 'couples') setMarketType('quinella')
