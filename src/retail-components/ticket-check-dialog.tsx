@@ -585,7 +585,7 @@ export default function TicketCheckDialog({
         <DialogContent
           aria-describedby={undefined}
           className="flex max-h-[calc(100vh-40px)] w-[600px] max-w-[600px] flex-col overflow-hidden border-0 p-0"
-          style={{ background: '#1e1e1e', borderRadius: '12px 12px 0 0' }}
+          style={{ background: '#1e1e1e', borderRadius: '1px 1px 0 0' }}
         >
           {/* HEADER */}
           <DialogHeader
@@ -611,7 +611,7 @@ export default function TicketCheckDialog({
           {error && (
             <div
               className="px-6 py-12 text-center"
-              style={{ background: '#212121' }}
+              style={{ background: '#212121', borderRadius: '1px' }}
             >
               <p className="text-lg font-semibold" style={{ color: '#ccc' }}>
                 {error}
