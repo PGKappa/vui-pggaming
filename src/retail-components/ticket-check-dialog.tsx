@@ -724,7 +724,9 @@ export default function TicketCheckDialog({
                   </div>
 
                   {/* PUNTATA / MIN WIN / MAX WIN — per le Multiple si mostra
-                      solo il Pagamento Potenziale. */}
+                      solo il Pagamento Potenziale; per la Singola si mostra
+                      un solo valore (Vincita Potenziale, min === max sempre);
+                      solo per i Sistemi ha senso mostrare Min e Max distinti. */}
                   <div className="flex items-end pb-5 pt-[14px]">
                     <div className="flex-1">
                       <div
@@ -745,7 +747,19 @@ export default function TicketCheckDialog({
                         >
                           {t('potential_payout', 'PAGAMENTO POTENZIALE')}
                         </div>
-                        <div className="text-[16px] font-bold text-background">
+                        <div className="text-[16px] font-bold text-white">
+                          {fmt(minMaxWin.maxWin)}
+                        </div>
+                      </div>
+                    ) : betTypeKey === 'single' ? (
+                      <div className="flex-1 text-right">
+                        <div
+                          className="mb-1 text-[16px] font-semibold uppercase tracking-[0.8px]"
+                          style={{ color: '#888' }}
+                        >
+                          {t('potential_win', 'VINCITA POTENZIALE')}
+                        </div>
+                        <div className="text-[16px] font-bold text-white">
                           {fmt(minMaxWin.maxWin)}
                         </div>
                       </div>
