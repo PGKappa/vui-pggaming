@@ -344,7 +344,6 @@ export default function UpcomingRaceCard({
 
   useEffect(() => {
     clearSelections()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [race.id, race.discipline])
 
   const toggleFixedSelection = (competitorId: number) => {
