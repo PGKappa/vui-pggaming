@@ -934,36 +934,38 @@ export default function UpcomingRaceCard({
   })}
 </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center">
             <span className="p-[10px] text-[15px] font-semibold text-tertiary-foreground tabular-nums">
               {'ID'} {race.id}
             </span>
 
-            {(activeTab === 'couples' || activeTab === 'triplets') &&
-              (position1Selection.length > 0 ||
-                position2Selection.length > 0 ||
-                position3Selection.length > 0 ||
-                disorderSelection.length > 0 ||
-                fixedSelection.length > 0) && (
+            <div className="flex items-center space-x-2">
+              {(activeTab === 'couples' || activeTab === 'triplets') &&
+                (position1Selection.length > 0 ||
+                  position2Selection.length > 0 ||
+                  position3Selection.length > 0 ||
+                  disorderSelection.length > 0 ||
+                  fixedSelection.length > 0) && (
+                  <Button
+                    variant="ghost"
+                    className="h-12 w-fit bg-secondary px-4 text-[15px] font-semibold text-secondary-foreground"
+                    onClick={clearSelections}
+                  >
+                    {t('clear_all').toUpperCase()}
+                  </Button>
+                )}
+
+              {shouldShowInfoButton() && (
                 <Button
                   variant="ghost"
-                  className="h-12 w-fit bg-secondary px-4 text-[15px] font-semibold text-secondary-foreground"
-                  onClick={clearSelections}
+                  size="icon"
+                  className="h-12 w-fit pt-[1px] border-border bg-secondary px-[18px] text-[15px] font-semibold text-secondary-foreground hover:bg-navbarHover"
+                  onClick={() => setIsLatecomersDialogOpen(true)}
                 >
-                  {t('clear_all').toUpperCase()}
+                  <span>{t('latecomers').toUpperCase()}</span>
                 </Button>
               )}
-
-            {shouldShowInfoButton() && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-12 w-fit pt-[1px] border-border bg-secondary px-[18px] text-[15px] font-semibold text-secondary-foreground hover:bg-navbarHover"
-                onClick={() => setIsLatecomersDialogOpen(true)}
-              >
-                <span>{t('latecomers').toUpperCase()}</span>
-              </Button>
-            )}
+            </div>
           </div>
         </CardHeader>
 

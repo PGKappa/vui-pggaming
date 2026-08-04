@@ -614,7 +614,7 @@ export default function BetCombinationsTable({
         <CardTitle className="mr-[1px] flex min-w-0 items-center justify-center truncate text-[16px] text-white max-[1399px]:pointer-events-none max-[1399px]:absolute max-[1399px]:inset-0 max-[1399px]:mr-0 max-[1399px]:text-[13px]">
           {getTitle()}
         </CardTitle>
-        <div className="relative z-10 flex min-w-0 justify-end space-x-2 max-[1399px]:gap-1 max-[1399px]:space-x-0">
+        <div className="relative z-10 flex min-w-0 justify-end space-x-2 max-[1399px]:space-x-1">
           <Button
             variant="navbar"
             className="h-10 w-fit shrink-0 rounded-[1px] px-[18px] pt-[1px] text-[15px] font-semibold text-white active:bg-betHover hover:bg-navbarHover max-[1399px]:h-9 max-[1399px]:px-2 max-[1399px]:text-[12px]"
