@@ -98,12 +98,6 @@ function formatTicketDate(time: TicketDetailInfo['time']): string {
   return `${d}/${m}/${year}`
 }
 
-// sel.startTime a volte arriva come timestamp ISO (es. "2026-07-11T08:40:00.000Z",
-// in UTC) invece che come stringa già formattata in orario locale — se lo
-// trattiamo come testo e basta, l'orario mostrato resta in UTC e diverge
-// dalla ricevuta stampata (che converte correttamente in orario locale).
-// Se sel.startTime è un vero timestamp, lo convertiamo esplicitamente
-// all'orario locale; altrimenti lo lasciamo come arriva (già formattato).
 function toLocalEventTime(rawStartTime: string): string {
   if (!/^\d{4}-\d{2}-\d{2}T/.test(rawStartTime)) return rawStartTime
   const parsed = new Date(rawStartTime)
@@ -111,73 +105,93 @@ function toLocalEventTime(rawStartTime: string): string {
   return `${format(parsed, 'dd/MM/yyyy')} - ${format(parsed, 'HH:mm')}`
 }
 
-// Prodotti delle quote di tutte le combinazioni REALI di dimensione `size`,
-// rispettando il vincolo che le selezioni fisse (banker) sono sempre incluse
-// in ogni combinazione — le uniche scelte libere sono fra le non fisse.
-// Mirror di getCombinations/generateSystemGroups in retail-lib/system-bets.ts,
-// adattato a lavorare su semplici array di quote invece che su BetEntry[].
-function comboOddsProductsForSize(
-  fixedOdds: number[],
-  nonFixedOdds: number[],
-  size: number,
-): number[] {
-  const needed = size - fixedOdds.length
-  if (needed < 0 || needed > nonFixedOdds.length) return []
-  const fixedProduct = fixedOdds.reduce((a, b) => a * b, 1)
-  if (needed === 0) return [fixedProduct]
-
-  const products: number[] = []
-  function enumerate(start: number, product: number, depth: number) {
-    if (depth === needed) {
-      products.push(product)
-      return
+function crossProduct(groups: number[][]): number[] {
+  let products: number[] = [1]
+  for (const group of groups) {
+    const next: number[] = []
+    for (const base of products) {
+      for (const odd of group) next.push(base * odd)
     }
-    for (let i = start; i < nonFixedOdds.length; i++) {
-      enumerate(i + 1, product * nonFixedOdds[i], depth + 1)
-    }
+    products = next
   }
-  enumerate(0, fixedProduct, 0)
   return products
 }
 
-function getSelectionOddsAndBanker(
-  info: TicketDetailInfo,
-): { odds: number; isBanker: boolean }[] {
+
+function comboOddsProductsForSize(
+  fixedSlots: number[][],
+  nonFixedSlots: number[][],
+  size: number,
+): number[] {
+  const needed = size - fixedSlots.length
+  if (needed < 0 || needed > nonFixedSlots.length) return []
+
+  const fixedProducts = crossProduct(fixedSlots)
+  if (needed === 0) return fixedProducts
+
+  const restProducts: number[] = []
+  function enumerate(start: number, chosen: number[][], depth: number) {
+    if (depth === needed) {
+      restProducts.push(...crossProduct(chosen))
+      return
+    }
+    for (let i = start; i < nonFixedSlots.length; i++) {
+      enumerate(i + 1, [...chosen, nonFixedSlots[i]], depth + 1)
+    }
+  }
+  enumerate(0, [], 0)
+
+  const result: number[] = []
+  for (const fp of fixedProducts) {
+    for (const rp of restProducts) result.push(fp * rp)
+  }
+  return result
+}
+
+function getEventSlots(info: TicketDetailInfo): {
+  fixedSlots: number[][]
+  nonFixedSlots: number[][]
+} {
   const distinctEvents = new Set(info.selections.map((sel) => sel.eventId))
+  const fixedSlots: number[][] = []
+  const nonFixedSlots: number[][] = []
 
   if (distinctEvents.size === 1 && info.selections.length > 0) {
     const sel = info.selections[0]
     const isBanker = String(sel.isBanker) === 'true'
-    const flattened: { odds: number; isBanker: boolean }[] = []
-    for (const market of sel.markets) {
-      for (const s of market.selections) {
-        const o = parseFloat(s.odds)
-        if (o > 0) flattened.push({ odds: o, isBanker })
-      }
-    }
-    return flattened.length > 0 ? flattened : [{ odds: 1, isBanker }]
-  }
-
-  return info.selections.map((sel) => {
-    let odds = 1
     for (const market of sel.markets) {
       for (const s of market.selections) {
         const o = parseFloat(s.odds)
         if (o > 0) {
-          odds = o
-          break
+          if (isBanker) fixedSlots.push([o])
+          else nonFixedSlots.push([o])
         }
       }
     }
-    return { odds, isBanker: String(sel.isBanker) === 'true' }
-  })
+    if (fixedSlots.length === 0 && nonFixedSlots.length === 0) {
+      if (isBanker) fixedSlots.push([1])
+      else nonFixedSlots.push([1])
+    }
+    return { fixedSlots, nonFixedSlots }
+  }
+
+  for (const sel of info.selections) {
+    const isBanker = String(sel.isBanker) === 'true'
+    const odds: number[] = []
+    for (const market of sel.markets) {
+      for (const s of market.selections) {
+        const o = parseFloat(s.odds)
+        if (o > 0) odds.push(o)
+      }
+    }
+    if (odds.length === 0) odds.push(1)
+    if (isBanker) fixedSlots.push(odds)
+    else nonFixedSlots.push(odds)
+  }
+
+  return { fixedSlots, nonFixedSlots }
 }
 
-// Riepilogo del sistema per il Dettaglio Ticket: quali taglie sono state
-// giocate, importo e numero di combinazioni per ciascuna, totale
-// combinazioni, e quante selezioni sono fisse — mirror di come queste
-// informazioni vengono già mostrate sulla ricevuta stampata (systemGroupsInfo
-// in betting-slip.tsx).
 function computeSystemSummary(info: TicketDetailInfo): {
   totalSelections: number
   levels: { size: number; stakeTotal: number; combinations: number }[]
@@ -187,18 +201,14 @@ function computeSystemSummary(info: TicketDetailInfo): {
   const systemKeys = Object.keys(info.system)
   if (systemKeys.length === 0) return null
 
-  const selectionOdds = getSelectionOddsAndBanker(info)
-  const n = selectionOdds.length
-  const fixedOdds = selectionOdds.filter((s) => s.isBanker).map((s) => s.odds)
-  const nonFixedOdds = selectionOdds
-    .filter((s) => !s.isBanker)
-    .map((s) => s.odds)
+  const { fixedSlots, nonFixedSlots } = getEventSlots(info)
+  const n = fixedSlots.length + nonFixedSlots.length
 
   const levels = systemKeys
     .map((k) => {
       const size = parseInt(k)
       if (isNaN(size) || size < 1 || size > n) return null
-      const combos = comboOddsProductsForSize(fixedOdds, nonFixedOdds, size)
+      const combos = comboOddsProductsForSize(fixedSlots, nonFixedSlots, size)
       if (combos.length === 0) return null
       return {
         size,
@@ -215,7 +225,7 @@ function computeSystemSummary(info: TicketDetailInfo): {
     totalSelections: n,
     levels,
     totalCombinations: levels.reduce((sum, l) => sum + l.combinations, 0),
-    fixedCount: fixedOdds.length,
+    fixedCount: fixedSlots.length,
   }
 }
 
@@ -225,36 +235,23 @@ function computeMinMaxWin(info: TicketDetailInfo): {
 } {
   const amount = parseFloat(String(info.amount)) || 0
   const systemKeys = Object.keys(info.system)
-  const selectionOdds = getSelectionOddsAndBanker(info)
-  const n = selectionOdds.length
+  const { fixedSlots, nonFixedSlots } = getEventSlots(info)
+  const n = fixedSlots.length + nonFixedSlots.length
   if (n === 0) return { minWin: 0, maxWin: 0 }
   if (systemKeys.length === 0) {
-    const prod = selectionOdds.reduce((a, s) => a * s.odds, 1)
+    const prod = [...fixedSlots, ...nonFixedSlots]
+      .flat()
+      .reduce((a, b) => a * b, 1)
     return { minWin: prod * amount, maxWin: prod * amount }
   }
-  const fixedOdds = selectionOdds.filter((s) => s.isBanker).map((s) => s.odds)
-  const nonFixedOdds = selectionOdds
-    .filter((s) => !s.isBanker)
-    .map((s) => s.odds)
 
   let minWin = Infinity
   let maxWin = 0
   for (const k of systemKeys) {
     const kNum = parseInt(k)
     if (isNaN(kNum) || kNum < 1 || kNum > n) continue
-    const combos = comboOddsProductsForSize(fixedOdds, nonFixedOdds, kNum)
+    const combos = comboOddsProductsForSize(fixedSlots, nonFixedSlots, kNum)
     if (combos.length === 0) continue
-    // info.system[k] è la puntata TOTALE per questa taglia di sistema (stesso
-    // valore inviato in placeBet.system in betting-slip.tsx, già arrotondato
-    // a 2 decimali in quel momento) — va quindi divisa per il numero REALE
-    // di combinazioni per ottenere la puntata per combinazione. La puntata
-    // per combinazione è sempre un valore "pulito" a 2 decimali (viene
-    // sempre arrotondata così quando l'operatore la inserisce), quindi
-    // arrotondiamo subito il risultato della divisione: altrimenti il rumore
-    // di virgola mobile introdotto dalla divisione si accumula su centinaia
-    // di combinazioni e può spostare l'ultimo centesimo del totale rispetto
-    // alla ricevuta stampata (che usa la puntata per combinazione originale,
-    // già pulita, non ricavata da una divisione).
     const tierTotalStake = parseFloat(info.system[k]) || 0
     const stakePerCombo =
       Math.round((tierTotalStake / combos.length) * 100) / 100
