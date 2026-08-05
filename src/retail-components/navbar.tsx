@@ -23,8 +23,17 @@ function NavbarContent() {
   const pathname = usePathname()
   const router = useRouter()
 
-  const { eventResults, setSearchEventResults, userData } =
+  const { eventResults, setSearchEventResults, userData, getNavbarConfig } =
     useContext(RootContext)
+
+  const navCfg = getNavbarConfig?.() ?? {
+    showDogs6: true,
+    showDogs8: true,
+    showHorses: true,
+    showMix: true,
+    showFootball: true,
+    order: ['DOGS6', 'DOGS8', 'HORSES', 'FOOTBALL'] as const,
+  }
   const isOperator = userData?.level === 1
   const [isInfoOpen, setIsInfoOpen] = useState(false)
 
@@ -132,70 +141,135 @@ function NavbarContent() {
         suppressHydrationWarning={true}
       >
         <div className="relative right-1 flex flex-row items-center space-x-2">
-          <Link
-            href={buildHref('/retail/dogs-horses')}
-            onClick={() => closeTicketPageAndThen()}
-            className={cn(
-              'flex h-12 w-28 flex-row items-center justify-between px-4 py-1 text-foreground transition-colors',
-              pathname.includes('/retail/dogs-horses')
-                ? 'bg-tertiary'
-                : 'bg-secondary hover:bg-navbarHover',
-            )}
-          >
-            <Image
-              src="/dog.png"
-              alt="Dogs"
-              width={40}
-              height={20}
-              className="size-8 object-contain"
-            />
-            <Image
-              src="/horse.png"
-              alt="Horses"
-              width={40}
-              height={20}
-              className="size-8 object-contain"
-            />
-          </Link>
+          {navCfg.showMix && (
+            <Link
+              href={buildHref('/retail/dogs-horses')}
+              onClick={() => closeTicketPageAndThen()}
+              className={cn(
+                'flex h-12 w-28 flex-row items-center justify-between px-4 py-1 text-foreground transition-colors',
+                pathname.includes('/retail/dogs-horses')
+                  ? 'bg-tertiary'
+                  : 'bg-secondary hover:bg-navbarHover',
+              )}
+            >
+              <Image
+                src="/dog.png"
+                alt="Dogs"
+                width={40}
+                height={20}
+                className="size-8 object-contain"
+              />
+              <Image
+                src="/horse.png"
+                alt="Horses"
+                width={40}
+                height={20}
+                className="size-8 object-contain"
+              />
+            </Link>
+          )}
 
-          <Link
-            href={buildHref('/retail/dogs')}
-            onClick={() => closeTicketPageAndThen()}
-            className={cn(
-              'flex h-12 w-24 flex-row items-center justify-center px-4 py-1 text-foreground transition-colors',
-              pathname.includes('/retail/dogs') &&
-                !pathname.includes('/retail/dogs-horses')
-                ? 'bg-tertiary'
-                : 'bg-secondary hover:bg-navbarHover',
-            )}
-          >
-            <Image
-              src="/dog.png"
-              alt="Dogs"
-              width={40}
-              height={20}
-              className="size-8 object-contain"
-            />
-          </Link>
+          {/* Pulsanti disciplina: renderizzati nell'ORDINE reale restituito
+              dall'API per questo operatore (navCfg.order), non in un ordine
+              fisso — ma ciascuno resta collegato in modo univoco alla sua
+              pagina, quindi riordinare i canali non può mai far aprire la
+              disciplina sbagliata. */}
+          {navCfg.order.map((key) => {
+            const button = {
+              DOGS6: {
+                show: navCfg.showDogs6,
+                href: '/retail/dogs',
+                active:
+                  pathname.includes('/retail/dogs') &&
+                  !pathname.includes('/retail/dogs-horses') &&
+                  !pathname.includes('/retail/dogs8'),
+                content: (
+                  <>
+                    <Image
+                      src="/dog.png"
+                      alt="Dogs"
+                      width={40}
+                      height={20}
+                      className="size-8 object-contain"
+                    />
+                    <span className="relative left-[2px] text-base font-bold !text-[22px] text-secondary-foreground">
+                      6
+                    </span>
+                  </>
+                ),
+              },
+              DOGS8: {
+                show: navCfg.showDogs8,
+                href: '/retail/dogs8',
+                active: pathname.includes('/retail/dogs8'),
+                content: (
+                  <>
+                    <Image
+                      src="/dog.png"
+                      alt="Dogs 8"
+                      width={40}
+                      height={20}
+                      className="size-8 object-contain"
+                    />
+                    <span className="relative left-[2px] text-base font-bold !text-[22px] text-secondary-foreground">
+                      8
+                    </span>
+                  </>
+                ),
+              },
+              HORSES: {
+                show: navCfg.showHorses,
+                href: '/retail/horses',
+                active: pathname.includes('/retail/horses'),
+                content: (
+                  <>
+                    <Image
+                      src="/horse.png"
+                      alt="Horses"
+                      width={40}
+                      height={20}
+                      className="size-8 object-contain"
+                    />
+                    <span className="relative left-[2px] text-base font-bold !text-[22px] text-secondary-foreground">
+                      6
+                    </span>
+                  </>
+                ),
+              },
+              FOOTBALL: {
+                show: navCfg.showFootball,
+                href: '/retail/calcio',
+                active: pathname.includes('/retail/calcio'),
+                content: (
+                  <Image
+                    src="/soccer.png"
+                    alt="Calcio"
+                    width={40}
+                    height={20}
+                    className="size-8 object-contain brightness-0 invert filter"
+                  />
+                ),
+              },
+            }[key]
 
-          <Link
-            href={buildHref('/retail/horses')}
-            onClick={() => closeTicketPageAndThen()}
-            className={cn(
-              'flex h-12 w-24 flex-row items-center justify-center px-4 py-1 text-foreground transition-colors',
-              pathname.includes('/retail/horses')
-                ? 'bg-tertiary'
-                : 'bg-secondary hover:bg-navbarHover',
-            )}
-          >
-            <Image
-              src="/horse.png"
-              alt="Horses"
-              width={40}
-              height={20}
-              className="size-8 object-contain"
-            />
-          </Link>
+            if (!button.show) return null
+
+            return (
+              <Link
+                key={key}
+                href={buildHref(button.href)}
+                onClick={() => closeTicketPageAndThen()}
+                className={cn(
+                  'flex h-12 w-24 flex-row items-center justify-center gap-1 px-4 py-1 text-foreground transition-colors',
+                  button.active
+                    ? 'bg-tertiary'
+                    : 'bg-secondary hover:bg-navbarHover',
+                )}
+              >
+                {button.content}
+              </Link>
+            )
+          })}
         </div>
 
         <div className="relative left-1 flex w-full justify-end space-x-2 bg-transparent">
