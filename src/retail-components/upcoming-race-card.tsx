@@ -100,6 +100,10 @@ export default function UpcomingRaceCard({
     clearSelections()
   }, [activeTab])
 
+  useEffect(() => {
+    clearSelections()
+  }, [race.id])
+
   const prevRaceBetCountRef = useRef<number>(0)
   const betAddedFromUIRef = useRef<boolean>(false)
 
