@@ -100,10 +100,11 @@ export default function BettingSlip({
   const [accordionOpen, setAccordionOpen] = useState<string>('combinations')
   const [systemGroupsOpen, setSystemGroupsOpen] = useState<string[]>([])
 
-  const totalOdds = betEntries.reduce(
+  const rawTotalOdds = betEntries.reduce(
     (total, betEntry) => total * betEntry.bet.option.decPrice,
     1,
   )
+  const totalOdds = Math.round(rawTotalOdds * 100) / 100
 
   const [global, setGlobal] = useState(0)
   const potentialWinning = global * totalOdds
