@@ -8,7 +8,6 @@ import { X } from 'lucide-react'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import ReactPlayer from 'react-player/lazy'
 import LoadingSpinner from './loading-spinner'
 import {
   Accordion,
@@ -1037,16 +1036,14 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
               <X className="h-5 w-5" />
             </button>
             <div className="flex h-[660px] w-full items-center justify-center bg-black">
-              <ReactPlayer
+              <video
                 key={replayUrl}
-                url={replayUrl}
+                src={replayUrl}
                 controls
-                playing
-                playsinline
+                autoPlay
                 muted
-                width="100%"
-                height="100%"
-                style={{ backgroundColor: '#000' }}
+                playsInline
+                className="h-full w-full object-contain"
                 onEnded={() => setShowReplay(false)}
                 onError={(e) => console.error('Video error:', e)}
               />
