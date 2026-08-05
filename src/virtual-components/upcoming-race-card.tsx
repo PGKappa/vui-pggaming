@@ -713,7 +713,7 @@ export default function UpcomingRaceCard({
             <div className="flex h-12">
               <div className="flex flex-1 items-center justify-between p-2">
                 <BetEntryToggle
-                  marketName="Under/Over 3.5"
+                  marketName="Under/Over"
                   bet={{
                     discipline: race.discipline,
                     event: {
@@ -737,7 +737,7 @@ export default function UpcomingRaceCard({
 
               <div className="flex flex-1 items-center justify-between p-2">
                 <BetEntryToggle
-                  marketName="Under/Over 3.5"
+                  marketName="Under/Over"
                   bet={{
                     discipline: race.discipline,
                     event: {

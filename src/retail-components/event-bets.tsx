@@ -237,23 +237,9 @@ export default function EventBets(props: {
               ) {
                 outcomeDisplay = t('odd')
               } else if (outcomeLower === 'under' || outcomeLower === 'u') {
-                const allMatches = [
-                  ...betEntry.market.matchAll(/(\d+\.?\d*)/g),
-                ]
-                const valueStr =
-                  allMatches.length > 0
-                    ? allMatches[allMatches.length - 1][1]
-                    : ''
-                outcomeDisplay = `${t('under_full')}${valueStr ? ` ${valueStr}` : ''}`
+                outcomeDisplay = t('under_full')
               } else if (outcomeLower === 'over' || outcomeLower === 'o') {
-                const allMatches = [
-                  ...betEntry.market.matchAll(/(\d+\.?\d*)/g),
-                ]
-                const valueStr =
-                  allMatches.length > 0
-                    ? allMatches[allMatches.length - 1][1]
-                    : ''
-                outcomeDisplay = `${t('over_full')}${valueStr ? ` ${valueStr}` : ''}`
+                outcomeDisplay = t('over_full')
               } else if (
                 outcomeLower === 'yes' ||
                 outcomeLower === 'sì' ||
