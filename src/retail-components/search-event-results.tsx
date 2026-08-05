@@ -4,11 +4,11 @@ import { getRacerColors, createPGVirtualAPICall } from '@/retail-lib/utils'
 import { format } from 'date-fns'
 import { t } from 'i18next'
 import Image from 'next/image'
-import dynamic from 'next/dynamic'
 import { X } from 'lucide-react'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
+import ReactPlayer from 'react-player/lazy'
 import LoadingSpinner from './loading-spinner'
 import {
   Accordion,
@@ -26,8 +26,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select'
-
-const ReactPlayer = dynamic(() => import('react-player'), { ssr: false })
 
 function formatDateForAPI(date: Date) {
   const day = String(date.getDate()).padStart(2, '0')
@@ -1045,8 +1043,10 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                 controls
                 playing
                 playsinline
+                muted
                 width="100%"
                 height="100%"
+                style={{ backgroundColor: '#000' }}
                 onEnded={() => setShowReplay(false)}
                 onError={(e) => console.error('Video error:', e)}
               />
