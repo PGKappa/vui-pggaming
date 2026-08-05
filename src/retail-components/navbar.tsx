@@ -25,6 +25,7 @@ function NavbarContent() {
     showHorses: true,
     showMix: true,
     showFootball: true,
+    order: ['DOGS6', 'DOGS8', 'HORSES', 'FOOTBALL'] as const,
   }
 
   // Helper per creare link preservando TUTTI i parametri URL
@@ -80,96 +81,108 @@ function NavbarContent() {
           </Link>
         )}
 
-        {navCfg.showDogs6 && (
-          <Link
-            href={buildHref('/retail/dogs')}
-            className={cn(
-              'flex h-12 w-24 flex-row items-center justify-center gap-1 px-3 py-1 text-foreground transition-colors hover:opacity-90',
-              pathname.includes('/retail/dogs') &&
+        {/* Pulsanti disciplina: renderizzati nell'ORDINE reale restituito
+            dall'API per questo operatore (navCfg.order), non in un ordine
+            fisso — ma ciascuno resta collegato in modo univoco alla sua
+            pagina, quindi riordinare i canali non può mai far aprire la
+            disciplina sbagliata. */}
+        {navCfg.order.map((key) => {
+          const button = {
+            DOGS6: {
+              show: navCfg.showDogs6,
+              href: '/retail/dogs',
+              active:
+                pathname.includes('/retail/dogs') &&
                 !pathname.includes('/retail/dogs-horses') &&
-                !pathname.includes('/retail/dogs8')
-                ? 'bg-tertiary'
-                : 'bg-secondary',
-            )}
-          >
-            <Image
-              src="/dog.png"
-              alt="Dogs"
-              width={40}
-              height={20}
-              className="size-8 object-contain"
-            />
-            <span className="text-base font-bold text-secondary-foreground !text-[22px] relative left-[2px]">
-              6
-            </span>
-          </Link>
-        )}
+                !pathname.includes('/retail/dogs8'),
+              gapClass: 'gap-1',
+              content: (
+                <>
+                  <Image
+                    src="/dog.png"
+                    alt="Dogs"
+                    width={40}
+                    height={20}
+                    className="size-8 object-contain"
+                  />
+                  <span className="relative left-[2px] text-base font-bold !text-[22px] text-secondary-foreground">
+                    6
+                  </span>
+                </>
+              ),
+            },
+            DOGS8: {
+              show: navCfg.showDogs8,
+              href: '/retail/dogs8',
+              active: pathname.includes('/retail/dogs8'),
+              gapClass: 'gap-1',
+              content: (
+                <>
+                  <Image
+                    src="/dog.png"
+                    alt="Dogs 8"
+                    width={40}
+                    height={20}
+                    className="size-8 object-contain"
+                  />
+                  <span className="relative left-[2px] text-base font-bold !text-[22px] text-secondary-foreground">
+                    8
+                  </span>
+                </>
+              ),
+            },
+            HORSES: {
+              show: navCfg.showHorses,
+              href: '/retail/horses',
+              active: pathname.includes('/retail/horses'),
+              gapClass: 'gap-1',
+              content: (
+                <>
+                  <Image
+                    src="/horse.png"
+                    alt="Horses"
+                    width={40}
+                    height={20}
+                    className="size-8 object-contain"
+                  />
+                  <span className="relative left-[2px] text-base font-bold !text-[22px] text-secondary-foreground">
+                    6
+                  </span>
+                </>
+              ),
+            },
+            FOOTBALL: {
+              show: navCfg.showFootball,
+              href: '/retail/calcio',
+              active: pathname.includes('/retail/calcio'),
+              gapClass: 'gap-2',
+              content: (
+                <Image
+                  src="/soccer.png"
+                  alt="Calcio"
+                  width={40}
+                  height={20}
+                  className="size-8 object-contain brightness-0 invert filter"
+                />
+              ),
+            },
+          }[key]
 
-        {navCfg.showDogs8 && (
-          <Link
-            href={buildHref('/retail/dogs8')}
-            className={cn(
-              'flex h-12 w-24 flex-row items-center justify-center gap-1 px-3 py-1 text-foreground transition-colors hover:opacity-90',
-              pathname.includes('/retail/dogs8')
-                ? 'bg-tertiary'
-                : 'bg-secondary',
-            )}
-          >
-            <Image
-              src="/dog.png"
-              alt="Dogs 8"
-              width={40}
-              height={20}
-              className="size-8 object-contain"
-            />
-            <span className="text-base font-bold text-secondary-foreground !text-[22px] relative left-[2px]">
-              8
-            </span>
-          </Link>
-        )}
+          if (!button.show) return null
 
-        {navCfg.showHorses && (
-          <Link
-            href={buildHref('/retail/horses')}
-            className={cn(
-              'flex h-12 w-24 flex-row items-center justify-center gap-1 px-3 py-1 text-foreground transition-colors hover:opacity-90',
-              pathname.includes('/retail/horses')
-                ? 'bg-tertiary'
-                : 'bg-secondary',
-            )}
-          >
-            <Image
-              src="/horse.png"
-              alt="Horses"
-              width={40}
-              height={20}
-              className="size-8 object-contain"
-            />
-            <span className="text-base font-bold text-secondary-foreground !text-[22px] relative left-[2px]">
-              6
-            </span>
-          </Link>
-        )}
-
-        {navCfg.showFootball && (
-          <Link
-            href={buildHref('/retail/calcio')}
-            className={cn(
-              'flex h-12 w-24 flex-row items-center justify-center gap-2 px-3 py-1 text-foreground transition-colors',
-              pathname.includes('/retail/calcio')
-                ? 'bg-tertiary'
-                : 'bg-secondary',
-            )}
-          >
-            <Image
-              src="/soccer.png"
-              alt="Calcio"
-              width={40}
-              height={20}
-              className="size-8 object-contain brightness-0 invert filter"
-            />
-          </Link>
-        )}
+          return (
+            <Link
+              key={key}
+              href={buildHref(button.href)}
+              className={cn(
+                `flex h-12 w-24 flex-row items-center justify-center ${button.gapClass} px-3 py-1 text-foreground transition-colors hover:opacity-90`,
+                button.active ? 'bg-tertiary' : 'bg-secondary',
+              )}
+            >
+              {button.content}
+            </Link>
+          )
+        })}
       </div>
 
       <div className="relative right-2 flex w-full justify-end space-x-2">

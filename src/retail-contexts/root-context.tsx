@@ -76,6 +76,7 @@ const defaultRootContext: RootContextType = {
     showHorses: true,
     showMix: true,
     showFootball: true,
+    order: ['DOGS6', 'DOGS8', 'HORSES', 'FOOTBALL'],
   }),
   isLoadingEvents: false,
   upcomingEvents: [],

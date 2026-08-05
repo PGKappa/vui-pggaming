@@ -51,6 +51,13 @@ export type NavbarConfig = {
   /** Show the dogs-horses mix button (true when ≥2 racing disciplines are present) */
   showMix: boolean
   showFootball: boolean
+  /**
+   * Ordine dei pulsanti disciplina (esclude il mix, che resta sempre per
+   * primo), derivato dalla posizione REALE dei canali restituiti dall'API
+   * cashier_init per questo operatore/init_code — non è un ordine fisso,
+   * cambia da operatore a operatore in base a come arrivano i canali.
+   */
+  order: Array<'DOGS6' | 'DOGS8' | 'HORSES' | 'FOOTBALL'>
 }
 
 const defaultCashierContext: CashierContextType = {
@@ -81,6 +88,7 @@ const defaultCashierContext: CashierContextType = {
     showHorses: true,
     showMix: true,
     showFootball: true,
+    order: ['DOGS6', 'DOGS8', 'HORSES', 'FOOTBALL'],
   }),
 }
 
@@ -296,24 +304,31 @@ function createContextDataFromCashierData(
   const getNavbarConfig = (): NavbarConfig => {
     const channels: any[] = cashierData.channels || []
 
-    const hasDogs6 = channels.some(
-      (c) =>
-        (typeof c?.game_id === 'string' && /^dogs?(?!8)/i.test(c.game_id)) ||
-        (typeof c?.name === 'string' &&
-          /dog|grey/i.test(c.name) &&
-          !/8/.test(c.name) &&
-          !/8/.test(c.game_id || '')),
-    )
-    const hasDogs8 = channels.some(
-      (c) =>
-        (typeof c?.game_id === 'string' && /dogs?8/i.test(c.game_id)) ||
-        (typeof c?.name === 'string' && /dog.*8|grey.*8/i.test(c.name)),
-    )
-    const hasHorses = channels.some(
-      (c) =>
-        (typeof c?.game_id === 'string' && /horse/i.test(c.game_id)) ||
-        (typeof c?.name === 'string' && /horse|cavall/i.test(c.name)),
-    )
+    // NB: niente lookahead (?!8) — con l'"s" opzionale in "dogs?" il motore
+    // regex può fare backtracking su "dog" (senza s) e far combaciare
+    // erroneamente anche "dogs8" (il carattere dopo "dog" è "s", non "8",
+    // quindi il lookahead passa comunque). Controllo esplicito invece.
+    const isDogs6 = (c: any) =>
+      (typeof c?.game_id === 'string' &&
+        /dog/i.test(c.game_id) &&
+        !/8/.test(c.game_id)) ||
+      (typeof c?.name === 'string' &&
+        /dog|grey/i.test(c.name) &&
+        !/8/.test(c.name) &&
+        !/8/.test(c.game_id || ''))
+    const isDogs8 = (c: any) =>
+      (typeof c?.game_id === 'string' && /dogs?8/i.test(c.game_id)) ||
+      (typeof c?.name === 'string' && /dog.*8|grey.*8/i.test(c.name))
+    const isHorses = (c: any) =>
+      (typeof c?.game_id === 'string' && /horse/i.test(c.game_id)) ||
+      (typeof c?.name === 'string' && /horse|cavall/i.test(c.name))
+    const isFootball = (c: any) =>
+      (typeof c?.game_id === 'string' && /socc|footb|calcio/i.test(c.game_id)) ||
+      (typeof c?.name === 'string' && /socc|footb|calcio/i.test(c.name))
+
+    const hasDogs6 = channels.some(isDogs6)
+    const hasDogs8 = channels.some(isDogs8)
+    const hasHorses = channels.some(isHorses)
 
     // Show the mix button when at least 2 racing disciplines are present
     const racingCount = [hasDogs6, hasDogs8, hasHorses].filter(Boolean).length
@@ -323,7 +338,39 @@ function createContextDataFromCashierData(
     const showFootball =
       cashierData.football === true ||
       cashierData.configs?.football === true ||
-      cashierData.intl?.football === true
+      cashierData.intl?.football === true ||
+      channels.some(isFootball)
+
+    // Ordine dei pulsanti: segue la posizione REALE di ciascuna disciplina
+    // nell'array `channels` restituito dall'API per questo operatore — non
+    // un ordine fisso. Se un flag risulta true ma non troviamo un canale
+    // corrispondente scansionando l'array (es. football, che spesso è solo
+    // un flag separato senza un canale dedicato), lo aggiungiamo comunque in
+    // fondo per non nascondere un pulsante che dovrebbe essere visibile.
+    const order: NavbarConfig['order'] = []
+    const seen = new Set<string>()
+    channels.forEach((c) => {
+      if (hasDogs6 && !seen.has('DOGS6') && isDogs6(c)) {
+        order.push('DOGS6')
+        seen.add('DOGS6')
+      }
+      if (hasDogs8 && !seen.has('DOGS8') && isDogs8(c)) {
+        order.push('DOGS8')
+        seen.add('DOGS8')
+      }
+      if (hasHorses && !seen.has('HORSES') && isHorses(c)) {
+        order.push('HORSES')
+        seen.add('HORSES')
+      }
+      if (showFootball && !seen.has('FOOTBALL') && isFootball(c)) {
+        order.push('FOOTBALL')
+        seen.add('FOOTBALL')
+      }
+    })
+    if (hasDogs6 && !seen.has('DOGS6')) order.push('DOGS6')
+    if (hasDogs8 && !seen.has('DOGS8')) order.push('DOGS8')
+    if (hasHorses && !seen.has('HORSES')) order.push('HORSES')
+    if (showFootball && !seen.has('FOOTBALL')) order.push('FOOTBALL')
 
     // If no channel game_ids are recognised (cashier doesn't expose them yet),
     // fall back to showing all buttons so the navbar is never empty.
@@ -334,6 +381,15 @@ function createContextDataFromCashierData(
         showHorses: true,
         showMix: true,
         showFootball,
+        order:
+          order.length > 0
+            ? order
+            : [
+                'DOGS6',
+                'DOGS8',
+                'HORSES',
+                ...(showFootball ? (['FOOTBALL'] as const) : []),
+              ],
       }
     }
 
@@ -343,6 +399,7 @@ function createContextDataFromCashierData(
       showHorses: hasHorses,
       showMix,
       showFootball,
+      order,
     }
   }
 
