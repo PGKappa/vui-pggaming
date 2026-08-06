@@ -859,7 +859,7 @@ export default function UpcomingRaceCard({
         <div className="flex h-[66px]">
           <div className="flex flex-1 items-center justify-center px-4 min-[1400px]:px-12 min-[1600px]:px-16">
             <BetEntryToggle
-              marketName={t('under_over')}
+              marketName={`${t('under_over')} ${race.discipline === 'DOGS8' ? '4.5' : '3.5'}`}
               apiMarketName="under/over"
               bet={{
                 discipline: race.discipline,
@@ -886,7 +886,7 @@ export default function UpcomingRaceCard({
           </div>
           <div className="flex flex-1 items-center justify-center px-4 min-[1400px]:px-12 min-[1600px]:px-16">
             <BetEntryToggle
-              marketName={t('under_over')}
+              marketName={`${t('under_over')} ${race.discipline === 'DOGS8' ? '4.5' : '3.5'}`}
               apiMarketName="under/over"
               bet={{
                 discipline: race.discipline,
