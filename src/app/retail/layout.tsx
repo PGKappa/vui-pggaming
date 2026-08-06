@@ -155,6 +155,7 @@ function RetailShell({ children }: { children: React.ReactNode }) {
   const {
     isLoadingEvents,
     isLoadingCashier,
+    hasCashierError,
     upcomingEvents,
     eventResults,
     getSplashscreen,
@@ -190,11 +191,17 @@ function RetailShell({ children }: { children: React.ReactNode }) {
   }, [isLoadingCashier, getSplashscreen])
 
   useEffect(() => {
-    // Solo al primo caricamento
+    // Solo al primo caricamento — e SOLO se il cashier si è inizializzato
+    // correttamente. Se il cashier è in errore, isLoadingCashier passa
+    // comunque a false (il retry si è esaurito), ma questo non significa
+    // che l'app sia pronta: senza cashier valido non c'è nulla da mostrare,
+    // quindi lo splash deve restare finché l'errore non si risolve (es. un
+    // nuovo tentativo con un init_code valido).
     if (
       !hasAppLoaded &&
       !isLoadingEvents &&
       !isLoadingCashier &&
+      !hasCashierError &&
       ((upcomingEvents?.length ?? 0) > 0 || (eventResults?.length ?? 0) > 0)
     ) {
       hasAppLoaded = true
@@ -208,7 +215,21 @@ function RetailShell({ children }: { children: React.ReactNode }) {
         }
       }, 900)
     }
-  }, [isLoadingEvents, isLoadingCashier, upcomingEvents, eventResults])
+  }, [
+    isLoadingEvents,
+    isLoadingCashier,
+    hasCashierError,
+    upcomingEvents,
+    eventResults,
+  ])
+
+  // Il cashier comanda su tutto: se la sua inizializzazione è fallita, non
+  // rendiamo navbar né contenuto retail (oltre a lasciare lo splash visibile
+  // via l'effetto sopra) — niente deve risultare usabile senza un cashier
+  // valido, invece di mostrare una homepage con dati/discipline di default.
+  if (hasCashierError) {
+    return null
+  }
 
   return (
     <>
