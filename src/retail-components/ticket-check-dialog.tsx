@@ -265,13 +265,14 @@ function computeMinMaxWin(info: TicketDetailInfo): {
     const tierTotalStake = parseFloat(info.system[k]) || 0
     const stakePerCombo =
       Math.round((tierTotalStake / combos.length) * 100) / 100
-    const minProduct = Math.min(...combos)
-    minWin = Math.min(minWin, minProduct * stakePerCombo)
-    const combsSum = combos.reduce((a, b) => a + b, 0)
-    maxWin += combsSum * stakePerCombo
+    const roundedComboWins = combos.map(
+      (comboOdds) => Math.round(comboOdds * stakePerCombo * 100) / 100,
+    )
+    minWin = Math.min(minWin, ...roundedComboWins)
+    maxWin += roundedComboWins.reduce((a, b) => a + b, 0)
   }
   return {
-    minWin: Math.round((minWin === Infinity ? 0 : minWin) * 100) / 100,
+    minWin: minWin === Infinity ? 0 : Math.round(minWin * 100) / 100,
     maxWin: Math.round(maxWin * 100) / 100,
   }
 }
