@@ -159,6 +159,8 @@ export default function BettingSlip({
       }))
       .sort((a, b) => b.size - a.size)
   }, [baseSystemGroups, systemGroupStakes])
+  const systemGroupsRef = useRef(systemGroups)
+  systemGroupsRef.current = systemGroups
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [printFunctionName, setPrintFunctionName] = useState('Bubble')
@@ -183,11 +185,11 @@ export default function BettingSlip({
   const lastSystemTotalStakeRef = useRef(0)
   useEffect(() => {
     if (betMode !== 'SYSTEM') return
-    const total = systemGroups
+    const total = systemGroupsRef.current
       .filter((group) => group.stake > 0)
       .reduce((sum, group) => sum + group.stake * group.combinations.length, 0)
     if (total > 0) lastSystemTotalStakeRef.current = total
-  }, [betMode, systemGroups])
+  }, [betMode, systemGroupStakes])
 
   const prevBetModeRef = useRef(betMode)
   useEffect(() => {
