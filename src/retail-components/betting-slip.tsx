@@ -190,12 +190,17 @@ export default function BettingSlip({
     prevBetModeRef.current = betMode
 
     if (betMode === 'SYSTEM' && baseSystemGroups.length > 0) {
-      if (prevMode !== 'SYSTEM' && globalRef.current > 0) {
+      const carryOverAmount =
+        prevMode !== 'SYSTEM'
+          ? globalRef.current
+          : lastSystemTotalStakeRef.current
+
+      if (carryOverAmount > 0) {
         const largestGroup = baseSystemGroups.reduce((largest, current) =>
           current.size > largest.size ? current : largest,
         )
         const stakePerCombination =
-          globalRef.current / largestGroup.combinations.length
+          carryOverAmount / largestGroup.combinations.length
         const newSelectedGroups: Record<string, boolean> = {}
         const newStakes: Record<string, number> = {}
         baseSystemGroups.forEach((group) => {
@@ -210,7 +215,7 @@ export default function BettingSlip({
         setSelectedGroups(newSelectedGroups)
         setAllGroupsSelected(false)
         setSystemGroupStakes(newStakes)
-        setGlobal(0)
+        if (prevMode !== 'SYSTEM') setGlobal(0)
         return
       }
 
