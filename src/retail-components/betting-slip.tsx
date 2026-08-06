@@ -975,14 +975,23 @@ export default function BettingSlip({
                 .trim()
 
               if (normalizedMarket === 'underover') {
+                // La soglia (es. 3.5) vive solo nel nome del mercato — va
+                // riestratta ed aggiunta esplicitamente, altrimenti la
+                // ricevuta stampata mostra un generico "Under"/"Over" senza
+                // numero (a differenza del Dettaglio Ticket e della Betting
+                // Slip, che ora lo mostrano nella colonna/riga del mercato).
+                const marketNameForMatch = entry.market || entry.apiMarket || ''
+                const valueMatch = marketNameForMatch.match(/(\d+\.?\d*)/)
+                const value = valueMatch ? ` ${valueMatch[1]}` : ''
+
                 if (outcome === 'under' || outcome === 'menos')
-                  return t('under_full')
+                  return `${t('under_full')}${value}`
                 if (
                   outcome === 'over' ||
                   outcome === 'más' ||
                   outcome === 'mas'
                 )
-                  return t('over_full')
+                  return `${t('over_full')}${value}`
               }
 
               if (normalizedMarket === 'even_odd') {

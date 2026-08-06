@@ -34,9 +34,18 @@ export default function EventBets(props: {
 
   const timeToMatchStart = useTimeLeft(eventBets[0].bet.event.startingAt)
 
-  // Helper to translate market names - usa normalizeMarketName centralizzato
+  // Helper to translate market names - usa normalizeMarketName centralizzato.
+  // Per Under/Over la soglia (es. 3.5) vive solo nel nome mercato originale
+  // ("Under / Over 3.5") — normalizeMarketName la scarta apposta per
+  // raggruppare la classificazione, quindi va riestratta e reinserita qui,
+  // altrimenti la Betting Slip mostra un generico "Under / Over" senza numero.
   const getTranslatedMarket = (market: string) => {
     const normalized = normalizeMarketName(market)
+    if (normalized === 'underover') {
+      const valueMatch = market.match(/(\d+\.?\d*)/)
+      const value = valueMatch ? ` ${valueMatch[1]}` : ''
+      return `${t(normalized)}${value}`
+    }
     return t(normalized)
   }
 

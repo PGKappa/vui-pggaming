@@ -783,7 +783,7 @@ export default function UpcomingRaceCard({
             <div className="flex h-[66px]">
               <div className="flex flex-1 items-center justify-center pl-8 pr-8 min-[1400px]:pl-12 min-[1400px]:pr-12 min-[1600px]:pl-16 min-[1600px]:pr-16">
                 <BetEntryToggle
-                  marketName={t('under_over')}
+                  marketName={`${t('under_over')} 3.5`}
                   apiMarketName="under/over"
                   bet={{
                     discipline: race.discipline,
@@ -799,7 +799,7 @@ export default function UpcomingRaceCard({
               </div>
               <div className="flex flex-1 items-center justify-center pr-8 min-[1400px]:pr-12 min-[1600px]:pr-16">
                 <BetEntryToggle
-                  marketName={t('under_over')}
+                  marketName={`${t('under_over')} 3.5`}
                   apiMarketName="under/over"
                   bet={{
                     discipline: race.discipline,
@@ -874,7 +874,7 @@ export default function UpcomingRaceCard({
                 <div className="flex h-[58px]">
                   <div className="flex flex-1 items-center justify-center px-2">
                     <BetEntryToggle
-                      marketName={t('under_over')}
+                      marketName={`${t('under_over')} 3.5`}
                       apiMarketName="under/over"
                       bet={{
                         discipline: race.discipline,
@@ -890,7 +890,7 @@ export default function UpcomingRaceCard({
                   </div>
                   <div className="flex flex-1 items-center justify-center px-2">
                     <BetEntryToggle
-                      marketName={t('under_over')}
+                      marketName={`${t('under_over')} 3.5`}
                       apiMarketName="under/over"
                       bet={{
                         discipline: race.discipline,
