@@ -106,6 +106,8 @@ export default function BettingSlip({
   )
 
   const [global, setGlobal] = useState(0)
+  const globalRef = useRef(global)
+  globalRef.current = global
   const potentialWinning = global * totalOdds
   const { t } = useTranslation()
 
@@ -153,6 +155,8 @@ export default function BettingSlip({
       }))
       .sort((a, b) => b.size - a.size)
   }, [baseSystemGroups, systemGroupStakes])
+  const systemGroupsRef = useRef(systemGroups)
+  systemGroupsRef.current = systemGroups
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [printFunctionName, setPrintFunctionName] = useState('Bubble')
@@ -171,8 +175,50 @@ export default function BettingSlip({
     }
   }, [isSystemToggleEnabled, systemToggleMode, setSystemToggleMode])
 
+  const lastSystemTotalStakeRef = useRef(0)
   useEffect(() => {
+    if (betMode !== 'SYSTEM') return
+    const total = systemGroupsRef.current
+      .filter((group) => group.stake > 0)
+      .reduce((sum, group) => sum + group.stake * group.combinations.length, 0)
+    if (total > 0) lastSystemTotalStakeRef.current = total
+  }, [betMode, systemGroupStakes])
+
+  const prevBetModeRef = useRef(betMode)
+  useEffect(() => {
+    const prevMode = prevBetModeRef.current
+    prevBetModeRef.current = betMode
+
     if (betMode === 'SYSTEM' && baseSystemGroups.length > 0) {
+      const carryOverAmount =
+        prevMode !== 'SYSTEM'
+          ? globalRef.current
+          : lastSystemTotalStakeRef.current
+
+      if (carryOverAmount > 0) {
+        const largestGroup = baseSystemGroups.reduce((largest, current) =>
+          current.size > largest.size ? current : largest,
+        )
+        const stakePerCombination =
+          carryOverAmount / largestGroup.combinations.length
+        const newSelectedGroups: Record<string, boolean> = {}
+        const newStakes: Record<string, number> = {}
+        baseSystemGroups.forEach((group) => {
+          if (group.size === largestGroup.size) {
+            newSelectedGroups[group.name] = true
+            newStakes[group.name] = stakePerCombination
+          } else {
+            newSelectedGroups[group.name] = false
+            newStakes[group.name] = 0
+          }
+        })
+        setSelectedGroups(newSelectedGroups)
+        setAllGroupsSelected(false)
+        setSystemGroupStakes(newStakes)
+        if (prevMode !== 'SYSTEM') setGlobal(0)
+        return
+      }
+
       const initialSelections: Record<string, boolean> = {}
       const initialStakes: Record<string, number> = {}
 
@@ -185,6 +231,10 @@ export default function BettingSlip({
       setAllGroupsSelected(false)
       setSystemGroupStakes(initialStakes)
     } else {
+      if (prevMode === 'SYSTEM' && lastSystemTotalStakeRef.current > 0) {
+        setGlobal(lastSystemTotalStakeRef.current)
+        lastSystemTotalStakeRef.current = 0
+      }
       setSelectedGroups({})
       setAllGroupsSelected(false)
       setSystemGroupStakes({})
