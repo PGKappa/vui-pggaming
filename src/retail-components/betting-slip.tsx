@@ -16,6 +16,7 @@ import {
   BetEntry,
   Discipline,
   SubmittedTicket,
+  SystemGroup,
   UpcomingEvent,
 } from '@/retail-lib/types'
 import {
@@ -63,6 +64,30 @@ const getEventStatus = (event: any): 'active' | 'expired' => {
   if (event.discipline === 'SOCCER') return 'active'
 
   return now >= eventTime ? 'expired' : 'active'
+}
+
+function computeGroupWinRounded(group: SystemGroup): {
+  minWin: number
+  maxWin: number
+} {
+  if (group.stake <= 0 || group.combinations.length === 0) {
+    return { minWin: 0, maxWin: 0 }
+  }
+  let minWin = Infinity
+  let maxWin = 0
+  for (const combo of group.combinations) {
+    const comboOdds = combo.reduce(
+      (acc, entry) => acc * entry.bet.option.decPrice,
+      1,
+    )
+    const comboWin = Math.round(comboOdds * group.stake * 100) / 100
+    if (comboWin < minWin) minWin = comboWin
+    maxWin += comboWin
+  }
+  return {
+    minWin: minWin === Infinity ? 0 : minWin,
+    maxWin: Math.round(maxWin * 100) / 100,
+  }
 }
 
 export default function BettingSlip({
@@ -515,7 +540,7 @@ export default function BettingSlip({
   const totalSystemPotentialWin = useMemo(() => {
     return systemGroups
       .filter((group) => group.stake > 0)
-      .reduce((sum, group) => sum + group.maxWin * group.stake, 0)
+      .reduce((sum, group) => sum + computeGroupWinRounded(group).maxWin, 0)
   }, [systemGroups])
 
   const scrollAreaHeight = useMemo(() => {
@@ -1088,8 +1113,7 @@ export default function BettingSlip({
                       name: group.name,
                       size: group.size,
                       stake: group.stake,
-                      minWin: group.minWin,
-                      maxWin: group.maxWin,
+                      ...computeGroupWinRounded(group),
                       totalCombinations: group.combinations.length,
                       combinations: group.combinations.map((combo) => {
                         const comboOdds = combo.reduce(
@@ -1098,7 +1122,8 @@ export default function BettingSlip({
                         )
                         return {
                           odds: comboOdds,
-                          potentialWin: comboOdds * group.stake,
+                          potentialWin:
+                            Math.round(comboOdds * group.stake * 100) / 100,
                           entries: combo.map((entry) => ({
                             eventName: entry.bet.event.name || '',
                             competitorName: getPrintCompetitorName(entry),
@@ -1160,7 +1185,7 @@ export default function BettingSlip({
         winning:
           betMode === 'SYSTEM'
             ? systemGroups.reduce(
-                (sum, group) => sum + group.maxWin * group.stake,
+                (sum, group) => sum + computeGroupWinRounded(group).maxWin,
                 0,
               )
             : potentialWinning,
@@ -1610,7 +1635,9 @@ export default function BettingSlip({
                                 </div>
                                 <div className="relative top-[0px] text-[13px] font-normal">
                                   {currencySymbol}{' '}
-                                  {(group.minWin * group.stake).toFixed(2)}
+                                  {computeGroupWinRounded(group).minWin.toFixed(
+                                    2,
+                                  )}
                                 </div>
                               </div>
                               <div className="relative right-[12px] text-center text-[12px] font-semibold">
@@ -1619,7 +1646,9 @@ export default function BettingSlip({
                                 </div>
                                 <div className="relative top-[0px] text-[13px] font-normal">
                                   {currencySymbol}{' '}
-                                  {(group.maxWin * group.stake).toFixed(2)}
+                                  {computeGroupWinRounded(group).maxWin.toFixed(
+                                    2,
+                                  )}
                                 </div>
                               </div>
                               <div className="relative right-[16px] text-center text-[12px] font-semibold">
