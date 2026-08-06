@@ -198,18 +198,17 @@ export default function BettingSlip({
     prevBetModeRef.current = betMode
 
     if (betMode === 'SYSTEM' && baseSystemGroups.length > 0) {
-      // Entrando in Sistema da Singola/Multipla (es. l'aggiunta di una nuova
-      // selezione nello stesso evento ha fatto scattare automaticamente il
-      // passaggio) — se c'era già un importo inserito, lo distribuiamo sul
-      // sistema (sulla taglia più alta, stessa logica di
-      // handleDirectAmountInput) invece di azzerarlo: l'operatore non deve
-      // reinserire l'importo solo perché la modalità è cambiata da sola.
-      if (prevMode !== 'SYSTEM' && globalRef.current > 0) {
+      const carryOverAmount =
+        prevMode !== 'SYSTEM'
+          ? globalRef.current
+          : lastSystemTotalStakeRef.current
+
+      if (carryOverAmount > 0) {
         const largestGroup = baseSystemGroups.reduce((largest, current) =>
           current.size > largest.size ? current : largest,
         )
         const stakePerCombination =
-          globalRef.current / largestGroup.combinations.length
+          carryOverAmount / largestGroup.combinations.length
         const newSelectedGroups: Record<string, boolean> = {}
         const newStakes: Record<string, number> = {}
         baseSystemGroups.forEach((group) => {
@@ -224,7 +223,7 @@ export default function BettingSlip({
         setSelectedGroups(newSelectedGroups)
         setAllGroupsSelected(false)
         setSystemGroupStakes(newStakes)
-        setGlobal(0)
+        if (prevMode !== 'SYSTEM') setGlobal(0)
         return
       }
 
