@@ -80,22 +80,32 @@ function getBetTypeLabel(
   return 'single'
 }
 
-function formatTicketTime(time: TicketDetailInfo['time']): string {
+// ticketInfo.time arriva dal backend in UTC (stesso pattern già corretto in
+// parseTicketTime, use-ticket-list.ts) — va convertito in orario locale con
+// Date.UTC, non semplicemente formattato come se fosse già locale, altrimenti
+// il Dettaglio Ticket mostra un orario indietro di 2 ore (GMT 0 invece di
+// GMT+2) rispetto all'orario evento mostrato correttamente altrove.
+function toLocalDateFromTicketTime(time: TicketDetailInfo['time']): Date {
   const [year, month, day, hour, min, sec] = time
-  const d = String(day).padStart(2, '0')
-  const m = String(month + 1).padStart(2, '0')
-  const y = String(year)
-  const h = String(hour).padStart(2, '0')
-  const mi = String(min).padStart(2, '0')
-  const s = String(sec ?? 0).padStart(2, '0')
+  return new Date(Date.UTC(year, month, day, hour, min, sec ?? 0))
+}
+
+function formatTicketTime(time: TicketDetailInfo['time']): string {
+  const date = toLocalDateFromTicketTime(time)
+  const d = String(date.getDate()).padStart(2, '0')
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const y = String(date.getFullYear())
+  const h = String(date.getHours()).padStart(2, '0')
+  const mi = String(date.getMinutes()).padStart(2, '0')
+  const s = String(date.getSeconds()).padStart(2, '0')
   return `${d}/${m}/${y} - ${h}:${mi}:${s}`
 }
 
 function formatTicketDate(time: TicketDetailInfo['time']): string {
-  const [year, month, day] = time
-  const d = String(day).padStart(2, '0')
-  const m = String(month + 1).padStart(2, '0')
-  return `${d}/${m}/${year}`
+  const date = toLocalDateFromTicketTime(time)
+  const d = String(date.getDate()).padStart(2, '0')
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  return `${d}/${m}/${date.getFullYear()}`
 }
 
 function toLocalEventTime(rawStartTime: string): string {
