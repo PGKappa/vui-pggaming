@@ -876,8 +876,21 @@ export default function TicketCheckDialog({
                       </div>
 
                       {/* Markets / Selections */}
-                      {sel.markets.map((market, mIdx) =>
-                        market.selections.map((s, sIdx) => (
+                      {sel.markets.map((market, mIdx) => {
+                        // Il backend restituisce il mercato Under/Over come
+                        // codice generico "underover" (su questo branch
+                        // esiste solo la soglia 3.5 per le corse a 6, quindi
+                        // non serve un codice specifico) — ma va comunque
+                        // mostrata la soglia, altrimenti il Dettaglio Ticket
+                        // mostra un generico "Under/Over" senza numero.
+                        const isUnderOver = /under|over|menos|más|mas/i.test(
+                          market.description || '',
+                        )
+                        const marketLabel =
+                          sel.game.dict.markets[market.description] ||
+                          market.description
+
+                        return market.selections.map((s, sIdx) => (
                           <div
                             key={`${mIdx}-${sIdx}`}
                             className="flex items-center justify-between py-[11px]"
@@ -892,14 +905,31 @@ export default function TicketCheckDialog({
                               className="flex-1 text-[12.5px] font-semibold tracking-[0.4px]"
                               style={{ color: '#ccc' }}
                             >
-                              {sel.game.dict.markets[market.description] ||
-                                market.description}
+                              {isUnderOver ? `${marketLabel} 3.5` : marketLabel}
                             </span>
                             <span
                               className="flex-1 text-center text-[12.5px] font-semibold tracking-[0.4px]"
                               style={{ color: '#ccc' }}
                             >
                               {(() => {
+                                if (isUnderOver) {
+                                  const outcome = (
+                                    s.description || ''
+                                  ).toLowerCase()
+                                  if (
+                                    outcome === 'under' ||
+                                    outcome === 'menos' ||
+                                    outcome === 'u'
+                                  )
+                                    return `${t('under_full', 'Under')} 3.5`
+                                  if (
+                                    outcome === 'over' ||
+                                    outcome === 'más' ||
+                                    outcome === 'mas' ||
+                                    outcome === 'o'
+                                  )
+                                    return `${t('over_full', 'Over')} 3.5`
+                                }
                                 const num = parseInt(s.description)
                                 const name = !isNaN(num) && sel.competitors?.[num - 1]
                                   ? sel.competitors[num - 1]
@@ -914,8 +944,8 @@ export default function TicketCheckDialog({
                               Q. {s.odds}
                             </span>
                           </div>
-                        )),
-                      )}
+                        ))
+                      })}
                     </div>
                   ))}
 

@@ -107,6 +107,12 @@ export default function BettingSlip({
   const totalOdds = Math.round(rawTotalOdds * 100) / 100
 
   const [global, setGlobal] = useState(0)
+  // Letto dentro l'useEffect di cambio modalità qui sotto: usare un ref
+  // invece del valore reattivo evita che l'effetto debba dipendere da
+  // `global` e rieseguirsi (e quindi azzerare gli importi appena
+  // distribuiti) quando è lui stesso a modificarlo via setGlobal(0).
+  const globalRef = useRef(global)
+  globalRef.current = global
   const potentialWinning = global * totalOdds
   const { t } = useTranslation()
 
@@ -172,8 +178,54 @@ export default function BettingSlip({
     }
   }, [isSystemToggleEnabled, systemToggleMode, setSystemToggleMode])
 
+  // Tiene traccia dell'ultimo importo totale impostato sul sistema, così
+  // quando si esce da SYSTEM (es. rimuovendo una selezione che riporta la
+  // schedina a Multipla) possiamo trasferirlo su `global` invece di perderlo.
+  const lastSystemTotalStakeRef = useRef(0)
   useEffect(() => {
+    if (betMode !== 'SYSTEM') return
+    const total = systemGroups
+      .filter((group) => group.stake > 0)
+      .reduce((sum, group) => sum + group.stake * group.combinations.length, 0)
+    if (total > 0) lastSystemTotalStakeRef.current = total
+  }, [betMode, systemGroups])
+
+  const prevBetModeRef = useRef(betMode)
+  useEffect(() => {
+    const prevMode = prevBetModeRef.current
+    prevBetModeRef.current = betMode
+
     if (betMode === 'SYSTEM' && baseSystemGroups.length > 0) {
+      // Entrando in Sistema da Singola/Multipla (es. l'aggiunta di una nuova
+      // selezione nello stesso evento ha fatto scattare automaticamente il
+      // passaggio) — se c'era già un importo inserito, lo distribuiamo sul
+      // sistema (sulla taglia più alta, stessa logica di
+      // handleDirectAmountInput) invece di azzerarlo: l'operatore non deve
+      // reinserire l'importo solo perché la modalità è cambiata da sola.
+      if (prevMode !== 'SYSTEM' && globalRef.current > 0) {
+        const largestGroup = baseSystemGroups.reduce((largest, current) =>
+          current.size > largest.size ? current : largest,
+        )
+        const stakePerCombination =
+          globalRef.current / largestGroup.combinations.length
+        const newSelectedGroups: Record<string, boolean> = {}
+        const newStakes: Record<string, number> = {}
+        baseSystemGroups.forEach((group) => {
+          if (group.size === largestGroup.size) {
+            newSelectedGroups[group.name] = true
+            newStakes[group.name] = stakePerCombination
+          } else {
+            newSelectedGroups[group.name] = false
+            newStakes[group.name] = 0
+          }
+        })
+        setSelectedGroups(newSelectedGroups)
+        setAllGroupsSelected(false)
+        setSystemGroupStakes(newStakes)
+        setGlobal(0)
+        return
+      }
+
       const initialSelections: Record<string, boolean> = {}
       const initialStakes: Record<string, number> = {}
 
@@ -186,6 +238,14 @@ export default function BettingSlip({
       setAllGroupsSelected(false)
       setSystemGroupStakes(initialStakes)
     } else {
+      // Uscendo da Sistema verso Singola/Multipla (es. rimozione di una
+      // selezione) — trasferiamo l'ultimo importo totale del sistema su
+      // `global` invece di lasciarlo a 0/stale, così l'operatore non deve
+      // reinserirlo.
+      if (prevMode === 'SYSTEM' && lastSystemTotalStakeRef.current > 0) {
+        setGlobal(lastSystemTotalStakeRef.current)
+        lastSystemTotalStakeRef.current = 0
+      }
       setSelectedGroups({})
       setAllGroupsSelected(false)
       setSystemGroupStakes({})
@@ -916,14 +976,23 @@ export default function BettingSlip({
                 .trim()
 
               if (normalizedMarket === 'underover') {
+                // La soglia (es. 3.5) vive solo nel nome del mercato — va
+                // riestratta ed aggiunta esplicitamente, altrimenti la
+                // ricevuta stampata mostra un generico "Under"/"Over" senza
+                // numero (a differenza del Dettaglio Ticket e della Betting
+                // Slip, che ora lo mostrano nella colonna/riga del mercato).
+                const marketNameForMatch = entry.market || entry.apiMarket || ''
+                const valueMatch = marketNameForMatch.match(/(\d+\.?\d*)/)
+                const value = valueMatch ? ` ${valueMatch[1]}` : ''
+
                 if (outcome === 'under' || outcome === 'menos')
-                  return t('under_full')
+                  return `${t('under_full')}${value}`
                 if (
                   outcome === 'over' ||
                   outcome === 'más' ||
                   outcome === 'mas'
                 )
-                  return t('over_full')
+                  return `${t('over_full')}${value}`
               }
 
               if (normalizedMarket === 'even_odd') {
