@@ -80,22 +80,32 @@ function getBetTypeLabel(
   return 'single'
 }
 
-function formatTicketTime(time: TicketDetailInfo['time']): string {
+// ticketInfo.time arriva dal backend in UTC (stesso pattern già corretto in
+// parseTicketTime, use-ticket-list.ts) — va convertito in orario locale con
+// Date.UTC, non semplicemente formattato come se fosse già locale, altrimenti
+// il Dettaglio Ticket mostra un orario indietro di 2 ore (GMT 0 invece di
+// GMT+2) rispetto all'orario evento mostrato correttamente altrove.
+function toLocalDateFromTicketTime(time: TicketDetailInfo['time']): Date {
   const [year, month, day, hour, min, sec] = time
-  const d = String(day).padStart(2, '0')
-  const m = String(month + 1).padStart(2, '0')
-  const y = String(year)
-  const h = String(hour).padStart(2, '0')
-  const mi = String(min).padStart(2, '0')
-  const s = String(sec ?? 0).padStart(2, '0')
+  return new Date(Date.UTC(year, month, day, hour, min, sec ?? 0))
+}
+
+function formatTicketTime(time: TicketDetailInfo['time']): string {
+  const date = toLocalDateFromTicketTime(time)
+  const d = String(date.getDate()).padStart(2, '0')
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const y = String(date.getFullYear())
+  const h = String(date.getHours()).padStart(2, '0')
+  const mi = String(date.getMinutes()).padStart(2, '0')
+  const s = String(date.getSeconds()).padStart(2, '0')
   return `${d}/${m}/${y} - ${h}:${mi}:${s}`
 }
 
 function formatTicketDate(time: TicketDetailInfo['time']): string {
-  const [year, month, day] = time
-  const d = String(day).padStart(2, '0')
-  const m = String(month + 1).padStart(2, '0')
-  return `${d}/${m}/${year}`
+  const date = toLocalDateFromTicketTime(time)
+  const d = String(date.getDate()).padStart(2, '0')
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  return `${d}/${m}/${date.getFullYear()}`
 }
 
 function toLocalEventTime(rawStartTime: string): string {
@@ -878,17 +888,23 @@ export default function TicketCheckDialog({
                       {/* Markets / Selections */}
                       {sel.markets.map((market, mIdx) => {
                         // Il backend restituisce il mercato Under/Over come
-                        // codice generico "underover" (su questo branch
-                        // esiste solo la soglia 3.5 per le corse a 6, quindi
-                        // non serve un codice specifico) — ma va comunque
-                        // mostrata la soglia, altrimenti il Dettaglio Ticket
-                        // mostra un generico "Under/Over" senza numero.
+                        // codice generico "underover" — ma quando il
+                        // dizionario del backend (sel.game.dict.markets) non
+                        // include già la soglia, va aggiunta a mano (su
+                        // questo branch esiste solo 3.5 per le corse a 6),
+                        // altrimenti il Dettaglio Ticket mostra un generico
+                        // "Under/Over" senza numero. Se il dizionario la
+                        // include già, NON va duplicata.
                         const isUnderOver = /under|over|menos|más|mas/i.test(
                           market.description || '',
                         )
-                        const marketLabel =
+                        const rawMarketLabel =
                           sel.game.dict.markets[market.description] ||
                           market.description
+                        const marketLabel =
+                          isUnderOver && !/\d/.test(rawMarketLabel)
+                            ? `${rawMarketLabel} 3.5`
+                            : rawMarketLabel
 
                         return market.selections.map((s, sIdx) => (
                           <div
@@ -905,7 +921,7 @@ export default function TicketCheckDialog({
                               className="flex-1 text-[12.5px] font-semibold tracking-[0.4px]"
                               style={{ color: '#ccc' }}
                             >
-                              {isUnderOver ? `${marketLabel} 3.5` : marketLabel}
+                              {marketLabel}
                             </span>
                             <span
                               className="flex-1 text-center text-[12.5px] font-semibold tracking-[0.4px]"
@@ -921,14 +937,14 @@ export default function TicketCheckDialog({
                                     outcome === 'menos' ||
                                     outcome === 'u'
                                   )
-                                    return `${t('under_full', 'Under')} 3.5`
+                                    return t('under_full', 'Under')
                                   if (
                                     outcome === 'over' ||
                                     outcome === 'más' ||
                                     outcome === 'mas' ||
                                     outcome === 'o'
                                   )
-                                    return `${t('over_full', 'Over')} 3.5`
+                                    return t('over_full', 'Over')
                                 }
                                 const num = parseInt(s.description)
                                 const name = !isNaN(num) && sel.competitors?.[num - 1]
