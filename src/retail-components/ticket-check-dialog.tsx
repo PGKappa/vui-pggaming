@@ -878,17 +878,23 @@ export default function TicketCheckDialog({
                       {/* Markets / Selections */}
                       {sel.markets.map((market, mIdx) => {
                         // Il backend restituisce il mercato Under/Over come
-                        // codice generico "underover" (su questo branch
-                        // esiste solo la soglia 3.5 per le corse a 6, quindi
-                        // non serve un codice specifico) — ma va comunque
-                        // mostrata la soglia, altrimenti il Dettaglio Ticket
-                        // mostra un generico "Under/Over" senza numero.
+                        // codice generico "underover" — ma quando il
+                        // dizionario del backend (sel.game.dict.markets) non
+                        // include già la soglia, va aggiunta a mano (su
+                        // questo branch esiste solo 3.5 per le corse a 6),
+                        // altrimenti il Dettaglio Ticket mostra un generico
+                        // "Under/Over" senza numero. Se il dizionario la
+                        // include già, NON va duplicata.
                         const isUnderOver = /under|over|menos|más|mas/i.test(
                           market.description || '',
                         )
-                        const marketLabel =
+                        const rawMarketLabel =
                           sel.game.dict.markets[market.description] ||
                           market.description
+                        const marketLabel =
+                          isUnderOver && !/\d/.test(rawMarketLabel)
+                            ? `${rawMarketLabel} 3.5`
+                            : rawMarketLabel
 
                         return market.selections.map((s, sIdx) => (
                           <div
@@ -905,7 +911,7 @@ export default function TicketCheckDialog({
                               className="flex-1 text-[12.5px] font-semibold tracking-[0.4px]"
                               style={{ color: '#ccc' }}
                             >
-                              {isUnderOver ? `${marketLabel} 3.5` : marketLabel}
+                              {marketLabel}
                             </span>
                             <span
                               className="flex-1 text-center text-[12.5px] font-semibold tracking-[0.4px]"
@@ -921,14 +927,14 @@ export default function TicketCheckDialog({
                                     outcome === 'menos' ||
                                     outcome === 'u'
                                   )
-                                    return `${t('under_full', 'Under')} 3.5`
+                                    return t('under_full', 'Under')
                                   if (
                                     outcome === 'over' ||
                                     outcome === 'más' ||
                                     outcome === 'mas' ||
                                     outcome === 'o'
                                   )
-                                    return `${t('over_full', 'Over')} 3.5`
+                                    return t('over_full', 'Over')
                                 }
                                 const num = parseInt(s.description)
                                 const name = !isNaN(num) && sel.competitors?.[num - 1]
