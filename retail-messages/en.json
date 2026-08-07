@@ -324,6 +324,7 @@
   "cashier_unavailable": "Cashier unavailable",
   "cashier_unavailable_detail": "Unable to initialize the terminal. Please check the connection and reload.",
   "retrying_cashier": "Retrying cashier...",
+  "keepalive_error": "Connection lost. Reloading the page...",
   "no_last_ticket": "There is no last ticket to restore",
   "duplicate_bet_found": "Duplicate bet found",
   "api_request_failed": "API request failed",

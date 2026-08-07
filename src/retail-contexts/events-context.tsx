@@ -265,9 +265,9 @@ export default function EventsContextProvider(props: {
             const dogChannel =
               channels.find(
                 (c: any) =>
-                  // Match dogs6 / dog6 but NOT dogs8 — use negative lookahead on the digit
                   (typeof c?.game_id === 'string' &&
-                    /^dogs?(?!8)/i.test(c.game_id)) ||
+                    /dog/i.test(c.game_id) &&
+                    !/8/.test(c.game_id)) ||
                   (typeof c?.name === 'string' &&
                     /dog|grey/i.test(c.name) &&
                     !/8/.test(c.name) &&
@@ -496,9 +496,14 @@ export default function EventsContextProvider(props: {
             const dogChannel =
               channels.find(
                 (c: any) =>
-                  // Match dogs6 / dog6 but NOT dogs8 — use negative lookahead on the digit
+                  // Match dogs6 / dog6 but NOT dogs8 — niente lookahead: con
+                  // la "s" opzionale in "dogs?" il motore può fare
+                  // backtracking su "dog" (senza s) e il carattere dopo è
+                  // "s" (non "8"), quindi (?!8) passerebbe comunque anche su
+                  // "dogs8". Controllo esplicito invece.
                   (typeof c?.game_id === 'string' &&
-                    /^dogs?(?!8)/i.test(c.game_id)) ||
+                    /dog/i.test(c.game_id) &&
+                    !/8/.test(c.game_id)) ||
                   (typeof c?.name === 'string' &&
                     /dog|grey/i.test(c.name) &&
                     !/8/.test(c.name) &&

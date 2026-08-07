@@ -246,6 +246,7 @@
   "cashier_unavailable": "Касса недоступна",
   "cashier_unavailable_detail": "Не удалось инициализировать терминал. Проверьте соединение и перезагрузите.",
   "retrying_cashier": "Повторная попытка подключения к кассе...",
+  "keepalive_error": "Соединение потеряно. Идёт перезагрузка страницы...",
   "stake_increment_error": "Сумма должна быть кратна {{increment}}",
   "event_started_single": "Событие началось. Ставка недоступна.",
   "event_started_removed": "Удалена {{count}} ставка: событие началось.",
