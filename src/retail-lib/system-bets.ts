@@ -134,11 +134,20 @@ export function generateSystemGroups(
     return groups
   }
 
+  const fixedEventKeys = new Set<string>()
+  entries.forEach((entry) => {
+    if (entry.fixed) {
+      const eventKey = `${entry.bet.discipline}-${entry.bet.event.number}`
+      fixedEventKeys.add(eventKey)
+    }
+  })
+
   const nonFixedEntries: BetEntry[] = []
   const fixedEntries: BetEntry[] = []
 
   entries.forEach((entry) => {
-    if (entry.fixed) {
+    const eventKey = `${entry.bet.discipline}-${entry.bet.event.number}`
+    if (fixedEventKeys.has(eventKey)) {
       fixedEntries.push(entry)
     } else {
       nonFixedEntries.push(entry)
