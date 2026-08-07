@@ -639,12 +639,12 @@ export default function UpcomingRaceCard({
             className={`max-w-0 cursor-pointer overflow-hidden px-2 py-2 ${!isAnyOrderMode ? 'bg-gray-300' : ''}`}
             onClick={handleMarketTypeToggle}
           >
-            <div className="mx-auto flex w-full max-w-[220px] items-center justify-center gap-2 min-[1440px]:gap-[2.375rem]">
+            <div className="mx-auto flex w-full max-w-[220px] items-center justify-center gap-2 min-[1440px]:gap-[2.375rem] min-[1920px]:grid min-[1920px]:max-w-none min-[1920px]:grid-cols-2 min-[1920px]:gap-0">
               <Toggle
                 pressed={fixedSelection.includes(racer.number)}
                 onPressedChange={() => toggleFixedSelection(racer.number)}
                 onClick={(e) => e.stopPropagation()}
-                className={`h-[49px] min-w-0 max-w-[56px] flex-1 border-betEntry-border pt-[2px] ${fixedSelection.includes(racer.number) ? 'text-white' : ''}`}
+                className={`h-[49px] min-w-0 max-w-[56px] flex-1 border-betEntry-border pt-[2px] min-[1920px]:mx-auto min-[1920px]:w-[56px] min-[1920px]:max-w-[56px] min-[1920px]:flex-none ${fixedSelection.includes(racer.number) ? 'text-white' : ''}`}
               >
                 <span className="text-[17px] min-[1440px]:text-[19px]">F</span>
               </Toggle>
@@ -652,7 +652,7 @@ export default function UpcomingRaceCard({
                 pressed={disorderSelection.includes(racer.number)}
                 onPressedChange={() => toggleDisorderSelection(racer.number)}
                 onClick={(e) => e.stopPropagation()}
-                className="h-[49px] min-w-0 max-w-[117px] flex-1 border-betEntry-border pt-[2px]"
+                className="h-[49px] min-w-0 max-w-[117px] flex-1 border-betEntry-border pt-[2px] min-[1920px]:relative min-[1920px]:left-[-19px] min-[1920px]:mx-auto min-[1920px]:w-[117px] min-[1920px]:max-w-[117px] min-[1920px]:flex-none"
               >
                 {disorderSelection.includes(racer.number) && (
                   <Check
