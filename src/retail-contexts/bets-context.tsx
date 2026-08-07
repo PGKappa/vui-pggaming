@@ -240,11 +240,17 @@ export default function BetsContextProvider(props: {
 
   const addBet = useCallback(
     (market: string, bet: Bet, apiMarket?: string) => {
+      const eventKey = `${bet.discipline}-${bet.event.number}`
+      const eventAlreadyFixed = betsContext.betEntries.some(
+        (e) =>
+          `${e.bet.discipline}-${e.bet.event.number}` === eventKey && e.fixed,
+      )
       const newEntry: BetEntry = {
         id: betsContext.lastId + 1,
         bet,
         market,
         apiMarket: apiMarket || market,
+        ...(eventAlreadyFixed ? { fixed: true } : {}),
       }
       if (!checkSystemLimits([newEntry])) {
         return
@@ -256,7 +262,7 @@ export default function BetsContextProvider(props: {
         lastId: prev.lastId + 1,
       }))
     },
-    [betsContext.lastId, checkSystemLimits],
+    [betsContext.lastId, betsContext.betEntries, checkSystemLimits],
   )
 
   const removeBet = useCallback(
@@ -300,16 +306,24 @@ export default function BetsContextProvider(props: {
   }, [])
 
   const toggleEventBetsFixed = useCallback((eventId: string) => {
-    setBetsContext((prev) => ({
-      ...prev,
-      betEntries: prev.betEntries.map((betEntry) => {
-        const entryKey = `${betEntry.bet.discipline}-${betEntry.bet.event.number}`
-        if (entryKey === eventId) {
-          return { ...betEntry, fixed: !betEntry.fixed }
-        }
-        return betEntry
-      }),
-    }))
+    setBetsContext((prev) => {
+      const wasAnyFixed = prev.betEntries.some(
+        (betEntry) =>
+          `${betEntry.bet.discipline}-${betEntry.bet.event.number}` ===
+            eventId && betEntry.fixed,
+      )
+      const nextFixed = !wasAnyFixed
+      return {
+        ...prev,
+        betEntries: prev.betEntries.map((betEntry) => {
+          const entryKey = `${betEntry.bet.discipline}-${betEntry.bet.event.number}`
+          if (entryKey === eventId) {
+            return { ...betEntry, fixed: nextFixed }
+          }
+          return betEntry
+        }),
+      }
+    })
   }, [])
 
   const removeAllBets = useCallback(() => {
@@ -360,12 +374,21 @@ export default function BetsContextProvider(props: {
         return 0
       }
 
-      const newEntries = filteredBets.map((bet, index) => ({
-        id: betsContext.lastId + index + 1,
-        bet,
-        market,
-        apiMarket: apiMarket || market,
-      }))
+      const newEntries = filteredBets.map((bet, index) => {
+        const eventKey = `${bet.discipline}-${bet.event.number}`
+        const eventAlreadyFixed = betsContext.betEntries.some(
+          (e) =>
+            `${e.bet.discipline}-${e.bet.event.number}` === eventKey &&
+            e.fixed,
+        )
+        return {
+          id: betsContext.lastId + index + 1,
+          bet,
+          market,
+          apiMarket: apiMarket || market,
+          ...(eventAlreadyFixed ? { fixed: true } : {}),
+        }
+      })
 
       if (!checkSystemLimits(newEntries)) {
         return 0
@@ -400,11 +423,19 @@ export default function BetsContextProvider(props: {
           return
         }
 
+        const eventKey = `${bet.bet.discipline}-${bet.bet.event.number}`
+        const eventAlreadyFixed = betsContext.betEntries.some(
+          (e) =>
+            `${e.bet.discipline}-${e.bet.event.number}` === eventKey &&
+            e.fixed,
+        )
+
         newEntries.push({
           id: betsContext.lastId + index + 1,
           bet: bet.bet,
           market: bet.marketName,
           apiMarket: bet.apiMarketName || bet.marketName,
+          ...(eventAlreadyFixed ? { fixed: true } : {}),
         })
       })
 
