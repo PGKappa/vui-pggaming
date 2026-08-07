@@ -16,6 +16,7 @@ import {
   BetEntry,
   Discipline,
   SubmittedTicket,
+  SystemGroup,
   UpcomingEvent,
 } from '@/retail-lib/types'
 import {
@@ -62,6 +63,30 @@ const getEventStatus = (event: any): 'active' | 'expired' => {
   if (event.discipline === 'SOCCER') return 'active'
 
   return now >= eventTime ? 'expired' : 'active'
+}
+
+function computeGroupWinRounded(group: SystemGroup): {
+  minWin: number
+  maxWin: number
+} {
+  if (group.stake <= 0 || group.combinations.length === 0) {
+    return { minWin: 0, maxWin: 0 }
+  }
+  let minWin = Infinity
+  let maxWin = 0
+  for (const combo of group.combinations) {
+    const comboOdds = combo.reduce(
+      (acc, entry) => acc * entry.bet.option.decPrice,
+      1,
+    )
+    const comboWin = Math.round(comboOdds * group.stake * 100) / 100
+    if (comboWin < minWin) minWin = comboWin
+    maxWin += comboWin
+  }
+  return {
+    minWin: minWin === Infinity ? 0 : minWin,
+    maxWin: Math.round(maxWin * 100) / 100,
+  }
 }
 
 export default function BettingSlip({
@@ -476,30 +501,27 @@ export default function BettingSlip({
 
   const totalSystemStake = useMemo(() => {
     return systemGroups
-      .filter((group) => selectedGroups[group.name])
+      .filter((group) => group.stake > 0)
       .reduce((sum, group) => sum + group.stake, 0)
-  }, [systemGroups, selectedGroups])
+  }, [systemGroups])
 
   const actualTotalStake = useMemo(() => {
     return systemGroups
-      .filter((group) => selectedGroups[group.name] && group.stake > 0)
+      .filter((group) => group.stake > 0)
       .reduce((sum, group) => sum + group.stake * group.combinations.length, 0)
-  }, [systemGroups, selectedGroups])
+  }, [systemGroups])
 
   const totalSystemCombinations = useMemo(() => {
     return systemGroups
-      .filter((group) => selectedGroups[group.name])
+      .filter((group) => group.stake > 0)
       .reduce((sum, group) => sum + group.combinations.length, 0)
-  }, [systemGroups, selectedGroups])
+  }, [systemGroups])
 
   const totalSystemPotentialWin = useMemo(() => {
     return systemGroups
-      .filter((group) => selectedGroups[group.name])
-      .reduce((sum, group) => {
-        if (group.stake === 0) return sum
-        return sum + group.maxWin * group.stake
-      }, 0)
-  }, [systemGroups, selectedGroups])
+      .filter((group) => group.stake > 0)
+      .reduce((sum, group) => sum + computeGroupWinRounded(group).maxWin, 0)
+  }, [systemGroups])
 
   const scrollAreaHeight = useMemo(() => {
     const groupHeight = 59
@@ -796,6 +818,35 @@ export default function BettingSlip({
         }
       })
 
+      // Hard, final validation on the exact object about to be sent — recomputed
+      // fresh here (not from possibly-stale UI state) using la stessa `stake > 0`
+      // predicate del payload qui sotto. Il backend non esegue nessuna
+      // validazione propria, quindi questo è l'unico argine tra l'operatore e
+      // un ticket che supera i limiti di eventi (MAX_EVENTS), selezioni
+      // (MAX_SELECTIONS) o combinazioni (MAX_COMBINATIONS) — ciascuno con il
+      // proprio messaggio specifico, per capire subito quale limite è stato
+      // superato.
+      if (betMode === 'SYSTEM' && systemEventsCount > maxEvents) {
+        toast.error(t('max_events_system', { max: maxEvents }))
+        setIsSubmitting(false)
+        return
+      }
+      if (betEntries.length > maxSelections) {
+        toast.error(t('max_selections_error', { max: maxSelections }))
+        setIsSubmitting(false)
+        return
+      }
+      if (betMode === 'SYSTEM') {
+        const finalCombinations = systemGroups
+          .filter((group) => group.stake > 0)
+          .reduce((sum, group) => sum + group.combinations.length, 0)
+        if (finalCombinations > maxCombinations) {
+          toast.error(t('max_combinations_error', { max: maxCombinations }))
+          setIsSubmitting(false)
+          return
+        }
+      }
+
       const ticketType = getTicketType(betEntries)
       const ticketMode = getTicketMode(betMode, betEntries)
       const terminalId =
@@ -1050,24 +1101,17 @@ export default function BettingSlip({
                       name: group.name,
                       size: group.size,
                       stake: group.stake,
-                      minWin: parseFloat(group.minWin.toFixed(2)),
-                      maxWin: parseFloat(group.maxWin.toFixed(2)),
+                      ...computeGroupWinRounded(group),
                       totalCombinations: group.combinations.length,
                       combinations: group.combinations.map((combo) => {
-                        const comboOdds = parseFloat(
-                          combo
-                            .reduce(
-                              (total, entry) =>
-                                total * entry.bet.option.decPrice,
-                              1,
-                            )
-                            .toFixed(2),
+                        const comboOdds = combo.reduce(
+                          (total, entry) => total * entry.bet.option.decPrice,
+                          1,
                         )
                         return {
-                          odds: comboOdds,
-                          potentialWin: parseFloat(
-                            (comboOdds * group.stake).toFixed(2),
-                          ),
+                          odds: parseFloat(comboOdds.toFixed(2)),
+                          potentialWin:
+                            Math.round(comboOdds * group.stake * 100) / 100,
                           entries: combo.map((entry) => ({
                             eventName: entry.bet.event.name || '',
                             competitorName: getPrintCompetitorName(entry),
@@ -1129,7 +1173,7 @@ export default function BettingSlip({
         winning:
           betMode === 'SYSTEM'
             ? systemGroups.reduce(
-                (sum, group) => sum + group.maxWin * group.stake,
+                (sum, group) => sum + computeGroupWinRounded(group).maxWin,
                 0,
               )
             : potentialWinning,
@@ -1586,7 +1630,9 @@ export default function BettingSlip({
                                 </div>
                                 <div className="relative top-[0px] text-[13px] font-normal">
                                   {currencySymbol}{' '}
-                                  {(group.minWin * group.stake).toFixed(2)}
+                                  {computeGroupWinRounded(group).minWin.toFixed(
+                                    2,
+                                  )}
                                 </div>
                               </div>
                               <div className="relative right-[12px] text-center text-[12px] font-semibold">
@@ -1595,7 +1641,9 @@ export default function BettingSlip({
                                 </div>
                                 <div className="relative top-[0px] text-[13px] font-normal">
                                   {currencySymbol}{' '}
-                                  {(group.maxWin * group.stake).toFixed(2)}
+                                  {computeGroupWinRounded(group).maxWin.toFixed(
+                                    2,
+                                  )}
                                 </div>
                               </div>
                               <div className="relative right-[16px] text-center text-[12px] font-semibold">
@@ -1684,7 +1732,9 @@ export default function BettingSlip({
               (betMode !== 'SYSTEM' && global <= 0) ||
               (betMode === 'SYSTEM' && totalSystemStake <= 0) ||
               (betMode === 'SYSTEM' &&
-                totalSystemCombinations > maxCombinations)
+                totalSystemCombinations > maxCombinations) ||
+              (betMode === 'SYSTEM' && systemEventsCount > maxEvents) ||
+              betEntries.length > maxSelections
             }
             className="h-12 w-full text-[18px] font-bold"
           >
