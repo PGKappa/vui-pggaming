@@ -297,6 +297,7 @@
   "cashier_unavailable": "Cassa non disponibile",
   "cashier_unavailable_detail": "Impossibile inizializzare il terminale. Verificare la connessione e ricaricare.",
   "retrying_cashier": "Ritento connessione cassa...",
+  "keepalive_error": "Connessione persa. Ricaricamento della pagina in corso...",
   "stake_increment_error": "L'importo deve essere un multiplo di {{increment}}",
   "event_started_single": "Evento iniziato. Scommessa non disponibile.",
   "event_started_removed": "Rimossa {{count}} selezione: evento iniziato.",
