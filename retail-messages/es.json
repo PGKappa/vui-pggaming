@@ -344,6 +344,7 @@
   "cashier_unavailable": "Cajero no disponible",
   "cashier_unavailable_detail": "No se pudo inicializar el terminal. Compruebe la conexión y recargue.",
   "retrying_cashier": "Reintentando cajero...",
+  "keepalive_error": "Conexión perdida. Recargando la página...",
   "no_last_ticket": "No hay último ticket para restaurar",
   "duplicate_bet_found": "Apuesta duplicada encontrada",
   "api_request_failed": "Error en la solicitud API",
