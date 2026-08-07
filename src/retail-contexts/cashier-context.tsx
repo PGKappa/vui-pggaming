@@ -49,15 +49,8 @@ export type NavbarConfig = {
   showDogs6: boolean
   showDogs8: boolean
   showHorses: boolean
-  /** Show the dogs-horses mix button (true when ≥2 racing disciplines are present) */
   showMix: boolean
   showFootball: boolean
-  /**
-   * Ordine dei pulsanti disciplina (esclude il mix, che resta sempre per
-   * primo), derivato dalla posizione REALE dei canali restituiti dall'API
-   * cashier_init per questo operatore/init_code — non è un ordine fisso,
-   * cambia da operatore a operatore in base a come arrivano i canali.
-   */
   order: Array<'DOGS6' | 'DOGS8' | 'HORSES' | 'FOOTBALL'>
 }
 
