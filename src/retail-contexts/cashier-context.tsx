@@ -3,6 +3,7 @@
 import { User } from '@/retail-lib/types'
 import {
   BASE_API_URL,
+  createPGVirtualAPICall,
   fetchCashierInit,
   setRetailHeaders,
 } from '@/retail-lib/utils'
@@ -97,6 +98,7 @@ export const CashierContext = createContext<CashierContextType>(
 )
 
 const CACHE_DURATION = 30 * 60 * 1000 // 30 minuti
+const KEEPALIVE_INTERVAL = 60 * 1000 // 1 minuto
 
 // Helper function to create context data with all getter functions from raw cashierData
 function createContextDataFromCashierData(
@@ -632,6 +634,36 @@ export default function CashierContextProvider(props: {
 
     fetchUserData()
   }, [initCode, operator, i18n, t])
+
+  // Cron ogni minuto: se /api/keepalive risponde in modo errato, avvisa e ricarica la pagina
+  useEffect(() => {
+    if (!initCode || !operator) return
+
+    const checkKeepAlive = async () => {
+      try {
+        const response = await createPGVirtualAPICall(
+          '/api/keepalive',
+          initCode,
+          undefined,
+          operator,
+        )
+        if (!response.ok) throw new Error(`Keepalive HTTP ${response.status}`)
+        const data = await response.json()
+        if (data?.ret_code !== 1024) {
+          throw new Error(
+            `Keepalive ret_code ${data?.ret_code}: ${data?.description}`,
+          )
+        }
+      } catch (error) {
+        console.error('Keepalive check failed:', error)
+        toast.error(t('keepalive_error'))
+        setTimeout(() => window.location.reload(), 2000)
+      }
+    }
+
+    const intervalId = setInterval(checkKeepAlive, KEEPALIVE_INTERVAL)
+    return () => clearInterval(intervalId)
+  }, [initCode, operator, t])
 
   const apiRequest = useCallback(
     async <T,>(
