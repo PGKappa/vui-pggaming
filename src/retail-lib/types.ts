@@ -329,6 +329,10 @@ export type TicketListItem = {
   }
   terminal_id: string
   status: number
+  // gameId grezzi delle selezioni del ticket: la classificazione in discipline
+  // resta lato frontend (vedi classifyDisciplines in use-ticket-list.ts).
+  // Opzionale per compatibilità con backend non ancora aggiornati.
+  game_ids?: string[]
 }
 
 export type TicketListInfo = {

@@ -26,8 +26,7 @@ const COMPACT_KEY_CLASS = cn(
   'h-[48px] w-[58px] text-[16px]',
 )
 
-const COMPACT_RECEIPT_IMAGE_CLASS =
-  'h-auto w-[200px] object-contain opacity-90'
+const COMPACT_RECEIPT_IMAGE_CLASS = 'h-auto w-[200px] object-contain opacity-90'
 
 interface TicketCheckPageContentProps {
   returnPath?: string

@@ -8,7 +8,13 @@ import {
 } from '@/retail-lib/types'
 import { createPGVirtualAPICall } from '@/retail-lib/utils'
 import { format } from 'date-fns'
-import React, { useCallback, useContext, useEffect, useState } from 'react'
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react'
 
 // Matches a ticket's raw `status` code against the "Stato" filter dropdown value.
 function statusMatchesItem(itemStatus: number, filterStatus: string): boolean {
@@ -28,7 +34,10 @@ function statusMatchesItem(itemStatus: number, filterStatus: string): boolean {
 }
 
 // Matches a ticket's raw `status` code against the "paid"/"unpaid" filter dropdown value.
-function paymentMatchesItem(itemStatus: number, filterPayment: string): boolean {
+function paymentMatchesItem(
+  itemStatus: number,
+  filterPayment: string,
+): boolean {
   switch (filterPayment) {
     case 'paid':
       return itemStatus === 6
@@ -115,6 +124,26 @@ export function getStatusDisplay(status: number): {
   }
 }
 
+type DisciplineMap = Record<number, string>
+
+// Deduce la disciplina di un ticket dai prefissi dei suoi gameId.
+// Unico punto di verità della mappatura prefisso -> disciplina: i valori
+// prodotti qui devono restare allineati a quelli del filtro "Disciplina".
+function classifyDisciplines(gameIds: string[]): string {
+  const hasDogs = gameIds.some((g) => g.startsWith('dogs'))
+  const hasHorses = gameIds.some((g) => g.startsWith('horse'))
+  const hasSoccer = gameIds.some(
+    (g) => g.startsWith('soccer') || g.startsWith('calcio'),
+  )
+
+  const parts: string[] = []
+  if (hasDogs) parts.push('dogs')
+  if (hasHorses) parts.push('horses')
+  if (hasSoccer) parts.push('soccer')
+
+  return parts.length > 0 ? parts.join(',') : 'other'
+}
+
 export function formatCurrency(
   amount: string | number,
   currencySymbol: string,
@@ -140,8 +169,17 @@ export function useTicketList() {
   const [info, setInfo] = useState<TicketListInfo | null>(null)
   const [loading, setLoading] = useState(false)
   const [availableTerminals, setAvailableTerminals] = useState<string[]>([])
-  const [disciplineMap, setDisciplineMap] = useState<Record<number, string>>({})
-  const requestedDisciplineIdsRef = React.useRef<Set<number>>(new Set())
+  // I gameId arrivano già dentro `/api/ticket/list`: la disciplina è un dato
+  // derivato, nessuna chiamata aggiuntiva.
+  const disciplineMap = useMemo(() => {
+    const map: DisciplineMap = {}
+    for (const item of allItems) {
+      if (item.game_ids?.length) {
+        map[item.ticket_id] = classifyDisciplines(item.game_ids)
+      }
+    }
+    return map
+  }, [allItems])
 
   const currencySymbol = rootContext.getCurrencySymbol?.() ?? '€'
 
@@ -171,66 +209,6 @@ export function useTicketList() {
     discipline,
   })
 
-  const fetchDisciplines = useCallback(
-    async (items: TicketListItem[]) => {
-      if (!rootContext.initCode || !rootContext.operator) return
-
-      const BATCH_SIZE = 10
-
-      for (let i = 0; i < items.length; i += BATCH_SIZE) {
-        const batch = items.slice(i, i + BATCH_SIZE)
-        const batchMap: Record<number, string> = {}
-
-        await Promise.all(
-          batch.map(async (item) => {
-            try {
-              const response = await createPGVirtualAPICall(
-                `/api/ticket/${item.ticket_id}`,
-                rootContext.initCode!,
-                undefined,
-                rootContext.operator,
-              )
-              const data = await response.json()
-              if (data.ret_code === 1024 && data.info?.selections?.length > 0) {
-                const gameIds = data.info.selections.map(
-                  (s: any) => s.gameId ?? '',
-                )
-                const hasDogs = gameIds.some((g: string) =>
-                  g.startsWith('dogs'),
-                )
-                const hasHorses = gameIds.some((g: string) =>
-                  g.startsWith('horse'),
-                )
-                const hasSoccer = gameIds.some(
-                  (g: string) =>
-                    g.startsWith('soccer') || g.startsWith('calcio'),
-                )
-
-                if (hasDogs && hasHorses && hasSoccer)
-                  batchMap[item.ticket_id] = 'dogs,horses,soccer'
-                else if (hasDogs && hasHorses)
-                  batchMap[item.ticket_id] = 'dogs,horses'
-                else if (hasDogs && hasSoccer)
-                  batchMap[item.ticket_id] = 'dogs,soccer'
-                else if (hasHorses && hasSoccer)
-                  batchMap[item.ticket_id] = 'horses,soccer'
-                else if (hasDogs) batchMap[item.ticket_id] = 'dogs'
-                else if (hasHorses) batchMap[item.ticket_id] = 'horses'
-                else if (hasSoccer) batchMap[item.ticket_id] = 'soccer'
-                else batchMap[item.ticket_id] = 'other'
-              }
-            } catch {
-              // skip silently
-            }
-          }),
-        )
-
-        setDisciplineMap((prev) => ({ ...prev, ...batchMap }))
-      }
-    },
-    [rootContext.initCode, rootContext.operator],
-  )
-
   const fetchTickets = useCallback(async () => {
     if (!rootContext.initCode || !rootContext.operator) return
 
@@ -253,8 +231,6 @@ export function useTicketList() {
     })
     setCurrentPage(1)
     setLoading(true)
-    setDisciplineMap({})
-    requestedDisciplineIdsRef.current.clear()
 
     try {
       const body = {
@@ -302,6 +278,16 @@ export function useTicketList() {
             [...new Set(rawItems.map((i) => i.status))].sort(),
           )
         }
+        // Senza game_ids la colonna disciplina resta vuota e il relativo filtro
+        // non seleziona nulla: segnalalo, è il sintomo di un backend non aggiornato.
+        const missingGameIds = rawItems.filter(
+          (i) => !i.game_ids?.length,
+        ).length
+        if (missingGameIds > 0) {
+          console.warn(
+            `[TicketList] ${missingGameIds}/${rawItems.length} ticket senza game_ids: disciplina non determinabile`,
+          )
+        }
         setAllItems(rawItems)
         setInfo(data.info ?? null)
         if (rawItems.length) {
@@ -336,44 +322,45 @@ export function useTicketList() {
     }
   }, [fetchTickets])
 
-  const filteredItems = allItems.filter((i) => {
-    const terminalMatch =
-      appliedFilters.terminal === 'all' ||
-      String(i.terminal_id) === appliedFilters.terminal
-    const disciplineMatch = (() => {
-      if (appliedFilters.discipline === 'all') return true
-      const d = disciplineMap[i.ticket_id]
-      if (d === undefined) return true
-      if (appliedFilters.discipline === 'real')
-        return d.includes('dogs') && d.includes('horses')
-      return d.includes(appliedFilters.discipline)
-    })()
-    // "paid"/"unpaid" and "Stato" are mutually exclusive in the UI
-    // (see handleStatusChange in ticket-list-page-content.tsx).
-    const statusMatch =
-      appliedFilters.payment !== 'all'
-        ? paymentMatchesItem(i.status, appliedFilters.payment)
-        : statusMatchesItem(i.status, appliedFilters.status)
-    return terminalMatch && disciplineMatch && statusMatch
-  })
+  const filteredItems = useMemo(
+    () =>
+      allItems.filter((i) => {
+        const terminalMatch =
+          appliedFilters.terminal === 'all' ||
+          String(i.terminal_id) === appliedFilters.terminal
+        const disciplineMatch = (() => {
+          if (appliedFilters.discipline === 'all') return true
+          const d = disciplineMap[i.ticket_id]
+          if (d === undefined) return true
+          if (appliedFilters.discipline === 'real')
+            return d.includes('dogs') && d.includes('horses')
+          return d.includes(appliedFilters.discipline)
+        })()
+        // "paid"/"unpaid" and "Stato" are mutually exclusive in the UI
+        // (see handleStatusChange in ticket-list-page-content.tsx).
+        const statusMatch =
+          appliedFilters.payment !== 'all'
+            ? paymentMatchesItem(i.status, appliedFilters.payment)
+            : statusMatchesItem(i.status, appliedFilters.status)
+        return terminalMatch && disciplineMatch && statusMatch
+      }),
+    [
+      allItems,
+      appliedFilters.terminal,
+      appliedFilters.discipline,
+      appliedFilters.payment,
+      appliedFilters.status,
+      disciplineMap,
+    ],
+  )
 
   const perPage = parseInt(pageSize)
   const totalPages = Math.max(1, Math.ceil(filteredItems.length / perPage))
-  const items = filteredItems.slice(
-    (currentPage - 1) * perPage,
-    currentPage * perPage,
+  const items = useMemo(
+    () =>
+      filteredItems.slice((currentPage - 1) * perPage, currentPage * perPage),
+    [filteredItems, currentPage, perPage],
   )
-
-  useEffect(() => {
-    const needsFullSet = appliedFilters.discipline !== 'all'
-    const targetItems = needsFullSet ? allItems : items
-    const toFetch = targetItems.filter(
-      (i) => !requestedDisciplineIdsRef.current.has(i.ticket_id),
-    )
-    if (toFetch.length === 0) return
-    toFetch.forEach((i) => requestedDisciplineIdsRef.current.add(i.ticket_id))
-    fetchDisciplines(toFetch)
-  }, [allItems, items, appliedFilters.discipline, fetchDisciplines])
 
   const setPageSizeAndReset = useCallback((v: string) => {
     setPageSize(v)
