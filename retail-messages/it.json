@@ -318,6 +318,7 @@
   "no_tickets_found": "Nessun biglietto trovato",
   "ticket": "Ticket",
   "ticket_not_found": "Ticket non trovato",
+  "invalid_ticket_format": "Formato ticket non corretto",
   "amount_by_type": "Importo per Tipologia",
   "pay": "Paga",
   "pay_error": "Errore nel pagamento",

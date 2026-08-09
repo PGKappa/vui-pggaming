@@ -346,6 +346,7 @@
   "no_tickets_found": "No tickets found",
   "ticket": "Ticket",
   "ticket_not_found": "Ticket not found",
+  "invalid_ticket_format": "Invalid ticket format",
   "amount_by_type": "Amount by Type",
   "pay": "Pay",
   "pay_error": "Payment error",

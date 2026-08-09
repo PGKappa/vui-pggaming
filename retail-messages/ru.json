@@ -266,6 +266,7 @@
   "no_tickets_found": "Билеты не найдены",
   "ticket": "Билет",
   "ticket_not_found": "Билет не найден",
+  "invalid_ticket_format": "Неверный формат билета",
   "amount_by_type": "Сумма по типу",
   "pay": "Оплатить",
   "pay_error": "Ошибка оплаты",

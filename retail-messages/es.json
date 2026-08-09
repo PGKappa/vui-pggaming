@@ -366,6 +366,7 @@
   "no_tickets_found": "No se encontraron tickets",
   "ticket": "Ticket",
   "ticket_not_found": "Ticket no encontrado",
+  "invalid_ticket_format": "Formato de ticket no válido",
   "amount_by_type": "Importe por Tipo",
   "pay": "Pagar",
   "collected": "Cobrado",

@@ -7,6 +7,7 @@ import { Input } from '@/retail-components/ui/input'
 import TicketCheckDialog from '@/retail-components/ticket-check-dialog'
 import { cn } from '@/retail-lib/utils'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 
 const LETTER_LAYOUT = [
   ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'],
@@ -30,6 +31,20 @@ const COMPACT_RECEIPT_IMAGE_CLASS =
 
 interface TicketCheckPageContentProps {
   returnPath?: string
+}
+
+/**
+ * Estrae l'id numerico del ticket leggendo le cifre da destra fino al primo
+ * carattere non numerico: 'PG20930' -> 20930, '10:PG1064' -> 1064, '1100' -> 1100.
+ * Restituisce null se non c'è una parte numerica finale valida.
+ */
+export function extractTicketId(code: string): number | null {
+  const match = code.trim().match(/(\d+)$/)
+  if (!match) {
+    return null
+  }
+  const id = parseInt(match[1], 10)
+  return Number.isNaN(id) || id <= 0 ? null : id
 }
 
 export default function TicketCheckPageContent(
@@ -58,11 +73,13 @@ export default function TicketCheckPageContent(
   }
 
   const handleSubmit = () => {
-    const id = parseInt(code, 10)
-    if (!isNaN(id) && id > 0) {
-      setTicketId(id)
-      setDialogOpen(true)
+    const id = extractTicketId(code)
+    if (id === null) {
+      toast.error(t('invalid_ticket_format', 'Formato ticket non corretto'))
+      return
     }
+    setTicketId(id)
+    setDialogOpen(true)
   }
 
   const stadiumStyle = {
