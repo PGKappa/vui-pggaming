@@ -1,6 +1,7 @@
 'use client'
 import Image from 'next/image'
-import { useState } from 'react'
+import { useSearchParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { Button } from '@/retail-components/ui/button'
 import { Input } from '@/retail-components/ui/input'
 import TicketCheckDialog from '@/retail-components/ticket-check-dialog'
@@ -35,9 +36,18 @@ export default function TicketCheckPageContent(
   _props: TicketCheckPageContentProps,
 ) {
   const { t } = useTranslation()
-  const [code, setCode] = useState('')
+  const searchParams = useSearchParams()
+  // Precompila il campo con il ticket passato in query string (?ticket=PG1100)
+  const ticketParam = (searchParams.get('ticket') ?? '').trim().toUpperCase()
+  const [code, setCode] = useState(ticketParam)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [ticketId, setTicketId] = useState<number | null>(null)
+
+  useEffect(() => {
+    if (ticketParam) {
+      setCode(ticketParam)
+    }
+  }, [ticketParam])
 
   const handleClick = (val: string) => {
     if (val === '⌫') {
