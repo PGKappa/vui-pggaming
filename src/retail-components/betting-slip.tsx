@@ -73,14 +73,25 @@ function computeGroupWinRounded(group: SystemGroup): {
   if (group.stake <= 0 || group.combinations.length === 0) {
     return { minWin: 0, maxWin: 0 }
   }
-  let minWin = Infinity
-  let maxWin = 0
-  for (const combo of group.combinations) {
+
+  const comboWinRounded = (combo: SystemGroup['combinations'][number]) => {
     const comboOdds = combo.reduce(
       (acc, entry) => acc * entry.bet.option.decPrice,
       1,
     )
-    const comboWin = Math.round(comboOdds * group.stake * 100) / 100
+    return Math.round(comboOdds * group.stake * 100) / 100
+  }
+  if (group.minWinOverride !== undefined) {
+    const maxCombos = group.maxWinAssignedCombinations ?? group.combinations
+    const maxWin = maxCombos.reduce((acc, combo) => acc + comboWinRounded(combo), 0)
+    const minWin = Math.round(group.minWinOverride * group.stake * 100) / 100
+    return { minWin, maxWin: Math.round(maxWin * 100) / 100 }
+  }
+
+  let minWin = Infinity
+  let maxWin = 0
+  for (const combo of group.combinations) {
+    const comboWin = comboWinRounded(combo)
     if (comboWin < minWin) minWin = comboWin
     maxWin += comboWin
   }
