@@ -18,7 +18,6 @@ import {
   SubmittedTicket,
   SystemGroup,
   UpcomingEvent,
-  UpcomingRace,
 } from '@/retail-lib/types'
 import {
   cn,
@@ -119,6 +118,7 @@ export default function BettingSlip({
     setSystemToggleMode,
     removeAllBets,
     restoreLastSubmittedTicket,
+    raceFieldSizes,
   } = useContext(BetsContext)
 
   const rootContext = useContext(RootContext)
@@ -168,33 +168,14 @@ export default function BettingSlip({
   const currentLanguage = rootContext?.userData?.lang || 'en'
   const layoutConfig = getLayoutConfig(currentLanguage)
 
-  // Numero totale di partecipanti per evento (non solo quelli selezionati):
-  // serve a generateSystemGroups per capire se il campo è coperto per
-  // intero (vedi computeSameEventOddsRange) — senza questo dato il calcolo
-  // della vincita minima resta prudenzialmente sulla singola quota più
-  // bassa, che potrebbe sottostimare la vincita garantita.
-  const fieldSizeByEvent = useMemo(() => {
-    const map: Record<string, number> = {}
-    betEntries.forEach((entry) => {
-      const eventKey = `${entry.bet.discipline}-${entry.bet.event.number}`
-      if (map[eventKey] !== undefined) return
-      const liveEvent = rootContext?.upcomingEvents?.find(
-        (e) => e.id === entry.bet.event.number && e.discipline === entry.bet.discipline,
-      )
-      const racers = (liveEvent?.data as UpcomingRace | undefined)?.racers
-      if (racers && racers.length > 0) map[eventKey] = racers.length
-    })
-    return map
-  }, [betEntries, rootContext?.upcomingEvents])
-
   const baseSystemGroups = useMemo(() => {
     if (betMode !== 'SYSTEM') return []
     return generateSystemGroups(betEntries, {
       maxSelections,
       maxEvents,
-      fieldSizeByEvent,
+      fieldSizeByEvent: raceFieldSizes,
     })
-  }, [betMode, betEntries, maxSelections, maxEvents, fieldSizeByEvent])
+  }, [betMode, betEntries, maxSelections, maxEvents, raceFieldSizes])
 
   const systemEventsCount = useMemo(() => {
     if (betMode !== 'SYSTEM') return 0
