@@ -224,7 +224,7 @@ export type SystemGroup = {
   stake: number
   minWin: number
   maxWin: number
-  minWinOverride?: number
+  minWinAssignedCombinations?: BetEntry[][]
   maxWinAssignedCombinations?: BetEntry[][]
 }
 

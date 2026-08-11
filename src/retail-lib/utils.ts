@@ -24,17 +24,13 @@ export function normalizeMarketName(market: string): string {
 
   if (m.includes('winn') || m.includes('vinc') || m.includes('ganador'))
     return 'winner'
-  if (
-    m.includes('show') ||
-    m.includes('podi') ||
-    (m.includes('colocado') && m.includes('3'))
-  )
-    return 'show'
-  if (m.includes('place') || m.includes('piazz') || m.includes('colocado'))
-    return 'placed'
   if (m.includes('exacta') || m.includes('accoppiata in ordine'))
     return 'exacta'
-  if (m.includes('quinella') || m.includes('accoppiata a girare'))
+  if (
+    m.includes('quinella') ||
+    m.includes('accoppiata a girare') ||
+    (m.includes('accoppiata') && m.includes('piazz'))
+  )
     return 'quinella'
   if (
     (m.includes('trifecta') || m.includes('trio in ordine')) &&
@@ -45,6 +41,14 @@ export function normalizeMarketName(market: string): string {
     return 'trifecta'
   if (m.includes('box') || m.includes('a girare') || m.includes('combinada'))
     return 'boxed_trifecta'
+  if (
+    m.includes('show') ||
+    m.includes('podi') ||
+    (m.includes('colocado') && m.includes('3'))
+  )
+    return 'show'
+  if (m.includes('place') || m.includes('piazz') || m.includes('colocado'))
+    return 'placed'
   if (
     m.includes('even') ||
     m.includes('odd') ||
