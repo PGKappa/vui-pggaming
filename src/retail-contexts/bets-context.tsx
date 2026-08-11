@@ -52,6 +52,14 @@ export type BetsContextType = {
   addBetsWithMarket: (
     bets: { marketName: string; bet: Bet; apiMarketName?: string }[],
   ) => void
+  // Numero totale di partecipanti per evento (chiave "disciplina-numero"),
+  // riportato da UpcomingRaceCard quando carica i dati della corsa — serve
+  // a generateSystemGroups per sapere se un sistema su più selezioni dello
+  // stesso evento ha coperto il campo per intero (vedi
+  // computeSameEventOddsRange). Non fa parte dello stato persistito: è un
+  // dato di sessione legato alla corsa attualmente aperta.
+  raceFieldSizes: Record<string, number>
+  setRaceFieldSize: (eventKey: string, size: number) => void
 }
 
 const defaultBetsContext: BetsContextType = {
@@ -71,6 +79,8 @@ const defaultBetsContext: BetsContextType = {
   addBets: () => 0,
   removeBets: () => {},
   addBetsWithMarket: () => {},
+  raceFieldSizes: {},
+  setRaceFieldSize: () => {},
 }
 
 export const BetsContext = createContext<BetsContextType>(defaultBetsContext)
@@ -140,6 +150,14 @@ export default function BetsContextProvider(props: {
   const [systemToggleMode, setSystemToggleMode] = useState<
     'MULTIPLE' | 'SYSTEM'
   >('MULTIPLE')
+  const [raceFieldSizes, setRaceFieldSizes] = useState<Record<string, number>>(
+    {},
+  )
+  const setRaceFieldSize = useCallback((eventKey: string, size: number) => {
+    setRaceFieldSizes((prev) =>
+      prev[eventKey] === size ? prev : { ...prev, [eventKey]: size },
+    )
+  }, [])
 
   // Determina se il toggle Multiple/System è abilitato
   const isSystemToggleEnabled = useMemo(() => {
@@ -494,6 +512,8 @@ export default function BetsContextProvider(props: {
       isSystemToggleEnabled,
       systemToggleMode,
       setSystemToggleMode,
+      raceFieldSizes,
+      setRaceFieldSize,
     }),
     [
       betsContext,
@@ -501,6 +521,8 @@ export default function BetsContextProvider(props: {
       isSystemToggleEnabled,
       systemToggleMode,
       setSystemToggleMode,
+      raceFieldSizes,
+      setRaceFieldSize,
     ],
   )
 

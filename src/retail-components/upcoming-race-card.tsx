@@ -61,7 +61,7 @@ export default function UpcomingRaceCard({
   const [isLoading, setIsLoading] = useState(!moduleHasLoadedOnce)
   const [isLatecomersDialogOpen, setIsLatecomersDialogOpen] = useState(false)
 
-  const { betEntries } = useContext(BetsContext)
+  const { betEntries, setRaceFieldSize } = useContext(BetsContext)
   const rootContext = useContext(RootContext)
 
   const [marketType, setMarketType] = useState<
@@ -229,6 +229,18 @@ export default function UpcomingRaceCard({
         setRaceInfo(upcomingRace)
         lastRaceInfo = upcomingRace
         moduleHasLoadedOnce = true
+        // Numero totale di partecipanti alla corsa: serve al Betting Slip
+        // per sapere se un sistema su più selezioni di questo evento ha
+        // coperto il campo per intero (vedi computeSameEventOddsRange) —
+        // senza questo dato la vincita minima resta prudenzialmente sulla
+        // singola quota più bassa anche quando sono stati giocati tutti i
+        // corridori.
+        if (upcomingRace.racers?.length > 0) {
+          setRaceFieldSize(
+            `${race.discipline}-${race.id}`,
+            upcomingRace.racers.length,
+          )
+        }
       } catch (error) {
         console.error('Error fetching event info:', error)
       } finally {
