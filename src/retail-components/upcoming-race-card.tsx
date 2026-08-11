@@ -63,7 +63,7 @@ export default function UpcomingRaceCard({
   const [isNarrowViewport, setIsNarrowViewport] = useState(false)
   const [showHistoryInCompact, setShowHistoryInCompact] = useState(false)
 
-  const { betEntries } = useContext(BetsContext)
+  const { betEntries, setRaceFieldSize } = useContext(BetsContext)
   const rootContext = useContext(RootContext)
 
   const [marketType, setMarketType] = useState<
@@ -280,6 +280,12 @@ export default function UpcomingRaceCard({
         setRaceInfo(upcomingRace)
         lastRaceInfo = upcomingRace
         moduleHasLoadedOnce = true
+        if (upcomingRace.racers?.length > 0) {
+          setRaceFieldSize(
+            `${race.discipline}-${race.id}`,
+            upcomingRace.racers.length,
+          )
+        }
       } catch (error) {
         console.error('Error fetching event info:', error)
       } finally {
@@ -287,7 +293,7 @@ export default function UpcomingRaceCard({
       }
     }
     fetchEventInfo()
-  }, [race.id, race.extId, rootContext.initCode, rootContext.operator])
+  }, [race.id, race.extId, rootContext.initCode, rootContext.operator, setRaceFieldSize, race.discipline])
 
   useEffect(() => {
     if (onSelectionChange) {
