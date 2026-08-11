@@ -1,5 +1,53 @@
 import { BetEntry, SystemGroup } from '@/retail-lib/types'
+import { normalizeMarketName } from '@/retail-lib/utils'
 import { t } from 'i18next'
+
+export function getMarketSlotCount(normalizedMarket: string): number {
+  switch (normalizedMarket) {
+    case 'winner':
+      return 1
+    case 'placed':
+      return 2
+    case 'show':
+      return 3
+    default:
+      return 1
+  }
+}
+
+export function computeSameEventOddsRange<T extends { odds: number; market: string }>(
+  entries: T[],
+): { minOdds: number; maxOddsSum: number; maxAssigned: T[] } {
+  if (entries.length === 0) return { minOdds: 0, maxOddsSum: 0, maxAssigned: [] }
+
+  const withSlots = entries.map((e) => ({
+    entry: e,
+    slots: getMarketSlotCount(normalizeMarketName(e.market)),
+  }))
+
+  const minOdds = Math.min(...entries.map((e) => e.odds))
+  const podiumSize = Math.max(...withSlots.map((e) => e.slots))
+  const slotUsed = new Array(podiumSize + 1).fill(false) // 1-indexed
+
+  const maxAssigned: T[] = []
+  const sortedDesc = [...withSlots].sort((a, b) => b.entry.odds - a.entry.odds)
+  for (const { entry, slots } of sortedDesc) {
+    const reach = Math.min(slots, podiumSize)
+    for (let slot = reach; slot >= 1; slot--) {
+      if (!slotUsed[slot]) {
+        slotUsed[slot] = true
+        maxAssigned.push(entry)
+        break
+      }
+    }
+  }
+
+  return {
+    minOdds,
+    maxOddsSum: maxAssigned.reduce((sum, e) => sum + e.odds, 0),
+    maxAssigned,
+  }
+}
 
 export function getCombinations(
   entries: BetEntry[],
@@ -163,6 +211,27 @@ export function generateSystemGroups(
       nonFixedEntries.push(entry)
     }
   })
+
+  if (eventsNumber === 1 && entries.length > 1) {
+    const withOdds = entries.map((e) => ({
+      odds: e.bet.option.decPrice,
+      market: e.market,
+      entry: e,
+    }))
+    const { minOdds, maxAssigned } = computeSameEventOddsRange(withOdds)
+
+    groups.push({
+      name: t('single'),
+      size: 1,
+      combinations: entries.map((e) => [e]),
+      stake: 0,
+      minWin: minOdds,
+      maxWin: 0,
+      minWinOverride: minOdds,
+      maxWinAssignedCombinations: maxAssigned.map((a) => [a.entry]),
+    })
+    return groups
+  }
 
   const avgOptionsPerEvent = entries.length / Math.max(eventsNumber, 1)
 
