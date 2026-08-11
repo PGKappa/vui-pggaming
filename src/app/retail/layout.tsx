@@ -116,7 +116,7 @@ function SkinBody({ children }: { children: React.ReactNode }) {
 
   return (
     <body
-      className={`${inter.variable} ${skin} flex h-screen flex-col overflow-hidden font-inter antialiased`}
+      className={`${inter.variable} ${skin} flex h-full flex-col overflow-hidden font-inter antialiased`}
     >
       {/* Splash screen statico inline - appare ISTANTANEAMENTE */}
       <div id="static-splash">

@@ -30,7 +30,7 @@ function AppContent({ children }: { children: React.ReactNode }) {
   const [skin] = useContext(SkinContext)
   return (
     <body
-      className={`${geistSans.variable} ${geistMono.variable} ${skin} flex h-screen flex-col antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${skin} flex h-full flex-col overflow-hidden antialiased`}
     >
       <header className="container">
         <Navbar />
