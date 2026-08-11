@@ -159,6 +159,68 @@ function comboOddsProductsForSize(
   return result
 }
 
+type EventOddsGroup = {
+  entries: { odds: number; market: string }[]
+  fieldSize?: number
+}
+
+// Un evento per gruppo (fisso o variabile), con TUTTE le sue selezioni
+// (odds + nome mercato) e, se disponibile, il numero totale di partecipanti
+// alla gara — serve a computeSameEventOddsRange per capire se il campo è
+// coperto per intero (vedi lo stesso ragionamento in system-bets.ts).
+function getEventOddsGroups(info: TicketDetailInfo): {
+  fixedGroups: EventOddsGroup[]
+  nonFixedGroups: EventOddsGroup[]
+} {
+  const fixedGroups: EventOddsGroup[] = []
+  const nonFixedGroups: EventOddsGroup[] = []
+  for (const sel of info.selections) {
+    const isBanker = String(sel.isBanker) === 'true'
+    const entries: { odds: number; market: string }[] = []
+    for (const market of sel.markets) {
+      for (const s of market.selections) {
+        const o = parseFloat(s.odds)
+        if (o > 0) entries.push({ odds: o, market: market.description })
+      }
+    }
+    if (entries.length === 0) entries.push({ odds: 1, market: '' })
+    const group: EventOddsGroup = { entries, fieldSize: sel.competitors?.length }
+    if (isBanker) fixedGroups.push(group)
+    else nonFixedGroups.push(group)
+  }
+  return { fixedGroups, nonFixedGroups }
+}
+
+// Quote realmente raggiungibili nel caso migliore/peggiore per un singolo
+// evento — se l'evento ha una sola selezione non c'è nulla da capire, è
+// sempre quella.
+function eventOddsRange(
+  group: EventOddsGroup,
+): { minAssigned: number[]; maxAssigned: number[] } {
+  if (group.entries.length === 1) {
+    return { minAssigned: [group.entries[0].odds], maxAssigned: [group.entries[0].odds] }
+  }
+  const { minAssigned, maxAssigned } = computeSameEventOddsRange(
+    group.entries,
+    group.fieldSize,
+  )
+  return {
+    minAssigned: minAssigned.map((e) => e.odds),
+    maxAssigned: maxAssigned.map((e) => e.odds),
+  }
+}
+
+// Somma, con arrotondamento per singola combinazione (mai sull'aggregato),
+// il prodotto incrociato delle quote assegnate di ciascun evento — usato
+// sia per la massima (assegnazione migliore) sia per la minima
+// (assegnazione peggiore) di una taglia o di una multipla pura.
+function sumRoundedCrossProduct(oddsLists: number[][], stake: number): number {
+  return crossProduct(oddsLists).reduce(
+    (sum, product) => sum + Math.round(product * stake * 100) / 100,
+    0,
+  )
+}
+
 function getEventSlots(info: TicketDetailInfo): {
   fixedSlots: number[][]
   nonFixedSlots: number[][]
@@ -270,7 +332,10 @@ function computeMinMaxWin(info: TicketDetailInfo): {
         : amount
     const stakePerSelection =
       Math.round((totalStake / oddsEntries.length) * 100) / 100
-    const { minOdds, maxAssigned } = computeSameEventOddsRange(oddsEntries)
+    const { minOdds, maxAssigned } = computeSameEventOddsRange(
+      oddsEntries,
+      sel.competitors?.length,
+    )
     const maxWin = maxAssigned.reduce(
       (sum, e) =>
         sum + Math.round(e.odds * stakePerSelection * 100) / 100,
@@ -282,31 +347,75 @@ function computeMinMaxWin(info: TicketDetailInfo): {
     }
   }
 
-  const { fixedSlots, nonFixedSlots } = getEventSlots(info)
-  const n = fixedSlots.length + nonFixedSlots.length
+  const { fixedGroups, nonFixedGroups } = getEventOddsGroups(info)
+  const n = fixedGroups.length + nonFixedGroups.length
   if (n === 0) return { minWin: 0, maxWin: 0 }
+
   if (systemKeys.length === 0) {
-    const prod = [...fixedSlots, ...nonFixedSlots]
-      .flat()
-      .reduce((a, b) => a * b, 1)
-    return { minWin: prod * amount, maxWin: prod * amount }
+    const allGroups = [...fixedGroups, ...nonFixedGroups]
+    const maxLists = allGroups.map((g) => eventOddsRange(g).maxAssigned)
+    const minLists = allGroups.map((g) => eventOddsRange(g).minAssigned)
+    return {
+      minWin: Math.round(sumRoundedCrossProduct(minLists, amount) * 100) / 100,
+      maxWin: Math.round(sumRoundedCrossProduct(maxLists, amount) * 100) / 100,
+    }
   }
+
+  const { fixedSlots, nonFixedSlots } = getEventSlots(info)
 
   let minWin = Infinity
   let maxWin = 0
   for (const k of systemKeys) {
     const kNum = parseInt(k)
     if (isNaN(kNum) || kNum < 1 || kNum > n) continue
-    const combos = comboOddsProductsForSize(fixedSlots, nonFixedSlots, kNum)
-    if (combos.length === 0) continue
+    // Il numero di combinazioni grezze (per dividere la puntata della
+    // taglia in parti uguali) resta quello "classico": non cambia col fix,
+    // cambia solo QUALI di quelle combinazioni possono vincere insieme.
+    const rawCombosCount = comboOddsProductsForSize(
+      fixedSlots,
+      nonFixedSlots,
+      kNum,
+    ).length
+    if (rawCombosCount === 0) continue
     const tierTotalStake = parseFloat(info.system[k]) || 0
     const stakePerCombo =
-      Math.round((tierTotalStake / combos.length) * 100) / 100
-    const roundedComboWins = combos.map(
-      (comboOdds) => Math.round(comboOdds * stakePerCombo * 100) / 100,
-    )
-    minWin = Math.min(minWin, ...roundedComboWins)
-    maxWin += roundedComboWins.reduce((a, b) => a + b, 0)
+      Math.round((tierTotalStake / rawCombosCount) * 100) / 100
+
+    const needed = kNum - fixedGroups.length
+    if (needed < 0 || needed > nonFixedGroups.length) continue
+
+    const fixedMaxLists = fixedGroups.map((g) => eventOddsRange(g).maxAssigned)
+    const fixedMinLists = fixedGroups.map((g) => eventOddsRange(g).minAssigned)
+
+    let tierMaxWin = 0
+    let tierMinWin = Infinity
+    const chosen: number[] = []
+    const enumerate = (start: number, depth: number) => {
+      if (depth === needed) {
+        const maxLists = [
+          ...fixedMaxLists,
+          ...chosen.map((i) => eventOddsRange(nonFixedGroups[i]).maxAssigned),
+        ]
+        tierMaxWin += sumRoundedCrossProduct(maxLists, stakePerCombo)
+
+        const minLists = [
+          ...fixedMinLists,
+          ...chosen.map((i) => eventOddsRange(nonFixedGroups[i]).minAssigned),
+        ]
+        const groupMinWin = sumRoundedCrossProduct(minLists, stakePerCombo)
+        tierMinWin = Math.min(tierMinWin, groupMinWin)
+        return
+      }
+      for (let i = start; i < nonFixedGroups.length; i++) {
+        chosen.push(i)
+        enumerate(i + 1, depth + 1)
+        chosen.pop()
+      }
+    }
+    enumerate(0, 0)
+
+    minWin = Math.min(minWin, tierMinWin === Infinity ? 0 : tierMinWin)
+    maxWin += tierMaxWin
   }
   return {
     minWin: minWin === Infinity ? 0 : Math.round(minWin * 100) / 100,
