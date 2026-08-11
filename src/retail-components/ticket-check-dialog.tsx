@@ -20,6 +20,7 @@ import {
   TicketPayResponse,
 } from '@/retail-lib/types'
 import { createPGVirtualAPICall } from '@/retail-lib/utils'
+import { computeSameEventOddsRange } from '@/retail-lib/system-bets'
 import { format } from 'date-fns'
 import { useTranslation } from 'react-i18next'
 import { useCallback, useContext, useEffect, useState } from 'react'
@@ -245,6 +246,42 @@ function computeMinMaxWin(info: TicketDetailInfo): {
 } {
   const amount = parseFloat(String(info.amount)) || 0
   const systemKeys = Object.keys(info.system)
+  const distinctEvents = new Set(info.selections.map((sel) => sel.eventId))
+
+  if (distinctEvents.size === 1 && info.selections.length > 0) {
+    const sel = info.selections[0]
+    const oddsEntries = sel.markets.flatMap((market) =>
+      market.selections
+        .map((s) => ({ odds: parseFloat(s.odds), market: market.description }))
+        .filter((e) => e.odds > 0),
+    )
+    if (oddsEntries.length === 0) return { minWin: 0, maxWin: 0 }
+    if (oddsEntries.length === 1) {
+      const win = Math.round(oddsEntries[0].odds * amount * 100) / 100
+      return { minWin: win, maxWin: win }
+    }
+
+    const totalStake =
+      systemKeys.length > 0
+        ? Object.values(info.system).reduce(
+            (sum, v) => sum + (parseFloat(v) || 0),
+            0,
+          )
+        : amount
+    const stakePerSelection =
+      Math.round((totalStake / oddsEntries.length) * 100) / 100
+    const { minOdds, maxAssigned } = computeSameEventOddsRange(oddsEntries)
+    const maxWin = maxAssigned.reduce(
+      (sum, e) =>
+        sum + Math.round(e.odds * stakePerSelection * 100) / 100,
+      0,
+    )
+    return {
+      minWin: Math.round(minOdds * stakePerSelection * 100) / 100,
+      maxWin: Math.round(maxWin * 100) / 100,
+    }
+  }
+
   const { fixedSlots, nonFixedSlots } = getEventSlots(info)
   const n = fixedSlots.length + nonFixedSlots.length
   if (n === 0) return { minWin: 0, maxWin: 0 }
