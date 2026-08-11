@@ -18,6 +18,7 @@ import {
   SubmittedTicket,
   SystemGroup,
   UpcomingEvent,
+  UpcomingRace,
 } from '@/retail-lib/types'
 import {
   cn,
@@ -81,22 +82,25 @@ function computeGroupWinRounded(group: SystemGroup): {
     )
     return Math.round(comboOdds * group.stake * 100) / 100
   }
-  if (group.minWinOverride !== undefined) {
-    const maxCombos = group.maxWinAssignedCombinations ?? group.combinations
-    const maxWin = maxCombos.reduce((acc, combo) => acc + comboWinRounded(combo), 0)
-    const minWin = Math.round(group.minWinOverride * group.stake * 100) / 100
-    return { minWin, maxWin: Math.round(maxWin * 100) / 100 }
+  const maxCombos = group.maxWinAssignedCombinations ?? group.combinations
+  const maxWin = maxCombos.reduce((acc, combo) => acc + comboWinRounded(combo), 0)
+
+  let minWin: number
+  if (group.minWinAssignedCombinations !== undefined) {
+    minWin = group.minWinAssignedCombinations.reduce(
+      (acc, combo) => acc + comboWinRounded(combo),
+      0,
+    )
+  } else {
+    minWin = group.combinations.reduce((min, combo) => {
+      const comboWin = comboWinRounded(combo)
+      return comboWin < min ? comboWin : min
+    }, Infinity)
+    if (minWin === Infinity) minWin = 0
   }
 
-  let minWin = Infinity
-  let maxWin = 0
-  for (const combo of group.combinations) {
-    const comboWin = comboWinRounded(combo)
-    if (comboWin < minWin) minWin = comboWin
-    maxWin += comboWin
-  }
   return {
-    minWin: minWin === Infinity ? 0 : minWin,
+    minWin: Math.round(minWin * 100) / 100,
     maxWin: Math.round(maxWin * 100) / 100,
   }
 }
@@ -164,10 +168,33 @@ export default function BettingSlip({
   const currentLanguage = rootContext?.userData?.lang || 'en'
   const layoutConfig = getLayoutConfig(currentLanguage)
 
+  // Numero totale di partecipanti per evento (non solo quelli selezionati):
+  // serve a generateSystemGroups per capire se il campo è coperto per
+  // intero (vedi computeSameEventOddsRange) — senza questo dato il calcolo
+  // della vincita minima resta prudenzialmente sulla singola quota più
+  // bassa, che potrebbe sottostimare la vincita garantita.
+  const fieldSizeByEvent = useMemo(() => {
+    const map: Record<string, number> = {}
+    betEntries.forEach((entry) => {
+      const eventKey = `${entry.bet.discipline}-${entry.bet.event.number}`
+      if (map[eventKey] !== undefined) return
+      const liveEvent = rootContext?.upcomingEvents?.find(
+        (e) => e.id === entry.bet.event.number && e.discipline === entry.bet.discipline,
+      )
+      const racers = (liveEvent?.data as UpcomingRace | undefined)?.racers
+      if (racers && racers.length > 0) map[eventKey] = racers.length
+    })
+    return map
+  }, [betEntries, rootContext?.upcomingEvents])
+
   const baseSystemGroups = useMemo(() => {
     if (betMode !== 'SYSTEM') return []
-    return generateSystemGroups(betEntries, { maxSelections, maxEvents })
-  }, [betMode, betEntries, maxSelections, maxEvents])
+    return generateSystemGroups(betEntries, {
+      maxSelections,
+      maxEvents,
+      fieldSizeByEvent,
+    })
+  }, [betMode, betEntries, maxSelections, maxEvents, fieldSizeByEvent])
 
   const systemEventsCount = useMemo(() => {
     if (betMode !== 'SYSTEM') return 0
