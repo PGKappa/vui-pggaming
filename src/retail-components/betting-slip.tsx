@@ -141,10 +141,11 @@ export default function BettingSlip({
   const [accordionOpen, setAccordionOpen] = useState<string>('combinations')
   const [systemGroupsOpen, setSystemGroupsOpen] = useState<string[]>([])
 
-  const totalOdds = betEntries.reduce(
+  const rawTotalOdds = betEntries.reduce(
     (total, betEntry) => total * betEntry.bet.option.decPrice,
     1,
   )
+  const totalOdds = Math.round(rawTotalOdds * 100) / 100
 
   const [global, setGlobal] = useState(0)
   const globalRef = useRef(global)
@@ -889,7 +890,12 @@ export default function BettingSlip({
                     ]),
                 ),
               }
-            : { system: { [betEntries.length.toString()]: global } }),
+            : {
+                system: {
+                  [betEntries.length.toString()]:
+                    Math.round(global * 100) / 100,
+                },
+              }),
           selections,
         },
       }
@@ -1151,7 +1157,11 @@ export default function BettingSlip({
                 betMode,
                 bets: betsInfo,
                 ...(betMode === 'SINGLE' || betMode === 'MULTIPLE'
-                  ? { totalOdds, stake: global, potentialWin: potentialWinning }
+                  ? {
+                      totalOdds,
+                      stake: Math.round(global * 100) / 100,
+                      potentialWin: Math.round(potentialWinning * 100) / 100,
+                    }
                   : {}),
                 ...(systemGroupsInfo && { systemGroups: systemGroupsInfo }),
               },
@@ -1184,16 +1194,18 @@ export default function BettingSlip({
       const newTicket: SubmittedTicket = {
         date: new Date(),
         amount:
-          betMode === 'SYSTEM'
-            ? systemGroups.reduce((sum, group) => sum + group.stake, 0)
-            : global,
+          Math.round(
+            (betMode === 'SYSTEM'
+              ? systemGroups.reduce((sum, group) => sum + group.stake, 0)
+              : global) * 100,
+          ) / 100,
         winning:
           betMode === 'SYSTEM'
             ? systemGroups.reduce(
                 (sum, group) => sum + computeGroupWinRounded(group).maxWin,
                 0,
               )
-            : potentialWinning,
+            : Math.round(potentialWinning * 100) / 100,
         betEntries,
       }
 
