@@ -72,19 +72,34 @@ function computeGroupWinRounded(group: SystemGroup): {
   if (group.stake <= 0 || group.combinations.length === 0) {
     return { minWin: 0, maxWin: 0 }
   }
-  let minWin = Infinity
-  let maxWin = 0
-  for (const combo of group.combinations) {
+
+  const comboWinRounded = (combo: SystemGroup['combinations'][number]) => {
     const comboOdds = combo.reduce(
       (acc, entry) => acc * entry.bet.option.decPrice,
       1,
     )
-    const comboWin = Math.round(comboOdds * group.stake * 100) / 100
-    if (comboWin < minWin) minWin = comboWin
-    maxWin += comboWin
+    return Math.round(comboOdds * group.stake * 100) / 100
   }
+
+  const maxCombos = group.maxWinAssignedCombinations ?? group.combinations
+  const maxWin = maxCombos.reduce((acc, combo) => acc + comboWinRounded(combo), 0)
+
+  let minWin: number
+  if (group.minWinAssignedCombinations !== undefined) {
+    minWin = group.minWinAssignedCombinations.reduce(
+      (acc, combo) => acc + comboWinRounded(combo),
+      0,
+    )
+  } else {
+    minWin = group.combinations.reduce((min, combo) => {
+      const comboWin = comboWinRounded(combo)
+      return comboWin < min ? comboWin : min
+    }, Infinity)
+    if (minWin === Infinity) minWin = 0
+  }
+
   return {
-    minWin: minWin === Infinity ? 0 : minWin,
+    minWin: Math.round(minWin * 100) / 100,
     maxWin: Math.round(maxWin * 100) / 100,
   }
 }
@@ -103,6 +118,7 @@ export default function BettingSlip({
     setSystemToggleMode,
     removeAllBets,
     restoreLastSubmittedTicket,
+    raceFieldSizes,
   } = useContext(BetsContext)
 
   const rootContext = useContext(RootContext)
@@ -150,8 +166,9 @@ export default function BettingSlip({
     return generateSystemGroups(betEntries, {
       maxSelections,
       maxEvents,
+      fieldSizeByEvent: raceFieldSizes,
     })
-  }, [betMode, betEntries, maxSelections, maxEvents])
+  }, [betMode, betEntries, maxSelections, maxEvents, raceFieldSizes])
 
   const systemEventsCount = useMemo(() => {
     if (betMode !== 'SYSTEM') return 0

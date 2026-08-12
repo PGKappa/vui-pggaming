@@ -1,5 +1,78 @@
 import { BetEntry, SystemGroup } from '@/retail-lib/types'
+import { normalizeMarketName } from '@/retail-lib/utils'
 import { t } from 'i18next'
+
+export function getMarketSlotCount(normalizedMarket: string): number {
+  switch (normalizedMarket) {
+    case 'winner':
+      return 1
+    case 'placed':
+      return 2
+    case 'show':
+      return 3
+    default:
+      return 1
+  }
+}
+
+function assignToRealSlots<T extends { odds: number }>(
+  withSlots: { entry: T; slots: number }[],
+  podiumSize: number,
+  order: 'asc' | 'desc',
+  limit?: number,
+): T[] {
+  const slotUsed = new Array(podiumSize + 1).fill(false) // 1-indexed
+  const assigned: T[] = []
+  const sorted = [...withSlots].sort((a, b) =>
+    order === 'desc' ? b.entry.odds - a.entry.odds : a.entry.odds - b.entry.odds,
+  )
+  for (const { entry, slots } of sorted) {
+    if (limit !== undefined && assigned.length >= limit) break
+    const reach = Math.min(slots, podiumSize)
+    for (let slot = reach; slot >= 1; slot--) {
+      if (!slotUsed[slot]) {
+        slotUsed[slot] = true
+        assigned.push(entry)
+        break
+      }
+    }
+  }
+  return assigned
+}
+
+export function computeSameEventOddsRange<T extends { odds: number; market: string }>(
+  entries: T[],
+  fieldSize?: number,
+): { minOdds: number; maxOddsSum: number; maxAssigned: T[]; minAssigned: T[] } {
+  if (entries.length === 0)
+    return { minOdds: 0, maxOddsSum: 0, maxAssigned: [], minAssigned: [] }
+
+  const withSlots = entries.map((e) => ({
+    entry: e,
+    slots: getMarketSlotCount(normalizeMarketName(e.market)),
+  }))
+
+  const podiumSize = Math.max(...withSlots.map((e) => e.slots))
+
+  const maxAssigned = assignToRealSlots(withSlots, podiumSize, 'desc')
+
+  const uncovered =
+    fieldSize !== undefined
+      ? Math.max(0, fieldSize - entries.length)
+      : podiumSize
+  const forcedWinCount = Math.max(
+    1,
+    Math.min(entries.length, podiumSize - uncovered),
+  )
+  const minAssigned = assignToRealSlots(withSlots, podiumSize, 'asc', forcedWinCount)
+
+  return {
+    minOdds: minAssigned.reduce((sum, e) => sum + e.odds, 0),
+    maxOddsSum: maxAssigned.reduce((sum, e) => sum + e.odds, 0),
+    maxAssigned,
+    minAssigned,
+  }
+}
 
 export function getCombinations(
   entries: BetEntry[],
@@ -105,9 +178,85 @@ export function getCombinations(
   return result
 }
 
+const eventKeyOf = (e: BetEntry) => `${e.bet.discipline}-${e.bet.event.number}`
+
+function crossProductEntries(groups: BetEntry[][][]): BetEntry[][] {
+  let result: BetEntry[][] = [[]]
+  for (const group of groups) {
+    const next: BetEntry[][] = []
+    for (const combo of result) {
+      for (const alt of group) next.push([...combo, ...alt])
+    }
+    result = next
+  }
+  return result
+}
+
+function computeTierAssignedCombos(
+  combos: BetEntry[][],
+  allEntries: BetEntry[],
+  fieldSizeByEvent?: Record<string, number>,
+): { maxCombos: BetEntry[][]; minCombos: BetEntry[][] } {
+  const groups = new Map<string, BetEntry[][]>()
+  for (const combo of combos) {
+    const signature = [...new Set(combo.map(eventKeyOf))].sort().join('|')
+    if (!groups.has(signature)) groups.set(signature, [])
+    groups.get(signature)!.push(combo)
+  }
+
+  const maxCombos: BetEntry[][] = []
+  let bestMinCombos: BetEntry[][] = []
+  let bestMinValue = Infinity
+
+  for (const eventKeys of groups.keys()) {
+    const perEventMax: BetEntry[][][] = []
+    const perEventMin: BetEntry[][][] = []
+    for (const eventKey of eventKeys.split('|')) {
+      const candidateEntries = allEntries.filter(
+        (e) => eventKeyOf(e) === eventKey,
+      )
+      if (candidateEntries.length <= 1) {
+        perEventMax.push([candidateEntries])
+        perEventMin.push([candidateEntries])
+        continue
+      }
+      const withOdds = candidateEntries.map((e) => ({
+        odds: e.bet.option.decPrice,
+        market: e.market,
+        entry: e,
+      }))
+      const { minAssigned, maxAssigned } = computeSameEventOddsRange(
+        withOdds,
+        fieldSizeByEvent?.[eventKey],
+      )
+      perEventMax.push(maxAssigned.map((a) => [a.entry]))
+      perEventMin.push(minAssigned.map((a) => [a.entry]))
+    }
+
+    maxCombos.push(...crossProductEntries(perEventMax))
+
+    const minCrossed = crossProductEntries(perEventMin)
+    const minValue = minCrossed.reduce(
+      (sum, combo) =>
+        sum + combo.reduce((acc, e) => acc * e.bet.option.decPrice, 1),
+      0,
+    )
+    if (minValue < bestMinValue) {
+      bestMinValue = minValue
+      bestMinCombos = minCrossed
+    }
+  }
+
+  return { maxCombos, minCombos: bestMinCombos }
+}
+
 export function generateSystemGroups(
   entries: BetEntry[],
-  limits?: { maxSelections?: number; maxEvents?: number },
+  limits?: {
+    maxSelections?: number
+    maxEvents?: number
+    fieldSizeByEvent?: Record<string, number>
+  },
 ): SystemGroup[] {
   const groups: SystemGroup[] = []
   const maxSelections = limits?.maxSelections ?? 100
@@ -154,6 +303,31 @@ export function generateSystemGroups(
     }
   })
 
+  if (eventsNumber === 1 && entries.length > 1) {
+    const withOdds = entries.map((e) => ({
+      odds: e.bet.option.decPrice,
+      market: e.market,
+      entry: e,
+    }))
+    const soleEventKey = eventKeyOf(entries[0])
+    const { minAssigned, maxAssigned } = computeSameEventOddsRange(
+      withOdds,
+      limits?.fieldSizeByEvent?.[soleEventKey],
+    )
+
+    groups.push({
+      name: t('single'),
+      size: 1,
+      combinations: entries.map((e) => [e]),
+      stake: 0,
+      minWin: 0,
+      maxWin: 0,
+      minWinAssignedCombinations: minAssigned.map((a) => [a.entry]),
+      maxWinAssignedCombinations: maxAssigned.map((a) => [a.entry]),
+    })
+    return groups
+  }
+
   // Average options per event, used to estimate combination count before computing
   const avgOptionsPerEvent = entries.length / Math.max(eventsNumber, 1)
 
@@ -167,17 +341,10 @@ export function generateSystemGroups(
 
     const combos = getCombinations(nonFixedEntries, size, fixedEntries)
     if (combos.length === 0) continue
-    const minWin = combos.reduce((min, combo) => {
-      const win = combo.reduce(
-        (acc, entry) => acc * entry.bet.option.decPrice,
-        1,
-      )
-      return win < min ? win : min
-    }, Infinity)
-    const maxWin = combos.reduce(
-      (acc, combo) =>
-        acc + combo.reduce((acc, entry) => acc * entry.bet.option.decPrice, 1),
-      0,
+    const { minCombos, maxCombos } = computeTierAssignedCombos(
+      combos,
+      entries,
+      limits?.fieldSizeByEvent,
     )
 
     let name = ''
@@ -202,8 +369,10 @@ export function generateSystemGroups(
       size,
       combinations: combos,
       stake: 0,
-      minWin,
-      maxWin,
+      minWin: 0,
+      maxWin: 0,
+      minWinAssignedCombinations: minCombos,
+      maxWinAssignedCombinations: maxCombos,
     })
   }
 

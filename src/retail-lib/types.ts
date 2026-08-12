@@ -225,6 +225,9 @@ export type SystemGroup = {
   stake: number
   minWin: number
   maxWin: number
+
+  minWinAssignedCombinations?: BetEntry[][]
+  maxWinAssignedCombinations?: BetEntry[][]
 }
 
 export type Ticket = {
