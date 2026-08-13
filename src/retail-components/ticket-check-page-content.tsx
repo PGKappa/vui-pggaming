@@ -1,7 +1,7 @@
 'use client'
 import Image from 'next/image'
 import { useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Button } from '@/retail-components/ui/button'
 import { Input } from '@/retail-components/ui/input'
 import TicketCheckDialog from '@/retail-components/ticket-check-dialog'
@@ -35,6 +35,9 @@ interface TicketCheckPageContentProps {
 /**
  * Estrae l'id numerico del ticket leggendo le cifre da destra fino al primo
  * carattere non numerico: 'PG20930' -> 20930, '10:PG1064' -> 1064, '1100' -> 1100.
+ * Il QR sulla ricevuta contiene 'A9494:PG1100': il separatore a volte viene
+ * letto male dalla pistola, ma qualunque simbolo produca resta un carattere
+ * non numerico e quindi non influenza le cifre finali.
  * Restituisce null se non c'è una parte numerica finale valida.
  */
 export function extractTicketId(code: string): number | null {
@@ -57,29 +60,124 @@ export default function TicketCheckPageContent(
   const [dialogOpen, setDialogOpen] = useState(false)
   const [ticketId, setTicketId] = useState<number | null>(null)
 
+  // Copia sincrona di `code`: la pistola spara i caratteri molto più in fretta
+  // di quanto React riesca a fare flush dello stato, quindi la sequenza viene
+  // accumulata sul ref e lo stato serve solo per il render.
+  const codeRef = useRef(code)
+  // Dopo ogni conferma il codice va considerato consumato: il carattere
+  // successivo (nuova scansione o nuova digitazione) riparte da zero.
+  const resetOnNextInputRef = useRef(false)
+
+  useEffect(() => {
+    codeRef.current = code
+  }, [code])
+
+  const updateCode = useCallback((next: string) => {
+    codeRef.current = next
+    setCode(next)
+  }, [])
+
   useEffect(() => {
     if (ticketParam) {
-      setCode(ticketParam)
+      updateCode(ticketParam)
     }
-  }, [ticketParam])
+  }, [ticketParam, updateCode])
 
   const handleClick = (val: string) => {
+    if (resetOnNextInputRef.current) {
+      resetOnNextInputRef.current = false
+      updateCode(val === '⌫' ? '' : val)
+      return
+    }
     if (val === '⌫') {
-      setCode((prev) => prev.slice(0, -1))
+      updateCode(codeRef.current.slice(0, -1))
     } else {
-      setCode((prev) => prev + val)
+      updateCode(codeRef.current + val)
     }
   }
 
-  const handleSubmit = () => {
-    const id = extractTicketId(code)
-    if (id === null) {
-      toast.error(t('invalid_ticket_format', 'Formato ticket non corretto'))
+  const submitCode = useCallback(
+    (raw: string) => {
+      resetOnNextInputRef.current = true
+      const id = extractTicketId(raw)
+      if (id === null) {
+        toast.error(t('invalid_ticket_format', 'Formato ticket non corretto'))
+        return
+      }
+      setTicketId(id)
+      setDialogOpen(true)
+    },
+    [t],
+  )
+
+  const handleSubmit = () => submitCode(codeRef.current)
+
+  // La pistola barcode/QR si comporta come una tastiera HID: senza questo
+  // listener i caratteri si perdono, perché il campo è readOnly e il focus
+  // resta sull'ultimo bottone premuto (che l'Invio finale riattiverebbe).
+  useEffect(() => {
+    if (dialogOpen) {
       return
     }
-    setTicketId(id)
-    setDialogOpen(true)
-  }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Scorciatoie da tastiera: da ignorare. AltGr però su Windows arriva
+      // come Ctrl+Alt e serve a produrre simboli (es. i due punti del QR
+      // quando il layout della pistola non combacia con quello di sistema),
+      // quindi quella combinazione va lasciata passare.
+      const isAltGr = event.ctrlKey && event.altKey
+      if (event.metaKey || (!isAltGr && (event.ctrlKey || event.altKey))) {
+        return
+      }
+
+      // Non rubare i tasti a un campo realmente editabile.
+      const target = event.target as HTMLElement | null
+      if (target) {
+        const isEditable =
+          target.isContentEditable ||
+          ((target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') &&
+            !(target as HTMLInputElement).readOnly &&
+            !(target as HTMLInputElement).disabled)
+        if (isEditable) {
+          return
+        }
+      }
+
+      // Suffisso di fine lettura della pistola (Invio o Tab).
+      if (event.key === 'Enter' || event.key === 'Tab') {
+        const current = codeRef.current.trim()
+        if (!current) {
+          return
+        }
+        event.preventDefault()
+        submitCode(current)
+        return
+      }
+
+      if (event.key === 'Backspace') {
+        event.preventDefault()
+        resetOnNextInputRef.current = false
+        updateCode(codeRef.current.slice(0, -1))
+        return
+      }
+
+      // Solo caratteri stampabili (esclusi gli spazi): i codici ticket e gli
+      // eventuali URL contenuti nei QR non ne contengono.
+      if (event.key.length !== 1 || event.key.trim() === '') {
+        return
+      }
+
+      event.preventDefault()
+      const next = resetOnNextInputRef.current
+        ? event.key
+        : codeRef.current + event.key
+      resetOnNextInputRef.current = false
+      updateCode(next)
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [dialogOpen, submitCode, updateCode])
 
   const stadiumStyle = {
     backgroundImage: "url('/bg-stadium.png')",
