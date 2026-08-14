@@ -453,19 +453,19 @@ export default function UpcomingRaceCard({
           {activeTab === 'main' && (
             <>
               <TableHead className="w-[17%] min-w-0 overflow-hidden text-center font-bold min-[1440px]:w-[16%]">
-                <span className="inline-block h-full w-full align-middle leading-[54px]">
+                <span className="inline-block h-full w-full align-middle text-[11px] leading-[54px] min-[1400px]:text-[12px] min-[1450px]:text-[13px] min-[1500px]:text-[14px] min-[1550px]:text-[15px] min-[1600px]:text-[16px]">
                   {t('winner').toUpperCase()}
                 </span>
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
               <TableHead className="w-[17%] min-w-0 overflow-hidden text-center font-semibold min-[1440px]:w-[16%]">
-                <span className="flex h-full w-full items-center justify-center whitespace-normal px-0.5 text-center text-[11px] leading-tight min-[1400px]:px-0 min-[1400px]:text-[16px] min-[1400px]:leading-normal">
+                <span className="flex h-full w-full items-center justify-center whitespace-normal px-0.5 text-center text-[11px] leading-tight min-[1400px]:px-0 min-[1400px]:text-[12px] min-[1450px]:text-[13px] min-[1500px]:text-[14px] min-[1550px]:text-[15px] min-[1600px]:text-[16px] min-[1600px]:leading-normal">
                   {t('place_2').toUpperCase()}
                 </span>
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
               <TableHead className="w-[16%] min-w-0 overflow-hidden text-center font-semibold min-[1440px]:w-[18%]">
-                <span className="flex h-full w-full items-center justify-center whitespace-normal px-0.5 text-center text-[11px] leading-tight min-[1400px]:px-0 min-[1400px]:text-[16px] min-[1400px]:leading-normal">
+                <span className="flex h-full w-full items-center justify-center whitespace-normal px-0.5 text-center text-[11px] leading-tight min-[1400px]:px-0 min-[1400px]:text-[12px] min-[1450px]:text-[13px] min-[1500px]:text-[14px] min-[1550px]:text-[15px] min-[1600px]:text-[16px] min-[1600px]:leading-normal">
                   {t('show_3').toUpperCase()}
                 </span>
               </TableHead>
