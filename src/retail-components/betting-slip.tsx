@@ -53,16 +53,6 @@ import { ScrollAreaB } from './ui/betting-slip-scroll-area'
 
 export type BetMode = 'SINGLE' | 'MULTIPLE' | 'SYSTEM'
 
-const isInsufficientBalanceError = (message: string): boolean => {
-  return (
-    message.includes('insufficient') ||
-    message.includes('not enough') ||
-    message.includes('balance') ||
-    message.includes('credit limit') ||
-    message.includes('funds')
-  )
-}
-
 const getEventStatus = (event: any): 'active' | 'expired' => {
   if (!event) return 'active'
   if (!event.startingAt) return 'active'
@@ -937,8 +927,6 @@ export default function BettingSlip({
             errorMsg.includes('event closed')
           ) {
             toast.warning(t('backend_event_started'))
-          } else if (isInsufficientBalanceError(errorMsg)) {
-            toast.error(t('insufficient_balance'))
           } else if (errorJson.ret_msg) {
             toast.error(errorJson.ret_msg)
           } else if (errorJson.message) {
@@ -954,8 +942,6 @@ export default function BettingSlip({
             lowerError.includes('event closed')
           ) {
             toast.warning(t('backend_event_started'))
-          } else if (isInsufficientBalanceError(lowerError)) {
-            toast.error(t('insufficient_balance'))
           } else {
             toast.error(`${t('http_error')}: ${response.status} - ${errorText}`)
           }
@@ -1198,8 +1184,6 @@ export default function BettingSlip({
           desc.includes('event closed')
         ) {
           toast.warning(t('backend_event_started'))
-        } else if (isInsufficientBalanceError(desc)) {
-          toast.error(t('insufficient_balance'))
         } else {
           toast.error(result.description || t('bet_submission_error'))
         }
