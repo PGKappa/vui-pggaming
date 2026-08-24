@@ -310,6 +310,7 @@
   "no_duplicates_added": "No bets added - selections already present in the Bet Slip",
   "ok": "OK",
   "login_required": "Login to place bets",
+  "insufficient_balance": "Insufficient balance",
   "min_stake_error": "Minimum stake is {{min}}",
   "min_bet_error": "Minimum ticket amount is {{min}}",
   "max_win_error": "Maximum potential win is {{max}}",

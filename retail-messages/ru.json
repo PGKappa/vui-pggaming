@@ -263,6 +263,8 @@
   "combinations_limit_exceeded": "Лимит комбинаций превышен",
   "failed_fetch_results": "Ошибка получения результатов",
   "http_error": "Ошибка",
+  "login_required": "Войдите, чтобы делать ставки",
+  "insufficient_balance": "Недостаточно средств",
   "min_stake_error": "Минимальная ставка {{min}}",
   "min_bet_error": "Минимальная сумма билета {{min}}",
   "max_win_error": "Максимальный выигрыш {{max}}",
