@@ -25,7 +25,6 @@ import { format } from 'date-fns'
 import { useTranslation } from 'react-i18next'
 import { useCallback, useContext, useEffect, useState } from 'react'
 import { RootContext } from '@/retail-contexts/root-context'
-import HlsVideoPlayer from './hls-video-player'
 
 function getDetailStatus(status: number): {
   translationKey: string
@@ -1252,14 +1251,13 @@ export default function TicketCheckDialog({
                           {replayVideos[replayIndex]?.loading ? (
                             <div className="h-8 w-8 animate-spin rounded-full border-4 border-accent border-t-transparent" />
                           ) : replayVideos[replayIndex]?.url ? (
-                            <HlsVideoPlayer
+                            <video
                               key={replayVideos[replayIndex].url!}
                               src={replayVideos[replayIndex].url!}
                               controls
                               autoPlay
                               playsInline
                               className="h-full w-full object-contain"
-                              onError={(e) => console.error('Video error:', e)}
                             />
                           ) : (
                             <span
