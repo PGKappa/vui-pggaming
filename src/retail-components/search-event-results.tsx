@@ -4,8 +4,8 @@ import { getRacerColors, createPGVirtualAPICall } from '@/retail-lib/utils'
 import { format } from 'date-fns'
 import { t } from 'i18next'
 import Image from 'next/image'
-import dynamic from 'next/dynamic'
 import { X } from 'lucide-react'
+import HlsVideoPlayer from './hls-video-player'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -26,8 +26,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select'
-
-const ReactPlayer = dynamic(() => import('react-player'), { ssr: false })
 
 function formatDateForAPI(date: Date) {
   const day = String(date.getDate()).padStart(2, '0')
@@ -1039,15 +1037,14 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
               <X className="h-5 w-5" />
             </button>
             <div className="flex h-[660px] w-full items-center justify-center bg-black">
-              <ReactPlayer
+              <HlsVideoPlayer
                 key={replayUrl}
-                url={replayUrl}
-                playing
+                src={replayUrl}
+                autoPlay
                 controls
                 muted
-                width="100%"
-                height="100%"
-                config={{ file: { attributes: { playsInline: true } } }}
+                playsInline
+                className="h-full w-full object-contain"
                 onEnded={() => setShowReplay(false)}
                 onError={(e) => console.error('Video error:', e)}
               />
