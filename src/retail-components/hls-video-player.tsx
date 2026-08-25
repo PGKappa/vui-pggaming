@@ -35,9 +35,23 @@ export default function HlsVideoPlayer({
 
     const handleNativeError = () => {
       const err = video.error
-      const message = `video error: code=${err?.code ?? 'unknown'} ${err?.message ?? ''}`.trim()
+      const message =
+        `video error: code=${err?.code ?? 'unknown'} ${err?.message ?? ''} src=${src}`.trim()
       setDebugMessage(message)
       onError?.(err)
+
+      fetch(src, { method: 'GET' })
+        .then((res) => {
+          setDebugMessage(
+            (prev) =>
+              `${prev} | fetch status=${res.status} content-type=${res.headers.get('content-type')}`,
+          )
+        })
+        .catch((fetchErr) => {
+          setDebugMessage(
+            (prev) => `${prev} | fetch failed: ${String(fetchErr)}`,
+          )
+        })
     }
     video.addEventListener('error', handleNativeError)
 
