@@ -727,7 +727,7 @@ export default function UpcomingRaceCard({
   //
   // Colonne (activeTab === 'main'):
   //   0 PARTENTI  1 sep  2 PERFORMANCE  3 sep(hidden<1440)
-  //   4 STORICO(hidden)  5 sep ← DA ALLINEARE
+  //   4 STORICO(hidden<1440)  5 sep(hidden<1440)
   //   6 VINCENTE  7 sep  8 PIAZZATO  9 sep  10 PODIO
   //
   // PARI/DISPARI → colSpan 3 (col 6+7+8)
@@ -741,8 +741,8 @@ export default function UpcomingRaceCard({
 
   return (
     <>
-      {/* ≥1400px (1920×1080): layout originale */}
-      <TableBody className="max-[1399px]:hidden">
+      {/* ≥1440px: layout originale (allineato con la colonna STORICO, visibile solo da 1440px) */}
+      <TableBody className="max-[1439px]:hidden">
         <TableRow className="border-0 hover:bg-transparent">
           <TableCell colSpan={11} className="h-2 p-0" />
         </TableRow>
@@ -830,8 +830,8 @@ export default function UpcomingRaceCard({
         </TableRow>
       </TableBody>
 
-      {/* <1400px: split 50/50 */}
-      <TableBody className="min-[1400px]:hidden">
+      {/* <1440px: split 50/50 */}
+      <TableBody className="min-[1440px]:hidden">
         <TableRow className="border-0 hover:bg-transparent">
           <TableCell colSpan={99} className="h-2 p-0" />
         </TableRow>
