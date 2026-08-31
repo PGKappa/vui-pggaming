@@ -564,7 +564,7 @@ export default function UpcomingRaceCard({
             className={`max-w-0 cursor-pointer overflow-hidden px-2 py-2 ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
             onClick={handleMarketTypeToggle}
           >
-            <div className="flex w-full items-center justify-center gap-[10px] px-0 min-[1360px]:gap-[8px] min-[1360px]:px-[1px] min-[1440px]:gap-[11px] min-[1440px]:px-[3px] min-[1600px]:gap-[21px] min-[1600px]:px-[13px] min-[1760px]:gap-[32px] min-[1760px]:px-[24px] min-[1920px]:gap-[42px] min-[1920px]:px-[34px]">
+            <div className="flex w-full items-center justify-center space-x-[10px] px-0 min-[1360px]:space-x-[8px] min-[1360px]:px-[1px] min-[1440px]:space-x-[11px] min-[1440px]:px-[3px] min-[1600px]:space-x-[21px] min-[1600px]:px-[13px] min-[1760px]:space-x-[32px] min-[1760px]:px-[24px] min-[1920px]:space-x-[42px] min-[1920px]:px-[34px]">
               <Toggle
                 pressed={position1Selection.includes(racer.number)}
                 onPressedChange={() => togglePosition1Selection(racer.number)}
@@ -590,7 +590,7 @@ export default function UpcomingRaceCard({
             className={`max-w-0 cursor-pointer overflow-hidden px-2 py-2 ${!isAnyOrderMode ? 'bg-gray-300' : ''}`}
             onClick={handleMarketTypeToggle}
           >
-            <div className="mx-auto flex w-full max-w-[220px] items-center justify-center gap-2 min-[1440px]:gap-[2.375rem] min-[1920px]:grid min-[1920px]:max-w-none min-[1920px]:grid-cols-2 min-[1920px]:gap-0">
+            <div className="mx-auto flex w-full max-w-[220px] items-center justify-center space-x-2 min-[1440px]:space-x-[2.375rem] min-[1920px]:grid min-[1920px]:max-w-none min-[1920px]:grid-cols-2 min-[1920px]:space-x-0">
               <Toggle
                 pressed={fixedSelection.includes(racer.number)}
                 onPressedChange={() => toggleFixedSelection(racer.number)}
@@ -624,7 +624,7 @@ export default function UpcomingRaceCard({
             className={`max-w-0 cursor-pointer overflow-hidden px-2 py-2 ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
             onClick={handleMarketTypeToggle}
           >
-            <div className="mx-auto flex w-full items-center justify-center gap-2 min-[1920px]:max-w-[400px] min-[1920px]:gap-[1.375rem]">
+            <div className="mx-auto flex w-full items-center justify-center space-x-2 min-[1920px]:max-w-[400px] min-[1920px]:space-x-[1.375rem]">
               <Toggle
                 pressed={position1Selection.includes(racer.number)}
                 onPressedChange={() => togglePosition1Selection(racer.number)}
@@ -658,7 +658,7 @@ export default function UpcomingRaceCard({
             className={`max-w-0 cursor-pointer overflow-hidden px-2 py-2 ${!isAnyOrderMode ? 'bg-gray-300' : ''}`}
             onClick={handleMarketTypeToggle}
           >
-            <div className="mx-auto flex w-full items-center justify-center gap-2 min-[1920px]:max-w-[210px] min-[1920px]:gap-[1.375rem]">
+            <div className="mx-auto flex w-full items-center justify-center space-x-2 min-[1920px]:max-w-[210px] min-[1920px]:space-x-[1.375rem]">
               <Toggle
                 pressed={fixedSelection.includes(racer.number)}
                 onPressedChange={() => toggleFixedSelection(racer.number)}
