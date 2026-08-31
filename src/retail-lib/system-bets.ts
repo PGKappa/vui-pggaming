@@ -1,5 +1,5 @@
 import { BetEntry, SystemGroup } from '@/retail-lib/types'
-import { normalizeMarketName } from '@/retail-lib/utils'
+import { normalizeMarketName, normalizeUnderOverValue } from '@/retail-lib/utils'
 import { t } from 'i18next'
 
 export function getMarketSlotCount(normalizedMarket: string): number {
@@ -40,12 +40,162 @@ function assignToRealSlots<T extends { odds: number }>(
   return assigned
 }
 
-export function computeSameEventOddsRange<T extends { odds: number; market: string }>(
+function isFinishOrderMarket(normalizedMarket: string): boolean {
+  return (
+    normalizedMarket === 'winner' ||
+    normalizedMarket === 'placed' ||
+    normalizedMarket === 'show' ||
+    normalizedMarket === 'even_odd' ||
+    normalizedMarket.startsWith('underover') ||
+    normalizedMarket.startsWith('home_underover') ||
+    normalizedMarket.startsWith('away_underover')
+  )
+}
+
+function evaluatesAsWin(
+  normalizedMarket: string,
+  rawMarket: string,
+  outcome: string,
+  finishOrder: number[],
+): boolean {
+  const winnerNumber = finishOrder[0]
+
+  if (normalizedMarket === 'winner') {
+    return parseInt(outcome, 10) === winnerNumber
+  }
+  if (normalizedMarket === 'placed') {
+    const n = parseInt(outcome, 10)
+    return !isNaN(n) && finishOrder.slice(0, 2).includes(n)
+  }
+  if (normalizedMarket === 'show') {
+    const n = parseInt(outcome, 10)
+    return !isNaN(n) && finishOrder.slice(0, 3).includes(n)
+  }
+  if (normalizedMarket === 'even_odd') {
+    const isEven = winnerNumber % 2 === 0
+    const side = normalizeUnderOverEvenOdd(outcome)
+    return side === 'even' ? isEven : !isEven
+  }
+  if (
+    normalizedMarket.startsWith('underover') ||
+    normalizedMarket.startsWith('home_underover') ||
+    normalizedMarket.startsWith('away_underover')
+  ) {
+    const thresholdMatch = rawMarket.match(/(\d+\.?\d*)/)
+    const threshold = thresholdMatch ? parseFloat(thresholdMatch[1]) : null
+    if (threshold === null) return false
+    const side = normalizeUnderOverValue(outcome)
+    return side === 'under' ? winnerNumber < threshold : winnerNumber > threshold
+  }
+  return false
+}
+
+function normalizeUnderOverEvenOdd(value: string): 'even' | 'odd' {
+  const v = value.toLowerCase()
+  if (['even', 'pari', 'par'].some((w) => v.includes(w))) return 'even'
+  return 'odd'
+}
+
+function forEachFinishOrder(
+  fieldSize: number,
+  positions: number,
+  callback: (order: number[]) => void,
+) {
+  const used = new Array(fieldSize + 1).fill(false)
+  const current: number[] = []
+  const recurse = (depth: number) => {
+    if (depth === positions) {
+      callback(current)
+      return
+    }
+    for (let n = 1; n <= fieldSize; n++) {
+      if (used[n]) continue
+      used[n] = true
+      current.push(n)
+      recurse(depth + 1)
+      current.pop()
+      used[n] = false
+    }
+  }
+  recurse(0)
+}
+
+export function computeSameEventOddsRange<
+  T extends { odds: number; market: string; outcome?: string },
+>(
   entries: T[],
   fieldSize?: number,
 ): { minOdds: number; maxOddsSum: number; maxAssigned: T[]; minAssigned: T[] } {
   if (entries.length === 0)
     return { minOdds: 0, maxOddsSum: 0, maxAssigned: [], minAssigned: [] }
+
+  const simulableEntries: { entry: T; normalized: string }[] = []
+  const independentEntries: T[] = []
+  for (const entry of entries) {
+    const normalized = normalizeMarketName(entry.market)
+    if (isFinishOrderMarket(normalized) && entry.outcome !== undefined) {
+      simulableEntries.push({ entry, normalized })
+    } else {
+      independentEntries.push(entry)
+    }
+  }
+
+  let maxOddsSum = 0
+  let maxAssigned: T[] = []
+
+  if (simulableEntries.length > 0) {
+    const numbersInPlay = simulableEntries
+      .map(({ entry, normalized }) =>
+        normalized === 'winner' || normalized === 'placed' || normalized === 'show'
+          ? parseInt(entry.outcome as string, 10)
+          : NaN,
+      )
+      .filter((n) => !isNaN(n))
+    const effectiveFieldSize = Math.max(
+      fieldSize ?? 0,
+      3,
+      numbersInPlay.length > 0 ? Math.max(...numbersInPlay) : 0,
+    )
+    const positions = Math.min(3, effectiveFieldSize)
+
+    let bestSum = -1
+    let bestWinners: T[] = []
+    forEachFinishOrder(effectiveFieldSize, positions, (finishOrder) => {
+      let sum = 0
+      const winners: T[] = []
+      for (const { entry, normalized } of simulableEntries) {
+        if (evaluatesAsWin(normalized, entry.market, entry.outcome as string, finishOrder)) {
+          sum += entry.odds
+          winners.push(entry)
+        }
+      }
+      if (sum > bestSum) {
+        bestSum = sum
+        bestWinners = winners
+      }
+    })
+    maxOddsSum += Math.max(0, bestSum)
+    maxAssigned = maxAssigned.concat(bestWinners)
+  }
+
+  if (independentEntries.length > 0) {
+    const groups = new Map<string, T[]>()
+    for (const entry of independentEntries) {
+      const key = normalizeMarketName(entry.market)
+      if (!groups.has(key)) groups.set(key, [])
+      groups.get(key)!.push(entry)
+    }
+    for (const groupEntries of groups.values()) {
+      const withSlots = groupEntries.map((e) => ({
+        entry: e,
+        slots: getMarketSlotCount(normalizeMarketName(e.market)),
+      }))
+      const podiumSize = Math.max(...withSlots.map((e) => e.slots))
+      const groupMaxAssigned = assignToRealSlots(withSlots, podiumSize, 'desc')
+      maxOddsSum += groupMaxAssigned.reduce((sum, e) => sum + e.odds, 0)
+      maxAssigned = maxAssigned.concat(groupMaxAssigned)
+    }
+  }
 
   const groups = new Map<string, T[]>()
   for (const entry of entries) {
@@ -55,8 +205,6 @@ export function computeSameEventOddsRange<T extends { odds: number; market: stri
   }
 
   let minOdds = 0
-  let maxOddsSum = 0
-  const maxAssigned: T[] = []
   const minAssigned: T[] = []
 
   for (const groupEntries of groups.values()) {
@@ -66,8 +214,6 @@ export function computeSameEventOddsRange<T extends { odds: number; market: stri
     }))
 
     const podiumSize = Math.max(...withSlots.map((e) => e.slots))
-
-    const groupMaxAssigned = assignToRealSlots(withSlots, podiumSize, 'desc')
 
     const uncovered =
       fieldSize !== undefined
@@ -85,8 +231,6 @@ export function computeSameEventOddsRange<T extends { odds: number; market: stri
     )
 
     minOdds += groupMinAssigned.reduce((sum, e) => sum + e.odds, 0)
-    maxOddsSum += groupMaxAssigned.reduce((sum, e) => sum + e.odds, 0)
-    maxAssigned.push(...groupMaxAssigned)
     minAssigned.push(...groupMinAssigned)
   }
 
@@ -242,6 +386,7 @@ function computeTierAssignedCombos(
       const withOdds = candidateEntries.map((e) => ({
         odds: e.bet.option.decPrice,
         market: e.market,
+        outcome: e.bet.option.outcome,
         entry: e,
       }))
       const { minAssigned, maxAssigned } = computeSameEventOddsRange(
@@ -326,6 +471,7 @@ export function generateSystemGroups(
     const withOdds = entries.map((e) => ({
       odds: e.bet.option.decPrice,
       market: e.market,
+      outcome: e.bet.option.outcome,
       entry: e,
     }))
     const soleEventKey = eventKeyOf(entries[0])
