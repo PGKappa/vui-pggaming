@@ -11,28 +11,74 @@
   display: none;
 }
 
-/* Retail: enable full-page vertical scroll when viewport height is below 1080px */
-@media (max-height: 1079px) {
-  html.retail-app {
-    overflow-x: hidden;
-    overflow-y: auto;
-  }
+/*
+ * Race page + sticky betslip — fitted to the viewport height.
+ */
+.retail-page-row {
+  position: relative;
+  display: flex;
+  min-width: 1200px;
+  flex-direction: row;
+  align-items: flex-start;
+}
 
-  html.retail-app body {
-    height: auto !important;
-    min-height: 100vh;
-    overflow-x: hidden !important;
-    overflow-y: auto !important;
-  }
+.retail-left-col {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+}
 
-  html.retail-app .retail-main-scroll {
-    height: auto !important;
-    overflow: visible !important;
-  }
+.retail-race-body {
+  display: flex;
+  min-width: 0;
+  flex: 0 0 auto;
+  flex-direction: column;
+  padding-right: 0.5rem;
+  padding-top: 2px;
+  height: max(
+    calc(100dvh - 4rem - 0.5rem - 102px),
+    calc(840px - 4rem - 0.5rem - 102px)
+  );
+  overflow: hidden;
+}
 
-  html.retail-app .retail-main-inner {
-    height: auto !important;
-  }
+.retail-betslip-col {
+  display: flex;
+  width: 400px;
+  flex-shrink: 0;
+  flex-direction: column;
+  align-self: flex-start;
+  position: sticky;
+  top: calc(4rem + 3px);
+  margin-top: 3px;
+  height: max(
+    calc(100dvh - 4rem - 0.5rem - 3px),
+    calc(840px - 4rem - 0.5rem - 3px)
+  );
+}
+
+.retail-betslip-col--calcio {
+  width: 410px;
+  margin-top: -2px;
+  padding-right: 0.5rem;
+}
+
+.retail-shell {
+  display: flex;
+  min-width: 1275px;
+  min-height: 0;
+  flex-shrink: 0;
+  flex-direction: column;
+}
+
+.retail-navbar-wrap {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  flex-shrink: 0;
+  width: 100%;
+  min-width: 1275px;
 }
 
 
