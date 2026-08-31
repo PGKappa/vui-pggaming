@@ -47,31 +47,50 @@ export function computeSameEventOddsRange<T extends { odds: number; market: stri
   if (entries.length === 0)
     return { minOdds: 0, maxOddsSum: 0, maxAssigned: [], minAssigned: [] }
 
-  const withSlots = entries.map((e) => ({
-    entry: e,
-    slots: getMarketSlotCount(normalizeMarketName(e.market)),
-  }))
-
-  const podiumSize = Math.max(...withSlots.map((e) => e.slots))
-
-  const maxAssigned = assignToRealSlots(withSlots, podiumSize, 'desc')
-
-  const uncovered =
-    fieldSize !== undefined
-      ? Math.max(0, fieldSize - entries.length)
-      : podiumSize
-  const forcedWinCount = Math.max(
-    1,
-    Math.min(entries.length, podiumSize - uncovered),
-  )
-  const minAssigned = assignToRealSlots(withSlots, podiumSize, 'asc', forcedWinCount)
-
-  return {
-    minOdds: minAssigned.reduce((sum, e) => sum + e.odds, 0),
-    maxOddsSum: maxAssigned.reduce((sum, e) => sum + e.odds, 0),
-    maxAssigned,
-    minAssigned,
+  const groups = new Map<string, T[]>()
+  for (const entry of entries) {
+    const key = normalizeMarketName(entry.market)
+    if (!groups.has(key)) groups.set(key, [])
+    groups.get(key)!.push(entry)
   }
+
+  let minOdds = 0
+  let maxOddsSum = 0
+  const maxAssigned: T[] = []
+  const minAssigned: T[] = []
+
+  for (const groupEntries of groups.values()) {
+    const withSlots = groupEntries.map((e) => ({
+      entry: e,
+      slots: getMarketSlotCount(normalizeMarketName(e.market)),
+    }))
+
+    const podiumSize = Math.max(...withSlots.map((e) => e.slots))
+
+    const groupMaxAssigned = assignToRealSlots(withSlots, podiumSize, 'desc')
+
+    const uncovered =
+      fieldSize !== undefined
+        ? Math.max(0, fieldSize - groupEntries.length)
+        : podiumSize
+    const forcedWinCount = Math.max(
+      1,
+      Math.min(groupEntries.length, podiumSize - uncovered),
+    )
+    const groupMinAssigned = assignToRealSlots(
+      withSlots,
+      podiumSize,
+      'asc',
+      forcedWinCount,
+    )
+
+    minOdds += groupMinAssigned.reduce((sum, e) => sum + e.odds, 0)
+    maxOddsSum += groupMaxAssigned.reduce((sum, e) => sum + e.odds, 0)
+    maxAssigned.push(...groupMaxAssigned)
+    minAssigned.push(...groupMinAssigned)
+  }
+
+  return { minOdds, maxOddsSum, maxAssigned, minAssigned }
 }
 
 export function getCombinations(
