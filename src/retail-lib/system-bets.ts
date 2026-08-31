@@ -45,6 +45,8 @@ function isFinishOrderMarket(normalizedMarket: string): boolean {
     normalizedMarket === 'winner' ||
     normalizedMarket === 'placed' ||
     normalizedMarket === 'show' ||
+    normalizedMarket === 'exacta' ||
+    normalizedMarket === 'trifecta' ||
     normalizedMarket === 'even_odd' ||
     normalizedMarket.startsWith('underover') ||
     normalizedMarket.startsWith('home_underover') ||
@@ -70,6 +72,14 @@ function evaluatesAsWin(
   if (normalizedMarket === 'show') {
     const n = parseInt(outcome, 10)
     return !isNaN(n) && finishOrder.slice(0, 3).includes(n)
+  }
+  if (normalizedMarket === 'exacta') {
+    const [r1, r2] = outcome.split('-').map((n) => parseInt(n, 10))
+    return finishOrder[0] === r1 && finishOrder[1] === r2
+  }
+  if (normalizedMarket === 'trifecta') {
+    const [r1, r2, r3] = outcome.split('-').map((n) => parseInt(n, 10))
+    return finishOrder[0] === r1 && finishOrder[1] === r2 && finishOrder[2] === r3
   }
   if (normalizedMarket === 'even_odd') {
     const isEven = winnerNumber % 2 === 0
@@ -145,10 +155,14 @@ export function computeSameEventOddsRange<
 
   if (simulableEntries.length > 0) {
     const numbersInPlay = simulableEntries
-      .map(({ entry, normalized }) =>
-        normalized === 'winner' || normalized === 'placed' || normalized === 'show'
-          ? parseInt(entry.outcome as string, 10)
-          : NaN,
+      .flatMap(({ entry, normalized }) =>
+        normalized === 'winner' ||
+        normalized === 'placed' ||
+        normalized === 'show' ||
+        normalized === 'exacta' ||
+        normalized === 'trifecta'
+          ? (entry.outcome as string).split('-').map((n) => parseInt(n, 10))
+          : [NaN],
       )
       .filter((n) => !isNaN(n))
     const effectiveFieldSize = Math.max(
