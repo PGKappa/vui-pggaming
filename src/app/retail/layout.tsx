@@ -116,7 +116,7 @@ function SkinBody({ children }: { children: React.ReactNode }) {
 
   return (
     <body
-      className={`${inter.variable} ${skin} flex h-full flex-col overflow-hidden font-inter antialiased`}
+      className={`${inter.variable} ${skin} flex h-full min-h-dvh flex-col overflow-x-auto overflow-y-auto font-inter antialiased`}
     >
       {/* Splash screen statico inline - appare ISTANTANEAMENTE */}
       <div id="static-splash">
@@ -232,13 +232,15 @@ function RetailShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <>
-      <Navbar />
-      <main className="retail-main-scroll h-full min-w-[1280px] gap-2 overflow-hidden">
-        <div className="retail-main-inner h-full p-2">
+    <div className="retail-shell">
+      <div className="retail-navbar-wrap">
+        <Navbar />
+      </div>
+      <main className="w-full min-w-0">
+        <div className="px-2 pb-2 pt-0">
           <BetsContextProvider>{children}</BetsContextProvider>
         </div>
       </main>
-    </>
+    </div>
   )
 }
