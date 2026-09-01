@@ -152,6 +152,8 @@ export function computeSameEventOddsRange<
 
   let maxOddsSum = 0
   let maxAssigned: T[] = []
+  let minOdds = 0
+  let minAssigned: T[] = []
 
   if (simulableEntries.length > 0) {
     const numbersInPlay = simulableEntries
@@ -174,6 +176,8 @@ export function computeSameEventOddsRange<
 
     let bestSum = -1
     let bestWinners: T[] = []
+    let worstPositiveSum = Infinity
+    let worstPositiveWinners: T[] = []
     forEachFinishOrder(effectiveFieldSize, positions, (finishOrder) => {
       let sum = 0
       const winners: T[] = []
@@ -187,9 +191,15 @@ export function computeSameEventOddsRange<
         bestSum = sum
         bestWinners = winners
       }
+      if (sum > 0 && sum < worstPositiveSum) {
+        worstPositiveSum = sum
+        worstPositiveWinners = winners
+      }
     })
     maxOddsSum += Math.max(0, bestSum)
     maxAssigned = maxAssigned.concat(bestWinners)
+    minOdds += worstPositiveSum === Infinity ? 0 : worstPositiveSum
+    minAssigned.push(...worstPositiveWinners)
   }
 
   if (independentEntries.length > 0) {
@@ -211,41 +221,40 @@ export function computeSameEventOddsRange<
     }
   }
 
-  const groups = new Map<string, T[]>()
-  for (const entry of entries) {
-    const key = normalizeMarketName(entry.market)
-    if (!groups.has(key)) groups.set(key, [])
-    groups.get(key)!.push(entry)
-  }
+  if (independentEntries.length > 0) {
+    const groups = new Map<string, T[]>()
+    for (const entry of independentEntries) {
+      const key = normalizeMarketName(entry.market)
+      if (!groups.has(key)) groups.set(key, [])
+      groups.get(key)!.push(entry)
+    }
 
-  let minOdds = 0
-  const minAssigned: T[] = []
+    for (const groupEntries of groups.values()) {
+      const withSlots = groupEntries.map((e) => ({
+        entry: e,
+        slots: getMarketSlotCount(normalizeMarketName(e.market)),
+      }))
 
-  for (const groupEntries of groups.values()) {
-    const withSlots = groupEntries.map((e) => ({
-      entry: e,
-      slots: getMarketSlotCount(normalizeMarketName(e.market)),
-    }))
+      const podiumSize = Math.max(...withSlots.map((e) => e.slots))
 
-    const podiumSize = Math.max(...withSlots.map((e) => e.slots))
+      const uncovered =
+        fieldSize !== undefined
+          ? Math.max(0, fieldSize - groupEntries.length)
+          : podiumSize
+      const forcedWinCount = Math.max(
+        1,
+        Math.min(groupEntries.length, podiumSize - uncovered),
+      )
+      const groupMinAssigned = assignToRealSlots(
+        withSlots,
+        podiumSize,
+        'asc',
+        forcedWinCount,
+      )
 
-    const uncovered =
-      fieldSize !== undefined
-        ? Math.max(0, fieldSize - groupEntries.length)
-        : podiumSize
-    const forcedWinCount = Math.max(
-      1,
-      Math.min(groupEntries.length, podiumSize - uncovered),
-    )
-    const groupMinAssigned = assignToRealSlots(
-      withSlots,
-      podiumSize,
-      'asc',
-      forcedWinCount,
-    )
-
-    minOdds += groupMinAssigned.reduce((sum, e) => sum + e.odds, 0)
-    minAssigned.push(...groupMinAssigned)
+      minOdds += groupMinAssigned.reduce((sum, e) => sum + e.odds, 0)
+      minAssigned = minAssigned.concat(groupMinAssigned)
+    }
   }
 
   return { minOdds, maxOddsSum, maxAssigned, minAssigned }
@@ -413,15 +422,18 @@ function computeTierAssignedCombos(
 
     maxCombos.push(...crossProductEntries(perEventMax))
 
-    const minCrossed = crossProductEntries(perEventMin)
-    const minValue = minCrossed.reduce(
-      (sum, combo) =>
-        sum + combo.reduce((acc, e) => acc * e.bet.option.decPrice, 1),
-      0,
-    )
-    if (minValue < bestMinValue) {
-      bestMinValue = minValue
-      bestMinCombos = minCrossed
+    const eventKeyList = eventKeys.split('|')
+    if (eventKeyList.length === 1) {
+      const minCrossed = crossProductEntries(perEventMin)
+      const minValue = minCrossed.reduce(
+        (sum, combo) =>
+          sum + combo.reduce((acc, e) => acc * e.bet.option.decPrice, 1),
+        0,
+      )
+      if (minValue < bestMinValue) {
+        bestMinValue = minValue
+        bestMinCombos = minCrossed
+      }
     }
   }
 
