@@ -363,7 +363,7 @@ export default function DraggableCodeList({
       <Button
         variant="ghost"
         size="icon"
-        className="h-12 w-12 bg-infoBackground text-[18px] font-normal text-tertiary-foreground hover:opacity-90"
+        className="flex h-12 w-12 items-center justify-center bg-infoBackground text-[18px] font-normal leading-none text-tertiary-foreground hover:opacity-90"
         onClick={() => setIsOpen(!isOpen)}
       >
         i
@@ -372,7 +372,7 @@ export default function DraggableCodeList({
       {isOpen && (
         <div
           ref={dragRef}
-          className={`fixed z-50 flex flex-col border border-border bg-background shadow-2xl ${isDragging || isResizing ? 'select-none' : ''}`}
+          className={`fixed z-50 flex cursor-move flex-col border border-border bg-background shadow-2xl ${isDragging || isResizing ? 'select-none' : ''}`}
           style={{
             left: `${position.x}px`,
             top: `${position.y}px`,
@@ -380,23 +380,25 @@ export default function DraggableCodeList({
             height: `${size.height}px`,
             visibility: isImageReady ? 'visible' : 'hidden',
           }}
+          onMouseDown={handleMouseDown}
+          onTouchStart={handleTouchStart}
         >
-          <div
-            className="flex h-14 shrink-0 cursor-move select-none items-center justify-center border-black bg-accent"
-            onMouseDown={handleMouseDown}
-            onTouchStart={handleTouchStart}
-          >
+          <div className="flex h-14 shrink-0 select-none items-center justify-center border-black bg-accent">
             <h2 className="text-[16px] font-bold text-accent-foreground">
               {t('code_list').toUpperCase()}
             </h2>
 
-            <div className="absolute right-4 flex items-center space-x-2 bg-transparent">
+            <div
+              className="absolute right-4 flex cursor-default items-center space-x-2 bg-transparent"
+              onMouseDown={(e) => e.stopPropagation()}
+              onTouchStart={(e) => e.stopPropagation()}
+            >
               <Button
                 variant={'ghost'}
                 size="icon"
                 onClick={handlePrint}
                 title="Print"
-                className="bg-transparent hover:bg-accent/20"
+                className="cursor-pointer bg-transparent transition-opacity hover:opacity-80"
               >
                 <Printer
                   className="h-4 w-4 text-accent-foreground"
@@ -408,7 +410,7 @@ export default function DraggableCodeList({
                 size="icon"
                 onClick={handleClose}
                 title="Close"
-                className="bg-transparent hover:bg-accent/20"
+                className="cursor-pointer bg-transparent transition-opacity hover:opacity-80"
               >
                 <X
                   className="h-4 w-4 text-accent-foreground"

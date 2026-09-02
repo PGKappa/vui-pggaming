@@ -22,7 +22,7 @@ export default function MedalsHistory(props: { history: number[] }) {
         return (
           <div
             key={idx}
-            className="flex h-8 w-7 items-center justify-center text-[20px] text-black"
+            className="flex h-8 w-6 shrink-0 items-center justify-center text-[20px] font-normal text-black min-[1600px]:w-[26px] min-[1920px]:w-7"
           >
             X
           </div>
@@ -32,7 +32,7 @@ export default function MedalsHistory(props: { history: number[] }) {
     return (
       <div
         key={idx}
-        className="relative flex h-8 w-7 items-center justify-center"
+        className="relative flex h-8 w-6 shrink-0 items-center justify-center min-[1600px]:w-[26px] min-[1920px]:w-7"
       >
         <Image
           src={imageSrc}

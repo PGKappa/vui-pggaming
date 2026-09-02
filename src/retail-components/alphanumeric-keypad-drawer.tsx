@@ -13,6 +13,8 @@ import { Delete, ChevronDown, Search } from 'lucide-react'
 import { useState, useEffect, useContext, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { RootContext } from '@/retail-contexts/root-context'
+import { useRetailCompactHeight } from '@/retail-lib/use-retail-compact-height'
+import { RETAIL_VIEWPORT } from '@/retail-lib/viewport-config'
 
 export default function AlphanumericKeypadDrawer(props: {
   value: string
@@ -22,6 +24,13 @@ export default function AlphanumericKeypadDrawer(props: {
   drawerId?: string
 }) {
   const { t } = useTranslation()
+  const isCompactHeight = useRetailCompactHeight()
+  const drawerTopOffset = isCompactHeight
+    ? RETAIL_VIEWPORT.COMPACT_DRAWER_TOP_OFFSET
+    : RETAIL_VIEWPORT.FASTBET_DRAWER_TOP_OFFSET
+  const drawerBottomOffset = isCompactHeight
+    ? 0
+    : RETAIL_VIEWPORT.DRAWER_BOTTOM_OFFSET
   const { activeDrawerId, setActiveDrawer } = useContext(RootContext)
   const [value, setValue] = useState(props.value)
 
@@ -171,7 +180,7 @@ export default function AlphanumericKeypadDrawer(props: {
           <Input
             type="text"
             value={value}
-            className="h-10 w-full bg-white pl-10 text-center text-[16px] font-normal text-black placeholder:text-black tabular-nums"
+            className="h-12 w-full bg-white pl-10 text-center text-[16px] font-normal leading-none text-black placeholder:text-black tabular-nums"
             placeholder={props.placeholder || 'FASTBET'}
             readOnly
             onClick={openDrawer}
@@ -179,7 +188,13 @@ export default function AlphanumericKeypadDrawer(props: {
         </div>
       </DrawerTrigger>
 
-      <DrawerContent className="w-[calc(100vw-420px)]  mt-[196px] ml-[8px] border-0">
+      <DrawerContent
+        className="ml-[8px] flex w-[calc(100vw-420px)] flex-col border-0"
+        style={{
+          bottom: drawerBottomOffset,
+          maxHeight: `calc(100dvh - ${drawerTopOffset + drawerBottomOffset}px)`,
+        }}
+      >
         <DrawerHeader className="relative bg-accent text-accent-foreground">
           <DrawerTitle className="pt-1 text-center text-accent-foreground">
             {props.placeholder || 'FASTBET'}
@@ -196,7 +211,7 @@ export default function AlphanumericKeypadDrawer(props: {
           </Button>
         </DrawerHeader>
 
-        <div className="flex flex-col space-y-3 p-3">
+        <div className="flex min-h-0 flex-1 flex-col space-y-3 overflow-y-auto p-3">
           {/* Number Row */}
           <div className="grid grid-cols-11 gap-2">
             {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'].map((num) => (

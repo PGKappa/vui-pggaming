@@ -25,6 +25,7 @@ export function normalizeMarketName(market: string): string {
   // ── Racing markets ───────────────────────────────────────────────────────
   if (m.includes('winn') || m.includes('vinc') || m.includes('ganador'))
     return 'winner'
+
   if (m.includes('exacta') || m.includes('accoppiata in ordine'))
     return 'exacta'
   if (

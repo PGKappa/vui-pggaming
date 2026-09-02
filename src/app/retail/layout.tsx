@@ -12,9 +12,6 @@ import RootContextProvider, {
   RootContext,
 } from '@/retail-contexts/root-context'
 import SkinProvider, { SkinContext } from '@/retail-contexts/skin-context'
-import { RETAIL_VIEWPORT } from '@/retail-lib/viewport-config'
-import { useRetailCompactHeight } from '@/retail-lib/use-retail-compact-height'
-import { cn } from '@/retail-lib/utils'
 import { Inter } from 'next/font/google'
 import { usePathname } from 'next/navigation'
 import { useContext, useEffect } from 'react'
@@ -39,7 +36,7 @@ export default function RetailLayout({
   }, [])
 
   return (
-    <html lang={i18n.language}>
+    <html lang={i18n.language} className="no-scrollbar">
       <head>
         <title>PG Gaming</title>
         <meta name="description" content="Gaming platform" />
@@ -60,8 +57,8 @@ export default function RetailLayout({
                 align-items: center;
                 justify-content: center;
                 background: white;
-                width: 1920px;
-                height: 1020px;
+                width: 100vw;
+                height: 100vh;
               }
               #static-splash .splash-content {
                 display: flex;
@@ -80,11 +77,9 @@ export default function RetailLayout({
                 opacity: 1;
               }
               #static-splash .splash-spinner {
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                margin-top: -32px;
-                margin-left: -32px;
+                position: fixed;
+                top: calc(50% - 32px);
+                left: calc(50% - 32px);
                 width: 64px;
                 height: 64px;
                 border: 4px solid #1e3a5f;
@@ -94,8 +89,8 @@ export default function RetailLayout({
               }
               #static-splash.has-image .splash-spinner {
                 position: static;
-                margin-top: 0;
-                margin-left: 0;
+                top: auto;
+                left: auto;
               }
               #static-splash .splash-versions {
                 position: absolute;
@@ -134,14 +129,14 @@ export default function RetailLayout({
 function SkinBody({ children }: { children: React.ReactNode }) {
   const [skin] = useContext(SkinContext)
   const pathname = usePathname()
-  const isCompactHeight = useRetailCompactHeight()
+
+  useEffect(() => {
+    document.documentElement.classList.remove('h-dvh', 'overflow-hidden')
+  }, [])
 
   return (
     <body
-      className={cn(
-        `${inter.variable} ${skin} flex flex-col font-inter antialiased`,
-        isCompactHeight ? 'h-screen overflow-y-auto' : 'h-screen overflow-hidden',
-      )}
+      className={`${inter.variable} ${skin} flex h-full min-h-dvh flex-col overflow-x-auto overflow-y-auto font-inter antialiased`}
     >
       {/* Splash screen statico inline - appare ISTANTANEAMENTE */}
       <div id="static-splash">
@@ -178,7 +173,6 @@ let hasAppLoaded = false
 
 function RetailShell({ children }: { children: React.ReactNode }) {
   const { t } = useTranslation()
-  const isCompactHeight = useRetailCompactHeight()
   const {
     isLoadingEvents,
     isLoadingCashier,
@@ -303,25 +297,12 @@ function RetailShell({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <div
-        className={cn(
-          'flex flex-col',
-          isCompactHeight ? 'min-h-0' : 'h-full min-h-0',
-        )}
-        style={
-          isCompactHeight
-            ? { minHeight: RETAIL_VIEWPORT.HEIGHT }
-            : undefined
-        }
-      >
-        <Navbar />
-        <main
-          className={cn(
-            'min-w-[1280px] gap-2',
-            isCompactHeight ? 'min-h-0 flex-1' : 'h-full overflow-hidden',
-          )}
-        >
-          <div className={cn('p-2', !isCompactHeight && 'h-full')}>
+      <div className="retail-shell">
+        <div className="retail-navbar-wrap">
+          <Navbar />
+        </div>
+        <main className="min-w-0 w-full">
+          <div className="px-2 pb-2 pt-0">
             <BetsContextProvider>{children}</BetsContextProvider>
           </div>
         </main>

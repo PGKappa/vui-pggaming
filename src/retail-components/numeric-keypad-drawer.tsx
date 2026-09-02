@@ -13,6 +13,8 @@ import { MinusIcon, PlusIcon, Delete, ChevronDown } from 'lucide-react'
 import { useState, useEffect, useContext, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { RootContext } from '@/retail-contexts/root-context'
+import { useRetailCompactHeight } from '@/retail-lib/use-retail-compact-height'
+import { RETAIL_VIEWPORT } from '@/retail-lib/viewport-config'
 
 export default function NumericKeypadDrawer(props: {
   value: number
@@ -25,6 +27,13 @@ export default function NumericKeypadDrawer(props: {
   incrementValue?: number
 }) {
   const { t } = useTranslation()
+  const isCompactHeight = useRetailCompactHeight()
+  const drawerTopOffset = isCompactHeight
+    ? RETAIL_VIEWPORT.COMPACT_DRAWER_TOP_OFFSET
+    : RETAIL_VIEWPORT.DRAWER_TOP_OFFSET
+  const drawerBottomOffset = isCompactHeight
+    ? 0
+    : RETAIL_VIEWPORT.DRAWER_BOTTOM_OFFSET
   const {
     activeDrawerId,
     setActiveDrawer,
@@ -242,7 +251,13 @@ export default function NumericKeypadDrawer(props: {
     >
       <DrawerTrigger asChild>{renderTrigger()}</DrawerTrigger>
 
-      <DrawerContent className="ml-auto mr-2 h-[475px] w-[400px] border-0">
+      <DrawerContent
+        className="ml-auto mr-2 flex w-[400px] flex-col border-0"
+        style={{
+          bottom: drawerBottomOffset,
+          maxHeight: `calc(100dvh - ${drawerTopOffset + drawerBottomOffset}px)`,
+        }}
+      >
         <DrawerHeader className="relative h-[45px] bg-accent text-accent-foreground">
           <DrawerTitle className="relative bottom-[1px] text-center text-accent-foreground">
             {props.triggerLabel || t('enter_stake_amount')}
@@ -257,7 +272,7 @@ export default function NumericKeypadDrawer(props: {
           </Button>
         </DrawerHeader>
 
-        <div className="flex flex-col space-y-3 p-2">
+        <div className="flex min-h-0 flex-1 flex-col space-y-3 overflow-y-auto p-2">
           {/* Display Value */}
           <div className="flex items-center space-x-3">
             <Input

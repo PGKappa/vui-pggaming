@@ -291,7 +291,7 @@ export default function RacingFastBet({
   }
 
   return (
-    <div className="relative top-[3px] flex h-12 w-full items-center gap-2 bg-white">
+    <div className="flex h-12 w-full items-center gap-2 bg-white">
       <AlphanumericKeypadDrawer
         value={fastbetInput}
         setValue={setFastbetInput}

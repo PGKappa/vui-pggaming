@@ -95,7 +95,7 @@ function NavbarContent() {
                 pathname.includes('/retail/dogs') &&
                 !pathname.includes('/retail/dogs-horses') &&
                 !pathname.includes('/retail/dogs8'),
-              gapClass: 'gap-1',
+              gapClass: 'gap-1 hover:opacity-90',
               content: (
                 <>
                   <Image
@@ -105,7 +105,7 @@ function NavbarContent() {
                     height={20}
                     className="size-8 object-contain"
                   />
-                  <span className="relative left-[2px] text-base font-bold !text-[22px] text-secondary-foreground">
+                  <span className="text-base font-bold text-secondary-foreground !text-[22px] relative left-[2px]">
                     6
                   </span>
                 </>
@@ -115,7 +115,7 @@ function NavbarContent() {
               show: navCfg.showDogs8,
               href: '/retail/dogs8',
               active: pathname.includes('/retail/dogs8'),
-              gapClass: 'gap-1',
+              gapClass: 'gap-1 hover:opacity-90',
               content: (
                 <>
                   <Image
@@ -125,7 +125,7 @@ function NavbarContent() {
                     height={20}
                     className="size-8 object-contain"
                   />
-                  <span className="relative left-[2px] text-base font-bold !text-[22px] text-secondary-foreground">
+                  <span className="text-base font-bold text-secondary-foreground !text-[22px] relative left-[2px]">
                     8
                   </span>
                 </>
@@ -135,7 +135,7 @@ function NavbarContent() {
               show: navCfg.showHorses,
               href: '/retail/horses',
               active: pathname.includes('/retail/horses'),
-              gapClass: 'gap-1',
+              gapClass: 'gap-1 hover:opacity-90',
               content: (
                 <>
                   <Image
@@ -145,7 +145,7 @@ function NavbarContent() {
                     height={20}
                     className="size-8 object-contain"
                   />
-                  <span className="relative left-[2px] text-base font-bold !text-[22px] text-secondary-foreground">
+                  <span className="text-base font-bold text-secondary-foreground !text-[22px] relative left-[2px]">
                     6
                   </span>
                 </>
@@ -175,7 +175,7 @@ function NavbarContent() {
               key={key}
               href={buildHref(button.href)}
               className={cn(
-                `flex h-12 w-24 flex-row items-center justify-center ${button.gapClass} px-3 py-1 text-foreground transition-colors hover:opacity-90`,
+                `flex h-12 w-24 flex-row items-center justify-center ${button.gapClass} px-3 py-1 text-foreground transition-colors`,
                 button.active ? 'bg-tertiary' : 'bg-secondary',
               )}
             >

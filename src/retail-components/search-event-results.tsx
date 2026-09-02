@@ -1,6 +1,6 @@
 import { RootContext } from '@/retail-contexts/root-context'
 import { Discipline, EventResult, RaceResult } from '@/retail-lib/types'
-import { getRacerColors, createPGVirtualAPICall, cn } from '@/retail-lib/utils'
+import { getRacerColors, createPGVirtualAPICall } from '@/retail-lib/utils'
 import { format } from 'date-fns'
 import { t } from 'i18next'
 import Image from 'next/image'
@@ -616,34 +616,23 @@ export default function SearchEventResults() {
     [t],
   )
 
-  const widestDisciplineLabel = useMemo(
-    () =>
-      disciplineOptions.reduce(
-        (longest, option) =>
-          option.label.length > longest.length ? option.label : longest,
-        '',
-      ),
-    [disciplineOptions],
+  const disciplineReferenceLabel = useMemo(
+    () => t('horse6_racing').toUpperCase(),
+    [t],
   )
 
   return (
     <div className="flex h-full flex-col space-y-1">
       <div className="flex h-16 w-full min-w-0 flex-nowrap items-center space-x-2 overflow-hidden bg-accent px-[24px] min-[1400px]:px-[60px] min-[1600px]:px-[100px] min-[1750px]:px-[130px] min-[1920px]:px-[167px]">
-        {/* DISCIPLINA — larghezza piena sottomenu solo ≥1400px; sotto flex-1 compatto */}
-        <div
-          className={cn(
-            'mr-1 min-w-0',
-            'max-[1399px]:flex-1 max-[1399px]:basis-0',
-            'min-[1400px]:inline-grid min-[1400px]:shrink-0',
-          )}
-        >
+        {/* DISCIPLINA — larghezza fissa = "CARRERAS DE CABALLOS 6" */}
+        <div className="mr-1 inline-grid shrink-0">
           <span
-            className="invisible col-start-1 row-start-1 hidden whitespace-nowrap pl-[16px] pr-8 text-[14px] min-[1400px]:block"
+            className="invisible col-start-1 row-start-1 whitespace-nowrap pl-[16px] pr-8 text-[14px] tabular-nums min-[1400px]:text-[16px]"
             aria-hidden
           >
-            {widestDisciplineLabel}
+            {disciplineReferenceLabel}
           </span>
-          <div className="w-full min-w-0 min-[1400px]:col-start-1 min-[1400px]:row-start-1">
+          <div className="col-start-1 row-start-1 w-full min-w-0">
             <Select
               value={selectedDiscipline.toString()}
               onValueChange={(value) => {
@@ -1113,7 +1102,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                 setReplayUrl(null)
                 setReplayError(null)
               }}
-              className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-background/60 text-foreground hover:bg-background/80"
+              className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-background/60 text-foreground transition-opacity hover:opacity-80"
               aria-label="Close replay"
             >
               <X className="h-5 w-5" />
@@ -1606,7 +1595,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
               <Button
                 onClick={fetchReplay}
                 disabled={loadingReplay}
-                className="h-[50px] w-[300px] bg-green-600 text-[18px] font-bold text-white shadow-lg hover:bg-green-700"
+                className="h-[50px] w-[300px] bg-green-600 text-[18px] font-bold text-white shadow-lg transition-opacity hover:opacity-80"
               >
                 {loadingReplay ? <LoadingSpinner /> : t('show_replay')}
               </Button>
