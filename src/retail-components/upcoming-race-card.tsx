@@ -391,14 +391,14 @@ export default function UpcomingRaceCard({
               {t('starters_list').toUpperCase()}
             </span>
           </TableHead>
-          <TableHead className="w-[1px] bg-border p-0" />
+          <TableHead className="w-[1px] p-0" />
 
-          <TableHead className="w-[22%] min-w-0 text-center font-semibold max-[1399px]:w-1/4 min-[1400px]:max-[1439px]:w-1/4 min-[1440px]:w-1/6">
+          <TableHead className="w-[22%] min-w-0 border-l border-r text-center font-semibold max-[1399px]:w-1/4 min-[1400px]:max-[1439px]:w-1/4 min-[1440px]:w-1/6">
             <span className='inline-block w-full h-full leading-[54px] align-middle'>
               {t('performance').toUpperCase()}
             </span>
           </TableHead>
-          <TableHead className="w-[1px] bg-border p-0" />
+          <TableHead className="w-[1px] p-0" />
 
           <TableHead className="hidden w-[14%] min-w-0 text-center font-semibold min-[1440px]:table-cell min-[1440px]:w-1/6">
             <span className='inline-block w-full h-full leading-[54px] align-middle'>
@@ -985,9 +985,9 @@ export default function UpcomingRaceCard({
                       </div>
                     </TableCell>
 
-                    <TableCell className="w-[1px] bg-border p-0" />
+                    <TableCell className="w-[1px] p-0" />
 
-                    <TableCell className="p-2 text-[15px] font-bold">
+                    <TableCell className="border-l border-r p-2 text-[15px] font-bold">
                       <div className="flex w-full min-w-0 flex-col items-stretch justify-center gap-1 px-1">
                         <span className="text-center">{racer.performance}%</span>
                         <Progress
@@ -998,7 +998,7 @@ export default function UpcomingRaceCard({
                       </div>
                     </TableCell>
 
-                    <TableCell className="hidden w-[1px] bg-border p-0 min-[1440px]:table-cell" />
+                    <TableCell className="hidden w-[1px] p-0 min-[1440px]:table-cell" />
 
                     <TableCell className="hidden min-[1440px]:table-cell">
                       <div className="flex items-center justify-center space-x-[10px]">
