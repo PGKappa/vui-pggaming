@@ -168,6 +168,14 @@ const OUTCOME_SIDES = [
   'under', 'over', 'menos', 'más', 'mas', 'un', 'ov', 'u', 'o', 'me', 'm', 'ma',
   'even', 'odd', 'par', 'pari', 'impar', 'dispari',
 ]
+
+function marketNameForCalc(
+  sel: TicketDetailSelection,
+  description: string,
+): string {
+  return sel.game?.dict?.markets?.[description] || description
+}
+
 function rawOutcomeOrUndefined(description: string): string | undefined {
   const d = (description || '').trim().toLowerCase()
   if (/^\d+(-\d+)*$/.test(d)) return d
@@ -195,7 +203,7 @@ function getEventOddsGroups(info: TicketDetailInfo): {
         if (o > 0)
           entries.push({
             odds: o,
-            market: market.description,
+            market: marketNameForCalc(sel, market.description),
             outcome: rawOutcomeOrUndefined(s.description),
           })
       }
@@ -365,7 +373,7 @@ export function computeMinMaxWin(info: TicketDetailInfo): {
       market.selections
         .map((s) => ({
           odds: parseFloat(s.odds),
-          market: market.description,
+          market: marketNameForCalc(sel, market.description),
           outcome: rawOutcomeOrUndefined(s.description),
         }))
         .filter((e) => e.odds > 0),
