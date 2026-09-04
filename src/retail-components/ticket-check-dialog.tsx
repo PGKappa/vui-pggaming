@@ -159,6 +159,16 @@ function comboOddsProductsForSize(
   return result
 }
 
+function selectionEventKey(sel: TicketDetailSelection): string {
+  return `${sel.channelId}-${sel.gameId}-${sel.eventId}`
+}
+
+function selectionFieldSize(sel: TicketDetailSelection): number | undefined {
+  if (sel.competitors?.length) return sel.competitors.length
+  const runnersCount = Object.keys(sel.game?.dict?.runners ?? {}).length
+  return runnersCount > 0 ? runnersCount : undefined
+}
+
 type EventOddsGroup = {
   entries: { odds: number; market: string }[]
   fieldSize?: number
@@ -184,7 +194,7 @@ function getEventOddsGroups(info: TicketDetailInfo): {
       }
     }
     if (entries.length === 0) entries.push({ odds: 1, market: '' })
-    const group: EventOddsGroup = { entries, fieldSize: sel.competitors?.length }
+    const group: EventOddsGroup = { entries, fieldSize: selectionFieldSize(sel) }
     if (isBanker) fixedGroups.push(group)
     else nonFixedGroups.push(group)
   }
@@ -194,26 +204,69 @@ function getEventOddsGroups(info: TicketDetailInfo): {
 // Quote realmente raggiungibili nel caso migliore/peggiore per un singolo
 // evento — se l'evento ha una sola selezione non c'è nulla da capire, è
 // sempre quella.
-function eventOddsRange(
-  group: EventOddsGroup,
-): { minAssigned: number[]; maxAssigned: number[] } {
+function eventOddsRange(group: EventOddsGroup): {
+  minAssigned: number[]
+  maxAssigned: number[]
+  positiveOdds: number
+  canBeZero: boolean
+} {
   if (group.entries.length === 1) {
-    return { minAssigned: [group.entries[0].odds], maxAssigned: [group.entries[0].odds] }
+    return {
+      minAssigned: [group.entries[0].odds],
+      maxAssigned: [group.entries[0].odds],
+      positiveOdds: group.entries[0].odds,
+      canBeZero: false,
+    }
   }
-  const { minAssigned, maxAssigned } = computeSameEventOddsRange(
-    group.entries,
-    group.fieldSize,
-  )
+  const { minAssigned, maxAssigned, minOdds, canBeZero } =
+    computeSameEventOddsRange(group.entries, group.fieldSize)
   return {
     minAssigned: minAssigned.map((e) => e.odds),
     maxAssigned: maxAssigned.map((e) => e.odds),
+    positiveOdds: minOdds,
+    canBeZero,
   }
 }
 
-// Somma, con arrotondamento per singola combinazione (mai sull'aggregato),
-// il prodotto incrociato delle quote assegnate di ciascun evento — usato
-// sia per la massima (assegnazione migliore) sia per la minima
-// (assegnazione peggiore) di una taglia o di una multipla pura.
+function buildMinScenarioLists(
+  fixedGroups: EventOddsGroup[],
+  nonFixedGroups: EventOddsGroup[],
+  rangeOf: (group: EventOddsGroup) => ReturnType<typeof eventOddsRange>,
+): Map<EventOddsGroup, number[]> {
+  const scenario = new Map<EventOddsGroup, number[]>()
+  const allGroups = [...fixedGroups, ...nonFixedGroups]
+  const someGroupAlwaysWins = allGroups.some((g) => !rangeOf(g).canBeZero)
+
+  if (someGroupAlwaysWins) {
+    for (const group of allGroups) {
+      const range = rangeOf(group)
+      scenario.set(group, range.canBeZero ? [] : range.minAssigned)
+    }
+    return scenario
+  }
+
+  const active = new Set<EventOddsGroup>()
+  if (fixedGroups.length > 0) {
+    for (const group of fixedGroups) active.add(group)
+  } else {
+    let cheapest: EventOddsGroup | null = null
+    let cheapestOdds = Infinity
+    for (const group of allGroups) {
+      const odds = rangeOf(group).positiveOdds
+      if (odds < cheapestOdds) {
+        cheapestOdds = odds
+        cheapest = group
+      }
+    }
+    if (cheapest) active.add(cheapest)
+  }
+
+  for (const group of allGroups) {
+    scenario.set(group, active.has(group) ? rangeOf(group).minAssigned : [])
+  }
+  return scenario
+}
+
 function sumRoundedCrossProduct(oddsLists: number[][], stake: number): number {
   return crossProduct(oddsLists).reduce(
     (sum, product) => sum + Math.round(product * stake * 100) / 100,
@@ -225,7 +278,7 @@ function getEventSlots(info: TicketDetailInfo): {
   fixedSlots: number[][]
   nonFixedSlots: number[][]
 } {
-  const distinctEvents = new Set(info.selections.map((sel) => sel.eventId))
+  const distinctEvents = new Set(info.selections.map(selectionEventKey))
   const fixedSlots: number[][] = []
   const nonFixedSlots: number[][] = []
 
@@ -265,7 +318,7 @@ function getEventSlots(info: TicketDetailInfo): {
   return { fixedSlots, nonFixedSlots }
 }
 
-function computeSystemSummary(info: TicketDetailInfo): {
+export function computeSystemSummary(info: TicketDetailInfo): {
   totalSelections: number
   levels: { size: number; stakeTotal: number; combinations: number }[]
   totalCombinations: number
@@ -302,13 +355,13 @@ function computeSystemSummary(info: TicketDetailInfo): {
   }
 }
 
-function computeMinMaxWin(info: TicketDetailInfo): {
+export function computeMinMaxWin(info: TicketDetailInfo): {
   minWin: number
   maxWin: number
 } {
   const amount = parseFloat(String(info.amount)) || 0
   const systemKeys = Object.keys(info.system)
-  const distinctEvents = new Set(info.selections.map((sel) => sel.eventId))
+  const distinctEvents = new Set(info.selections.map(selectionEventKey))
 
   if (distinctEvents.size === 1 && info.selections.length > 0) {
     const sel = info.selections[0]
@@ -334,7 +387,7 @@ function computeMinMaxWin(info: TicketDetailInfo): {
       Math.round((totalStake / oddsEntries.length) * 100) / 100
     const { minOdds, maxAssigned } = computeSameEventOddsRange(
       oddsEntries,
-      sel.competitors?.length,
+      selectionFieldSize(sel),
     )
     const maxWin = maxAssigned.reduce(
       (sum, e) =>
@@ -363,7 +416,25 @@ function computeMinMaxWin(info: TicketDetailInfo): {
 
   const { fixedSlots, nonFixedSlots } = getEventSlots(info)
 
-  let minWin = Infinity
+  const rangeCache = new Map<
+    EventOddsGroup,
+    ReturnType<typeof eventOddsRange>
+  >()
+  const rangeOf = (group: EventOddsGroup) => {
+    let range = rangeCache.get(group)
+    if (!range) {
+      range = eventOddsRange(group)
+      rangeCache.set(group, range)
+    }
+    return range
+  }
+  const minScenario = buildMinScenarioLists(
+    fixedGroups,
+    nonFixedGroups,
+    rangeOf,
+  )
+
+  let minWin = 0
   let maxWin = 0
   for (const k of systemKeys) {
     const kNum = parseInt(k)
@@ -384,26 +455,25 @@ function computeMinMaxWin(info: TicketDetailInfo): {
     const needed = kNum - fixedGroups.length
     if (needed < 0 || needed > nonFixedGroups.length) continue
 
-    const fixedMaxLists = fixedGroups.map((g) => eventOddsRange(g).maxAssigned)
-    const fixedMinLists = fixedGroups.map((g) => eventOddsRange(g).minAssigned)
+    const fixedMaxLists = fixedGroups.map((g) => rangeOf(g).maxAssigned)
+    const fixedMinLists = fixedGroups.map((g) => minScenario.get(g) ?? [])
 
     let tierMaxWin = 0
-    let tierMinWin = Infinity
+    let tierMinWin = 0
     const chosen: number[] = []
     const enumerate = (start: number, depth: number) => {
       if (depth === needed) {
         const maxLists = [
           ...fixedMaxLists,
-          ...chosen.map((i) => eventOddsRange(nonFixedGroups[i]).maxAssigned),
+          ...chosen.map((i) => rangeOf(nonFixedGroups[i]).maxAssigned),
         ]
         tierMaxWin += sumRoundedCrossProduct(maxLists, stakePerCombo)
 
         const minLists = [
           ...fixedMinLists,
-          ...chosen.map((i) => eventOddsRange(nonFixedGroups[i]).minAssigned),
+          ...chosen.map((i) => minScenario.get(nonFixedGroups[i]) ?? []),
         ]
-        const groupMinWin = sumRoundedCrossProduct(minLists, stakePerCombo)
-        tierMinWin = Math.min(tierMinWin, groupMinWin)
+        tierMinWin += sumRoundedCrossProduct(minLists, stakePerCombo)
         return
       }
       for (let i = start; i < nonFixedGroups.length; i++) {
@@ -414,11 +484,11 @@ function computeMinMaxWin(info: TicketDetailInfo): {
     }
     enumerate(0, 0)
 
-    minWin = Math.min(minWin, tierMinWin === Infinity ? 0 : tierMinWin)
+    minWin += tierMinWin
     maxWin += tierMaxWin
   }
   return {
-    minWin: minWin === Infinity ? 0 : Math.round(minWin * 100) / 100,
+    minWin: Math.round(minWin * 100) / 100,
     maxWin: Math.round(maxWin * 100) / 100,
   }
 }
@@ -639,10 +709,11 @@ export default function TicketCheckDialog({
   // Deduplicated unique events for replay (computed once ticketInfo is available)
   const uniqueReplaySelections = ticketInfo
     ? (() => {
-        const seen = new Set<number>()
+        const seen = new Set<string>()
         return ticketInfo.selections.filter((sel) => {
-          if (seen.has(sel.eventId)) return false
-          seen.add(sel.eventId)
+          const key = selectionEventKey(sel)
+          if (seen.has(key)) return false
+          seen.add(key)
           return true
         })
       })()

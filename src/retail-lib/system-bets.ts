@@ -134,9 +134,21 @@ export function computeSameEventOddsRange<
 >(
   entries: T[],
   fieldSize?: number,
-): { minOdds: number; maxOddsSum: number; maxAssigned: T[]; minAssigned: T[] } {
+): {
+  minOdds: number
+  maxOddsSum: number
+  maxAssigned: T[]
+  minAssigned: T[]
+  canBeZero: boolean
+} {
   if (entries.length === 0)
-    return { minOdds: 0, maxOddsSum: 0, maxAssigned: [], minAssigned: [] }
+    return {
+      minOdds: 0,
+      maxOddsSum: 0,
+      maxAssigned: [],
+      minAssigned: [],
+      canBeZero: true,
+    }
 
   const simulableEntries: { entry: T; normalized: string }[] = []
   const independentEntries: T[] = []
@@ -153,6 +165,7 @@ export function computeSameEventOddsRange<
   let maxAssigned: T[] = []
   let minOdds = 0
   let minAssigned: T[] = []
+  let simulableCanBeZero = false
 
   if (simulableEntries.length > 0) {
     const numbersInPlay = simulableEntries
@@ -190,6 +203,7 @@ export function computeSameEventOddsRange<
         bestSum = sum
         bestWinners = winners
       }
+      if (sum === 0) simulableCanBeZero = true
       if (sum > 0 && sum < worstPositiveSum) {
         worstPositiveSum = sum
         worstPositiveWinners = winners
@@ -256,7 +270,11 @@ export function computeSameEventOddsRange<
     }
   }
 
-  return { minOdds, maxOddsSum, maxAssigned, minAssigned }
+  const canBeZero =
+    independentEntries.length === 0 &&
+    (simulableEntries.length === 0 || simulableCanBeZero)
+
+  return { minOdds, maxOddsSum, maxAssigned, minAssigned, canBeZero }
 }
 
 export function getCombinations(
@@ -375,66 +393,125 @@ function crossProductEntries(groups: BetEntry[][][]): BetEntry[][] {
   }
   return result
 }
+type EventCombosInfo = {
+  maxAssigned: BetEntry[][]
+  positiveAssigned: BetEntry[][]
+  positiveOdds: number
+  canBeZero: boolean
+}
+
+function computeEventCombosInfo(
+  candidateEntries: BetEntry[],
+  fieldSize?: number,
+): EventCombosInfo {
+  if (candidateEntries.length <= 1) {
+    return {
+      maxAssigned: [candidateEntries],
+      positiveAssigned: [candidateEntries],
+      positiveOdds: candidateEntries.reduce(
+        (sum, e) => sum + e.bet.option.decPrice,
+        0,
+      ),
+      canBeZero: false,
+    }
+  }
+  const withOdds = candidateEntries.map((e) => ({
+    odds: e.bet.option.decPrice,
+    market: e.market,
+    outcome: e.bet.option.outcome,
+    entry: e,
+  }))
+  const { minAssigned, maxAssigned, minOdds, canBeZero } =
+    computeSameEventOddsRange(withOdds, fieldSize)
+  return {
+    maxAssigned: maxAssigned.map((a) => [a.entry]),
+    positiveAssigned: minAssigned.map((a) => [a.entry]),
+    positiveOdds: minOdds,
+    canBeZero,
+  }
+}
+
+// Costruisce, per ogni evento, le selezioni che vincono nello scenario di
+// PAGAMENTO MINIMO POSITIVO dell'intero ticket (insieme vuoto = quell'evento
+// non vince nulla). Le tre situazioni possibili:
+//  1. almeno un evento vince comunque (mercato che copre tutti i partenti):
+//     non lo si puo' azzerare, quindi ogni evento va al proprio minimo
+//     raggiungibile e i contributi di tutte le taglie si sommano;
+//  2. ci sono corse fisse: compaiono in OGNI combinazione, quindi nessun
+//     pagamento e' possibile senza di loro — vincono solo le fisse, al
+//     proprio minimo;
+//  3. nessun vincolo: vince un solo evento, il piu' economico, e tutto il
+//     resto va a zero.
+function buildMinScenario(
+  eventInfo: Map<string, EventCombosInfo>,
+  fixedEventKeys: Set<string>,
+): Map<string, BetEntry[][]> {
+  const scenario = new Map<string, BetEntry[][]>()
+  const someEventAlwaysWins = [...eventInfo.values()].some(
+    (info) => !info.canBeZero,
+  )
+
+  if (someEventAlwaysWins) {
+    for (const [eventKey, info] of eventInfo) {
+      scenario.set(eventKey, info.canBeZero ? [] : info.positiveAssigned)
+    }
+    return scenario
+  }
+
+  const active = new Set<string>()
+  if (fixedEventKeys.size > 0) {
+    for (const eventKey of fixedEventKeys) active.add(eventKey)
+  } else {
+    let cheapestEventKey: string | null = null
+    let cheapestOdds = Infinity
+    for (const [eventKey, info] of eventInfo) {
+      if (info.positiveOdds < cheapestOdds) {
+        cheapestOdds = info.positiveOdds
+        cheapestEventKey = eventKey
+      }
+    }
+    if (cheapestEventKey !== null) active.add(cheapestEventKey)
+  }
+
+  for (const [eventKey, info] of eventInfo) {
+    scenario.set(eventKey, active.has(eventKey) ? info.positiveAssigned : [])
+  }
+  return scenario
+}
+
 function computeTierAssignedCombos(
   combos: BetEntry[][],
-  allEntries: BetEntry[],
-  fieldSizeByEvent?: Record<string, number>,
+  eventInfo: Map<string, EventCombosInfo>,
+  minScenario: Map<string, BetEntry[][]>,
 ): { maxCombos: BetEntry[][]; minCombos: BetEntry[][] } {
-  const groups = new Map<string, BetEntry[][]>()
+  const signatures = new Set<string>()
   for (const combo of combos) {
-    const signature = [...new Set(combo.map(eventKeyOf))].sort().join('|')
-    if (!groups.has(signature)) groups.set(signature, [])
-    groups.get(signature)!.push(combo)
+    signatures.add([...new Set(combo.map(eventKeyOf))].sort().join('|'))
   }
 
   const maxCombos: BetEntry[][] = []
-  let bestMinCombos: BetEntry[][] = []
-  let bestMinValue = Infinity
+  const minCombos: BetEntry[][] = []
 
-  for (const eventKeys of groups.keys()) {
-    const perEventMax: BetEntry[][][] = []
-    const perEventMin: BetEntry[][][] = []
-    for (const eventKey of eventKeys.split('|')) {
-      const candidateEntries = allEntries.filter(
-        (e) => eventKeyOf(e) === eventKey,
-      )
-      if (candidateEntries.length <= 1) {
-        perEventMax.push([candidateEntries])
-        perEventMin.push([candidateEntries])
-        continue
-      }
-      const withOdds = candidateEntries.map((e) => ({
-        odds: e.bet.option.decPrice,
-        market: e.market,
-        outcome: e.bet.option.outcome,
-        entry: e,
-      }))
-      const { minAssigned, maxAssigned } = computeSameEventOddsRange(
-        withOdds,
-        fieldSizeByEvent?.[eventKey],
-      )
-      perEventMax.push(maxAssigned.map((a) => [a.entry]))
-      perEventMin.push(minAssigned.map((a) => [a.entry]))
-    }
+  for (const signature of signatures) {
+    const eventKeyList = signature.split('|')
 
-    maxCombos.push(...crossProductEntries(perEventMax))
+    maxCombos.push(
+      ...crossProductEntries(
+        eventKeyList.map((key) => eventInfo.get(key)!.maxAssigned),
+      ),
+    )
 
-    const eventKeyList = eventKeys.split('|')
-    if (eventKeyList.length === 1) {
-      const minCrossed = crossProductEntries(perEventMin)
-      const minValue = minCrossed.reduce(
-        (sum, combo) =>
-          sum + combo.reduce((acc, e) => acc * e.bet.option.decPrice, 1),
-        0,
-      )
-      if (minValue < bestMinValue) {
-        bestMinValue = minValue
-        bestMinCombos = minCrossed
-      }
-    }
+    // Tutte le combinazioni vincenti nello stesso scenario di minimo vanno
+    // SOMMATE: quelle che coinvolgono un evento che non vince nulla si
+    // azzerano da sole (prodotto incrociato con insieme vuoto).
+    minCombos.push(
+      ...crossProductEntries(
+        eventKeyList.map((key) => minScenario.get(key) ?? []),
+      ),
+    )
   }
 
-  return { maxCombos, minCombos: bestMinCombos }
+  return { maxCombos, minCombos }
 }
 
 export function generateSystemGroups(
@@ -526,6 +603,22 @@ export function generateSystemGroups(
     return groups
   }
 
+  // Info per evento calcolate UNA volta sola (non dipendono dalla taglia) e
+  // condivise fra tutte le taglie: servono anche per decidere, a livello di
+  // INTERO ticket, come si realizza il pagamento minimo positivo.
+  const eventInfo = new Map<string, EventCombosInfo>()
+  for (const eventKey of eventsSet) {
+    eventInfo.set(
+      eventKey,
+      computeEventCombosInfo(
+        entries.filter((e) => eventKeyOf(e) === eventKey),
+        limits?.fieldSizeByEvent?.[eventKey],
+      ),
+    )
+  }
+
+  const minScenario = buildMinScenario(eventInfo, fixedEventKeys)
+
   const avgOptionsPerEvent = entries.length / Math.max(eventsNumber, 1)
 
   for (let size = 1; size <= Math.min(eventsNumber, maxEvents); size++) {
@@ -539,8 +632,8 @@ export function generateSystemGroups(
     if (combos.length === 0) continue
     const { minCombos, maxCombos } = computeTierAssignedCombos(
       combos,
-      entries,
-      limits?.fieldSizeByEvent,
+      eventInfo,
+      minScenario,
     )
 
     let name = ''
