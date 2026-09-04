@@ -46,6 +46,8 @@ function isFinishOrderMarket(normalizedMarket: string): boolean {
     normalizedMarket === 'show' ||
     normalizedMarket === 'exacta' ||
     normalizedMarket === 'trifecta' ||
+    normalizedMarket === 'quinella' ||
+    normalizedMarket === 'boxed_trifecta' ||
     normalizedMarket === 'even_odd' ||
     normalizedMarket.startsWith('underover') ||
     normalizedMarket.startsWith('home_underover') ||
@@ -68,6 +70,16 @@ function isUnderOverMarket(normalizedMarket: string): boolean {
     normalizedMarket.startsWith('underover') ||
     normalizedMarket.startsWith('home_underover') ||
     normalizedMarket.startsWith('away_underover')
+  )
+}
+
+// I mercati che elencano piu' corridori nell'esito ("1-4", "1-4-7").
+function isMultiRunnerMarket(normalizedMarket: string): boolean {
+  return (
+    normalizedMarket === 'exacta' ||
+    normalizedMarket === 'trifecta' ||
+    normalizedMarket === 'quinella' ||
+    normalizedMarket === 'boxed_trifecta'
   )
 }
 
@@ -98,6 +110,22 @@ function evaluatesAsWin(
   if (normalizedMarket === 'trifecta') {
     const [r1, r2, r3] = outcome.split('-').map((n) => parseInt(n, 10))
     return finishOrder[0] === r1 && finishOrder[1] === r2 && finishOrder[2] === r3
+  }
+  // Accoppiata "a girare": i due corridori nei primi due posti in QUALSIASI
+  // ordine.
+  if (normalizedMarket === 'quinella') {
+    const picks = outcome.split('-').map((n) => parseInt(n, 10))
+    if (picks.length !== 2 || picks.some(isNaN)) return false
+    const top2 = finishOrder.slice(0, 2)
+    return picks.every((n) => top2.includes(n))
+  }
+  // Trifecta "a girare"/Combinada: i tre corridori nei primi tre posti in
+  // QUALSIASI ordine.
+  if (normalizedMarket === 'boxed_trifecta') {
+    const picks = outcome.split('-').map((n) => parseInt(n, 10))
+    if (picks.length !== 3 || picks.some(isNaN)) return false
+    const top3 = finishOrder.slice(0, 3)
+    return picks.every((n) => top3.includes(n))
   }
   if (normalizedMarket === 'even_odd') {
     const isEven = winnerNumber % 2 === 0
@@ -154,6 +182,12 @@ function independentGroupCanBeZero(
 
   const n = fieldSize
   switch (normalizedMarket) {
+    case 'winner':
+    case 'placed':
+    case 'show':
+      // Mercati posizionali: se i partenti NON coperti sono almeno quanti i
+      // posti utili, esiste un arrivo che li occupa tutti e fa perdere tutto.
+      return n - picks >= podiumSize
     case 'exacta':
       return picks < n * (n - 1)
     case 'quinella':
@@ -162,8 +196,13 @@ function independentGroupCanBeZero(
       return picks < n * (n - 1) * (n - 2)
     case 'boxed_trifecta':
       return picks < (n * (n - 1) * (n - 2)) / 6
+    case 'even_odd':
+      // Due soli esiti: se sono giocati entrambi, uno vince comunque.
+      return picks < 2
     default:
-      return n - picks >= podiumSize
+      if (isUnderOverMarket(normalizedMarket)) return picks < 2
+      // Mercato sconosciuto: non possiamo affermare che vinca comunque.
+      return true
   }
 }
 
@@ -212,6 +251,14 @@ export function computeSameEventOddsRange<
   let minAssigned: T[] = []
   let simulableCanBeZero = false
   let independentAlwaysWins = false
+  // Minimo della parte simulata e di cio' che vince COMUNQUE; piu' i
+  // candidati "opzionali", cioe' i modi piu' economici di far vincere
+  // qualcosa quando nulla e' obbligato a vincere.
+  let simulableMinOdds = 0
+  let simulableMinAssigned: T[] = []
+  let forcedMinOdds = 0
+  let forcedMinAssigned: T[] = []
+  const optionalMinCandidates: { odds: number; assigned: T[] }[] = []
 
   if (simulableEntries.length > 0) {
     const numbersInPlay = simulableEntries
@@ -219,8 +266,7 @@ export function computeSameEventOddsRange<
         normalized === 'winner' ||
         normalized === 'placed' ||
         normalized === 'show' ||
-        normalized === 'exacta' ||
-        normalized === 'trifecta'
+        isMultiRunnerMarket(normalized)
           ? (entry.outcome as string).split('-').map((n) => parseInt(n, 10))
           : [NaN],
       )
@@ -265,8 +311,8 @@ export function computeSameEventOddsRange<
     })
     maxOddsSum += Math.max(0, bestSum)
     maxAssigned = maxAssigned.concat(bestWinners)
-    minOdds += worstPositiveSum === Infinity ? 0 : worstPositiveSum
-    minAssigned.push(...worstPositiveWinners)
+    simulableMinOdds = worstPositiveSum === Infinity ? 0 : worstPositiveSum
+    simulableMinAssigned = worstPositiveWinners
   }
 
   if (independentEntries.length > 0) {
@@ -319,20 +365,58 @@ export function computeSameEventOddsRange<
         forcedWinCount,
       )
 
-      minOdds += groupMinAssigned.reduce((sum, e) => sum + e.odds, 0)
-      minAssigned = minAssigned.concat(groupMinAssigned)
-
       if (
-        !independentGroupCanBeZero(
+        independentGroupCanBeZero(
           normalizedMarket,
           groupEntries.length,
           podiumSize,
           fieldSize,
         )
       ) {
+        // Il gruppo puo' perdere tutto: non va incluso a forza nel minimo
+        // dell'evento, ma resta un candidato per renderlo positivo se non
+        // vince nulla di obbligato.
+        const cheapest = groupEntries.reduce((best, e) =>
+          e.odds < best.odds ? e : best,
+        )
+        optionalMinCandidates.push({
+          odds: cheapest.odds,
+          assigned: [cheapest],
+        })
+      } else {
         independentAlwaysWins = true
+        forcedMinOdds += groupMinAssigned.reduce((sum, e) => sum + e.odds, 0)
+        forcedMinAssigned = forcedMinAssigned.concat(groupMinAssigned)
       }
     }
+  }
+
+  // Minimo dell'evento: prima cio' che vince OBBLIGATORIAMENTE (mercati a
+  // copertura totale). Se non c'e' nulla di obbligato, l'evento puo' non
+  // vincere niente: il suo minimo POSITIVO e' allora il modo piu' economico
+  // per fargli vincere qualcosa.
+  if (simulableEntries.length > 0 && !simulableCanBeZero) {
+    forcedMinOdds += simulableMinOdds
+    forcedMinAssigned = forcedMinAssigned.concat(simulableMinAssigned)
+  }
+
+  if (forcedMinAssigned.length > 0) {
+    minOdds = forcedMinOdds
+    minAssigned = forcedMinAssigned
+  } else {
+    const candidates = [...optionalMinCandidates]
+    if (simulableMinAssigned.length > 0) {
+      candidates.push({
+        odds: simulableMinOdds,
+        assigned: simulableMinAssigned,
+      })
+    }
+    const best = candidates.reduce<{ odds: number; assigned: T[] } | null>(
+      (acc, c) => (acc === null || c.odds < acc.odds ? c : acc),
+      null,
+    )
+    minOdds = best ? best.odds : 0
+    minAssigned = best ? best.assigned : []
   }
 
   const canBeZero =
@@ -496,41 +580,143 @@ function computeEventCombosInfo(
   }
 }
 
+// Sottoinsiemi di eventi che possono formare una combinazione di taglia
+// `size`: devono contenere TUTTE le corse fisse, che compaiono in ogni
+// combinazione.
+function validEventSubsets(
+  eventKeys: string[],
+  fixedEventKeys: Set<string>,
+  size: number,
+): string[][] {
+  if (size < fixedEventKeys.size || size > eventKeys.length) return []
+  const free = eventKeys.filter((k) => !fixedEventKeys.has(k))
+  const need = size - fixedEventKeys.size
+  const out: string[][] = []
+  const cur: string[] = []
+  const rec = (start: number) => {
+    if (cur.length === need) {
+      out.push([...fixedEventKeys, ...cur])
+      return
+    }
+    for (let i = start; i < free.length; i++) {
+      cur.push(free[i])
+      rec(i + 1)
+      cur.pop()
+    }
+  }
+  rec(0)
+  return out
+}
+
 function buildMinScenario(
   eventInfo: Map<string, EventCombosInfo>,
   fixedEventKeys: Set<string>,
+  playedSizes: number[],
 ): Map<string, BetEntry[][]> {
-  const scenario = new Map<string, BetEntry[][]>()
-  const someEventAlwaysWins = [...eventInfo.values()].some(
-    (info) => !info.canBeZero,
+  const eventKeys = [...eventInfo.keys()]
+  // Gli eventi che vincono comunque (mercati a copertura totale del campo)
+  // fanno parte di OGNI scenario: non e' possibile azzerarli.
+  const alwaysWinning = new Set(
+    eventKeys.filter((k) => !eventInfo.get(k)!.canBeZero),
   )
 
-  if (someEventAlwaysWins) {
+  // Quanto paga uno scenario, a meno della puntata: somma, su ogni taglia
+  // giocata, delle combinazioni interamente comprese negli eventi attivi.
+  const scoreOf = (active: Set<string>) => {
+    let score = 0
+    for (const size of playedSizes) {
+      for (const subset of validEventSubsets(eventKeys, fixedEventKeys, size)) {
+        if (!subset.every((k) => active.has(k))) continue
+        score += subset.reduce(
+          (prod, k) => prod * eventInfo.get(k)!.positiveOdds,
+          1,
+        )
+      }
+    }
+    return score
+  }
+
+  const scenarioOf = (active: Set<string>) => {
+    const scenario = new Map<string, BetEntry[][]>()
     for (const [eventKey, info] of eventInfo) {
-      scenario.set(eventKey, info.canBeZero ? [] : info.positiveAssigned)
+      scenario.set(eventKey, active.has(eventKey) ? info.positiveAssigned : [])
     }
     return scenario
   }
 
-  const active = new Set<string>()
-  if (fixedEventKeys.size > 0) {
-    for (const eventKey of fixedEventKeys) active.add(eventKey)
-  } else {
-    let cheapestEventKey: string | null = null
-    let cheapestOdds = Infinity
-    for (const [eventKey, info] of eventInfo) {
-      if (info.positiveOdds < cheapestOdds) {
-        cheapestOdds = info.positiveOdds
-        cheapestEventKey = eventKey
+  // 1) Se cio' che vince comunque basta a far pagare almeno una combinazione
+  //    di una taglia giocata, quello E' il minimo.
+  if (scoreOf(alwaysWinning) > 0) return scenarioOf(alwaysWinning)
+
+  // 2) Altrimenti serve far vincere qualche evento in piu': si attiva il piu'
+  //    piccolo insieme capace di far pagare una combinazione (se si gioca
+  //    solo la Doppia servono DUE corse vincenti, non una) e tra le
+  //    alternative si tiene la piu' economica. Il confronto usa le quote:
+  //    e' esatto quando le taglie hanno la stessa puntata per combinazione.
+  let bestActive: Set<string> | null = null
+  let bestScore = Infinity
+  for (const size of [...playedSizes].sort((a, b) => a - b)) {
+    for (const subset of validEventSubsets(eventKeys, fixedEventKeys, size)) {
+      const active = new Set([...alwaysWinning, ...subset])
+      const score = scoreOf(active)
+      if (score > 0 && score < bestScore) {
+        bestScore = score
+        bestActive = active
       }
     }
-    if (cheapestEventKey !== null) active.add(cheapestEventKey)
+    if (bestActive) break
   }
 
-  for (const [eventKey, info] of eventInfo) {
-    scenario.set(eventKey, active.has(eventKey) ? info.positiveAssigned : [])
+  return scenarioOf(bestActive ?? alwaysWinning)
+}
+
+// Ricalcola SOLO le combinazioni vincenti nel caso minimo, riusando le
+// combinazioni gia' generate: il minimo dipende da quali taglie sono
+// effettivamente giocate, e le puntate si conoscono solo dopo la generazione.
+export function reassignMinCombinations(
+  groups: SystemGroup[],
+  entries: BetEntry[],
+  limits?: {
+    fieldSizeByEvent?: Record<string, number>
+    playedSizes?: number[]
+  },
+): SystemGroup[] {
+  if (groups.length === 0) return groups
+
+  const eventKeys = [...new Set(entries.map(eventKeyOf))]
+  const eventInfo = new Map<string, EventCombosInfo>()
+  for (const eventKey of eventKeys) {
+    eventInfo.set(
+      eventKey,
+      computeEventCombosInfo(
+        entries.filter((e) => eventKeyOf(e) === eventKey),
+        limits?.fieldSizeByEvent?.[eventKey],
+      ),
+    )
   }
-  return scenario
+
+  const fixedEventKeys = new Set(entries.filter((e) => e.fixed).map(eventKeyOf))
+  const playedSizes =
+    limits?.playedSizes && limits.playedSizes.length > 0
+      ? limits.playedSizes
+      : groups.map((g) => g.size)
+  const minScenario = buildMinScenario(eventInfo, fixedEventKeys, playedSizes)
+
+  return groups.map((group) => {
+    const signatures = new Set<string>()
+    for (const combo of group.combinations) {
+      signatures.add([...new Set(combo.map(eventKeyOf))].sort().join('|'))
+    }
+    const minCombos: BetEntry[][] = []
+    for (const signature of signatures) {
+      minCombos.push(
+        ...crossProductEntries(
+          signature.split('|').map((key) => minScenario.get(key) ?? []),
+        ),
+      )
+    }
+    return { ...group, minWinAssignedCombinations: minCombos }
+  })
 }
 
 function computeTierAssignedCombos(
@@ -574,6 +760,10 @@ export function generateSystemGroups(
     maxSelections?: number
     maxEvents?: number
     fieldSizeByEvent?: Record<string, number>
+    // Taglie realmente giocate (quelle con puntata > 0). Serve al minimo: se
+    // per esempio si gioca solo la Doppia, il pagamento minimo positivo
+    // richiede che vincano DUE corse, non una.
+    playedSizes?: number[]
   },
 ): SystemGroup[] {
   const groups: SystemGroup[] = []
@@ -658,7 +848,11 @@ export function generateSystemGroups(
     )
   }
 
-  const minScenario = buildMinScenario(eventInfo, fixedEventKeys)
+  const playedSizes =
+    limits?.playedSizes && limits.playedSizes.length > 0
+      ? limits.playedSizes
+      : Array.from({ length: eventsNumber }, (_, i) => i + 1)
+  const minScenario = buildMinScenario(eventInfo, fixedEventKeys, playedSizes)
 
   const avgOptionsPerEvent = entries.length / Math.max(eventsNumber, 1)
 

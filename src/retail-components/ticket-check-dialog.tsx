@@ -173,7 +173,15 @@ function marketNameForCalc(
   sel: TicketDetailSelection,
   description: string,
 ): string {
-  return sel.game?.dict?.markets?.[description] || description
+  // Va passato il CODICE del backend ("underover", "quinella"...), perché è
+  // quello che il classificatore riconosce: le etichette leggibili no
+  // ("Accoppiata" e "Trio" non verrebbero riconosciute e finirebbero nel
+  // calcolo prudenziale). Dal dizionario prendiamo solo un eventuale numero,
+  // che sui mercati Under/Over è la soglia; se non c'è, il motore la ricava
+  // dal numero di partenti.
+  const label = sel.game?.dict?.markets?.[description] || ''
+  const threshold = label.match(/\d+\.?\d*/)
+  return threshold ? `${description} ${threshold[0]}` : description
 }
 
 function rawOutcomeOrUndefined(description: string): string | undefined {
@@ -232,43 +240,77 @@ function eventOddsRange(group: EventOddsGroup): {
   }
 }
 
+// Sottoinsiemi di eventi che possono formare una combinazione di quella
+// taglia: devono contenere tutte le corse fisse.
+function validGroupSubsets(
+  fixedGroups: EventOddsGroup[],
+  nonFixedGroups: EventOddsGroup[],
+  size: number,
+): EventOddsGroup[][] {
+  const need = size - fixedGroups.length
+  if (need < 0 || need > nonFixedGroups.length) return []
+  const out: EventOddsGroup[][] = []
+  const cur: EventOddsGroup[] = []
+  const rec = (start: number) => {
+    if (cur.length === need) {
+      out.push([...fixedGroups, ...cur])
+      return
+    }
+    for (let i = start; i < nonFixedGroups.length; i++) {
+      cur.push(nonFixedGroups[i])
+      rec(i + 1)
+      cur.pop()
+    }
+  }
+  rec(0)
+  return out
+}
+
 function buildMinScenarioLists(
   fixedGroups: EventOddsGroup[],
   nonFixedGroups: EventOddsGroup[],
   rangeOf: (group: EventOddsGroup) => ReturnType<typeof eventOddsRange>,
+  playedSizes: number[],
 ): Map<EventOddsGroup, number[]> {
-  const scenario = new Map<EventOddsGroup, number[]>()
   const allGroups = [...fixedGroups, ...nonFixedGroups]
-  const someGroupAlwaysWins = allGroups.some((g) => !rangeOf(g).canBeZero)
+  const alwaysWinning = new Set(allGroups.filter((g) => !rangeOf(g).canBeZero))
 
-  if (someGroupAlwaysWins) {
+  const scoreOf = (active: Set<EventOddsGroup>) => {
+    let score = 0
+    for (const size of playedSizes) {
+      for (const subset of validGroupSubsets(fixedGroups, nonFixedGroups, size)) {
+        if (!subset.every((g) => active.has(g))) continue
+        score += subset.reduce((prod, g) => prod * rangeOf(g).positiveOdds, 1)
+      }
+    }
+    return score
+  }
+
+  const scenarioOf = (active: Set<EventOddsGroup>) => {
+    const scenario = new Map<EventOddsGroup, number[]>()
     for (const group of allGroups) {
-      const range = rangeOf(group)
-      scenario.set(group, range.canBeZero ? [] : range.minAssigned)
+      scenario.set(group, active.has(group) ? rangeOf(group).minAssigned : [])
     }
     return scenario
   }
 
-  const active = new Set<EventOddsGroup>()
-  if (fixedGroups.length > 0) {
-    for (const group of fixedGroups) active.add(group)
-  } else {
-    let cheapest: EventOddsGroup | null = null
-    let cheapestOdds = Infinity
-    for (const group of allGroups) {
-      const odds = rangeOf(group).positiveOdds
-      if (odds < cheapestOdds) {
-        cheapestOdds = odds
-        cheapest = group
+  if (scoreOf(alwaysWinning) > 0) return scenarioOf(alwaysWinning)
+
+  let bestActive: Set<EventOddsGroup> | null = null
+  let bestScore = Infinity
+  for (const size of [...playedSizes].sort((a, b) => a - b)) {
+    for (const subset of validGroupSubsets(fixedGroups, nonFixedGroups, size)) {
+      const active = new Set([...alwaysWinning, ...subset])
+      const score = scoreOf(active)
+      if (score > 0 && score < bestScore) {
+        bestScore = score
+        bestActive = active
       }
     }
-    if (cheapest) active.add(cheapest)
+    if (bestActive) break
   }
 
-  for (const group of allGroups) {
-    scenario.set(group, active.has(group) ? rangeOf(group).minAssigned : [])
-  }
-  return scenario
+  return scenarioOf(bestActive ?? alwaysWinning)
 }
 
 function sumRoundedCrossProduct(oddsLists: number[][], stake: number): number {
@@ -436,10 +478,15 @@ export function computeMinMaxWin(info: TicketDetailInfo): {
     }
     return range
   }
+  // Le taglie realmente giocate sono quelle presenti nel ticket.
+  const playedSizes = systemKeys
+    .map((k) => parseInt(k))
+    .filter((size) => !isNaN(size) && size >= 1 && size <= n)
   const minScenario = buildMinScenarioLists(
     fixedGroups,
     nonFixedGroups,
     rangeOf,
+    playedSizes,
   )
 
   let minWin = 0

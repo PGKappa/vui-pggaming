@@ -11,7 +11,10 @@ import { Button } from '@/retail-components/ui/button'
 import { Card, CardContent, CardFooter } from '@/retail-components/ui/card'
 import { BetsContext } from '@/retail-contexts/bets-context'
 import { RootContext } from '@/retail-contexts/root-context'
-import { generateSystemGroups } from '@/retail-lib/system-bets'
+import {
+  generateSystemGroups,
+  reassignMinCombinations,
+} from '@/retail-lib/system-bets'
 import {
   BetEntry,
   Discipline,
@@ -193,13 +196,20 @@ export default function BettingSlip({
   }, [betMode, systemEventsCount, maxEvents, t])
 
   const systemGroups = useMemo(() => {
-    return baseSystemGroups
+    const playedSizes = baseSystemGroups
+      .filter((group) => (systemGroupStakes[group.name] ?? 0) > 0)
+      .map((group) => group.size)
+
+    return reassignMinCombinations(baseSystemGroups, betEntries, {
+      fieldSizeByEvent: raceFieldSizes,
+      playedSizes,
+    })
       .map((group) => ({
         ...group,
         stake: systemGroupStakes[group.name] ?? 0,
       }))
       .sort((a, b) => b.size - a.size)
-  }, [baseSystemGroups, systemGroupStakes])
+  }, [baseSystemGroups, systemGroupStakes, betEntries, raceFieldSizes])
   const systemGroupsRef = useRef(systemGroups)
   systemGroupsRef.current = systemGroups
 
