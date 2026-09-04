@@ -53,11 +53,30 @@ function isFinishOrderMarket(normalizedMarket: string): boolean {
   )
 }
 
+function underOverThreshold(
+  rawMarket: string,
+  fieldSize?: number,
+): number | null {
+  const fromName = rawMarket.match(/(\d+\.?\d*)/)
+  if (fromName) return parseFloat(fromName[1])
+  if (fieldSize !== undefined && fieldSize > 0) return fieldSize / 2 + 0.5
+  return null
+}
+
+function isUnderOverMarket(normalizedMarket: string): boolean {
+  return (
+    normalizedMarket.startsWith('underover') ||
+    normalizedMarket.startsWith('home_underover') ||
+    normalizedMarket.startsWith('away_underover')
+  )
+}
+
 function evaluatesAsWin(
   normalizedMarket: string,
   rawMarket: string,
   outcome: string,
   finishOrder: number[],
+  fieldSize?: number,
 ): boolean {
   const winnerNumber = finishOrder[0]
 
@@ -85,13 +104,8 @@ function evaluatesAsWin(
     const side = normalizeEvenOddValue(outcome)
     return side === 'even' ? isEven : !isEven
   }
-  if (
-    normalizedMarket.startsWith('underover') ||
-    normalizedMarket.startsWith('home_underover') ||
-    normalizedMarket.startsWith('away_underover')
-  ) {
-    const thresholdMatch = rawMarket.match(/(\d+\.?\d*)/)
-    const threshold = thresholdMatch ? parseFloat(thresholdMatch[1]) : null
+  if (isUnderOverMarket(normalizedMarket)) {
+    const threshold = underOverThreshold(rawMarket, fieldSize)
     if (threshold === null) return false
     const side = normalizeUnderOverValue(outcome)
     return side === 'under' ? winnerNumber < threshold : winnerNumber > threshold
@@ -178,7 +192,14 @@ export function computeSameEventOddsRange<
   const independentEntries: T[] = []
   for (const entry of entries) {
     const normalized = normalizeMarketName(entry.market)
-    if (isFinishOrderMarket(normalized) && entry.outcome !== undefined) {
+    const thresholdKnown =
+      !isUnderOverMarket(normalized) ||
+      underOverThreshold(entry.market, fieldSize) !== null
+    if (
+      isFinishOrderMarket(normalized) &&
+      entry.outcome !== undefined &&
+      thresholdKnown
+    ) {
       simulableEntries.push({ entry, normalized })
     } else {
       independentEntries.push(entry)
@@ -219,7 +240,15 @@ export function computeSameEventOddsRange<
       let sum = 0
       const winners: T[] = []
       for (const { entry, normalized } of simulableEntries) {
-        if (evaluatesAsWin(normalized, entry.market, entry.outcome as string, finishOrder)) {
+        if (
+          evaluatesAsWin(
+            normalized,
+            entry.market,
+            entry.outcome as string,
+            finishOrder,
+            fieldSize,
+          )
+        ) {
           sum += entry.odds
           winners.push(entry)
         }
