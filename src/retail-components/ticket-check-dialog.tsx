@@ -81,11 +81,6 @@ function getBetTypeLabel(
   return 'single'
 }
 
-// ticketInfo.time arriva dal backend in UTC (stesso pattern già corretto in
-// parseTicketTime, use-ticket-list.ts) — va convertito in orario locale con
-// Date.UTC, non semplicemente formattato come se fosse già locale, altrimenti
-// il Dettaglio Ticket mostra un orario indietro di 2 ore (GMT 0 invece di
-// GMT+2) rispetto all'orario evento mostrato correttamente altrove.
 function toLocalDateFromTicketTime(time: TicketDetailInfo['time']): Date {
   const [year, month, day, hour, min, sec] = time
   return new Date(Date.UTC(year, month, day, hour, min, sec ?? 0))
@@ -169,15 +164,22 @@ function selectionFieldSize(sel: TicketDetailSelection): number | undefined {
   return runnersCount > 0 ? runnersCount : undefined
 }
 
+const OUTCOME_SIDES = [
+  'under', 'over', 'menos', 'más', 'mas', 'un', 'ov', 'u', 'o', 'me', 'm', 'ma',
+  'even', 'odd', 'par', 'pari', 'impar', 'dispari',
+]
+function rawOutcomeOrUndefined(description: string): string | undefined {
+  const d = (description || '').trim().toLowerCase()
+  if (/^\d+(-\d+)*$/.test(d)) return d
+  if (OUTCOME_SIDES.includes(d)) return d
+  return undefined
+}
+
 type EventOddsGroup = {
-  entries: { odds: number; market: string }[]
+  entries: { odds: number; market: string; outcome?: string }[]
   fieldSize?: number
 }
 
-// Un evento per gruppo (fisso o variabile), con TUTTE le sue selezioni
-// (odds + nome mercato) e, se disponibile, il numero totale di partecipanti
-// alla gara — serve a computeSameEventOddsRange per capire se il campo è
-// coperto per intero (vedi lo stesso ragionamento in system-bets.ts).
 function getEventOddsGroups(info: TicketDetailInfo): {
   fixedGroups: EventOddsGroup[]
   nonFixedGroups: EventOddsGroup[]
@@ -186,11 +188,16 @@ function getEventOddsGroups(info: TicketDetailInfo): {
   const nonFixedGroups: EventOddsGroup[] = []
   for (const sel of info.selections) {
     const isBanker = String(sel.isBanker) === 'true'
-    const entries: { odds: number; market: string }[] = []
+    const entries: { odds: number; market: string; outcome?: string }[] = []
     for (const market of sel.markets) {
       for (const s of market.selections) {
         const o = parseFloat(s.odds)
-        if (o > 0) entries.push({ odds: o, market: market.description })
+        if (o > 0)
+          entries.push({
+            odds: o,
+            market: market.description,
+            outcome: rawOutcomeOrUndefined(s.description),
+          })
       }
     }
     if (entries.length === 0) entries.push({ odds: 1, market: '' })
@@ -201,23 +208,12 @@ function getEventOddsGroups(info: TicketDetailInfo): {
   return { fixedGroups, nonFixedGroups }
 }
 
-// Quote realmente raggiungibili nel caso migliore/peggiore per un singolo
-// evento — se l'evento ha una sola selezione non c'è nulla da capire, è
-// sempre quella.
 function eventOddsRange(group: EventOddsGroup): {
   minAssigned: number[]
   maxAssigned: number[]
   positiveOdds: number
   canBeZero: boolean
 } {
-  if (group.entries.length === 1) {
-    return {
-      minAssigned: [group.entries[0].odds],
-      maxAssigned: [group.entries[0].odds],
-      positiveOdds: group.entries[0].odds,
-      canBeZero: false,
-    }
-  }
   const { minAssigned, maxAssigned, minOdds, canBeZero } =
     computeSameEventOddsRange(group.entries, group.fieldSize)
   return {
@@ -367,7 +363,11 @@ export function computeMinMaxWin(info: TicketDetailInfo): {
     const sel = info.selections[0]
     const oddsEntries = sel.markets.flatMap((market) =>
       market.selections
-        .map((s) => ({ odds: parseFloat(s.odds), market: market.description }))
+        .map((s) => ({
+          odds: parseFloat(s.odds),
+          market: market.description,
+          outcome: rawOutcomeOrUndefined(s.description),
+        }))
         .filter((e) => e.odds > 0),
     )
     if (oddsEntries.length === 0) return { minWin: 0, maxWin: 0 }
