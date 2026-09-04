@@ -82,7 +82,7 @@ function evaluatesAsWin(
   }
   if (normalizedMarket === 'even_odd') {
     const isEven = winnerNumber % 2 === 0
-    const side = normalizeUnderOverEvenOdd(outcome)
+    const side = normalizeEvenOddValue(outcome)
     return side === 'even' ? isEven : !isEven
   }
   if (
@@ -99,10 +99,11 @@ function evaluatesAsWin(
   return false
 }
 
-function normalizeUnderOverEvenOdd(value: string): 'even' | 'odd' {
-  const v = value.toLowerCase()
-  if (['even', 'pari', 'par'].some((w) => v.includes(w))) return 'even'
-  return 'odd'
+function normalizeEvenOddValue(value: string): 'even' | 'odd' {
+  const v = value.toLowerCase().trim()
+  if (v.includes('impar') || v.includes('dispari') || v.includes('odd'))
+    return 'odd'
+  return 'even'
 }
 
 function forEachFinishOrder(
@@ -127,6 +128,29 @@ function forEachFinishOrder(
     }
   }
   recurse(0)
+}
+
+function independentGroupCanBeZero(
+  normalizedMarket: string,
+  picks: number,
+  podiumSize: number,
+  fieldSize?: number,
+): boolean {
+  if (fieldSize === undefined) return true
+
+  const n = fieldSize
+  switch (normalizedMarket) {
+    case 'exacta':
+      return picks < n * (n - 1)
+    case 'quinella':
+      return picks < (n * (n - 1)) / 2
+    case 'trifecta':
+      return picks < n * (n - 1) * (n - 2)
+    case 'boxed_trifecta':
+      return picks < (n * (n - 1) * (n - 2)) / 6
+    default:
+      return n - picks >= podiumSize
+  }
 }
 
 export function computeSameEventOddsRange<
@@ -166,6 +190,7 @@ export function computeSameEventOddsRange<
   let minOdds = 0
   let minAssigned: T[] = []
   let simulableCanBeZero = false
+  let independentAlwaysWins = false
 
   if (simulableEntries.length > 0) {
     const numbersInPlay = simulableEntries
@@ -242,7 +267,7 @@ export function computeSameEventOddsRange<
       groups.get(key)!.push(entry)
     }
 
-    for (const groupEntries of groups.values()) {
+    for (const [normalizedMarket, groupEntries] of groups) {
       const withSlots = groupEntries.map((e) => ({
         entry: e,
         slots: getMarketSlotCount(normalizeMarketName(e.market)),
@@ -267,11 +292,22 @@ export function computeSameEventOddsRange<
 
       minOdds += groupMinAssigned.reduce((sum, e) => sum + e.odds, 0)
       minAssigned = minAssigned.concat(groupMinAssigned)
+
+      if (
+        !independentGroupCanBeZero(
+          normalizedMarket,
+          groupEntries.length,
+          podiumSize,
+          fieldSize,
+        )
+      ) {
+        independentAlwaysWins = true
+      }
     }
   }
 
   const canBeZero =
-    independentEntries.length === 0 &&
+    !independentAlwaysWins &&
     (simulableEntries.length === 0 || simulableCanBeZero)
 
   return { minOdds, maxOddsSum, maxAssigned, minAssigned, canBeZero }
@@ -412,7 +448,7 @@ function computeEventCombosInfo(
         (sum, e) => sum + e.bet.option.decPrice,
         0,
       ),
-      canBeZero: false,
+      canBeZero: true,
     }
   }
   const withOdds = candidateEntries.map((e) => ({
@@ -431,17 +467,6 @@ function computeEventCombosInfo(
   }
 }
 
-// Costruisce, per ogni evento, le selezioni che vincono nello scenario di
-// PAGAMENTO MINIMO POSITIVO dell'intero ticket (insieme vuoto = quell'evento
-// non vince nulla). Le tre situazioni possibili:
-//  1. almeno un evento vince comunque (mercato che copre tutti i partenti):
-//     non lo si puo' azzerare, quindi ogni evento va al proprio minimo
-//     raggiungibile e i contributi di tutte le taglie si sommano;
-//  2. ci sono corse fisse: compaiono in OGNI combinazione, quindi nessun
-//     pagamento e' possibile senza di loro — vincono solo le fisse, al
-//     proprio minimo;
-//  3. nessun vincolo: vince un solo evento, il piu' economico, e tutto il
-//     resto va a zero.
 function buildMinScenario(
   eventInfo: Map<string, EventCombosInfo>,
   fixedEventKeys: Set<string>,
@@ -547,16 +572,6 @@ export function generateSystemGroups(
     return groups
   }
 
-  // La classificazione fisso/non-fisso va fatta per EVENTO, non per singola
-  // selezione: se un evento ha almeno una selezione marcata "fissa" (banker),
-  // TUTTE le sue selezioni sono alternative dello stesso slot obbligatorio —
-  // esattamente come il backend tratta un evento banker con più esiti nello
-  // stesso selection object. Se si classificasse per singola selezione, una
-  // nuova selezione aggiunta a un evento già fisso verrebbe scartata dal
-  // generatore di combinazioni (il suo evento risulta già "occupato" dalla
-  // selezione fissa), facendo apparire il conteggio combinazioni bloccato su
-  // un valore vecchio mentre il ticket realmente inviato (che include TUTTE
-  // le selezioni dell'evento banker) ne contiene molte di più.
   const fixedEventKeys = new Set<string>()
   entries.forEach((entry) => {
     if (entry.fixed) {
@@ -603,9 +618,6 @@ export function generateSystemGroups(
     return groups
   }
 
-  // Info per evento calcolate UNA volta sola (non dipendono dalla taglia) e
-  // condivise fra tutte le taglie: servono anche per decidere, a livello di
-  // INTERO ticket, come si realizza il pagamento minimo positivo.
   const eventInfo = new Map<string, EventCombosInfo>()
   for (const eventKey of eventsSet) {
     eventInfo.set(
