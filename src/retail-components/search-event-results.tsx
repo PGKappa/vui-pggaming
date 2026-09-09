@@ -1042,7 +1042,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
             </button>
             <div className="flex h-[660px] w-full items-center justify-center bg-black">
               {replayError ? (
-                <div className="max-w-[80%] break-words text-center text-[13px] text-white">
+                <div className="max-w-[85%] rounded-lg bg-red-600 px-4 py-3 text-center text-[13px] font-medium text-white shadow-lg">
                   {replayError}
                 </div>
               ) : (
@@ -1056,21 +1056,15 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                   height="100%"
                   config={{ file: { attributes: { playsInline: true } } }}
                   onEnded={() => setShowReplay(false)}
-                  onError={(e, data, hlsInstance, hlsGlobal) => {
-                    const details = {
-                      error: e,
-                      data,
-                      userAgent:
-                        typeof navigator !== 'undefined'
-                          ? navigator.userAgent
-                          : 'n/a',
-                      url: replayUrl,
-                    }
-                    console.error('Replay video error:', details)
+                  onError={(e) => {
+                    const userAgent =
+                      typeof navigator !== 'undefined'
+                        ? navigator.userAgent
+                        : 'n/a'
                     setReplayError(
                       `Errore riproduzione video: ${
                         typeof e === 'string' ? e : JSON.stringify(e)
-                      } | UA: ${details.userAgent}`,
+                      } | UA: ${userAgent}`,
                     )
                   }}
                 />
