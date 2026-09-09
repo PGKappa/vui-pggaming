@@ -815,6 +815,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
   const [showReplay, setShowReplay] = useState(false)
   const [replayUrl, setReplayUrl] = useState<string | null>(null)
   const [loadingReplay, setLoadingReplay] = useState(false)
+  const [replayError, setReplayError] = useState<string | null>(null)
 
   const fetchReplay = useCallback(async () => {
     if (!rootContext.initCode || !rootContext.operator || !eventResult.extId)
@@ -843,6 +844,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
       }
       const data = await response.json()
       console.log('Replay response:', data)
+      setReplayError(null)
       if (data.video?.src) {
         setReplayUrl(data.video.src)
         setShowReplay(true)
@@ -1039,18 +1041,40 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
               <X className="h-5 w-5" />
             </button>
             <div className="flex h-[660px] w-full items-center justify-center bg-black">
-              <ReactPlayer
-                key={replayUrl}
-                url={replayUrl}
-                playing
-                controls
-                muted
-                width="100%"
-                height="100%"
-                config={{ file: { attributes: { playsInline: true } } }}
-                onEnded={() => setShowReplay(false)}
-                onError={(e) => console.error('Video error:', e)}
-              />
+              {replayError ? (
+                <div className="max-w-[80%] break-words text-center text-[13px] text-white">
+                  {replayError}
+                </div>
+              ) : (
+                <ReactPlayer
+                  key={replayUrl}
+                  url={replayUrl}
+                  playing
+                  controls
+                  muted
+                  width="100%"
+                  height="100%"
+                  config={{ file: { attributes: { playsInline: true } } }}
+                  onEnded={() => setShowReplay(false)}
+                  onError={(e, data, hlsInstance, hlsGlobal) => {
+                    const details = {
+                      error: e,
+                      data,
+                      userAgent:
+                        typeof navigator !== 'undefined'
+                          ? navigator.userAgent
+                          : 'n/a',
+                      url: replayUrl,
+                    }
+                    console.error('Replay video error:', details)
+                    setReplayError(
+                      `Errore riproduzione video: ${
+                        typeof e === 'string' ? e : JSON.stringify(e)
+                      } | UA: ${details.userAgent}`,
+                    )
+                  }}
+                />
+              )}
             </div>
           </div>
         )

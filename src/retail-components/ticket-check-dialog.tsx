@@ -758,8 +758,20 @@ export default function TicketCheckDialog({
   const [showReplayPlayer, setShowReplayPlayer] = useState(false)
   const [replayIndex, setReplayIndex] = useState(0)
   const [replayVideos, setReplayVideos] = useState<
-    Array<{ url: string | null; loading: boolean; sel: TicketDetailSelection }>
+    Array<{
+      url: string | null
+      loading: boolean
+      sel: TicketDetailSelection
+      error?: string
+    }>
   >([])
+
+  const MEDIA_ERROR_MESSAGES: Record<number, string> = {
+    1: 'MEDIA_ERR_ABORTED (caricamento interrotto)',
+    2: 'MEDIA_ERR_NETWORK (errore di rete)',
+    3: 'MEDIA_ERR_DECODE (errore di decodifica/codec non supportato)',
+    4: 'MEDIA_ERR_SRC_NOT_SUPPORTED (formato/sorgente non supportati)',
+  }
 
   // Deduplicated unique events for replay (computed once ticketInfo is available)
   const uniqueReplaySelections = ticketInfo
@@ -829,6 +841,31 @@ export default function TicketCheckDialog({
     setShowReplayPlayer(true)
     // Fetch first event immediately
     await fetchReplayForIndex(0)
+  }
+
+  const handleReplayVideoError = (
+    index: number,
+    e: React.SyntheticEvent<HTMLVideoElement, Event>,
+  ) => {
+    const mediaError = e.currentTarget.error
+    const details = {
+      code: mediaError?.code,
+      message:
+        (mediaError?.code && MEDIA_ERROR_MESSAGES[mediaError.code]) ||
+        mediaError?.message ||
+        'Errore sconosciuto',
+      url: replayVideos[index]?.url,
+      userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'n/a',
+    }
+    console.error('Replay video error:', details)
+    setReplayVideos((prev) => {
+      const next = [...prev]
+      next[index] = {
+        ...next[index],
+        error: `${details.message} | UA: ${details.userAgent}`,
+      }
+      return next
+    })
   }
 
   const handleReplayNav = async (direction: 'prev' | 'next') => {
@@ -1376,6 +1413,13 @@ export default function TicketCheckDialog({
                         <div className="relative flex h-[200px] items-center justify-center bg-black">
                           {replayVideos[replayIndex]?.loading ? (
                             <div className="h-8 w-8 animate-spin rounded-full border-4 border-accent border-t-transparent" />
+                          ) : replayVideos[replayIndex]?.error ? (
+                            <div
+                              className="max-w-[90%] break-words text-center text-[12px]"
+                              style={{ color: '#e66' }}
+                            >
+                              {replayVideos[replayIndex].error}
+                            </div>
                           ) : replayVideos[replayIndex]?.url ? (
                             <video
                               key={replayVideos[replayIndex].url!}
@@ -1383,6 +1427,7 @@ export default function TicketCheckDialog({
                               controls
                               autoPlay
                               playsInline
+                              onError={(e) => handleReplayVideoError(replayIndex, e)}
                               className="h-full w-full object-contain"
                             />
                           ) : (
