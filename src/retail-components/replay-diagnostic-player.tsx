@@ -19,6 +19,18 @@ const READY_STATE_LABELS = [
   'ENOUGH_DATA',
 ]
 
+const CODEC_PROBES: Array<[string, string]> = [
+  ['H.264 baseline', 'video/mp4; codecs="avc1.42E01E"'],
+  ['H.264 main', 'video/mp4; codecs="avc1.4D401E"'],
+  ['H.264 high', 'video/mp4; codecs="avc1.64001E"'],
+  ['AAC', 'audio/mp4; codecs="mp4a.40.2"'],
+  ['VP8+Vorbis', 'video/webm; codecs="vp8,vorbis"'],
+  ['VP9', 'video/webm; codecs="vp9"'],
+  ['VP9+Opus', 'video/webm; codecs="vp9,opus"'],
+  ['Theora+Vorbis', 'video/ogg; codecs="theora,vorbis"'],
+  ['HLS', 'application/vnd.apple.mpegurl'],
+]
+
 const VIDEO_EVENTS = [
   'loadstart',
   'durationchange',
@@ -52,7 +64,7 @@ export function ReplayDiagnosticPlayer({
 
   const append = useCallback((line: string) => {
     setLog((prev) => [
-      ...prev.slice(-25),
+      ...prev.slice(-60),
       `+${Date.now() - startRef.current}ms  ${line}`,
     ])
   }, [])
@@ -66,11 +78,16 @@ export function ReplayDiagnosticPlayer({
     append(
       `UA: ${typeof navigator !== 'undefined' ? navigator.userAgent : 'n/a'}`,
     )
-    append(
-      `canPlayType mp4/h264: "${video.canPlayType(
-        'video/mp4; codecs="avc1.42E01E"',
-      )}" | mp4 generico: "${video.canPlayType('video/mp4')}" | webm: "${video.canPlayType('video/webm')}"`,
-    )
+    CODEC_PROBES.forEach(([label, type]) => {
+      const canPlay = video.canPlayType(type) || 'NO'
+      const mse =
+        typeof MediaSource !== 'undefined' && MediaSource.isTypeSupported
+          ? MediaSource.isTypeSupported(type)
+            ? 'sì'
+            : 'no'
+          : 'n/d'
+      append(`codec ${label}: canPlayType="${canPlay}" | MSE=${mse}`)
+    })
 
     const handlers: Array<[string, () => void]> = VIDEO_EVENTS.map((name) => {
       const handler = () => {
