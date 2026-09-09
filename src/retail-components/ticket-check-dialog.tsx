@@ -848,21 +848,17 @@ export default function TicketCheckDialog({
     e: React.SyntheticEvent<HTMLVideoElement, Event>,
   ) => {
     const mediaError = e.currentTarget.error
-    const details = {
-      code: mediaError?.code,
-      message:
-        (mediaError?.code && MEDIA_ERROR_MESSAGES[mediaError.code]) ||
-        mediaError?.message ||
-        'Errore sconosciuto',
-      url: replayVideos[index]?.url,
-      userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'n/a',
-    }
-    console.error('Replay video error:', details)
+    const message =
+      (mediaError?.code && MEDIA_ERROR_MESSAGES[mediaError.code]) ||
+      mediaError?.message ||
+      'Errore sconosciuto'
+    const userAgent =
+      typeof navigator !== 'undefined' ? navigator.userAgent : 'n/a'
     setReplayVideos((prev) => {
       const next = [...prev]
       next[index] = {
         ...next[index],
-        error: `${details.message} | UA: ${details.userAgent}`,
+        error: `${message} | UA: ${userAgent}`,
       }
       return next
     })
@@ -1415,8 +1411,8 @@ export default function TicketCheckDialog({
                             <div className="h-8 w-8 animate-spin rounded-full border-4 border-accent border-t-transparent" />
                           ) : replayVideos[replayIndex]?.error ? (
                             <div
-                              className="max-w-[90%] break-words text-center text-[12px]"
-                              style={{ color: '#e66' }}
+                              className="max-w-[90%] rounded-lg px-3 py-2 text-center text-[12px] font-medium text-white shadow-lg"
+                              style={{ background: '#c0392b' }}
                             >
                               {replayVideos[replayIndex].error}
                             </div>
