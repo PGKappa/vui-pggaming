@@ -24,9 +24,7 @@ import { computeSameEventOddsRange } from '@/retail-lib/system-bets'
 import { format } from 'date-fns'
 import { useTranslation } from 'react-i18next'
 import { useCallback, useContext, useEffect, useState } from 'react'
-import { toast } from 'sonner'
 import { RootContext } from '@/retail-contexts/root-context'
-import { ReplayDiagnosticPlayer } from './replay-diagnostic-player'
 
 function getDetailStatus(status: number): {
   translationKey: string
@@ -760,12 +758,7 @@ export default function TicketCheckDialog({
   const [showReplayPlayer, setShowReplayPlayer] = useState(false)
   const [replayIndex, setReplayIndex] = useState(0)
   const [replayVideos, setReplayVideos] = useState<
-    Array<{
-      url: string | null
-      loading: boolean
-      sel: TicketDetailSelection
-      error?: string
-    }>
+    Array<{ url: string | null; loading: boolean; sel: TicketDetailSelection }>
   >([])
 
   // Deduplicated unique events for replay (computed once ticketInfo is available)
@@ -808,51 +801,16 @@ export default function TicketCheckDialog({
         },
         rootContext.operator,
       )
-      const userAgent =
-        typeof navigator !== 'undefined' ? navigator.userAgent : 'n/a'
-      if (!response.ok) {
-        const message = `Errore richiesta replay: HTTP ${response.status} | UA: ${userAgent}`
-        toast.error(message, { duration: Infinity })
-        setReplayVideos((prev) => {
-          const next = [...prev]
-          next[index] = { url: null, loading: false, sel, error: message }
-          return next
-        })
-        return
-      }
-      const data = await response.json()
-      if (data?.video?.src) {
-        toast.info(`URL replay ricevuto: ${data.video.src}`, {
-          duration: Infinity,
-        })
-      } else {
-        toast.error(
-          `Nessun video disponibile per questo evento | UA: ${userAgent}`,
-          { duration: Infinity },
-        )
-      }
+      const data = response.ok ? await response.json() : null
       setReplayVideos((prev) => {
         const next = [...prev]
-        next[index] = data?.video?.src
-          ? { url: data.video.src, loading: false, sel }
-          : {
-              url: null,
-              loading: false,
-              sel,
-              error: `Nessun video disponibile per questo evento | UA: ${userAgent}`,
-            }
+        next[index] = { url: data?.video?.src ?? null, loading: false, sel }
         return next
       })
-    } catch (error) {
-      const userAgent =
-        typeof navigator !== 'undefined' ? navigator.userAgent : 'n/a'
-      const message = `Errore di rete nel richiedere il replay: ${
-        error instanceof Error ? error.message : String(error)
-      } | UA: ${userAgent}`
-      toast.error(message, { duration: Infinity })
+    } catch {
       setReplayVideos((prev) => {
         const next = [...prev]
-        next[index] = { url: null, loading: false, sel, error: message }
+        next[index] = { url: null, loading: false, sel }
         return next
       })
     }
@@ -1416,28 +1374,25 @@ export default function TicketCheckDialog({
 
                         {/* Video area */}
                         <div className="relative flex h-[200px] items-center justify-center bg-black">
-                          {replayVideos[replayIndex]?.error && (
-                            <div
-                              className="absolute left-1/2 top-2 z-10 max-w-[90%] -translate-x-1/2 rounded-lg px-3 py-2 text-center text-[12px] font-medium text-white shadow-lg"
-                              style={{ background: '#c0392b' }}
-                            >
-                              {replayVideos[replayIndex].error}
-                            </div>
-                          )}
                           {replayVideos[replayIndex]?.loading ? (
                             <div className="h-8 w-8 animate-spin rounded-full border-4 border-accent border-t-transparent" />
                           ) : replayVideos[replayIndex]?.url ? (
-                            <ReplayDiagnosticPlayer
-                              url={replayVideos[replayIndex].url!}
+                            <video
+                              key={replayVideos[replayIndex].url!}
+                              src={replayVideos[replayIndex].url!}
+                              controls
+                              autoPlay
+                              playsInline
+                              className="h-full w-full object-contain"
                             />
-                          ) : !replayVideos[replayIndex]?.error ? (
+                          ) : (
                             <span
                               className="text-[13px]"
                               style={{ color: '#666' }}
                             >
                               {t('no_video_available', 'Video non disponibile')}
                             </span>
-                          ) : null}
+                          )}
                         </div>
 
                         {/* Navigation bar — only shown when there are multiple events */}
