@@ -24,7 +24,9 @@ import { computeSameEventOddsRange } from '@/retail-lib/system-bets'
 import { format } from 'date-fns'
 import { useTranslation } from 'react-i18next'
 import { useCallback, useContext, useEffect, useState } from 'react'
+import { toast } from 'sonner'
 import { RootContext } from '@/retail-contexts/root-context'
+import { ReplayDiagnosticPlayer } from './replay-diagnostic-player'
 
 function getDetailStatus(status: number): {
   translationKey: string
@@ -766,13 +768,6 @@ export default function TicketCheckDialog({
     }>
   >([])
 
-  const MEDIA_ERROR_MESSAGES: Record<number, string> = {
-    1: 'MEDIA_ERR_ABORTED (caricamento interrotto)',
-    2: 'MEDIA_ERR_NETWORK (errore di rete)',
-    3: 'MEDIA_ERR_DECODE (errore di decodifica/codec non supportato)',
-    4: 'MEDIA_ERR_SRC_NOT_SUPPORTED (formato/sorgente non supportati)',
-  }
-
   // Deduplicated unique events for replay (computed once ticketInfo is available)
   const uniqueReplaySelections = ticketInfo
     ? (() => {
@@ -816,19 +811,26 @@ export default function TicketCheckDialog({
       const userAgent =
         typeof navigator !== 'undefined' ? navigator.userAgent : 'n/a'
       if (!response.ok) {
+        const message = `Errore richiesta replay: HTTP ${response.status} | UA: ${userAgent}`
+        toast.error(message, { duration: Infinity })
         setReplayVideos((prev) => {
           const next = [...prev]
-          next[index] = {
-            url: null,
-            loading: false,
-            sel,
-            error: `Errore richiesta replay: HTTP ${response.status} | UA: ${userAgent}`,
-          }
+          next[index] = { url: null, loading: false, sel, error: message }
           return next
         })
         return
       }
       const data = await response.json()
+      if (data?.video?.src) {
+        toast.info(`URL replay ricevuto: ${data.video.src}`, {
+          duration: Infinity,
+        })
+      } else {
+        toast.error(
+          `Nessun video disponibile per questo evento | UA: ${userAgent}`,
+          { duration: Infinity },
+        )
+      }
       setReplayVideos((prev) => {
         const next = [...prev]
         next[index] = data?.video?.src
@@ -844,16 +846,13 @@ export default function TicketCheckDialog({
     } catch (error) {
       const userAgent =
         typeof navigator !== 'undefined' ? navigator.userAgent : 'n/a'
+      const message = `Errore di rete nel richiedere il replay: ${
+        error instanceof Error ? error.message : String(error)
+      } | UA: ${userAgent}`
+      toast.error(message, { duration: Infinity })
       setReplayVideos((prev) => {
         const next = [...prev]
-        next[index] = {
-          url: null,
-          loading: false,
-          sel,
-          error: `Errore di rete nel richiedere il replay: ${
-            error instanceof Error ? error.message : String(error)
-          } | UA: ${userAgent}`,
-        }
+        next[index] = { url: null, loading: false, sel, error: message }
         return next
       })
     }
@@ -872,27 +871,6 @@ export default function TicketCheckDialog({
     setShowReplayPlayer(true)
     // Fetch first event immediately
     await fetchReplayForIndex(0)
-  }
-
-  const handleReplayVideoError = (
-    index: number,
-    e: React.SyntheticEvent<HTMLVideoElement, Event>,
-  ) => {
-    const mediaError = e.currentTarget.error
-    const message =
-      (mediaError?.code && MEDIA_ERROR_MESSAGES[mediaError.code]) ||
-      mediaError?.message ||
-      'Errore sconosciuto'
-    const userAgent =
-      typeof navigator !== 'undefined' ? navigator.userAgent : 'n/a'
-    setReplayVideos((prev) => {
-      const next = [...prev]
-      next[index] = {
-        ...next[index],
-        error: `${message} | UA: ${userAgent}`,
-      }
-      return next
-    })
   }
 
   const handleReplayNav = async (direction: 'prev' | 'next') => {
@@ -1449,14 +1427,8 @@ export default function TicketCheckDialog({
                           {replayVideos[replayIndex]?.loading ? (
                             <div className="h-8 w-8 animate-spin rounded-full border-4 border-accent border-t-transparent" />
                           ) : replayVideos[replayIndex]?.url ? (
-                            <video
-                              key={replayVideos[replayIndex].url!}
-                              src={replayVideos[replayIndex].url!}
-                              controls
-                              autoPlay
-                              playsInline
-                              onError={(e) => handleReplayVideoError(replayIndex, e)}
-                              className="h-full w-full object-contain"
+                            <ReplayDiagnosticPlayer
+                              url={replayVideos[replayIndex].url!}
                             />
                           ) : !replayVideos[replayIndex]?.error ? (
                             <span
