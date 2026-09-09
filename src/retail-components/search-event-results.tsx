@@ -4,12 +4,12 @@ import { getRacerColors, createPGVirtualAPICall } from '@/retail-lib/utils'
 import { format } from 'date-fns'
 import { t } from 'i18next'
 import Image from 'next/image'
-import dynamic from 'next/dynamic'
 import { X } from 'lucide-react'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import LoadingSpinner from './loading-spinner'
+import { ReplayDiagnosticPlayer } from './replay-diagnostic-player'
 import {
   Accordion,
   AccordionContent,
@@ -26,8 +26,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select'
-
-const ReactPlayer = dynamic(() => import('react-player'), { ssr: false })
 
 function formatDateForAPI(date: Date) {
   const day = String(date.getDate()).padStart(2, '0')
@@ -841,9 +839,9 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
       const userAgent =
         typeof navigator !== 'undefined' ? navigator.userAgent : 'n/a'
       if (!response.ok) {
-        setReplayError(
-          `Errore richiesta replay: HTTP ${response.status} | UA: ${userAgent}`,
-        )
+        const message = `Errore richiesta replay: HTTP ${response.status} | UA: ${userAgent}`
+        setReplayError(message)
+        toast.error(message, { duration: Infinity })
         setShowReplay(true)
         setLoadingReplay(false)
         return
@@ -853,20 +851,23 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
         setReplayError(null)
         setReplayUrl(data.video.src)
         setShowReplay(true)
+        toast.info(`URL replay ricevuto: ${data.video.src}`, {
+          duration: Infinity,
+        })
       } else {
-        setReplayError(
-          `Nessun video disponibile per questo evento | UA: ${userAgent}`,
-        )
+        const message = `Nessun video disponibile per questo evento | UA: ${userAgent}`
+        setReplayError(message)
+        toast.error(message, { duration: Infinity })
         setShowReplay(true)
       }
     } catch (error) {
       const userAgent =
         typeof navigator !== 'undefined' ? navigator.userAgent : 'n/a'
-      setReplayError(
-        `Errore di rete nel richiedere il replay: ${
-          error instanceof Error ? error.message : String(error)
-        } | UA: ${userAgent}`,
-      )
+      const message = `Errore di rete nel richiedere il replay: ${
+        error instanceof Error ? error.message : String(error)
+      } | UA: ${userAgent}`
+      setReplayError(message)
+      toast.error(message, { duration: Infinity })
       setShowReplay(true)
     }
     setLoadingReplay(false)
@@ -1060,32 +1061,14 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
             </button>
             <div className="relative flex h-[660px] w-full items-center justify-center bg-black">
               {replayError && (
-                <div className="absolute left-1/2 top-4 z-10 max-w-[90%] -translate-x-1/2 rounded-lg bg-red-600 px-4 py-3 text-center text-[13px] font-semibold text-white shadow-2xl">
+                <div className="absolute left-1/2 top-4 z-30 max-w-[90%] -translate-x-1/2 rounded-lg bg-red-600 px-4 py-3 text-center text-[13px] font-semibold text-white shadow-2xl">
                   {replayError}
                 </div>
               )}
               {replayUrl && (
-                <ReactPlayer
-                  key={replayUrl}
+                <ReplayDiagnosticPlayer
                   url={replayUrl}
-                  playing
-                  controls
-                  muted
-                  width="100%"
-                  height="100%"
-                  config={{ file: { attributes: { playsInline: true } } }}
                   onEnded={() => setShowReplay(false)}
-                  onError={(e) => {
-                    const userAgent =
-                      typeof navigator !== 'undefined'
-                        ? navigator.userAgent
-                        : 'n/a'
-                    setReplayError(
-                      `Errore riproduzione video: ${
-                        typeof e === 'string' ? e : JSON.stringify(e)
-                      } | UA: ${userAgent}`,
-                    )
-                  }}
                 />
               )}
             </div>
