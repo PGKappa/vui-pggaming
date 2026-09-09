@@ -838,21 +838,36 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
         },
         rootContext.operator,
       )
+      const userAgent =
+        typeof navigator !== 'undefined' ? navigator.userAgent : 'n/a'
       if (!response.ok) {
+        setReplayError(
+          `Errore richiesta replay: HTTP ${response.status} | UA: ${userAgent}`,
+        )
+        setShowReplay(true)
         setLoadingReplay(false)
         return
       }
       const data = await response.json()
-      console.log('Replay response:', data)
-      setReplayError(null)
       if (data.video?.src) {
+        setReplayError(null)
         setReplayUrl(data.video.src)
         setShowReplay(true)
       } else {
-        console.error('No video src in replay response:', data)
+        setReplayError(
+          `Nessun video disponibile per questo evento | UA: ${userAgent}`,
+        )
+        setShowReplay(true)
       }
     } catch (error) {
-      console.error('Error fetching replay:', error)
+      const userAgent =
+        typeof navigator !== 'undefined' ? navigator.userAgent : 'n/a'
+      setReplayError(
+        `Errore di rete nel richiedere il replay: ${
+          error instanceof Error ? error.message : String(error)
+        } | UA: ${userAgent}`,
+      )
+      setShowReplay(true)
     }
     setLoadingReplay(false)
   }, [
@@ -1031,21 +1046,25 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
         return results
       }
 
-      if (showReplay && replayUrl) {
+      if (showReplay && (replayUrl || replayError)) {
         return (
           <div className="relative mb-[-48px] flex flex-col items-center">
             <button
-              onClick={() => setShowReplay(false)}
-              className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-background/60 text-foreground hover:bg-background/80"
+              onClick={() => {
+                setShowReplay(false)
+                setReplayError(null)
+              }}
+              className="absolute right-3 top-3 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-background/60 text-foreground hover:bg-background/80"
             >
               <X className="h-5 w-5" />
             </button>
-            <div className="flex h-[660px] w-full items-center justify-center bg-black">
-              {replayError ? (
-                <div className="max-w-[85%] rounded-lg bg-red-600 px-4 py-3 text-center text-[13px] font-medium text-white shadow-lg">
+            <div className="relative flex h-[660px] w-full items-center justify-center bg-black">
+              {replayError && (
+                <div className="absolute left-1/2 top-4 z-10 max-w-[90%] -translate-x-1/2 rounded-lg bg-red-600 px-4 py-3 text-center text-[13px] font-semibold text-white shadow-2xl">
                   {replayError}
                 </div>
-              ) : (
+              )}
+              {replayUrl && (
                 <ReactPlayer
                   key={replayUrl}
                   url={replayUrl}

@@ -813,16 +813,47 @@ export default function TicketCheckDialog({
         },
         rootContext.operator,
       )
-      const data = response.ok ? await response.json() : null
+      const userAgent =
+        typeof navigator !== 'undefined' ? navigator.userAgent : 'n/a'
+      if (!response.ok) {
+        setReplayVideos((prev) => {
+          const next = [...prev]
+          next[index] = {
+            url: null,
+            loading: false,
+            sel,
+            error: `Errore richiesta replay: HTTP ${response.status} | UA: ${userAgent}`,
+          }
+          return next
+        })
+        return
+      }
+      const data = await response.json()
       setReplayVideos((prev) => {
         const next = [...prev]
-        next[index] = { url: data?.video?.src ?? null, loading: false, sel }
+        next[index] = data?.video?.src
+          ? { url: data.video.src, loading: false, sel }
+          : {
+              url: null,
+              loading: false,
+              sel,
+              error: `Nessun video disponibile per questo evento | UA: ${userAgent}`,
+            }
         return next
       })
-    } catch {
+    } catch (error) {
+      const userAgent =
+        typeof navigator !== 'undefined' ? navigator.userAgent : 'n/a'
       setReplayVideos((prev) => {
         const next = [...prev]
-        next[index] = { url: null, loading: false, sel }
+        next[index] = {
+          url: null,
+          loading: false,
+          sel,
+          error: `Errore di rete nel richiedere il replay: ${
+            error instanceof Error ? error.message : String(error)
+          } | UA: ${userAgent}`,
+        }
         return next
       })
     }
@@ -1407,15 +1438,16 @@ export default function TicketCheckDialog({
 
                         {/* Video area */}
                         <div className="relative flex h-[200px] items-center justify-center bg-black">
-                          {replayVideos[replayIndex]?.loading ? (
-                            <div className="h-8 w-8 animate-spin rounded-full border-4 border-accent border-t-transparent" />
-                          ) : replayVideos[replayIndex]?.error ? (
+                          {replayVideos[replayIndex]?.error && (
                             <div
-                              className="max-w-[90%] rounded-lg px-3 py-2 text-center text-[12px] font-medium text-white shadow-lg"
+                              className="absolute left-1/2 top-2 z-10 max-w-[90%] -translate-x-1/2 rounded-lg px-3 py-2 text-center text-[12px] font-medium text-white shadow-lg"
                               style={{ background: '#c0392b' }}
                             >
                               {replayVideos[replayIndex].error}
                             </div>
+                          )}
+                          {replayVideos[replayIndex]?.loading ? (
+                            <div className="h-8 w-8 animate-spin rounded-full border-4 border-accent border-t-transparent" />
                           ) : replayVideos[replayIndex]?.url ? (
                             <video
                               key={replayVideos[replayIndex].url!}
@@ -1426,14 +1458,14 @@ export default function TicketCheckDialog({
                               onError={(e) => handleReplayVideoError(replayIndex, e)}
                               className="h-full w-full object-contain"
                             />
-                          ) : (
+                          ) : !replayVideos[replayIndex]?.error ? (
                             <span
                               className="text-[13px]"
                               style={{ color: '#666' }}
                             >
                               {t('no_video_available', 'Video non disponibile')}
                             </span>
-                          )}
+                          ) : null}
                         </div>
 
                         {/* Navigation bar — only shown when there are multiple events */}
