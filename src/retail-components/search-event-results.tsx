@@ -4,12 +4,12 @@ import { getRacerColors, createPGVirtualAPICall } from '@/retail-lib/utils'
 import { format } from 'date-fns'
 import { t } from 'i18next'
 import Image from 'next/image'
+import dynamic from 'next/dynamic'
 import { X } from 'lucide-react'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import LoadingSpinner from './loading-spinner'
-import { ReplayDiagnosticPlayer } from './replay-diagnostic-player'
 import {
   Accordion,
   AccordionContent,
@@ -26,6 +26,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select'
+
+const ReactPlayer = dynamic(() => import('react-player'), { ssr: false })
 
 function formatDateForAPI(date: Date) {
   const day = String(date.getDate()).padStart(2, '0')
@@ -813,7 +815,6 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
   const [showReplay, setShowReplay] = useState(false)
   const [replayUrl, setReplayUrl] = useState<string | null>(null)
   const [loadingReplay, setLoadingReplay] = useState(false)
-  const [replayError, setReplayError] = useState<string | null>(null)
 
   const fetchReplay = useCallback(async () => {
     if (!rootContext.initCode || !rootContext.operator || !eventResult.extId)
@@ -836,39 +837,20 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
         },
         rootContext.operator,
       )
-      const userAgent =
-        typeof navigator !== 'undefined' ? navigator.userAgent : 'n/a'
       if (!response.ok) {
-        const message = `Errore richiesta replay: HTTP ${response.status} | UA: ${userAgent}`
-        setReplayError(message)
-        toast.error(message, { duration: Infinity })
-        setShowReplay(true)
         setLoadingReplay(false)
         return
       }
       const data = await response.json()
+      console.log('Replay response:', data)
       if (data.video?.src) {
-        setReplayError(null)
         setReplayUrl(data.video.src)
         setShowReplay(true)
-        toast.info(`URL replay ricevuto: ${data.video.src}`, {
-          duration: Infinity,
-        })
       } else {
-        const message = `Nessun video disponibile per questo evento | UA: ${userAgent}`
-        setReplayError(message)
-        toast.error(message, { duration: Infinity })
-        setShowReplay(true)
+        console.error('No video src in replay response:', data)
       }
     } catch (error) {
-      const userAgent =
-        typeof navigator !== 'undefined' ? navigator.userAgent : 'n/a'
-      const message = `Errore di rete nel richiedere il replay: ${
-        error instanceof Error ? error.message : String(error)
-      } | UA: ${userAgent}`
-      setReplayError(message)
-      toast.error(message, { duration: Infinity })
-      setShowReplay(true)
+      console.error('Error fetching replay:', error)
     }
     setLoadingReplay(false)
   }, [
@@ -1047,30 +1029,28 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
         return results
       }
 
-      if (showReplay && (replayUrl || replayError)) {
+      if (showReplay && replayUrl) {
         return (
           <div className="relative mb-[-48px] flex flex-col items-center">
             <button
-              onClick={() => {
-                setShowReplay(false)
-                setReplayError(null)
-              }}
-              className="absolute right-3 top-3 z-20 flex h-8 w-8 items-center justify-center rounded-full bg-background/60 text-foreground hover:bg-background/80"
+              onClick={() => setShowReplay(false)}
+              className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-background/60 text-foreground hover:bg-background/80"
             >
               <X className="h-5 w-5" />
             </button>
-            <div className="relative flex h-[660px] w-full items-center justify-center bg-black">
-              {replayError && (
-                <div className="absolute left-1/2 top-4 z-30 max-w-[90%] -translate-x-1/2 rounded-lg bg-red-600 px-4 py-3 text-center text-[13px] font-semibold text-white shadow-2xl">
-                  {replayError}
-                </div>
-              )}
-              {replayUrl && (
-                <ReplayDiagnosticPlayer
-                  url={replayUrl}
-                  onEnded={() => setShowReplay(false)}
-                />
-              )}
+            <div className="flex h-[660px] w-full items-center justify-center bg-black">
+              <ReactPlayer
+                key={replayUrl}
+                url={replayUrl}
+                playing
+                controls
+                muted
+                width="100%"
+                height="100%"
+                config={{ file: { attributes: { playsInline: true } } }}
+                onEnded={() => setShowReplay(false)}
+                onError={(e) => console.error('Video error:', e)}
+              />
             </div>
           </div>
         )
