@@ -54,6 +54,20 @@ const defaultEventsContext: EventsContextType = {
 export const EventsContext =
   createContext<EventsContextType>(defaultEventsContext)
 
+const isDogs6Channel = (c: any) => {
+  const gameId = typeof c?.game_id === 'string' ? c.game_id : ''
+  if (gameId) return /dog/i.test(gameId) && !/8/.test(gameId)
+  const name = typeof c?.name === 'string' ? c.name : ''
+  return /dog|grey/i.test(name) && !/8/.test(name)
+}
+
+const isHorsesChannel = (c: any) => {
+  const gameId = typeof c?.game_id === 'string' ? c.game_id : ''
+  if (gameId) return /horse/i.test(gameId)
+  const name = typeof c?.name === 'string' ? c.name : ''
+  return /horse|cavall/i.test(name)
+}
+
 // Cache leggero per evitare refetch se si torna su una disciplina già caricata
 const EVENTS_CACHE_TTL_MS = 10 * 60 * 1000 // 10 minuti
 
@@ -266,11 +280,7 @@ export default function EventsContextProvider(props: {
               ? racingData.channels
               : []
 
-            const dogChannel =
-              channels.find(
-                (c: any) =>
-                  typeof c?.name === 'string' && /dog|grey/i.test(c.name),
-              ) || channels[0] // Fallback to first channel
+            const dogChannel = channels.find(isDogs6Channel)
 
             if (dogChannel?.next_events) {
               const dogEvents = dogChannel.next_events.map(
@@ -305,11 +315,7 @@ export default function EventsContextProvider(props: {
             }
 
             // Horses
-            const horseChannel =
-              channels.find(
-                (c: any) =>
-                  typeof c?.name === 'string' && /horse|cavall/i.test(c.name),
-              ) || channels[1] // Fallback to second channel
+            const horseChannel = channels.find(isHorsesChannel)
 
             if (horseChannel?.next_events) {
               const horseEvents = horseChannel.next_events.map(
@@ -449,11 +455,7 @@ export default function EventsContextProvider(props: {
               ? racingData.channels
               : []
 
-            const dogChannel =
-              channels.find(
-                (c: any) =>
-                  typeof c?.name === 'string' && /dog|grey/i.test(c.name),
-              ) || channels[0]
+            const dogChannel = channels.find(isDogs6Channel)
 
             if (dogChannel?.next_events) {
               const dogEvents = dogChannel.next_events.map(
@@ -489,11 +491,7 @@ export default function EventsContextProvider(props: {
             }
 
             // Horses - solo next_events
-            const horseChannel =
-              channels.find(
-                (c: any) =>
-                  typeof c?.name === 'string' && /horse|cavall/i.test(c.name),
-              ) || channels[1]
+            const horseChannel = channels.find(isHorsesChannel)
 
             if (horseChannel?.next_events) {
               const horseEvents = horseChannel.next_events.map(
