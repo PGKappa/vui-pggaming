@@ -836,14 +836,6 @@ export default function BettingSlip({
         }
       })
 
-      // Hard, final validation on the exact object about to be sent — recomputed
-      // fresh here (not from possibly-stale UI state) using la stessa `stake > 0`
-      // predicate del payload qui sotto. Il backend non esegue nessuna
-      // validazione propria, quindi questo è l'unico argine tra l'operatore e
-      // un ticket che supera i limiti di eventi (MAX_EVENTS), selezioni
-      // (MAX_SELECTIONS) o combinazioni (MAX_COMBINATIONS) — ciascuno con il
-      // proprio messaggio specifico, per capire subito quale limite è stato
-      // superato.
       if (betMode === 'SYSTEM' && systemEventsCount > maxEvents) {
         toast.error(t('max_events_system', { max: maxEvents }))
         setIsSubmitting(false)
@@ -962,43 +954,54 @@ export default function BettingSlip({
           }
 
           try {
-            const getTranslatedEventName = (discipline: string) => {
+            const getEventName = (discipline: string) => {
               switch (discipline) {
                 case 'DOGS':
                 case 'DOGS8':
-                  return `${t('dog')} ${t('racing')}`
+                  return 'Dog Racing'
                 case 'HORSES':
-                  return `${t('horse')} ${t('racing')}`
+                  return 'Horse Racing'
                 case 'SOCCER':
-                  return t('football')
+                  return 'Football'
                 default:
                   return ''
               }
             }
 
-            const getTranslatedMarket = (market: string) => {
-              const marketLower = market.toLowerCase()
-              switch (marketLower) {
-                case 'winner':
-                  return t('winner')
-                case 'placed':
-                  return t('place_2')
-                case 'show':
-                  return t('show_3')
-                case 'exacta':
-                  return t('exacta')
-                case 'quinella':
-                  return t('quinella')
-                case 'trifecta':
-                  return t('trifecta')
-                case 'boxed trifecta':
-                  return t('boxed_trifecta')
-                case 'even/odd':
-                  return t('even_odd')
-                case 'under/over':
-                  return t('under_over')
+            const MARKET_CODES: Record<string, string> = {
+              winner: 'winner',
+              placed: 'placed',
+              show: 'show',
+              exacta: 'exacta',
+              quinella: 'quinella',
+              trifecta: 'trifecta',
+              boxed_trifecta: 'boxedtrifecta',
+              even_odd: 'evenodd',
+              underover: 'underover',
+            }
+
+            const getTrackSize = (entry: BetEntry) =>
+              entry.bet.track?.match(/\d+/)?.[0] || '6'
+
+            const getMarketCode = (entry: BetEntry) => {
+              const normalized = normalizeMarketName(
+                entry.apiMarket || entry.market,
+              )
+              const code = MARKET_CODES[normalized] || normalized
+              if (code === 'underover') return `underover${getTrackSize(entry)}`
+              return code
+            }
+
+            const getGroupName = (size: number) => {
+              switch (size) {
+                case 1:
+                  return 'Single'
+                case 2:
+                  return 'Double'
+                case 3:
+                  return 'Triple'
                 default:
-                  return market
+                  return `${size} Fold`
               }
             }
 
@@ -1011,14 +1014,13 @@ export default function BettingSlip({
                 .trim()
 
               if (normalizedMarket === 'underover') {
-                if (outcome === 'under' || outcome === 'menos')
-                  return t('under_full')
+                if (outcome === 'under' || outcome === 'menos') return 'under'
                 if (
                   outcome === 'over' ||
                   outcome === 'más' ||
                   outcome === 'mas'
                 )
-                  return t('over_full')
+                  return 'over'
               }
 
               if (normalizedMarket === 'even_odd') {
@@ -1027,13 +1029,13 @@ export default function BettingSlip({
                   outcome === 'par' ||
                   outcome === 'pari'
                 )
-                  return t('even')
+                  return 'even'
                 if (
                   outcome === 'odd' ||
                   outcome === 'impar' ||
                   outcome === 'dispari'
                 )
-                  return t('odd')
+                  return 'odd'
               }
 
               return entry.bet.option.outcome
@@ -1077,15 +1079,8 @@ export default function BettingSlip({
               }
             }
 
-            const buildTrackName = (entry: (typeof betEntries)[0]) => {
-              const track = entry.bet.track
-              if (track) {
-                const num = track.match(/\d+/)?.[0]
-                if (num) return t(`track_${num}`)
-                return track
-              }
-              return t('track_6')
-            }
+            const buildTrackName = (entry: (typeof betEntries)[0]) =>
+              `Track ${getTrackSize(entry)}`
 
             const eventGroups = betEntries.reduce(
               (groups, entry) => {
@@ -1093,7 +1088,7 @@ export default function BettingSlip({
                 if (!groups[groupKey]) {
                   groups[groupKey] = {
                     eventId: entry.bet.event.number,
-                    eventName: getTranslatedEventName(entry.bet.discipline),
+                    eventName: getEventName(entry.bet.discipline),
                     eventStartTime: entry.bet.event.startingAt,
                     discipline: entry.bet.discipline,
                     channelId: getChannelId(entry.bet.discipline),
@@ -1104,7 +1099,7 @@ export default function BettingSlip({
                 }
                 if (entry.fixed) groups[groupKey].isBanker = true
                 groups[groupKey].markets.push({
-                  market: getTranslatedMarket(entry.market),
+                  market: getMarketCode(entry),
                   competitorName: getPrintCompetitorName(entry),
                   selection: getPrintSelection(entry),
                   odds: entry.bet.option.decPrice,
@@ -1121,7 +1116,7 @@ export default function BettingSlip({
                 ? systemGroups
                     .filter((group) => group.stake > 0)
                     .map((group) => ({
-                      name: group.name,
+                      name: getGroupName(group.size),
                       size: group.size,
                       stake: group.stake,
                       ...computeGroupWinRounded(group),
@@ -1166,6 +1161,11 @@ export default function BettingSlip({
                 ...(systemGroupsInfo && { systemGroups: systemGroupsInfo }),
               },
             }
+
+            console.log(
+              '[PAYLOAD BACKOFFICE]',
+              JSON.stringify(postMessagePayload.content, null, 2),
+            )
 
             window.parent.postMessage(postMessagePayload, '*')
           } catch {
