@@ -238,6 +238,7 @@ export enum Discipline {
   SOCCER = 'SOCCER',
   DOGS = 'DOGS',
   HORSES = 'HORSES',
+  DOGS8 = 'DOGS8',
 }
 
 // Helper per ottenere l'URL API corretto basato sulla disciplina

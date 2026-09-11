@@ -28,6 +28,8 @@ export function UpcomingEventsCarousel(props: {
     const path = (pathname || '/').toLowerCase()
     if (path.includes('dogs-horses') || path.includes('cani-cavalli')) {
       return [Discipline.DOGS, Discipline.HORSES]
+    } else if (path.includes('dogs8') || path.includes('cani8')) {
+      return [Discipline.DOGS8]
     } else if (path.includes('dogs') || path.includes('cani')) {
       return [Discipline.DOGS]
     } else if (path.includes('horses') || path.includes('cavalli')) {
