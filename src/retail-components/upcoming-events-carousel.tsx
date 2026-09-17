@@ -27,7 +27,7 @@ export function UpcomingEventsCarousel(props: {
   const disciplines = useMemo(() => {
     const path = (pathname || '/').toLowerCase()
     if (path.includes('dogs-horses') || path.includes('cani-cavalli')) {
-      return [Discipline.DOGS, Discipline.HORSES]
+      return [Discipline.DOGS, Discipline.DOGS8, Discipline.HORSES]
     } else if (path.includes('dogs8') || path.includes('cani8')) {
       return [Discipline.DOGS8]
     } else if (path.includes('dogs') || path.includes('cani')) {
@@ -163,7 +163,7 @@ function UpcomingEventItem(props: {
         src={
           event.discipline === 'SOCCER'
             ? '/calciatore_blu.png'
-            : event.discipline === 'DOGS'
+            : event.discipline === 'DOGS' || event.discipline === 'DOGS8'
               ? '/cane_blu.png'
               : '/cavallo_blu.png'
         }
