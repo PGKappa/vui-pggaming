@@ -46,7 +46,8 @@ const safeStringify = (a: any): string => {
 }
 
 /**
- * Barra di debug fissa in basso — visibile SOLO con `debug=1` nell'URL.
+ * Barra di debug fissa in basso — attualmente SEMPRE visibile, si nasconde
+ * solo con `debug=0` nell'URL.
  *
  * Mostra: init_code, operator, terminal, shopId, cashier status, lingua,
  * currency, versione API/FE, eventi carosello, risultati, disciplina,
@@ -75,12 +76,11 @@ export default function UrlDebugBar() {
 
     const update = () => {
       const currentUrl = window.location.href
-      // Check debug param on every poll (in case URL changes)
       try {
         const params = new URLSearchParams(window.location.search)
-        setVisible(params.get('debug') === '1')
+        setVisible(params.get('debug') !== '0')
       } catch {
-        setVisible(false)
+        setVisible(true)
       }
 
       if (currentUrl === prevUrlRef.current) return

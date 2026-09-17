@@ -137,7 +137,7 @@ function SkinBody({ children }: { children: React.ReactNode }) {
       <ZoomBlocker />
       <CashierContextProvider>
         <EventsContextProvider key={pathname}>
-          {/* Barra di debug — visibile SOLO con debug=1 nell'URL.*/}
+          {/* Barra di debug — sempre visibile, si nasconde con debug=0 nell'URL.*/}
           <UrlDebugBar />
           <RootContextProvider>
             <RetailShell>{children}</RetailShell>
