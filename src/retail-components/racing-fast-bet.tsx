@@ -25,6 +25,7 @@ export default function RacingFastBet({
 
   // Ottieni la lingua corrente
   const currentLanguage = rootContext?.userData?.lang || 'en'
+  const uo = selectedEvent?.discipline === 'DOGS8' ? '4.5' : '3.5'
 
   // Funzione per ottenere i nomi dei mercati tradotti
   const getMarketNames = (lang: string) => {
@@ -35,12 +36,12 @@ export default function RacingFastBet({
         S: { name: 'Podio', selections: 1 },
         E: { name: 'Accoppiata in Ordine', selections: 2 },
         Q: { name: 'Accoppiata a Girare', selections: 2 },
-        O: { name: 'Over 3.5', selections: 0 },
+        O: { name: `Over ${uo}`, selections: 0 },
         EV: { name: 'Pari', selections: 0 },
         OD: { name: 'Dispari', selections: 0 },
         T: { name: 'Trio in Ordine', selections: 3 },
         BT: { name: 'Trio a Girare', selections: 3 },
-        U: { name: 'Under 3.5', selections: 0 },
+        U: { name: `Under ${uo}`, selections: 0 },
       }
     }
     if (lang === 'es') {
@@ -50,12 +51,12 @@ export default function RacingFastBet({
         S: { name: 'Tercero', selections: 1 },
         E: { name: 'Exacta', selections: 2 },
         Q: { name: 'Quinella', selections: 2 },
-        O: { name: 'Más 3.5', selections: 0 },
+        O: { name: `Más ${uo}`, selections: 0 },
         EV: { name: 'Par', selections: 0 },
         OD: { name: 'Impar', selections: 0 },
         T: { name: 'Trifecta', selections: 3 },
         BT: { name: 'Combinada Trifecta', selections: 3 },
-        U: { name: 'Menos 3.5', selections: 0 },
+        U: { name: `Menos ${uo}`, selections: 0 },
       }
     }
     // Default English
@@ -65,12 +66,12 @@ export default function RacingFastBet({
       S: { name: 'Show', selections: 1 },
       E: { name: 'Exacta', selections: 2 },
       Q: { name: 'Quinella', selections: 2 },
-      O: { name: 'Over 3.5', selections: 0 },
+      O: { name: `Over ${uo}`, selections: 0 },
       EV: { name: 'Even', selections: 0 },
       OD: { name: 'Odd', selections: 0 },
       T: { name: 'Trifecta', selections: 3 },
       BT: { name: 'Boxed Trifecta', selections: 3 },
-      U: { name: 'Under 3.5', selections: 0 },
+      U: { name: `Under ${uo}`, selections: 0 },
     }
   }
 

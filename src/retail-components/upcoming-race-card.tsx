@@ -1,6 +1,6 @@
 import { BetsContext } from '@/retail-contexts/bets-context'
 import { RootContext } from '@/retail-contexts/root-context'
-import { UpcomingEvent, UpcomingRace } from '@/retail-lib/types'
+import { Discipline, UpcomingEvent, UpcomingRace } from '@/retail-lib/types'
 import {
   getRacerColors,
   createPGVirtualAPICall,
@@ -48,6 +48,10 @@ export default function UpcomingRaceCard({
   race,
   onSelectionChange,
 }: UpcomingRaceCardProps) {
+  // La soglia Under/Over dipende dal numero di partenti: 3.5 con 6 corridori,
+  // 4.5 con 8.
+  const underOverThreshold = race.discipline === Discipline.DOGS8 ? '4.5' : '3.5'
+
   const [raceInfo, setRaceInfo] = useState<UpcomingRace | undefined>(
     lastRaceInfo,
   )
@@ -198,7 +202,11 @@ export default function UpcomingRaceCard({
   }
 
   const shouldShowInfoButton = () => {
-    return race.discipline === 'DOGS' || race.discipline === 'HORSES'
+    return (
+      race.discipline === 'DOGS' ||
+      race.discipline === 'DOGS8' ||
+      race.discipline === 'HORSES'
+    )
   }
 
   useEffect(() => {
@@ -758,12 +766,12 @@ export default function UpcomingRaceCard({
 
           <TableCell colSpan={5} className="p-0">
             <div className="flex h-16 items-center justify-center bg-accent text-[16px] font-bold text-accent-foreground">
-              {t('under_over').toUpperCase()} 3.5
+              {t('under_over').toUpperCase()} {underOverThreshold}
             </div>
             <div className="flex h-[66px]">
               <div className="flex flex-1 items-center justify-center pl-8 pr-8 min-[1400px]:pl-12 min-[1400px]:pr-12 min-[1600px]:pl-16 min-[1600px]:pr-16">
                 <BetEntryToggle
-                  marketName={`${t('under_over')} 3.5`}
+                  marketName={`${t('under_over')} ${underOverThreshold}`}
                   apiMarketName="under/over"
                   bet={{
                     discipline: race.discipline,
@@ -779,7 +787,7 @@ export default function UpcomingRaceCard({
               </div>
               <div className="flex flex-1 items-center justify-center pr-8 min-[1400px]:pr-12 min-[1600px]:pr-16">
                 <BetEntryToggle
-                  marketName={`${t('under_over')} 3.5`}
+                  marketName={`${t('under_over')} ${underOverThreshold}`}
                   apiMarketName="under/over"
                   bet={{
                     discipline: race.discipline,
@@ -849,12 +857,12 @@ export default function UpcomingRaceCard({
 
               <div className="w-1/2">
                 <div className="flex h-14 items-center justify-center bg-accent text-[14px] font-bold text-accent-foreground">
-                  {t('under_over').toUpperCase()} 3.5
+                  {t('under_over').toUpperCase()} {underOverThreshold}
                 </div>
                 <div className="flex h-[58px]">
                   <div className="flex flex-1 items-center justify-center px-2">
                     <BetEntryToggle
-                      marketName={`${t('under_over')} 3.5`}
+                      marketName={`${t('under_over')} ${underOverThreshold}`}
                       apiMarketName="under/over"
                       bet={{
                         discipline: race.discipline,
@@ -870,7 +878,7 @@ export default function UpcomingRaceCard({
                   </div>
                   <div className="flex flex-1 items-center justify-center px-2">
                     <BetEntryToggle
-                      marketName={`${t('under_over')} 3.5`}
+                      marketName={`${t('under_over')} ${underOverThreshold}`}
                       apiMarketName="under/over"
                       bet={{
                         discipline: race.discipline,
@@ -971,7 +979,7 @@ export default function UpcomingRaceCard({
                           style={
                             getRacerColors(
                               racer.number,
-                              race.discipline as 'DOGS' | 'HORSES',
+                              race.discipline as 'DOGS' | 'DOGS8' | 'HORSES',
                             ).style
                           }
                         >
@@ -1052,7 +1060,7 @@ export default function UpcomingRaceCard({
         isOpen={isLatecomersDialogOpen}
         onOpenChange={setIsLatecomersDialogOpen}
         raceInfo={raceInfo}
-        discipline={race.discipline as 'DOGS' | 'HORSES'}
+        discipline={race.discipline as 'DOGS' | 'DOGS8' | 'HORSES'}
       />
     </>
   )
