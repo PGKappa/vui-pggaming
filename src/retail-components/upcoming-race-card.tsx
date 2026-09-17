@@ -41,8 +41,11 @@ type UpcomingRaceCardProps = {
 type TabType = 'main' | 'couples' | 'triplets'
 
 // MODULE-LEVEL: persiste tra remount del componente
-let moduleHasLoadedOnce = false
 let lastRaceInfo: UpcomingRace | undefined = undefined
+let lastRaceKey = ''
+
+const raceKeyOf = (race: UpcomingEvent) =>
+  `${race.discipline}-${race.extId}-${race.id}`
 
 export default function UpcomingRaceCard({
   race,
@@ -52,8 +55,11 @@ export default function UpcomingRaceCard({
   // 4.5 con 8.
   const underOverThreshold = race.discipline === Discipline.DOGS8 ? '4.5' : '3.5'
 
+  const raceKey = raceKeyOf(race)
+  const cachedForThisRace = lastRaceKey === raceKey ? lastRaceInfo : undefined
+
   const [raceInfo, setRaceInfo] = useState<UpcomingRace | undefined>(
-    lastRaceInfo,
+    cachedForThisRace,
   )
   const [activeTab, setActiveTab] = useState<TabType>('main')
 
@@ -62,7 +68,7 @@ export default function UpcomingRaceCard({
   const [position3Selection, setPosition3Selection] = useState<number[]>([])
   const [disorderSelection, setDisorderSelection] = useState<number[]>([])
   const [fixedSelection, setFixedSelection] = useState<number[]>([])
-  const [isLoading, setIsLoading] = useState(!moduleHasLoadedOnce)
+  const [isLoading, setIsLoading] = useState(!cachedForThisRace)
   const [isLatecomersDialogOpen, setIsLatecomersDialogOpen] = useState(false)
 
   const { betEntries, setRaceFieldSize } = useContext(BetsContext)
@@ -211,7 +217,8 @@ export default function UpcomingRaceCard({
 
   useEffect(() => {
     const fetchEventInfo = async () => {
-      if (!moduleHasLoadedOnce) {
+      if (lastRaceKey !== raceKey) {
+        setRaceInfo(undefined)
         setIsLoading(true)
       }
       if (!rootContext.initCode || !rootContext.operator) {
@@ -236,7 +243,7 @@ export default function UpcomingRaceCard({
         }
         setRaceInfo(upcomingRace)
         lastRaceInfo = upcomingRace
-        moduleHasLoadedOnce = true
+        lastRaceKey = raceKey
         // Numero totale di partecipanti alla corsa: serve al Betting Slip
         // per sapere se un sistema su più selezioni di questo evento ha
         // coperto il campo per intero (vedi computeSameEventOddsRange) —
@@ -256,7 +263,7 @@ export default function UpcomingRaceCard({
       }
     }
     fetchEventInfo()
-  }, [race.id, race.extId, rootContext.initCode, rootContext.operator])
+  }, [raceKey, race.id, race.extId, rootContext.initCode, rootContext.operator])
 
   useEffect(() => {
     if (onSelectionChange) {

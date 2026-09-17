@@ -88,13 +88,15 @@ function NavbarContent() {
   const buildHref = (path: string) => {
     const params = new URLSearchParams(searchParams.toString())
     const queryString = params.toString()
-    return `${path}${queryString ? `?${queryString}` : ''}`
+    const normalized = path.endsWith('/') ? path : `${path}/`
+    return `${normalized}${queryString ? `?${queryString}` : ''}`
   }
 
   const getDisciplineBasePath = (path: string) => {
     const p = path.toLowerCase()
     if (p.includes('dogs-horses') || p.includes('cani-cavalli'))
       return '/retail/dogs-horses'
+    if (p.includes('dogs8') || p.includes('cani8')) return '/retail/dogs8'
     if (p.includes('dogs') || p.includes('cani')) return '/retail/dogs'
     if (p.includes('horses') || p.includes('cavalli')) return '/retail/horses'
     if (p.includes('calcio') || p.includes('football') || p.includes('soccer'))
