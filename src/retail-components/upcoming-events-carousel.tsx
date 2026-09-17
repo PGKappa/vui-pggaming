@@ -69,8 +69,11 @@ export function UpcomingEventsCarousel(props: {
   // per evitare competizione tra meccanismi multipli
 
   return (
-    <Carousel className="w-full" opts={{ align: 'start', skipSnaps: false }}>
-      <CarouselContent className="bg-white px-10 min-[1600px]:px-11 min-[1730px]:px-[43px]">
+    <Carousel
+      className="w-full bg-white"
+      opts={{ align: 'start', skipSnaps: false }}
+    >
+      <CarouselContent className="bg-white mx-10 min-[1600px]:mx-11 min-[1730px]:mx-[43px]">
         {isLoadingEvents ? (
           Array.from({ length: 6 }).map((_, index) => (
             <div
