@@ -61,6 +61,13 @@ const isDogs6Channel = (c: any) => {
   return /dog|grey/i.test(name) && !/8/.test(name)
 }
 
+const isDogs8Channel = (c: any) => {
+  const gameId = typeof c?.game_id === 'string' ? c.game_id : ''
+  if (gameId) return /dogs?8/i.test(gameId)
+  const name = typeof c?.name === 'string' ? c.name : ''
+  return /dog.*8|grey.*8/i.test(name)
+}
+
 const isHorsesChannel = (c: any) => {
   const gameId = typeof c?.game_id === 'string' ? c.game_id : ''
   if (gameId) return /horse/i.test(gameId)
@@ -92,6 +99,7 @@ function getDisciplinesFromUrl(pathname: string): Discipline[] {
   if (p.includes('dogs-horses') || p.includes('cani-cavalli'))
     return [Discipline.DOGS, Discipline.HORSES]
   if (p.includes('horses') || p.includes('cavalli')) return [Discipline.HORSES]
+  if (p.includes('dogs8') || p.includes('cani8')) return [Discipline.DOGS8]
   if (p.includes('dogs') || p.includes('cani')) return [Discipline.DOGS]
   if (p.includes('calcio') || p.includes('football') || p.includes('soccer'))
     return [Discipline.SOCCER]
@@ -314,6 +322,42 @@ export default function EventsContextProvider(props: {
               allUpcomingEvents.push(...dogEvents)
             }
 
+            // Dogs 8
+            const dog8Channel = channels.find(isDogs8Channel)
+
+            if (dog8Channel?.next_events) {
+              const dog8Events = dog8Channel.next_events.map(
+                (event: any, idx: number): UpcomingEvent => {
+                  let startTime: Date
+                  if (
+                    event.start_time &&
+                    typeof event.start_time === 'string'
+                  ) {
+                    const [hours, minutes] = event.start_time.split(':')
+                    startTime = new Date()
+                    startTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
+                  } else if (event.since && typeof event.since === 'number') {
+                    startTime = new Date(Date.now() + event.since * 1000)
+                  } else {
+                    startTime = parseAPIDate(event.time, timezone)
+                  }
+
+                  return {
+                    id: parseInt(event.int_event_id),
+                    extId: event.ext_pal_id,
+                    palimpsestId: event.ext_pal_id || event.int_pal_id,
+                    duration: dog8Channel.duration?.[idx] || 3,
+                    name: 'Dog8',
+                    startTime: event.start_time,
+                    time: startTime,
+                    discipline: Discipline.DOGS8,
+                    trackName: dog8Channel.track_name,
+                  }
+                },
+              )
+              allUpcomingEvents.push(...dog8Events)
+            }
+
             // Horses
             const horseChannel = channels.find(isHorsesChannel)
 
@@ -373,10 +417,10 @@ export default function EventsContextProvider(props: {
   useEffect(() => {
     const disciplines = getDisciplinesFromUrl(pathname)
 
-    // Unifica cache per racing: dogs e horses usano la stessa API, quindi usa una chiave condivisa
+    // Unifica cache per racing: dogs, dogs8 e horses usano la stessa API, quindi usa una chiave condivisa
     const normalizedDisciplines = disciplines.includes(Discipline.SOCCER)
       ? disciplines
-      : [Discipline.DOGS, Discipline.HORSES]
+      : [Discipline.DOGS, Discipline.DOGS8, Discipline.HORSES]
 
     if (!effectiveInitCode || disciplines.length === 0 || isLoadingCashier) {
       setIsLoadingEvents(false)
@@ -488,6 +532,42 @@ export default function EventsContextProvider(props: {
                 },
               )
               allUpcomingEvents.push(...dogEvents)
+            }
+
+            // Dogs 8
+            const dog8Channel = channels.find(isDogs8Channel)
+
+            if (dog8Channel?.next_events) {
+              const dog8Events = dog8Channel.next_events.map(
+                (event: any, idx: number): UpcomingEvent => {
+                  let startTime: Date
+                  if (
+                    event.start_time &&
+                    typeof event.start_time === 'string'
+                  ) {
+                    const [hours, minutes] = event.start_time.split(':')
+                    startTime = new Date()
+                    startTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
+                  } else if (event.since && typeof event.since === 'number') {
+                    startTime = new Date(Date.now() + event.since * 1000)
+                  } else {
+                    startTime = parseAPIDate(event.time, timezone)
+                  }
+
+                  return {
+                    id: parseInt(event.int_event_id),
+                    extId: event.ext_pal_id,
+                    palimpsestId: event.ext_pal_id || event.int_pal_id,
+                    duration: dog8Channel.duration?.[idx] || 3,
+                    name: 'Dog8',
+                    startTime: event.start_time,
+                    time: startTime,
+                    discipline: Discipline.DOGS8,
+                    trackName: dog8Channel.track_name,
+                  }
+                },
+              )
+              allUpcomingEvents.push(...dog8Events)
             }
 
             // Horses - solo next_events
@@ -767,12 +847,15 @@ export default function EventsContextProvider(props: {
       return
     }
 
-    // Normalizza le discipline per racing (DOGS + HORSES usano stessa API)
+    // Normalizza le discipline per racing (DOGS, DOGS8 e HORSES usano stessa API)
     const isRacing = disciplines.some(
-      (d) => d === Discipline.DOGS || d === Discipline.HORSES,
+      (d) =>
+        d === Discipline.DOGS ||
+        d === Discipline.DOGS8 ||
+        d === Discipline.HORSES,
     )
     const normalizedDisciplines = isRacing
-      ? [Discipline.DOGS, Discipline.HORSES]
+      ? [Discipline.DOGS, Discipline.DOGS8, Discipline.HORSES]
       : disciplines
 
     const cacheKey = `${effectiveInitCode}:${normalizedDisciplines.sort().join('+')}`

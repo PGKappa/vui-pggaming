@@ -161,6 +161,7 @@ export enum Discipline {
   DOGS = 'DOGS',
   HORSES = 'HORSES',
   SOCCER = 'SOCCER',
+  DOGS8 = 'DOGS8',
 }
 
 export type EventResult = {
