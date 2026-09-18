@@ -3,7 +3,7 @@ name: Deploy to S3 + CloudFront
 on:
   push:
     branches:
-      - stanleybet2026
+      - stanleybet2026_staging
 
 jobs:
   deploy:
@@ -41,7 +41,7 @@ jobs:
 
       - name: Sync dist to S3
         run: |
-          aws s3 sync out s3://stanleybet-2025/retail/out --delete
+          aws s3 sync out s3://stanleybet-2025/retail-staging/out --delete
 
       - name: Create CloudFront Invalidation
         run: |
