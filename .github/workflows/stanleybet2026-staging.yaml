@@ -1,4 +1,4 @@
-name: Deploy to S3 + CloudFront
+name: Deploy stanleybet2026_staging to S3 + CloudFront
 
 on:
   push:
