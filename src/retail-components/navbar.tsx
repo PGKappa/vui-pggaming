@@ -88,8 +88,7 @@ function NavbarContent() {
   const buildHref = (path: string) => {
     const params = new URLSearchParams(searchParams.toString())
     const queryString = params.toString()
-    const normalized = path.endsWith('/') ? path : `${path}/`
-    return `${normalized}${queryString ? `?${queryString}` : ''}`
+    return `${path}${queryString ? `?${queryString}` : ''}`
   }
 
   const getDisciplineBasePath = (path: string) => {

@@ -39,9 +39,25 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: sa-east-1
 
-      - name: Sync dist to S3
+      # Gli asset sotto _next/static hanno l'hash del contenuto nel nome, quindi
+      # sono immutabili e build diversi possono convivere. Vanno caricati PRIMA
+      # dell'HTML (così un documento nuovo trova sempre i suoi file) e senza
+      # --delete: cancellarli spezza le sessioni già aperte e, se CloudFront
+      # sta ancora servendo un HTML precedente, lascia la pagina senza runtime.
+      - name: Sync immutable assets to S3
         run: |
-          aws s3 sync out s3://stanleybet-2025/retail-staging/out --delete
+          aws s3 sync out/_next/static s3://stanleybet-2025/retail-staging/out/_next/static \
+            --cache-control "public,max-age=31536000,immutable"
+
+      # HTML e payload di navigazione: qui --delete serve, per non lasciare in
+      # giro rotte rimosse. no-cache non impedisce la cache, impone solo di
+      # rivalidare: così appena esce un build nuovo tutti ricevono il documento
+      # aggiornato invece di una copia vecchia.
+      - name: Sync pages to S3
+        run: |
+          aws s3 sync out s3://stanleybet-2025/retail-staging/out \
+            --delete --exclude "_next/static/*" \
+            --cache-control "no-cache"
 
       - name: Create CloudFront Invalidation
         run: |
