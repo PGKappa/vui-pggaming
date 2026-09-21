@@ -372,7 +372,7 @@ export default function DraggableCodeList({
       {isOpen && (
         <div
           ref={dragRef}
-          className={`fixed z-50 flex flex-col border border-border bg-background shadow-2xl ${isDragging || isResizing ? 'select-none' : ''}`}
+          className={`fixed z-50 flex cursor-move flex-col border border-border bg-background shadow-2xl ${isDragging || isResizing ? 'select-none' : ''}`}
           style={{
             left: `${position.x}px`,
             top: `${position.y}px`,
@@ -380,12 +380,10 @@ export default function DraggableCodeList({
             height: `${size.height}px`,
             visibility: isImageReady ? 'visible' : 'hidden',
           }}
+          onMouseDown={handleMouseDown}
+          onTouchStart={handleTouchStart}
         >
-          <div
-            className="flex h-14 shrink-0 cursor-move select-none items-center justify-center border-black bg-accent"
-            onMouseDown={handleMouseDown}
-            onTouchStart={handleTouchStart}
-          >
+          <div className="flex h-14 shrink-0 select-none items-center justify-center border-black bg-accent">
             <h2 className="text-[16px] font-bold text-accent-foreground">
               {t('code_list').toUpperCase()}
             </h2>
@@ -395,6 +393,8 @@ export default function DraggableCodeList({
                 variant={'ghost'}
                 size="icon"
                 onClick={handlePrint}
+                onMouseDown={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
                 title="Print"
                 className="bg-transparent hover:bg-accent/20"
               >
@@ -407,6 +407,8 @@ export default function DraggableCodeList({
                 variant={'ghost'}
                 size="icon"
                 onClick={handleClose}
+                onMouseDown={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
                 title="Close"
                 className="bg-transparent hover:bg-accent/20"
               >
