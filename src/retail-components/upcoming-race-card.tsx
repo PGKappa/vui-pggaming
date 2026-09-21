@@ -924,21 +924,6 @@ export default function UpcomingRaceCard({
             </span>
 
             <div className="flex items-center space-x-2">
-              {(activeTab === 'couples' || activeTab === 'triplets') &&
-                (position1Selection.length > 0 ||
-                  position2Selection.length > 0 ||
-                  position3Selection.length > 0 ||
-                  disorderSelection.length > 0 ||
-                  fixedSelection.length > 0) && (
-                  <Button
-                    variant="ghost"
-                    className="h-12 w-fit bg-secondary px-4 text-[15px] font-semibold text-secondary-foreground"
-                    onClick={clearSelections}
-                  >
-                    {t('clear_all').toUpperCase()}
-                  </Button>
-                )}
-
               {shouldShowInfoButton() && (
                 <Button
                   variant="ghost"

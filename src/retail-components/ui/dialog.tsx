@@ -32,9 +32,6 @@ const DialogOverlay = React.forwardRef<
 
     style={{
       backgroundColor: 'rgba(43, 45, 49, 0.6)',
-      WebkitTransform: 'translateZ(0)',
-      transform: 'translateZ(0)',
-      willChange: 'opacity',
     }}
 
     {...props}
