@@ -775,14 +775,19 @@ export default function BettingSlip({
           'menos/mas': 'underover',
           'menos / mas': 'underover',
           'menos / más': 'underover',
-          'menos / más 3.5': 'underover',
+          'under / over': 'underover',
           place: 'placed',
           couples: 'exacta',
           triplets: 'trifecta',
           even_odd: 'evenodd',
           under_over: 'underover',
         }
-        return API_MARKET_NAMES[normalized] || normalized
+        const withoutThreshold = normalized.replace(/\s*\d+(\.\d+)?$/, '').trim()
+        return (
+          API_MARKET_NAMES[normalized] ||
+          API_MARKET_NAMES[withoutThreshold] ||
+          normalized
+        )
       }
 
       const selections = Object.entries(groupedByEvent).map(([, entries]) => {

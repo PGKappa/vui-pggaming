@@ -1160,23 +1160,21 @@ export default function TicketCheckDialog({
 
                       {/* Markets / Selections */}
                       {sel.markets.map((market, mIdx) => {
-                        // Il backend restituisce il mercato Under/Over come
-                        // codice generico "underover" — ma quando il
-                        // dizionario del backend (sel.game.dict.markets) non
-                        // include già la soglia, va aggiunta a mano (su
-                        // questo branch esiste solo 3.5 per le corse a 6),
-                        // altrimenti il Dettaglio Ticket mostra un generico
-                        // "Under/Over" senza numero. Se il dizionario la
-                        // include già, NON va duplicata.
                         const isUnderOver = /under|over|menos|más|mas/i.test(
                           market.description || '',
                         )
                         const rawMarketLabel =
                           sel.game.dict.markets[market.description] ||
                           market.description
+                          
+                        const underOverThreshold = /dogs?8/i.test(
+                          sel.gameId || '',
+                        )
+                          ? '4.5'
+                          : '3.5'
                         const marketLabel =
                           isUnderOver && !/\d/.test(rawMarketLabel)
-                            ? `${rawMarketLabel} 3.5`
+                            ? `${rawMarketLabel} ${underOverThreshold}`
                             : rawMarketLabel
 
                         return market.selections.map((s, sIdx) => (
