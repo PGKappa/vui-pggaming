@@ -1368,7 +1368,7 @@ export default function BettingSlip({
                     className="h-8 bg-muted-foreground text-[14px] tabular-nums"
                     onClick={() => setGlobal((prev) => prev + numericAmount)}
                   >
-                    {numericAmount} {currencySymbol}
+                    {currencySymbol} {numericAmount}
                   </Button>
                 )
               })}
