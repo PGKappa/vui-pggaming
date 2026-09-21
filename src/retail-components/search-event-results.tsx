@@ -29,6 +29,17 @@ import {
 
 const ReactPlayer = dynamic(() => import('react-player'), { ssr: false })
 
+function gameIdForDiscipline(discipline: Discipline): string {
+  switch (discipline) {
+    case Discipline.HORSES:
+      return 'horses6'
+    case Discipline.DOGS8:
+      return 'dogs8'
+    default:
+      return 'dogs6'
+  }
+}
+
 function formatDateForAPI(date: Date) {
   const day = String(date.getDate()).padStart(2, '0')
   const month = String(date.getMonth() + 1).padStart(2, '0')
@@ -137,7 +148,8 @@ export default function SearchEventResults() {
 
       if (
         confirmedDiscipline === Discipline.HORSES ||
-        confirmedDiscipline === Discipline.DOGS
+        confirmedDiscipline === Discipline.DOGS ||
+        confirmedDiscipline === Discipline.DOGS8
       ) {
         const fetchRacingResults = async () => {
           setIsLoading(true)
@@ -151,8 +163,7 @@ export default function SearchEventResults() {
             sevenDaysAgo.setDate(today.getDate() - 7)
             const dateStart = formatDateForAPI(sevenDaysAgo)
             const dateEnd = formatDateForAPI(today)
-            const gameIds =
-              confirmedDiscipline === Discipline.HORSES ? 'horses6' : 'dogs6'
+            const gameIds = gameIdForDiscipline(confirmedDiscipline)
             const requestBody = {
               gameIds: [gameIds],
               dateStart,
@@ -192,7 +203,7 @@ export default function SearchEventResults() {
               return {
                 id: Number(eventId),
                 extId: palId,
-                name: `${confirmedDiscipline === Discipline.DOGS ? 'Dog' : 'Horse'} Race ${eventId}`,
+                name: `${confirmedDiscipline === Discipline.HORSES ? 'Horse' : 'Dog'} Race ${eventId}`,
                 startTime,
                 discipline: confirmedDiscipline,
                 track: event.track_name || event.track || '6',
@@ -231,12 +242,7 @@ export default function SearchEventResults() {
           setIsLoading(false)
           return
         }
-        const gameIds =
-          discipline === Discipline.HORSES
-            ? 'horses6'
-            : discipline === Discipline.DOGS
-              ? 'dogs6'
-              : `${discipline.toLowerCase()}6`
+        const gameIds = gameIdForDiscipline(discipline)
         const requestBody: Record<string, any> = {
           gameIds: [gameIds],
           dateStart: date,
@@ -266,7 +272,8 @@ export default function SearchEventResults() {
 
         if (
           discipline === Discipline.HORSES ||
-          discipline === Discipline.DOGS
+          discipline === Discipline.DOGS ||
+          discipline === Discipline.DOGS8
         ) {
           let filteredItems = data.items
           // Client-side fallback filter in case backend doesn't support timeStart/timeEnd yet
@@ -603,9 +610,11 @@ export default function SearchEventResults() {
                 const translationKey =
                   d === 'DOGS'
                     ? 'dog_racing'
-                    : d === 'HORSES'
-                      ? 'horse_racing'
-                      : 'football'
+                    : d === 'DOGS8'
+                      ? 'dog8_racing'
+                      : d === 'HORSES'
+                        ? 'horse_racing'
+                        : 'football'
                 return (
                   <SelectItem className="text-[14px]" key={d} value={d}>
                     {t(translationKey).toUpperCase()}
@@ -821,8 +830,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
       return
     setLoadingReplay(true)
     try {
-      const gameId =
-        eventResult.discipline === Discipline.DOGS ? 'dogs6' : 'horses6'
+      const gameId = gameIdForDiscipline(eventResult.discipline)
       const response = await createPGVirtualAPICall(
         '/api/event/results/replay',
         rootContext.initCode,
@@ -875,7 +883,8 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
     if (
       !cacheKey ||
       (eventResult.discipline !== Discipline.HORSES &&
-        eventResult.discipline !== Discipline.DOGS) ||
+        eventResult.discipline !== Discipline.DOGS &&
+        eventResult.discipline !== Discipline.DOGS8) ||
       !rootContext.initCode ||
       !rootContext.operator
     ) {
@@ -937,7 +946,8 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
 
   if (
     (eventResult.discipline === Discipline.HORSES ||
-      eventResult.discipline === Discipline.DOGS) &&
+      eventResult.discipline === Discipline.DOGS ||
+      eventResult.discipline === Discipline.DOGS8) &&
     detailedResult
   ) {
     if (detailedResult.odds) {
@@ -1100,7 +1110,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                             style={
                               getRacerColors(
                                 competitor.number,
-                                eventResult.discipline as 'DOGS' | 'HORSES',
+                                eventResult.discipline as 'DOGS' | 'DOGS8' | 'HORSES',
                               ).style
                             }
                           >
@@ -1137,7 +1147,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                             style={
                               getRacerColors(
                                 parseInt(number),
-                                eventResult.discipline as 'DOGS' | 'HORSES',
+                                eventResult.discipline as 'DOGS' | 'DOGS8' | 'HORSES',
                               ).style
                             }
                           >
@@ -1173,7 +1183,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                             style={
                               getRacerColors(
                                 parseInt(number),
-                                eventResult.discipline as 'DOGS' | 'HORSES',
+                                eventResult.discipline as 'DOGS' | 'DOGS8' | 'HORSES',
                               ).style
                             }
                           >
@@ -1209,7 +1219,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                             style={
                               getRacerColors(
                                 parseInt(number),
-                                eventResult.discipline as 'DOGS' | 'HORSES',
+                                eventResult.discipline as 'DOGS' | 'DOGS8' | 'HORSES',
                               ).style
                             }
                           >
@@ -1250,7 +1260,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                               style={
                                 getRacerColors(
                                   parseInt(num),
-                                  eventResult.discipline as 'DOGS' | 'HORSES',
+                                  eventResult.discipline as 'DOGS' | 'DOGS8' | 'HORSES',
                                 ).style
                               }
                             >
@@ -1289,7 +1299,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                               style={
                                 getRacerColors(
                                   parseInt(num),
-                                  eventResult.discipline as 'DOGS' | 'HORSES',
+                                  eventResult.discipline as 'DOGS' | 'DOGS8' | 'HORSES',
                                 ).style
                               }
                             >
@@ -1328,7 +1338,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                               style={
                                 getRacerColors(
                                   parseInt(num),
-                                  eventResult.discipline as 'DOGS' | 'HORSES',
+                                  eventResult.discipline as 'DOGS' | 'DOGS8' | 'HORSES',
                                 ).style
                               }
                             >
@@ -1367,7 +1377,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                               style={
                                 getRacerColors(
                                   parseInt(num),
-                                  eventResult.discipline as 'DOGS' | 'HORSES',
+                                  eventResult.discipline as 'DOGS' | 'DOGS8' | 'HORSES',
                                 ).style
                               }
                             >
@@ -1426,7 +1436,10 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
               <div className="relative bottom-4 border-b border-l">
                 <div className="h-[45px] bg-secondary py-2 text-center">
                   <div className="relative top-[3px] text-[15px] font-semibold uppercase text-accent-foreground">
-                    {t('under_over')} 3.5
+                    {t('under_over')}{' '}
+                    {eventResult.discipline === Discipline.DOGS8
+                      ? '4.5'
+                      : '3.5'}
                   </div>
                 </div>
                 <div className="flex items-center justify-center">
@@ -1477,6 +1490,7 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
           </div>
 
           {(eventResult.discipline === Discipline.DOGS ||
+            eventResult.discipline === Discipline.DOGS8 ||
             eventResult.discipline === Discipline.HORSES) && (
             <div className="flex justify-center pb-11 relative bottom-[23px] ">
               <Button
