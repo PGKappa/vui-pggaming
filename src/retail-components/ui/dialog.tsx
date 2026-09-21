@@ -26,13 +26,9 @@ const DialogOverlay = React.forwardRef<
     ref={ref}
 
     className={cn(
-  "fixed inset-0 z-50",
+  "fixed top-0 right-0 bottom-0 left-0 z-50 bg-[rgba(43,45,49,0.6)]",
   className
 )}
-
-    style={{
-      backgroundColor: 'rgba(43, 45, 49, 0.6)',
-    }}
 
     {...props}
 
