@@ -306,7 +306,8 @@ export default function BettingSlip({
   const getTicketType = (entries: BetEntry[]): string => {
     const disciplines = new Set(entries.map((entry) => entry.bet.discipline))
     if (disciplines.has(Discipline.SOCCER)) return 'football'
-    const hasDogs = disciplines.has(Discipline.DOGS)
+    const hasDogs =
+      disciplines.has(Discipline.DOGS) || disciplines.has(Discipline.DOGS8)
     const hasHorses = disciplines.has(Discipline.HORSES)
     if (hasDogs && hasHorses) return 'dogs-horses'
     else if (hasDogs) return 'dogs'
@@ -841,7 +842,9 @@ export default function BettingSlip({
             ? 'horses6'
             : firstEntry.bet.discipline === Discipline.DOGS
               ? 'dogs6'
-              : 'soccer'
+              : firstEntry.bet.discipline === Discipline.DOGS8
+                ? 'dogs8'
+                : 'soccer'
 
         // Resolve channelId dynamically from cashier_init channels
         const matchedChannel = channels.find((ch: any) => ch.game_id === gameId)
@@ -1076,6 +1079,7 @@ export default function BettingSlip({
             const getChannelId = (discipline: string) => {
               const gameIdMap: Record<string, string> = {
                 DOGS: 'dogs6',
+                DOGS8: 'dogs8',
                 HORSES: 'horses6',
                 SOCCER: 'soccer',
               }
