@@ -737,7 +737,9 @@ export default function SearchEventResults() {
                             <span className="whitespace-nowrap text-[16px]">
                               {eventResult.discipline === 'DOGS'
                                 ? t('dog_races_label')
-                                : eventResult.discipline === 'HORSES'
+                                : eventResult.discipline === 'DOGS8'
+                                  ? t('dog8_races_label')
+                                  : eventResult.discipline === 'HORSES'
                                   ? t('horse_races_label')
                                   : eventResult.discipline === 'SOCCER'
                                     ? t('football_label')
