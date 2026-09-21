@@ -97,7 +97,7 @@ function getDisciplinesFromUrl(pathname: string): Discipline[] {
 
   // Support both English and Italian slugs
   if (p.includes('dogs-horses') || p.includes('cani-cavalli'))
-    return [Discipline.DOGS, Discipline.HORSES]
+    return [Discipline.DOGS, Discipline.DOGS8, Discipline.HORSES]
   if (p.includes('horses') || p.includes('cavalli')) return [Discipline.HORSES]
   if (p.includes('dogs8') || p.includes('cani8')) return [Discipline.DOGS8]
   if (p.includes('dogs') || p.includes('cani')) return [Discipline.DOGS]
