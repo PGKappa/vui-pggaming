@@ -76,7 +76,7 @@
 .retail-navbar-wrap {
   position: sticky;
   top: 0;
-  z-index: 20;
+  z-index: 70;
   flex-shrink: 0;
   width: 100%;
   min-width: 1275px;
