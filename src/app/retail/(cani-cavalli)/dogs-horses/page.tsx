@@ -26,6 +26,7 @@ export default function Home() {
     () =>
       getCarouselFilteredEvents(upcomingEvents, [
         Discipline.DOGS,
+        Discipline.DOGS8,
         Discipline.HORSES,
       ]),
     [upcomingEvents],

@@ -306,7 +306,8 @@ export default function BettingSlip({
   const getTicketType = (entries: BetEntry[]): string => {
     const disciplines = new Set(entries.map((entry) => entry.bet.discipline))
     if (disciplines.has(Discipline.SOCCER)) return 'football'
-    const hasDogs = disciplines.has(Discipline.DOGS)
+    const hasDogs =
+      disciplines.has(Discipline.DOGS) || disciplines.has(Discipline.DOGS8)
     const hasHorses = disciplines.has(Discipline.HORSES)
     if (hasDogs && hasHorses) return 'dogs-horses'
     else if (hasDogs) return 'dogs'
@@ -774,14 +775,19 @@ export default function BettingSlip({
           'menos/mas': 'underover',
           'menos / mas': 'underover',
           'menos / más': 'underover',
-          'menos / más 3.5': 'underover',
+          'under / over': 'underover',
           place: 'placed',
           couples: 'exacta',
           triplets: 'trifecta',
           even_odd: 'evenodd',
           under_over: 'underover',
         }
-        return API_MARKET_NAMES[normalized] || normalized
+        const withoutThreshold = normalized.replace(/\s*\d+(\.\d+)?$/, '').trim()
+        return (
+          API_MARKET_NAMES[normalized] ||
+          API_MARKET_NAMES[withoutThreshold] ||
+          normalized
+        )
       }
 
       const selections = Object.entries(groupedByEvent).map(([, entries]) => {
@@ -841,7 +847,9 @@ export default function BettingSlip({
             ? 'horses6'
             : firstEntry.bet.discipline === Discipline.DOGS
               ? 'dogs6'
-              : 'soccer'
+              : firstEntry.bet.discipline === Discipline.DOGS8
+                ? 'dogs8'
+                : 'soccer'
 
         // Resolve channelId dynamically from cashier_init channels
         const matchedChannel = channels.find((ch: any) => ch.game_id === gameId)
@@ -1076,6 +1084,7 @@ export default function BettingSlip({
             const getChannelId = (discipline: string) => {
               const gameIdMap: Record<string, string> = {
                 DOGS: 'dogs6',
+                DOGS8: 'dogs8',
                 HORSES: 'horses6',
                 SOCCER: 'soccer',
               }

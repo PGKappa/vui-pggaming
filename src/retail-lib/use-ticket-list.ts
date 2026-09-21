@@ -130,7 +130,8 @@ type DisciplineMap = Record<number, string>
 // Unico punto di verità della mappatura prefisso -> disciplina: i valori
 // prodotti qui devono restare allineati a quelli del filtro "Disciplina".
 function classifyDisciplines(gameIds: string[]): string {
-  const hasDogs = gameIds.some((g) => g.startsWith('dogs'))
+  const hasDogs = gameIds.some((g) => g.startsWith('dogs') && !g.includes('8'))
+  const hasDogs8 = gameIds.some((g) => /dogs?8/i.test(g))
   const hasHorses = gameIds.some((g) => g.startsWith('horse'))
   const hasSoccer = gameIds.some(
     (g) => g.startsWith('soccer') || g.startsWith('calcio'),
@@ -138,6 +139,7 @@ function classifyDisciplines(gameIds: string[]): string {
 
   const parts: string[] = []
   if (hasDogs) parts.push('dogs')
+  if (hasDogs8) parts.push('dogs8')
   if (hasHorses) parts.push('horses')
   if (hasSoccer) parts.push('soccer')
 
@@ -332,9 +334,10 @@ export function useTicketList() {
           if (appliedFilters.discipline === 'all') return true
           const d = disciplineMap[i.ticket_id]
           if (d === undefined) return true
+          const tokens = d.split(',')
           if (appliedFilters.discipline === 'real')
-            return d.includes('dogs') && d.includes('horses')
-          return d.includes(appliedFilters.discipline)
+            return tokens.includes('dogs') && tokens.includes('horses')
+          return tokens.includes(appliedFilters.discipline)
         })()
         // "paid"/"unpaid" and "Stato" are mutually exclusive in the UI
         // (see handleStatusChange in ticket-list-page-content.tsx).

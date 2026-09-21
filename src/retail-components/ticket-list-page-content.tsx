@@ -314,6 +314,7 @@ export default function TicketListPageContent({
       .split(',')
       .map((discipline) => {
         if (discipline === 'dogs') return t('dog_racing')
+        if (discipline === 'dogs8') return t('dog8_racing')
         if (discipline === 'horses') return t('horse_racing')
         if (discipline === 'soccer') return t('football')
         return discipline
@@ -461,6 +462,7 @@ export default function TicketListPageContent({
                 <SelectContent className="bg-white p-0 text-[13px] uppercase">
                   <SelectItem value="all">{t('all')}</SelectItem>
                   <SelectItem value="dogs">{t('dog_racing')}</SelectItem>
+                  <SelectItem value="dogs8">{t('dog8_racing')}</SelectItem>
                   <SelectItem value="horses">{t('horse_racing')}</SelectItem>
                   <SelectItem value="real">
                     {t('dog_racing')} / {t('horse_racing')}
@@ -499,6 +501,7 @@ export default function TicketListPageContent({
                 <SelectContent className="bg-white p-0 text-[13px] uppercase">
                   <SelectItem value="all">{t('all')}</SelectItem>
                   <SelectItem value="dogs">{t('dog_racing')}</SelectItem>
+                  <SelectItem value="dogs8">{t('dog8_racing')}</SelectItem>
                   <SelectItem value="horses">{t('horse_racing')}</SelectItem>
                   <SelectItem value="real">
                     {t('dog_racing')} / {t('horse_racing')}
