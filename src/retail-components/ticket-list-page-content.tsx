@@ -481,7 +481,7 @@ export default function TicketListPageContent({
         </div>
       ) : (
         <div className="flex h-[61px] shrink-0 justify-center bg-secondary px-4 pb-3 3xl:px-16 3xl:pb-5" style={{ borderLeft: '1px solid white' }}>
-          <div className="flex items-center justify-center !space-x-4 3xl:-mt-[3px] 3xl:ml-[100px] 3xl:space-x-2">
+          <div className="flex items-center justify-center !space-x-4 3xl:-mt-[3px] 3xl:ml-[100px] min-[1880px]:ml-[100px] 3xl:space-x-2">
             {/* Data - standard */}
             <div className="inline-flex items-center bg-accent text-background">
               {dateRangeButton(
