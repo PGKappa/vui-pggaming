@@ -1396,7 +1396,7 @@ export default function BettingSlip({
                     className="h-8 bg-muted-foreground text-[14px] tabular-nums"
                     onClick={() => setGlobal((prev) => prev + numericAmount)}
                   >
-                    {numericAmount} {currencySymbol}
+                    {currencySymbol} {numericAmount}
                   </Button>
                 )
               })}
@@ -1463,7 +1463,7 @@ export default function BettingSlip({
                   </button>
                 </div>
                 <AccordionContent className="pb-0">
-                  <div className="flex h-[54px] items-center border-b bg-white px-4">
+                  <div className="flex h-[54px] items-center border-b bg-gray-100 px-4">
                     <div className="relative bottom-[3px] flex w-full items-center justify-between space-x-2">
                       <Checkbox
                         checked={allGroupsSelected}

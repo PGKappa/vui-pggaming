@@ -50,6 +50,7 @@
   flex-direction: column;
   align-self: flex-start;
   position: sticky;
+  z-index: 15;
   top: calc(4rem + 3px);
   margin-top: 3px;
   height: max(

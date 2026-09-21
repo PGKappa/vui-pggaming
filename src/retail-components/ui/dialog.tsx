@@ -26,13 +26,17 @@ const DialogOverlay = React.forwardRef<
     ref={ref}
 
     className={cn(
-  "fixed inset-0 z-50 bg-[rgba(43,45,49,0.6)]",
+  "fixed inset-0 z-50",
   className
 )}
 
+    style={{
+      backgroundColor: 'rgba(43, 45, 49, 0.6)',
+    }}
+
     {...props}
 
-  /> 
+  />
 ))
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 
