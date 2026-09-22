@@ -881,7 +881,7 @@ export default function TicketCheckDialog({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent
           aria-describedby={undefined}
-          className="flex max-h-[calc(100vh-40px)] w-[600px] max-w-[600px] flex-col overflow-hidden border-0 p-0"
+          className="flex max-h-[80vh] w-[600px] max-w-[600px] flex-col overflow-hidden border-0 p-0"
           style={{ background: '#1e1e1e', borderRadius: '1px 1px 0 0' }}
         >
           {/* HEADER */}
@@ -978,15 +978,15 @@ export default function TicketCheckDialog({
                         <div
                           className="flex items-center px-[18px] py-[10px] text-[14px] font-bold uppercase tracking-[1px] text-white"
                           style={{
-                            background: 'rgba(138,138,42,0.2)',
-                            border: '2px solid #8a8a2a',
+                            background: 'rgba(24,144,255,0.2)',
+                            border: '2px solid rgb(24, 144, 255)',
                             borderRadius: '2px',
                           }}
                         >
-                          {t('pending', 'IN ATTESA')}
+                          {t('pending', 'APERTO')}
                           <span
                             className="ml-3 h-[9px] w-[9px] shrink-0 rounded-full"
-                            style={{ background: '#8a8a2a' }}
+                            style={{ background: 'rgb(24, 144, 255)' }}
                           />
                         </div>
                       )}
