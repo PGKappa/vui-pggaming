@@ -19,7 +19,11 @@ import {
   TicketDetailSelection,
   TicketPayResponse,
 } from '@/retail-lib/types'
-import { createPGVirtualAPICall, roundMoney } from '@/retail-lib/utils'
+import {
+  createPGVirtualAPICall,
+  roundMoney,
+  roundStakePerCombination,
+} from '@/retail-lib/utils'
 import { computeSameEventOddsRange } from '@/retail-lib/system-bets'
 import { format } from 'date-fns'
 import { useTranslation } from 'react-i18next'
@@ -433,7 +437,9 @@ export function computeMinMaxWin(info: TicketDetailInfo): {
             0,
           )
         : amount
-    const stakePerSelection = roundMoney(totalStake / oddsEntries.length)
+    const stakePerSelection = roundStakePerCombination(
+      totalStake / oddsEntries.length,
+    )
     const { minAssigned, maxAssigned } = computeSameEventOddsRange(
       oddsEntries,
       selectionFieldSize(sel),
@@ -500,7 +506,9 @@ export function computeMinMaxWin(info: TicketDetailInfo): {
     ).length
     if (rawCombosCount === 0) continue
     const tierTotalStake = parseFloat(info.system[k]) || 0
-    const stakePerCombo = roundMoney(tierTotalStake / rawCombosCount)
+    const stakePerCombo = roundStakePerCombination(
+      tierTotalStake / rawCombosCount,
+    )
 
     const needed = kNum - fixedGroups.length
     if (needed < 0 || needed > nonFixedGroups.length) continue
