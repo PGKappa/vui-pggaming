@@ -26,6 +26,7 @@ import {
   cn,
   createPGVirtualAPICall,
   normalizeMarketName,
+  roundMoney,
 } from '@/retail-lib/utils'
 import {
   ChevronDown,
@@ -81,10 +82,13 @@ function computeGroupWinRounded(group: SystemGroup): {
       (acc, entry) => acc * entry.bet.option.decPrice,
       1,
     )
-    return Math.round(comboOdds * group.stake * 100) / 100
+    return roundMoney(comboOdds * group.stake)
   }
   const maxCombos = group.maxWinAssignedCombinations ?? group.combinations
-  const maxWin = maxCombos.reduce((acc, combo) => acc + comboWinRounded(combo), 0)
+  const maxWin = maxCombos.reduce(
+    (acc, combo) => acc + comboWinRounded(combo),
+    0,
+  )
 
   let minWin: number
   if (group.minWinAssignedCombinations !== undefined) {
@@ -101,8 +105,8 @@ function computeGroupWinRounded(group: SystemGroup): {
   }
 
   return {
-    minWin: Math.round(minWin * 100) / 100,
-    maxWin: Math.round(maxWin * 100) / 100,
+    minWin: roundMoney(minWin),
+    maxWin: roundMoney(maxWin),
   }
 }
 
@@ -468,12 +472,8 @@ export default function BettingSlip({
   const handleUpdateGroupStake = (groupName: string, value: number) => {
     const numValue = Number(value)
     const finalValue = Math.max(0, isNaN(numValue) ? 0 : numValue)
-    const roundedValue = Math.round(finalValue * 100) / 100
+    const roundedValue = roundMoney(finalValue)
     setSystemGroupStakes((prev) => ({ ...prev, [groupName]: roundedValue }))
-    // Keep selectedGroups in sync with the actual stake — a group with a
-    // stake > 0 must always count as "selected", otherwise the displayed
-    // combinations total (filtered by selectedGroups) can silently diverge
-    // from what's actually sent to the API (filtered by stake > 0).
     setSelectedGroups((prev) => ({ ...prev, [groupName]: roundedValue > 0 }))
   }
 
@@ -782,7 +782,9 @@ export default function BettingSlip({
           even_odd: 'evenodd',
           under_over: 'underover',
         }
-        const withoutThreshold = normalized.replace(/\s*\d+(\.\d+)?$/, '').trim()
+        const withoutThreshold = normalized
+          .replace(/\s*\d+(\.\d+)?$/, '')
+          .trim()
         return (
           API_MARKET_NAMES[normalized] ||
           API_MARKET_NAMES[withoutThreshold] ||
@@ -914,16 +916,13 @@ export default function BettingSlip({
                     .filter((group) => group.stake > 0)
                     .map((group) => [
                       group.size.toString(),
-                      Math.round(
-                        group.stake * group.combinations.length * 100,
-                      ) / 100,
+                      roundMoney(group.stake * group.combinations.length),
                     ]),
                 ),
               }
             : {
                 system: {
-                  [betEntries.length.toString()]:
-                    Math.round(global * 100) / 100,
+                  [betEntries.length.toString()]: roundMoney(global),
                 },
               }),
           selections,
@@ -1161,8 +1160,7 @@ export default function BettingSlip({
                         )
                         return {
                           odds: comboOdds,
-                          potentialWin:
-                            Math.round(comboOdds * group.stake * 100) / 100,
+                          potentialWin: roundMoney(comboOdds * group.stake),
                           entries: combo.map((entry) => ({
                             eventName: entry.bet.event.name || '',
                             competitorName: getPrintCompetitorName(entry),
@@ -1187,8 +1185,8 @@ export default function BettingSlip({
                 ...(betMode === 'SINGLE' || betMode === 'MULTIPLE'
                   ? {
                       totalOdds,
-                      stake: Math.round(global * 100) / 100,
-                      potentialWin: Math.round(potentialWinning * 100) / 100,
+                      stake: roundMoney(global),
+                      potentialWin: roundMoney(potentialWinning),
                     }
                   : {}),
                 ...(systemGroupsInfo && { systemGroups: systemGroupsInfo }),
@@ -1221,19 +1219,18 @@ export default function BettingSlip({
 
       const newTicket: SubmittedTicket = {
         date: new Date(),
-        amount:
-          Math.round(
-            (betMode === 'SYSTEM'
-              ? systemGroups.reduce((sum, group) => sum + group.stake, 0)
-              : global) * 100,
-          ) / 100,
+        amount: roundMoney(
+          betMode === 'SYSTEM'
+            ? systemGroups.reduce((sum, group) => sum + group.stake, 0)
+            : global,
+        ),
         winning:
           betMode === 'SYSTEM'
             ? systemGroups.reduce(
                 (sum, group) => sum + computeGroupWinRounded(group).maxWin,
                 0,
               )
-            : Math.round(potentialWinning * 100) / 100,
+            : roundMoney(potentialWinning),
         betEntries,
       }
 
@@ -1359,454 +1356,462 @@ export default function BettingSlip({
       </CardContent>
 
       <div className="flex min-h-0 flex-col">
-      <Separator />
+        <Separator />
 
-      <CardFooter className="relative flex shrink-0 flex-col bg-backgroundBetslip pb-0">
-        {betMode !== 'SYSTEM' ? (
-          <>
-            <div className="h-[30px] w-full bg-accent" />
+        <CardFooter className="relative flex shrink-0 flex-col bg-backgroundBetslip pb-0">
+          {betMode !== 'SYSTEM' ? (
+            <>
+              <div className="h-[30px] w-full bg-accent" />
 
-            <div className="relative top-[7px] flex w-full flex-row items-center justify-between px-4 py-3 text-white">
-              <span className="text-[15px] font-semibold">
-                {t('total_odd').toUpperCase()}
-              </span>
-              <span className="text-[15px] font-bold tabular-nums">
-                {totalOdds.toFixed(2)}
-              </span>
-            </div>
-            <Separator />
-
-            <div className="grid w-full grid-cols-5 gap-2 px-2 py-3">
-              {stakeButtons.map((amount, index) => {
-                const numericAmount =
-                  typeof amount === 'number'
-                    ? amount
-                    : parseFloat(
-                        String(amount)
-                          .replace(',', '.')
-                          .replace(/[^\d.]/g, ''),
-                      )
-                if (isNaN(numericAmount) || numericAmount <= 0) return null
-
-                return (
-                  <Button
-                    key={`stake-${index}-${numericAmount}`}
-                    variant="outline"
-                    size="sm"
-                    className="h-8 bg-muted-foreground text-[14px] tabular-nums"
-                    onClick={() => setGlobal((prev) => prev + numericAmount)}
-                  >
-                    {currencySymbol} {numericAmount}
-                  </Button>
-                )
-              })}
-            </div>
-
-            <div className="flex w-full flex-row items-center justify-between px-4 py-3 text-searchResultText mt-2">
-              <div className="flex items-center space-x-2">
+              <div className="relative top-[7px] flex w-full flex-row items-center justify-between px-4 py-3 text-white">
                 <span className="text-[15px] font-semibold">
-                  {t('amount').toUpperCase()}
+                  {t('total_odd').toUpperCase()}
+                </span>
+                <span className="text-[15px] font-bold tabular-nums">
+                  {totalOdds.toFixed(2)}
                 </span>
               </div>
-              <NumericKeypadDrawer
-                value={global}
-                setValue={setGlobal}
-                inputWidth="w-[174px] text-[16px] tabular-nums border-0"
-                triggerLabel={t('amount').toUpperCase()}
-                showPlusMinus={true}
-                drawerId="global-amount"
-                currencySymbol={currencySymbol}
-              />
-            </div>
+              <Separator />
 
-            <Separator />
+              <div className="grid w-full grid-cols-5 gap-2 px-2 py-3">
+                {stakeButtons.map((amount, index) => {
+                  const numericAmount =
+                    typeof amount === 'number'
+                      ? amount
+                      : parseFloat(
+                          String(amount)
+                            .replace(',', '.')
+                            .replace(/[^\d.]/g, ''),
+                        )
+                  if (isNaN(numericAmount) || numericAmount <= 0) return null
 
-            <div className="relative top-[3px] flex w-full flex-row items-center justify-between bg-backgroundBetslip px-4 py-3 text-searchResultText">
-              <span className="text-[17px] font-semibold">
-                {t('potential_win').toUpperCase()}
-              </span>
-              <span className="text-[17px] font-semibold tabular-nums">
-                {currencySymbol} {potentialWinning.toFixed(2)}
-              </span>
-            </div>
-          </>
-        ) : (
-          <>
-            <Accordion
-              type="single"
-              value={accordionOpen}
-              onValueChange={setAccordionOpen}
-              className="w-full"
-            >
-              <AccordionItem value="combinations" className="border-none">
-                <div className="relative flex h-[34px] w-full items-center justify-between bg-accent px-4 text-[13px] text-accent-foreground hover:no-underline">
-                  <span className="leading-none">
-                    {t('combinations').toUpperCase()}
+                  return (
+                    <Button
+                      key={`stake-${index}-${numericAmount}`}
+                      variant="outline"
+                      size="sm"
+                      className="h-8 bg-muted-foreground text-[14px] tabular-nums"
+                      onClick={() => setGlobal((prev) => prev + numericAmount)}
+                    >
+                      {currencySymbol} {numericAmount}
+                    </Button>
+                  )
+                })}
+              </div>
+
+              <div className="mt-2 flex w-full flex-row items-center justify-between px-4 py-3 text-searchResultText">
+                <div className="flex items-center space-x-2">
+                  <span className="text-[15px] font-semibold">
+                    {t('amount').toUpperCase()}
                   </span>
-                  <button
-                    onClick={() =>
-                      setAccordionOpen(
-                        accordionOpen === 'combinations' ? '' : 'combinations',
-                      )
-                    }
-                    className="ml-2 flex items-center justify-center bg-transparent transition-transform duration-200"
-                    style={{
-                      width: '20px',
-                      height: '20px',
-                      transform:
-                        accordionOpen === 'combinations'
-                          ? 'rotate(180deg)'
-                          : 'rotate(0deg)',
-                    }}
-                  >
-                    <ChevronDown className="relative left-1 w-5 shrink-0" />
-                  </button>
                 </div>
-                <AccordionContent className="pb-0">
-                  <div className="flex h-[54px] items-center border-b bg-gray-100 px-4">
-                    <div className="relative bottom-[3px] flex w-full items-center justify-between space-x-2">
-                      <Checkbox
-                        checked={allGroupsSelected}
-                        onCheckedChange={handleAllGroupsToggle}
-                      />
-                      <div className="mr-[3px] flex h-[33px] items-center space-x-2">
-                        <span className="mr-[4px] text-[12px] font-semibold">
-                          {t('divide').toUpperCase()}
-                        </span>
-                        <div className="relative right-[3px] flex w-full items-center border border-border">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={handleDistributeStake}
-                            className="h-8 w-7 bg-minusButtonDark p-3 text-[19px] text-bet-foreground opacity-50 hover:opacity-90"
-                          >
-                            <DivideIcon className="h-4 w-4" />
-                          </Button>
-                          <NumericKeypadDrawer
-                            value={systemDistributeStake}
-                            setValue={setSystemDistributeStake}
-                            inputWidth="w-[142px] pr-2 text-[13px]"
-                            triggerLabel={t('divide/add_amount')}
-                            showPlusMinus={false}
-                            drawerId="system-divide-add"
-                            currencySymbol={currencySymbol}
-                          />
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={handleAddStakeToAll}
-                            className="h-8 w-7 bg-plusButton p-3 text-[19px] text-bet-foreground hover:opacity-90"
-                          >
-                            <CornerDownLeft className="h-4 w-4" />
-                          </Button>
+                <NumericKeypadDrawer
+                  value={global}
+                  setValue={setGlobal}
+                  inputWidth="w-[174px] text-[16px] tabular-nums border-0"
+                  triggerLabel={t('amount').toUpperCase()}
+                  showPlusMinus={true}
+                  drawerId="global-amount"
+                  currencySymbol={currencySymbol}
+                />
+              </div>
+
+              <Separator />
+
+              <div className="relative top-[3px] flex w-full flex-row items-center justify-between bg-backgroundBetslip px-4 py-3 text-searchResultText">
+                <span className="text-[17px] font-semibold">
+                  {t('potential_win').toUpperCase()}
+                </span>
+                <span className="text-[17px] font-semibold tabular-nums">
+                  {currencySymbol} {potentialWinning.toFixed(2)}
+                </span>
+              </div>
+            </>
+          ) : (
+            <>
+              <Accordion
+                type="single"
+                value={accordionOpen}
+                onValueChange={setAccordionOpen}
+                className="w-full"
+              >
+                <AccordionItem value="combinations" className="border-none">
+                  <div className="relative flex h-[34px] w-full items-center justify-between bg-accent px-4 text-[13px] text-accent-foreground hover:no-underline">
+                    <span className="leading-none">
+                      {t('combinations').toUpperCase()}
+                    </span>
+                    <button
+                      onClick={() =>
+                        setAccordionOpen(
+                          accordionOpen === 'combinations'
+                            ? ''
+                            : 'combinations',
+                        )
+                      }
+                      className="ml-2 flex items-center justify-center bg-transparent transition-transform duration-200"
+                      style={{
+                        width: '20px',
+                        height: '20px',
+                        transform:
+                          accordionOpen === 'combinations'
+                            ? 'rotate(180deg)'
+                            : 'rotate(0deg)',
+                      }}
+                    >
+                      <ChevronDown className="relative left-1 w-5 shrink-0" />
+                    </button>
+                  </div>
+                  <AccordionContent className="pb-0">
+                    <div className="flex h-[54px] items-center border-b bg-gray-100 px-4">
+                      <div className="relative bottom-[3px] flex w-full items-center justify-between space-x-2">
+                        <Checkbox
+                          checked={allGroupsSelected}
+                          onCheckedChange={handleAllGroupsToggle}
+                        />
+                        <div className="mr-[3px] flex h-[33px] items-center space-x-2">
+                          <span className="mr-[4px] text-[12px] font-semibold">
+                            {t('divide').toUpperCase()}
+                          </span>
+                          <div className="relative right-[3px] flex w-full items-center border border-border">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={handleDistributeStake}
+                              className="h-8 w-7 bg-minusButtonDark p-3 text-[19px] text-bet-foreground opacity-50 hover:opacity-90"
+                            >
+                              <DivideIcon className="h-4 w-4" />
+                            </Button>
+                            <NumericKeypadDrawer
+                              value={systemDistributeStake}
+                              setValue={setSystemDistributeStake}
+                              inputWidth="w-[142px] pr-2 text-[13px]"
+                              triggerLabel={t('divide/add_amount')}
+                              showPlusMinus={false}
+                              drawerId="system-divide-add"
+                              currencySymbol={currencySymbol}
+                            />
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={handleAddStakeToAll}
+                              className="h-8 w-7 bg-plusButton p-3 text-[19px] text-bet-foreground hover:opacity-90"
+                            >
+                              <CornerDownLeft className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          <span className="relative right-[2px] text-[12px] font-semibold">
+                            {t('add').toUpperCase()}
+                          </span>
                         </div>
-                        <span className="relative right-[2px] text-[12px] font-semibold">
-                          {t('add').toUpperCase()}
-                        </span>
                       </div>
                     </div>
-                  </div>
 
-                  <Separator />
+                    <Separator />
 
-                  <ScrollAreaB
-                    className="overflow-hidden"
-                    style={{ height: `${scrollAreaHeight}px` }}
-                  >
-                    <Accordion
-                      type="multiple"
-                      value={systemGroupsOpen}
-                      onValueChange={setSystemGroupsOpen}
-                      className="w-full"
+                    <ScrollAreaB
+                      className="overflow-hidden"
+                      style={{ height: `${scrollAreaHeight}px` }}
                     >
-                      {systemGroups.map((group) => (
-                        <AccordionItem
-                          key={group.name}
-                          value={group.name}
-                          className="bg-bet-foreground"
-                        >
-                          <div
-                            className={`relative h-[59px] border-b px-4 py-[7px] ${systemGroupsOpen.includes(group.name) ? 'bg' : 'bg-background'}`}
+                      <Accordion
+                        type="multiple"
+                        value={systemGroupsOpen}
+                        onValueChange={setSystemGroupsOpen}
+                        className="w-full"
+                      >
+                        {systemGroups.map((group) => (
+                          <AccordionItem
+                            key={group.name}
+                            value={group.name}
+                            className="bg-bet-foreground"
                           >
-                            <div className="mt-[3px] flex w-full items-center justify-between">
-                              <div className="flex items-center space-x-2">
-                                <Checkbox
-                                  checked={selectedGroups[group.name] || false}
-                                  onCheckedChange={(checked) =>
-                                    handleGroupToggle(
-                                      group.name,
-                                      checked as boolean,
-                                    )
-                                  }
-                                />
-                                <span className="pt-0.5 text-[12px] font-semibold">
-                                  {group.name.toUpperCase()}
-                                </span>
-                                <span className="text-muted-background relative right-[5px] mt-[1px] text-[12px] font-semibold">
-                                  (x{group.combinations.length})
-                                </span>
-                              </div>
-                              <div className="relative flex items-center">
-                                <div className="mr-[12px] mt-[2px] flex items-center space-x-0 border">
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={(e) => {
-                                      e.stopPropagation()
-                                      const newValue =
-                                        group.stake - systemStakeIncrement
-                                      const finalValue = Math.max(0, newValue)
-                                      handleUpdateGroupStake(
-                                        group.name,
-                                        newValue,
-                                      )
-                                      if (finalValue === 0) {
-                                        setSelectedGroups((prev) => ({
-                                          ...prev,
-                                          [group.name]: false,
-                                        }))
-                                        setTimeout(() => {
-                                          const updatedSelections = {
-                                            ...selectedGroups,
-                                            [group.name]: false,
-                                          }
-                                          setAllGroupsSelected(
-                                            systemGroups.every(
-                                              (g) =>
-                                                updatedSelections[g.name] &&
-                                                (systemGroupStakes[g.name] ||
-                                                  0) > 0,
-                                            ),
-                                          )
-                                        }, 0)
-                                      }
-                                    }}
-                                    disabled={group.stake <= 0}
-                                    className="h-8 w-7 bg-minusButton p-3 text-[19px] text-bet-foreground hover:opacity-90 disabled:bg-minusButtonDark"
-                                  >
-                                    <MinusIcon className="h-4 w-4" />
-                                  </Button>
-                                  <NumericKeypadDrawer
-                                    value={group.stake}
-                                    setValue={(value) =>
-                                      handleUpdateGroupStake(group.name, value)
+                            <div
+                              className={`relative h-[59px] border-b px-4 py-[7px] ${systemGroupsOpen.includes(group.name) ? 'bg' : 'bg-background'}`}
+                            >
+                              <div className="mt-[3px] flex w-full items-center justify-between">
+                                <div className="flex items-center space-x-2">
+                                  <Checkbox
+                                    checked={
+                                      selectedGroups[group.name] || false
                                     }
-                                    inputWidth="w-[142px] pr-2 text-[13px]"
-                                    triggerLabel={group.name}
-                                    showPlusMinus={false}
-                                    drawerId={`system-group-${group.name}`}
-                                    currencySymbol={currencySymbol}
+                                    onCheckedChange={(checked) =>
+                                      handleGroupToggle(
+                                        group.name,
+                                        checked as boolean,
+                                      )
+                                    }
                                   />
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={(e) => {
-                                      e.stopPropagation()
-                                      const newValue =
-                                        group.stake + systemStakeIncrement
-                                      handleUpdateGroupStake(
-                                        group.name,
-                                        newValue,
-                                      )
-                                      if (newValue > 0) {
-                                        setSelectedGroups((prev) => ({
-                                          ...prev,
-                                          [group.name]: true,
-                                        }))
-                                        setTimeout(() => {
-                                          const updatedSelections = {
-                                            ...selectedGroups,
+                                  <span className="pt-0.5 text-[12px] font-semibold">
+                                    {group.name.toUpperCase()}
+                                  </span>
+                                  <span className="text-muted-background relative right-[5px] mt-[1px] text-[12px] font-semibold">
+                                    (x{group.combinations.length})
+                                  </span>
+                                </div>
+                                <div className="relative flex items-center">
+                                  <div className="mr-[12px] mt-[2px] flex items-center space-x-0 border">
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        const newValue =
+                                          group.stake - systemStakeIncrement
+                                        const finalValue = Math.max(0, newValue)
+                                        handleUpdateGroupStake(
+                                          group.name,
+                                          newValue,
+                                        )
+                                        if (finalValue === 0) {
+                                          setSelectedGroups((prev) => ({
+                                            ...prev,
+                                            [group.name]: false,
+                                          }))
+                                          setTimeout(() => {
+                                            const updatedSelections = {
+                                              ...selectedGroups,
+                                              [group.name]: false,
+                                            }
+                                            setAllGroupsSelected(
+                                              systemGroups.every(
+                                                (g) =>
+                                                  updatedSelections[g.name] &&
+                                                  (systemGroupStakes[g.name] ||
+                                                    0) > 0,
+                                              ),
+                                            )
+                                          }, 0)
+                                        }
+                                      }}
+                                      disabled={group.stake <= 0}
+                                      className="h-8 w-7 bg-minusButton p-3 text-[19px] text-bet-foreground hover:opacity-90 disabled:bg-minusButtonDark"
+                                    >
+                                      <MinusIcon className="h-4 w-4" />
+                                    </Button>
+                                    <NumericKeypadDrawer
+                                      value={group.stake}
+                                      setValue={(value) =>
+                                        handleUpdateGroupStake(
+                                          group.name,
+                                          value,
+                                        )
+                                      }
+                                      inputWidth="w-[142px] pr-2 text-[13px]"
+                                      triggerLabel={group.name}
+                                      showPlusMinus={false}
+                                      drawerId={`system-group-${group.name}`}
+                                      currencySymbol={currencySymbol}
+                                    />
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={(e) => {
+                                        e.stopPropagation()
+                                        const newValue =
+                                          group.stake + systemStakeIncrement
+                                        handleUpdateGroupStake(
+                                          group.name,
+                                          newValue,
+                                        )
+                                        if (newValue > 0) {
+                                          setSelectedGroups((prev) => ({
+                                            ...prev,
                                             [group.name]: true,
-                                          }
-                                          setAllGroupsSelected(
-                                            systemGroups.every(
-                                              (g) =>
-                                                updatedSelections[g.name] &&
-                                                (systemGroupStakes[g.name] ||
-                                                  newValue) > 0,
-                                            ),
-                                          )
-                                        }, 0)
+                                          }))
+                                          setTimeout(() => {
+                                            const updatedSelections = {
+                                              ...selectedGroups,
+                                              [group.name]: true,
+                                            }
+                                            setAllGroupsSelected(
+                                              systemGroups.every(
+                                                (g) =>
+                                                  updatedSelections[g.name] &&
+                                                  (systemGroupStakes[g.name] ||
+                                                    newValue) > 0,
+                                              ),
+                                            )
+                                          }, 0)
+                                        }
+                                      }}
+                                      className="h-8 w-7 bg-plusButton p-3 text-[19px] text-bet-foreground hover:opacity-90"
+                                    >
+                                      <PlusIcon className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                  <button
+                                    onClick={() => {
+                                      const isOpen = systemGroupsOpen.includes(
+                                        group.name,
+                                      )
+                                      if (isOpen) {
+                                        setSystemGroupsOpen((prev) =>
+                                          prev.filter(
+                                            (name) => name !== group.name,
+                                          ),
+                                        )
+                                      } else {
+                                        setSystemGroupsOpen((prev) => [
+                                          ...prev,
+                                          group.name,
+                                        ])
                                       }
                                     }}
-                                    className="h-8 w-7 bg-plusButton p-3 text-[19px] text-bet-foreground hover:opacity-90"
+                                    className="ml-2 flex items-center justify-center bg-transparent"
+                                    style={{ width: '20px', height: '20px' }}
                                   >
-                                    <PlusIcon className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                                <button
-                                  onClick={() => {
-                                    const isOpen = systemGroupsOpen.includes(
-                                      group.name,
-                                    )
-                                    if (isOpen) {
-                                      setSystemGroupsOpen((prev) =>
-                                        prev.filter(
-                                          (name) => name !== group.name,
-                                        ),
-                                      )
-                                    } else {
-                                      setSystemGroupsOpen((prev) => [
-                                        ...prev,
-                                        group.name,
-                                      ])
-                                    }
-                                  }}
-                                  className="ml-2 flex items-center justify-center bg-transparent"
-                                  style={{ width: '20px', height: '20px' }}
-                                >
-                                  <svg
-                                    className="relative left-1"
-                                    width="20"
-                                    height="20"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    style={{
-                                      animation: systemGroupsOpen.includes(
-                                        group.name,
-                                      )
-                                        ? 'chevron-rotate-open 0.2s ease-out forwards'
-                                        : 'chevron-rotate-close 0.2s ease-out forwards',
-                                    }}
-                                  >
-                                    <polyline points="6 9 12 15 18 9"></polyline>
-                                  </svg>
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                          <AccordionContent className="h-[55px] border-b px-4">
-                            <div className="relative top-1.5 grid grid-cols-3 text-[13px]">
-                              <div className="text-center">
-                                <div className="relative bottom-[2px] text-[12px] font-semibold capitalize text-foreground">
-                                  {t('min')} {t('win')}
-                                </div>
-                                <div className="relative top-[0px] text-[13px] font-normal">
-                                  {currencySymbol}{' '}
-                                  {computeGroupWinRounded(group).minWin.toFixed(
-                                    2,
-                                  )}
-                                </div>
-                              </div>
-                              <div className="relative right-[12px] text-center text-[12px] font-semibold">
-                                <div className="relative bottom-[2px] capitalize text-foreground">
-                                  {t('max')} {t('win')}
-                                </div>
-                                <div className="relative top-[0px] text-[13px] font-normal">
-                                  {currencySymbol}{' '}
-                                  {computeGroupWinRounded(group).maxWin.toFixed(
-                                    2,
-                                  )}
-                                </div>
-                              </div>
-                              <div className="relative right-[16px] text-center text-[12px] font-semibold">
-                                <div className="relative bottom-[2px] left-1 capitalize text-foreground">
-                                  {t('total_played')}
-                                </div>
-                                <div className="relative left-1 top-[0px] text-[13px] font-normal">
-                                  {currencySymbol}{' '}
-                                  {(
-                                    group.stake * group.combinations.length
-                                  ).toFixed(2)}
+                                    <svg
+                                      className="relative left-1"
+                                      width="20"
+                                      height="20"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      strokeWidth="2"
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      style={{
+                                        animation: systemGroupsOpen.includes(
+                                          group.name,
+                                        )
+                                          ? 'chevron-rotate-open 0.2s ease-out forwards'
+                                          : 'chevron-rotate-close 0.2s ease-out forwards',
+                                      }}
+                                    >
+                                      <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
+                                  </button>
                                 </div>
                               </div>
                             </div>
-                          </AccordionContent>
-                        </AccordionItem>
-                      ))}
-                    </Accordion>
-                  </ScrollAreaB>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
+                            <AccordionContent className="h-[55px] border-b px-4">
+                              <div className="relative top-1.5 grid grid-cols-3 text-[13px]">
+                                <div className="text-center">
+                                  <div className="relative bottom-[2px] text-[12px] font-semibold capitalize text-foreground">
+                                    {t('min')} {t('win')}
+                                  </div>
+                                  <div className="relative top-[0px] text-[13px] font-normal">
+                                    {currencySymbol}{' '}
+                                    {computeGroupWinRounded(
+                                      group,
+                                    ).minWin.toFixed(2)}
+                                  </div>
+                                </div>
+                                <div className="relative right-[12px] text-center text-[12px] font-semibold">
+                                  <div className="relative bottom-[2px] capitalize text-foreground">
+                                    {t('max')} {t('win')}
+                                  </div>
+                                  <div className="relative top-[0px] text-[13px] font-normal">
+                                    {currencySymbol}{' '}
+                                    {computeGroupWinRounded(
+                                      group,
+                                    ).maxWin.toFixed(2)}
+                                  </div>
+                                </div>
+                                <div className="relative right-[16px] text-center text-[12px] font-semibold">
+                                  <div className="relative bottom-[2px] left-1 capitalize text-foreground">
+                                    {t('total_played')}
+                                  </div>
+                                  <div className="relative left-1 top-[0px] text-[13px] font-normal">
+                                    {currencySymbol}{' '}
+                                    {(
+                                      group.stake * group.combinations.length
+                                    ).toFixed(2)}
+                                  </div>
+                                </div>
+                              </div>
+                            </AccordionContent>
+                          </AccordionItem>
+                        ))}
+                      </Accordion>
+                    </ScrollAreaB>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
 
-            <Separator />
+              <Separator />
 
-            <div className="flex w-full flex-row items-center justify-between bg-backgroundBetslip px-4 py-3 text-searchResultText">
-              <span className="text-[15px] font-semibold">
-                {t('total_combinations').toUpperCase()}
-              </span>
-              <span
-                className={cn(
-                  'text-[15px] font-semibold',
-                  totalSystemCombinations > maxCombinations &&
-                    'font-bold text-chart-2',
-                )}
-              >
-                {totalSystemCombinations}/{maxCombinations}
-              </span>
-            </div>
-
-            <Separator />
-
-            <div className="flex w-full flex-row items-center justify-between px-4 py-3 text-searchResultText mt-2">
-              <div className="flex items-center space-x-2">
+              <div className="flex w-full flex-row items-center justify-between bg-backgroundBetslip px-4 py-3 text-searchResultText">
                 <span className="text-[15px] font-semibold">
-                  {t('amount').toUpperCase()}
+                  {t('total_combinations').toUpperCase()}
+                </span>
+                <span
+                  className={cn(
+                    'text-[15px] font-semibold',
+                    totalSystemCombinations > maxCombinations &&
+                      'font-bold text-chart-2',
+                  )}
+                >
+                  {totalSystemCombinations}/{maxCombinations}
                 </span>
               </div>
-              <NumericKeypadDrawer
-                value={global}
-                setValue={handleDirectAmountInput}
-                inputWidth="w-[220px] border text-[16px] text-black"
-                triggerLabel={t('amount')}
-                showPlusMinus={false}
-                drawerId="system-amount"
-                currencySymbol={currencySymbol}
-              />
-            </div>
 
-            <Separator />
+              <Separator />
 
-            <div className="flex w-full flex-row items-center justify-between bg-backgroundBetslip px-4 py-3 text-searchResultText">
-              <span className="text-[17px] font-semibold tabular-nums">
-                {t('potential_win').toUpperCase()}
-              </span>
-              <span className="text-[17px] font-semibold tabular-nums">
-                {currencySymbol} {totalSystemPotentialWin.toFixed(2)}
-              </span>
-            </div>
-          </>
-        )}
-      </CardFooter>
+              <div className="mt-2 flex w-full flex-row items-center justify-between px-4 py-3 text-searchResultText">
+                <div className="flex items-center space-x-2">
+                  <span className="text-[15px] font-semibold">
+                    {t('amount').toUpperCase()}
+                  </span>
+                </div>
+                <NumericKeypadDrawer
+                  value={global}
+                  setValue={handleDirectAmountInput}
+                  inputWidth="w-[220px] border text-[16px] text-black"
+                  triggerLabel={t('amount')}
+                  showPlusMinus={false}
+                  drawerId="system-amount"
+                  currencySymbol={currencySymbol}
+                />
+              </div>
 
-      <div className="shrink-0 bg-backgroundBetslip">
-        {betMode === 'SYSTEM' && totalSystemCombinations > maxCombinations && (
-          <div className="mx-3 mt-2 rounded border border-notCollected bg-notCollected px-3 py-2 text-center text-sm font-semibold text-notCollected-foreground">
-            {t('combinations_limit_exceeded')}
-          </div>
-        )}
-        <div className="w-full px-3 pb-3 pt-4">
-          <Button
-            variant="betNow"
-            onClick={handleBetNow}
-            disabled={
-              isSubmitting ||
-              (betMode !== 'SYSTEM' && global <= 0) ||
-              (betMode === 'SYSTEM' && totalSystemStake <= 0) ||
-              (betMode === 'SYSTEM' &&
-                totalSystemCombinations > maxCombinations) ||
-              (betMode === 'SYSTEM' && systemEventsCount > maxEvents) ||
-              betEntries.length > maxSelections
-            }
-            className="h-12 w-full text-[18px] font-bold"
-          >
-            {isSubmitting ? t('submitting') : t('bet_now').toUpperCase()}
-          </Button>
-        </div>
+              <Separator />
 
-        <div className="relative top-[-9px] flex w-full items-center bg-betSlip-header px-3 py-2">
-          {selectedEvent?.discipline === 'SOCCER' ? (
-            <SoccerFastBet selectedEvent={selectedEvent} />
-          ) : (
-            <RacingFastBet selectedEvent={selectedEvent} />
+              <div className="flex w-full flex-row items-center justify-between bg-backgroundBetslip px-4 py-3 text-searchResultText">
+                <span className="text-[17px] font-semibold tabular-nums">
+                  {t('potential_win').toUpperCase()}
+                </span>
+                <span className="text-[17px] font-semibold tabular-nums">
+                  {currencySymbol} {totalSystemPotentialWin.toFixed(2)}
+                </span>
+              </div>
+            </>
           )}
+        </CardFooter>
+
+        <div className="shrink-0 bg-backgroundBetslip">
+          {betMode === 'SYSTEM' &&
+            totalSystemCombinations > maxCombinations && (
+              <div className="mx-3 mt-2 rounded border border-notCollected bg-notCollected px-3 py-2 text-center text-sm font-semibold text-notCollected-foreground">
+                {t('combinations_limit_exceeded')}
+              </div>
+            )}
+          <div className="w-full px-3 pb-3 pt-4">
+            <Button
+              variant="betNow"
+              onClick={handleBetNow}
+              disabled={
+                isSubmitting ||
+                (betMode !== 'SYSTEM' && global <= 0) ||
+                (betMode === 'SYSTEM' && totalSystemStake <= 0) ||
+                (betMode === 'SYSTEM' &&
+                  totalSystemCombinations > maxCombinations) ||
+                (betMode === 'SYSTEM' && systemEventsCount > maxEvents) ||
+                betEntries.length > maxSelections
+              }
+              className="h-12 w-full text-[18px] font-bold"
+            >
+              {isSubmitting ? t('submitting') : t('bet_now').toUpperCase()}
+            </Button>
+          </div>
+
+          <div className="relative top-[-9px] flex w-full items-center bg-betSlip-header px-3 py-2">
+            {selectedEvent?.discipline === 'SOCCER' ? (
+              <SoccerFastBet selectedEvent={selectedEvent} />
+            ) : (
+              <RacingFastBet selectedEvent={selectedEvent} />
+            )}
+          </div>
         </div>
-      </div>
       </div>
     </Card>
   )

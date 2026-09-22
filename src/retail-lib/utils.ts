@@ -5,6 +5,12 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+export function roundMoney(value: number): number {
+  if (!Number.isFinite(value)) return 0
+  const cents = Number((value * 100).toPrecision(12))
+  return (value < 0 ? -Math.round(-cents) : Math.round(cents)) / 100
+}
+
 // Normalizes competitors/outcome for under/over markets to match toggles and fastBet
 export function normalizeUnderOverValue(value: string): string {
   const v = value.toLowerCase().trim()

@@ -19,7 +19,7 @@ import {
   TicketDetailSelection,
   TicketPayResponse,
 } from '@/retail-lib/types'
-import { createPGVirtualAPICall } from '@/retail-lib/utils'
+import { createPGVirtualAPICall, roundMoney } from '@/retail-lib/utils'
 import { computeSameEventOddsRange } from '@/retail-lib/system-bets'
 import { format } from 'date-fns'
 import { useTranslation } from 'react-i18next'
@@ -123,7 +123,6 @@ function crossProduct(groups: number[][]): number[] {
   return products
 }
 
-
 function comboOddsProductsForSize(
   fixedSlots: number[][],
   nonFixedSlots: number[][],
@@ -165,20 +164,30 @@ function selectionFieldSize(sel: TicketDetailSelection): number | undefined {
 }
 
 const OUTCOME_SIDES = [
-  'under', 'over', 'menos', 'más', 'mas', 'un', 'ov', 'u', 'o', 'me', 'm', 'ma',
-  'even', 'odd', 'par', 'pari', 'impar', 'dispari',
+  'under',
+  'over',
+  'menos',
+  'más',
+  'mas',
+  'un',
+  'ov',
+  'u',
+  'o',
+  'me',
+  'm',
+  'ma',
+  'even',
+  'odd',
+  'par',
+  'pari',
+  'impar',
+  'dispari',
 ]
 
 function marketNameForCalc(
   sel: TicketDetailSelection,
   description: string,
 ): string {
-  // Va passato il CODICE del backend ("underover", "quinella"...), perché è
-  // quello che il classificatore riconosce: le etichette leggibili no
-  // ("Accoppiata" e "Trio" non verrebbero riconosciute e finirebbero nel
-  // calcolo prudenziale). Dal dizionario prendiamo solo un eventuale numero,
-  // che sui mercati Under/Over è la soglia; se non c'è, il motore la ricava
-  // dal numero di partenti.
   const label = sel.game?.dict?.markets?.[description] || ''
   const threshold = label.match(/\d+\.?\d*/)
   return threshold ? `${description} ${threshold[0]}` : description
@@ -217,7 +226,10 @@ function getEventOddsGroups(info: TicketDetailInfo): {
       }
     }
     if (entries.length === 0) entries.push({ odds: 1, market: '' })
-    const group: EventOddsGroup = { entries, fieldSize: selectionFieldSize(sel) }
+    const group: EventOddsGroup = {
+      entries,
+      fieldSize: selectionFieldSize(sel),
+    }
     if (isBanker) fixedGroups.push(group)
     else nonFixedGroups.push(group)
   }
@@ -278,7 +290,11 @@ function buildMinScenarioLists(
   const scoreOf = (active: Set<EventOddsGroup>) => {
     let score = 0
     for (const size of playedSizes) {
-      for (const subset of validGroupSubsets(fixedGroups, nonFixedGroups, size)) {
+      for (const subset of validGroupSubsets(
+        fixedGroups,
+        nonFixedGroups,
+        size,
+      )) {
         if (!subset.every((g) => active.has(g))) continue
         score += subset.reduce((prod, g) => prod * rangeOf(g).positiveOdds, 1)
       }
@@ -315,7 +331,7 @@ function buildMinScenarioLists(
 
 function sumRoundedCrossProduct(oddsLists: number[][], stake: number): number {
   return crossProduct(oddsLists).reduce(
-    (sum, product) => sum + Math.round(product * stake * 100) / 100,
+    (sum, product) => sum + roundMoney(product * stake),
     0,
   )
 }
@@ -388,8 +404,9 @@ export function computeSystemSummary(info: TicketDetailInfo): {
         combinations: combos.length,
       }
     })
-    .filter((l): l is { size: number; stakeTotal: number; combinations: number } =>
-      l !== null,
+    .filter(
+      (l): l is { size: number; stakeTotal: number; combinations: number } =>
+        l !== null,
     )
     .sort((a, b) => a.size - b.size)
 
@@ -422,7 +439,7 @@ export function computeMinMaxWin(info: TicketDetailInfo): {
     )
     if (oddsEntries.length === 0) return { minWin: 0, maxWin: 0 }
     if (oddsEntries.length === 1) {
-      const win = Math.round(oddsEntries[0].odds * amount * 100) / 100
+      const win = roundMoney(oddsEntries[0].odds * amount)
       return { minWin: win, maxWin: win }
     }
 
@@ -433,20 +450,18 @@ export function computeMinMaxWin(info: TicketDetailInfo): {
             0,
           )
         : amount
-    const stakePerSelection =
-      Math.round((totalStake / oddsEntries.length) * 100) / 100
+    const stakePerSelection = roundMoney(totalStake / oddsEntries.length)
     const { minOdds, maxAssigned } = computeSameEventOddsRange(
       oddsEntries,
       selectionFieldSize(sel),
     )
     const maxWin = maxAssigned.reduce(
-      (sum, e) =>
-        sum + Math.round(e.odds * stakePerSelection * 100) / 100,
+      (sum, e) => sum + roundMoney(e.odds * stakePerSelection),
       0,
     )
     return {
-      minWin: Math.round(minOdds * stakePerSelection * 100) / 100,
-      maxWin: Math.round(maxWin * 100) / 100,
+      minWin: roundMoney(minOdds * stakePerSelection),
+      maxWin: roundMoney(maxWin),
     }
   }
 
@@ -459,8 +474,8 @@ export function computeMinMaxWin(info: TicketDetailInfo): {
     const maxLists = allGroups.map((g) => eventOddsRange(g).maxAssigned)
     const minLists = allGroups.map((g) => eventOddsRange(g).minAssigned)
     return {
-      minWin: Math.round(sumRoundedCrossProduct(minLists, amount) * 100) / 100,
-      maxWin: Math.round(sumRoundedCrossProduct(maxLists, amount) * 100) / 100,
+      minWin: roundMoney(sumRoundedCrossProduct(minLists, amount)),
+      maxWin: roundMoney(sumRoundedCrossProduct(maxLists, amount)),
     }
   }
 
@@ -504,8 +519,7 @@ export function computeMinMaxWin(info: TicketDetailInfo): {
     ).length
     if (rawCombosCount === 0) continue
     const tierTotalStake = parseFloat(info.system[k]) || 0
-    const stakePerCombo =
-      Math.round((tierTotalStake / rawCombosCount) * 100) / 100
+    const stakePerCombo = roundMoney(tierTotalStake / rawCombosCount)
 
     const needed = kNum - fixedGroups.length
     if (needed < 0 || needed > nonFixedGroups.length) continue
@@ -543,8 +557,8 @@ export function computeMinMaxWin(info: TicketDetailInfo): {
     maxWin += tierMaxWin
   }
   return {
-    minWin: Math.round(minWin * 100) / 100,
-    maxWin: Math.round(maxWin * 100) / 100,
+    minWin: roundMoney(minWin),
+    maxWin: roundMoney(maxWin),
   }
 }
 
@@ -1152,7 +1166,10 @@ export default function TicketCheckDialog({
                               : `${formatTicketDate(ticketInfo.time)} - ${normalizedStartTime}`
                           })()}
                           <br />
-                          <span className="text-[14px]" style={{ color: '#666' }}>
+                          <span
+                            className="text-[14px]"
+                            style={{ color: '#666' }}
+                          >
                             {t('event', 'Evento')} {sel.eventId}
                           </span>
                         </div>
@@ -1166,7 +1183,7 @@ export default function TicketCheckDialog({
                         const rawMarketLabel =
                           sel.game.dict.markets[market.description] ||
                           market.description
-                          
+
                         const underOverThreshold = /dogs?8/i.test(
                           sel.gameId || '',
                         )
@@ -1218,10 +1235,13 @@ export default function TicketCheckDialog({
                                     return t('over_full', 'Over')
                                 }
                                 const num = parseInt(s.description)
-                                const name = !isNaN(num) && sel.competitors?.[num - 1]
-                                  ? sel.competitors[num - 1]
-                                  : sel.game.dict.runners?.[s.description]
-                                return name ? `${s.description} - ${name}` : s.description
+                                const name =
+                                  !isNaN(num) && sel.competitors?.[num - 1]
+                                    ? sel.competitors[num - 1]
+                                    : sel.game.dict.runners?.[s.description]
+                                return name
+                                  ? `${s.description} - ${name}`
+                                  : s.description
                               })()}
                             </span>
                             <span
@@ -1237,358 +1257,369 @@ export default function TicketCheckDialog({
                   ))}
 
                   <div className="flex flex-1 flex-col justify-center">
-                  {/* COMBINAZIONI: taglie giocate, importo e combinazioni
+                    {/* COMBINAZIONI: taglie giocate, importo e combinazioni
                       per taglia, totale combinazioni — le stesse
                       informazioni già presenti sulla ricevuta stampata
                       (systemGroupsInfo). */}
-                  {systemSummary && betTypeKey === 'system' && (
-                    <>
-                      <hr style={{ borderColor: '#3a3a3a', marginBottom: '16px' }} />
-                      <div
-                        className="mb-[14px] text-center text-[17px] font-bold uppercase text-white"
-                      >
-                        {t('combinations', 'Combinazioni')}
-                      </div>
-                      <div className="mb-2 grid grid-cols-3">
-                        <div
-                          className="text-left text-[14px] font-semibold uppercase tracking-[0.8px]"
-                          style={{ color: '#888' }}
-                        >
-                          {t('quantity', 'Quantità')}
+                    {systemSummary && betTypeKey === 'system' && (
+                      <>
+                        <hr
+                          style={{
+                            borderColor: '#3a3a3a',
+                            marginBottom: '16px',
+                          }}
+                        />
+                        <div className="mb-[14px] text-center text-[17px] font-bold uppercase text-white">
+                          {t('combinations', 'Combinazioni')}
                         </div>
-                        <div
-                          className="text-center text-[14px] font-semibold uppercase tracking-[0.8px]"
-                          style={{ color: '#888' }}
-                        >
-                          {t('combination', 'Combinazione')}
-                        </div>
-                        <div
-                          className="text-right text-[14px] font-semibold uppercase tracking-[0.8px]"
-                          style={{ color: '#888' }}
-                        >
-                          {t('amount', 'Importo')}
-                        </div>
-                      </div>
-                      {systemSummary.levels.map((level) => (
-                        <div
-                          key={level.size}
-                          className="grid grid-cols-3 py-[8px]"
-                          style={{ borderTop: '1px solid #363636' }}
-                        >
+                        <div className="mb-2 grid grid-cols-3">
                           <div
-                            className="text-left text-[14px] font-semibold"
-                            style={{ color: '#ccc' }}
+                            className="text-left text-[14px] font-semibold uppercase tracking-[0.8px]"
+                            style={{ color: '#888' }}
                           >
-                            {level.combinations}
+                            {t('quantity', 'Quantità')}
                           </div>
                           <div
-                            className="text-center text-[14px] font-semibold"
-                            style={{ color: '#ccc' }}
+                            className="text-center text-[14px] font-semibold uppercase tracking-[0.8px]"
+                            style={{ color: '#888' }}
                           >
-                            {getComboSizeLabel(level.size, t)}
+                            {t('combination', 'Combinazione')}
                           </div>
-                          <div className="text-right text-[14px] font-bold text-white">
-                            {fmt(level.stakeTotal)}
+                          <div
+                            className="text-right text-[14px] font-semibold uppercase tracking-[0.8px]"
+                            style={{ color: '#888' }}
+                          >
+                            {t('amount', 'Importo')}
                           </div>
                         </div>
-                      ))}
-                      <div
-                        className="flex items-baseline space-x-2 py-[9px]"
-                        style={{ borderTop: '1px solid #444' }}
-                      >
-                        <span
-                          className="text-[15px] font-semibold uppercase tracking-[0.8px]"
-                          style={{ color: '#888', position: 'relative', top: '17px' }}
-                        >
-                          {t('total_combinations', 'Totale Combinazioni')}
-                        </span>
-                        <span
-                          className="text-[15px] font-bold text-white"
-                          style={{ position: 'relative', top: '17px' }}
-                        >
-                          {systemSummary.totalCombinations}
-                        </span>
-                      </div>
-                    </>
-                  )}
-
-                  {/* VIDEO REPLAY */}
-                  <div>
-                    {showReplayPlayer ? (
-                      <div
-                        className="overflow-hidden rounded-xl"
-                        style={{ background: '#111' }}
-                      >
-                        {/* Event info header — matches event card style (#2a2a2a) */}
-                        {(() => {
-                          const currentSel = uniqueReplaySelections[replayIndex]
-                          if (!currentSel) return null
-                          return (
+                        {systemSummary.levels.map((level) => (
+                          <div
+                            key={level.size}
+                            className="grid grid-cols-3 py-[8px]"
+                            style={{ borderTop: '1px solid #363636' }}
+                          >
                             <div
-                              className="flex items-center justify-between px-3 py-2"
-                              style={{ background: '#2a2a2a' }}
+                              className="text-left text-[14px] font-semibold"
+                              style={{ color: '#ccc' }}
                             >
-                              <div className="flex flex-col">
-                                <span
-                                  className="text-[12px] font-bold"
-                                  style={{ color: '#fff' }}
-                                >
-                                  {currentSel.game.dict.misc.name}{' '}
-                                  {currentSel.channelName}
-                                </span>
-                                <span
-                                  className="text-[11px]"
-                                  style={{ color: '#aaa' }}
-                                >
-                                  {currentSel.trackName}
-                                </span>
-                              </div>
-                              <div className="flex flex-col items-end">
-                                <span
-                                  className="text-[11px] font-semibold"
-                                  style={{ color: '#ccc' }}
-                                >
-                                  {toLocalEventTime(currentSel.startTime)}
-                                </span>
-                                <span
-                                  className="text-[11px]"
-                                  style={{ color: '#888' }}
-                                >
-                                  {t('event', 'Evento')} {currentSel.eventId}
-                                </span>
-                              </div>
-                              <button
-                                onClick={() => {
-                                  setShowReplayPlayer(false)
-                                  setReplayVideos([])
-                                }}
-                                className="ml-3 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent text-white hover:opacity-80"
-                              >
-                                <X className="h-3.5 w-3.5" />
-                              </button>
+                              {level.combinations}
                             </div>
-                          )
-                        })()}
-
-                        {/* Video area */}
-                        <div className="relative flex h-[200px] items-center justify-center bg-black">
-                          {replayVideos[replayIndex]?.loading ? (
-                            <div className="h-8 w-8 animate-spin rounded-full border-4 border-accent border-t-transparent" />
-                          ) : replayVideos[replayIndex]?.url ? (
-                            <video
-                              key={replayVideos[replayIndex].url!}
-                              src={replayVideos[replayIndex].url!}
-                              controls
-                              autoPlay
-                              playsInline
-                              className="h-full w-full object-contain"
-                            />
-                          ) : (
-                            <span
-                              className="text-[13px]"
-                              style={{ color: '#666' }}
+                            <div
+                              className="text-center text-[14px] font-semibold"
+                              style={{ color: '#ccc' }}
                             >
-                              {t('no_video_available', 'Video non disponibile')}
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Navigation bar — only shown when there are multiple events */}
-                        {uniqueReplaySelections.length > 1 && (
-                          <div
-                            className="flex items-center justify-between px-3 py-2"
-                            style={{ background: '#1a1a1a' }}
-                          >
-                            <button
-                              disabled={replayIndex === 0}
-                              onClick={() => handleReplayNav('prev')}
-                              className="flex h-8 w-8 items-center justify-center rounded-lg text-white hover:opacity-80 disabled:opacity-30"
-                              style={{ background: '#333' }}
-                            >
-                              <ChevronLeft className="h-5 w-5" />
-                            </button>
-                            <span
-                              className="text-[12px] font-semibold"
-                              style={{ color: '#aaa' }}
-                            >
-                              {replayIndex + 1} /{' '}
-                              {uniqueReplaySelections.length}
-                            </span>
-                            <button
-                              disabled={
-                                replayIndex ===
-                                uniqueReplaySelections.length - 1
-                              }
-                              onClick={() => handleReplayNav('next')}
-                              className="flex h-8 w-8 items-center justify-center rounded-lg text-white hover:opacity-80 disabled:opacity-30"
-                              style={{ background: '#333' }}
-                            >
-                              <ChevronRight className="h-5 w-5" />
-                            </button>
+                              {getComboSizeLabel(level.size, t)}
+                            </div>
+                            <div className="text-right text-[14px] font-bold text-white">
+                              {fmt(level.stakeTotal)}
+                            </div>
                           </div>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="text-center" style={{ height: '33px' }}>
-                        <button
-                          className="w-[260px] cursor-pointer rounded-lg border-0 bg-replay py-3 text-[14px] font-bold uppercase tracking-[1.5px] text-white disabled:opacity-60"
-                          style={{ display: 'none' }}
-                          disabled={replayVideos[0]?.loading}
-                          onClick={handleOpenReplay}
+                        ))}
+                        <div
+                          className="flex items-baseline space-x-2 py-[9px]"
+                          style={{ borderTop: '1px solid #444' }}
                         >
-                          {replayVideos[0]?.loading
-                            ? t('loading', 'Loading') + '...'
-                            : t('show_replay', 'VIDEO REPLAY')}
-                        </button>
-                      </div>
+                          <span
+                            className="text-[15px] font-semibold uppercase tracking-[0.8px]"
+                            style={{
+                              color: '#888',
+                              position: 'relative',
+                              top: '17px',
+                            }}
+                          >
+                            {t('total_combinations', 'Totale Combinazioni')}
+                          </span>
+                          <span
+                            className="text-[15px] font-bold text-white"
+                            style={{ position: 'relative', top: '17px' }}
+                          >
+                            {systemSummary.totalCombinations}
+                          </span>
+                        </div>
+                      </>
                     )}
-                  </div>
 
-                  {/* Errore pagamento */}
-                  {payResult && payResult !== 'success' && (
-                    <p
-                      className="pb-4 text-center text-sm"
-                      style={{ color: '#cc4444' }}
-                    >
-                      {payResult}
-                    </p>
-                  )}
-
-                  {/* CDD PIN keypad — only shown in body when pinMode is active */}
-                  {statusInfo.isWinner &&
-                    !statusInfo.isPaid &&
-                    (cddRequired || cddXml) &&
-                    pinMode && (
-                      <div className="mb-4">
+                    {/* VIDEO REPLAY */}
+                    <div>
+                      {showReplayPlayer ? (
                         <div
                           className="overflow-hidden rounded-xl"
-                          style={{ background: '#2a2a2a' }}
+                          style={{ background: '#111' }}
                         >
-                          <div className="flex h-[45px] items-center justify-center bg-accent">
-                            <span className="font-semibold tracking-[1px] text-white">
-                              {t('insert_pin_cdd', 'INSERISCI PIN CDD')}
-                            </span>
-                          </div>
-                          <div className="flex flex-col space-y-3 p-4">
-                            <div className="flex items-center space-x-2">
+                          {/* Event info header — matches event card style (#2a2a2a) */}
+                          {(() => {
+                            const currentSel =
+                              uniqueReplaySelections[replayIndex]
+                            if (!currentSel) return null
+                            return (
                               <div
-                                className="flex h-12 flex-1 items-center justify-end rounded-lg px-3 text-[22px] font-bold tracking-widest text-white"
-                                style={{
-                                  background: '#1e1e1e',
-                                  border: '1px solid #3a3a3a',
-                                }}
+                                className="flex items-center justify-between px-3 py-2"
+                                style={{ background: '#2a2a2a' }}
                               >
-                                {pinInput.length > 0 ? (
-                                  '●'.repeat(pinInput.length)
-                                ) : (
+                                <div className="flex flex-col">
                                   <span
-                                    className="w-full text-center text-sm"
-                                    style={{ color: '#555' }}
+                                    className="text-[12px] font-bold"
+                                    style={{ color: '#fff' }}
                                   >
-                                    PIN CDD
+                                    {currentSel.game.dict.misc.name}{' '}
+                                    {currentSel.channelName}
                                   </span>
-                                )}
+                                  <span
+                                    className="text-[11px]"
+                                    style={{ color: '#aaa' }}
+                                  >
+                                    {currentSel.trackName}
+                                  </span>
+                                </div>
+                                <div className="flex flex-col items-end">
+                                  <span
+                                    className="text-[11px] font-semibold"
+                                    style={{ color: '#ccc' }}
+                                  >
+                                    {toLocalEventTime(currentSel.startTime)}
+                                  </span>
+                                  <span
+                                    className="text-[11px]"
+                                    style={{ color: '#888' }}
+                                  >
+                                    {t('event', 'Evento')} {currentSel.eventId}
+                                  </span>
+                                </div>
+                                <button
+                                  onClick={() => {
+                                    setShowReplayPlayer(false)
+                                    setReplayVideos([])
+                                  }}
+                                  className="ml-3 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent text-white hover:opacity-80"
+                                >
+                                  <X className="h-3.5 w-3.5" />
+                                </button>
                               </div>
-                              <button
-                                className="flex h-12 w-[56px] items-center justify-center rounded-lg border-0"
-                                style={{
-                                  background: '#1e1e1e',
-                                  border: '1px solid #3a3a3a',
-                                }}
-                                onClick={() =>
-                                  setPinInput((p) => p.slice(0, -1))
-                                }
+                            )
+                          })()}
+
+                          {/* Video area */}
+                          <div className="relative flex h-[200px] items-center justify-center bg-black">
+                            {replayVideos[replayIndex]?.loading ? (
+                              <div className="h-8 w-8 animate-spin rounded-full border-4 border-accent border-t-transparent" />
+                            ) : replayVideos[replayIndex]?.url ? (
+                              <video
+                                key={replayVideos[replayIndex].url!}
+                                src={replayVideos[replayIndex].url!}
+                                controls
+                                autoPlay
+                                playsInline
+                                className="h-full w-full object-contain"
+                              />
+                            ) : (
+                              <span
+                                className="text-[13px]"
+                                style={{ color: '#666' }}
                               >
-                                <Delete
-                                  className="h-5 w-5"
-                                  style={{ color: '#ccc' }}
-                                />
+                                {t(
+                                  'no_video_available',
+                                  'Video non disponibile',
+                                )}
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Navigation bar — only shown when there are multiple events */}
+                          {uniqueReplaySelections.length > 1 && (
+                            <div
+                              className="flex items-center justify-between px-3 py-2"
+                              style={{ background: '#1a1a1a' }}
+                            >
+                              <button
+                                disabled={replayIndex === 0}
+                                onClick={() => handleReplayNav('prev')}
+                                className="flex h-8 w-8 items-center justify-center rounded-lg text-white hover:opacity-80 disabled:opacity-30"
+                                style={{ background: '#333' }}
+                              >
+                                <ChevronLeft className="h-5 w-5" />
+                              </button>
+                              <span
+                                className="text-[12px] font-semibold"
+                                style={{ color: '#aaa' }}
+                              >
+                                {replayIndex + 1} /{' '}
+                                {uniqueReplaySelections.length}
+                              </span>
+                              <button
+                                disabled={
+                                  replayIndex ===
+                                  uniqueReplaySelections.length - 1
+                                }
+                                onClick={() => handleReplayNav('next')}
+                                className="flex h-8 w-8 items-center justify-center rounded-lg text-white hover:opacity-80 disabled:opacity-30"
+                                style={{ background: '#333' }}
+                              >
+                                <ChevronRight className="h-5 w-5" />
                               </button>
                             </div>
-                            {pinError && (
-                              <p
-                                className="text-center text-sm"
-                                style={{ color: '#cc4444' }}
-                              >
-                                {pinError}
-                              </p>
-                            )}
-                            <div className="grid grid-cols-3 gap-2">
-                              {[
-                                '1',
-                                '2',
-                                '3',
-                                '4',
-                                '5',
-                                '6',
-                                '7',
-                                '8',
-                                '9',
-                              ].map((d) => (
+                          )}
+                        </div>
+                      ) : (
+                        <div className="text-center" style={{ height: '33px' }}>
+                          <button
+                            className="w-[260px] cursor-pointer rounded-lg border-0 bg-replay py-3 text-[14px] font-bold uppercase tracking-[1.5px] text-white disabled:opacity-60"
+                            style={{ display: 'none' }}
+                            disabled={replayVideos[0]?.loading}
+                            onClick={handleOpenReplay}
+                          >
+                            {replayVideos[0]?.loading
+                              ? t('loading', 'Loading') + '...'
+                              : t('show_replay', 'VIDEO REPLAY')}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Errore pagamento */}
+                    {payResult && payResult !== 'success' && (
+                      <p
+                        className="pb-4 text-center text-sm"
+                        style={{ color: '#cc4444' }}
+                      >
+                        {payResult}
+                      </p>
+                    )}
+
+                    {/* CDD PIN keypad — only shown in body when pinMode is active */}
+                    {statusInfo.isWinner &&
+                      !statusInfo.isPaid &&
+                      (cddRequired || cddXml) &&
+                      pinMode && (
+                        <div className="mb-4">
+                          <div
+                            className="overflow-hidden rounded-xl"
+                            style={{ background: '#2a2a2a' }}
+                          >
+                            <div className="flex h-[45px] items-center justify-center bg-accent">
+                              <span className="font-semibold tracking-[1px] text-white">
+                                {t('insert_pin_cdd', 'INSERISCI PIN CDD')}
+                              </span>
+                            </div>
+                            <div className="flex flex-col space-y-3 p-4">
+                              <div className="flex items-center space-x-2">
+                                <div
+                                  className="flex h-12 flex-1 items-center justify-end rounded-lg px-3 text-[22px] font-bold tracking-widest text-white"
+                                  style={{
+                                    background: '#1e1e1e',
+                                    border: '1px solid #3a3a3a',
+                                  }}
+                                >
+                                  {pinInput.length > 0 ? (
+                                    '●'.repeat(pinInput.length)
+                                  ) : (
+                                    <span
+                                      className="w-full text-center text-sm"
+                                      style={{ color: '#555' }}
+                                    >
+                                      PIN CDD
+                                    </span>
+                                  )}
+                                </div>
                                 <button
-                                  key={d}
+                                  className="flex h-12 w-[56px] items-center justify-center rounded-lg border-0"
+                                  style={{
+                                    background: '#1e1e1e',
+                                    border: '1px solid #3a3a3a',
+                                  }}
+                                  onClick={() =>
+                                    setPinInput((p) => p.slice(0, -1))
+                                  }
+                                >
+                                  <Delete
+                                    className="h-5 w-5"
+                                    style={{ color: '#ccc' }}
+                                  />
+                                </button>
+                              </div>
+                              {pinError && (
+                                <p
+                                  className="text-center text-sm"
+                                  style={{ color: '#cc4444' }}
+                                >
+                                  {pinError}
+                                </p>
+                              )}
+                              <div className="grid grid-cols-3 gap-2">
+                                {[
+                                  '1',
+                                  '2',
+                                  '3',
+                                  '4',
+                                  '5',
+                                  '6',
+                                  '7',
+                                  '8',
+                                  '9',
+                                ].map((d) => (
+                                  <button
+                                    key={d}
+                                    className="h-12 rounded-lg border-0 text-[20px] font-semibold text-white"
+                                    style={{
+                                      background: '#1e1e1e',
+                                      border: '1px solid #3a3a3a',
+                                    }}
+                                    onClick={() => setPinInput((p) => p + d)}
+                                  >
+                                    {d}
+                                  </button>
+                                ))}
+                                <button
+                                  className="h-12 rounded-lg border-0 text-[18px] font-semibold text-white"
+                                  style={{
+                                    background: '#1e1e1e',
+                                    border: '1px solid #3a3a3a',
+                                  }}
+                                  onClick={() => setPinInput('')}
+                                >
+                                  C
+                                </button>
+                                <button
                                   className="h-12 rounded-lg border-0 text-[20px] font-semibold text-white"
                                   style={{
                                     background: '#1e1e1e',
                                     border: '1px solid #3a3a3a',
                                   }}
-                                  onClick={() => setPinInput((p) => p + d)}
+                                  onClick={() => setPinInput((p) => p + '0')}
                                 >
-                                  {d}
+                                  0
                                 </button>
-                              ))}
+                                <button
+                                  className="h-12 rounded-lg border-0 text-[13px] font-semibold"
+                                  style={{
+                                    background: '#1e1e1e',
+                                    border: '1px solid #3a3a3a',
+                                    color: '#aaa',
+                                  }}
+                                  onClick={() => {
+                                    setPinMode(false)
+                                    setPinInput('')
+                                    setPinError(null)
+                                  }}
+                                >
+                                  {t('close', 'Chiudi')}
+                                </button>
+                              </div>
                               <button
-                                className="h-12 rounded-lg border-0 text-[18px] font-semibold text-white"
+                                className="h-12 w-full rounded-lg border-0 text-[16px] font-bold uppercase tracking-[1.5px] text-white"
                                 style={{
-                                  background: '#1e1e1e',
-                                  border: '1px solid #3a3a3a',
+                                  background:
+                                    paying || !pinInput ? '#1a3a2a' : '#2d7a3a',
+                                  opacity: paying || !pinInput ? 0.5 : 1,
                                 }}
-                                onClick={() => setPinInput('')}
+                                onClick={handlePayWithPin}
+                                disabled={paying || !pinInput}
                               >
-                                C
-                              </button>
-                              <button
-                                className="h-12 rounded-lg border-0 text-[20px] font-semibold text-white"
-                                style={{
-                                  background: '#1e1e1e',
-                                  border: '1px solid #3a3a3a',
-                                }}
-                                onClick={() => setPinInput((p) => p + '0')}
-                              >
-                                0
-                              </button>
-                              <button
-                                className="h-12 rounded-lg border-0 text-[13px] font-semibold"
-                                style={{
-                                  background: '#1e1e1e',
-                                  border: '1px solid #3a3a3a',
-                                  color: '#aaa',
-                                }}
-                                onClick={() => {
-                                  setPinMode(false)
-                                  setPinInput('')
-                                  setPinError(null)
-                                }}
-                              >
-                                {t('close', 'Chiudi')}
+                                {paying ? '...' : t('confirm', 'CONFERMA')}
                               </button>
                             </div>
-                            <button
-                              className="h-12 w-full rounded-lg border-0 text-[16px] font-bold uppercase tracking-[1.5px] text-white"
-                              style={{
-                                background:
-                                  paying || !pinInput ? '#1a3a2a' : '#2d7a3a',
-                                opacity: paying || !pinInput ? 0.5 : 1,
-                              }}
-                              onClick={handlePayWithPin}
-                              disabled={paying || !pinInput}
-                            >
-                              {paying ? '...' : t('confirm', 'CONFERMA')}
-                            </button>
                           </div>
                         </div>
-                      </div>
-                    )}
+                      )}
                   </div>
                 </div>
               </div>
