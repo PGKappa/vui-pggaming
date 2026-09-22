@@ -227,7 +227,10 @@ export default function TicketListPageContent({
     <div className="relative" ref={datePickerRef}>
       <Button
         variant="ticketFilter"
-        className={cn(extraClass, 'justify-between pl-[15px] pr-[9px]')}
+        className={cn(
+          extraClass,
+          'justify-between border border-input pl-[15px] pr-[9px]',
+        )}
         onClick={() => setIsDatePickerOpen((prev) => !prev)}
       >
         <span>{dateFrom ? dateRangeLabel() : t('date', 'DATA')}</span>
@@ -403,7 +406,7 @@ export default function TicketListPageContent({
         </h2>
         <button
           type="button"
-          className="absolute right-4 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center"
+          className="absolute right-4 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center border-0 bg-transparent p-0"
           onClick={() => router.push(returnPath)}
         >
           <X className="size-6" strokeWidth={2.5} />

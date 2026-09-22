@@ -353,7 +353,7 @@ function NavbarContent() {
             </span>
             <button
               type="button"
-              className="absolute right-4 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center"
+              className="absolute right-4 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center border-0 bg-transparent p-0"
               onClick={() => {
                 setIsInfoOpen(false)
                 if (isOnTicketPage) {
