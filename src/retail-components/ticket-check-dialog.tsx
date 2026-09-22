@@ -434,17 +434,15 @@ export function computeMinMaxWin(info: TicketDetailInfo): {
           )
         : amount
     const stakePerSelection = roundMoney(totalStake / oddsEntries.length)
-    const { minOdds, maxAssigned } = computeSameEventOddsRange(
+    const { minAssigned, maxAssigned } = computeSameEventOddsRange(
       oddsEntries,
       selectionFieldSize(sel),
     )
-    const maxWin = maxAssigned.reduce(
-      (sum, e) => sum + roundMoney(e.odds * stakePerSelection),
-      0,
-    )
+    const sumRoundedPayouts = (entries: typeof oddsEntries) =>
+      entries.reduce((sum, e) => sum + roundMoney(e.odds * stakePerSelection), 0)
     return {
-      minWin: roundMoney(minOdds * stakePerSelection),
-      maxWin: roundMoney(maxWin),
+      minWin: roundMoney(sumRoundedPayouts(minAssigned)),
+      maxWin: roundMoney(sumRoundedPayouts(maxAssigned)),
     }
   }
 
