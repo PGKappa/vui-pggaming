@@ -1435,7 +1435,7 @@ export default function BettingSlip({
                 onValueChange={setAccordionOpen}
                 className="w-full"
               >
-                <AccordionItem value="combinations" className="border-none">
+                <AccordionItem value="combinations" className="border-none bg-[#EDEDED]">
                   <div className="relative flex h-[34px] w-full items-center justify-between bg-accent px-4 text-[13px] text-accent-foreground hover:no-underline">
                     <span className="leading-none">
                       {t('combinations').toUpperCase()}
