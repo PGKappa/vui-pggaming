@@ -19,7 +19,7 @@ import {
   TicketDetailSelection,
   TicketPayResponse,
 } from '@/retail-lib/types'
-import { createPGVirtualAPICall } from '@/retail-lib/utils'
+import { createPGVirtualAPICall, roundMoney } from '@/retail-lib/utils'
 import { computeSameEventOddsRange } from '@/retail-lib/system-bets'
 import { format } from 'date-fns'
 import { useTranslation } from 'react-i18next'
@@ -315,7 +315,7 @@ function buildMinScenarioLists(
 
 function sumRoundedCrossProduct(oddsLists: number[][], stake: number): number {
   return crossProduct(oddsLists).reduce(
-    (sum, product) => sum + Math.round(product * stake * 100) / 100,
+    (sum, product) => sum + roundMoney(product * stake),
     0,
   )
 }
@@ -422,7 +422,7 @@ export function computeMinMaxWin(info: TicketDetailInfo): {
     )
     if (oddsEntries.length === 0) return { minWin: 0, maxWin: 0 }
     if (oddsEntries.length === 1) {
-      const win = Math.round(oddsEntries[0].odds * amount * 100) / 100
+      const win = roundMoney(oddsEntries[0].odds * amount)
       return { minWin: win, maxWin: win }
     }
 
@@ -433,20 +433,18 @@ export function computeMinMaxWin(info: TicketDetailInfo): {
             0,
           )
         : amount
-    const stakePerSelection =
-      Math.round((totalStake / oddsEntries.length) * 100) / 100
+    const stakePerSelection = roundMoney(totalStake / oddsEntries.length)
     const { minOdds, maxAssigned } = computeSameEventOddsRange(
       oddsEntries,
       selectionFieldSize(sel),
     )
     const maxWin = maxAssigned.reduce(
-      (sum, e) =>
-        sum + Math.round(e.odds * stakePerSelection * 100) / 100,
+      (sum, e) => sum + roundMoney(e.odds * stakePerSelection),
       0,
     )
     return {
-      minWin: Math.round(minOdds * stakePerSelection * 100) / 100,
-      maxWin: Math.round(maxWin * 100) / 100,
+      minWin: roundMoney(minOdds * stakePerSelection),
+      maxWin: roundMoney(maxWin),
     }
   }
 
@@ -459,8 +457,8 @@ export function computeMinMaxWin(info: TicketDetailInfo): {
     const maxLists = allGroups.map((g) => eventOddsRange(g).maxAssigned)
     const minLists = allGroups.map((g) => eventOddsRange(g).minAssigned)
     return {
-      minWin: Math.round(sumRoundedCrossProduct(minLists, amount) * 100) / 100,
-      maxWin: Math.round(sumRoundedCrossProduct(maxLists, amount) * 100) / 100,
+      minWin: roundMoney(sumRoundedCrossProduct(minLists, amount)),
+      maxWin: roundMoney(sumRoundedCrossProduct(maxLists, amount)),
     }
   }
 
@@ -504,8 +502,7 @@ export function computeMinMaxWin(info: TicketDetailInfo): {
     ).length
     if (rawCombosCount === 0) continue
     const tierTotalStake = parseFloat(info.system[k]) || 0
-    const stakePerCombo =
-      Math.round((tierTotalStake / rawCombosCount) * 100) / 100
+    const stakePerCombo = roundMoney(tierTotalStake / rawCombosCount)
 
     const needed = kNum - fixedGroups.length
     if (needed < 0 || needed > nonFixedGroups.length) continue
@@ -543,8 +540,8 @@ export function computeMinMaxWin(info: TicketDetailInfo): {
     maxWin += tierMaxWin
   }
   return {
-    minWin: Math.round(minWin * 100) / 100,
-    maxWin: Math.round(maxWin * 100) / 100,
+    minWin: roundMoney(minWin),
+    maxWin: roundMoney(maxWin),
   }
 }
 

@@ -26,6 +26,7 @@ import {
   cn,
   createPGVirtualAPICall,
   normalizeMarketName,
+  roundMoney,
 } from '@/retail-lib/utils'
 import {
   ChevronDown,
@@ -81,7 +82,7 @@ function computeGroupWinRounded(group: SystemGroup): {
       (acc, entry) => acc * entry.bet.option.decPrice,
       1,
     )
-    return Math.round(comboOdds * group.stake * 100) / 100
+    return roundMoney(comboOdds * group.stake)
   }
   const maxCombos = group.maxWinAssignedCombinations ?? group.combinations
   const maxWin = maxCombos.reduce((acc, combo) => acc + comboWinRounded(combo), 0)
@@ -101,8 +102,8 @@ function computeGroupWinRounded(group: SystemGroup): {
   }
 
   return {
-    minWin: Math.round(minWin * 100) / 100,
-    maxWin: Math.round(maxWin * 100) / 100,
+    minWin: roundMoney(minWin),
+    maxWin: roundMoney(maxWin),
   }
 }
 
@@ -467,12 +468,8 @@ export default function BettingSlip({
   const handleUpdateGroupStake = (groupName: string, value: number) => {
     const numValue = Number(value)
     const finalValue = Math.max(0, isNaN(numValue) ? 0 : numValue)
-    const roundedValue = Math.round(finalValue * 100) / 100
+    const roundedValue = roundMoney(finalValue)
     setSystemGroupStakes((prev) => ({ ...prev, [groupName]: roundedValue }))
-    // Keep selectedGroups in sync with the actual stake — a group with a
-    // stake > 0 must always count as "selected", otherwise the displayed
-    // combinations total (filtered by selectedGroups) can silently diverge
-    // from what's actually sent to the API (filtered by stake > 0).
     setSelectedGroups((prev) => ({ ...prev, [groupName]: roundedValue > 0 }))
   }
 
@@ -863,11 +860,6 @@ export default function BettingSlip({
         }
       })
 
-      // Hard, final validation on the exact object about to be sent — recomputed
-      // fresh here (not from possibly-stale UI state) using the same `stake > 0`
-      // predicate as the payload below. The backend performs no validation of
-      // its own, so this is the only thing standing between the user and a
-      // ticket that exceeds the events/selections/combinations limits.
       if (betMode === 'SYSTEM') {
         const finalCombinations = systemGroups
           .filter((group) => group.stake > 0)
@@ -906,16 +898,13 @@ export default function BettingSlip({
                     .filter((group) => group.stake > 0)
                     .map((group) => [
                       group.size.toString(),
-                      Math.round(
-                        group.stake * group.combinations.length * 100,
-                      ) / 100,
+                      roundMoney(group.stake * group.combinations.length),
                     ]),
                 ),
               }
             : {
                 system: {
-                  [betEntries.length.toString()]:
-                    Math.round(global * 100) / 100,
+                  [betEntries.length.toString()]: roundMoney(global),
                 },
               }),
           selections,
@@ -1152,8 +1141,7 @@ export default function BettingSlip({
                         )
                         return {
                           odds: comboOdds,
-                          potentialWin:
-                            Math.round(comboOdds * group.stake * 100) / 100,
+                          potentialWin: roundMoney(comboOdds * group.stake),
                           entries: combo.map((entry) => ({
                             eventName: entry.bet.event.name || '',
                             competitorName: getPrintCompetitorName(entry),
@@ -1178,8 +1166,8 @@ export default function BettingSlip({
                 ...(betMode === 'SINGLE' || betMode === 'MULTIPLE'
                   ? {
                       totalOdds,
-                      stake: Math.round(global * 100) / 100,
-                      potentialWin: Math.round(potentialWinning * 100) / 100,
+                      stake: roundMoney(global),
+                      potentialWin: roundMoney(potentialWinning),
                     }
                   : {}),
                 ...(systemGroupsInfo && { systemGroups: systemGroupsInfo }),
@@ -1212,19 +1200,18 @@ export default function BettingSlip({
 
       const newTicket: SubmittedTicket = {
         date: new Date(),
-        amount:
-          Math.round(
-            (betMode === 'SYSTEM'
-              ? systemGroups.reduce((sum, group) => sum + group.stake, 0)
-              : global) * 100,
-          ) / 100,
+        amount: roundMoney(
+          betMode === 'SYSTEM'
+            ? systemGroups.reduce((sum, group) => sum + group.stake, 0)
+            : global,
+        ),
         winning:
           betMode === 'SYSTEM'
             ? systemGroups.reduce(
                 (sum, group) => sum + computeGroupWinRounded(group).maxWin,
                 0,
               )
-            : Math.round(potentialWinning * 100) / 100,
+            : roundMoney(potentialWinning),
         betEntries,
       }
 
