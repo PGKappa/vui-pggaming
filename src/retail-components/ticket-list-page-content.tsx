@@ -24,9 +24,10 @@ import {
   formatCurrency,
 } from '@/retail-lib/use-ticket-list'
 import { cn } from '@/retail-lib/utils'
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, X } from 'lucide-react'
 import { format } from 'date-fns'
 import { it } from 'date-fns/locale'
+import { useRouter } from 'next/navigation'
 import { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import TicketCheckDialog from '@/retail-components/ticket-check-dialog'
@@ -38,9 +39,11 @@ interface TicketListPageContentProps {
 }
 
 export default function TicketListPageContent({
+  returnPath,
   variant = 'standard',
 }: TicketListPageContentProps) {
   const { t } = useTranslation()
+  const router = useRouter()
   const [calendarMode, setCalendarMode] = useState<'single' | 'range'>('range')
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false)
   const datePickerRef = useRef<HTMLDivElement>(null)
@@ -398,6 +401,13 @@ export default function TicketListPageContent({
         >
           {t('ticket_list')}
         </h2>
+        <button
+          type="button"
+          className="absolute right-4 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center"
+          onClick={() => router.push(returnPath)}
+        >
+          <X className="size-6" strokeWidth={2.5} />
+        </button>
       </div>
 
       {/* Filter Bar */}

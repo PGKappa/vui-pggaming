@@ -1462,7 +1462,7 @@ export default function BettingSlip({
                     </button>
                   </div>
                   <AccordionContent className="pb-0">
-                    <div className="flex h-[54px] items-center border-b bg-gray-100 px-4">
+                    <div className="flex h-[54px] items-center border-b px-4" style={{ backgroundColor: '#EDEDED' }}>
                       <div className="relative bottom-[3px] flex w-full items-center justify-between space-x-2">
                         <Checkbox
                           checked={allGroupsSelected}

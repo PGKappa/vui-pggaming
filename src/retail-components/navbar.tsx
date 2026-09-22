@@ -7,7 +7,7 @@ import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useContext, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ChevronLeft } from 'lucide-react'
+import { ChevronLeft, X } from 'lucide-react'
 import { Button, buttonVariants } from './ui/button'
 
 // Variabile a livello di modulo: sopravvive al rimount del componente causato da
@@ -347,10 +347,22 @@ function NavbarContent() {
 
       {isInfoOpen && (
         <div className="fixed inset-x-0 bottom-0 top-16 z-[60] flex flex-col bg-accent">
-          <div className="flex h-16 flex-shrink-0 items-center justify-center bg-secondary px-4 text-secondary-foreground">
+          <div className="relative flex h-16 flex-shrink-0 items-center justify-center bg-secondary px-4 text-secondary-foreground">
             <span className="text-[16px] font-semibold uppercase">
               {t('game_rules').toUpperCase()}
             </span>
+            <button
+              type="button"
+              className="absolute right-4 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center"
+              onClick={() => {
+                setIsInfoOpen(false)
+                if (isOnTicketPage) {
+                  router.push(getDisciplineBasePath(pathname))
+                }
+              }}
+            >
+              <X className="size-6" strokeWidth={2.5} />
+            </button>
           </div>
           <div className="flex-1 bg-black">
             <iframe
