@@ -147,6 +147,7 @@
   "active": "Aperto",
   "pending": "Aperto",
   "cancelled": "Annullato",
+  "void": "Annullato",
   "payment": "Pagamento",
   "balance": "Saldo",
   "paid": "Pagato",

@@ -38,6 +38,10 @@ function getDetailStatus(status: number): {
   switch (status) {
     case 1:
       return { translationKey: 'pending', isWinner: false, isPaid: false }
+    case 2:
+      return { translationKey: 'cancelled', isWinner: false, isPaid: false }
+    case 3:
+      return { translationKey: 'void', isWinner: false, isPaid: false }
     case 4:
       return { translationKey: 'winner', isWinner: true, isPaid: false }
     case 5:
@@ -984,6 +988,26 @@ export default function TicketCheckDialog({
                           }}
                         >
                           {t('lost', 'PERDENTE')}
+                          <span
+                            className="ml-3 h-[9px] w-[9px] shrink-0 rounded-full"
+                            style={{ background: '#9e3a3a' }}
+                          />
+                        </div>
+                      )}
+                    {!statusInfo.isWinner &&
+                      (statusInfo.translationKey === 'cancelled' ||
+                        statusInfo.translationKey === 'void') && (
+                        <div
+                          className="flex items-center px-[18px] py-[10px] text-[14px] font-bold uppercase tracking-[1px] text-white"
+                          style={{
+                            background: 'rgba(158,58,58,0.2)',
+                            border: '2px solid #9e3a3a',
+                            borderRadius: '2px',
+                          }}
+                        >
+                          {statusInfo.translationKey === 'void'
+                            ? t('void', 'ANNULLATO')
+                            : t('cancelled', 'ANNULLATO')}
                           <span
                             className="ml-3 h-[9px] w-[9px] shrink-0 rounded-full"
                             style={{ background: '#9e3a3a' }}
