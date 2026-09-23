@@ -19,7 +19,11 @@ import {
   TicketDetailSelection,
   TicketPayResponse,
 } from '@/retail-lib/types'
-import { createPGVirtualAPICall, roundMoney } from '@/retail-lib/utils'
+import {
+  createPGVirtualAPICall,
+  roundMoney,
+  roundStakePerCombination,
+} from '@/retail-lib/utils'
 import { computeSameEventOddsRange } from '@/retail-lib/system-bets'
 import { format } from 'date-fns'
 import { useTranslation } from 'react-i18next'
@@ -418,6 +422,17 @@ export function computeSystemSummary(info: TicketDetailInfo): {
   }
 }
 
+function apiMinMaxWin(
+  info: TicketDetailInfo,
+): { minWin: number; maxWin: number } | null {
+  if (info.minWin === undefined || info.minWin === null) return null
+  if (info.maxWin === undefined || info.maxWin === null) return null
+  const minWin = Number(info.minWin)
+  const maxWin = Number(info.maxWin)
+  if (!Number.isFinite(minWin) || !Number.isFinite(maxWin)) return null
+  return { minWin, maxWin }
+}
+
 export function computeMinMaxWin(info: TicketDetailInfo): {
   minWin: number
   maxWin: number
@@ -450,18 +465,18 @@ export function computeMinMaxWin(info: TicketDetailInfo): {
             0,
           )
         : amount
-    const stakePerSelection = roundMoney(totalStake / oddsEntries.length)
-    const { minOdds, maxAssigned } = computeSameEventOddsRange(
+    const stakePerSelection = roundStakePerCombination(
+      totalStake / oddsEntries.length,
+    )
+    const { minAssigned, maxAssigned } = computeSameEventOddsRange(
       oddsEntries,
       selectionFieldSize(sel),
     )
-    const maxWin = maxAssigned.reduce(
-      (sum, e) => sum + roundMoney(e.odds * stakePerSelection),
-      0,
-    )
+    const sumRoundedPayouts = (entries: typeof oddsEntries) =>
+      entries.reduce((sum, e) => sum + roundMoney(e.odds * stakePerSelection), 0)
     return {
-      minWin: roundMoney(minOdds * stakePerSelection),
-      maxWin: roundMoney(maxWin),
+      minWin: roundMoney(sumRoundedPayouts(minAssigned)),
+      maxWin: roundMoney(sumRoundedPayouts(maxAssigned)),
     }
   }
 
@@ -519,7 +534,9 @@ export function computeMinMaxWin(info: TicketDetailInfo): {
     ).length
     if (rawCombosCount === 0) continue
     const tierTotalStake = parseFloat(info.system[k]) || 0
-    const stakePerCombo = roundMoney(tierTotalStake / rawCombosCount)
+    const stakePerCombo = roundStakePerCombination(
+      tierTotalStake / rawCombosCount,
+    )
 
     const needed = kNum - fixedGroups.length
     if (needed < 0 || needed > nonFixedGroups.length) continue
@@ -871,7 +888,7 @@ export default function TicketCheckDialog({
     : 'single'
 
   const minMaxWin = ticketInfo
-    ? computeMinMaxWin(ticketInfo)
+    ? (apiMinMaxWin(ticketInfo) ?? computeMinMaxWin(ticketInfo))
     : { minWin: 0, maxWin: 0 }
 
   const systemSummary = ticketInfo ? computeSystemSummary(ticketInfo) : null
