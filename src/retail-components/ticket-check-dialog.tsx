@@ -1690,9 +1690,9 @@ export default function TicketCheckDialog({
                         <button
                           onClick={() => setShowPayConfirm(true)}
                           disabled={paying}
-                          className="flex h-[32px] w-[124px] cursor-pointer items-center justify-center rounded-lg border-0 text-center text-[14px] font-bold uppercase tracking-[1.5px] text-white"
+                          className="flex h-[35px] w-[124px] cursor-pointer items-center justify-center rounded-none border-0 text-center text-[14px] font-bold uppercase tracking-[1.5px] text-white"
                           style={{
-                            background: '#2a2a2a',
+                            background: 'green',
                             opacity: paying ? 0.5 : 1,
                           }}
                         >
@@ -1729,8 +1729,7 @@ export default function TicketCheckDialog({
                       )}
                     {/* Print button */}
                     <button
-                      className="absolute right-[18px] top-1/2 flex -translate-y-1/2 cursor-pointer items-center justify-center rounded-lg border-0 p-[10px] px-[12px]"
-                      style={{ background: '#2a2a2a' }}
+                      className="absolute right-[18px] top-1/2 flex -translate-y-1/2 cursor-pointer items-center justify-center rounded-lg border-0 bg-transparent p-[10px] px-[12px]"
                       onClick={() => {
                         if (cddXml) {
                           handlePrintCdd(cddXml)
@@ -1745,7 +1744,7 @@ export default function TicketCheckDialog({
                       <svg
                         viewBox="0 0 24 24"
                         xmlns="http://www.w3.org/2000/svg"
-                        className="h-7 w-7"
+                        className="h-9 w-9"
                         style={{ fill: '#ccc' }}
                       >
                         <path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z" />
@@ -1763,7 +1762,7 @@ export default function TicketCheckDialog({
       <Dialog open={showPayConfirm} onOpenChange={setShowPayConfirm}>
         <DialogContent
           aria-describedby={undefined}
-          className="w-[340px] max-w-[340px] overflow-hidden rounded-xl border-0 p-0 shadow-[0_8px_32px_rgba(0,0,0,0.6)]"
+          className="w-[340px] max-w-[340px] overflow-hidden rounded-none border-0 p-0 shadow-[0_8px_32px_rgba(0,0,0,0.6)]"
           style={{ background: '#1e1e1e' }}
         >
           <DialogHeader className="bg-card-header px-5 py-4">
@@ -1793,14 +1792,15 @@ export default function TicketCheckDialog({
             <div className="flex space-x-3">
               <button
                 onClick={() => setShowPayConfirm(false)}
-                className="flex-1 cursor-pointer rounded-lg border-0 py-[14px] text-[13px] font-bold uppercase tracking-[1.5px]"
-                style={{ background: '#2e2e2e', color: '#ccc' }}
+                className="flex-1 cursor-pointer rounded-none border-0 py-[14px] text-[13px] font-bold uppercase tracking-[1.5px] outline-none"
+                style={{ background: '#3a3a3a', color: '#ccc' }}
               >
                 {t('cancel', 'ANNULLA')}
               </button>
               <button
                 onClick={handlePay}
-                className="flex-1 cursor-pointer rounded-lg border-0 bg-accent py-[14px] text-[13px] font-bold uppercase tracking-[1.5px] text-white"
+                className="flex-1 cursor-pointer rounded-none border-0 py-[14px] outline-none text-[13px] font-bold uppercase tracking-[1.5px] text-white"
+                style={{ background: 'green' }}
               >
                 {t('confirm', 'CONFERMA')}
               </button>

@@ -319,9 +319,9 @@ export default function TicketListPageContent({
     return d
       .split(',')
       .map((discipline) => {
-        if (discipline === 'dogs') return t('dog_racing')
+        if (discipline === 'dogs') return `${t('dog_racing')} 6`
         if (discipline === 'dogs8') return t('dog8_racing')
-        if (discipline === 'horses') return t('horse_racing')
+        if (discipline === 'horses') return `${t('horse_racing')} 6`
         if (discipline === 'soccer') return t('football')
         return discipline
       })
@@ -474,11 +474,11 @@ export default function TicketListPageContent({
                 </SelectTrigger>
                 <SelectContent className="bg-white p-0 text-[13px] uppercase">
                   <SelectItem value="all">{t('all')}</SelectItem>
-                  <SelectItem value="dogs">{t('dog_racing')}</SelectItem>
+                  <SelectItem value="dogs">{t('dog_racing')} 6</SelectItem>
                   <SelectItem value="dogs8">{t('dog8_racing')}</SelectItem>
-                  <SelectItem value="horses">{t('horse_racing')}</SelectItem>
+                  <SelectItem value="horses">{t('horse_racing')} 6</SelectItem>
                   <SelectItem value="real">
-                    {t('dog_racing')} / {t('horse_racing')}
+                    {t('dog_racing')} 6 / {t('horse_racing')} 6
                   </SelectItem>
                 </SelectContent>
               </Select>
@@ -494,7 +494,7 @@ export default function TicketListPageContent({
         </div>
       ) : (
         <div className="flex h-[61px] shrink-0 justify-center bg-secondary px-4 pb-3 3xl:px-16 3xl:pb-5" style={{ borderLeft: '1px solid white' }}>
-          <div className="flex items-center justify-center !space-x-4 3xl:-mt-[3px] 3xl:ml-[100px] min-[1880px]:ml-[111px] 3xl:space-x-2">
+          <div className="flex items-center justify-center !space-x-4 3xl:-mt-[3px] 3xl:ml-[120px] min-[1880px]:ml-[111px] 3xl:space-x-2">
             {/* Data - standard */}
             <div className="inline-flex items-center bg-accent text-background">
               {dateRangeButton(
@@ -513,11 +513,11 @@ export default function TicketListPageContent({
                 </SelectTrigger>
                 <SelectContent className="bg-white p-0 text-[13px] uppercase">
                   <SelectItem value="all">{t('all')}</SelectItem>
-                  <SelectItem value="dogs">{t('dog_racing')}</SelectItem>
+                  <SelectItem value="dogs">{t('dog_racing')} 6</SelectItem>
                   <SelectItem value="dogs8">{t('dog8_racing')}</SelectItem>
-                  <SelectItem value="horses">{t('horse_racing')}</SelectItem>
+                  <SelectItem value="horses">{t('horse_racing')} 6</SelectItem>
                   <SelectItem value="real">
-                    {t('dog_racing')} / {t('horse_racing')}
+                    {t('dog_racing')} 6 / {t('horse_racing')} 6
                   </SelectItem>
                 </SelectContent>
               </Select>

@@ -618,6 +618,8 @@ export default function SearchEventResults() {
                 return (
                   <SelectItem className="text-[14px]" key={d} value={d}>
                     {t(translationKey).toUpperCase()}
+                    {(d === Discipline.DOGS || d === Discipline.HORSES) &&
+                      ' 6'}
                   </SelectItem>
                 )
               })}

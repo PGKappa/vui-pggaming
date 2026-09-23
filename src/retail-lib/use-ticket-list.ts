@@ -337,7 +337,9 @@ export function useTicketList() {
           const tokens = d.split(',')
           if (appliedFilters.discipline === 'real')
             return tokens.includes('dogs') && tokens.includes('horses')
-          return tokens.includes(appliedFilters.discipline)
+          // Single-discipline filters exclude mixed tickets, which only the
+          // 'real' combo filter shows.
+          return tokens.every((tok) => tok === appliedFilters.discipline)
         })()
         // "paid"/"unpaid" and "Stato" are mutually exclusive in the UI
         // (see handleStatusChange in ticket-list-page-content.tsx).
