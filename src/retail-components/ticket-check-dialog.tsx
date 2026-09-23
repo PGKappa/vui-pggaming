@@ -405,6 +405,17 @@ export function computeSystemSummary(info: TicketDetailInfo): {
   }
 }
 
+function apiMinMaxWin(
+  info: TicketDetailInfo,
+): { minWin: number; maxWin: number } | null {
+  if (info.minWin === undefined || info.minWin === null) return null
+  if (info.maxWin === undefined || info.maxWin === null) return null
+  const minWin = Number(info.minWin)
+  const maxWin = Number(info.maxWin)
+  if (!Number.isFinite(minWin) || !Number.isFinite(maxWin)) return null
+  return { minWin, maxWin }
+}
+
 export function computeMinMaxWin(info: TicketDetailInfo): {
   minWin: number
   maxWin: number
@@ -860,7 +871,7 @@ export default function TicketCheckDialog({
     : 'single'
 
   const minMaxWin = ticketInfo
-    ? computeMinMaxWin(ticketInfo)
+    ? (apiMinMaxWin(ticketInfo) ?? computeMinMaxWin(ticketInfo))
     : { minWin: 0, maxWin: 0 }
 
   const systemSummary = ticketInfo ? computeSystemSummary(ticketInfo) : null

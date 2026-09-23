@@ -403,6 +403,8 @@ export type TicketDetailInfo = {
   status: number
   selections: TicketDetailSelection[]
   system: Record<string, string>
+  minWin?: number | string
+  maxWin?: number | string
 }
 
 export type TicketDetailResponse = {
