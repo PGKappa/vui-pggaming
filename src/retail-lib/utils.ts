@@ -498,9 +498,9 @@ export function getRacerColors(
       case 5:
         return {
           bg: '#000000',
-          text: '#FFBB00',
+          text: '#FF0000',
           border: '',
-          style: { backgroundColor: '#000000', color: '#FFBB00' },
+          style: { backgroundColor: '#000000', color: '#FF0000' },
         }
       case 6:
         return {
