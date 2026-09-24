@@ -979,7 +979,7 @@ export default function UpcomingRaceCard({
                     <TableCell className="w-[1px] p-0" />
 
                     <TableCell className="border-l border-r p-2 text-[15px] font-bold">
-                      <div className="flex w-full min-w-0 flex-col items-stretch justify-center gap-1 px-1 min-[1880px]:max-[1919px]:px-[7px]">
+                      <div className="flex w-full min-w-0 flex-col items-stretch justify-center gap-1 px-1 min-[1880px]:max-[1919px]:px-[10px]">
                         <span className="text-center">{racer.performance}%</span>
                         <Progress
                           value={racer.performance}

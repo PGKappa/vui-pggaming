@@ -359,10 +359,7 @@ export function useTicketList() {
           const d = disciplineMap[i.ticket_id]
           if (d === undefined) return true
           const tokens = d.split(',')
-          // MIX: any ticket spanning more than one discipline.
-          if (appliedFilters.discipline === 'mix') return tokens.length > 1
-          // Single-discipline filters exclude mixed tickets, which only the
-          // 'mix' filter shows.
+          // Single-discipline filters exclude mixed tickets.
           return tokens.every((tok) => tok === appliedFilters.discipline)
         })()
         // "paid"/"unpaid" and "Stato" are mutually exclusive in the UI

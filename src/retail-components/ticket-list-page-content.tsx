@@ -368,10 +368,8 @@ export default function TicketListPageContent({
   const getDisciplineLabel = (ticketId: number) => {
     const d = disciplineMap[ticketId]
     if (!d) return '...'
-    const disciplines = d.split(',')
-    // Più discipline nello stesso ticket: stessa etichetta del filtro MIX
-    if (disciplines.length > 1) return 'Mix'
-    return disciplines
+    return d
+      .split(',')
       .map((discipline) => {
         if (discipline === 'dogs') return `${t('dog_racing')} 6`
         if (discipline === 'dogs8') return t('dog8_racing')
@@ -540,7 +538,6 @@ export default function TicketListPageContent({
                     <SelectItem value="horses">
                       {t('horse_racing')} 6
                     </SelectItem>
-                    <SelectItem value="mix">MIX</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -595,7 +592,6 @@ export default function TicketListPageContent({
                     <SelectItem value="horses">
                       {t('horse_racing')} 6
                     </SelectItem>
-                    <SelectItem value="mix">MIX</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
