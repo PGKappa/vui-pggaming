@@ -516,19 +516,17 @@ export function getRacerColors(
           border: '1px solid #000000',
           style: {
             background:
-              'linear-gradient(0deg, rgba(255,255,255,1) 0%, rgba(255,255,255,1) 8.333333333%, rgba(29,102,71,1) 8.333333334%, rgba(29,102,71,1) 25.000000001%, rgba(255,255,255,1) 25.000000002%, rgba(255,255,255,1) 41.666666669%, rgba(29,102,71,1) 41.66666667%, rgba(29,102,71,1) 58.333333337%, rgba(255,255,255,1) 58.333333338%, rgba(255,255,255,1) 75.000000005%, rgba(29,102,71,1) 75.000000006%, rgba(29,102,71,1) 91.666666673%, rgba(255,255,255,1) 91.666666674%, rgba(255,255,255,1) 100%)',
+              'repeating-linear-gradient(180deg, #1D6647 0%, #1D6647 13.333%, #FFFFFF 13.333%, #FFFFFF 26.667%)',
             color: '#000000',
             border: '1px solid #000000',
-            textShadow:
-              '2px 0 0 #fff, -2px 0 0 #fff, 0 2px 0 #fff, 0 -2px 0 #fff, 1px 1px #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff',
           },
         }
       case 8:
         return {
           bg: '#000000',
-          text: '#FF0000',
+          text: '#FFBB00',
           border: '',
-          style: { backgroundColor: '#000000', color: '#FF0000' },
+          style: { backgroundColor: '#000000', color: '#FFBB00' },
         }
       default:
         return {
