@@ -155,6 +155,7 @@
   "active": "Active",
   "pending": "Pending",
   "cancelled": "Cancelled",
+  "void": "Void",
   "payment": "Payment",
   "balance": "Balance",
   "paid": "Paid",

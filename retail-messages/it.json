@@ -146,6 +146,7 @@
   "active": "In Corso",
   "pending": "In Attesa",
   "cancelled": "Annullato",
+  "void": "Annullato",
   "payment": "Pagamento",
   "balance": "Saldo",
   "paid": "Pagato",
