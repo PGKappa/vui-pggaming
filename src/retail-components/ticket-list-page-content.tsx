@@ -368,10 +368,8 @@ export default function TicketListPageContent({
   const getDisciplineLabel = (ticketId: number) => {
     const d = disciplineMap[ticketId]
     if (!d) return '...'
-    const disciplines = d.split(',')
-    // Più discipline nello stesso ticket: stessa etichetta del filtro MIX
-    if (disciplines.length > 1) return 'Mix'
-    return disciplines
+    return d
+      .split(',')
       .map((discipline) => {
         if (discipline === 'dogs') return `${t('dog_racing')} 6`
         if (discipline === 'dogs8') return t('dog8_racing')
@@ -426,10 +424,11 @@ export default function TicketListPageContent({
   const netSaldo = Math.abs(totalPlayed - totalWon)
   const totalIsProfit = totalWon > totalPlayed
 
+  // Colori fissi: il browser integrato in Midas non supporta color-mix().
   // Grigio chiaro della cella saldo totale
-  const saldoTotalBg = 'color-mix(in srgb, hsl(var(--secondary)) 90%, white)'
-  // Tasto CANCELLA: stesso grigio, un po' più chiaro
-  const clearButtonBg = 'color-mix(in srgb, hsl(var(--secondary)) 82%, white)'
+  const saldoTotalBg = '#505057'
+  // Tasto CANCELLA: grigio più chiaro, ben distinto dallo sfondo della barra filtri
+  const clearButtonBg = '#7a7b83'
 
   const totalBorder = '0.5px solid rgba(255,255,255,0.4)'
   const totalCellStyle = { border: totalBorder }
@@ -540,7 +539,6 @@ export default function TicketListPageContent({
                     <SelectItem value="horses">
                       {t('horse_racing')} 6
                     </SelectItem>
-                    <SelectItem value="mix">MIX</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -595,7 +593,6 @@ export default function TicketListPageContent({
                     <SelectItem value="horses">
                       {t('horse_racing')} 6
                     </SelectItem>
-                    <SelectItem value="mix">MIX</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
