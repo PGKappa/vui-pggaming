@@ -1221,18 +1221,26 @@ export default function TicketCheckDialog({
                         const isUnderOver = /under|over|menos|más|mas/i.test(
                           market.description || '',
                         )
+                        const isEvenOdd = /even|odd|pari|dispari/i.test(
+                          market.description || '',
+                        )
                         const rawMarketLabel =
                           sel.game.dict.markets[market.description] ||
                           market.description
 
-                        const underOverThreshold = /dogs?8/i.test(
-                          sel.gameId || '',
-                        )
-                          ? '4.5'
-                          : '3.5'
+                        const isRacing = /dogs?|horses?/i.test(sel.gameId || '')
+                        const racingThreshold = !isRacing
+                          ? undefined
+                          : /dogs?8/i.test(sel.gameId || '')
+                            ? '4.5'
+                            : '3.5'
+                        const underOverThreshold =
+                          racingThreshold ??
+                          rawMarketLabel.match(/\d+(?:\.\d+)?/)?.[0] ??
+                          '3.5'
                         const marketLabel =
-                          isUnderOver && !/\d/.test(rawMarketLabel)
-                            ? `${rawMarketLabel} ${underOverThreshold}`
+                          isUnderOver && racingThreshold
+                            ? `${rawMarketLabel.replace(/\s*\d+(?:\.\d+)?\s*$/, '').trim()} ${racingThreshold}`
                             : rawMarketLabel
 
                         return market.selections.map((s, sIdx) => (
@@ -1257,23 +1265,37 @@ export default function TicketCheckDialog({
                               style={{ color: '#ccc' }}
                             >
                               {(() => {
+                                const outcome = (
+                                  s.description || ''
+                                ).toLowerCase()
                                 if (isUnderOver) {
-                                  const outcome = (
-                                    s.description || ''
-                                  ).toLowerCase()
                                   if (
                                     outcome === 'under' ||
                                     outcome === 'menos' ||
                                     outcome === 'u'
                                   )
-                                    return t('under_full', 'Under')
+                                    return `${t('under_full', 'Under')} ${underOverThreshold}`
                                   if (
                                     outcome === 'over' ||
                                     outcome === 'más' ||
                                     outcome === 'mas' ||
                                     outcome === 'o'
                                   )
-                                    return t('over_full', 'Over')
+                                    return `${t('over_full', 'Over')} ${underOverThreshold}`
+                                }
+                                if (isEvenOdd) {
+                                  if (
+                                    outcome === 'even' ||
+                                    outcome === 'par' ||
+                                    outcome === 'pari'
+                                  )
+                                    return t('even', 'Even')
+                                  if (
+                                    outcome === 'odd' ||
+                                    outcome === 'impar' ||
+                                    outcome === 'dispari'
+                                  )
+                                    return t('odd', 'Odd')
                                 }
                                 const num = parseInt(s.description)
                                 const name =
