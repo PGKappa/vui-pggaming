@@ -84,13 +84,13 @@ export function getStatusDisplay(status: number): {
     case 2: // CANCELLED
       return {
         label: 'Cancelled',
-        colorClass: 'bg-ticket-lost',
+        colorClass: 'bg-[#8c8c8c]',
         translationKey: 'cancelled',
       }
     case 3: // VOID
       return {
         label: 'Void',
-        colorClass: 'bg-ticket-lost',
+        colorClass: 'bg-[#8c8c8c]',
         translationKey: 'void',
       }
     case 4: // WON (unpaid)
@@ -162,8 +162,9 @@ export function useTicketList() {
   const [status, setStatus] = useState('all')
   const [payment, setPayment] = useState('all')
   const [discipline, setDiscipline] = useState('all')
-  const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined)
-  const [dateTo, setDateTo] = useState<Date | undefined>(undefined)
+  // All'apertura la lista mostra la giornata odierna.
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(() => new Date())
+  const [dateTo, setDateTo] = useState<Date | undefined>(() => new Date())
   const [pageSize, setPageSize] = useState('15')
   const [currentPage, setCurrentPage] = useState(1)
 
@@ -316,6 +317,29 @@ export function useTicketList() {
     }
   }, [rootContext.initCode, rootContext.operator])
 
+  // Riporta i filtri ai valori iniziali (oggi, tutto) e rifà la ricerca.
+  // filtersRef viene aggiornato subito perché fetchTickets lo legge prima
+  // che React abbia fatto il render con il nuovo stato.
+  const resetFilters = useCallback(() => {
+    const today = new Date()
+    const defaults = {
+      dateFrom: today,
+      dateTo: today,
+      status: 'all',
+      payment: 'all',
+      terminal: 'all',
+      discipline: 'all',
+    }
+    setDateFrom(defaults.dateFrom)
+    setDateTo(defaults.dateTo)
+    setStatus(defaults.status)
+    setPayment(defaults.payment)
+    setTerminal(defaults.terminal)
+    setDiscipline(defaults.discipline)
+    filtersRef.current = defaults
+    fetchTickets()
+  }, [fetchTickets])
+
   const didMount = React.useRef(false)
   useEffect(() => {
     if (!didMount.current) {
@@ -335,10 +359,10 @@ export function useTicketList() {
           const d = disciplineMap[i.ticket_id]
           if (d === undefined) return true
           const tokens = d.split(',')
-          if (appliedFilters.discipline === 'real')
-            return tokens.includes('dogs') && tokens.includes('horses')
+          // MIX: any ticket spanning more than one discipline.
+          if (appliedFilters.discipline === 'mix') return tokens.length > 1
           // Single-discipline filters exclude mixed tickets, which only the
-          // 'real' combo filter shows.
+          // 'mix' filter shows.
           return tokens.every((tok) => tok === appliedFilters.discipline)
         })()
         // "paid"/"unpaid" and "Stato" are mutually exclusive in the UI
@@ -396,6 +420,7 @@ export function useTicketList() {
     availableTerminals,
     currencySymbol,
     fetchTickets,
+    resetFilters,
     disciplineMap,
   }
 }

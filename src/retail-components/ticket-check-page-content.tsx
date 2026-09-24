@@ -220,10 +220,7 @@ export default function TicketCheckPageContent({
           />
         </div>
 
-        <div className="relative bottom-[20px] flex h-16 shrink-0 items-center justify-center bg-secondary text-accent-foreground">
-          <h1 className="text-[16px] font-bold uppercase">
-            {t('ticket_check', 'Ticket Check')}
-          </h1>
+        <div className="relative bottom-[20px] flex h-16 shrink-0 items-center justify-center text-accent-foreground">
           {returnPath && (
             <button
               type="button"
@@ -322,10 +319,7 @@ export default function TicketCheckPageContent({
           />
         </div>
 
-        <div className="relative z-10 flex h-10 shrink-0 items-center justify-center bg-secondary">
-          <h1 className="text-[13px] font-bold uppercase">
-            {t('ticket_check', 'Ticket Check')}
-          </h1>
+        <div className="relative z-10 flex h-10 shrink-0 items-center justify-center">
           {returnPath && (
             <button
               type="button"

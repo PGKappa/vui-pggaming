@@ -1000,8 +1000,8 @@ export default function TicketCheckDialog({
                         <div
                           className="flex items-center px-[18px] py-[10px] text-[14px] font-bold uppercase tracking-[1px] text-white"
                           style={{
-                            background: 'rgba(158,58,58,0.2)',
-                            border: '2px solid #9e3a3a',
+                            background: 'rgba(140,140,140,0.2)',
+                            border: '2px solid #8c8c8c',
                             borderRadius: '2px',
                           }}
                         >
@@ -1010,7 +1010,7 @@ export default function TicketCheckDialog({
                             : t('cancelled', 'ANNULLATO')}
                           <span
                             className="ml-3 h-[9px] w-[9px] shrink-0 rounded-full"
-                            style={{ background: '#9e3a3a' }}
+                            style={{ background: '#8c8c8c' }}
                           />
                         </div>
                       )}
