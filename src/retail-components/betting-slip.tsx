@@ -28,8 +28,6 @@ import {
   ChevronDown,
   CornerDownLeft,
   DivideIcon,
-  MinusIcon,
-  PlusIcon,
   RotateCcwIcon,
 } from 'lucide-react'
 import Image from 'next/image'
@@ -38,6 +36,7 @@ import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import EventBets from './event-bets'
 import NumericKeypadDrawer from './numeric-keypad-drawer'
+import SystemGroupItem from './system-group-item'
 import RacingFastBet from './racing-fast-bet'
 import SoccerFastBet from './soccer-fast-bet'
 import { Accordion, AccordionContent, AccordionItem } from './ui/accordion'
@@ -450,6 +449,41 @@ export default function BettingSlip({
     const finalValue = Math.max(0, isNaN(numValue) ? 0 : numValue)
     const roundedValue = Math.round(finalValue * 100) / 100
     setSystemGroupStakes((prev) => ({ ...prev, [groupName]: roundedValue }))
+  }
+
+  const handleDecrementGroupStake = (group: SystemGroup) => {
+    const newValue = group.stake - systemStakeIncrement
+    const finalValue = Math.max(0, newValue)
+    handleUpdateGroupStake(group.name, newValue)
+    if (finalValue === 0) {
+      setSelectedGroups((prev) => ({ ...prev, [group.name]: false }))
+      setTimeout(() => {
+        const updatedSelections = { ...selectedGroups, [group.name]: false }
+        setAllGroupsSelected(
+          systemGroups.every(
+            (g) => updatedSelections[g.name] && (systemGroupStakes[g.name] || 0) > 0,
+          ),
+        )
+      }, 0)
+    }
+  }
+
+  const handleIncrementGroupStake = (group: SystemGroup) => {
+    const newValue = group.stake + systemStakeIncrement
+    handleUpdateGroupStake(group.name, newValue)
+    if (newValue > 0) {
+      setSelectedGroups((prev) => ({ ...prev, [group.name]: true }))
+      setTimeout(() => {
+        const updatedSelections = { ...selectedGroups, [group.name]: true }
+        setAllGroupsSelected(
+          systemGroups.every(
+            (g) =>
+              updatedSelections[g.name] &&
+              (systemGroupStakes[g.name] || newValue) > 0,
+          ),
+        )
+      }, 0)
+    }
   }
 
   const handleDirectAmountInput = (value: number) => {
@@ -1491,205 +1525,35 @@ export default function BettingSlip({
                       onValueChange={setSystemGroupsOpen}
                       className="w-full"
                     >
-                      {systemGroups.map((group) => (
-                        <AccordionItem
-                          key={group.name}
-                          value={group.name}
-                          className="bg-bet-foreground"
-                        >
-                          <div
-                            className={`relative h-[59px] border-b px-4 py-[7px] ${systemGroupsOpen.includes(group.name) ? 'bg' : 'bg-background'}`}
-                          >
-                            <div className="mt-[3px] flex w-full items-center justify-between">
-                              <div className="flex items-center space-x-2">
-                                <Checkbox
-                                  checked={selectedGroups[group.name] || false}
-                                  onCheckedChange={(checked) =>
-                                    handleGroupToggle(
-                                      group.name,
-                                      checked as boolean,
-                                    )
-                                  }
-                                />
-                                <span className="pt-0.5 text-[12px] font-semibold">
-                                  {group.name.toUpperCase()}
-                                </span>
-                                <span className="text-muted-background relative right-[5px] mt-[1px] text-[12px] font-semibold">
-                                  (x{group.combinations.length})
-                                </span>
-                              </div>
-                              <div className="relative flex items-center">
-                                <div className="mr-[12px] mt-[2px] flex items-center space-x-0 border">
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={(e) => {
-                                      e.stopPropagation()
-                                      const newValue =
-                                        group.stake - systemStakeIncrement
-                                      const finalValue = Math.max(0, newValue)
-                                      handleUpdateGroupStake(
-                                        group.name,
-                                        newValue,
-                                      )
-                                      if (finalValue === 0) {
-                                        setSelectedGroups((prev) => ({
-                                          ...prev,
-                                          [group.name]: false,
-                                        }))
-                                        setTimeout(() => {
-                                          const updatedSelections = {
-                                            ...selectedGroups,
-                                            [group.name]: false,
-                                          }
-                                          setAllGroupsSelected(
-                                            systemGroups.every(
-                                              (g) =>
-                                                updatedSelections[g.name] &&
-                                                (systemGroupStakes[g.name] ||
-                                                  0) > 0,
-                                            ),
-                                          )
-                                        }, 0)
-                                      }
-                                    }}
-                                    disabled={group.stake <= 0}
-                                    className="h-8 w-7 bg-minusButton p-3 text-[19px] text-bet-foreground hover:opacity-90 disabled:bg-minusButtonDark"
-                                  >
-                                    <MinusIcon className="h-4 w-4" />
-                                  </Button>
-                                  <NumericKeypadDrawer
-                                    value={group.stake}
-                                    setValue={(value) =>
-                                      handleUpdateGroupStake(group.name, value)
-                                    }
-                                    inputWidth="w-[142px] pr-2 text-[13px]"
-                                    triggerLabel={group.name}
-                                    showPlusMinus={false}
-                                    drawerId={`system-group-${group.name}`}
-                                    currencySymbol={currencySymbol}
-                                  />
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={(e) => {
-                                      e.stopPropagation()
-                                      const newValue =
-                                        group.stake + systemStakeIncrement
-                                      handleUpdateGroupStake(
-                                        group.name,
-                                        newValue,
-                                      )
-                                      if (newValue > 0) {
-                                        setSelectedGroups((prev) => ({
-                                          ...prev,
-                                          [group.name]: true,
-                                        }))
-                                        setTimeout(() => {
-                                          const updatedSelections = {
-                                            ...selectedGroups,
-                                            [group.name]: true,
-                                          }
-                                          setAllGroupsSelected(
-                                            systemGroups.every(
-                                              (g) =>
-                                                updatedSelections[g.name] &&
-                                                (systemGroupStakes[g.name] ||
-                                                  newValue) > 0,
-                                            ),
-                                          )
-                                        }, 0)
-                                      }
-                                    }}
-                                    className="h-8 w-7 bg-plusButton p-3 text-[19px] text-bet-foreground hover:opacity-90"
-                                  >
-                                    <PlusIcon className="h-4 w-4" />
-                                  </Button>
-                                </div>
-                                <button
-                                  onClick={() => {
-                                    const isOpen = systemGroupsOpen.includes(
-                                      group.name,
-                                    )
-                                    if (isOpen) {
-                                      setSystemGroupsOpen((prev) =>
-                                        prev.filter(
-                                          (name) => name !== group.name,
-                                        ),
-                                      )
-                                    } else {
-                                      setSystemGroupsOpen((prev) => [
-                                        ...prev,
-                                        group.name,
-                                      ])
-                                    }
-                                  }}
-                                  className="ml-2 flex items-center justify-center bg-transparent"
-                                  style={{ width: '20px', height: '20px' }}
-                                >
-                                  <svg
-                                    className="relative left-1"
-                                    width="20"
-                                    height="20"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    style={{
-                                      animation: systemGroupsOpen.includes(
-                                        group.name,
-                                      )
-                                        ? 'chevron-rotate-open 0.2s ease-out forwards'
-                                        : 'chevron-rotate-close 0.2s ease-out forwards',
-                                    }}
-                                  >
-                                    <polyline points="6 9 12 15 18 9"></polyline>
-                                  </svg>
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                          <AccordionContent className="h-[55px] border-b px-4">
-                            <div className="relative top-1.5 grid grid-cols-3 text-[13px]">
-                              <div className="text-center">
-                                <div className="relative bottom-[2px] text-[12px] font-semibold capitalize text-foreground">
-                                  {t('min')} {t('win')}
-                                </div>
-                                <div className="relative top-[0px] text-[13px] font-normal">
-                                  {currencySymbol}{' '}
-                                  {computeGroupWinRounded(group).minWin.toFixed(
-                                    2,
-                                  )}
-                                </div>
-                              </div>
-                              <div className="relative right-[12px] text-center text-[12px] font-semibold">
-                                <div className="relative bottom-[2px] capitalize text-foreground">
-                                  {t('max')} {t('win')}
-                                </div>
-                                <div className="relative top-[0px] text-[13px] font-normal">
-                                  {currencySymbol}{' '}
-                                  {computeGroupWinRounded(group).maxWin.toFixed(
-                                    2,
-                                  )}
-                                </div>
-                              </div>
-                              <div className="relative right-[16px] text-center text-[12px] font-semibold">
-                                <div className="relative bottom-[2px] left-1 capitalize text-foreground">
-                                  {t('total_played')}
-                                </div>
-                                <div className="relative left-1 top-[0px] text-[13px] font-normal">
-                                  {currencySymbol}{' '}
-                                  {(
-                                    group.stake * group.combinations.length
-                                  ).toFixed(2)}
-                                </div>
-                              </div>
-                            </div>
-                          </AccordionContent>
-                        </AccordionItem>
-                      ))}
+                      {systemGroups.map((group) => {
+                        const win = computeGroupWinRounded(group)
+                        return (
+                          <SystemGroupItem
+                            key={group.name}
+                            group={group}
+                            isOpen={systemGroupsOpen.includes(group.name)}
+                            isSelected={selectedGroups[group.name] || false}
+                            currencySymbol={currencySymbol}
+                            minWin={win.minWin}
+                            maxWin={win.maxWin}
+                            onSelectedChange={(checked) =>
+                              handleGroupToggle(group.name, checked)
+                            }
+                            onStakeChange={(value) =>
+                              handleUpdateGroupStake(group.name, value)
+                            }
+                            onDecrement={() => handleDecrementGroupStake(group)}
+                            onIncrement={() => handleIncrementGroupStake(group)}
+                            onToggleOpen={() =>
+                              setSystemGroupsOpen((prev) =>
+                                prev.includes(group.name)
+                                  ? prev.filter((name) => name !== group.name)
+                                  : [...prev, group.name],
+                              )
+                            }
+                          />
+                        )
+                      })}
                     </Accordion>
                   </ScrollAreaB>
                 </AccordionContent>
