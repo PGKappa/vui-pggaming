@@ -427,7 +427,7 @@ export default function TicketListPageContent({
   // Grigio chiaro della cella saldo totale
   const saldoTotalBg = 'color-mix(in srgb, hsl(var(--secondary)) 90%, white)'
   // Tasto CANCELLA: stesso grigio, un po' più chiaro
-  const clearButtonBg = 'color-mix(in srgb, hsl(var(--secondary)) 82%, white)'
+  const clearButtonBg = 'color-mix(in srgb, hsl(var(--secondary)) 65%, white)'
 
   const totalBorder = '0.5px solid rgba(255,255,255,0.4)'
   const totalCellStyle = { border: totalBorder }
