@@ -575,7 +575,7 @@ export default function UpcomingRaceCard({
                 pressed={position1Selection.includes(racer.number)}
                 onPressedChange={() => togglePosition1Selection(racer.number)}
                 onClick={(e) => e.stopPropagation()}
-                className="h-[49px] w-[90px] flex-none border-betEntry-border pt-[2px] tabular-nums min-[1380px]:w-[110px] min-[1880px]:max-[1919px]:relative min-[1880px]:max-[1919px]:left-[-2px]"
+                className="h-[49px] w-[90px] flex-none border-betEntry-border pt-[2px] tabular-nums min-[1380px]:w-[110px] min-[1880px]:max-[1919px]:relative min-[1880px]:max-[1919px]:left-[-3px]"
               >
                 <span className="text-[19px]">1°</span>
               </Toggle>
@@ -609,7 +609,7 @@ export default function UpcomingRaceCard({
                 pressed={disorderSelection.includes(racer.number)}
                 onPressedChange={() => toggleDisorderSelection(racer.number)}
                 onClick={(e) => e.stopPropagation()}
-                className="h-[49px] min-w-0 max-w-[117px] flex-1 border-betEntry-border pt-[2px] min-[1880px]:max-[1919px]:relative min-[1880px]:max-[1919px]:left-[-4px] min-[1920px]:relative min-[1920px]:left-[-19px] min-[1920px]:mx-auto min-[1920px]:w-[117px] min-[1920px]:max-w-[117px] min-[1920px]:flex-none"
+                className="h-[49px] min-w-0 max-w-[117px] flex-1 border-betEntry-border pt-[2px] min-[1880px]:max-[1919px]:relative min-[1880px]:max-[1919px]:left-[-3px] min-[1920px]:relative min-[1920px]:left-[-19px] min-[1920px]:mx-auto min-[1920px]:w-[117px] min-[1920px]:max-w-[117px] min-[1920px]:flex-none"
               >
                 {disorderSelection.includes(racer.number) && (
                   <Check
