@@ -426,6 +426,11 @@ export default function TicketListPageContent({
   const netSaldo = Math.abs(totalPlayed - totalWon)
   const totalIsProfit = totalWon > totalPlayed
 
+  // Grigio chiaro della cella saldo totale
+  const saldoTotalBg = 'color-mix(in srgb, hsl(var(--secondary)) 90%, white)'
+  // Tasto CANCELLA: stesso grigio, un po' più chiaro
+  const clearButtonBg = 'color-mix(in srgb, hsl(var(--secondary)) 82%, white)'
+
   const totalBorder = '0.5px solid rgba(255,255,255,0.4)'
   const totalCellStyle = { border: totalBorder }
   const totalCellClass = (extra?: string) =>
@@ -550,6 +555,7 @@ export default function TicketListPageContent({
             <Button
               onClick={handleClearFilters}
               className="text-bold shrink-0 bg-tertiary text-[13px] text-tertiary-foreground min-[1400px]:text-[14px] 3xl:w-[80px] 3xl:text-[14px]"
+              style={{ backgroundColor: clearButtonBg }}
             >
               {t('clear')}
             </Button>
@@ -647,6 +653,7 @@ export default function TicketListPageContent({
             <Button
               onClick={handleClearFilters}
               className={ticketFilterReloadClass}
+              style={{ backgroundColor: clearButtonBg }}
             >
               {t('clear')}
             </Button>
@@ -891,8 +898,7 @@ export default function TicketListPageContent({
                 <td
                   style={{
                     ...totalCellStyle,
-                    backgroundColor:
-                      'color-mix(in srgb, hsl(var(--secondary)) 90%, white)',
+                    backgroundColor: saldoTotalBg,
                   }}
                   className={totalCellClass(
                     totalIsProfit ? 'text-ticket-lost' : '',

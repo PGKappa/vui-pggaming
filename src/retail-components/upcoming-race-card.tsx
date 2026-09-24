@@ -437,13 +437,13 @@ export default function UpcomingRaceCard({
 
           {activeTab === 'couples' && (
             <>
-              <TableHead className="w-[25%] min-w-0 overflow-hidden text-center font-bold min-[1440px]:w-[26%]">
+              <TableHead className="w-[25%] min-w-0 overflow-hidden text-center font-bold min-[1440px]:w-[26%] min-[1880px]:max-[1919px]:w-[27.6%]">
                 <span className="inline-block h-full w-full align-middle leading-[54px]">
                   {t('exacta').toUpperCase()}
                 </span>
               </TableHead>
               <TableHead className="w-[1px] bg-border p-0" />
-              <TableHead className="w-[25%] min-w-0 overflow-hidden text-center font-bold min-[1440px]:w-[24%]">
+              <TableHead className="w-[25%] min-w-0 overflow-hidden text-center font-bold min-[1440px]:w-[24%] min-[1880px]:max-[1919px]:w-[22.4%]">
                 <span className="inline-block h-full w-full align-middle leading-[54px]">
                   {t('quinella').toUpperCase()}
                 </span>
@@ -570,12 +570,12 @@ export default function UpcomingRaceCard({
             className={`max-w-0 cursor-pointer overflow-hidden px-2 py-2 ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
             onClick={handleMarketTypeToggle}
           >
-            <div className="flex w-full items-center justify-center space-x-[10px] px-0 min-[1360px]:space-x-[8px] min-[1360px]:px-[1px] min-[1440px]:space-x-[11px] min-[1440px]:px-[3px] min-[1600px]:space-x-[21px] min-[1600px]:px-[13px] min-[1760px]:space-x-[32px] min-[1760px]:px-[24px] min-[1920px]:space-x-[42px] min-[1920px]:px-[34px]">
+            <div className="flex w-full items-center justify-center space-x-[10px] px-0 min-[1360px]:space-x-[8px] min-[1360px]:px-[1px] min-[1440px]:space-x-[11px] min-[1440px]:px-[3px] min-[1600px]:space-x-[21px] min-[1600px]:px-[13px] min-[1760px]:space-x-[32px] min-[1760px]:px-[24px] min-[1880px]:max-[1919px]:space-x-[55px] min-[1920px]:space-x-[42px] min-[1920px]:px-[34px]">
               <Toggle
                 pressed={position1Selection.includes(racer.number)}
                 onPressedChange={() => togglePosition1Selection(racer.number)}
                 onClick={(e) => e.stopPropagation()}
-                className="h-[49px] w-[90px] flex-none border-betEntry-border pt-[2px] tabular-nums min-[1380px]:w-[110px]"
+                className="h-[49px] w-[90px] flex-none border-betEntry-border pt-[2px] tabular-nums min-[1380px]:w-[110px] min-[1880px]:max-[1919px]:relative min-[1880px]:max-[1919px]:left-[-2px]"
               >
                 <span className="text-[19px]">1°</span>
               </Toggle>
@@ -583,7 +583,7 @@ export default function UpcomingRaceCard({
                 pressed={position2Selection.includes(racer.number)}
                 onPressedChange={() => togglePosition2Selection(racer.number)}
                 onClick={(e) => e.stopPropagation()}
-                className="h-[49px] w-[90px] flex-none border-betEntry-border pt-[2px] min-[1380px]:w-[110px]"
+                className="h-[49px] w-[90px] flex-none border-betEntry-border pt-[2px] min-[1380px]:w-[110px] min-[1880px]:max-[1919px]:relative min-[1880px]:max-[1919px]:left-[2px]"
               >
                 <span className="text-[19px]">2°</span>
               </Toggle>
@@ -601,7 +601,7 @@ export default function UpcomingRaceCard({
                 pressed={fixedSelection.includes(racer.number)}
                 onPressedChange={() => toggleFixedSelection(racer.number)}
                 onClick={(e) => e.stopPropagation()}
-                className={`h-[49px] min-w-0 max-w-[56px] flex-1 border-betEntry-border pt-[2px] min-[1880px]:max-[1919px]:relative min-[1880px]:max-[1919px]:left-[2px] min-[1920px]:mx-auto min-[1920px]:w-[56px] min-[1920px]:max-w-[56px] min-[1920px]:flex-none ${fixedSelection.includes(racer.number) ? 'text-white' : ''}`}
+                className={`h-[49px] min-w-0 max-w-[56px] flex-1 border-betEntry-border pt-[2px] min-[1880px]:max-[1919px]:relative min-[1880px]:max-[1919px]:left-[3px] min-[1920px]:mx-auto min-[1920px]:w-[56px] min-[1920px]:max-w-[56px] min-[1920px]:flex-none ${fixedSelection.includes(racer.number) ? 'text-white' : ''}`}
               >
                 <span className="text-[17px] min-[1440px]:text-[19px]">F</span>
               </Toggle>
@@ -609,7 +609,7 @@ export default function UpcomingRaceCard({
                 pressed={disorderSelection.includes(racer.number)}
                 onPressedChange={() => toggleDisorderSelection(racer.number)}
                 onClick={(e) => e.stopPropagation()}
-                className="h-[49px] min-w-0 max-w-[117px] flex-1 border-betEntry-border pt-[2px] min-[1880px]:max-[1919px]:relative min-[1880px]:max-[1919px]:left-[-2px] min-[1920px]:relative min-[1920px]:left-[-19px] min-[1920px]:mx-auto min-[1920px]:w-[117px] min-[1920px]:max-w-[117px] min-[1920px]:flex-none"
+                className="h-[49px] min-w-0 max-w-[117px] flex-1 border-betEntry-border pt-[2px] min-[1880px]:max-[1919px]:relative min-[1880px]:max-[1919px]:left-[-4px] min-[1920px]:relative min-[1920px]:left-[-19px] min-[1920px]:mx-auto min-[1920px]:w-[117px] min-[1920px]:max-w-[117px] min-[1920px]:flex-none"
               >
                 {disorderSelection.includes(racer.number) && (
                   <Check
