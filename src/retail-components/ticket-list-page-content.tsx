@@ -215,6 +215,13 @@ export default function TicketListPageContent({
   const theadRef = useRef<HTMLTableSectionElement>(null)
   const totalsRef = useRef<HTMLDivElement>(null)
   const [fitRowHeight, setFitRowHeight] = useState<number | null>(null)
+  // Pixel avanzati dalla divisione: uno in più alle prime righe, così
+  // le 15 righe riempiono tutto lo spazio senza lasciare vuoto sotto.
+  const [fitRowExtra, setFitRowExtra] = useState(0)
+  const fitRowStyle = (index: number) =>
+    fitRowHeight
+      ? { height: fitRowHeight + (index < fitRowExtra ? 1 : 0) }
+      : undefined
 
   useEffect(() => {
     if (!fitRows) {
@@ -229,8 +236,12 @@ export default function TicketListPageContent({
         (theadRef.current?.offsetHeight ?? 0) -
         (totalsRef.current?.offsetHeight ?? 0)
       // -1px di margine per gli arrotondamenti dei bordi collassati
-      const h = Math.floor((available - 1) / 15)
-      if (h > 0) setFitRowHeight(h)
+      const usable = available - 1
+      const h = Math.floor(usable / 15)
+      if (h > 0) {
+        setFitRowHeight(h)
+        setFitRowExtra(usable - h * 15)
+      }
     }
     measure()
     const obs = new ResizeObserver(measure)
@@ -653,7 +664,12 @@ export default function TicketListPageContent({
           ──────────────────────────────────────────────────────────────────────── */}
       <div
         ref={scrollContainerRef}
-        className="flex min-h-0 flex-1 flex-col overflow-y-auto bg-white text-black"
+        className={cn(
+          'flex min-h-0 flex-1 flex-col bg-white text-black',
+          // Con 15 righe adattate allo spazio lo scroll non serve: l'eventuale
+          // pixel in eccesso dei bordi non deve far comparire la scrollbar.
+          fitRows ? 'overflow-y-hidden' : 'overflow-y-auto',
+        )}
       >
         {/* Tabella dati — flex-1 per occupare lo spazio residuo quando ci sono poche righe */}
         <div className="flex-1" ref={tableWrapperRef}>
@@ -716,7 +732,7 @@ export default function TicketListPageContent({
                 </tr>
               ) : (
                 <>
-                  {items.map((item) => {
+                  {items.map((item, itemIdx) => {
                     const date = parseTicketTime(item.time)
                     const statusInfo = getStatusDisplay(item.status)
                     return (
@@ -728,9 +744,7 @@ export default function TicketListPageContent({
                             ? 'text-[16px]'
                             : 'text-[12px] lg:text-[15px]',
                         )}
-                        style={
-                          fitRowHeight ? { height: fitRowHeight } : undefined
-                        }
+                        style={fitRowStyle(itemIdx)}
                       >
                         <td className={tdClass()}>{item.ticket_id}</td>
                         <td className={tdClass()}>
@@ -812,7 +826,7 @@ export default function TicketListPageContent({
                       className="border-b"
                       style={
                         fitRowHeight
-                          ? { height: fitRowHeight }
+                          ? fitRowStyle(items.length + rowIdx)
                           : rowHeight > 0
                             ? { height: rowHeight }
                             : undefined
