@@ -301,7 +301,9 @@ export default function RacingFastBet({
         drawerId="racing-fastbet"
       />
 
-      <DraggableCodeList discipline="racing" />
+      <DraggableCodeList
+        discipline={selectedEvent?.discipline === 'DOGS8' ? 'dogs8' : 'racing'}
+      />
     </div>
   )
 }
