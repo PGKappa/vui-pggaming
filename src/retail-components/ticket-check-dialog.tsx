@@ -963,8 +963,10 @@ export default function TicketCheckDialog({
                       <div
                         className="flex items-center px-[18px] py-[10px] text-[14px] font-bold uppercase tracking-[1px] text-white"
                         style={{
-                          background: 'rgba(58,158,74,0.2)',
-                          border: '2px solid #3a9e4a',
+                          background: statusInfo.isPaid
+                            ? 'rgba(58,158,74,0.2)'
+                            : 'rgba(250,173,20,0.2)',
+                          border: `2px solid ${statusInfo.isPaid ? '#3a9e4a' : '#faad14'}`,
                           borderRadius: '2px',
                         }}
                       >
@@ -973,7 +975,9 @@ export default function TicketCheckDialog({
                           : t('winning', 'VINCENTE')}
                         <span
                           className="ml-3 h-[9px] w-[9px] shrink-0 rounded-full"
-                          style={{ background: '#3a9e4a' }}
+                          style={{
+                            background: statusInfo.isPaid ? '#3a9e4a' : '#faad14',
+                          }}
                         />
                       </div>
                     )}
