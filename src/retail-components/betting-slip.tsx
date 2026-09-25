@@ -37,6 +37,7 @@ import { toast } from 'sonner'
 import EventBets from './event-bets'
 import NumericKeypadDrawer from './numeric-keypad-drawer'
 import SystemGroupItem from './system-group-item'
+import { useBetTemplate } from '@/retail-contexts/bet-template-context'
 import RacingFastBet from './racing-fast-bet'
 import SoccerFastBet from './soccer-fast-bet'
 import { Accordion, AccordionContent, AccordionItem } from './ui/accordion'
@@ -124,6 +125,9 @@ export default function BettingSlip({
   // Betslip always sticky / fitted to viewport.
 
   const currencySymbol = rootContext?.getCurrencySymbol?.() || '$'
+
+  const { template: betTemplate } = useBetTemplate()
+  const GroupItem = betTemplate.components?.systemGroupItem ?? SystemGroupItem
   const stakeButtons = rootContext?.getStakeButtons?.() || [
     1000, 2000, 3000, 5000, 10000,
   ]
@@ -1528,7 +1532,7 @@ export default function BettingSlip({
                       {systemGroups.map((group) => {
                         const win = computeGroupWinRounded(group)
                         return (
-                          <SystemGroupItem
+                          <GroupItem
                             key={group.name}
                             group={group}
                             isOpen={systemGroupsOpen.includes(group.name)}
@@ -1544,6 +1548,9 @@ export default function BettingSlip({
                             }
                             onDecrement={() => handleDecrementGroupStake(group)}
                             onIncrement={() => handleIncrementGroupStake(group)}
+                            showStakeIncrement={
+                              betTemplate.showGroupStakeIncrement
+                            }
                             onToggleOpen={() =>
                               setSystemGroupsOpen((prev) =>
                                 prev.includes(group.name)

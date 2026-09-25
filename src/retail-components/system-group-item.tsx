@@ -8,7 +8,7 @@ import NumericKeypadDrawer from './numeric-keypad-drawer'
 import { AccordionContent, AccordionItem } from './ui/accordion'
 import { Checkbox } from './ui/checkbox'
 
-export default function SystemGroupItem(props: {
+export type SystemGroupItemProps = {
   group: SystemGroup
   isOpen: boolean
   isSelected: boolean
@@ -20,9 +20,12 @@ export default function SystemGroupItem(props: {
   onDecrement: () => void
   onIncrement: () => void
   onToggleOpen: () => void
-}) {
+  showStakeIncrement?: boolean
+}
+
+export default function SystemGroupItem(props: SystemGroupItemProps) {
   const { t } = useTranslation()
-  const { group } = props
+  const { group, showStakeIncrement = true } = props
 
   return (
     <AccordionItem
@@ -50,18 +53,20 @@ export default function SystemGroupItem(props: {
           </div>
           <div className="relative flex items-center">
             <div className="mr-[12px] mt-[2px] flex items-center space-x-0 border">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  props.onDecrement()
-                }}
-                disabled={group.stake <= 0}
-                className="h-8 w-7 bg-minusButton p-3 text-[19px] text-bet-foreground hover:opacity-90 disabled:bg-minusButtonDark"
-              >
-                <MinusIcon className="h-4 w-4" />
-              </Button>
+              {showStakeIncrement && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    props.onDecrement()
+                  }}
+                  disabled={group.stake <= 0}
+                  className="h-8 w-7 bg-minusButton p-3 text-[19px] text-bet-foreground hover:opacity-90 disabled:bg-minusButtonDark"
+                >
+                  <MinusIcon className="h-4 w-4" />
+                </Button>
+              )}
               <NumericKeypadDrawer
                 value={group.stake}
                 setValue={props.onStakeChange}
@@ -71,17 +76,19 @@ export default function SystemGroupItem(props: {
                 drawerId={`system-group-${group.name}`}
                 currencySymbol={props.currencySymbol}
               />
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  props.onIncrement()
-                }}
-                className="h-8 w-7 bg-plusButton p-3 text-[19px] text-bet-foreground hover:opacity-90"
-              >
-                <PlusIcon className="h-4 w-4" />
-              </Button>
+              {showStakeIncrement && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    props.onIncrement()
+                  }}
+                  className="h-8 w-7 bg-plusButton p-3 text-[19px] text-bet-foreground hover:opacity-90"
+                >
+                  <PlusIcon className="h-4 w-4" />
+                </Button>
+              )}
             </div>
             <button
               onClick={props.onToggleOpen}
