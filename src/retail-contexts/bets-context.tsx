@@ -230,11 +230,9 @@ export default function BetsContextProvider(props: {
 
   const checkSystemLimits = useCallback(
     (newEntries: BetEntry[]): boolean => {
-      if (betMode !== 'SYSTEM') return true
-
       const allEntries = [...betsContext.betEntries, ...newEntries]
 
-      if (allEntries.length > maxSelections) {
+      if (betMode === 'SYSTEM' && allEntries.length > maxSelections) {
         toast.error(tRef.current('max_bet_entries_system', { max: maxSelections }))
         return false
       }
@@ -244,10 +242,14 @@ export default function BetsContextProvider(props: {
         const eventKey = `${entry.bet.discipline}-${entry.bet.event.number}`
         eventsSet.add(eventKey)
       })
-      const eventsNumber = eventsSet.size
 
-      if (eventsNumber > maxEvents) {
-        toast.error(tRef.current('max_events_system', { max: maxEvents }))
+      if (eventsSet.size > maxEvents) {
+        toast.error(
+          tRef.current(
+            betMode === 'SYSTEM' ? 'max_events_system' : 'max_events',
+            { max: maxEvents },
+          ),
+        )
         return false
       }
 

@@ -180,13 +180,12 @@ export default function BettingSlip({
     })
   }, [betMode, betEntries, maxSelections, maxEvents, raceFieldSizes])
 
-  const systemEventsCount = useMemo(() => {
-    if (betMode !== 'SYSTEM') return 0
+  const eventsCount = useMemo(() => {
     const eventsSet = new Set(
       betEntries.map((e) => `${e.bet.discipline}-${e.bet.event.number}`),
     )
     return eventsSet.size
-  }, [betMode, betEntries])
+  }, [betEntries])
 
   const isMountedRef = useRef(false)
   useEffect(() => {
@@ -194,10 +193,14 @@ export default function BettingSlip({
       isMountedRef.current = true
       return
     }
-    if (betMode === 'SYSTEM' && systemEventsCount > maxEvents) {
-      toast.error(t('max_events_system', { max: maxEvents }))
+    if (eventsCount > maxEvents) {
+      toast.error(
+        t(betMode === 'SYSTEM' ? 'max_events_system' : 'max_events', {
+          max: maxEvents,
+        }),
+      )
     }
-  }, [betMode, systemEventsCount, maxEvents, t])
+  }, [betMode, eventsCount, maxEvents, t])
 
   const systemGroups = useMemo(() => {
     const playedSizes = baseSystemGroups
@@ -620,8 +623,12 @@ export default function BettingSlip({
       return
     }
 
-    if (betMode === 'SYSTEM' && systemEventsCount > maxEvents) {
-      toast.error(t('max_events_system', { max: maxEvents }))
+    if (eventsCount > maxEvents) {
+      toast.error(
+        t(betMode === 'SYSTEM' ? 'max_events_system' : 'max_events', {
+          max: maxEvents,
+        }),
+      )
       return
     }
 
@@ -884,7 +891,7 @@ export default function BettingSlip({
           .reduce((sum, group) => sum + group.combinations.length, 0)
         if (
           finalCombinations > maxCombinations ||
-          systemEventsCount > maxEvents ||
+          eventsCount > maxEvents ||
           betEntries.length > maxSelections
         ) {
           toast.error(t('ticket_not_playable'))
@@ -1795,7 +1802,7 @@ export default function BettingSlip({
                 (betMode === 'SYSTEM' && totalSystemStake <= 0) ||
                 (betMode === 'SYSTEM' &&
                   totalSystemCombinations > maxCombinations) ||
-                (betMode === 'SYSTEM' && systemEventsCount > maxEvents) ||
+                eventsCount > maxEvents ||
                 betEntries.length > maxSelections
               }
               className="h-12 w-full text-[18px] font-bold"

@@ -144,9 +144,11 @@ function NavbarContent() {
     const lang = i18n.language || 'en'
     if (pathname.includes('/calcio')) {
       return `https://d190050z3qr0m1.cloudfront.net/public/Soccer_Gaming_manual_${lang}.html`
-    } else {
-      return `https://d190050z3qr0m1.cloudfront.net/public/RD-RH_Gamingmanual_${lang}.html`
     }
+    if (pathname.includes('dogs8') || pathname.includes('cani8')) {
+      return `https://d190050z3qr0m1.cloudfront.net/public/RD-RH_8_Gamingmanual_${lang}.html`
+    }
+    return `https://d190050z3qr0m1.cloudfront.net/public/RD-RH_Gamingmanual_${lang}.html`
   }
 
   return (

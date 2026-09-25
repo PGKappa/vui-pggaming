@@ -184,9 +184,7 @@ function UpcomingEventItem(props: {
             ? event.name
             : event.discipline === 'HORSES'
               ? t('horse_races_label')
-              : event.discipline === 'DOGS8'
-                ? t('dog8_races_label')
-                : t('dog_races_label')}
+              : t('dog_races_label')}
         </span>
         <span
           className={`relative ${eventSubtitleBottom} whitespace-nowrap ${eventSubtitleFontSize} font-normal uppercase`}
