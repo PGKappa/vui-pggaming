@@ -1297,6 +1297,8 @@ export default function TicketCheckDialog({
                                   )
                                     return t('odd', 'Odd')
                                 }
+                                if (/^\d+(-\d+)+$/.test(s.description || ''))
+                                  return s.description
                                 const num = parseInt(s.description)
                                 const name =
                                   !isNaN(num) && sel.competitors?.[num - 1]
