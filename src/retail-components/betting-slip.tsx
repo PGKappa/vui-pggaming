@@ -880,11 +880,6 @@ export default function BettingSlip({
         }
       })
 
-      // Hard, final validation on the exact object about to be sent — recomputed
-      // fresh here (not from possibly-stale UI state) using the same `stake > 0`
-      // predicate as the payload below. The backend performs no validation of
-      // its own, so this is the only thing standing between the user and a
-      // ticket that exceeds the events/selections/combinations limits.
       if (betMode === 'SYSTEM') {
         const finalCombinations = systemGroups
           .filter((group) => group.stake > 0)
