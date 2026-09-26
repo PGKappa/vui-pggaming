@@ -16,10 +16,8 @@ export function roundMoney(value: number): number {
   return roundDecimals(value, 2)
 }
 
-export const STAKE_PER_COMBINATION_DECIMALS = 4
-
 export function roundStakePerCombination(value: number): number {
-  return roundDecimals(value, STAKE_PER_COMBINATION_DECIMALS)
+  return roundDecimals(value, 4)
 }
 
 // Normalizes competitors/outcome for under/over markets to match toggles and fastBet
@@ -90,8 +88,8 @@ export function normalizeMarketName(market: string): string {
 
 // API URLs - direttamente nel codice per evitare problemi con env online
 export const API_URLS = {
-  PGVIRTUAL: 'https://api-stanleybet.pgvirtual.eu',
-  CASHIER_INIT: 'https://api-stanleybet.pgvirtual.eu/api/init/cashier',
+  PGVIRTUAL: 'https://api-stanleybet-staging.pgvirtual.eu',
+  CASHIER_INIT: 'https://api-stanleybet-staging.pgvirtual.eu/api/init/cashier',
   SOCCER: 'https://cvgl.it/football/incoming.php',
   // Base per altre chiamate se necessario
   BASE: 'https://pg-gaming.stg.startegois.com/proxy',
@@ -255,6 +253,7 @@ export enum Discipline {
   SOCCER = 'SOCCER',
   DOGS = 'DOGS',
   HORSES = 'HORSES',
+  DOGS8 = 'DOGS8',
 }
 
 // Helper per ottenere l'URL API corretto basato sulla disciplina
@@ -333,7 +332,7 @@ export async function fetchCashierInit(
 // Colori delle pettorine per cani e cavalli con codici colore esadecimali
 export function getRacerColors(
   racerNumber: number,
-  discipline: 'DOGS' | 'HORSES',
+  discipline: 'DOGS' | 'DOGS8' | 'HORSES',
 ) {
   if (discipline === 'HORSES') {
     switch (racerNumber) {
@@ -449,6 +448,85 @@ export function getRacerColors(
             textShadow:
               '2px 0 0 #fff, -2px 0 0 #fff, 0 2px 0 #fff, 0 -2px 0 #fff, 1px 1px #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff',
           },
+        }
+      default:
+        return {
+          bg: '#CCCCCC',
+          text: '#000000',
+          border: '1px solid #CCCCCC',
+          style: {
+            backgroundColor: '#CCCCCC',
+            color: '#000000',
+            border: '1px solid #CCCCCC',
+          },
+        }
+    }
+  } else if (discipline === 'DOGS8') {
+    switch (racerNumber) {
+      case 1:
+        return {
+          bg: '#FF0000',
+          text: '#FFFFFF',
+          border: '',
+          style: { backgroundColor: '#FF0000', color: '#FFFFFF' },
+        }
+      case 2:
+        return {
+          bg: '#0000FF',
+          text: '#FFFFFF',
+          border: '',
+          style: { backgroundColor: '#0000FF', color: '#FFFFFF' },
+        }
+      case 3:
+        return {
+          bg: '#FFFFFF',
+          text: '#000000',
+          border: '1px solid #000000',
+          style: {
+            backgroundColor: '#FFFFFF',
+            color: '#000000',
+            border: '1px solid #000000',
+          },
+        }
+      case 4:
+        return {
+          bg: '#287957',
+          text: '#FFFFFF',
+          border: '',
+          style: { backgroundColor: '#287957', color: '#FFFFFF' },
+        }
+      case 5:
+        return {
+          bg: '#000000',
+          text: '#FF0000',
+          border: '',
+          style: { backgroundColor: '#000000', color: '#FF0000' },
+        }
+      case 6:
+        return {
+          bg: '#FFBB00',
+          text: '#000000',
+          border: '',
+          style: { backgroundColor: '#FFBB00', color: '#000000' },
+        }
+      case 7:
+        return {
+          bg: '#1D6647',
+          text: '#000000',
+          border: '1px solid #000000',
+          style: {
+            background:
+              'repeating-linear-gradient(180deg, #1D6647 0%, #1D6647 13.333%, #FFFFFF 13.333%, #FFFFFF 26.667%)',
+            color: '#000000',
+            border: '1px solid #000000',
+          },
+        }
+      case 8:
+        return {
+          bg: '#000000',
+          text: '#FFBB00',
+          border: '',
+          style: { backgroundColor: '#000000', color: '#FFBB00' },
         }
       default:
         return {

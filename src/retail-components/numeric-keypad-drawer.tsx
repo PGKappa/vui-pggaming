@@ -309,7 +309,7 @@ export default function NumericKeypadDrawer(props: {
                   className="h-10 text-[16px] font-semibold tabular-nums"
                   onClick={() => handlePresetValue(numericAmount)}
                 >
-                  {numericAmount} {currencySymbol}
+                  {currencySymbol} {numericAmount}
                 </Button>
               )
             })}

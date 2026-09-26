@@ -92,7 +92,9 @@ export default function EventBets(props: {
                 ? t('football')
                 : eventBets[0].bet.discipline === 'DOGS'
                   ? t('dog_races_label')
-                  : t('horse_races_label')}
+                  : eventBets[0].bet.discipline === 'DOGS8'
+                    ? t('dog8_races_label')
+                    : t('horse_races_label')}
             </span>
 
             <div className="flex items-center space-x-2 mr-1">
@@ -184,12 +186,14 @@ export default function EventBets(props: {
                 // Per cani e cavalli usa la versione completa
                 const isRacing =
                   betEntry.bet.discipline === 'DOGS' ||
+                  betEntry.bet.discipline === 'DOGS8' ||
                   betEntry.bet.discipline === 'HORSES'
                 outcomeDisplay = isRacing ? t('under_full') : t('under')
               } else if (outcomeLower === 'over') {
                 // Per cani e cavalli usa la versione completa
                 const isRacing =
                   betEntry.bet.discipline === 'DOGS' ||
+                  betEntry.bet.discipline === 'DOGS8' ||
                   betEntry.bet.discipline === 'HORSES'
                 outcomeDisplay = isRacing ? t('over_full') : t('over')
               }

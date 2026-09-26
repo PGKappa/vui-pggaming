@@ -84,13 +84,13 @@ export function getStatusDisplay(status: number): {
     case 2: // CANCELLED
       return {
         label: 'Cancelled',
-        colorClass: 'bg-ticket-lost',
+        colorClass: 'bg-[#8c8c8c]',
         translationKey: 'cancelled',
       }
     case 3: // VOID
       return {
         label: 'Void',
-        colorClass: 'bg-ticket-lost',
+        colorClass: 'bg-[#8c8c8c]',
         translationKey: 'void',
       }
     case 4: // WON (unpaid)
@@ -130,7 +130,8 @@ type DisciplineMap = Record<number, string>
 // Unico punto di verità della mappatura prefisso -> disciplina: i valori
 // prodotti qui devono restare allineati a quelli del filtro "Disciplina".
 function classifyDisciplines(gameIds: string[]): string {
-  const hasDogs = gameIds.some((g) => g.startsWith('dogs'))
+  const hasDogs = gameIds.some((g) => g.startsWith('dogs') && !g.includes('8'))
+  const hasDogs8 = gameIds.some((g) => /dogs?8/i.test(g))
   const hasHorses = gameIds.some((g) => g.startsWith('horse'))
   const hasSoccer = gameIds.some(
     (g) => g.startsWith('soccer') || g.startsWith('calcio'),
@@ -138,6 +139,7 @@ function classifyDisciplines(gameIds: string[]): string {
 
   const parts: string[] = []
   if (hasDogs) parts.push('dogs')
+  if (hasDogs8) parts.push('dogs8')
   if (hasHorses) parts.push('horses')
   if (hasSoccer) parts.push('soccer')
 
@@ -160,8 +162,9 @@ export function useTicketList() {
   const [status, setStatus] = useState('all')
   const [payment, setPayment] = useState('all')
   const [discipline, setDiscipline] = useState('all')
-  const [dateFrom, setDateFrom] = useState<Date | undefined>(undefined)
-  const [dateTo, setDateTo] = useState<Date | undefined>(undefined)
+  // All'apertura la lista mostra la giornata odierna.
+  const [dateFrom, setDateFrom] = useState<Date | undefined>(() => new Date())
+  const [dateTo, setDateTo] = useState<Date | undefined>(() => new Date())
   const [pageSize, setPageSize] = useState('15')
   const [currentPage, setCurrentPage] = useState(1)
 
@@ -314,6 +317,29 @@ export function useTicketList() {
     }
   }, [rootContext.initCode, rootContext.operator])
 
+  // Riporta i filtri ai valori iniziali (oggi, tutto) e rifà la ricerca.
+  // filtersRef viene aggiornato subito perché fetchTickets lo legge prima
+  // che React abbia fatto il render con il nuovo stato.
+  const resetFilters = useCallback(() => {
+    const today = new Date()
+    const defaults = {
+      dateFrom: today,
+      dateTo: today,
+      status: 'all',
+      payment: 'all',
+      terminal: 'all',
+      discipline: 'all',
+    }
+    setDateFrom(defaults.dateFrom)
+    setDateTo(defaults.dateTo)
+    setStatus(defaults.status)
+    setPayment(defaults.payment)
+    setTerminal(defaults.terminal)
+    setDiscipline(defaults.discipline)
+    filtersRef.current = defaults
+    fetchTickets()
+  }, [fetchTickets])
+
   const didMount = React.useRef(false)
   useEffect(() => {
     if (!didMount.current) {
@@ -332,9 +358,10 @@ export function useTicketList() {
           if (appliedFilters.discipline === 'all') return true
           const d = disciplineMap[i.ticket_id]
           if (d === undefined) return true
-          if (appliedFilters.discipline === 'real')
-            return d.includes('dogs') && d.includes('horses')
-          return d.includes(appliedFilters.discipline)
+          const tokens = d.split(',')
+          if (appliedFilters.discipline === 'mix') return tokens.length > 1
+          // Single-discipline filters exclude mixed tickets.
+          return tokens.every((tok) => tok === appliedFilters.discipline)
         })()
         // "paid"/"unpaid" and "Stato" are mutually exclusive in the UI
         // (see handleStatusChange in ticket-list-page-content.tsx).
@@ -391,6 +418,7 @@ export function useTicketList() {
     availableTerminals,
     currencySymbol,
     fetchTickets,
+    resetFilters,
     disciplineMap,
   }
 }

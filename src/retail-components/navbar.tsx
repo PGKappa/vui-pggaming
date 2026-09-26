@@ -7,7 +7,7 @@ import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useContext, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { ChevronLeft } from 'lucide-react'
+import { ChevronLeft, X } from 'lucide-react'
 import { Button, buttonVariants } from './ui/button'
 
 // Variabile a livello di modulo: sopravvive al rimount del componente causato da
@@ -23,8 +23,13 @@ function NavbarContent() {
   const pathname = usePathname()
   const router = useRouter()
 
-  const { eventResults, setSearchEventResults, userData, getNavbarConfig } =
-    useContext(RootContext)
+  const {
+    eventResults,
+    searchEventResults,
+    setSearchEventResults,
+    userData,
+    getNavbarConfig,
+  } = useContext(RootContext)
 
   const navCfg = getNavbarConfig?.() ?? {
     showDogs6: true,
@@ -39,6 +44,15 @@ function NavbarContent() {
 
   const isOnTicketPage =
     pathname.includes('/ticket-list') || pathname.includes('/ticket-check')
+
+  // Stato "aperto" dei pulsanti a destra.
+  // L'overlay info copre la pagina, quindi quando è aperto vince lui.
+  const isTicketCheckActive = pathname.includes('/ticket-check') && !isInfoOpen
+  const isTicketListActive = pathname.includes('/ticket-list') && !isInfoOpen
+  const isSearchActive = !!searchEventResults && !isOnTicketPage && !isInfoOpen
+  // Selezionato: sfondo bianco e testo nero (anche sugli span interni)
+  const activeButtonClass =
+    'bg-white hover:bg-white !text-black [&_span]:!text-black'
 
   useEffect(() => {
     setIsInfoOpen(false)
@@ -95,6 +109,7 @@ function NavbarContent() {
     const p = path.toLowerCase()
     if (p.includes('dogs-horses') || p.includes('cani-cavalli'))
       return '/retail/dogs-horses'
+    if (p.includes('dogs8') || p.includes('cani8')) return '/retail/dogs8'
     if (p.includes('dogs') || p.includes('cani')) return '/retail/dogs'
     if (p.includes('horses') || p.includes('cavalli')) return '/retail/horses'
     if (p.includes('calcio') || p.includes('football') || p.includes('soccer'))
@@ -129,9 +144,11 @@ function NavbarContent() {
     const lang = i18n.language || 'en'
     if (pathname.includes('/calcio')) {
       return `https://d190050z3qr0m1.cloudfront.net/public/Soccer_Gaming_manual_${lang}.html`
-    } else {
-      return `https://d190050z3qr0m1.cloudfront.net/public/RD-RH_Gamingmanual_${lang}.html`
     }
+    if (pathname.includes('dogs8') || pathname.includes('cani8')) {
+      return `https://d190050z3qr0m1.cloudfront.net/public/RD-RH_8_Gamingmanual_${lang}.html`
+    }
+    return `https://d190050z3qr0m1.cloudfront.net/public/RD-RH_Gamingmanual_${lang}.html`
   }
 
   return (
@@ -297,6 +314,7 @@ function NavbarContent() {
               className={cn(
                 buttonVariants({ variant: 'ticketButton', size: 'lg' }),
                 'h-12 w-[155px] p-[14px] pb-5 hover:bg-navbarHover min-[1400px]:w-[168px] min-[1400px]:p-[18px]',
+                isTicketCheckActive && activeButtonClass,
               )}
             >
               <span className="text-[14px] font-semibold text-searchResultText">
@@ -314,6 +332,7 @@ function NavbarContent() {
               className={cn(
                 buttonVariants({ variant: 'ticketButton', size: 'lg' }),
                 'h-12 w-[155px] p-[14px] pb-5 hover:bg-navbarHover min-[1400px]:w-[168px] min-[1400px]:p-[18px]',
+                isTicketListActive && activeButtonClass,
               )}
             >
               <span className="text-[14px] font-semibold text-searchResultText">
@@ -323,7 +342,10 @@ function NavbarContent() {
           )}
 
           <Button
-            className="h-12 w-fit p-[17px] pb-5 hover:bg-navbarHover"
+            className={cn(
+              'h-12 w-fit p-[17px] pb-5 hover:bg-navbarHover',
+              isSearchActive && activeButtonClass,
+            )}
             variant="ticketButton"
             size="lg"
             onClick={() => closeTicketPageAndThen(true, false)}
@@ -334,7 +356,10 @@ function NavbarContent() {
           </Button>
 
           <Button
-            className="h-12 w-12 text-[18px] text-searchResultText hover:bg-navbarHover"
+            className={cn(
+              'h-12 w-12 text-[18px] text-searchResultText hover:bg-navbarHover',
+              isInfoOpen && activeButtonClass,
+            )}
             variant="ticketButton"
             size="lg"
             onClick={() => setIsInfoOpen((prev) => !prev)}
@@ -346,10 +371,22 @@ function NavbarContent() {
 
       {isInfoOpen && (
         <div className="fixed inset-x-0 bottom-0 top-16 z-[60] flex flex-col bg-accent">
-          <div className="flex h-16 flex-shrink-0 items-center justify-center bg-secondary px-4 text-secondary-foreground">
+          <div className="relative flex h-16 flex-shrink-0 items-center justify-center bg-secondary px-4 text-secondary-foreground">
             <span className="text-[16px] font-semibold uppercase">
               {t('game_rules').toUpperCase()}
             </span>
+            <button
+              type="button"
+              className="absolute right-4 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center border-0 bg-transparent p-0"
+              onClick={() => {
+                setIsInfoOpen(false)
+                if (isOnTicketPage) {
+                  router.push(getDisciplineBasePath(pathname))
+                }
+              }}
+            >
+              <X className="size-6" strokeWidth={2.5} />
+            </button>
           </div>
           <div className="flex-1 bg-black">
             <iframe

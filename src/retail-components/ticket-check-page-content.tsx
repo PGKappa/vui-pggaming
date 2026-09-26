@@ -1,11 +1,12 @@
 'use client'
 import Image from 'next/image'
-import { useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Button } from '@/retail-components/ui/button'
 import { Input } from '@/retail-components/ui/input'
 import TicketCheckDialog from '@/retail-components/ticket-check-dialog'
 import { cn } from '@/retail-lib/utils'
+import { X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
@@ -49,10 +50,11 @@ export function extractTicketId(code: string): number | null {
   return Number.isNaN(id) || id <= 0 ? null : id
 }
 
-export default function TicketCheckPageContent(
-  _props: TicketCheckPageContentProps,
-) {
+export default function TicketCheckPageContent({
+  returnPath,
+}: TicketCheckPageContentProps) {
   const { t } = useTranslation()
+  const router = useRouter()
   const searchParams = useSearchParams()
   // Precompila il campo con il ticket passato in query string (?ticket=PG1100)
   const ticketParam = (searchParams.get('ticket') ?? '').trim().toUpperCase()
@@ -218,10 +220,16 @@ export default function TicketCheckPageContent(
           />
         </div>
 
-        <div className="relative bottom-[20px] flex h-16 shrink-0 items-center justify-center bg-secondary text-accent-foreground">
-          <h1 className="text-[16px] font-bold uppercase">
-            {t('ticket_check', 'Ticket Check')}
-          </h1>
+        <div className="relative bottom-[20px] flex h-16 shrink-0 items-center justify-center text-accent-foreground">
+          {returnPath && (
+            <button
+              type="button"
+              className="absolute right-4 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center border-0 bg-transparent p-0"
+              onClick={() => router.push(returnPath)}
+            >
+              <X className="size-6" strokeWidth={2.5} />
+            </button>
+          )}
         </div>
 
         <div className="flex flex-1 flex-col items-center justify-center">
@@ -311,10 +319,16 @@ export default function TicketCheckPageContent(
           />
         </div>
 
-        <div className="relative z-10 flex h-10 shrink-0 items-center justify-center bg-secondary">
-          <h1 className="text-[13px] font-bold uppercase">
-            {t('ticket_check', 'Ticket Check')}
-          </h1>
+        <div className="relative z-10 flex h-10 shrink-0 items-center justify-center">
+          {returnPath && (
+            <button
+              type="button"
+              className="absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center border-0 bg-transparent p-0"
+              onClick={() => router.push(returnPath)}
+            >
+              <X className="size-5" strokeWidth={2.5} />
+            </button>
+          )}
         </div>
 
         <div className="relative z-10 flex min-h-0 flex-1 flex-col items-center justify-center space-y-3 px-4 py-2">

@@ -95,12 +95,14 @@
   "football": "Football",
   "dogs": "Dogs",
   "dog_racing": "Dog Racing",
+  "dog8_racing": "Dog Racing 8",
   "dog": "Dog",
   "horse": "Horse",
   "horses": "Horses",
   "horse_racing": "Horse Racing",
   "racing": "Racing",
   "dog_races_label": "DOGS RACES",
+  "dog8_races_label": "DOGS 8 RACES",
   "horse_races_label": "HORSES RACES",
   "football_label": "FOOTBALL",
   "couples": "Couples",
@@ -342,6 +344,7 @@
   "backend_market_closed": "Event started. Bet not available.",
   "max_bet_entries_system": "Cannot add more bets: maximum {{max}} entries allowed for system betting",
   "max_events_system": "Cannot add more bets: maximum {{max}} unique events allowed for system betting",
+  "max_events": "Cannot add more bets: maximum {{max}} unique events allowed",
   "failed_fetch_results": "Failed to fetch results",
   "http_error": "Error",
   "no_tickets_found": "No tickets found",
@@ -353,5 +356,7 @@
   "pay_error": "Payment error",
   "collected": "Collected",
   "not_collected": "Not Collected",
-  "pay_success": "Payment successful"
+  "pay_success": "Payment successful",
+  "print_not_available": "No document to reprint for this ticket",
+  "print_bridge_unavailable": "Printing unavailable: terminal not connected"
 }

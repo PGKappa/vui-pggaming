@@ -93,6 +93,7 @@
   "dogs": "Levrieri",
   "horses": "Cavalli",
   "dog_racing": "Levrieri Reali",
+  "dog8_racing": "Levrieri Reali 8",
   "horse_racing": "Cavalli Reali",
   "couples": "Accoppiate",
   "triplets": "Trio",
@@ -144,7 +145,7 @@
   "won": "Vincente",
   "lost": "Perdente",
   "active": "In Corso",
-  "pending": "In Attesa",
+  "pending": "In Corso",
   "cancelled": "Annullato",
   "void": "Annullato",
   "payment": "Pagamento",
@@ -283,6 +284,7 @@
   "ok": "OK",
   "horse_races_label": "Cavalli Reali",
   "dog_races_label": "Levrieri Reali",
+  "dog8_races_label": "Levrieri Reali 8",
   "combinations": "Combinazioni",
   "min_stake_per_combination_not_met": "Valore minimo per combinazione non raggiunto. Aumentare di {{amount}} per continuare",
   "operator_missing": "Operatore mancante nell'URL",
@@ -303,6 +305,7 @@
   "cannot_bet_expired_events": "Evento iniziato. Scommessa non disponibile.",
   "max_bet_entries_system": "Non è possibile aggiungere altre scommesse: massimo {{max}} selezioni per scommessa di sistema",
   "max_events_system": "Non è possibile aggiungere altre scommesse: massimo {{max}} eventi unici per scommessa di sistema",
+  "max_events": "Non è possibile aggiungere altre scommesse: massimo {{max}} eventi",
   "max_tuple_error": "Il massimo per le scommesse sistema è la 10-pla",
   "max_combinations_error": "Massimo {{max}} combinazioni per scommessa sistema",
   "combinations_limit_exceeded": "Limite combinazioni superato",
@@ -323,5 +326,7 @@
   "amount_by_type": "Importo per Tipologia",
   "pay": "Paga",
   "pay_error": "Errore nel pagamento",
-  "pay_success": "Pagamento effettuato"
+  "pay_success": "Pagamento effettuato",
+  "print_not_available": "Nessun documento da ristampare per questo ticket",
+  "print_bridge_unavailable": "Stampa non disponibile: terminale non collegato"
 }

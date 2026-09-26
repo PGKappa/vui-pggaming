@@ -13,7 +13,7 @@ import {
 import { useContext, useEffect, useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
-export default function Home() {
+export default function Dogs8Page() {
   const { t } = useTranslation()
   const { upcomingEvents, searchEventResults, setSearchEventResults } =
     useContext(RootContext)
@@ -23,12 +23,7 @@ export default function Home() {
   )
 
   const carouselEvents = useMemo(
-    () =>
-      getCarouselFilteredEvents(upcomingEvents, [
-        Discipline.DOGS,
-        Discipline.DOGS8,
-        Discipline.HORSES,
-      ]),
+    () => getCarouselFilteredEvents(upcomingEvents, [Discipline.DOGS8]),
     [upcomingEvents],
   )
 
