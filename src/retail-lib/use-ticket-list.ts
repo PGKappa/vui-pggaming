@@ -359,6 +359,7 @@ export function useTicketList() {
           const d = disciplineMap[i.ticket_id]
           if (d === undefined) return true
           const tokens = d.split(',')
+          if (appliedFilters.discipline === 'mix') return tokens.length > 1
           // Single-discipline filters exclude mixed tickets.
           return tokens.every((tok) => tok === appliedFilters.discipline)
         })()
