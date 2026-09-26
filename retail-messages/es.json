@@ -376,5 +376,7 @@
   "collected": "Cobrado",
   "not_collected": "Pendiente",
   "pay_error": "Error en el pago",
-  "pay_success": "Pago realizado"
+  "pay_success": "Pago realizado",
+  "print_not_available": "No hay documento para reimprimir para este ticket",
+  "print_bridge_unavailable": "Impresión no disponible: terminal no conectado"
 }

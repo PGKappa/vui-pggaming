@@ -326,5 +326,7 @@
   "amount_by_type": "Importo per Tipologia",
   "pay": "Paga",
   "pay_error": "Errore nel pagamento",
-  "pay_success": "Pagamento effettuato"
+  "pay_success": "Pagamento effettuato",
+  "print_not_available": "Nessun documento da ristampare per questo ticket",
+  "print_bridge_unavailable": "Stampa non disponibile: terminale non collegato"
 }

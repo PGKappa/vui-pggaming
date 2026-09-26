@@ -27,8 +27,11 @@ import {
 import { computeSameEventOddsRange } from '@/retail-lib/system-bets'
 import { format } from 'date-fns'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'sonner'
 import { useCallback, useContext, useEffect, useState } from 'react'
 import { RootContext } from '@/retail-contexts/root-context'
+
+const BUBBLE_PRINT_COMMAND = 'print'
 
 function getDetailStatus(status: number): {
   translationKey: string
@@ -640,7 +643,11 @@ export default function TicketCheckDialog({
           )
           const data: TicketDetailResponse = await response.json()
           if (data.ret_code === 1024 && data.info) {
-            setTicketInfo(data.info)
+            setTicketInfo(
+              data.print && !data.info.print
+                ? { ...data.info, print: data.print }
+                : data.info,
+            )
             return
           }
           if (data.description) {
@@ -1761,12 +1768,28 @@ export default function TicketCheckDialog({
                       onClick={() => {
                         if (cddXml) {
                           handlePrintCdd(cddXml)
-                        } else if (typeof window.Bubble === 'function') {
-                          window.Bubble(
-                            'print',
-                            String(ticketInfo?.ticket_id ?? ''),
-                          )
+                          return
                         }
+                        const documento = ticketInfo?.print
+                        if (!documento) {
+                          toast.error(
+                            t(
+                              'print_not_available',
+                              'Nessun documento da ristampare per questo ticket',
+                            ),
+                          )
+                          return
+                        }
+                        if (typeof window.Bubble !== 'function') {
+                          toast.error(
+                            t(
+                              'print_bridge_unavailable',
+                              'Stampa non disponibile: terminale non collegato',
+                            ),
+                          )
+                          return
+                        }
+                        window.Bubble(BUBBLE_PRINT_COMMAND, documento)
                       }}
                     >
                       <svg

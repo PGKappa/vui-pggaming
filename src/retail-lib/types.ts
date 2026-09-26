@@ -406,12 +406,14 @@ export type TicketDetailInfo = {
   system: Record<string, string>
   minWin?: number | string
   maxWin?: number | string
+  print?: string
 }
 
 export type TicketDetailResponse = {
   ret_code: number
   description?: string
   info: TicketDetailInfo
+  print?: string
 }
 
 export type TicketPayResponse = {
