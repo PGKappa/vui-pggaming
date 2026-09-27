@@ -536,7 +536,6 @@ export default function TicketListPageContent({
                   <SelectContent className="bg-white p-0 text-[13px] uppercase">
                     <SelectItem value="all">{t('all')}</SelectItem>
                     <SelectItem value="dogs">{t('dog_racing')} 6</SelectItem>
-                    <SelectItem value="dogs8">{t('dog8_racing')}</SelectItem>
                     <SelectItem value="horses">
                       {t('horse_racing')} 6
                     </SelectItem>
@@ -591,7 +590,6 @@ export default function TicketListPageContent({
                   <SelectContent className="bg-white p-0 text-[13px] uppercase">
                     <SelectItem value="all">{t('all')}</SelectItem>
                     <SelectItem value="dogs">{t('dog_racing')} 6</SelectItem>
-                    <SelectItem value="dogs8">{t('dog8_racing')}</SelectItem>
                     <SelectItem value="horses">
                       {t('horse_racing')} 6
                     </SelectItem>
