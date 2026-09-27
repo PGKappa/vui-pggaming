@@ -31,8 +31,6 @@ import { toast } from 'sonner'
 import { useCallback, useContext, useEffect, useState } from 'react'
 import { RootContext } from '@/retail-contexts/root-context'
 
-const BUBBLE_PRINT_COMMAND = 'print'
-
 function getDetailStatus(status: number): {
   translationKey: string
   isWinner: boolean
@@ -1762,45 +1760,6 @@ export default function TicketCheckDialog({
                           </button>
                         </div>
                       )}
-                    {/* Print button */}
-                    <button
-                      className="absolute right-[18px] top-1/2 flex -translate-y-1/2 cursor-pointer items-center justify-center rounded-lg border-0 bg-transparent p-[10px] px-[12px]"
-                      onClick={() => {
-                        if (cddXml) {
-                          handlePrintCdd(cddXml)
-                          return
-                        }
-                        const documento = ticketInfo?.print
-                        if (!documento) {
-                          toast.error(
-                            t(
-                              'print_not_available',
-                              'Nessun documento da ristampare per questo ticket',
-                            ),
-                          )
-                          return
-                        }
-                        if (typeof window.Bubble !== 'function') {
-                          toast.error(
-                            t(
-                              'print_bridge_unavailable',
-                              'Stampa non disponibile: terminale non collegato',
-                            ),
-                          )
-                          return
-                        }
-                        window.Bubble(BUBBLE_PRINT_COMMAND, documento)
-                      }}
-                    >
-                      <svg
-                        viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-9 w-9"
-                        style={{ fill: '#ccc' }}
-                      >
-                        <path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z" />
-                      </svg>
-                    </button>
                   </div>
                 </div>
               )}
