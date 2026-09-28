@@ -571,7 +571,6 @@ export default function CashierContextProvider(props: {
             } catch {}
           }
 
-          toast.success(t('cashier_initialized'))
           setIsLoading(false)
         } else {
           throw new Error(`Cashier error: ${cashierData?.message || 'Unknown'}`)

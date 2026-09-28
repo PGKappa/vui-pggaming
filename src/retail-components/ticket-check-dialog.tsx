@@ -27,7 +27,6 @@ import {
 import { computeSameEventOddsRange } from '@/retail-lib/system-bets'
 import { format } from 'date-fns'
 import { useTranslation } from 'react-i18next'
-import { toast } from 'sonner'
 import { useCallback, useContext, useEffect, useState } from 'react'
 import { RootContext } from '@/retail-contexts/root-context'
 
@@ -1186,7 +1185,8 @@ export default function TicketCheckDialog({
                           className="text-[15px] font-bold uppercase leading-[1.6] tracking-[0.5px]"
                           style={{ color: '#aaa' }}
                         >
-                          {sel.game.dict.misc.name} {sel.channelName}
+                          {sel.game.dict.misc.name}
+                          {sel.channelName ? ` - ${sel.channelName}` : ''}
                           {String(sel.isBanker) === 'true' && (
                             <span
                               className="ml-2 rounded px-[6px] py-[2px] text-[10px] font-bold uppercase tracking-[0.4px] text-white"
@@ -1435,8 +1435,10 @@ export default function TicketCheckDialog({
                                     className="text-[12px] font-bold"
                                     style={{ color: '#fff' }}
                                   >
-                                    {currentSel.game.dict.misc.name}{' '}
-                                    {currentSel.channelName}
+                                    {currentSel.game.dict.misc.name}
+                                    {currentSel.channelName
+                                      ? ` - ${currentSel.channelName}`
+                                      : ''}
                                   </span>
                                   <span
                                     className="text-[11px]"
