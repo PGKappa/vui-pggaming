@@ -75,13 +75,13 @@ export default function TicketListPageContent({
     setCurrentPage,
     totalPages,
     items,
-    info,
     loading,
     availableTerminals,
     currencySymbol,
     fetchTickets,
     resetFilters,
     disciplineMap,
+    filteredItems,
   } = useTicketList()
 
   const buildTicketCandidates = (item: { ticket_id: number }) => {
@@ -401,21 +401,16 @@ export default function TicketListPageContent({
       extra,
     )
 
-  // Saldo = vinto - giocato (segno reale): positivo solo se la vincita supera
-  // l'importo giocato. Usiamo SEMPRE questo confronto per decidere il colore,
-  // non lo status del ticket — uno stato "vincente" (4/6) può comunque avere
-  // vinto meno di quanto giocato (es. sistema con solo alcune combinazioni
-  // vincenti), quindi lo status da solo non basta a decidere rosso/nero.
   const getItemSaldo = (item: (typeof items)[number]) =>
     item.saldo !== undefined
       ? parseFloat(item.saldo)
       : parseFloat(item.amount_won || '0') - parseFloat(item.amount || '0')
 
-  const totalPlayed = items.reduce(
+  const totalPlayed = filteredItems.reduce(
     (acc, item) => acc + (parseFloat(item.amount || '0') || 0),
     0,
   )
-  const totalWon = items.reduce(
+  const totalWon = filteredItems.reduce(
     (acc, item) => acc + (parseFloat(item.amount_won || '0') || 0),
     0,
   )
@@ -886,13 +881,10 @@ export default function TicketListPageContent({
                   {t('totals')}
                 </td>
                 <td style={totalCellStyle} className={totalCellClass()}>
-                  {formatCurrency(info?.grandtotal?.in ?? 0, currencySymbol)}
+                  {formatCurrency(totalPlayed, currencySymbol)}
                 </td>
                 <td style={totalCellStyle} className={totalCellClass()}>
-                  {formatCurrency(
-                    info?.grandtotal?.out ?? '0.00',
-                    currencySymbol,
-                  )}
+                  {formatCurrency(totalWon, currencySymbol)}
                 </td>
                 <td style={totalCellStyle} className={totalCellClass()} />
                 <td
