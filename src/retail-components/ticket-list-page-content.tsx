@@ -406,6 +406,12 @@ export default function TicketListPageContent({
       ? parseFloat(item.saldo)
       : parseFloat(item.amount_won || '0') - parseFloat(item.amount || '0')
 
+  const CANCELLED_STATUSES = [2, 3]
+  const ticketsTotal = filteredItems.length
+  const ticketsActive = filteredItems.filter(
+    (item) => !CANCELLED_STATUSES.includes(item.status),
+  ).length
+
   const totalPlayed = filteredItems.reduce(
     (acc, item) => acc + (parseFloat(item.amount || '0') || 0),
     0,
@@ -872,7 +878,12 @@ export default function TicketListPageContent({
             </colgroup>
             <tbody>
               <tr className="h-[49px]">
-                <td colSpan={2} className="bg-secondary px-3 align-middle"></td>
+                <td
+                  colSpan={2}
+                  className="bg-secondary px-3 align-middle text-[13px] font-semibold"
+                >
+                  {t('ticket')} {ticketsActive}/{ticketsTotal}
+                </td>
                 <td style={totalCellStyle} className={totalCellClass()} />
                 <td
                   style={totalCellStyle}
