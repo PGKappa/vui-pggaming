@@ -744,6 +744,7 @@ export default function TicketListPageContent({
                   {items.map((item, itemIdx) => {
                     const date = parseTicketTime(item.time)
                     const statusInfo = getStatusDisplay(item.status)
+                    const isCancelled = CANCELLED_STATUSES.includes(item.status)
                     return (
                       <tr
                         key={item.ticket_id}
@@ -752,6 +753,7 @@ export default function TicketListPageContent({
                           isCalcio
                             ? 'text-[16px]'
                             : 'text-[12px] lg:text-[15px]',
+                          isCancelled && 'bg-betSlip',
                         )}
                         style={fitRowStyle(itemIdx)}
                       >
@@ -796,17 +798,23 @@ export default function TicketListPageContent({
                           </div>
                         </td>
                         <td className={tdClass()}>
-                          <span
-                            className={cn(
-                              'font-medium tabular-nums',
-                              getItemSaldo(item) > 0 ? 'text-ticket-lost' : '',
-                            )}
-                          >
-                            {formatCurrency(
-                              Math.abs(getItemSaldo(item)),
-                              currencySymbol,
-                            )}
-                          </span>
+                          {isCancelled ? (
+                            <span className="font-medium">-</span>
+                          ) : (
+                            <span
+                              className={cn(
+                                'font-medium tabular-nums',
+                                getItemSaldo(item) > 0
+                                  ? 'text-ticket-lost'
+                                  : '',
+                              )}
+                            >
+                              {formatCurrency(
+                                Math.abs(getItemSaldo(item)),
+                                currencySymbol,
+                              )}
+                            </span>
+                          )}
                         </td>
                         <td className={tdClass()}>
                           <Button
