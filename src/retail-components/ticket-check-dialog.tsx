@@ -1186,7 +1186,6 @@ export default function TicketCheckDialog({
                           style={{ color: '#aaa' }}
                         >
                           {sel.game.dict.misc.name}
-                          {sel.channelName ? ` - ${sel.channelName}` : ''}
                           {String(sel.isBanker) === 'true' && (
                             <span
                               className="ml-2 rounded px-[6px] py-[2px] text-[10px] font-bold uppercase tracking-[0.4px] text-white"
@@ -1201,6 +1200,7 @@ export default function TicketCheckDialog({
                             style={{ color: '#777' }}
                           >
                             {sel.trackName}
+                            {sel.channelName ? `  ${sel.channelName}` : ''}
                           </span>
                         </div>
                         <div
@@ -1436,15 +1436,15 @@ export default function TicketCheckDialog({
                                     style={{ color: '#fff' }}
                                   >
                                     {currentSel.game.dict.misc.name}
-                                    {currentSel.channelName
-                                      ? ` - ${currentSel.channelName}`
-                                      : ''}
                                   </span>
                                   <span
                                     className="text-[11px]"
                                     style={{ color: '#aaa' }}
                                   >
                                     {currentSel.trackName}
+                                    {currentSel.channelName
+                                      ? `  ${currentSel.channelName}`
+                                      : ''}
                                   </span>
                                 </div>
                                 <div className="flex flex-col items-end">
