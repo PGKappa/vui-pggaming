@@ -412,7 +412,6 @@ export default function TicketListPageContent({
     (item) => !CANCELLED_STATUSES.includes(item.status),
   )
   const ticketsTotal = filteredItems.length
-  const ticketsActive = countedItems.length
 
   const totalPlayed = countedItems.reduce(
     (acc, item) => acc + (parseFloat(item.amount || '0') || 0),
@@ -882,9 +881,9 @@ export default function TicketListPageContent({
               <tr className="h-[49px]">
                 <td
                   colSpan={2}
-                  className="bg-secondary px-3 align-middle text-[13px] font-semibold"
+                  className="bg-secondary pl-[24px] pr-3 align-middle text-[13px] font-semibold"
                 >
-                  {t('ticket')} {ticketsActive}/{ticketsTotal}
+                  {t('ticket')}: {ticketsTotal}
                 </td>
                 <td style={totalCellStyle} className={totalCellClass()} />
                 <td
