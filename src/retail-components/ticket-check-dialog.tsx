@@ -1270,7 +1270,7 @@ export default function TicketCheckDialog({
                               {marketLabel}
                             </span>
                             <span
-                              className="flex-1 text-center text-[12.5px] font-semibold tracking-[0.4px]"
+                              className="min-w-0 flex-1 break-words pl-16 text-left text-[12.5px] font-semibold tracking-[0.4px]"
                               style={{ color: '#ccc' }}
                             >
                               {(() => {
