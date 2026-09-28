@@ -406,17 +406,19 @@ export default function TicketListPageContent({
       ? parseFloat(item.saldo)
       : parseFloat(item.amount_won || '0') - parseFloat(item.amount || '0')
 
-  const CANCELLED_STATUSES = [2, 3]
-  const ticketsTotal = filteredItems.length
-  const ticketsActive = filteredItems.filter(
-    (item) => !CANCELLED_STATUSES.includes(item.status),
-  ).length
 
-  const totalPlayed = filteredItems.reduce(
+  const CANCELLED_STATUSES = [2, 3]
+  const countedItems = filteredItems.filter(
+    (item) => !CANCELLED_STATUSES.includes(item.status),
+  )
+  const ticketsTotal = filteredItems.length
+  const ticketsActive = countedItems.length
+
+  const totalPlayed = countedItems.reduce(
     (acc, item) => acc + (parseFloat(item.amount || '0') || 0),
     0,
   )
-  const totalWon = filteredItems.reduce(
+  const totalWon = countedItems.reduce(
     (acc, item) => acc + (parseFloat(item.amount_won || '0') || 0),
     0,
   )
