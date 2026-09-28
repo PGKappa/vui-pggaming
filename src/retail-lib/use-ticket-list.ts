@@ -413,6 +413,7 @@ export function useTicketList() {
     setCurrentPage,
     totalPages,
     items,
+    filteredItems,
     info,
     loading,
     availableTerminals,
