@@ -412,7 +412,6 @@ export default function TicketListPageContent({
     (item) => !CANCELLED_STATUSES.includes(item.status),
   )
   const ticketsTotal = filteredItems.length
-  const ticketsActive = countedItems.length
 
   const totalPlayed = countedItems.reduce(
     (acc, item) => acc + (parseFloat(item.amount || '0') || 0),
@@ -743,6 +742,7 @@ export default function TicketListPageContent({
                   {items.map((item, itemIdx) => {
                     const date = parseTicketTime(item.time)
                     const statusInfo = getStatusDisplay(item.status)
+                    const isCancelled = CANCELLED_STATUSES.includes(item.status)
                     return (
                       <tr
                         key={item.ticket_id}
@@ -751,6 +751,7 @@ export default function TicketListPageContent({
                           isCalcio
                             ? 'text-[16px]'
                             : 'text-[12px] lg:text-[15px]',
+                          isCancelled && 'bg-betSlip',
                         )}
                         style={fitRowStyle(itemIdx)}
                       >
@@ -795,17 +796,23 @@ export default function TicketListPageContent({
                           </div>
                         </td>
                         <td className={tdClass()}>
-                          <span
-                            className={cn(
-                              'font-medium tabular-nums',
-                              getItemSaldo(item) > 0 ? 'text-ticket-lost' : '',
-                            )}
-                          >
-                            {formatCurrency(
-                              Math.abs(getItemSaldo(item)),
-                              currencySymbol,
-                            )}
-                          </span>
+                          {isCancelled ? (
+                            <span className="font-medium">-</span>
+                          ) : (
+                            <span
+                              className={cn(
+                                'font-medium tabular-nums',
+                                getItemSaldo(item) > 0
+                                  ? 'text-ticket-lost'
+                                  : '',
+                              )}
+                            >
+                              {formatCurrency(
+                                Math.abs(getItemSaldo(item)),
+                                currencySymbol,
+                              )}
+                            </span>
+                          )}
                         </td>
                         <td className={tdClass()}>
                           <Button
@@ -880,9 +887,9 @@ export default function TicketListPageContent({
               <tr className="h-[49px]">
                 <td
                   colSpan={2}
-                  className="bg-secondary px-3 align-middle text-[13px] font-semibold"
+                  className="bg-secondary pl-[24px] pr-3 align-middle text-[13px] font-semibold"
                 >
-                  {t('ticket')} {ticketsActive}/{ticketsTotal}
+                  {t('ticket')}: {ticketsTotal}
                 </td>
                 <td style={totalCellStyle} className={totalCellClass()} />
                 <td
