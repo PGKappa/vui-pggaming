@@ -1200,7 +1200,7 @@ export default function TicketCheckDialog({
                             style={{ color: '#777' }}
                           >
                             {sel.trackName}
-                            {sel.channelName ? `  ${sel.channelName}` : ''}
+                            {sel.channelName ? ` - ${sel.channelName}` : ''}
                           </span>
                         </div>
                         <div
@@ -1443,7 +1443,7 @@ export default function TicketCheckDialog({
                                   >
                                     {currentSel.trackName}
                                     {currentSel.channelName
-                                      ? `  ${currentSel.channelName}`
+                                      ? ` - ${currentSel.channelName}`
                                       : ''}
                                   </span>
                                 </div>
