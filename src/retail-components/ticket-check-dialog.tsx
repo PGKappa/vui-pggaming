@@ -54,6 +54,11 @@ function getDetailStatus(status: number): {
   }
 }
 
+// "CH1" -> "CH 1"
+function formatChannelName(channelName: string): string {
+  return channelName.replace(/^([A-Za-z]+)\s*(\d+)$/, '$1 $2')
+}
+
 const COMBO_SIZE_LABELS: Record<number, { key: string; label: string }> = {
   1: { key: 'combo_single', label: 'Singola' },
   2: { key: 'combo_double', label: 'Doppia' },
@@ -1200,7 +1205,9 @@ export default function TicketCheckDialog({
                             style={{ color: '#777' }}
                           >
                             {sel.trackName}
-                            {sel.channelName ? ` - ${sel.channelName}` : ''}
+                            {sel.channelName
+                              ? ` - ${formatChannelName(sel.channelName)}`
+                              : ''}
                           </span>
                         </div>
                         <div
@@ -1443,7 +1450,7 @@ export default function TicketCheckDialog({
                                   >
                                     {currentSel.trackName}
                                     {currentSel.channelName
-                                      ? ` - ${currentSel.channelName}`
+                                      ? ` - ${formatChannelName(currentSel.channelName)}`
                                       : ''}
                                   </span>
                                 </div>
