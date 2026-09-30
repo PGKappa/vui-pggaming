@@ -42,6 +42,10 @@ jobs:
       - name: Sync dist to S3
         run: |
           aws s3 sync out s3://s3-btprod/v-ui --delete
+      
+      - name: Sync dist to S3
+        run: |
+          aws s3 sync out s3://s3-btprod/vui-pggaming --delete
 
       - name: Create CloudFront Invalidation
         run: |

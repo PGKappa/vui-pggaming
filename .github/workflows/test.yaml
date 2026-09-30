@@ -3,7 +3,7 @@ name: Deploy to S3 + CloudFront
 on:
   push:
     branches:
-      - test
+      - btprod-test
 
 jobs:
   deploy:
@@ -41,7 +41,7 @@ jobs:
 
       - name: Sync dist to S3
         run: |
-          aws s3 sync out s3://supremagaming/startego/out --delete
+          aws s3 sync out s3://s3-btprod/vui-pggaming-test --delete
 
       - name: Create CloudFront Invalidation
         run: |
