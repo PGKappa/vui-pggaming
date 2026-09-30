@@ -9,6 +9,10 @@ export type BetTemplateSlot = keyof BetTemplateSlots
 
 export type BetTemplate = {
   showGroupStakeIncrement: boolean
+  exactStakeDistribution: boolean
+  showGroupDetails: boolean
+  editableTotalStake: boolean
+  showMinMaxWin: boolean
   components?: Partial<BetTemplateSlots>
 }
 
@@ -17,9 +21,17 @@ export const DEFAULT_BET_TEMPLATE_ID = 'standard'
 export const BET_TEMPLATES = {
   standard: {
     showGroupStakeIncrement: true,
+    exactStakeDistribution: false,
+    showGroupDetails: true,
+    editableTotalStake: true,
+    showMinMaxWin: false,
   },
   noIncrement: {
     showGroupStakeIncrement: false,
+    exactStakeDistribution: true,
+    showGroupDetails: false,
+    editableTotalStake: false,
+    showMinMaxWin: true,
   },
 } as const satisfies Record<string, BetTemplate>
 

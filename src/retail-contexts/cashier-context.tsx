@@ -338,8 +338,13 @@ function createContextDataFromCashierData(
     const racingCount = [hasDogs6, hasDogs8, hasHorses].filter(Boolean).length
     const showMix = racingCount >= 2
 
+    const footballForcedByUrl =
+      typeof window !== 'undefined' &&
+      new URLSearchParams(window.location.search).get('football') === '1'
+
     // Football flag: checked in multiple possible locations in the cashier response
     const showFootball =
+      footballForcedByUrl ||
       cashierData.football === true ||
       cashierData.configs?.football === true ||
       cashierData.intl?.football === true ||

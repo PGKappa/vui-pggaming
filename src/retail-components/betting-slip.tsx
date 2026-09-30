@@ -8,10 +8,14 @@ declare global {
 }
 
 import { Button } from '@/retail-components/ui/button'
+import { Input } from '@/retail-components/ui/input'
 import { Card, CardContent, CardFooter } from '@/retail-components/ui/card'
 import { BetsContext } from '@/retail-contexts/bets-context'
 import { RootContext } from '@/retail-contexts/root-context'
-import { generateSystemGroups } from '@/retail-lib/system-bets'
+import {
+  distributeExactStake,
+  generateSystemGroups,
+} from '@/retail-lib/system-bets'
 import {
   BetEntry,
   Discipline,
@@ -323,6 +327,31 @@ export default function BettingSlip({
       return
     }
 
+    if (betTemplate.exactStakeDistribution) {
+      const exactStakes = distributeExactStake(
+        selectedGroupsList.map((group) => ({
+          name: group.name,
+          combinations: group.combinations.length,
+        })),
+        systemDistributeStake,
+      )
+      const exactSelections: Record<string, boolean> = {}
+      for (const group of selectedGroupsList) {
+        exactSelections[group.name] = (exactStakes[group.name] ?? 0) > 0
+      }
+      setSystemGroupStakes((prev) => ({ ...prev, ...exactStakes }))
+      setSelectedGroups((prev) => ({ ...prev, ...exactSelections }))
+      setTimeout(() => {
+        setAllGroupsSelected(
+          systemGroups.every(
+            (group) =>
+              exactSelections[group.name] && (exactStakes[group.name] ?? 0) > 0,
+          ),
+        )
+      }, 0)
+      return
+    }
+
     const totalCombinations = selectedGroupsList.reduce(
       (sum, group) => sum + group.combinations.length,
       0,
@@ -573,6 +602,14 @@ export default function BettingSlip({
       .reduce((sum, group) => sum + group.combinations.length, 0)
   }, [systemGroups])
 
+  const systemMinWin = useMemo(() => {
+    const mins = systemGroups
+      .filter((group) => group.stake > 0)
+      .map((group) => computeGroupWinRounded(group).minWin)
+      .filter((value) => value > 0)
+    return mins.length > 0 ? Math.min(...mins) : 0
+  }, [systemGroups])
+
   const totalSystemPotentialWin = useMemo(() => {
     return systemGroups
       .filter((group) => group.stake > 0)
@@ -695,7 +732,7 @@ export default function BettingSlip({
         return
       }
 
-      if (systemStakeIncrement > 0) {
+      if (!betTemplate.exactStakeDistribution && systemStakeIncrement > 0) {
         const invalidIncrementGroups = systemGroups.filter((group) => {
           if (!selectedGroups[group.name] || group.stake <= 0) return false
           const stakeSteps = Math.round(group.stake / systemStakeIncrement)
@@ -1551,6 +1588,7 @@ export default function BettingSlip({
                             showStakeIncrement={
                               betTemplate.showGroupStakeIncrement
                             }
+                            showDetails={betTemplate.showGroupDetails}
                             onToggleOpen={() =>
                               setSystemGroupsOpen((prev) =>
                                 prev.includes(group.name)
@@ -1592,29 +1630,52 @@ export default function BettingSlip({
                   {t('amount').toUpperCase()}
                 </span>
               </div>
-              <NumericKeypadDrawer
-                value={global}
-                setValue={handleDirectAmountInput}
-                inputWidth="w-[220px] border text-[16px] text-black"
-                triggerLabel={t('amount')}
-                showPlusMinus={false}
-                drawerId="system-amount"
-                currencySymbol={currencySymbol}
-              />
-            </div>
+                {betTemplate.editableTotalStake ? (
+                  <NumericKeypadDrawer
+                    value={global}
+                    setValue={handleDirectAmountInput}
+                    inputWidth="w-[220px] border text-[16px] text-black"
+                    triggerLabel={t('amount')}
+                    showPlusMinus={false}
+                    drawerId="system-amount"
+                    currencySymbol={currencySymbol}
+                  />
+                ) : (
+                  <Input
+                    type="text"
+                    value={`${currencySymbol} ${global.toFixed(2)}`}
+                    className="bg-background-foreground h-8 w-[220px] cursor-default border text-center text-[16px] text-black"
+                    readOnly
+                    tabIndex={-1}
+                  />
+                )}
+              </div>
 
             <Separator />
 
-            <div className="relative top-[3px] flex w-full flex-row items-center justify-between bg-backgroundBetslip px-4 py-3 text-searchResultText">
-              <span className="text-[17px] font-semibold tabular-nums">
-                {t('potential_win').toUpperCase()}
-              </span>
-              <span className="text-[17px] font-semibold tabular-nums">
-                {currencySymbol} {totalSystemPotentialWin.toFixed(2)}
-              </span>
-            </div>
-          </>
-        )}
+              {betTemplate.showMinMaxWin ? (
+                <div className="relative top-[3px] flex w-full flex-row items-center justify-between bg-backgroundBetslip px-4 py-3 text-searchResultText">
+                  <span className="text-[15px] font-semibold tabular-nums">
+                    {t('min_win').toUpperCase()} {currencySymbol}{' '}
+                    {systemMinWin.toFixed(2)}
+                  </span>
+                  <span className="text-[15px] font-semibold tabular-nums">
+                    {t('max_win').toUpperCase()} {currencySymbol}{' '}
+                    {totalSystemPotentialWin.toFixed(2)}
+                  </span>
+                </div>
+              ) : (
+                <div className="relative top-[3px] flex w-full flex-row items-center justify-between bg-backgroundBetslip px-4 py-3 text-searchResultText">
+                  <span className="text-[17px] font-semibold tabular-nums">
+                    {t('potential_win').toUpperCase()}
+                  </span>
+                  <span className="text-[17px] font-semibold tabular-nums">
+                    {currencySymbol} {totalSystemPotentialWin.toFixed(2)}
+                  </span>
+                </div>
+              )}
+            </>
+          )}
       </CardFooter>
 
       <div className="shrink-0 bg-backgroundBetslip">

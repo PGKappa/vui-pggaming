@@ -21,11 +21,12 @@ export type SystemGroupItemProps = {
   onIncrement: () => void
   onToggleOpen: () => void
   showStakeIncrement?: boolean
+  showDetails?: boolean
 }
 
 export default function SystemGroupItem(props: SystemGroupItemProps) {
   const { t } = useTranslation()
-  const { group, showStakeIncrement = true } = props
+  const { group, showStakeIncrement = true, showDetails = true } = props
 
   return (
     <AccordionItem
@@ -90,62 +91,66 @@ export default function SystemGroupItem(props: SystemGroupItemProps) {
                 </Button>
               )}
             </div>
-            <button
-              onClick={props.onToggleOpen}
-              className="ml-2 flex items-center justify-center bg-transparent"
-              style={{ width: '20px', height: '20px' }}
-            >
-              <svg
-                className="relative left-1"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                style={{
-                  animation: props.isOpen
-                    ? 'chevron-rotate-open 0.2s ease-out forwards'
-                    : 'chevron-rotate-close 0.2s ease-out forwards',
-                }}
+            {showDetails && (
+              <button
+                onClick={props.onToggleOpen}
+                className="ml-2 flex items-center justify-center bg-transparent"
+                style={{ width: '20px', height: '20px' }}
               >
-                <polyline points="6 9 12 15 18 9"></polyline>
-              </svg>
-            </button>
+                <svg
+                  className="relative left-1"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  style={{
+                    animation: props.isOpen
+                      ? 'chevron-rotate-open 0.2s ease-out forwards'
+                      : 'chevron-rotate-close 0.2s ease-out forwards',
+                  }}
+                >
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </button>
+            )}
           </div>
         </div>
       </div>
-      <AccordionContent className="h-[55px] border-b px-4">
-        <div className="relative top-1.5 grid grid-cols-3 text-[13px]">
-          <div className="text-center">
-            <div className="relative bottom-[2px] text-[12px] font-semibold capitalize text-foreground">
-              {t('min')} {t('win')}
+      {showDetails && (
+        <AccordionContent className="h-[55px] border-b px-4">
+          <div className="relative top-1.5 grid grid-cols-3 text-[13px]">
+            <div className="text-center">
+              <div className="relative bottom-[2px] text-[12px] font-semibold capitalize text-foreground">
+                {t('min')} {t('win')}
+              </div>
+              <div className="relative top-[0px] text-[13px] font-normal">
+                {props.currencySymbol} {props.minWin.toFixed(2)}
+              </div>
             </div>
-            <div className="relative top-[0px] text-[13px] font-normal">
-              {props.currencySymbol} {props.minWin.toFixed(2)}
+            <div className="relative right-[12px] text-center text-[12px] font-semibold">
+              <div className="relative bottom-[2px] capitalize text-foreground">
+                {t('max')} {t('win')}
+              </div>
+              <div className="relative top-[0px] text-[13px] font-normal">
+                {props.currencySymbol} {props.maxWin.toFixed(2)}
+              </div>
+            </div>
+            <div className="relative right-[16px] text-center text-[12px] font-semibold">
+              <div className="relative bottom-[2px] left-1 capitalize text-foreground">
+                {t('total_played')}
+              </div>
+              <div className="relative left-1 top-[0px] text-[13px] font-normal">
+                {props.currencySymbol}{' '}
+                {(group.stake * group.combinations.length).toFixed(2)}
+              </div>
             </div>
           </div>
-          <div className="relative right-[12px] text-center text-[12px] font-semibold">
-            <div className="relative bottom-[2px] capitalize text-foreground">
-              {t('max')} {t('win')}
-            </div>
-            <div className="relative top-[0px] text-[13px] font-normal">
-              {props.currencySymbol} {props.maxWin.toFixed(2)}
-            </div>
-          </div>
-          <div className="relative right-[16px] text-center text-[12px] font-semibold">
-            <div className="relative bottom-[2px] left-1 capitalize text-foreground">
-              {t('total_played')}
-            </div>
-            <div className="relative left-1 top-[0px] text-[13px] font-normal">
-              {props.currencySymbol}{' '}
-              {(group.stake * group.combinations.length).toFixed(2)}
-            </div>
-          </div>
-        </div>
-      </AccordionContent>
+        </AccordionContent>
+      )}
     </AccordionItem>
   )
 }
