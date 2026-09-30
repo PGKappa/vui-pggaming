@@ -151,23 +151,6 @@ export default function NumericKeypadDrawer(props: {
     setDrawerValue('0.00')
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    e.preventDefault()
-    if (e.key >= '0' && e.key <= '9') {
-      handleNumberClick(e.key)
-    } else if (e.key === '.') {
-      handleDecimalClick()
-    } else if (e.key === 'Backspace') {
-      handleDelete()
-    } else if (e.key === 'Delete') {
-      handleClear()
-    } else if (e.key === 'Enter') {
-      handleConfirm()
-    } else if (e.key === 'Escape') {
-      closeDrawer()
-    }
-  }
-
   const handleConfirm = () => {
     const newValue = parseFloat(drawerValue) || 0
     setValue(newValue)
@@ -275,10 +258,12 @@ export default function NumericKeypadDrawer(props: {
         <div className="flex min-h-0 flex-1 flex-col space-y-3 overflow-y-auto p-2">
           {/* Display Value */}
           <div className="flex items-center space-x-3">
+            {/* Solo lettura: l'importo si modifica esclusivamente dal tastierino a video.
+                inputMode="none" evita l'apertura della tastiera virtuale di sistema sui touch. */}
             <Input
               value={drawerValue}
-              onChange={() => {}}
-              onKeyDown={handleKeyDown}
+              readOnly
+              inputMode="none"
               className="h-12 flex-1 border-[1px] pr-2 text-right text-[22px] font-bold"
               autoFocus
             />
