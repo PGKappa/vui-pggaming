@@ -8,7 +8,6 @@ declare global {
 }
 
 import { Button } from '@/retail-components/ui/button'
-import { Input } from '@/retail-components/ui/input'
 import { Card, CardContent, CardFooter } from '@/retail-components/ui/card'
 import { BetsContext } from '@/retail-contexts/bets-context'
 import { RootContext } from '@/retail-contexts/root-context'
@@ -1485,7 +1484,7 @@ export default function BettingSlip({
               onValueChange={setAccordionOpen}
               className="w-full"
             >
-              <AccordionItem value="combinations" className="border-none">
+              <AccordionItem value="combinations" className="border-none bg-[#D9D9D9]">
                 <div className="relative flex h-[34px] w-full items-center justify-between bg-accent px-4 text-[13px] text-accent-foreground hover:no-underline">
                   <span className="leading-none">
                     {t('combinations').toUpperCase()}
@@ -1641,28 +1640,32 @@ export default function BettingSlip({
                     currencySymbol={currencySymbol}
                   />
                 ) : (
-                  <Input
-                    type="text"
-                    value={`${currencySymbol} ${global.toFixed(2)}`}
-                    className="bg-background-foreground h-8 w-[220px] cursor-default border text-center text-[16px] text-black"
-                    readOnly
-                    tabIndex={-1}
-                  />
+                  <span className="text-[16px] font-semibold tabular-nums">
+                    {currencySymbol} {global.toFixed(2)}
+                  </span>
                 )}
               </div>
 
             <Separator />
 
               {betTemplate.showMinMaxWin ? (
-                <div className="relative top-[3px] flex w-full flex-row items-center justify-between bg-backgroundBetslip px-4 py-3 text-searchResultText">
-                  <span className="text-[15px] font-semibold tabular-nums">
-                    {t('min_win').toUpperCase()} {currencySymbol}{' '}
-                    {systemMinWin.toFixed(2)}
-                  </span>
-                  <span className="text-[15px] font-semibold tabular-nums">
-                    {t('max_win').toUpperCase()} {currencySymbol}{' '}
-                    {totalSystemPotentialWin.toFixed(2)}
-                  </span>
+                <div className="relative top-[3px] flex w-full flex-col bg-backgroundBetslip px-4 py-3 text-searchResultText">
+                  <div className="flex w-full flex-row items-center justify-between">
+                    <span className="text-[17px] font-semibold tabular-nums">
+                      {t('min_win').toUpperCase()}
+                    </span>
+                    <span className="text-[17px] font-semibold tabular-nums">
+                      {currencySymbol} {systemMinWin.toFixed(2)}
+                    </span>
+                  </div>
+                  <div className="flex w-full flex-row items-center justify-between">
+                    <span className="text-[17px] font-semibold tabular-nums">
+                      {t('max_win').toUpperCase()}
+                    </span>
+                    <span className="text-[17px] font-semibold tabular-nums">
+                      {currencySymbol} {totalSystemPotentialWin.toFixed(2)}
+                    </span>
+                  </div>
                 </div>
               ) : (
                 <div className="relative top-[3px] flex w-full flex-row items-center justify-between bg-backgroundBetslip px-4 py-3 text-searchResultText">
