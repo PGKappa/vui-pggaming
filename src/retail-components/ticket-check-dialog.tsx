@@ -595,6 +595,7 @@ export default function TicketCheckDialog({
   ticketCandidates,
   terminalId,
   onPaid,
+  showCancelButton = false,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -602,6 +603,7 @@ export default function TicketCheckDialog({
   ticketCandidates?: Array<string | number>
   terminalId?: string
   onPaid?: () => void
+  showCancelButton?: boolean
 }) {
   const { t } = useTranslation()
   const rootContext = useContext(RootContext)
@@ -1739,6 +1741,16 @@ export default function TicketCheckDialog({
                           }}
                         >
                           {paying ? '...' : t('pay', 'PAGA')}
+                        </button>
+                      )}
+                    {/* CANCELLA: ticket in corso, solo grafico in attesa delle API di cancellazione */}
+                    {showCancelButton &&
+                      statusInfo.translationKey === 'pending' && (
+                        <button
+                          type="button"
+                          className="flex h-[35px] w-[124px] cursor-pointer items-center justify-center rounded-none border border-white bg-accent text-center text-[14px] font-bold uppercase tracking-[1.5px] text-white hover:opacity-[.85]"
+                        >
+                          {t('cancel_ticket', 'CANCELLA')}
                         </button>
                       )}
                     {/* CDD actions: winner, not paid, CDD required by server */}
