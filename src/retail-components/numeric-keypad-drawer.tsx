@@ -15,6 +15,12 @@ import { useTranslation } from 'react-i18next'
 import { RootContext } from '@/retail-contexts/root-context'
 import { useRetailCompactHeight } from '@/retail-lib/use-retail-compact-height'
 import { RETAIL_VIEWPORT } from '@/retail-lib/viewport-config'
+import {
+  applyDecimal,
+  applyDigit,
+  canCompleteToStep,
+  isMultipleOfStep,
+} from '@/retail-lib/stake-keypad'
 
 export default function NumericKeypadDrawer(props: {
   value: number
@@ -99,41 +105,25 @@ export default function NumericKeypadDrawer(props: {
   }
 
   const handleNumberClick = (digit: string) => {
-    setDrawerValue((prev) => {
-      // Se abbiamo appena cliccato un preset, resetta e inizia da capo
-      if (shouldReplaceOnNextDigit) {
-        setShouldReplaceOnNextDigit(false)
-        return digit === '0' ? '0' : digit
-      }
-
-      // Se il valore precedente è '0.00' o '0', inizia da capo
-      if (prev === '0.00' || prev === '0') {
-        return digit
-      }
-
-      const decimalIndex = prev.indexOf('.')
-      if (decimalIndex !== -1 && prev.length - decimalIndex > 2) {
-        return prev
-      }
-
-      return prev + digit
-    })
+    setDrawerValue((prev) => applyDigit(prev, digit, shouldReplaceOnNextDigit))
+    if (shouldReplaceOnNextDigit) setShouldReplaceOnNextDigit(false)
   }
 
   const handleDecimalClick = () => {
-    setDrawerValue((prev) => {
-      // Se abbiamo appena cliccato un preset, resetta e inizia da "0."
-      if (shouldReplaceOnNextDigit) {
-        setShouldReplaceOnNextDigit(false)
-        return '0.'
-      }
-
-      if (!prev.includes('.')) {
-        return prev + '.'
-      }
-      return prev
-    })
+    setDrawerValue((prev) => applyDecimal(prev, shouldReplaceOnNextDigit))
+    if (shouldReplaceOnNextDigit) setShouldReplaceOnNextDigit(false)
   }
+
+  const isDigitEnabled = (digit: string) =>
+    canCompleteToStep(
+      applyDigit(drawerValue, digit, shouldReplaceOnNextDigit),
+      incrementValue,
+    )
+  const isDecimalEnabled = canCompleteToStep(
+    applyDecimal(drawerValue, shouldReplaceOnNextDigit),
+    incrementValue,
+  )
+  const isConfirmEnabled = isMultipleOfStep(drawerValue, incrementValue)
 
   const handleDelete = () => {
     setShouldReplaceOnNextDigit(false)
@@ -149,6 +139,23 @@ export default function NumericKeypadDrawer(props: {
   const handleClear = () => {
     setShouldReplaceOnNextDigit(false)
     setDrawerValue('0.00')
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    e.preventDefault()
+    if (e.key >= '0' && e.key <= '9') {
+      handleNumberClick(e.key)
+    } else if (e.key === '.') {
+      handleDecimalClick()
+    } else if (e.key === 'Backspace') {
+      handleDelete()
+    } else if (e.key === 'Delete') {
+      handleClear()
+    } else if (e.key === 'Enter') {
+      handleConfirm()
+    } else if (e.key === 'Escape') {
+      closeDrawer()
+    }
   }
 
   const handleConfirm = () => {
@@ -262,8 +269,8 @@ export default function NumericKeypadDrawer(props: {
                 inputMode="none" evita l'apertura della tastiera virtuale di sistema sui touch. */}
             <Input
               value={drawerValue}
-              readOnly
-              inputMode="none"
+              onChange={() => {}}
+              onKeyDown={handleKeyDown}
               className="h-12 flex-1 border-[1px] pr-2 text-right text-[22px] font-bold"
               autoFocus
             />
@@ -321,6 +328,7 @@ export default function NumericKeypadDrawer(props: {
               variant="outline"
               size="lg"
               className="relative left-3 top-3 h-12 w-[112px] text-[20px] font-semibold tabular-nums"
+              disabled={!isDigitEnabled('1')}
               onClick={() => handleNumberClick('1')}
             >
               1
@@ -329,6 +337,7 @@ export default function NumericKeypadDrawer(props: {
               variant="outline"
               size="lg"
               className="h-12 text-[20px] font-semibold tabular-nums"
+              disabled={!isDigitEnabled('2')}
               onClick={() => handleNumberClick('2')}
             >
               2
@@ -337,6 +346,7 @@ export default function NumericKeypadDrawer(props: {
               variant="outline"
               size="lg"
               className="h-12 text-[20px] font-semibold tabular-nums"
+              disabled={!isDigitEnabled('3')}
               onClick={() => handleNumberClick('3')}
             >
               3
@@ -346,6 +356,7 @@ export default function NumericKeypadDrawer(props: {
               variant="outline"
               size="lg"
               className="h-12 text-[20px] font-semibold tabular-nums"
+              disabled={!isDigitEnabled('4')}
               onClick={() => handleNumberClick('4')}
             >
               4
@@ -354,6 +365,7 @@ export default function NumericKeypadDrawer(props: {
               variant="outline"
               size="lg"
               className="h-12 text-[20px] font-semibold tabular-nums"
+              disabled={!isDigitEnabled('5')}
               onClick={() => handleNumberClick('5')}
             >
               5
@@ -362,6 +374,7 @@ export default function NumericKeypadDrawer(props: {
               variant="outline"
               size="lg"
               className="h-12 text-[20px] font-semibold tabular-nums"
+              disabled={!isDigitEnabled('6')}
               onClick={() => handleNumberClick('6')}
             >
               6
@@ -371,6 +384,7 @@ export default function NumericKeypadDrawer(props: {
               variant="outline"
               size="lg"
               className="h-12 text-[20px] font-semibold tabular-nums"
+              disabled={!isDigitEnabled('7')}
               onClick={() => handleNumberClick('7')}
             >
               7
@@ -379,6 +393,7 @@ export default function NumericKeypadDrawer(props: {
               variant="outline"
               size="lg"
               className="h-12 text-[20px] font-semibold tabular-nums"
+              disabled={!isDigitEnabled('8')}
               onClick={() => handleNumberClick('8')}
             >
               8
@@ -387,6 +402,7 @@ export default function NumericKeypadDrawer(props: {
               variant="outline"
               size="lg"
               className="h-12 text-[20px] font-semibold tabular-nums"
+              disabled={!isDigitEnabled('9')}
               onClick={() => handleNumberClick('9')}
             >
               9
@@ -396,6 +412,7 @@ export default function NumericKeypadDrawer(props: {
               variant="outline"
               size="lg"
               className="h-12 text-[20px] font-semibold tabular-nums"
+              disabled={!isDecimalEnabled}
               onClick={handleDecimalClick}
             >
               .
@@ -404,6 +421,7 @@ export default function NumericKeypadDrawer(props: {
               variant="outline"
               size="lg"
               className="h-12 text-[20px] font-semibold tabular-nums"
+              disabled={!isDigitEnabled('0')}
               onClick={() => handleNumberClick('0')}
             >
               0
@@ -419,6 +437,7 @@ export default function NumericKeypadDrawer(props: {
           </div>
 
           <Button
+            disabled={!isConfirmEnabled}
             onClick={handleConfirm}
             className="h-12 w-full bg-secondary text-[18px] tabular-nums text-accent-foreground hover:opacity-95"
           >

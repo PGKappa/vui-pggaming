@@ -143,6 +143,10 @@ export default function BettingSlip({
   const minStakeIncrement = Number(rootContext?.getMinStakeIncrement?.()) || 0.5
   const systemStakeIncrement =
     Number(rootContext?.getSystemStakeIncrement?.()) || 0.1
+    
+  const systemKeypadStep = betTemplate.exactStakeDistribution
+    ? 0.01
+    : systemStakeIncrement
 
   const [accordionOpen, setAccordionOpen] = useState<string>('combinations')
   const [systemGroupsOpen, setSystemGroupsOpen] = useState<string[]>([])
@@ -1535,6 +1539,7 @@ export default function BettingSlip({
                             triggerLabel={t('divide/add_amount')}
                             showPlusMinus={false}
                             drawerId="system-divide-add"
+                            incrementValue={systemKeypadStep}
                             currencySymbol={currencySymbol}
                           />
                           <Button
@@ -1588,6 +1593,7 @@ export default function BettingSlip({
                               betTemplate.showGroupStakeIncrement
                             }
                             showDetails={betTemplate.showGroupDetails}
+                            stakeIncrement={systemKeypadStep}
                             onToggleOpen={() =>
                               setSystemGroupsOpen((prev) =>
                                 prev.includes(group.name)
@@ -1637,6 +1643,7 @@ export default function BettingSlip({
                     triggerLabel={t('amount')}
                     showPlusMinus={false}
                     drawerId="system-amount"
+                    incrementValue={systemKeypadStep}
                     currencySymbol={currencySymbol}
                   />
                 ) : (

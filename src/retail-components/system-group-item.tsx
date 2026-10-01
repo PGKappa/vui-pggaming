@@ -21,6 +21,7 @@ export type SystemGroupItemProps = {
   onIncrement: () => void
   onToggleOpen: () => void
   showStakeIncrement?: boolean
+  stakeIncrement?: number
   showDetails?: boolean
 }
 
@@ -75,6 +76,7 @@ export default function SystemGroupItem(props: SystemGroupItemProps) {
                 triggerLabel={group.name}
                 showPlusMinus={false}
                 drawerId={`system-group-${group.name}`}
+                incrementValue={props.stakeIncrement}
                 currencySymbol={props.currencySymbol}
               />
               {showStakeIncrement && (
