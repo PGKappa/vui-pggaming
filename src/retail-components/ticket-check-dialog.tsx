@@ -17,6 +17,7 @@ import {
   TicketDetailInfo,
   TicketDetailResponse,
   TicketDetailSelection,
+  TicketCancelResponse,
   TicketPayResponse,
 } from '@/retail-lib/types'
 import {
@@ -595,6 +596,7 @@ export default function TicketCheckDialog({
   ticketCandidates,
   terminalId,
   onPaid,
+  onCancelled,
   showCancelButton = false,
 }: {
   open: boolean
@@ -603,6 +605,7 @@ export default function TicketCheckDialog({
   ticketCandidates?: Array<string | number>
   terminalId?: string
   onPaid?: () => void
+  onCancelled?: () => void
   showCancelButton?: boolean
 }) {
   const { t } = useTranslation()
@@ -620,6 +623,9 @@ export default function TicketCheckDialog({
   const [pinInput, setPinInput] = useState('')
   const [pinError, setPinError] = useState<string | null>(null)
   const [showPayConfirm, setShowPayConfirm] = useState(false)
+  const [cancelling, setCancelling] = useState(false)
+  const [cancelResult, setCancelResult] = useState<string | null>(null)
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false)
 
   const isDebug =
     typeof window !== 'undefined' &&
@@ -728,6 +734,46 @@ export default function TicketCheckDialog({
     t,
   ])
 
+  // Annullo del ticket. Stesso schema del pagamento: a esito positivo si
+  // ricarica il dettaglio, cosi' compare lo stato Annullato e il pulsante
+  // sparisce, e si avvisa chi ha aperto il dialog perche' aggiorni la lista.
+  const handleCancel = useCallback(async () => {
+    if (!ticketInfo || !rootContext?.initCode || !rootContext?.operator) return
+    setCancelling(true)
+    setCancelResult(null)
+    setShowCancelConfirm(false)
+    try {
+      const response = await createPGVirtualAPICall(
+        `/api/ticket/cancel/${ticketInfo.ticket_id}`,
+        rootContext.initCode,
+        undefined,
+        rootContext.operator,
+      )
+      const data: TicketCancelResponse = await response.json()
+      console.log('[TicketCancel] API response:', data)
+      if (String(data.ret_code) === '1024') {
+        fetchTicket(ticketInfo.ticket_id)
+        onCancelled?.()
+      } else {
+        setCancelResult(
+          data.description ||
+            t('cancel_error', "Errore nell'annullamento del ticket"),
+        )
+      }
+    } catch {
+      setCancelResult(t('cancel_error', "Errore nell'annullamento del ticket"))
+    } finally {
+      setCancelling(false)
+    }
+  }, [
+    ticketInfo,
+    rootContext?.initCode,
+    rootContext?.operator,
+    fetchTicket,
+    onCancelled,
+    t,
+  ])
+
   const handlePayWithPin = useCallback(async () => {
     if (
       !ticketInfo ||
@@ -789,6 +835,8 @@ export default function TicketCheckDialog({
       setPinInput('')
       setPinError(null)
       setShowPayConfirm(false)
+      setShowCancelConfirm(false)
+      setCancelResult(null)
       setShowReplayPlayer(false)
       setReplayVideos([])
       setReplayIndex(0)
@@ -1570,6 +1618,13 @@ export default function TicketCheckDialog({
                       </p>
                     )}
 
+                    {/* Errore annullamento */}
+                    {cancelResult && (
+                      <p className="pb-4 text-center text-sm text-ticket-lost">
+                        {cancelResult}
+                      </p>
+                    )}
+
                     {/* CDD PIN keypad — only shown in body when pinMode is active */}
                     {statusInfo.isWinner &&
                       !statusInfo.isPaid &&
@@ -1743,14 +1798,16 @@ export default function TicketCheckDialog({
                           {paying ? '...' : t('pay', 'PAGA')}
                         </button>
                       )}
-                    {/* CANCELLA: ticket in corso, solo grafico in attesa delle API di cancellazione */}
+
                     {showCancelButton &&
                       statusInfo.translationKey === 'pending' && (
                         <button
                           type="button"
-                          className="flex h-[35px] w-[124px] cursor-pointer items-center justify-center rounded-none border border-white bg-accent text-center text-[14px] font-bold uppercase tracking-[1.5px] text-white hover:opacity-[.85]"
+                          onClick={() => setShowCancelConfirm(true)}
+                          disabled={cancelling}
+                          className="flex h-[35px] w-[124px] cursor-pointer items-center justify-center rounded-none border border-white bg-accent text-center text-[14px] font-bold uppercase tracking-[1.5px] text-white hover:opacity-[.85] disabled:cursor-default disabled:opacity-50"
                         >
-                          {t('cancel_ticket', 'CANCELLA')}
+                          {cancelling ? '...' : t('cancel_ticket', 'CANCELLA')}
                         </button>
                       )}
                     {/* CDD actions: winner, not paid, CDD required by server */}
@@ -1832,6 +1889,47 @@ export default function TicketCheckDialog({
                 onClick={handlePay}
                 className="flex-1 cursor-pointer rounded-none border-0 py-[14px] outline-none text-[13px] font-bold uppercase tracking-[1.5px] text-white"
                 style={{ background: 'green' }}
+              >
+                {t('confirm', 'CONFERMA')}
+              </button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showCancelConfirm} onOpenChange={setShowCancelConfirm}>
+        <DialogContent
+          aria-describedby={undefined}
+          className="w-[340px] max-w-[340px] overflow-hidden rounded-none border-0 bg-secondary p-0 shadow-[0_8px_32px_rgba(0,0,0,0.6)]"
+        >
+          <DialogHeader className="bg-accent px-5 py-4">
+            <DialogTitle className="text-[16px] font-bold tracking-[1px] text-accent-foreground">
+              {t('confirm_cancel_ticket', 'CONFERMA ANNULLAMENTO')}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="bg-secondary px-6 pb-6 pt-7 text-center text-secondary-foreground">
+            <div className="mb-[10px] text-[11px] font-semibold uppercase tracking-[0.8px] opacity-70">
+              {t('stake', 'Puntata')}
+            </div>
+            <div className="mb-2 text-[32px] font-bold tracking-[1px]">
+              {ticketInfo ? fmt(ticketInfo.amount) : ''}
+            </div>
+            <div className="mb-7 text-[13px] font-semibold tracking-[0.4px] opacity-80">
+              {t(
+                'confirm_cancel_ticket_question',
+                "Vuoi annullare questo ticket? L'operazione non si puo' annullare.",
+              )}
+            </div>
+            <div className="flex space-x-3">
+              <button
+                onClick={() => setShowCancelConfirm(false)}
+                className="flex-1 cursor-pointer rounded-none border-0 bg-minusButtonDark py-[14px] text-[13px] font-bold uppercase tracking-[1.5px] text-minusButtonDark-foreground outline-none"
+              >
+                {t('back', 'INDIETRO')}
+              </button>
+              <button
+                onClick={handleCancel}
+                className="flex-1 cursor-pointer rounded-none border-0 bg-accent py-[14px] text-[13px] font-bold uppercase tracking-[1.5px] text-accent-foreground outline-none"
               >
                 {t('confirm', 'CONFERMA')}
               </button>

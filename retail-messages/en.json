@@ -359,5 +359,9 @@
   "not_collected": "Not Collected",
   "pay_success": "Payment successful",
   "print_not_available": "No document to reprint for this ticket",
-  "print_bridge_unavailable": "Printing unavailable: terminal not connected"
+  "print_bridge_unavailable": "Printing unavailable: terminal not connected",
+  "confirm_cancel_ticket": "CONFIRM CANCELLATION",
+  "confirm_cancel_ticket_question": "Do you want to cancel this ticket? This cannot be undone.",
+  "cancel_error": "Error cancelling the ticket",
+  "back": "Back"
 }

@@ -329,5 +329,9 @@
   "pay_error": "Errore nel pagamento",
   "pay_success": "Pagamento effettuato",
   "print_not_available": "Nessun documento da ristampare per questo ticket",
-  "print_bridge_unavailable": "Stampa non disponibile: terminale non collegato"
+  "print_bridge_unavailable": "Stampa non disponibile: terminale non collegato",
+  "confirm_cancel_ticket": "CONFERMA ANNULLAMENTO",
+  "confirm_cancel_ticket_question": "Vuoi annullare questo ticket? L'operazione non si può annullare.",
+  "cancel_error": "Errore nell'annullamento del ticket",
+  "back": "Indietro"
 }
