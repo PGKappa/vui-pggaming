@@ -1044,6 +1044,8 @@ export default function TicketListPageContent({
         ticketCandidates={selectedTicketCandidates}
         terminalId={selectedTerminalId ?? undefined}
         onPaid={fetchTickets}
+        onCancelled={fetchTickets}
+        showCancelButton
       />
     </div>
   )
