@@ -86,6 +86,7 @@
   "time_slot": "Время",
   "all_time_slots": "Все",
   "cancel": "Отмена",
+  "cancel_ticket": "Отменить",
   "search": "Поиск",
   "football": "Футбол",
   "dogs": "Собаки",
@@ -275,5 +276,9 @@
   "pay_error": "Ошибка оплаты",
   "pay_success": "Оплата произведена",
   "print_not_available": "Нет документа для повторной печати этого билета",
-  "print_bridge_unavailable": "Печать недоступна: терминал не подключен"
+  "print_bridge_unavailable": "Печать недоступна: терминал не подключен",
+  "confirm_cancel_ticket": "ПОДТВЕРДИТЬ ОТМЕНУ",
+  "confirm_cancel_ticket_question": "Отменить этот билет? Операцию нельзя будет отменить.",
+  "cancel_error": "Ошибка при отмене билета",
+  "back": "Назад"
 }

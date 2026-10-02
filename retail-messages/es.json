@@ -89,6 +89,7 @@
   "time_slot": "Franja Horaria",
   "all_time_slots": "Todas",
   "cancel": "Cancelar",
+  "cancel_ticket": "Cancelar",
   "search": "Buscar",
   "football": "Fútbol",
   "dogs": "Galgos",
@@ -378,5 +379,9 @@
   "pay_error": "Error en el pago",
   "pay_success": "Pago realizado",
   "print_not_available": "No hay documento para reimprimir para este ticket",
-  "print_bridge_unavailable": "Impresión no disponible: terminal no conectado"
+  "print_bridge_unavailable": "Impresión no disponible: terminal no conectado",
+  "confirm_cancel_ticket": "CONFIRMAR ANULACIÓN",
+  "confirm_cancel_ticket_question": "¿Quieres anular este ticket? La operación no se puede deshacer.",
+  "cancel_error": "Error al anular el ticket",
+  "back": "Atrás"
 }

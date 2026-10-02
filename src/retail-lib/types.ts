@@ -416,6 +416,12 @@ export type TicketDetailResponse = {
   print?: string
 }
 
+export type TicketCancelResponse = {
+  ret_code: string | number
+  description?: string
+  print?: string
+}
+
 export type TicketPayResponse = {
   ret_code: string | number
   description: string
