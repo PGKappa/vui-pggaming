@@ -152,7 +152,7 @@ export default function BettingSlip({
   )
   const totalOdds = Math.round(rawTotalOdds * 100) / 100
 
-  const [global, setGlobal] = useState(0)
+  const [global, setGlobal] = useState(1)
   // Letto dentro l'useEffect di cambio modalità qui sotto: usare un ref
   // invece del valore reattivo evita che l'effetto debba dipendere da
   // `global` e rieseguirsi (e quindi azzerare gli importi appena
@@ -300,8 +300,12 @@ export default function BettingSlip({
       // selezione) — trasferiamo l'ultimo importo totale del sistema su
       // `global` invece di lasciarlo a 0/stale, così l'operatore non deve
       // reinserirlo.
-      if (prevMode === 'SYSTEM' && lastSystemTotalStakeRef.current > 0) {
-        setGlobal(lastSystemTotalStakeRef.current)
+      if (prevMode === 'SYSTEM') {
+        setGlobal(
+          lastSystemTotalStakeRef.current > 0
+            ? lastSystemTotalStakeRef.current
+            : 1,
+        )
         lastSystemTotalStakeRef.current = 0
       }
       setSelectedGroups({})
@@ -1238,7 +1242,7 @@ export default function BettingSlip({
 
       localStorage.setItem('lastSubmittedTicket', JSON.stringify(newTicket))
       removeAllBets()
-      setGlobal(0)
+      setGlobal(1)
       setSystemGroupStakes({})
     } catch {
       toast.error(t('bet_submission_error'))
