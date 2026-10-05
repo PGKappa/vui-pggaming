@@ -160,10 +160,14 @@ export default function EventBets(props: {
           {eventBets.map((betEntry) => {
             // Usa normalizeMarketName per riconoscere mercati principali
             const normalized = normalizeMarketName(betEntry.market)
+
+            const mainMarket = normalizeMarketName(
+              betEntry.apiMarket || betEntry.market,
+            )
             const isMainMarket =
-              normalized === 'winner' ||
-              normalized === 'placed' ||
-              normalized === 'show'
+              mainMarket === 'winner' ||
+              mainMarket === 'placed' ||
+              mainMarket === 'show'
 
             // Traduci anche Even, Odd, Under, Over, Yes, No
             const outcomeLower = betEntry.bet.option.outcome.toLowerCase()
