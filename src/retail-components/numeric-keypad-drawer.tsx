@@ -144,9 +144,9 @@ export default function NumericKeypadDrawer(props: {
   const handleKeyDown = (e: React.KeyboardEvent) => {
     e.preventDefault()
     if (e.key >= '0' && e.key <= '9') {
-      handleNumberClick(e.key)
+      if (isDigitEnabled(e.key)) handleNumberClick(e.key)
     } else if (e.key === '.') {
-      handleDecimalClick()
+      if (isDecimalEnabled) handleDecimalClick()
     } else if (e.key === 'Backspace') {
       handleDelete()
     } else if (e.key === 'Delete') {
@@ -159,6 +159,7 @@ export default function NumericKeypadDrawer(props: {
   }
 
   const handleConfirm = () => {
+    if (!isConfirmEnabled) return
     const newValue = parseFloat(drawerValue) || 0
     setValue(newValue)
     props.setValue(newValue)
