@@ -1465,6 +1465,7 @@ export default function BettingSlip({
                 triggerLabel={t('amount').toUpperCase()}
                 showPlusMinus={true}
                 drawerId="global-amount"
+                enforceStep={false}
                 currencySymbol={currencySymbol}
               />
             </div>
@@ -1643,6 +1644,7 @@ export default function BettingSlip({
                     triggerLabel={t('amount')}
                     showPlusMinus={false}
                     drawerId="system-amount"
+                    enforceStep={false}
                     incrementValue={systemKeypadStep}
                     currencySymbol={currencySymbol}
                   />

@@ -31,6 +31,7 @@ export default function NumericKeypadDrawer(props: {
   drawerId?: string
   currencySymbol?: string
   incrementValue?: number
+  enforceStep?: boolean
 }) {
   const { t } = useTranslation()
   const isCompactHeight = useRetailCompactHeight()
@@ -57,6 +58,7 @@ export default function NumericKeypadDrawer(props: {
 
   // Get increment value from prop or context (fallback 0.5 se non disponibile)
   const incrementValue = props.incrementValue ?? getMinStakeIncrement?.() ?? 0.5
+  const keypadStep = props.enforceStep === false ? 0.01 : incrementValue
 
   // Get stake buttons from context or fallback to defaults
   const stakeButtons = useMemo(() => {
@@ -117,13 +119,13 @@ export default function NumericKeypadDrawer(props: {
   const isDigitEnabled = (digit: string) =>
     canCompleteToStep(
       applyDigit(drawerValue, digit, shouldReplaceOnNextDigit),
-      incrementValue,
+      keypadStep,
     )
   const isDecimalEnabled = canCompleteToStep(
     applyDecimal(drawerValue, shouldReplaceOnNextDigit),
-    incrementValue,
+    keypadStep,
   )
-  const isConfirmEnabled = isMultipleOfStep(drawerValue, incrementValue)
+  const isConfirmEnabled = isMultipleOfStep(drawerValue, keypadStep)
 
   const handleDelete = () => {
     setShouldReplaceOnNextDigit(false)
