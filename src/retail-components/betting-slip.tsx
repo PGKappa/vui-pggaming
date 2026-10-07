@@ -1419,6 +1419,10 @@ export default function BettingSlip({
                   showPlusMinus={true}
                   drawerId="global-amount"
                   restrictDecimalDigits={true}
+                  clearValue={1}
+                  disableZeroAndDecimalAsFirstKey={true}
+                  prefillValue={true}
+                  minPlusMinusValue={1}
                   currencySymbol={currencySymbol}
                 />
               </div>
@@ -1769,6 +1773,9 @@ export default function BettingSlip({
                   showPlusMinus={false}
                   drawerId="system-amount"
                   restrictDecimalDigits={true}
+                  clearValue={1}
+                  disableZeroAndDecimalAsFirstKey={true}
+                  prefillValue={true}
                   currencySymbol={currencySymbol}
                 />
               </div>
