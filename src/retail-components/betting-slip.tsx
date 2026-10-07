@@ -252,42 +252,28 @@ export default function BettingSlip({
 
   useEffect(() => {
     if (betMode === 'SYSTEM' && baseSystemGroups.length > 0) {
-      const carryOverAmount = lastSystemTotalStakeRef.current
-
-      if (carryOverAmount > 0) {
-        const largestGroup = baseSystemGroups.reduce((largest, current) =>
-          current.size > largest.size ? current : largest,
-        )
-        const stakePerCombination =
-          carryOverAmount / largestGroup.combinations.length
-        const newSelectedGroups: Record<string, boolean> = {}
-        const newStakes: Record<string, number> = {}
-        baseSystemGroups.forEach((group) => {
-          if (group.size === largestGroup.size) {
-            newSelectedGroups[group.name] = true
-            newStakes[group.name] = stakePerCombination
-          } else {
-            newSelectedGroups[group.name] = false
-            newStakes[group.name] = 0
-          }
-        })
-        setSelectedGroups(newSelectedGroups)
-        setAllGroupsSelected(false)
-        setSystemGroupStakes(newStakes)
-        return
-      }
-
-      const initialSelections: Record<string, boolean> = {}
-      const initialStakes: Record<string, number> = {}
-
+      // Ultimo importo del sistema, oppure 1 come importo predefinito,
+      // distribuito sul gruppo più grande
+      const carryOverAmount = lastSystemTotalStakeRef.current || 1
+      const largestGroup = baseSystemGroups.reduce((largest, current) =>
+        current.size > largest.size ? current : largest,
+      )
+      const stakePerCombination =
+        carryOverAmount / largestGroup.combinations.length
+      const newSelectedGroups: Record<string, boolean> = {}
+      const newStakes: Record<string, number> = {}
       baseSystemGroups.forEach((group) => {
-        initialSelections[group.name] = false
-        initialStakes[group.name] = 0
+        if (group.size === largestGroup.size) {
+          newSelectedGroups[group.name] = true
+          newStakes[group.name] = stakePerCombination
+        } else {
+          newSelectedGroups[group.name] = false
+          newStakes[group.name] = 0
+        }
       })
-
-      setSelectedGroups(initialSelections)
+      setSelectedGroups(newSelectedGroups)
       setAllGroupsSelected(false)
-      setSystemGroupStakes(initialStakes)
+      setSystemGroupStakes(newStakes)
     } else {
       // Uscendo da Sistema verso Singola/Multipla `global` resta quello
       // impostato su Singola/Multipla: gli importi sono separati.
@@ -1460,12 +1446,12 @@ export default function BettingSlip({
                           <span className="pt-0.5 text-[12px] font-semibold">
                             {t('divide').toUpperCase()}
                           </span>
-                          <div className="flex min-w-0 flex-1 items-center border border-border">
+                          <div className="!ml-[12px] !mr-[4px] flex min-w-0 flex-1 items-center border border-border">
                             <Button
                               variant="ghost"
                               size="sm"
                               onClick={handleDistributeStake}
-                              className="h-8 w-7 bg-minusButtonDark p-3 text-[19px] text-bet-foreground opacity-50 hover:opacity-90"
+                              className={`h-8 w-7 p-3 text-[19px] text-bet-foreground hover:opacity-90 ${allGroupsSelected ? 'bg-minusButton' : 'bg-minusButtonDark opacity-50'}`}
                             >
                               <DivideIcon className="h-4 w-4" />
                             </Button>
@@ -1478,6 +1464,7 @@ export default function BettingSlip({
                                 showPlusMinus={false}
                                 drawerId="system-divide-add"
                                 restrictDecimalDigits={true}
+                                decimalStep={0.05}
                                 currencySymbol={currencySymbol}
                               />
                             </div>
@@ -1539,7 +1526,7 @@ export default function BettingSlip({
                                   </span>
                                 </div>
                                 <div className="relative flex items-center">
-                                  <div className="mr-[12px] mt-[2px] flex items-center space-x-0 border">
+                                  <div className="mr-[9px] mt-[2px] flex items-center space-x-0 border">
                                     <Button
                                       variant="ghost"
                                       size="sm"
@@ -1586,10 +1573,12 @@ export default function BettingSlip({
                                           value,
                                         )
                                       }
-                                      inputWidth="w-[142px] pr-2 text-[13px]"
+                                      inputWidth="w-[145px] pr-2 text-[13px]"
                                       triggerLabel={group.name}
                                       showPlusMinus={false}
                                       drawerId={`system-group-${group.name}`}
+                                      restrictDecimalDigits={true}
+                                      decimalStep={0.05}
                                       currencySymbol={currencySymbol}
                                     />
                                     <Button
@@ -1752,6 +1741,7 @@ export default function BettingSlip({
                   showPlusMinus={false}
                   drawerId="system-amount"
                   restrictDecimalDigits={true}
+                  decimalStep={0.05}
                   clearValue={1}
                   disableZeroAndDecimalAsFirstKey={true}
                   prefillValue={true}
