@@ -316,6 +316,7 @@
   "min_win": "Min Win",
   "max_win": "Max Win",
   "min_stake_per_combination_not_met": "Minimum stake per combination not met. Increase by {{amount}} to continue",
+  "divide_partial_stake": "The full amount could not be staked: {{distributed}} of {{entered}} staked ({{step}} step per combination)",
   "operator_missing": "Operator parameter is missing in URL",
   "operator_required": "Operator is required",
   "operator_not_found": "Operator is required but not found in storage",

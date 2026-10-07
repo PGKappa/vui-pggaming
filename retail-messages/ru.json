@@ -237,6 +237,7 @@
   "date_hour": "Дата/Время",
   "select_at_least_one_group": "Выберите хотя бы одну группу для распределения суммы",
   "min_stake_per_combination_not_met": "Минимальная ставка на комбинацию не соблюдена. Увеличьте на {{amount}} чтобы продолжить",
+  "divide_partial_stake": "Не удалось поставить всю сумму: поставлено {{distributed}} из {{entered}} (шаг {{step}} на комбинацию)",
   "operator_missing": "Параметр оператора отсутствует в URL",
   "operator_required": "Требуется оператор",
   "operator_not_found": "Требуется оператор, но не найден",
