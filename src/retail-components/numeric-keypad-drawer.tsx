@@ -31,6 +31,9 @@ export default function NumericKeypadDrawer(props: {
   currencySymbol?: string
   incrementValue?: number
   restrictDecimalDigits?: boolean
+  // Con restrictDecimalDigits: 0.5 -> decimali .00/.50,
+  // 0.05 -> decimali .00/.05/.50/.55
+  decimalStep?: 0.5 | 0.05
   minPlusMinusValue?: number
   prefillValue?: boolean
   clearValue?: number
@@ -51,6 +54,9 @@ export default function NumericKeypadDrawer(props: {
   const inputRef = useRef<HTMLInputElement>(null)
   // Posizione del cursore da ripristinare dopo una modifica da tastiera
   const pendingCaretRef = useRef<number | null>(null)
+  // Posizione del cursore nel campo (null = in fondo): i tasti del
+  // tastierino inseriscono/cancellano lì, come la tastiera fisica
+  const [caret, setCaret] = useState<number | null>(null)
 
   useLayoutEffect(() => {
     if (pendingCaretRef.current === null || !inputRef.current) return
@@ -92,17 +98,20 @@ export default function NumericKeypadDrawer(props: {
       const current = props.prefillValue ? value : 0
       setDrawerValue(current > 0 ? current.toFixed(2) : '0.00')
       setShouldReplaceOnNextDigit(current > 0)
+      setCaret(null)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open])
 
+  const isFiveCentsStep = props.decimalStep === 0.05
   // Dopo il punto decimale consente solo 5, 0, C e le scelte rapide
   const isDecimalLocked =
     !!props.restrictDecimalDigits &&
     !shouldReplaceOnNextDigit &&
     drawerValue !== '0.00' &&
     drawerValue.includes('.')
-  // Prima cifra decimale: 5 o 0; seconda cifra decimale: solo 0
+  // Passo 0.5: prima cifra decimale 5 o 0, seconda solo 0
+  // Passo 0.05: prima e seconda cifra decimale 0 o 5
   const decimalDigitsCount = isDecimalLocked
     ? drawerValue.length - drawerValue.indexOf('.') - 1
     : 0
@@ -110,11 +119,20 @@ export default function NumericKeypadDrawer(props: {
   const isFirstKeyBlocked =
     !!props.disableZeroAndDecimalAsFirstKey &&
     (shouldReplaceOnNextDigit || drawerValue === '0.00' || drawerValue === '0')
+  // Cursore posizionato prima della fine del valore (es. sulla parte intera)
+  const isCaretInside =
+    caret !== null && caret < drawerValue.length && !shouldReplaceOnNextDigit
   const isDigitEnabled = (digit: string) => {
+    if (isCaretInside) {
+      const edit = computeCaretEdit(caret, caret, digit)
+      return edit !== null && edit.next !== drawerValue
+    }
     if (digit === '0' && isFirstKeyBlocked) return false
     if (!isDecimalLocked) return true
-    if (decimalDigitsCount === 0) return digit === '5' || digit === '0'
-    if (decimalDigitsCount === 1) return digit === '0'
+    if (decimalDigitsCount === 0)
+      return digit === '5' || digit === '0'
+    if (decimalDigitsCount === 1)
+      return isFiveCentsStep ? digit === '0' || digit === '5' : digit === '0'
     return false
   }
 
@@ -124,6 +142,7 @@ export default function NumericKeypadDrawer(props: {
       return
     }
 
+    setCaret(null)
     setDrawerValue((prev) => {
       const currentValue = parseFloat(prev) || 0
       const newValue = currentValue + amount
@@ -138,6 +157,11 @@ export default function NumericKeypadDrawer(props: {
 
   const handleNumberClick = (digit: string) => {
     if (!isDigitEnabled(digit)) return
+    if (isCaretInside) {
+      applyCaretEdit(caret, caret, digit)
+      return
+    }
+    setCaret(null)
     setDrawerValue((prev) => {
       // Se abbiamo appena cliccato un preset, resetta e inizia da capo
       if (shouldReplaceOnNextDigit) {
@@ -161,6 +185,7 @@ export default function NumericKeypadDrawer(props: {
 
   const handleDecimalClick = () => {
     if (isDecimalLocked || isFirstKeyBlocked) return
+    setCaret(null)
     setDrawerValue((prev) => {
       // Se abbiamo appena cliccato un preset, resetta e inizia da "0."
       if (shouldReplaceOnNextDigit) {
@@ -176,6 +201,10 @@ export default function NumericKeypadDrawer(props: {
   }
 
   const handleDelete = () => {
+    if (isCaretInside) {
+      applyCaretEdit(caret, caret, '', true)
+      return
+    }
     const newValue = drawerValue.length <= 1 ? '' : drawerValue.slice(0, -1)
     // Se l'importo si svuota (o vale 0) torna al valore del tasto C
     if (newValue === '' || (props.clearValue && !parseFloat(newValue))) {
@@ -183,6 +212,7 @@ export default function NumericKeypadDrawer(props: {
       return
     }
     setShouldReplaceOnNextDigit(false)
+    setCaret(null)
     setDrawerValue(newValue)
   }
 
@@ -190,6 +220,7 @@ export default function NumericKeypadDrawer(props: {
     // Con clearValue il tasto C riporta a quel valore; la prima cifra digitata lo sostituisce
     const clearValue = props.clearValue ?? 0
     setShouldReplaceOnNextDigit(clearValue > 0)
+    setCaret(null)
     setDrawerValue(clearValue > 0 ? clearValue.toFixed(2) : '0.00')
   }
 
@@ -197,7 +228,52 @@ export default function NumericKeypadDrawer(props: {
     if (!/^\d*\.?\d{0,2}$/.test(text)) return false
     if (!props.restrictDecimalDigits || !text.includes('.')) return true
     const decimals = text.slice(text.indexOf('.') + 1)
-    return ['', '0', '5', '00', '50'].includes(decimals)
+    const allowed = isFiveCentsStep
+      ? ['', '0', '5', '00', '05', '50', '55']
+      : ['', '0', '5', '00', '50']
+    return allowed.includes(decimals)
+  }
+
+  // Calcola il valore risultante da una modifica nella posizione del
+  // cursore (o sostituendo la selezione); null se non è un importo valido
+  const computeCaretEdit = (
+    start: number,
+    end: number,
+    insert: string,
+    deleteBefore = false,
+  ): { next: string; caret: number } | null => {
+    if (deleteBefore && start === end) {
+      if (start === 0) return null
+      start -= 1
+    }
+    let next = drawerValue.slice(0, start) + insert + drawerValue.slice(end)
+    let nextCaret = start + insert.length
+    // Rimuove gli zeri iniziali superflui (es. "05" -> "5")
+    const leadingZeros = next.match(/^0+(?=\d)/)?.[0].length ?? 0
+    if (leadingZeros) {
+      next = next.slice(leadingZeros)
+      nextCaret = Math.max(0, nextCaret - leadingZeros)
+    }
+    if (next !== '' && !isValidAmountText(next)) return null
+    return { next, caret: nextCaret }
+  }
+
+  const applyCaretEdit = (
+    start: number,
+    end: number,
+    insert: string,
+    deleteBefore = false,
+  ) => {
+    const edit = computeCaretEdit(start, end, insert, deleteBefore)
+    if (!edit) return
+    if (edit.next === '') {
+      handleClear()
+      return
+    }
+    setShouldReplaceOnNextDigit(false)
+    pendingCaretRef.current = edit.caret
+    setCaret(edit.caret)
+    setDrawerValue(edit.next)
   }
 
   // Modifica il valore nella posizione del cursore (o sostituisce la selezione)
@@ -206,28 +282,12 @@ export default function NumericKeypadDrawer(props: {
     insert: string,
     deleteBefore = false,
   ) => {
-    let start = input.selectionStart ?? drawerValue.length
-    const end = input.selectionEnd ?? drawerValue.length
-    if (deleteBefore && start === end) {
-      if (start === 0) return
-      start -= 1
-    }
-    let next = drawerValue.slice(0, start) + insert + drawerValue.slice(end)
-    let caret = start + insert.length
-    // Rimuove gli zeri iniziali superflui (es. "05" -> "5")
-    const leadingZeros = next.match(/^0+(?=\d)/)?.[0].length ?? 0
-    if (leadingZeros) {
-      next = next.slice(leadingZeros)
-      caret = Math.max(0, caret - leadingZeros)
-    }
-    if (next === '') {
-      handleClear()
-      return
-    }
-    if (!isValidAmountText(next)) return
-    setShouldReplaceOnNextDigit(false)
-    pendingCaretRef.current = caret
-    setDrawerValue(next)
+    applyCaretEdit(
+      input.selectionStart ?? drawerValue.length,
+      input.selectionEnd ?? drawerValue.length,
+      insert,
+      deleteBefore,
+    )
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -366,6 +426,7 @@ export default function NumericKeypadDrawer(props: {
               value={drawerValue}
               onChange={() => {}}
               onKeyDown={handleKeyDown}
+              onSelect={(e) => setCaret(e.currentTarget.selectionStart)}
               className="h-12 flex-1 border-[1px] pr-2 text-right text-[22px] font-bold"
               autoFocus
             />

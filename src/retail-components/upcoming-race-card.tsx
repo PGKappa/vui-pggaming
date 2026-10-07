@@ -1003,18 +1003,19 @@ export default function UpcomingRaceCard({
                   </TableRow>
                 ))
               ) : (
-                <TableRow className="border-none">
-                  <TableCell
-                    colSpan={12}
-                    className="border-none py-6 text-center text-[19px]"
-                  >
-                    {isLoading
-                      ? `${t('loading')}...`
-                      : raceInfo
+                // Durante il caricamento dell'evento non mostriamo nessuna riga
+                !isLoading && (
+                  <TableRow className="border-none">
+                    <TableCell
+                      colSpan={12}
+                      className="border-none py-6 text-center text-[19px]"
+                    >
+                      {raceInfo
                         ? `${t('no_racers_available')}`
                         : `${t('load_failed')}`}
-                  </TableCell>
-                </TableRow>
+                    </TableCell>
+                  </TableRow>
+                )
               )}
             </TableBody>
 
