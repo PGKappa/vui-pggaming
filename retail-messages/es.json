@@ -336,6 +336,7 @@
   "max_win": "Ganancia Máx",
   "min_bet_error": "El importe mínimo del ticket es {{min}}",
   "min_stake_per_combination_not_met": "El valor mínimo por columna no se cumple. Auméntelo en {{amount}} para continuar",
+  "divide_partial_stake": "No se ha podido apostar todo el importe: apostados {{distributed}} de {{entered}} (incremento de {{step}} por columna)",
   "operator_missing": "Falta el operador",
   "operator_required": "Se requiere operador para enviar el ticket",
   "operator_not_found": "Se requiere operador pero no se encontró en el almacenamiento",

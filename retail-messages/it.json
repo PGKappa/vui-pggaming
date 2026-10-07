@@ -288,6 +288,7 @@
   "dog8_races_label": "Levrieri Reali 8",
   "combinations": "Combinazioni",
   "min_stake_per_combination_not_met": "Valore minimo per combinazione non raggiunto. Aumentare di {{amount}} per continuare",
+  "divide_partial_stake": "Non è stato possibile puntare tutto l'importo: puntati {{distributed}} su {{entered}} (step di {{step}} per combinazione)",
   "operator_missing": "Operatore mancante nell'URL",
   "operator_required": "Operatore richiesto",
   "operator_not_found": "Operatore richiesto ma non trovato",
