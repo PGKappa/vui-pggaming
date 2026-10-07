@@ -1122,6 +1122,25 @@ export default function BettingSlip({
               return t('track_6')
             }
 
+            // Orario ufficiale della corsa per la stampa: lo "HH:MM" del
+            // server (start_time), come prima. startingAt ora viene da `since`
+            // per il conto alla rovescia e puo' avere qualche secondo di
+            // scarto (12:34:59 stamperebbe 12:34). Il calcio resta invariato.
+            const getOfficialStartTime = (entry: BetEntry) => {
+              if (entry.bet.discipline === Discipline.SOCCER)
+                return entry.bet.event.startingAt
+              const liveEvent = rootContext?.upcomingEvents?.find(
+                (e) =>
+                  e.id === entry.bet.event.number &&
+                  e.discipline === entry.bet.discipline,
+              )
+              const match = liveEvent?.startTime?.match(/^(\d{1,2}):(\d{2})$/)
+              if (!match) return entry.bet.event.startingAt
+              const officialStart = new Date()
+              officialStart.setHours(Number(match[1]), Number(match[2]), 0, 0)
+              return officialStart
+            }
+
             const eventGroups = betEntries.reduce(
               (groups, entry) => {
                 const eventId = entry.bet.event.number
@@ -1129,7 +1148,7 @@ export default function BettingSlip({
                   groups[eventId] = {
                     eventId,
                     eventName: getTranslatedEventName(entry.bet.discipline),
-                    eventStartTime: entry.bet.event.startingAt,
+                    eventStartTime: getOfficialStartTime(entry),
                     discipline: entry.bet.discipline,
                     channelId: getChannelId(entry.bet.discipline),
                     trackName: buildTrackName(entry),

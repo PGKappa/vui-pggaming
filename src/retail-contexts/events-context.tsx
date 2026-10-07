@@ -75,6 +75,26 @@ const isHorsesChannel = (c: any) => {
   return /horse|cavall/i.test(name)
 }
 
+// Calcola l'istante di partenza di una corsa per il conto alla rovescia.
+// Si parte da `since` (secondi mancanti calcolati dal server): l'orologio del
+// terminale serve solo da riferimento al momento della risposta, quindi un
+// orologio sbagliato o un fuso diverso sul Midas non spostano il conto. Ad
+// ogni refresh degli eventi il conto si risincronizza col server.
+// `start_time` ("HH:MM", letto nel fuso del terminale e senza secondi) e
+// `time` restano solo come ripiego se `since` manca.
+const resolveEventStartTime = (event: any, timezone: string): Date => {
+  if (typeof event.since === 'number' && Number.isFinite(event.since)) {
+    return new Date(Date.now() + event.since * 1000)
+  }
+  if (event.start_time && typeof event.start_time === 'string') {
+    const [hours, minutes] = event.start_time.split(':')
+    const startTime = new Date()
+    startTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
+    return startTime
+  }
+  return parseAPIDate(event.time, timezone)
+}
+
 // Cache leggero per evitare refetch se si torna su una disciplina già caricata
 const EVENTS_CACHE_TTL_MS = 10 * 60 * 1000 // 10 minuti
 
@@ -294,19 +314,7 @@ export default function EventsContextProvider(props: {
             if (dogChannel?.next_events) {
               const dogEvents = dogChannel.next_events.map(
                 (event: any, idx: number): UpcomingEvent => {
-                  let startTime: Date
-                  if (
-                    event.start_time &&
-                    typeof event.start_time === 'string'
-                  ) {
-                    const [hours, minutes] = event.start_time.split(':')
-                    startTime = new Date()
-                    startTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
-                  } else if (event.since && typeof event.since === 'number') {
-                    startTime = new Date(Date.now() + event.since * 1000)
-                  } else {
-                    startTime = parseAPIDate(event.time, timezone)
-                  }
+                  const startTime = resolveEventStartTime(event, timezone)
 
                   return {
                     id: parseInt(event.int_event_id),
@@ -329,19 +337,7 @@ export default function EventsContextProvider(props: {
             if (dog8Channel?.next_events) {
               const dog8Events = dog8Channel.next_events.map(
                 (event: any, idx: number): UpcomingEvent => {
-                  let startTime: Date
-                  if (
-                    event.start_time &&
-                    typeof event.start_time === 'string'
-                  ) {
-                    const [hours, minutes] = event.start_time.split(':')
-                    startTime = new Date()
-                    startTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
-                  } else if (event.since && typeof event.since === 'number') {
-                    startTime = new Date(Date.now() + event.since * 1000)
-                  } else {
-                    startTime = parseAPIDate(event.time, timezone)
-                  }
+                  const startTime = resolveEventStartTime(event, timezone)
 
                   return {
                     id: parseInt(event.int_event_id),
@@ -365,19 +361,7 @@ export default function EventsContextProvider(props: {
             if (horseChannel?.next_events) {
               const horseEvents = horseChannel.next_events.map(
                 (event: any, idx: number): UpcomingEvent => {
-                  let startTime: Date
-                  if (
-                    event.start_time &&
-                    typeof event.start_time === 'string'
-                  ) {
-                    const [hours, minutes] = event.start_time.split(':')
-                    startTime = new Date()
-                    startTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
-                  } else if (event.since && typeof event.since === 'number') {
-                    startTime = new Date(Date.now() + event.since * 1000)
-                  } else {
-                    startTime = parseAPIDate(event.time, timezone)
-                  }
+                  const startTime = resolveEventStartTime(event, timezone)
 
                   return {
                     id: parseInt(event.int_event_id),
@@ -506,19 +490,7 @@ export default function EventsContextProvider(props: {
             if (dogChannel?.next_events) {
               const dogEvents = dogChannel.next_events.map(
                 (event: any, idx: number): UpcomingEvent => {
-                  let startTime: Date
-                  if (
-                    event.start_time &&
-                    typeof event.start_time === 'string'
-                  ) {
-                    const [hours, minutes] = event.start_time.split(':')
-                    startTime = new Date()
-                    startTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
-                  } else if (event.since && typeof event.since === 'number') {
-                    startTime = new Date(Date.now() + event.since * 1000)
-                  } else {
-                    startTime = parseAPIDate(event.time, timezone)
-                  }
+                  const startTime = resolveEventStartTime(event, timezone)
 
                   return {
                     id: parseInt(event.int_event_id),
@@ -542,19 +514,7 @@ export default function EventsContextProvider(props: {
             if (dog8Channel?.next_events) {
               const dog8Events = dog8Channel.next_events.map(
                 (event: any, idx: number): UpcomingEvent => {
-                  let startTime: Date
-                  if (
-                    event.start_time &&
-                    typeof event.start_time === 'string'
-                  ) {
-                    const [hours, minutes] = event.start_time.split(':')
-                    startTime = new Date()
-                    startTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
-                  } else if (event.since && typeof event.since === 'number') {
-                    startTime = new Date(Date.now() + event.since * 1000)
-                  } else {
-                    startTime = parseAPIDate(event.time, timezone)
-                  }
+                  const startTime = resolveEventStartTime(event, timezone)
 
                   return {
                     id: parseInt(event.int_event_id),
@@ -578,19 +538,7 @@ export default function EventsContextProvider(props: {
             if (horseChannel?.next_events) {
               const horseEvents = horseChannel.next_events.map(
                 (event: any, idx: number): UpcomingEvent => {
-                  let startTime: Date
-                  if (
-                    event.start_time &&
-                    typeof event.start_time === 'string'
-                  ) {
-                    const [hours, minutes] = event.start_time.split(':')
-                    startTime = new Date()
-                    startTime.setHours(parseInt(hours), parseInt(minutes), 0, 0)
-                  } else if (event.since && typeof event.since === 'number') {
-                    startTime = new Date(Date.now() + event.since * 1000)
-                  } else {
-                    startTime = parseAPIDate(event.time, timezone)
-                  }
+                  const startTime = resolveEventStartTime(event, timezone)
 
                   return {
                     id: parseInt(event.int_event_id),
