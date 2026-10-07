@@ -152,13 +152,10 @@ export default function BettingSlip({
   )
   const totalOdds = Math.round(rawTotalOdds * 100) / 100
 
+  // Importo di Singola/Multipla. Il Sistema ha un importo separato
+  // (somma degli importi dei gruppi): cambiare tipologia non deve
+  // trasferire l'importo da una all'altra.
   const [global, setGlobal] = useState(1)
-  // Letto dentro l'useEffect di cambio modalità qui sotto: usare un ref
-  // invece del valore reattivo evita che l'effetto debba dipendere da
-  // `global` e rieseguirsi (e quindi azzerare gli importi appena
-  // distribuiti) quando è lui stesso a modificarlo via setGlobal(0).
-  const globalRef = useRef(global)
-  globalRef.current = global
   const potentialWinning = global * totalOdds
   const { t } = useTranslation()
 
@@ -238,9 +235,13 @@ export default function BettingSlip({
   }, [isSystemToggleEnabled, systemToggleMode, setSystemToggleMode])
 
   // Tiene traccia dell'ultimo importo totale impostato sul sistema, così
-  // quando si esce da SYSTEM (es. rimuovendo una selezione che riporta la
-  // schedina a Multipla) possiamo trasferirlo su `global` invece di perderlo.
+  // quando i gruppi vengono rigenerati (aggiunta/rimozione selezioni) o si
+  // torna su Sistema dopo essere passati a Multipla, l'importo del sistema
+  // viene ripristinato senza toccare quello di Singola/Multipla.
   const lastSystemTotalStakeRef = useRef(0)
+  useEffect(() => {
+    if (betEntries.length === 0) lastSystemTotalStakeRef.current = 0
+  }, [betEntries.length])
   useEffect(() => {
     if (betMode !== 'SYSTEM') return
     const total = systemGroupsRef.current
@@ -249,16 +250,9 @@ export default function BettingSlip({
     if (total > 0) lastSystemTotalStakeRef.current = total
   }, [betMode, systemGroupStakes])
 
-  const prevBetModeRef = useRef(betMode)
   useEffect(() => {
-    const prevMode = prevBetModeRef.current
-    prevBetModeRef.current = betMode
-
     if (betMode === 'SYSTEM' && baseSystemGroups.length > 0) {
-      const carryOverAmount =
-        prevMode !== 'SYSTEM'
-          ? globalRef.current
-          : lastSystemTotalStakeRef.current
+      const carryOverAmount = lastSystemTotalStakeRef.current
 
       if (carryOverAmount > 0) {
         const largestGroup = baseSystemGroups.reduce((largest, current) =>
@@ -280,7 +274,6 @@ export default function BettingSlip({
         setSelectedGroups(newSelectedGroups)
         setAllGroupsSelected(false)
         setSystemGroupStakes(newStakes)
-        if (prevMode !== 'SYSTEM') setGlobal(0)
         return
       }
 
@@ -296,18 +289,8 @@ export default function BettingSlip({
       setAllGroupsSelected(false)
       setSystemGroupStakes(initialStakes)
     } else {
-      // Uscendo da Sistema verso Singola/Multipla (es. rimozione di una
-      // selezione) — trasferiamo l'ultimo importo totale del sistema su
-      // `global` invece di lasciarlo a 0/stale, così l'operatore non deve
-      // reinserirlo.
-      if (prevMode === 'SYSTEM') {
-        setGlobal(
-          lastSystemTotalStakeRef.current > 0
-            ? lastSystemTotalStakeRef.current
-            : 1,
-        )
-        lastSystemTotalStakeRef.current = 0
-      }
+      // Uscendo da Sistema verso Singola/Multipla `global` resta quello
+      // impostato su Singola/Multipla: gli importi sono separati.
       setSelectedGroups({})
       setAllGroupsSelected(false)
       setSystemGroupStakes({})
@@ -486,7 +469,7 @@ export default function BettingSlip({
 
   const handleDirectAmountInput = (value: number) => {
     if (value <= 0) {
-      setGlobal(0)
+      lastSystemTotalStakeRef.current = 0
       setSystemGroupStakes({})
       setSelectedGroups({})
       setAllGroupsSelected(false)
@@ -516,7 +499,6 @@ export default function BettingSlip({
     setSelectedGroups(newSelectedGroups)
     setSystemGroupStakes((prev) => ({ ...prev, ...newStakes }))
     setAllGroupsSelected(false)
-    setGlobal(value)
   }
 
   const handleAllGroupsToggle = (checked: boolean) => {
@@ -592,12 +574,6 @@ export default function BettingSlip({
 
     return baseHeight + (isSingleGroup && isLastGroupOpen ? expandedHeight : 0)
   }, [systemGroups, systemGroupsOpen])
-
-  useEffect(() => {
-    if (betMode === 'SYSTEM') {
-      setGlobal(actualTotalStake)
-    }
-  }, [actualTotalStake, betMode])
 
   const handleBetNow = async () => {
     if (!rootContext.initCode) {
@@ -1243,6 +1219,7 @@ export default function BettingSlip({
       localStorage.setItem('lastSubmittedTicket', JSON.stringify(newTicket))
       removeAllBets()
       setGlobal(1)
+      lastSystemTotalStakeRef.current = 0
       setSystemGroupStakes({})
     } catch {
       toast.error(t('bet_submission_error'))
@@ -1474,16 +1451,16 @@ export default function BettingSlip({
                   </div>
                   <AccordionContent className="pb-0">
                     <div className="flex h-[54px] items-center border-b px-4" style={{ backgroundColor: '#EDEDED' }}>
-                      <div className="relative bottom-[3px] flex w-full items-center justify-between space-x-2">
+                      <div className="relative bottom-[3px] flex w-full items-center space-x-2">
                         <Checkbox
                           checked={allGroupsSelected}
                           onCheckedChange={handleAllGroupsToggle}
                         />
-                        <div className="mr-[3px] flex h-[33px] items-center space-x-2">
-                          <span className="mr-[4px] text-[12px] font-semibold">
+                        <div className="mr-[3px] flex h-[33px] min-w-0 flex-1 items-center space-x-2">
+                          <span className="pt-0.5 text-[12px] font-semibold">
                             {t('divide').toUpperCase()}
                           </span>
-                          <div className="relative right-[3px] flex w-full items-center border border-border">
+                          <div className="flex min-w-0 flex-1 items-center border border-border">
                             <Button
                               variant="ghost"
                               size="sm"
@@ -1492,16 +1469,18 @@ export default function BettingSlip({
                             >
                               <DivideIcon className="h-4 w-4" />
                             </Button>
-                            <NumericKeypadDrawer
-                              value={systemDistributeStake}
-                              setValue={setSystemDistributeStake}
-                              inputWidth="w-[142px] pr-2 text-[13px]"
-                              triggerLabel={t('divide/add_amount')}
-                              showPlusMinus={false}
-                              drawerId="system-divide-add"
-                              restrictDecimalDigits={true}
-                              currencySymbol={currencySymbol}
-                            />
+                            <div className="min-w-0 flex-1 [&>div]:w-full">
+                              <NumericKeypadDrawer
+                                value={systemDistributeStake}
+                                setValue={setSystemDistributeStake}
+                                inputWidth="w-full pr-2 text-[13px]"
+                                triggerLabel={t('divide/add_amount')}
+                                showPlusMinus={false}
+                                drawerId="system-divide-add"
+                                restrictDecimalDigits={true}
+                                currencySymbol={currencySymbol}
+                              />
+                            </div>
                             <Button
                               variant="ghost"
                               size="sm"
@@ -1511,7 +1490,7 @@ export default function BettingSlip({
                               <CornerDownLeft className="h-4 w-4" />
                             </Button>
                           </div>
-                          <span className="relative right-[2px] text-[12px] font-semibold">
+                          <span className="text-[12px] font-semibold">
                             {t('add').toUpperCase()}
                           </span>
                         </div>
@@ -1766,7 +1745,7 @@ export default function BettingSlip({
                   </span>
                 </div>
                 <NumericKeypadDrawer
-                  value={global}
+                  value={actualTotalStake}
                   setValue={handleDirectAmountInput}
                   inputWidth="w-[220px] border text-[16px] text-black"
                   triggerLabel={t('amount')}
