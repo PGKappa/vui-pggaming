@@ -845,8 +845,8 @@ export default function TicketCheckDialog({
 
   const fmt = (amount: string | number) => {
     const num = typeof amount === 'string' ? parseFloat(amount) : amount
-    if (isNaN(num)) return `0.00 ${currencySymbol}`
-    return `${num.toFixed(2)} ${currencySymbol}`
+    if (isNaN(num)) return `${currencySymbol} 0.00`
+    return `${currencySymbol} ${num.toFixed(2)}`
   }
 
   const [showReplayPlayer, setShowReplayPlayer] = useState(false)
@@ -1371,7 +1371,7 @@ export default function TicketCheckDialog({
                                     ? sel.competitors[num - 1]
                                     : sel.game.dict.runners?.[s.description]
                                 return name
-                                  ? `${s.description} - ${name}`
+                                  ? `${s.description} ${name}`
                                   : s.description
                               })()}
                             </span>
@@ -1805,7 +1805,7 @@ export default function TicketCheckDialog({
                           type="button"
                           onClick={() => setShowCancelConfirm(true)}
                           disabled={cancelling}
-                          className="flex h-[35px] w-[124px] cursor-pointer items-center justify-center rounded-none border border-white bg-accent text-center text-[14px] font-bold uppercase tracking-[1.5px] text-white hover:opacity-[.85] disabled:cursor-default disabled:opacity-50"
+                          className="flex h-[35px] w-[124px] cursor-pointer items-center justify-center rounded-none border border-white bg-[#7a7b83] text-center text-[14px] font-bold uppercase tracking-[1.5px] text-white hover:opacity-[.85] disabled:cursor-default disabled:opacity-50"
                         >
                           {cancelling ? '...' : t('cancel_ticket', 'CANCELLA')}
                         </button>
