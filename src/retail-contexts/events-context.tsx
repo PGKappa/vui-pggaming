@@ -75,13 +75,6 @@ const isHorsesChannel = (c: any) => {
   return /horse|cavall/i.test(name)
 }
 
-// Calcola l'istante di partenza di una corsa per il conto alla rovescia.
-// Si parte da `since` (secondi mancanti calcolati dal server): l'orologio del
-// terminale serve solo da riferimento al momento della risposta, quindi un
-// orologio sbagliato o un fuso diverso sul Midas non spostano il conto. Ad
-// ogni refresh degli eventi il conto si risincronizza col server.
-// `start_time` ("HH:MM", letto nel fuso del terminale e senza secondi) e
-// `time` restano solo come ripiego se `since` manca.
 const resolveEventStartTime = (event: any, timezone: string): Date => {
   if (typeof event.since === 'number' && Number.isFinite(event.since)) {
     return new Date(Date.now() + event.since * 1000)

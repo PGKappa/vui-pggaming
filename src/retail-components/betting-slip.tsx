@@ -1122,10 +1122,6 @@ export default function BettingSlip({
               return t('track_6')
             }
 
-            // Orario ufficiale della corsa per la stampa: lo "HH:MM" del
-            // server (start_time), come prima. startingAt ora viene da `since`
-            // per il conto alla rovescia e puo' avere qualche secondo di
-            // scarto (12:34:59 stamperebbe 12:34). Il calcio resta invariato.
             const getOfficialStartTime = (entry: BetEntry) => {
               if (entry.bet.discipline === Discipline.SOCCER)
                 return entry.bet.event.startingAt
