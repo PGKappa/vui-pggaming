@@ -1418,6 +1418,11 @@ export default function BettingSlip({
                   triggerLabel={t('amount').toUpperCase()}
                   showPlusMinus={true}
                   drawerId="global-amount"
+                  restrictDecimalDigits={true}
+                  clearValue={1}
+                  disableZeroAndDecimalAsFirstKey={true}
+                  prefillValue={true}
+                  minPlusMinusValue={1}
                   currencySymbol={currencySymbol}
                 />
               </div>
@@ -1494,6 +1499,7 @@ export default function BettingSlip({
                               triggerLabel={t('divide/add_amount')}
                               showPlusMinus={false}
                               drawerId="system-divide-add"
+                              restrictDecimalDigits={true}
                               currencySymbol={currencySymbol}
                             />
                             <Button
@@ -1766,6 +1772,10 @@ export default function BettingSlip({
                   triggerLabel={t('amount')}
                   showPlusMinus={false}
                   drawerId="system-amount"
+                  restrictDecimalDigits={true}
+                  clearValue={1}
+                  disableZeroAndDecimalAsFirstKey={true}
+                  prefillValue={true}
                   currencySymbol={currencySymbol}
                 />
               </div>

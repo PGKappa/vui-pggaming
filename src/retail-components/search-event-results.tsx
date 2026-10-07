@@ -605,16 +605,14 @@ export default function SearchEventResults() {
               {t('discipline').toUpperCase()}
             </SelectItem>
             {Object.values(Discipline)
-              .filter((d) => d !== Discipline.SOCCER)
+              .filter((d) => d !== Discipline.SOCCER && d !== Discipline.DOGS8)
               .map((d) => {
                 const translationKey =
                   d === 'DOGS'
                     ? 'dog_racing'
-                    : d === 'DOGS8'
-                      ? 'dog8_racing'
-                      : d === 'HORSES'
-                        ? 'horse_racing'
-                        : 'football'
+                    : d === 'HORSES'
+                      ? 'horse_racing'
+                      : 'football'
                 return (
                   <SelectItem className="text-[14px]" key={d} value={d}>
                     {t(translationKey).toUpperCase()}

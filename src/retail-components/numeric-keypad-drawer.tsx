@@ -10,7 +10,14 @@ import {
 } from '@/retail-components/ui/drawer'
 import { Input } from '@/retail-components/ui/input'
 import { MinusIcon, PlusIcon, Delete, ChevronDown } from 'lucide-react'
-import { useState, useEffect, useContext, useMemo } from 'react'
+import {
+  useState,
+  useEffect,
+  useLayoutEffect,
+  useContext,
+  useMemo,
+  useRef,
+} from 'react'
 import { useTranslation } from 'react-i18next'
 import { RootContext } from '@/retail-contexts/root-context'
 
@@ -23,6 +30,11 @@ export default function NumericKeypadDrawer(props: {
   drawerId?: string
   currencySymbol?: string
   incrementValue?: number
+  restrictDecimalDigits?: boolean
+  minPlusMinusValue?: number
+  prefillValue?: boolean
+  clearValue?: number
+  disableZeroAndDecimalAsFirstKey?: boolean
 }) {
   const { t } = useTranslation()
   const {
@@ -36,6 +48,16 @@ export default function NumericKeypadDrawer(props: {
   const [drawerValue, setDrawerValue] = useState('0.00')
   const [shouldReplaceOnNextDigit, setShouldReplaceOnNextDigit] =
     useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
+  // Posizione del cursore da ripristinare dopo una modifica da tastiera
+  const pendingCaretRef = useRef<number | null>(null)
+
+  useLayoutEffect(() => {
+    if (pendingCaretRef.current === null || !inputRef.current) return
+    const caret = pendingCaretRef.current
+    pendingCaretRef.current = null
+    inputRef.current.setSelectionRange(caret, caret)
+  }, [drawerValue])
 
   // Get currency symbol from RootContext or fallback to prop/$
   const currencySymbol = getCurrencySymbol?.() || props.currencySymbol || '$'
@@ -66,10 +88,35 @@ export default function NumericKeypadDrawer(props: {
 
   useEffect(() => {
     if (open) {
-      setDrawerValue('0.00')
-      setShouldReplaceOnNextDigit(false)
+      // Riporta l'importo corrente nel tastierino; la prima cifra digitata lo sostituisce
+      const current = props.prefillValue ? value : 0
+      setDrawerValue(current > 0 ? current.toFixed(2) : '0.00')
+      setShouldReplaceOnNextDigit(current > 0)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open])
+
+  // Dopo il punto decimale consente solo 5, 0, C e le scelte rapide
+  const isDecimalLocked =
+    !!props.restrictDecimalDigits &&
+    !shouldReplaceOnNextDigit &&
+    drawerValue !== '0.00' &&
+    drawerValue.includes('.')
+  // Prima cifra decimale: 5 o 0; seconda cifra decimale: solo 0
+  const decimalDigitsCount = isDecimalLocked
+    ? drawerValue.length - drawerValue.indexOf('.') - 1
+    : 0
+  // 0 e punto non possono essere il primo tasto: si abilitano dopo un'altra cifra
+  const isFirstKeyBlocked =
+    !!props.disableZeroAndDecimalAsFirstKey &&
+    (shouldReplaceOnNextDigit || drawerValue === '0.00' || drawerValue === '0')
+  const isDigitEnabled = (digit: string) => {
+    if (digit === '0' && isFirstKeyBlocked) return false
+    if (!isDecimalLocked) return true
+    if (decimalDigitsCount === 0) return digit === '5' || digit === '0'
+    if (decimalDigitsCount === 1) return digit === '0'
+    return false
+  }
 
   const handlePresetValue = (amount: number) => {
     // Valida che amount sia un numero valido
@@ -90,6 +137,7 @@ export default function NumericKeypadDrawer(props: {
   }
 
   const handleNumberClick = (digit: string) => {
+    if (!isDigitEnabled(digit)) return
     setDrawerValue((prev) => {
       // Se abbiamo appena cliccato un preset, resetta e inizia da capo
       if (shouldReplaceOnNextDigit) {
@@ -112,6 +160,7 @@ export default function NumericKeypadDrawer(props: {
   }
 
   const handleDecimalClick = () => {
+    if (isDecimalLocked || isFirstKeyBlocked) return
     setDrawerValue((prev) => {
       // Se abbiamo appena cliccato un preset, resetta e inizia da "0."
       if (shouldReplaceOnNextDigit) {
@@ -127,29 +176,78 @@ export default function NumericKeypadDrawer(props: {
   }
 
   const handleDelete = () => {
+    const newValue = drawerValue.length <= 1 ? '' : drawerValue.slice(0, -1)
+    // Se l'importo si svuota (o vale 0) torna al valore del tasto C
+    if (newValue === '' || (props.clearValue && !parseFloat(newValue))) {
+      handleClear()
+      return
+    }
     setShouldReplaceOnNextDigit(false)
-    setDrawerValue((prev) => {
-      if (prev.length <= 1) {
-        return '0.00'
-      }
-      const newValue = prev.slice(0, -1)
-      return newValue === '' ? '0.00' : newValue
-    })
+    setDrawerValue(newValue)
   }
 
   const handleClear = () => {
-    setShouldReplaceOnNextDigit(false)
-    setDrawerValue('0.00')
+    // Con clearValue il tasto C riporta a quel valore; la prima cifra digitata lo sostituisce
+    const clearValue = props.clearValue ?? 0
+    setShouldReplaceOnNextDigit(clearValue > 0)
+    setDrawerValue(clearValue > 0 ? clearValue.toFixed(2) : '0.00')
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const isValidAmountText = (text: string) => {
+    if (!/^\d*\.?\d{0,2}$/.test(text)) return false
+    if (!props.restrictDecimalDigits || !text.includes('.')) return true
+    const decimals = text.slice(text.indexOf('.') + 1)
+    return ['', '0', '5', '00', '50'].includes(decimals)
+  }
+
+  // Modifica il valore nella posizione del cursore (o sostituisce la selezione)
+  const editAtCaret = (
+    input: HTMLInputElement,
+    insert: string,
+    deleteBefore = false,
+  ) => {
+    let start = input.selectionStart ?? drawerValue.length
+    const end = input.selectionEnd ?? drawerValue.length
+    if (deleteBefore && start === end) {
+      if (start === 0) return
+      start -= 1
+    }
+    let next = drawerValue.slice(0, start) + insert + drawerValue.slice(end)
+    let caret = start + insert.length
+    // Rimuove gli zeri iniziali superflui (es. "05" -> "5")
+    const leadingZeros = next.match(/^0+(?=\d)/)?.[0].length ?? 0
+    if (leadingZeros) {
+      next = next.slice(leadingZeros)
+      caret = Math.max(0, caret - leadingZeros)
+    }
+    if (next === '') {
+      handleClear()
+      return
+    }
+    if (!isValidAmountText(next)) return
+    setShouldReplaceOnNextDigit(false)
+    pendingCaretRef.current = caret
+    setDrawerValue(next)
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (['ArrowLeft', 'ArrowRight', 'Home', 'End', 'Tab'].includes(e.key)) {
+      return
+    }
     e.preventDefault()
+    const input = e.currentTarget
+    const caretAtEnd =
+      input.selectionStart === input.selectionEnd &&
+      input.selectionEnd === drawerValue.length
     if (e.key >= '0' && e.key <= '9') {
-      handleNumberClick(e.key)
+      if (caretAtEnd) handleNumberClick(e.key)
+      else editAtCaret(input, e.key)
     } else if (e.key === '.') {
-      handleDecimalClick()
+      if (caretAtEnd) handleDecimalClick()
+      else if (!drawerValue.includes('.')) editAtCaret(input, '.')
     } else if (e.key === 'Backspace') {
-      handleDelete()
+      if (caretAtEnd) handleDelete()
+      else editAtCaret(input, '', true)
     } else if (e.key === 'Delete') {
       handleClear()
     } else if (e.key === 'Enter') {
@@ -166,8 +264,11 @@ export default function NumericKeypadDrawer(props: {
     setActiveDrawer(undefined)
   }
 
+  // Valore minimo raggiungibile con il tasto meno (es. giocata minima)
+  const minPlusMinusValue = props.minPlusMinusValue ?? 0
+
   const handlePlusMinus = (increment: number) => {
-    const newValue = Math.max(0, value + increment)
+    const newValue = Math.max(minPlusMinusValue, value + increment)
     setValue(newValue)
     props.setValue(newValue)
   }
@@ -191,7 +292,7 @@ export default function NumericKeypadDrawer(props: {
             variant="ghost"
             size="sm"
             className="disabled:bg-disabledButton disabled:text-white disabled:opacity-1 h-8 w-7 bg-minusButton p-3 text-[19px] text-white hover:opacity-90"
-            disabled={displayValue <= 0}
+            disabled={displayValue <= minPlusMinusValue}
             onClick={(e) => {
               e.stopPropagation()
               handlePlusMinus(-incrementValue)
@@ -261,6 +362,7 @@ export default function NumericKeypadDrawer(props: {
           {/* Display Value */}
           <div className="flex items-center space-x-3">
             <Input
+              ref={inputRef}
               value={drawerValue}
               onChange={() => {}}
               onKeyDown={handleKeyDown}
@@ -322,6 +424,7 @@ export default function NumericKeypadDrawer(props: {
               size="lg"
               className="relative left-3 top-3 h-12 w-[112px] text-[20px] font-semibold tabular-nums"
               onClick={() => handleNumberClick('1')}
+              disabled={!isDigitEnabled('1')}
             >
               1
             </Button>
@@ -330,6 +433,7 @@ export default function NumericKeypadDrawer(props: {
               size="lg"
               className="h-12 text-[20px] font-semibold tabular-nums"
               onClick={() => handleNumberClick('2')}
+              disabled={!isDigitEnabled('2')}
             >
               2
             </Button>
@@ -338,6 +442,7 @@ export default function NumericKeypadDrawer(props: {
               size="lg"
               className="h-12 text-[20px] font-semibold tabular-nums"
               onClick={() => handleNumberClick('3')}
+              disabled={!isDigitEnabled('3')}
             >
               3
             </Button>
@@ -347,6 +452,7 @@ export default function NumericKeypadDrawer(props: {
               size="lg"
               className="h-12 text-[20px] font-semibold tabular-nums"
               onClick={() => handleNumberClick('4')}
+              disabled={!isDigitEnabled('4')}
             >
               4
             </Button>
@@ -355,6 +461,7 @@ export default function NumericKeypadDrawer(props: {
               size="lg"
               className="h-12 text-[20px] font-semibold tabular-nums"
               onClick={() => handleNumberClick('5')}
+              disabled={!isDigitEnabled('5')}
             >
               5
             </Button>
@@ -363,6 +470,7 @@ export default function NumericKeypadDrawer(props: {
               size="lg"
               className="h-12 text-[20px] font-semibold tabular-nums"
               onClick={() => handleNumberClick('6')}
+              disabled={!isDigitEnabled('6')}
             >
               6
             </Button>
@@ -372,6 +480,7 @@ export default function NumericKeypadDrawer(props: {
               size="lg"
               className="h-12 text-[20px] font-semibold tabular-nums"
               onClick={() => handleNumberClick('7')}
+              disabled={!isDigitEnabled('7')}
             >
               7
             </Button>
@@ -380,6 +489,7 @@ export default function NumericKeypadDrawer(props: {
               size="lg"
               className="h-12 text-[20px] font-semibold tabular-nums"
               onClick={() => handleNumberClick('8')}
+              disabled={!isDigitEnabled('8')}
             >
               8
             </Button>
@@ -388,6 +498,7 @@ export default function NumericKeypadDrawer(props: {
               size="lg"
               className="h-12 text-[20px] font-semibold tabular-nums"
               onClick={() => handleNumberClick('9')}
+              disabled={!isDigitEnabled('9')}
             >
               9
             </Button>
@@ -397,6 +508,7 @@ export default function NumericKeypadDrawer(props: {
               size="lg"
               className="h-12 text-[20px] font-semibold tabular-nums"
               onClick={handleDecimalClick}
+              disabled={isDecimalLocked || isFirstKeyBlocked}
             >
               .
             </Button>
@@ -405,6 +517,7 @@ export default function NumericKeypadDrawer(props: {
               size="lg"
               className="h-12 text-[20px] font-semibold tabular-nums"
               onClick={() => handleNumberClick('0')}
+              disabled={!isDigitEnabled('0')}
             >
               0
             </Button>
