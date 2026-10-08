@@ -68,7 +68,8 @@ export default function UpcomingRaceCard({
   const [isLoading, setIsLoading] = useState(!cachedForThisRace)
   const [isLatecomersDialogOpen, setIsLatecomersDialogOpen] = useState(false)
 
-  const { betEntries, setRaceFieldSize } = useContext(BetsContext)
+  const { betEntries, setRaceFieldSize, betslipClearId } =
+    useContext(BetsContext)
   const rootContext = useContext(RootContext)
 
   const [marketType, setMarketType] = useState<
@@ -363,6 +364,10 @@ export default function UpcomingRaceCard({
   useEffect(() => {
     clearSelections()
   }, [race.id, race.discipline])
+
+  useEffect(() => {
+    if (betslipClearId > 0) clearSelections()
+  }, [betslipClearId])
 
   const toggleFixedSelection = (competitorId: number) => {
     if (!isAnyOrderMode) {
@@ -925,22 +930,37 @@ export default function UpcomingRaceCard({
 </div>
 
           <div className="flex items-center">
-            <span className="p-[10px] text-[15px] font-semibold text-tertiary-foreground tabular-nums">
-              {'ID'} {race.id}
-            </span>
+            <div className="grid auto-cols-fr grid-flow-col items-center gap-2">
+              {(activeTab === 'couples' || activeTab === 'triplets') &&
+                (position1Selection.length > 0 ||
+                  position2Selection.length > 0 ||
+                  position3Selection.length > 0 ||
+                  disorderSelection.length > 0 ||
+                  fixedSelection.length > 0) && (
+                  <Button
+                    variant="ghost"
+                    className="h-12 w-full pt-[1px] border-border bg-secondary px-[18px] text-[15px] font-semibold text-secondary-foreground hover:bg-navbarHover"
+                    onClick={clearSelections}
+                  >
+                    {t('clear').toUpperCase()}
+                  </Button>
+                )}
 
-            <div className="flex items-center space-x-2">
               {shouldShowInfoButton() && (
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-12 w-fit pt-[1px] border-border bg-secondary px-[18px] text-[15px] font-semibold text-secondary-foreground hover:bg-navbarHover"
+                  className="h-12 w-full pt-[1px] border-border bg-secondary px-[18px] text-[15px] font-semibold text-secondary-foreground hover:bg-navbarHover"
                   onClick={() => setIsLatecomersDialogOpen(true)}
                 >
                   <span>{t('latecomers').toUpperCase()}</span>
                 </Button>
               )}
             </div>
+
+            <span className="p-[10px] pl-[25px] relative left-[-1px] text-[15px] font-semibold text-tertiary-foreground tabular-nums">
+              {'ID'} {race.id}
+            </span>
           </div>
         </CardHeader>
 

@@ -240,7 +240,11 @@ export default function BettingSlip({
   // viene ripristinato senza toccare quello di Singola/Multipla.
   const lastSystemTotalStakeRef = useRef(0)
   useEffect(() => {
-    if (betEntries.length === 0) lastSystemTotalStakeRef.current = 0
+    if (betEntries.length > 0) return
+    lastSystemTotalStakeRef.current = 0
+    setGlobal(1)
+    setSystemGroupStakes({})
+    setSystemDistributeStake(0)
   }, [betEntries.length])
   useEffect(() => {
     if (betMode !== 'SYSTEM') return
@@ -253,33 +257,20 @@ export default function BettingSlip({
   useEffect(() => {
     if (betMode === 'SYSTEM' && baseSystemGroups.length > 0) {
       // Ultimo importo del sistema, oppure 1 come importo predefinito,
-      // distribuito sul gruppo più grande
+      // proposto nel campo Dividi/Aggiungi: nessun gruppo viene
+      // preselezionato né riceve subito un importo
       const carryOverAmount = lastSystemTotalStakeRef.current || 1
-      const largestGroup = baseSystemGroups.reduce((largest, current) =>
-        current.size > largest.size ? current : largest,
-      )
-      const stakePerCombination =
-        carryOverAmount / largestGroup.combinations.length
-      const newSelectedGroups: Record<string, boolean> = {}
-      const newStakes: Record<string, number> = {}
-      baseSystemGroups.forEach((group) => {
-        if (group.size === largestGroup.size) {
-          newSelectedGroups[group.name] = true
-          newStakes[group.name] = stakePerCombination
-        } else {
-          newSelectedGroups[group.name] = false
-          newStakes[group.name] = 0
-        }
-      })
-      setSelectedGroups(newSelectedGroups)
+      setSelectedGroups({})
       setAllGroupsSelected(false)
-      setSystemGroupStakes(newStakes)
+      setSystemGroupStakes({})
+      setSystemDistributeStake(roundMoney(carryOverAmount))
     } else {
       // Uscendo da Sistema verso Singola/Multipla `global` resta quello
       // impostato su Singola/Multipla: gli importi sono separati.
       setSelectedGroups({})
       setAllGroupsSelected(false)
       setSystemGroupStakes({})
+      setSystemDistributeStake(0)
     }
   }, [betMode, baseSystemGroups])
 
@@ -301,19 +292,22 @@ export default function BettingSlip({
     else return 'single'
   }
 
-  const handleDistributeStake = () => {
-    if (systemDistributeStake <= 0) {
+  const handleDistributeStake = (
+    amount: number = systemDistributeStake,
+    groupSelection: Record<string, boolean> = selectedGroups,
+  ) => {
+    if (amount <= 0) {
       toast.error(t('enter_valid_amount'))
       return
     }
-    if (systemDistributeStake < minStake) {
+    if (amount < minStake) {
       toast.error(t('min_stake_error', { min: minStake }))
       return
     }
     if (systemGroups.length === 0) return
 
     const selectedGroupsList = systemGroups.filter(
-      (group) => selectedGroups[group.name],
+      (group) => groupSelection[group.name],
     )
     if (selectedGroupsList.length === 0) {
       toast.error(t('select_at_least_one_group'))
@@ -325,7 +319,7 @@ export default function BettingSlip({
       0,
     )
     const minIncrement = systemStakeIncrement
-    const target = systemDistributeStake
+    const target = amount
     const baseStake =
       Math.floor(target / totalCombinations / minIncrement) * minIncrement
     const totalBaseUsed = baseStake * totalCombinations
@@ -389,7 +383,7 @@ export default function BettingSlip({
     let minStakeErrorShown = false
     if (groupsWithoutStake.length > 0) {
       const minNeededForAll = totalCombinations * minStake
-      const difference = minNeededForAll - systemDistributeStake
+      const difference = minNeededForAll - amount
       if (difference > 0) {
         toast.error(
           t('min_stake_per_combination_not_met', {
@@ -406,7 +400,7 @@ export default function BettingSlip({
         Math.round((stakes[group.name] ?? 0) * 100) * group.combinations.length,
       0,
     )
-    const enteredCents = Math.round(systemDistributeStake * 100)
+    const enteredCents = Math.round(amount * 100)
     if (!minStakeErrorShown && distributedCents < enteredCents) {
       toast.warning(
         t('divide_partial_stake', {
@@ -473,37 +467,24 @@ export default function BettingSlip({
   }
 
   const handleDirectAmountInput = (value: number) => {
-    if (value <= 0) {
-      lastSystemTotalStakeRef.current = 0
-      setSystemGroupStakes({})
+    // L'importo totale viene proposto nel campo Dividi/Aggiungi e diviso
+    // subito su tutti i gruppi, come spuntando Dividi e premendo ÷
+    const amount = value > 0 ? roundMoney(value) : 0
+    lastSystemTotalStakeRef.current = amount
+    setSystemDistributeStake(amount)
+    setSystemGroupStakes({})
+    if (amount === 0) {
       setSelectedGroups({})
       setAllGroupsSelected(false)
       return
     }
-
-    const largestGroup = systemGroups.reduce((largest, current) => {
-      return current.size > largest.size ? current : largest
-    }, systemGroups[0])
-
-    if (!largestGroup) return
-
-    const stakePerCombination = value / largestGroup.combinations.length
-    const newSelectedGroups: Record<string, boolean> = {}
-    const newStakes: Record<string, number> = {}
-
+    const allGroups: Record<string, boolean> = {}
     systemGroups.forEach((group) => {
-      if (group.size === largestGroup.size) {
-        newSelectedGroups[group.name] = true
-        newStakes[group.name] = stakePerCombination
-      } else {
-        newSelectedGroups[group.name] = false
-        newStakes[group.name] = 0
-      }
+      allGroups[group.name] = true
     })
-
-    setSelectedGroups(newSelectedGroups)
-    setSystemGroupStakes((prev) => ({ ...prev, ...newStakes }))
-    setAllGroupsSelected(false)
+    setSelectedGroups(allGroups)
+    setAllGroupsSelected(true)
+    handleDistributeStake(amount, allGroups)
   }
 
   const handleAllGroupsToggle = (checked: boolean) => {
@@ -1494,7 +1475,7 @@ export default function BettingSlip({
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={handleDistributeStake}
+                              onClick={() => handleDistributeStake()}
                               className={`h-8 w-7 p-3 text-[19px] text-bet-foreground hover:opacity-90 ${allGroupsSelected ? 'bg-minusButton' : 'bg-minusButtonDark opacity-50'}`}
                             >
                               <DivideIcon className="h-4 w-4" />
@@ -1778,7 +1759,11 @@ export default function BettingSlip({
                   </span>
                 </div>
                 <NumericKeypadDrawer
-                  value={actualTotalStake}
+                  value={
+                    actualTotalStake > 0
+                      ? actualTotalStake
+                      : systemDistributeStake
+                  }
                   setValue={handleDirectAmountInput}
                   inputWidth="w-[220px] border text-[16px] text-black"
                   triggerLabel={t('amount')}

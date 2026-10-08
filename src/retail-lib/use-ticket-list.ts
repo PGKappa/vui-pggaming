@@ -63,6 +63,36 @@ export function parseTicketTime(time: TicketListItem['time']): Date {
   )
 }
 
+export function getTimePartsInTimeZone(date: Date, timeZone?: string) {
+  const formatter = (tz?: string) =>
+    new Intl.DateTimeFormat('en-GB', {
+      timeZone: tz,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hourCycle: 'h23',
+    })
+  let parts: Intl.DateTimeFormatPart[]
+  try {
+    parts = formatter(timeZone || undefined).formatToParts(date)
+  } catch {
+    parts = formatter(undefined).formatToParts(date)
+  }
+  const get = (type: Intl.DateTimeFormatPartTypes) =>
+    parts.find((part) => part.type === type)?.value ?? '00'
+  return {
+    day: get('day'),
+    month: get('month'),
+    year: get('year'),
+    hour: get('hour'),
+    minute: get('minute'),
+    second: get('second'),
+  }
+}
+
 export function getStatusDisplay(status: number): {
   label: string
   colorClass: string
