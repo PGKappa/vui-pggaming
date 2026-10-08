@@ -43,6 +43,7 @@ export type BetsContextType = {
   removeEventBets: (eventId: string) => void
   toggleEventBetsFixed: (eventId: string) => void
   removeAllBets: () => void
+  betslipClearId: number
   restoreLastSubmittedTicket: () => void
   addBets: (market: string, bet: Bet[], apiMarket?: string) => number
   removeBets: (
@@ -75,6 +76,7 @@ const defaultBetsContext: BetsContextType = {
   removeEventBets: () => {},
   toggleEventBetsFixed: () => {},
   removeAllBets: () => {},
+  betslipClearId: 0,
   restoreLastSubmittedTicket: () => {},
   addBets: () => 0,
   removeBets: () => {},
@@ -332,8 +334,10 @@ export default function BetsContextProvider(props: {
     }))
   }, [])
 
+  const [betslipClearId, setBetslipClearId] = useState(0)
   const removeAllBets = useCallback(() => {
     setBetsContext((prev) => ({ ...prev, betEntries: [], lastId: 0 }))
+    setBetslipClearId((id) => id + 1)
   }, [])
 
   const restoreLastSubmittedTicket = useCallback(() => {
@@ -516,6 +520,7 @@ export default function BetsContextProvider(props: {
       setSystemToggleMode,
       raceFieldSizes,
       setRaceFieldSize,
+      betslipClearId,
     }),
     [
       betsContext,
@@ -525,6 +530,7 @@ export default function BetsContextProvider(props: {
       setSystemToggleMode,
       raceFieldSizes,
       setRaceFieldSize,
+      betslipClearId,
     ],
   )
 

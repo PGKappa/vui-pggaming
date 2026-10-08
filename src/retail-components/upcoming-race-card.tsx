@@ -68,7 +68,8 @@ export default function UpcomingRaceCard({
   const [isLoading, setIsLoading] = useState(!cachedForThisRace)
   const [isLatecomersDialogOpen, setIsLatecomersDialogOpen] = useState(false)
 
-  const { betEntries, setRaceFieldSize } = useContext(BetsContext)
+  const { betEntries, setRaceFieldSize, betslipClearId } =
+    useContext(BetsContext)
   const rootContext = useContext(RootContext)
 
   const [marketType, setMarketType] = useState<
@@ -363,6 +364,10 @@ export default function UpcomingRaceCard({
   useEffect(() => {
     clearSelections()
   }, [race.id, race.discipline])
+
+  useEffect(() => {
+    if (betslipClearId > 0) clearSelections()
+  }, [betslipClearId])
 
   const toggleFixedSelection = (competitorId: number) => {
     if (!isAnyOrderMode) {

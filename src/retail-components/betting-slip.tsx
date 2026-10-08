@@ -240,7 +240,11 @@ export default function BettingSlip({
   // viene ripristinato senza toccare quello di Singola/Multipla.
   const lastSystemTotalStakeRef = useRef(0)
   useEffect(() => {
-    if (betEntries.length === 0) lastSystemTotalStakeRef.current = 0
+    if (betEntries.length > 0) return
+    lastSystemTotalStakeRef.current = 0
+    setGlobal(1)
+    setSystemGroupStakes({})
+    setSystemDistributeStake(0)
   }, [betEntries.length])
   useEffect(() => {
     if (betMode !== 'SYSTEM') return
