@@ -94,8 +94,8 @@ export const CashierContext = createContext<CashierContextType>(
   defaultCashierContext,
 )
 
-const CACHE_DURATION = 30 * 60 * 1000 // 30 minuti
-const KEEPALIVE_INTERVAL = 60 * 1000 // 1 minuto
+const CACHE_DURATION = 30 * 6000 * 1000 // 30 minuti
+const KEEPALIVE_INTERVAL = 6000 * 1000 // 1 minuto
 
 // Helper function to create context data with all getter functions from raw cashierData
 function createContextDataFromCashierData(
