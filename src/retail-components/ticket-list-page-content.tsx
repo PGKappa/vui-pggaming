@@ -20,6 +20,7 @@ import {
 import {
   useTicketList,
   parseTicketTime,
+  getTimePartsInTimeZone,
   getStatusDisplay,
   formatCurrency,
 } from '@/retail-lib/use-ticket-list'
@@ -740,7 +741,10 @@ export default function TicketListPageContent({
               ) : (
                 <>
                   {items.map((item, itemIdx) => {
-                    const date = parseTicketTime(item.time)
+                    const time = getTimePartsInTimeZone(
+                      parseTicketTime(item.time),
+                      item.intl?.timezone,
+                    )
                     const statusInfo = getStatusDisplay(item.status)
                     const isCancelled = CANCELLED_STATUSES.includes(item.status)
                     return (
@@ -757,8 +761,8 @@ export default function TicketListPageContent({
                       >
                         <td className={tdClass()}>{item.ticket_id}</td>
                         <td className={tdClass()}>
-                          {format(date, 'dd/MM/yy')} -{' '}
-                          {format(date, 'HH:mm:ss')}
+                          {time.day}/{time.month}/{time.year.slice(-2)} -{' '}
+                          {time.hour}:{time.minute}:{time.second}
                         </td>
                         <td className={tdClass()}>{item.terminal_id}</td>
                         <td className={tdClass(fitRows ? 'leading-tight' : '')}>
