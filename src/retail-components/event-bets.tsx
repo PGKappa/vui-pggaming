@@ -3,6 +3,7 @@ import { RootContext } from '@/retail-contexts/root-context'
 import { getLayoutConfig } from '@/retail-lib/layout-config'
 import { BetEntry } from '@/retail-lib/types'
 import useTimeLeft from '@/retail-lib/use-time-left'
+import { getTimePartsInTimeZone } from '@/retail-lib/use-ticket-list'
 import { format } from 'date-fns'
 import { t } from 'i18next'
 import { CircleXIcon } from 'lucide-react'
@@ -33,6 +34,19 @@ export default function EventBets(props: {
   const layout = getLayoutConfig(lang)
 
   const timeToMatchStart = useTimeLeft(eventBets[0].bet.event.startingAt)
+
+  const getStartTimeLabel = () => {
+    const { discipline, event } = eventBets[0].bet
+    const startingAt = new Date(event.startingAt)
+    if (discipline === 'SOCCER') return format(startingAt, 'HH:mm')
+    const startTime = rootContext?.upcomingEvents?.find(
+      (e) => e.id === event.number && e.discipline === discipline,
+    )?.startTime
+    if (startTime && /^\d{1,2}:\d{2}$/.test(startTime)) return startTime
+    const rounded = new Date(Math.round(startingAt.getTime() / 60000) * 60000)
+    const p = getTimePartsInTimeZone(rounded, rootContext?.getTimezone?.())
+    return `${p.hour}:${p.minute}`
+  }
 
   // Helper to translate market names - usa normalizeMarketName centralizzato.
   // Per Under/Over la soglia (es. 3.5) vive solo nel nome mercato originale
@@ -99,7 +113,7 @@ export default function EventBets(props: {
 
             <div className="flex items-center space-x-2 mr-1">
               <span className="text-[15px] font-bold tabular-nums">
-                {format(eventBets[0].bet.event.startingAt, 'HH:mm')}
+                {getStartTimeLabel()}
               </span>
               <Badge className="mr-[4px] h-[27px] w-[61px] items-center justify-center bg-accent text-[14px] tabular-nums text-white">
                 {timeToMatchStart}

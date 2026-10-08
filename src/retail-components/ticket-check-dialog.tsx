@@ -26,6 +26,7 @@ import {
   roundStakePerCombination,
 } from '@/retail-lib/utils'
 import { computeSameEventOddsRange } from '@/retail-lib/system-bets'
+import { getTimePartsInTimeZone } from '@/retail-lib/use-ticket-list'
 import { format } from 'date-fns'
 import { useTranslation } from 'react-i18next'
 import { useCallback, useContext, useEffect, useState } from 'react'
@@ -109,28 +110,32 @@ function toLocalDateFromTicketTime(time: TicketDetailInfo['time']): Date {
   return new Date(Date.UTC(year, month, day, hour, min, sec ?? 0))
 }
 
-function formatTicketTime(time: TicketDetailInfo['time']): string {
-  const date = toLocalDateFromTicketTime(time)
-  const d = String(date.getDate()).padStart(2, '0')
-  const m = String(date.getMonth() + 1).padStart(2, '0')
-  const y = String(date.getFullYear())
-  const h = String(date.getHours()).padStart(2, '0')
-  const mi = String(date.getMinutes()).padStart(2, '0')
-  const s = String(date.getSeconds()).padStart(2, '0')
-  return `${d}/${m}/${y} - ${h}:${mi}:${s}`
+
+function formatTicketTime(
+  time: TicketDetailInfo['time'],
+  timeZone?: string,
+): string {
+  const p = getTimePartsInTimeZone(toLocalDateFromTicketTime(time), timeZone)
+  return `${p.day}/${p.month}/${p.year} - ${p.hour}:${p.minute}:${p.second}`
 }
 
-function formatTicketDate(time: TicketDetailInfo['time']): string {
-  const date = toLocalDateFromTicketTime(time)
-  const d = String(date.getDate()).padStart(2, '0')
-  const m = String(date.getMonth() + 1).padStart(2, '0')
-  return `${d}/${m}/${date.getFullYear()}`
+function formatTicketDate(
+  time: TicketDetailInfo['time'],
+  timeZone?: string,
+): string {
+  const p = getTimePartsInTimeZone(toLocalDateFromTicketTime(time), timeZone)
+  return `${p.day}/${p.month}/${p.year}`
 }
 
-function toLocalEventTime(rawStartTime: string): string {
+function toLocalEventTime(rawStartTime: string, timeZone?: string): string {
   if (!/^\d{4}-\d{2}-\d{2}T/.test(rawStartTime)) return rawStartTime
   const parsed = new Date(rawStartTime)
   if (isNaN(parsed.getTime())) return rawStartTime
+
+  if (/(Z|[+-]\d{2}:?\d{2})$/.test(rawStartTime)) {
+    const p = getTimePartsInTimeZone(parsed, timeZone)
+    return `${p.day}/${p.month}/${p.year} - ${p.hour}:${p.minute}`
+  }
   return `${format(parsed, 'dd/MM/yyyy')} - ${format(parsed, 'HH:mm')}`
 }
 
@@ -1115,7 +1120,10 @@ export default function TicketCheckDialog({
                         {t('date_hour', 'DATA E ORA')}
                       </div>
                       <div className="text-[16px] font-bold text-white">
-                        {formatTicketTime(ticketInfo.time)}
+                        {formatTicketTime(
+                          ticketInfo.time,
+                          ticketInfo.intl?.timezone,
+                        )}
                       </div>
                     </div>
                     {terminalId && (
@@ -1276,10 +1284,11 @@ export default function TicketCheckDialog({
                           {(() => {
                             const normalizedStartTime = toLocalEventTime(
                               sel.startTime,
+                              ticketInfo.intl?.timezone,
                             )
                             return normalizedStartTime.includes(' - ')
                               ? normalizedStartTime
-                              : `${formatTicketDate(ticketInfo.time)} - ${normalizedStartTime}`
+                              : `${formatTicketDate(ticketInfo.time, ticketInfo.intl?.timezone)} - ${normalizedStartTime}`
                           })()}
                           <br />
                           <span
@@ -1518,7 +1527,10 @@ export default function TicketCheckDialog({
                                     className="text-[11px] font-semibold"
                                     style={{ color: '#ccc' }}
                                   >
-                                    {toLocalEventTime(currentSel.startTime)}
+                                    {toLocalEventTime(
+                                      currentSel.startTime,
+                                      ticketInfo?.intl?.timezone,
+                                    )}
                                   </span>
                                   <span
                                     className="text-[11px]"
