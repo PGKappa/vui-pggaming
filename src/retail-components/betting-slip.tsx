@@ -386,6 +386,7 @@ export default function BettingSlip({
     setSystemGroupStakes((prev) => ({ ...prev, ...stakes }))
     setSelectedGroups((prev) => ({ ...prev, ...newSelections }))
 
+    let minStakeErrorShown = false
     if (groupsWithoutStake.length > 0) {
       const minNeededForAll = totalCombinations * minStake
       const difference = minNeededForAll - systemDistributeStake
@@ -395,7 +396,25 @@ export default function BettingSlip({
             amount: `${currencySymbol}${difference}`,
           }),
         )
+        minStakeErrorShown = true
       }
+    }
+
+    const distributedCents = selectedGroupsList.reduce(
+      (sum, group) =>
+        sum +
+        Math.round((stakes[group.name] ?? 0) * 100) * group.combinations.length,
+      0,
+    )
+    const enteredCents = Math.round(systemDistributeStake * 100)
+    if (!minStakeErrorShown && distributedCents < enteredCents) {
+      toast.warning(
+        t('divide_partial_stake', {
+          distributed: `${currencySymbol}${(distributedCents / 100).toFixed(2)}`,
+          entered: `${currencySymbol}${(enteredCents / 100).toFixed(2)}`,
+          step: `${currencySymbol}${minIncrement.toFixed(2)}`,
+        }),
+      )
     }
 
     setTimeout(() => {
@@ -627,6 +646,11 @@ export default function BettingSlip({
       return
     }
 
+    if (betMode !== 'SYSTEM' && Math.round(global * 100) < 100) {
+      toast.error(t('min_bet_error', { min: 1 }))
+      return
+    }
+
     if (betMode !== 'SYSTEM' && potentialWinning > maxWin) {
       toast.error(t('max_win_error', { max: maxWin }))
       return
@@ -674,6 +698,11 @@ export default function BettingSlip({
 
       if (minBet > 0 && totalSystemStake < minBet) {
         toast.error(t('min_bet_error', { min: minBet }))
+        return
+      }
+
+      if (Math.round(actualTotalStake * 100) < 100) {
+        toast.error(t('min_bet_error', { min: 1 }))
         return
       }
       if (totalSystemPotentialWin > maxWin) {
@@ -1084,6 +1113,21 @@ export default function BettingSlip({
               return t('track_6')
             }
 
+            const getOfficialStartTime = (entry: BetEntry) => {
+              if (entry.bet.discipline === Discipline.SOCCER)
+                return entry.bet.event.startingAt
+              const liveEvent = rootContext?.upcomingEvents?.find(
+                (e) =>
+                  e.id === entry.bet.event.number &&
+                  e.discipline === entry.bet.discipline,
+              )
+              const match = liveEvent?.startTime?.match(/^(\d{1,2}):(\d{2})$/)
+              if (!match) return entry.bet.event.startingAt
+              const officialStart = new Date()
+              officialStart.setHours(Number(match[1]), Number(match[2]), 0, 0)
+              return officialStart
+            }
+
             const eventGroups = betEntries.reduce(
               (groups, entry) => {
                 const eventId = entry.bet.event.number
@@ -1091,7 +1135,7 @@ export default function BettingSlip({
                   groups[eventId] = {
                     eventId,
                     eventName: getTranslatedEventName(entry.bet.discipline),
-                    eventStartTime: entry.bet.event.startingAt,
+                    eventStartTime: getOfficialStartTime(entry),
                     discipline: entry.bet.discipline,
                     channelId: getChannelId(entry.bet.discipline),
                     trackName: buildTrackName(entry),

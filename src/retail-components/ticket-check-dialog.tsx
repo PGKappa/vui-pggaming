@@ -60,6 +60,15 @@ function formatChannelName(channelName: string): string {
   return channelName.replace(/^([A-Za-z]+)\s*(\d+)$/, '$1 $2')
 }
 
+const DISCIPLINE_NAME_OVERRIDES: Record<string, string> = {
+  'Corsa di Levrieri': 'Levrieri Reali',
+  'Cavalli al galoppo': 'Cavalli Reali',
+}
+
+function formatDisciplineName(name: string): string {
+  return DISCIPLINE_NAME_OVERRIDES[name] ?? name
+}
+
 const COMBO_SIZE_LABELS: Record<number, { key: string; label: string }> = {
   1: { key: 'combo_single', label: 'Singola' },
   2: { key: 'combo_double', label: 'Doppia' },
@@ -1240,7 +1249,7 @@ export default function TicketCheckDialog({
                           className="text-[15px] font-bold uppercase leading-[1.6] tracking-[0.5px]"
                           style={{ color: '#aaa' }}
                         >
-                          {sel.game.dict.misc.name}
+                          {formatDisciplineName(sel.game.dict.misc.name)}
                           {String(sel.isBanker) === 'true' && (
                             <span
                               className="ml-2 rounded px-[6px] py-[2px] text-[10px] font-bold uppercase tracking-[0.4px] text-white"
@@ -1492,7 +1501,7 @@ export default function TicketCheckDialog({
                                     className="text-[12px] font-bold"
                                     style={{ color: '#fff' }}
                                   >
-                                    {currentSel.game.dict.misc.name}
+                                    {formatDisciplineName(currentSel.game.dict.misc.name)}
                                   </span>
                                   <span
                                     className="text-[11px]"
