@@ -387,7 +387,7 @@ export default function BettingSlip({
       if (difference > 0) {
         toast.error(
           t('min_stake_per_combination_not_met', {
-            amount: `${currencySymbol}${difference}`,
+            amount: `${currencySymbol}${roundMoney(difference)}`,
           }),
         )
         minStakeErrorShown = true
@@ -1437,7 +1437,10 @@ export default function BettingSlip({
                 onValueChange={setAccordionOpen}
                 className="w-full"
               >
-                <AccordionItem value="combinations" className="border-none bg-[#EDEDED]">
+                <AccordionItem
+                  value="combinations"
+                  className="border-none bg-[#EDEDED]"
+                >
                   <div className="relative flex h-[34px] w-full items-center justify-between bg-accent px-4 text-[13px] text-accent-foreground hover:no-underline">
                     <span className="leading-none">
                       {t('combinations').toUpperCase()}
@@ -1464,7 +1467,10 @@ export default function BettingSlip({
                     </button>
                   </div>
                   <AccordionContent className="pb-0">
-                    <div className="flex h-[54px] items-center border-b px-4" style={{ backgroundColor: '#EDEDED' }}>
+                    <div
+                      className="flex h-[54px] items-center border-b px-4"
+                      style={{ backgroundColor: '#EDEDED' }}
+                    >
                       <div className="relative bottom-[3px] flex w-full items-center space-x-2">
                         <Checkbox
                           checked={allGroupsSelected}
