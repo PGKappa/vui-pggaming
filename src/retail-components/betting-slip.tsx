@@ -603,12 +603,15 @@ export default function BettingSlip({
       return
     }
 
-    if (betMode !== 'SYSTEM' && minStakeIncrement > 0) {
-      const stakeSteps = Math.round(global / minStakeIncrement)
-      const reconstructed = stakeSteps * minStakeIncrement
+    // Il tastierino consente sempre i decimali .50: anche con un passo
+    // configurato più grande (es. 1) gli importi a 50 centesimi sono validi
+    const singleStakeIncrement = Math.min(minStakeIncrement, 0.5)
+    if (betMode !== 'SYSTEM' && singleStakeIncrement > 0) {
+      const stakeSteps = Math.round(global / singleStakeIncrement)
+      const reconstructed = stakeSteps * singleStakeIncrement
       if (Math.abs(global - reconstructed) > 0.0001) {
         toast.error(
-          t('stake_increment_error', { increment: minStakeIncrement }),
+          t('stake_increment_error', { increment: singleStakeIncrement }),
         )
         return
       }
