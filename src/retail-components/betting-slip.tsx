@@ -387,7 +387,7 @@ export default function BettingSlip({
       if (difference > 0) {
         toast.error(
           t('min_stake_per_combination_not_met', {
-            amount: `${currencySymbol}${difference}`,
+            amount: `${currencySymbol}${roundMoney(difference)}`,
           }),
         )
         minStakeErrorShown = true
