@@ -58,7 +58,7 @@ export default function TicketCheckPageContent(
       {/* RICEVUTA DI PAGAMENTO - alto sinistra */}
       <div className="pointer-events-none absolute left-[191px] top-[108px] flex flex-col items-center">
         <div className="mb-[9px] h-[44px] w-full rounded-sm bg-red-900 px-2 pt-3 text-center text-[15px] font-bold uppercase text-white">
-          RICEVUTA DI PAGAMENTO
+          {t('payment_receipt', 'RICEVUTA DI PAGAMENTO')}
         </div>
         <Image
           src="/esTicket2.png"
@@ -72,7 +72,7 @@ export default function TicketCheckPageContent(
       {/* RICEVUTA CASH OUT - alto destra */}
       <div className="pointer-events-none absolute right-[191px] top-[108px] flex flex-col items-center">
         <div className="mb-[9px] h-[44px] w-full rounded-sm bg-red-900 px-2 pt-3 text-center text-[15px] font-bold uppercase text-white">
-          RICEVUTA CASH OUT
+          {t('cash_out_receipt', 'RICEVUTA CASH OUT')}
         </div>
         <Image
           src="/esTicket1.png"

@@ -58,6 +58,21 @@ export default function RacingFastBet({
         U: { name: 'Menos 3.5', selections: 0 },
       }
     }
+    if (lang === 'fr') {
+      return {
+        W: { name: 'Gagnant', selections: 1 },
+        P: { name: 'Placé', selections: 1 },
+        S: { name: 'Podium', selections: 1 },
+        E: { name: 'Couplé Ordre', selections: 2 },
+        Q: { name: 'Couplé Désordre', selections: 2 },
+        O: { name: 'Plus 3.5', selections: 0 },
+        EV: { name: 'Pair', selections: 0 },
+        OD: { name: 'Impair', selections: 0 },
+        T: { name: 'Trio Ordre', selections: 3 },
+        BT: { name: 'Trio Désordre', selections: 3 },
+        U: { name: 'Moins 3.5', selections: 0 },
+      }
+    }
     // Default English
     return {
       W: { name: 'Winner', selections: 1 },
@@ -84,6 +99,9 @@ export default function RacingFastBet({
     }
     if (lang === 'it') {
       return ['V', '2P', '3P', 'AO', 'AG', 'TO', 'TG', 'P', 'D', 'U', 'O']
+    }
+    if (lang === 'fr') {
+      return ['G', '2P', '3P', 'CO', 'CD', 'TO', 'TD', 'PA', 'IM', 'MO', 'PL']
     }
     // Inglese e altre lingue
     return ['W', 'P', 'S', 'E', 'Q', 'T', 'BT', 'EV', 'OD', 'U', 'O']
