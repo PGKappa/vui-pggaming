@@ -78,6 +78,21 @@ export default function RacingFastBet({
   // Ottieni i nomi dei mercati tradotti
   const markets = getMarketNames(currentLanguage)
 
+  // Nomi originali (inglesi) dei mercati da inviare al server
+  const apiMarketNames: Record<string, string> = {
+    W: 'winner',
+    P: 'placed',
+    S: 'show',
+    E: 'exacta',
+    Q: 'quinella',
+    T: 'trifecta',
+    BT: 'boxedtrifecta',
+    EV: 'even/odd',
+    OD: 'even/odd',
+    U: 'under/over',
+    O: 'under/over',
+  }
+
   // Codici validi per lingua corrente
   const getValidCodesForLanguage = (lang: string): string[] => {
     if (lang === 'es') {
@@ -275,7 +290,11 @@ export default function RacingFastBet({
       allMarketNames.push(marketName)
 
       // addBets now returns the actual number of bets added (after duplicate filtering)
-      const actualBetsAdded = addBets(marketName, bets)
+      const actualBetsAdded = addBets(
+        marketName,
+        bets,
+        apiMarketNames[parsedCode.code],
+      )
       totalBetsAdded += actualBetsAdded
     }
 
