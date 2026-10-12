@@ -318,7 +318,10 @@ export default function RacingFastBet({
         drawerId="racing-fastbet"
       />
 
-      <DraggableCodeList discipline="racing" />
+      {/* Lista codici a 8 corridori se la corsa selezionata è dei cani a 8 */}
+      <DraggableCodeList
+        discipline={selectedEvent?.discipline === 'DOGS8' ? 'dogs8' : 'racing'}
+      />
     </div>
   )
 }
