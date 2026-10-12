@@ -63,10 +63,17 @@ const getImageConfig = (
         title: 'Elenco Codici Corse',
       }
     }
+    if (language === 'fr') {
+      return {
+        image: '/chiens-chevaux8-codes-image.png',
+        alt: 'Codes de paris chiens et chevaux 8',
+        title: 'Liste des codes Courses',
+      }
+    }
     return {
       image: '/dogs-horses8-codes-image.png',
       alt: 'Dogs and horses 8 betting codes',
-      title: language === 'fr' ? 'Liste des codes Courses' : 'Racing Code List',
+      title: 'Racing Code List',
     }
   }
 
@@ -87,10 +94,17 @@ const getImageConfig = (
       title: 'Elenco Codici Corse',
     }
   }
+  if (language === 'fr') {
+    return {
+      image: '/chiens-chevaux-codes-image.png',
+      alt: 'Codes de paris chiens et chevaux',
+      title: 'Liste des codes Courses',
+    }
+  }
   return {
     image: '/dogs-horses-codes-image.png',
     alt: 'Dogs and horses betting codes',
-    title: language === 'fr' ? 'Liste des codes Courses' : 'Racing Code List',
+    title: 'Racing Code List',
   }
 }
 
