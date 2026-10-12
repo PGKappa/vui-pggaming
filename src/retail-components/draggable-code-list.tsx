@@ -40,7 +40,8 @@ const getImageConfig = (
     return {
       image: '/soccer-codes-image.png',
       alt: 'Soccer betting codes',
-      title: 'Soccer Code List',
+      title:
+        language === 'fr' ? 'Liste des codes Football' : 'Soccer Code List',
     }
   }
 
@@ -65,7 +66,7 @@ const getImageConfig = (
     return {
       image: '/dogs-horses8-codes-image.png',
       alt: 'Dogs and horses 8 betting codes',
-      title: 'Racing Code List',
+      title: language === 'fr' ? 'Liste des codes Courses' : 'Racing Code List',
     }
   }
 
@@ -89,7 +90,7 @@ const getImageConfig = (
   return {
     image: '/dogs-horses-codes-image.png',
     alt: 'Dogs and horses betting codes',
-    title: 'Racing Code List',
+    title: language === 'fr' ? 'Liste des codes Courses' : 'Racing Code List',
   }
 }
 

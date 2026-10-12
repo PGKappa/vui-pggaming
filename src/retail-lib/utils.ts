@@ -23,25 +23,45 @@ export function normalizeMarketName(market: string): string {
   const m = market.toLowerCase().trim()
 
   // ── Racing markets ───────────────────────────────────────────────────────
-  if (m.includes('winn') || m.includes('vinc') || m.includes('ganador'))
+  if (
+    m.includes('winn') ||
+    m.includes('vinc') ||
+    m.includes('ganador') ||
+    m.includes('gagnant')
+  )
     return 'winner'
 
-  if (m.includes('exacta') || m.includes('accoppiata in ordine'))
+  // Francese: "désordre" contiene "ordre", quindi l'ordine dei controlli
+  // conta (exacta cerca "couplé ordre", che "couplé désordre" non contiene)
+  if (
+    m.includes('exacta') ||
+    m.includes('accoppiata in ordine') ||
+    m.includes('couplé ordre')
+  )
     return 'exacta'
   if (
     m.includes('quinella') ||
     m.includes('accoppiata a girare') ||
+    m.includes('couplé désordre') ||
     (m.includes('accoppiata') && m.includes('piazz'))
   )
     return 'quinella'
   if (
-    (m.includes('trifecta') || m.includes('trio in ordine')) &&
+    (m.includes('trifecta') ||
+      m.includes('trio in ordine') ||
+      m.includes('trio ordre')) &&
     !m.includes('box') &&
     !m.includes('a girare') &&
     !m.includes('combinada')
   )
     return 'trifecta'
-  if (m.includes('box') || m.includes('a girare') || m.includes('combinada'))
+  if (
+    m.includes('box') ||
+    m.includes('a girare') ||
+    m.includes('combinada') ||
+    m.includes('trio désordre') ||
+    m.includes('trio dés.')
+  )
     return 'boxed_trifecta'
   if (
     m.includes('show') ||
@@ -49,7 +69,12 @@ export function normalizeMarketName(market: string): string {
     (m.includes('colocado') && m.includes('3'))
   )
     return 'show'
-  if (m.includes('place') || m.includes('piazz') || m.includes('colocado'))
+  if (
+    m.includes('place') ||
+    m.includes('placé') ||
+    m.includes('piazz') ||
+    m.includes('colocado')
+  )
     return 'placed'
   if (
     m.includes('even') ||
@@ -57,7 +82,8 @@ export function normalizeMarketName(market: string): string {
     m.includes('pari') ||
     m.includes('dispari') ||
     m.includes('par') ||
-    m.includes('impar')
+    m.includes('impar') ||
+    m.includes('pair')
   )
     return 'even_odd'
 
@@ -81,7 +107,9 @@ export function normalizeMarketName(market: string): string {
     m.includes('under') ||
     m.includes('over') ||
     m.includes('menos') ||
-    m.includes('más')
+    m.includes('más') ||
+    m.includes('moins') ||
+    /^plus\b/.test(m)
   ) {
     // Use last number match so "(1.5)" is preferred over "1" in "1x2"
     const allMatches = [...m.matchAll(/(\d+\.?\d*)/g)]

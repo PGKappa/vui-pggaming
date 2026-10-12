@@ -342,6 +342,9 @@ const layoutByLanguage: Record<string, LayoutConfig> = {
   },
 }
 
+// Francese: testi lunghi come lo spagnolo, stesso layout
+layoutByLanguage.fr = layoutByLanguage.es
+
 /** Default layout (English) used as fallback for unknown languages */
 const defaultLayout = layoutByLanguage.en
 
