@@ -468,23 +468,24 @@ export default function BettingSlip({
 
   const handleDirectAmountInput = (value: number) => {
     // L'importo totale viene proposto nel campo Dividi/Aggiungi e diviso
-    // subito su tutti i gruppi, come spuntando Dividi e premendo ÷
+    // subito solo sulle combinazioni del primo gruppo della lista
     const amount = value > 0 ? roundMoney(value) : 0
     lastSystemTotalStakeRef.current = amount
     setSystemDistributeStake(amount)
     setSystemGroupStakes({})
-    if (amount === 0) {
+    const firstGroup = systemGroups[0]
+    if (amount === 0 || !firstGroup) {
       setSelectedGroups({})
       setAllGroupsSelected(false)
       return
     }
-    const allGroups: Record<string, boolean> = {}
+    const firstGroupOnly: Record<string, boolean> = {}
     systemGroups.forEach((group) => {
-      allGroups[group.name] = true
+      firstGroupOnly[group.name] = group.name === firstGroup.name
     })
-    setSelectedGroups(allGroups)
-    setAllGroupsSelected(true)
-    handleDistributeStake(amount, allGroups)
+    setSelectedGroups(firstGroupOnly)
+    setAllGroupsSelected(systemGroups.length === 1)
+    handleDistributeStake(amount, firstGroupOnly)
   }
 
   const handleAllGroupsToggle = (checked: boolean) => {
@@ -502,19 +503,36 @@ export default function BettingSlip({
   }
 
   const handleGroupToggle = (groupName: string, checked: boolean) => {
-    setSelectedGroups((prev) => ({ ...prev, [groupName]: checked }))
-
-    if (checked) {
-      setSystemGroupStakes((prev) => ({ ...prev, [groupName]: minStake }))
-    } else {
-      setSystemGroupStakes((prev) => ({ ...prev, [groupName]: 0 }))
-    }
-
     const updatedSelections = { ...selectedGroups, [groupName]: checked }
-    const allSelected = systemGroups.every(
+    setSelectedGroups(updatedSelections)
+    setAllGroupsSelected(
+      systemGroups.every((group) => updatedSelections[group.name]),
+    )
+
+    // I gruppi non spuntati non ricevono importo
+    const zeroStakes: Record<string, number> = {}
+    systemGroups.forEach((group) => {
+      if (!updatedSelections[group.name]) zeroStakes[group.name] = 0
+    })
+    setSystemGroupStakes((prev) => ({ ...prev, ...zeroStakes }))
+
+    const hasSelectedGroups = systemGroups.some(
       (group) => updatedSelections[group.name],
     )
-    setAllGroupsSelected(allSelected)
+    if (!hasSelectedGroups) return
+
+    // Senza un importo valido nel campo Dividi/Aggiungi il gruppo appena
+    // abilitato parte dal minimo, come prima
+    if (systemDistributeStake < minStake) {
+      if (checked) {
+        setSystemGroupStakes((prev) => ({ ...prev, [groupName]: minStake }))
+      }
+      return
+    }
+
+    // L'importo del campo Dividi/Aggiungi viene ridistribuito su tutti i
+    // gruppi spuntati, così l'importo totale resta il più vicino possibile
+    handleDistributeStake(systemDistributeStake, updatedSelections)
   }
 
   // Filtered by `stake > 0` — the exact predicate used when building the
