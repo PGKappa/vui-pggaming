@@ -468,7 +468,8 @@ export default function BettingSlip({
 
   const handleDirectAmountInput = (value: number) => {
     // L'importo totale viene proposto nel campo Dividi/Aggiungi e diviso
-    // subito solo sulle combinazioni del primo gruppo della lista
+    // subito sui gruppi già spuntati; se nessun gruppo è spuntato, solo
+    // sulle combinazioni del primo gruppo della lista
     const amount = value > 0 ? roundMoney(value) : 0
     lastSystemTotalStakeRef.current = amount
     setSystemDistributeStake(amount)
@@ -479,13 +480,20 @@ export default function BettingSlip({
       setAllGroupsSelected(false)
       return
     }
-    const firstGroupOnly: Record<string, boolean> = {}
+    const hasSelectedGroups = systemGroups.some(
+      (group) => selectedGroups[group.name],
+    )
+    const groupSelection: Record<string, boolean> = {}
     systemGroups.forEach((group) => {
-      firstGroupOnly[group.name] = group.name === firstGroup.name
+      groupSelection[group.name] = hasSelectedGroups
+        ? !!selectedGroups[group.name]
+        : group.name === firstGroup.name
     })
-    setSelectedGroups(firstGroupOnly)
-    setAllGroupsSelected(systemGroups.length === 1)
-    handleDistributeStake(amount, firstGroupOnly)
+    setSelectedGroups(groupSelection)
+    setAllGroupsSelected(
+      systemGroups.every((group) => groupSelection[group.name]),
+    )
+    handleDistributeStake(amount, groupSelection)
   }
 
   const handleAllGroupsToggle = (checked: boolean) => {
@@ -499,6 +507,14 @@ export default function BettingSlip({
     })
 
     setSelectedGroups(newSelectedGroups)
+
+    // Con un importo valido nel campo Dividi/Aggiungi, spuntando tutti i
+    // gruppi l'importo viene diviso subito su tutte le combinazioni
+    if (checked && systemDistributeStake >= minStake) {
+      handleDistributeStake(systemDistributeStake, newSelectedGroups)
+      return
+    }
+
     setSystemGroupStakes((prev) => ({ ...prev, ...newStakes }))
   }
 
@@ -1512,6 +1528,7 @@ export default function BettingSlip({
                                 triggerLabel={t('divide/add_amount')}
                                 showPlusMinus={false}
                                 drawerId="system-divide-add"
+                                clearValue={1}
                                 restrictDecimalDigits={true}
                                 decimalStep={0.05}
                                 currencySymbol={currencySymbol}
