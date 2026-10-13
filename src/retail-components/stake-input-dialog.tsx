@@ -137,7 +137,7 @@ export default function StakeInputDialog(props: {
                     onClick={() => setDialogValue((prev) => prev + amount)}
                     className="h-12 w-full bg-tertiary text-[20px] font-bold text-white"
                   >
-                    +{amount.toFixed(2)}€
+                    +{amount.toFixed(2)} €
                   </Button>
                 ))}
               </div>

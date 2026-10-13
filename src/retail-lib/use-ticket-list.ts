@@ -181,8 +181,8 @@ export function formatCurrency(
   currencySymbol: string,
 ): string {
   const num = typeof amount === 'string' ? parseFloat(amount) : amount
-  if (isNaN(num)) return `${currencySymbol} 0.00`
-  return `${currencySymbol} ${num.toFixed(2)}`
+  if (isNaN(num)) return `0.00 ${currencySymbol}`
+  return `${num.toFixed(2)} ${currencySymbol}`
 }
 
 export function useTicketList() {

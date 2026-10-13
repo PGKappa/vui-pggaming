@@ -387,7 +387,7 @@ export default function BettingSlip({
       if (difference > 0) {
         toast.error(
           t('min_stake_per_combination_not_met', {
-            amount: `${currencySymbol}${roundMoney(difference)}`,
+            amount: `${roundMoney(difference)} ${currencySymbol}`,
           }),
         )
         minStakeErrorShown = true
@@ -404,9 +404,9 @@ export default function BettingSlip({
     if (!minStakeErrorShown && distributedCents < enteredCents) {
       toast.warning(
         t('divide_partial_stake', {
-          distributed: `${currencySymbol}${(distributedCents / 100).toFixed(2)}`,
-          entered: `${currencySymbol}${(enteredCents / 100).toFixed(2)}`,
-          step: `${currencySymbol}${minIncrement.toFixed(2)}`,
+          distributed: `${(distributedCents / 100).toFixed(2)} ${currencySymbol}`,
+          entered: `${(enteredCents / 100).toFixed(2)} ${currencySymbol}`,
+          step: `${minIncrement.toFixed(2)} ${currencySymbol}`,
         }),
       )
     }
@@ -1405,7 +1405,7 @@ export default function BettingSlip({
                       className="h-8 bg-muted-foreground text-[14px] tabular-nums"
                       onClick={() => setGlobal((prev) => prev + numericAmount)}
                     >
-                      {currencySymbol} {numericAmount}
+                      {numericAmount} {currencySymbol}
                     </Button>
                   )
                 })}
@@ -1440,7 +1440,7 @@ export default function BettingSlip({
                   {t('potential_win').toUpperCase()}
                 </span>
                 <span className="text-[17px] font-semibold tabular-nums">
-                  {currencySymbol} {potentialWinning.toFixed(2)}
+                  {potentialWinning.toFixed(2)} {currencySymbol}
                 </span>
               </div>
             </>
@@ -1719,10 +1719,10 @@ export default function BettingSlip({
                                     {t('min')} {t('win')}
                                   </div>
                                   <div className="relative top-[0px] text-[13px] font-normal">
-                                    {currencySymbol}{' '}
                                     {computeGroupWinRounded(
                                       group,
-                                    ).minWin.toFixed(2)}
+                                    ).minWin.toFixed(2)}{' '}
+                                    {currencySymbol}
                                   </div>
                                 </div>
                                 <div className="relative right-[12px] text-center text-[12px] font-semibold">
@@ -1730,10 +1730,10 @@ export default function BettingSlip({
                                     {t('max')} {t('win')}
                                   </div>
                                   <div className="relative top-[0px] text-[13px] font-normal">
-                                    {currencySymbol}{' '}
                                     {computeGroupWinRounded(
                                       group,
-                                    ).maxWin.toFixed(2)}
+                                    ).maxWin.toFixed(2)}{' '}
+                                    {currencySymbol}
                                   </div>
                                 </div>
                                 <div className="relative right-[16px] text-center text-[12px] font-semibold">
@@ -1741,10 +1741,10 @@ export default function BettingSlip({
                                     {t('total_played')}
                                   </div>
                                   <div className="relative left-1 top-[0px] text-[13px] font-normal">
-                                    {currencySymbol}{' '}
                                     {(
                                       group.stake * group.combinations.length
-                                    ).toFixed(2)}
+                                    ).toFixed(2)}{' '}
+                                    {currencySymbol}
                                   </div>
                                 </div>
                               </div>
@@ -1809,7 +1809,7 @@ export default function BettingSlip({
                   {t('potential_win').toUpperCase()}
                 </span>
                 <span className="text-[17px] font-semibold tabular-nums">
-                  {currencySymbol} {totalSystemPotentialWin.toFixed(2)}
+                  {totalSystemPotentialWin.toFixed(2)} {currencySymbol}
                 </span>
               </div>
             </>
