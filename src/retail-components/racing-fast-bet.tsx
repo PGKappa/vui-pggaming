@@ -58,6 +58,21 @@ export default function RacingFastBet({
         U: { name: 'Menos 3.5', selections: 0 },
       }
     }
+    if (lang === 'fr') {
+      return {
+        W: { name: 'Gagnant', selections: 1 },
+        P: { name: 'Placé', selections: 1 },
+        S: { name: 'Placé 1-3', selections: 1 },
+        E: { name: 'Exacta', selections: 2 },
+        Q: { name: 'Quinella', selections: 2 },
+        O: { name: 'Plus 3.5', selections: 0 },
+        EV: { name: 'Paires', selections: 0 },
+        OD: { name: 'Impaires', selections: 0 },
+        T: { name: 'Trifecta', selections: 3 },
+        BT: { name: 'Boxed Trifecta', selections: 3 },
+        U: { name: 'Moins 3.5', selections: 0 },
+      }
+    }
     // Default English
     return {
       W: { name: 'Winner', selections: 1 },
@@ -84,6 +99,9 @@ export default function RacingFastBet({
     }
     if (lang === 'it') {
       return ['V', '2P', '3P', 'AO', 'AG', 'TO', 'TG', 'P', 'D', 'U', 'O']
+    }
+    if (lang === 'fr') {
+      return ['G', 'P2', 'P3', 'E', 'Q', 'T', 'BT', 'PA', 'IM', 'MO', 'PL']
     }
     // Inglese e altre lingue
     return ['W', 'P', 'S', 'E', 'Q', 'T', 'BT', 'EV', 'OD', 'U', 'O']
@@ -133,12 +151,18 @@ export default function RacingFastBet({
         return
       }
 
-      // Casi speciali per codici con numeri nel codice stesso (spagnolo: 2C, 3C - italiano: 2P, 3P)
-      const isSpecialCode = /^(2C|3C|2P|3P)/.test(betInput)
+      // Casi speciali per codici con numeri nel codice stesso (spagnolo: 2C, 3C -
+      // italiano: 2P, 3P - francese: P2, P3). In francese solo P2/P3: in
+      // inglese "P2" e' il Placed sul corridore 2, quindi dipende dalla lingua.
+      const specialCodes =
+        currentLanguage === 'fr' ? /^(P2|P3)/ : /^(2C|3C|2P|3P)/
+      const isSpecialCode = specialCodes.test(betInput)
 
       // Validazione
       const orderValidation = isSpecialCode
-        ? /^(2C|3C|2P|3P)\d*$/
+        ? currentLanguage === 'fr'
+          ? /^(P2|P3)\d*$/
+          : /^(2C|3C|2P|3P)\d*$/
         : /^[A-Z]+\d*$/
       if (!orderValidation.test(betInput)) {
         toast.error(t('invalid_fastbet_format') + t('code_and_number_required'))
@@ -151,7 +175,7 @@ export default function RacingFastBet({
       let numbersMatch: string[] = []
 
       if (isSpecialCode) {
-        // Per 2C, 3C, 2P, 3P: estrai il codice (primi 2 caratteri)
+        // Per 2C, 3C, 2P, 3P, P2, P3: estrai il codice (primi 2 caratteri)
         letters = betInput.substring(0, 2)
         const restOfInput = betInput.substring(2)
         hasNumbers = /\d/.test(restOfInput)

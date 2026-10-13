@@ -40,7 +40,8 @@ const getImageConfig = (
     return {
       image: '/soccer-codes-image.png',
       alt: 'Soccer betting codes',
-      title: 'Soccer Code List',
+      title:
+        language === 'fr' ? 'Liste des codes Football' : 'Soccer Code List',
     }
   }
 
@@ -60,6 +61,13 @@ const getImageConfig = (
           : '/cani-cavalli8-codes-image.png',
         alt: 'Codici scommesse cani e cavalli 8',
         title: 'Elenco Codici Corse',
+      }
+    }
+    if (language === 'fr') {
+      return {
+        image: '/chiens-chevaux8-codes-image.png',
+        alt: 'Codes de paris chiens et chevaux 8',
+        title: 'Liste des codes Courses',
       }
     }
     return {
@@ -84,6 +92,13 @@ const getImageConfig = (
         : '/cani-cavalli-codes-image.png',
       alt: 'Codici scommesse cani e cavalli',
       title: 'Elenco Codici Corse',
+    }
+  }
+  if (language === 'fr') {
+    return {
+      image: '/chiens-chevaux-codes-image.png',
+      alt: 'Codes de paris chiens et chevaux',
+      title: 'Liste des codes Courses',
     }
   }
   return {
