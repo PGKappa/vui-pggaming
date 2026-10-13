@@ -94,8 +94,9 @@ export default function NumericKeypadDrawer(props: {
 
   useEffect(() => {
     if (open) {
-      // Riporta l'importo corrente nel tastierino; la prima cifra digitata lo sostituisce
-      const current = props.prefillValue ? value : 0
+      // Riporta l'importo corrente nel tastierino (oppure il valore del
+      // tasto C come importo predefinito); la prima cifra digitata lo sostituisce
+      const current = props.prefillValue ? value : (props.clearValue ?? 0)
       setDrawerValue(current > 0 ? current.toFixed(2) : '0.00')
       setShouldReplaceOnNextDigit(current > 0)
       setCaret(null)
