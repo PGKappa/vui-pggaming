@@ -43,17 +43,17 @@ export function normalizeMarketCode(
     O: 'O', // Over 3.5
   }
 
-  // Mappatura Francese -> Inglese (codici provvisori, da confermare)
+  // Mappatura Francese -> Inglese (codici della lista codici francese)
   const frenchToEnglish: Record<string, string> = {
     G: 'W', // Gagnant
-    '2P': 'P', // Placé 1er 2e
-    '3P': 'S', // Podium 1er 2e 3e
-    CO: 'E', // Couplé Ordre
-    CD: 'Q', // Couplé Désordre
-    TO: 'T', // Trio Ordre
-    TD: 'BT', // Trio Désordre
-    PA: 'EV', // Pair
-    IM: 'OD', // Impair
+    P2: 'P', // Placé 1er 2e
+    P3: 'S', // Placé 1-3
+    E: 'E', // Exacta
+    Q: 'Q', // Quinella
+    T: 'T', // Trifecta
+    BT: 'BT', // Boxed Trifecta
+    PA: 'EV', // Paires
+    IM: 'OD', // Impaires
     MO: 'U', // Moins 3.5
     PL: 'O', // Plus 3.5
   }
@@ -120,12 +120,12 @@ export function getLocalizedMarketCode(
   if (language === 'fr') {
     const englishToFrench: Record<string, string> = {
       W: 'G',
-      P: '2P',
-      S: '3P',
-      E: 'CO',
-      Q: 'CD',
-      T: 'TO',
-      BT: 'TD',
+      P: 'P2',
+      S: 'P3',
+      E: 'E',
+      Q: 'Q',
+      T: 'T',
+      BT: 'BT',
       EV: 'PA',
       OD: 'IM',
       U: 'MO',
@@ -166,8 +166,8 @@ export function getLocalizedMarketValue(
 
   if (language === 'fr') {
     const translations: Record<string, string> = {
-      EVEN: 'Pair',
-      ODD: 'Impair',
+      EVEN: 'Paires',
+      ODD: 'Impaires',
       UNDER: 'Moins',
       OVER: 'Plus',
     }

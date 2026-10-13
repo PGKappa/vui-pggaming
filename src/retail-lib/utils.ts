@@ -31,41 +31,27 @@ export function normalizeMarketName(market: string): string {
   )
     return 'winner'
 
-  // Francese: "désordre" contiene "ordre", quindi l'ordine dei controlli
-  // conta (exacta cerca "couplé ordre", che "couplé désordre" non contiene)
-  if (
-    m.includes('exacta') ||
-    m.includes('accoppiata in ordine') ||
-    m.includes('couplé ordre')
-  )
+  if (m.includes('exacta') || m.includes('accoppiata in ordine'))
     return 'exacta'
   if (
     m.includes('quinella') ||
     m.includes('accoppiata a girare') ||
-    m.includes('couplé désordre') ||
     (m.includes('accoppiata') && m.includes('piazz'))
   )
     return 'quinella'
   if (
-    (m.includes('trifecta') ||
-      m.includes('trio in ordine') ||
-      m.includes('trio ordre')) &&
+    (m.includes('trifecta') || m.includes('trio in ordine')) &&
     !m.includes('box') &&
     !m.includes('a girare') &&
     !m.includes('combinada')
   )
     return 'trifecta'
-  if (
-    m.includes('box') ||
-    m.includes('a girare') ||
-    m.includes('combinada') ||
-    m.includes('trio désordre') ||
-    m.includes('trio dés.')
-  )
+  if (m.includes('box') || m.includes('a girare') || m.includes('combinada'))
     return 'boxed_trifecta'
   if (
     m.includes('show') ||
     m.includes('podi') ||
+    m.includes('placé 1-3') ||
     (m.includes('colocado') && m.includes('3'))
   )
     return 'show'
