@@ -766,6 +766,9 @@ export default function TicketCheckDialog({
       const data: TicketCancelResponse = await response.json()
       console.log('[TicketCancel] API response:', data)
       if (String(data.ret_code) === '1024') {
+        if (data.print && typeof window.Bubble === 'function') {
+          window.Bubble('cancel', data.print)
+        }
         fetchTicket(ticketInfo.ticket_id)
         onCancelled?.()
       } else {
