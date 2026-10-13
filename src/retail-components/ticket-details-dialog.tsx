@@ -103,7 +103,7 @@ export default function TicketDetailsDialog({ ticket }: { ticket: Ticket }) {
                           {ticket.status}
                         </TableCell>
                         <TableCell className="text-center">
-                          {currencySymbol} {ticket.amount.toFixed(2)}
+                          {ticket.amount.toFixed(2)} {currencySymbol}
                         </TableCell>
                         <TableCell className="text-right">
                           {ticket.winning.toFixed(2)}

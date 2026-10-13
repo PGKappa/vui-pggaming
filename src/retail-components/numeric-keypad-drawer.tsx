@@ -362,7 +362,7 @@ export default function NumericKeypadDrawer(props: {
           </Button>
           <Input
             type="text"
-            value={`${currencySymbol} ${displayValue.toFixed(2)}`}
+            value={`${displayValue.toFixed(2)} ${currencySymbol}`}
             className={`bg-background-foreground h-8 border-x text-center text-black ${props.inputWidth || 'w-20'}`}
             readOnly
             onClick={openDrawer}
@@ -385,7 +385,7 @@ export default function NumericKeypadDrawer(props: {
         <div className="relative inline-block">
           <Input
             type="text"
-            value={`${currencySymbol} ${displayValue.toFixed(2)}`}
+            value={`${displayValue.toFixed(2)} ${currencySymbol}`}
             className={`bg-background-foreground h-8 text-center ${props.inputWidth || 'w-20'}`}
             readOnly
             onClick={openDrawer}
@@ -472,7 +472,7 @@ export default function NumericKeypadDrawer(props: {
                   className="h-10 text-[16px] font-semibold tabular-nums"
                   onClick={() => handlePresetValue(numericAmount)}
                 >
-                  {currencySymbol} {numericAmount}
+                  {numericAmount} {currencySymbol}
                 </Button>
               )
             })}
