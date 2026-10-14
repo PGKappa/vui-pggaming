@@ -86,11 +86,15 @@ export default function NumericKeypadDrawer(props: {
   // Determina se questo drawer è aperto
   const open = activeDrawerId === drawerId
 
-  // Sync with props.value when it changes from outside
+  // Sync with props.value when it changes from outside. Si riallinea anche
+  // dopo ogni conferma: il chiamante può correggere l'importo (es. Sistema
+  // arrotonda il totale al passo) lasciando props.value invariato, e senza
+  // resync resterebbe visibile l'importo digitato invece di quello reale.
+  const [confirmCount, setConfirmCount] = useState(0)
   useEffect(() => {
     const numValue = typeof props.value === 'number' ? props.value : 0
     setValue(numValue)
-  }, [props.value])
+  }, [props.value, confirmCount])
 
   useEffect(() => {
     if (open) {
@@ -322,6 +326,7 @@ export default function NumericKeypadDrawer(props: {
     const newValue = parseFloat(drawerValue) || 0
     setValue(newValue)
     props.setValue(newValue)
+    setConfirmCount((count) => count + 1)
     setActiveDrawer(undefined)
   }
 
@@ -473,7 +478,7 @@ export default function NumericKeypadDrawer(props: {
                   className="h-10 text-[16px] font-semibold tabular-nums"
                   onClick={() => handlePresetValue(numericAmount)}
                 >
-                  {numericAmount} {currencySymbol}
+                  + {numericAmount} {currencySymbol}
                 </Button>
               )
             })}

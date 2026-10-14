@@ -257,13 +257,21 @@ export default function BettingSlip({
   useEffect(() => {
     if (betMode === 'SYSTEM' && baseSystemGroups.length > 0) {
       // Ultimo importo del sistema, oppure 1 come importo predefinito,
-      // proposto nel campo Dividi/Aggiungi: nessun gruppo viene
-      // preselezionato né riceve subito un importo
-      const carryOverAmount = lastSystemTotalStakeRef.current || 1
-      setSelectedGroups({})
-      setAllGroupsSelected(false)
+      // proposto nel campo Dividi/Aggiungi e diviso subito sulle
+      // combinazioni del primo gruppo della lista (il più grande)
+      const carryOverAmount = roundMoney(lastSystemTotalStakeRef.current || 1)
+      const firstGroup = systemGroups[0]
+      const firstGroupOnly: Record<string, boolean> = {}
+      systemGroups.forEach((group) => {
+        firstGroupOnly[group.name] = group.name === firstGroup?.name
+      })
+      setSelectedGroups(firstGroupOnly)
+      setAllGroupsSelected(systemGroups.length === 1)
       setSystemGroupStakes({})
-      setSystemDistributeStake(roundMoney(carryOverAmount))
+      setSystemDistributeStake(carryOverAmount)
+      if (firstGroup) {
+        handleDistributeStake(carryOverAmount, firstGroupOnly, { silent: true })
+      }
     } else {
       // Uscendo da Sistema verso Singola/Multipla `global` resta quello
       // impostato su Singola/Multipla: gli importi sono separati.
@@ -272,6 +280,9 @@ export default function BettingSlip({
       setSystemGroupStakes({})
       setSystemDistributeStake(0)
     }
+    // Deve rieseguire solo quando cambiano modalità o gruppi, non a ogni
+    // variazione degli importi (systemGroups dipende dagli importi)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [betMode, baseSystemGroups])
 
   const getTicketType = (entries: BetEntry[]): string => {
@@ -295,6 +306,7 @@ export default function BettingSlip({
   const handleDistributeStake = (
     amount: number = systemDistributeStake,
     groupSelection: Record<string, boolean> = selectedGroups,
+    { silent = false }: { silent?: boolean } = {},
   ) => {
     if (amount <= 0) {
       toast.error(t('enter_valid_amount'))
@@ -365,6 +377,36 @@ export default function BettingSlip({
       }
     }
 
+    // Il totale distribuito non può scendere sotto l'importo minimo della
+    // giocata (1 € o minBet se maggiore): se gli arrotondamenti al passo lo
+    // portano sotto, si aggiunge un incremento al gruppo che copre la
+    // differenza con il minor costo (o, se nessuno basta, al più costoso).
+    const minTotalCents = Math.max(100, Math.round(minBet * 100))
+    const incrementCents = Math.round(minIncrement * 100)
+    const getDistributedCents = () =>
+      selectedGroupsList.reduce(
+        (sum, group) =>
+          sum +
+          Math.round((stakes[group.name] ?? 0) * 100) *
+            group.combinations.length,
+        0,
+      )
+    if (incrementCents > 0) {
+      let gapCents = minTotalCents - getDistributedCents()
+      while (gapCents > 0) {
+        const costOf = (group: (typeof selectedGroupsList)[number]) =>
+          incrementCents * group.combinations.length
+        const covering = selectedGroupsList
+          .filter((group) => costOf(group) >= gapCents)
+          .sort((a, b) => costOf(a) - costOf(b))
+        const target =
+          covering[0] ??
+          [...selectedGroupsList].sort((a, b) => costOf(b) - costOf(a))[0]
+        stakes[target.name] = roundMoney(stakes[target.name] + minIncrement)
+        gapCents -= costOf(target)
+      }
+    }
+
     const newSelections: Record<string, boolean> = {}
     const groupsWithoutStake: string[] = []
 
@@ -384,7 +426,7 @@ export default function BettingSlip({
     if (groupsWithoutStake.length > 0) {
       const minNeededForAll = totalCombinations * minStake
       const difference = minNeededForAll - amount
-      if (difference > 0) {
+      if (difference > 0 && !silent) {
         toast.error(
           t('min_stake_per_combination_not_met', {
             amount: `${roundMoney(difference)} ${currencySymbol}`,
@@ -394,14 +436,9 @@ export default function BettingSlip({
       }
     }
 
-    const distributedCents = selectedGroupsList.reduce(
-      (sum, group) =>
-        sum +
-        Math.round((stakes[group.name] ?? 0) * 100) * group.combinations.length,
-      0,
-    )
+    const distributedCents = getDistributedCents()
     const enteredCents = Math.round(amount * 100)
-    if (!minStakeErrorShown && distributedCents < enteredCents) {
+    if (!silent && !minStakeErrorShown && distributedCents !== enteredCents) {
       toast.warning(
         t('divide_partial_stake', {
           distributed: `${(distributedCents / 100).toFixed(2)} ${currencySymbol}`,
