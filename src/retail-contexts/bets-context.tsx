@@ -4,6 +4,7 @@ import { Bet, BetEntry, Selection, SubmittedTicket } from '@/retail-lib/types'
 import { BetMode } from '@/retail-components/betting-slip'
 import { RootContext } from '@/retail-contexts/root-context'
 import {
+  MutableRefObject,
   createContext,
   useCallback,
   useContext,
@@ -61,6 +62,20 @@ export type BetsContextType = {
   // dato di sessione legato alla corsa attualmente aperta.
   raceFieldSizes: Record<string, number>
   setRaceFieldSize: (eventKey: string, size: number) => void
+  // Stato del Sistema nella schedina (combinazioni scelte e importi).
+  // A ogni cambio disciplina BettingSlip e questo provider vengono
+  // rimontati (EventsContextProvider ha key={pathname}): lo conserviamo a
+  // livello di modulo per ripristinarlo. È un ref per non provocare re-render.
+  systemSlipStateRef: MutableRefObject<SystemSlipState | null>
+}
+
+export type SystemSlipState = {
+  groupsKey: string
+  selectedGroups: Record<string, boolean>
+  allGroupsSelected: boolean
+  systemGroupStakes: Record<string, number>
+  systemDistributeStake: number
+  lastSystemTotalStake: number
 }
 
 const defaultBetsContext: BetsContextType = {
@@ -83,6 +98,11 @@ const defaultBetsContext: BetsContextType = {
   addBetsWithMarket: () => {},
   raceFieldSizes: {},
   setRaceFieldSize: () => {},
+  systemSlipStateRef: { current: null },
+}
+
+const systemSlipStateRef: MutableRefObject<SystemSlipState | null> = {
+  current: null,
 }
 
 export const BetsContext = createContext<BetsContextType>(defaultBetsContext)
@@ -521,6 +541,7 @@ export default function BetsContextProvider(props: {
       raceFieldSizes,
       setRaceFieldSize,
       betslipClearId,
+      systemSlipStateRef,
     }),
     [
       betsContext,

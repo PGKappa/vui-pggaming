@@ -1829,7 +1829,7 @@ export default function TicketCheckDialog({
                           type="button"
                           onClick={() => setShowCancelConfirm(true)}
                           disabled={cancelling}
-                          className="flex h-[35px] w-[124px] cursor-pointer items-center justify-center rounded-none border border-white bg-[#7a7b83] text-center text-[14px] font-bold uppercase tracking-[1.5px] text-white hover:opacity-[.85] disabled:cursor-default disabled:opacity-50"
+                          className="flex h-[35px] w-[124px] cursor-pointer items-center justify-center rounded-none border-0 bg-[#7a7b83] text-center text-[14px] font-bold uppercase tracking-[1.5px] text-white hover:opacity-[.85] disabled:cursor-default disabled:opacity-50"
                         >
                           {cancelling ? '...' : t('cancel_ticket', 'CANCELLA')}
                         </button>
@@ -1874,12 +1874,13 @@ export default function TicketCheckDialog({
       <Dialog open={showPayConfirm} onOpenChange={setShowPayConfirm}>
         <DialogContent
           aria-describedby={undefined}
+          closeClassName="top-4"
           className="w-[340px] max-w-[340px] overflow-hidden rounded-none border-0 p-0 shadow-[0_8px_32px_rgba(0,0,0,0.6)]"
           style={{ background: '#1e1e1e' }}
         >
           <DialogHeader className="bg-card-header px-5 py-4">
             <DialogTitle className="text-[16px] font-bold tracking-[1px] text-white">
-              {t('confirm_payment', 'CONFERMA PAGAMENTO')}
+              {t('confirm_payment', 'PAGAMENTO TICKET')}
             </DialogTitle>
           </DialogHeader>
           <div
@@ -1887,7 +1888,7 @@ export default function TicketCheckDialog({
             style={{ background: '#212121' }}
           >
             <div
-              className="mb-[10px] text-[11px] font-semibold uppercase tracking-[0.8px]"
+              className="mb-[10px] text-[13px] font-semibold uppercase tracking-[0.8px]"
               style={{ color: '#888' }}
             >
               {t('total_winning_to_collect', 'Totale vincita da riscuotere')}
@@ -1901,20 +1902,15 @@ export default function TicketCheckDialog({
             >
               {t('confirm_payment_question', 'Vuoi confermare il pagamento?')}
             </div>
-            <div className="flex space-x-3">
-              <button
-                onClick={() => setShowPayConfirm(false)}
-                className="flex-1 cursor-pointer rounded-none border-0 py-[14px] text-[13px] font-bold uppercase tracking-[1.5px] outline-none"
-                style={{ background: '#3a3a3a', color: '#ccc' }}
-              >
-                {t('cancel', 'ANNULLA')}
-              </button>
+            <div className="flex justify-center">
               <button
                 onClick={handlePay}
-                className="flex-1 cursor-pointer rounded-none border-0 py-[14px] outline-none text-[13px] font-bold uppercase tracking-[1.5px] text-white"
+                className="flex h-[35px] w-[124px] cursor-pointer items-center justify-center rounded-none border-0 outline-none text-[13px] font-bold uppercase tracking-[1.5px] text-white"
                 style={{ background: 'green' }}
               >
-                {t('confirm', 'CONFERMA')}
+                <span className="relative top-px">
+                  {t('confirm', 'CONFERMA')}
+                </span>
               </button>
             </div>
           </div>
@@ -1924,15 +1920,16 @@ export default function TicketCheckDialog({
       <Dialog open={showCancelConfirm} onOpenChange={setShowCancelConfirm}>
         <DialogContent
           aria-describedby={undefined}
+          closeClassName="top-4"
           className="w-[340px] max-w-[340px] overflow-hidden rounded-none border-0 bg-secondary p-0 shadow-[0_8px_32px_rgba(0,0,0,0.6)]"
         >
           <DialogHeader className="bg-accent px-5 py-4">
             <DialogTitle className="text-[16px] font-bold tracking-[1px] text-accent-foreground">
-              {t('confirm_cancel_ticket', 'CONFERMA ANNULLAMENTO')}
+              {t('confirm_cancel_ticket', 'ANNULLAMENTO TICKET')}
             </DialogTitle>
           </DialogHeader>
           <div className="bg-secondary px-6 pb-6 pt-7 text-center text-secondary-foreground">
-            <div className="mb-[10px] text-[11px] font-semibold uppercase tracking-[0.8px] opacity-70">
+            <div className="mb-[10px] text-[13px] font-semibold uppercase tracking-[0.8px] opacity-70">
               {t('stake', 'Puntata')}
             </div>
             <div className="mb-2 text-[32px] font-bold tracking-[1px]">
@@ -1942,20 +1939,20 @@ export default function TicketCheckDialog({
               {t(
                 'confirm_cancel_ticket_question',
                 "Vuoi annullare questo ticket? L'operazione non si puo' annullare.",
-              )}
+              )
+                .split(/(?<=[?.!])\s+/)
+                .map((sentence) => (
+                  <div key={sentence}>{sentence}</div>
+                ))}
             </div>
-            <div className="flex space-x-3">
-              <button
-                onClick={() => setShowCancelConfirm(false)}
-                className="flex-1 cursor-pointer rounded-none border-0 bg-minusButtonDark py-[14px] text-[13px] font-bold uppercase tracking-[1.5px] text-minusButtonDark-foreground outline-none"
-              >
-                {t('back', 'INDIETRO')}
-              </button>
+            <div className="flex justify-center">
               <button
                 onClick={handleCancel}
-                className="flex-1 cursor-pointer rounded-none border-0 bg-accent py-[14px] text-[13px] font-bold uppercase tracking-[1.5px] text-accent-foreground outline-none"
+                className="flex h-[35px] w-[124px] cursor-pointer items-center justify-center rounded-none border-0 bg-accent text-[13px] font-bold uppercase tracking-[1.5px] text-accent-foreground outline-none"
               >
-                {t('confirm', 'CONFERMA')}
+                <span className="relative top-px">
+                  {t('confirm', 'CONFERMA')}
+                </span>
               </button>
             </div>
           </div>

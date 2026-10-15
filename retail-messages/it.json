@@ -85,6 +85,7 @@
   "select_time_slot": "Seleziona una fascia oraria",
   "select_date_and_time_slot": "Seleziona una data e una fascia oraria",
   "date": "Data",
+  "select_end_date": "Seleziona anche una data di fine",
   "time_slot": "Fascia Oraria",
   "all_time_slots": "Tutte",
   "cancel": "Annulla",
@@ -331,7 +332,8 @@
   "pay_success": "Pagamento effettuato",
   "print_not_available": "Nessun documento da ristampare per questo ticket",
   "print_bridge_unavailable": "Stampa non disponibile. Terminale non collegato",
-  "confirm_cancel_ticket": "CONFERMA ANNULLAMENTO",
+  "confirm_cancel_ticket": "ANNULLAMENTO TICKET",
+  "confirm_payment": "PAGAMENTO TICKET",
   "confirm_cancel_ticket_question": "Vuoi annullare questo ticket? L'operazione non si può annullare.",
   "cancel_error": "Errore nell'annullamento del ticket",
   "back": "Indietro"

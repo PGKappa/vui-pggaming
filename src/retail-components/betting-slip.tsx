@@ -125,7 +125,11 @@ export default function BettingSlip({
     removeAllBets,
     restoreLastSubmittedTicket,
     raceFieldSizes,
+    systemSlipStateRef,
   } = useContext(BetsContext)
+  // Stato del Sistema salvato prima che la schedina venisse smontata
+  // (cambio disciplina): letto una sola volta, al montaggio
+  const [savedSystemState] = useState(() => systemSlipStateRef.current)
 
   const rootContext = useContext(RootContext)
 
@@ -161,12 +165,16 @@ export default function BettingSlip({
 
   const [systemGroupStakes, setSystemGroupStakes] = useState<
     Record<string, number>
-  >({})
-  const [systemDistributeStake, setSystemDistributeStake] = useState(0)
-  const [selectedGroups, setSelectedGroups] = useState<Record<string, boolean>>(
-    {},
+  >(savedSystemState?.systemGroupStakes ?? {})
+  const [systemDistributeStake, setSystemDistributeStake] = useState(
+    savedSystemState?.systemDistributeStake ?? 0,
   )
-  const [allGroupsSelected, setAllGroupsSelected] = useState(false)
+  const [selectedGroups, setSelectedGroups] = useState<Record<string, boolean>>(
+    savedSystemState?.selectedGroups ?? {},
+  )
+  const [allGroupsSelected, setAllGroupsSelected] = useState(
+    savedSystemState?.allGroupsSelected ?? false,
+  )
 
   const baseSystemGroups = useMemo(() => {
     if (betMode !== 'SYSTEM') return []
@@ -183,6 +191,19 @@ export default function BettingSlip({
     )
     return eventsSet.size
   }, [betEntries])
+
+  // Struttura dei gruppi (selezioni e combinazioni): cambia solo quando le
+  // giocate cambiano davvero, non quando si ricalcolano i gruppi per altri
+  // motivi (es. cambio evento che aggiorna raceFieldSizes). Così le
+  // combinazioni scelte e i loro importi non vengono azzerati.
+  const systemGroupsKey = useMemo(
+    () =>
+      [
+        betEntries.map((e) => `${e.id}${e.fixed ? 'F' : ''}`).join(','),
+        ...baseSystemGroups.map((g) => `${g.name}:${g.combinations.length}`),
+      ].join('|'),
+    [betEntries, baseSystemGroups],
+  )
 
   const isMountedRef = useRef(false)
   useEffect(() => {
@@ -238,7 +259,9 @@ export default function BettingSlip({
   // quando i gruppi vengono rigenerati (aggiunta/rimozione selezioni) o si
   // torna su Sistema dopo essere passati a Multipla, l'importo del sistema
   // viene ripristinato senza toccare quello di Singola/Multipla.
-  const lastSystemTotalStakeRef = useRef(0)
+  const lastSystemTotalStakeRef = useRef(
+    savedSystemState?.lastSystemTotalStake ?? 0,
+  )
   useEffect(() => {
     if (betEntries.length > 0) return
     lastSystemTotalStakeRef.current = 0
@@ -254,7 +277,15 @@ export default function BettingSlip({
     if (total > 0) lastSystemTotalStakeRef.current = total
   }, [betMode, systemGroupStakes])
 
+  // Modalità e struttura dei gruppi a cui si riferisce lo stato attuale del
+  // Sistema. Se coincidono (es. stato ripristinato dopo un cambio
+  // disciplina) non va riportato ai valori predefiniti. Il confronto, anziché
+  // un flag "primo montaggio", regge anche il doppio effetto di StrictMode.
+  const appliedGroupsKeyRef = useRef(savedSystemState?.groupsKey ?? null)
   useEffect(() => {
+    const groupsKey = `${betMode}|${systemGroupsKey}`
+    if (appliedGroupsKeyRef.current === groupsKey) return
+    appliedGroupsKeyRef.current = groupsKey
     if (betMode === 'SYSTEM' && baseSystemGroups.length > 0) {
       // Ultimo importo del sistema, oppure 1 come importo predefinito,
       // proposto nel campo Dividi/Aggiungi e diviso subito sulle
@@ -280,10 +311,29 @@ export default function BettingSlip({
       setSystemGroupStakes({})
       setSystemDistributeStake(0)
     }
-    // Deve rieseguire solo quando cambiano modalità o gruppi, non a ogni
+    // Deve rieseguire solo quando cambiano modalità o struttura dei gruppi, non a ogni
     // variazione degli importi (systemGroups dipende dagli importi)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [betMode, baseSystemGroups])
+  }, [betMode, systemGroupsKey])
+
+  useEffect(() => {
+    systemSlipStateRef.current = {
+      groupsKey: `${betMode}|${systemGroupsKey}`,
+      selectedGroups,
+      allGroupsSelected,
+      systemGroupStakes,
+      systemDistributeStake,
+      lastSystemTotalStake: lastSystemTotalStakeRef.current,
+    }
+  }, [
+    systemSlipStateRef,
+    betMode,
+    systemGroupsKey,
+    selectedGroups,
+    allGroupsSelected,
+    systemGroupStakes,
+    systemDistributeStake,
+  ])
 
   const getTicketType = (entries: BetEntry[]): string => {
     const disciplines = new Set(entries.map((entry) => entry.bet.discipline))

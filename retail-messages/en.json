@@ -88,6 +88,7 @@
   "select_time_slot": "Please select a time slot",
   "select_date_and_time_slot": "Please select a date and a time slot",
   "date": "Date",
+  "select_end_date": "Please also select an end date",
   "time_slot": "Time Slot",
   "all_time_slots": "All",
   "cancel": "Cancel",
@@ -361,7 +362,8 @@
   "pay_success": "Payment successful",
   "print_not_available": "No document to reprint for this ticket",
   "print_bridge_unavailable": "Printing unavailable: terminal not connected",
-  "confirm_cancel_ticket": "CONFIRM CANCELLATION",
+  "confirm_cancel_ticket": "TICKET CANCELLATION",
+  "confirm_payment": "TICKET PAYMENT",
   "confirm_cancel_ticket_question": "Do you want to cancel this ticket? This cannot be undone.",
   "cancel_error": "Error cancelling the ticket",
   "back": "Back"
