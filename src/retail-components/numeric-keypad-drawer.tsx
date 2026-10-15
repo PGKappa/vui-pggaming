@@ -322,6 +322,20 @@ export default function NumericKeypadDrawer(props: {
     }
   }
 
+  // Quando l'utente sposta il cursore dentro il valore (clic o frecce) il
+  // tastierino deve inserire lì, non sostituire l'importo precompilato
+  const handleCaretMove = (input: HTMLInputElement) => {
+    const { selectionStart, selectionEnd } = input
+    setCaret(selectionStart)
+    if (
+      selectionStart !== null &&
+      selectionStart === selectionEnd &&
+      selectionStart < drawerValue.length
+    ) {
+      setShouldReplaceOnNextDigit(false)
+    }
+  }
+
   const handleConfirm = () => {
     const newValue = parseFloat(drawerValue) || 0
     setValue(newValue)
@@ -433,6 +447,11 @@ export default function NumericKeypadDrawer(props: {
               onChange={() => {}}
               onKeyDown={handleKeyDown}
               onSelect={(e) => setCaret(e.currentTarget.selectionStart)}
+              onClick={(e) => handleCaretMove(e.currentTarget)}
+              onKeyUp={(e) => {
+                if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key))
+                  handleCaretMove(e.currentTarget)
+              }}
               className="h-12 flex-1 border-[1px] pr-2 text-right text-[22px] font-bold"
               autoFocus
             />
