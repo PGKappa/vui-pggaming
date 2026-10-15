@@ -10,7 +10,14 @@ import {
 } from '@/retail-components/ui/drawer'
 import { Input } from '@/retail-components/ui/input'
 import { MinusIcon, PlusIcon, Delete, ChevronDown } from 'lucide-react'
-import { useState, useEffect, useContext, useMemo } from 'react'
+import {
+  useState,
+  useEffect,
+  useLayoutEffect,
+  useContext,
+  useMemo,
+  useRef,
+} from 'react'
 import { useTranslation } from 'react-i18next'
 import { RootContext } from '@/retail-contexts/root-context'
 import { useRetailCompactHeight } from '@/retail-lib/use-retail-compact-height'
@@ -52,6 +59,19 @@ export default function NumericKeypadDrawer(props: {
   const [drawerValue, setDrawerValue] = useState('0.00')
   const [shouldReplaceOnNextDigit, setShouldReplaceOnNextDigit] =
     useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
+  // Posizione del cursore nel campo (null = in fondo): i tasti del
+  // tastierino inseriscono/cancellano lì
+  const [caret, setCaret] = useState<number | null>(null)
+  // Posizione del cursore da ripristinare dopo una modifica
+  const pendingCaretRef = useRef<number | null>(null)
+
+  useLayoutEffect(() => {
+    if (pendingCaretRef.current === null || !inputRef.current) return
+    const nextCaret = pendingCaretRef.current
+    pendingCaretRef.current = null
+    inputRef.current.setSelectionRange(nextCaret, nextCaret)
+  }, [drawerValue])
 
   // Get currency symbol from RootContext or fallback to prop/$
   const currencySymbol = getCurrencySymbol?.() || props.currencySymbol || '$'
@@ -85,6 +105,7 @@ export default function NumericKeypadDrawer(props: {
     if (open) {
       setDrawerValue('0.00')
       setShouldReplaceOnNextDigit(false)
+      setCaret(null)
     }
   }, [open])
 
@@ -94,6 +115,7 @@ export default function NumericKeypadDrawer(props: {
       return
     }
 
+    setCaret(null)
     setDrawerValue((prev) => {
       const currentValue = parseFloat(prev) || 0
       const newValue = currentValue + amount
@@ -106,29 +128,96 @@ export default function NumericKeypadDrawer(props: {
     setShouldReplaceOnNextDigit(true)
   }
 
+  // Cursore posizionato prima della fine del valore (es. sulla parte intera)
+  const isCaretInside =
+    caret !== null && caret < drawerValue.length && !shouldReplaceOnNextDigit
+
+  // Valore risultante da una modifica nella posizione del cursore;
+  // null se non è un importo valido (o completabile al passo)
+  const computeCaretEdit = (
+    insert: string,
+    deleteBefore = false,
+  ): { next: string; caret: number } | null => {
+    if (caret === null) return null
+    let start = caret
+    if (deleteBefore) {
+      if (start === 0) return null
+      start -= 1
+    }
+    if (insert === '.' && drawerValue.includes('.')) return null
+    let next =
+      drawerValue.slice(0, start) +
+      insert +
+      drawerValue.slice(deleteBefore ? caret : start)
+    let nextCaret = start + insert.length
+    // Rimuove gli zeri iniziali superflui (es. "05" -> "5")
+    const leadingZeros = next.match(/^0+(?=\d)/)?.[0].length ?? 0
+    if (leadingZeros) {
+      next = next.slice(leadingZeros)
+      nextCaret = Math.max(0, nextCaret - leadingZeros)
+    }
+    if (next === '') return { next: '0.00', caret: 4 }
+    if (!/^\d*\.?\d{0,2}$/.test(next)) return null
+    if (!canCompleteToStep(next, keypadStep)) return null
+    return { next, caret: nextCaret }
+  }
+
+  const applyCaretEdit = (insert: string, deleteBefore = false) => {
+    const edit = computeCaretEdit(insert, deleteBefore)
+    if (!edit) return
+    setShouldReplaceOnNextDigit(false)
+    pendingCaretRef.current = edit.caret
+    setCaret(edit.caret)
+    setDrawerValue(edit.next)
+  }
+
+  const isCaretEditEnabled = (insert: string) => {
+    const edit = computeCaretEdit(insert)
+    return edit !== null && edit.next !== drawerValue
+  }
+
   const handleNumberClick = (digit: string) => {
+    if (isCaretInside) {
+      applyCaretEdit(digit)
+      return
+    }
+    setCaret(null)
     setDrawerValue((prev) => applyDigit(prev, digit, shouldReplaceOnNextDigit))
     if (shouldReplaceOnNextDigit) setShouldReplaceOnNextDigit(false)
   }
 
   const handleDecimalClick = () => {
+    if (isCaretInside) {
+      applyCaretEdit('.')
+      return
+    }
+    setCaret(null)
     setDrawerValue((prev) => applyDecimal(prev, shouldReplaceOnNextDigit))
     if (shouldReplaceOnNextDigit) setShouldReplaceOnNextDigit(false)
   }
 
   const isDigitEnabled = (digit: string) =>
-    canCompleteToStep(
-      applyDigit(drawerValue, digit, shouldReplaceOnNextDigit),
-      keypadStep,
-    )
-  const isDecimalEnabled = canCompleteToStep(
-    applyDecimal(drawerValue, shouldReplaceOnNextDigit),
-    keypadStep,
-  )
+    isCaretInside
+      ? isCaretEditEnabled(digit)
+      : canCompleteToStep(
+          applyDigit(drawerValue, digit, shouldReplaceOnNextDigit),
+          keypadStep,
+        )
+  const isDecimalEnabled = isCaretInside
+    ? isCaretEditEnabled('.')
+    : canCompleteToStep(
+        applyDecimal(drawerValue, shouldReplaceOnNextDigit),
+        keypadStep,
+      )
   const isConfirmEnabled = isMultipleOfStep(drawerValue, keypadStep)
 
   const handleDelete = () => {
+    if (isCaretInside) {
+      applyCaretEdit('', true)
+      return
+    }
     setShouldReplaceOnNextDigit(false)
+    setCaret(null)
     setDrawerValue((prev) => {
       if (prev.length <= 1) {
         return '0.00'
@@ -140,10 +229,23 @@ export default function NumericKeypadDrawer(props: {
 
   const handleClear = () => {
     setShouldReplaceOnNextDigit(false)
+    setCaret(null)
     setDrawerValue('0.00')
   }
 
+  // Quando l'utente sposta il cursore dentro il valore (clic o frecce) il
+  // tastierino inserisce lì invece di accodare o sostituire l'importo
+  const handleCaretMove = (input: HTMLInputElement) => {
+    const { selectionStart, selectionEnd } = input
+    if (selectionStart === null || selectionStart !== selectionEnd) return
+    setCaret(selectionStart)
+    if (selectionStart < drawerValue.length) setShouldReplaceOnNextDigit(false)
+  }
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (['ArrowLeft', 'ArrowRight', 'Home', 'End', 'Tab'].includes(e.key)) {
+      return
+    }
     e.preventDefault()
     if (e.key >= '0' && e.key <= '9') {
       if (isDigitEnabled(e.key)) handleNumberClick(e.key)
@@ -271,9 +373,15 @@ export default function NumericKeypadDrawer(props: {
             {/* Solo lettura: l'importo si modifica esclusivamente dal tastierino a video.
                 inputMode="none" evita l'apertura della tastiera virtuale di sistema sui touch. */}
             <Input
+              ref={inputRef}
               value={drawerValue}
               onChange={() => {}}
               onKeyDown={handleKeyDown}
+              onClick={(e) => handleCaretMove(e.currentTarget)}
+              onKeyUp={(e) => {
+                if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key))
+                  handleCaretMove(e.currentTarget)
+              }}
               className="h-12 flex-1 border-[1px] pr-2 text-right text-[22px] font-bold"
               autoFocus
             />
