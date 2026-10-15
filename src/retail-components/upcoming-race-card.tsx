@@ -571,7 +571,7 @@ export default function UpcomingRaceCard({
       return (
         <>
           <TableCell
-            className={`max-w-0 cursor-pointer overflow-hidden px-2 py-2 ${!isAnyOrderMode ? 'bg-gray-300' : ''}`}
+            className={`max-w-0 cursor-pointer overflow-hidden px-2 py-2 ${isAnyOrderMode ? 'bg-gray-300 [&>div]:opacity-50' : ''}`}
             onClick={() => handleMarketTypeSelect(false)}
           >
             <div className="flex w-full items-center justify-center space-x-[10px] px-0 min-[1360px]:space-x-[8px] min-[1360px]:px-[1px] min-[1440px]:space-x-[11px] min-[1440px]:px-[3px] min-[1600px]:space-x-[21px] min-[1600px]:px-[13px] min-[1760px]:space-x-[32px] min-[1760px]:px-[24px] min-[1880px]:max-[1919px]:space-x-[55px] max-[1359px]:space-x-[23px] min-[1400px]:max-[1439px]:space-x-[23px] min-[1440px]:max-[1599px]:space-x-[27px] min-[1600px]:max-[1759px]:space-x-[40px] min-[1920px]:space-x-[42px] min-[1920px]:px-[34px]">
@@ -597,7 +597,7 @@ export default function UpcomingRaceCard({
           <TableCell className="w-[1px] bg-border p-0" />
 
           <TableCell
-            className={`max-w-0 cursor-pointer overflow-hidden px-2 py-2 ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
+            className={`max-w-0 cursor-pointer overflow-hidden px-2 py-2 ${!isAnyOrderMode ? 'bg-gray-300 [&>div]:opacity-50' : ''}`}
             onClick={() => handleMarketTypeSelect(true)}
           >
             <div className="mx-auto flex w-full max-w-[220px] items-center justify-center space-x-2 min-[1440px]:space-x-[2.375rem] min-[1920px]:grid min-[1920px]:max-w-none min-[1920px]:grid-cols-2 min-[1920px]:space-x-0">
@@ -631,7 +631,7 @@ export default function UpcomingRaceCard({
       return (
         <>
           <TableCell
-            className={`max-w-0 cursor-pointer overflow-hidden px-2 py-2 ${!isAnyOrderMode ? 'bg-gray-300' : ''}`}
+            className={`max-w-0 cursor-pointer overflow-hidden px-2 py-2 ${isAnyOrderMode ? 'bg-gray-300 [&>div]:opacity-50' : ''}`}
             onClick={() => handleMarketTypeSelect(false)}
           >
             <div className="mx-auto flex w-full items-center justify-center space-x-2 px-4 min-[1440px]:space-x-[9px] min-[1440px]:px-[18px] min-[1600px]:space-x-[13px] min-[1600px]:px-[26px] min-[1760px]:space-x-[18px] min-[1760px]:px-[36px] min-[1880px]:max-[1919px]:space-x-[26px] max-[1359px]:space-x-[13px] min-[1400px]:max-[1439px]:space-x-[13px] min-[1440px]:max-[1599px]:space-x-[15px] min-[1600px]:max-[1759px]:space-x-[19px] min-[1920px]:max-w-[400px] min-[1920px]:space-x-[1.375rem] min-[1920px]:px-0">
@@ -665,7 +665,7 @@ export default function UpcomingRaceCard({
           <TableCell className="w-[1px] bg-border p-0" />
 
           <TableCell
-            className={`max-w-0 cursor-pointer overflow-hidden px-2 py-2 ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
+            className={`max-w-0 cursor-pointer overflow-hidden px-2 py-2 ${!isAnyOrderMode ? 'bg-gray-300 [&>div]:opacity-50' : ''}`}
             onClick={() => handleMarketTypeSelect(true)}
           >
             <div className="mx-auto flex w-full items-center justify-center space-x-2 px-4 min-[1440px]:space-x-[9px] min-[1440px]:px-[18px] min-[1600px]:space-x-[13px] min-[1600px]:px-[26px] min-[1760px]:space-x-[18px] min-[1760px]:px-[36px] min-[1880px]:max-[1919px]:pr-[20px] max-[1359px]:pr-[7px] min-[1400px]:max-[1439px]:pr-[5px] min-[1440px]:max-[1599px]:pr-[7px] min-[1600px]:max-[1759px]:pr-[13px] min-[1920px]:max-w-[210px] min-[1920px]:space-x-[1.375rem] min-[1920px]:px-0">
