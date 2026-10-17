@@ -45,7 +45,7 @@ export default function TicketListPageContent({
 }: TicketListPageContentProps) {
   const { t } = useTranslation()
   const router = useRouter()
-  const [calendarMode, setCalendarMode] = useState<'single' | 'range'>('range')
+  const [calendarMode, setCalendarMode] = useState<'single' | 'range'>('single')
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false)
   const datePickerRef = useRef<HTMLDivElement>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
@@ -147,7 +147,7 @@ export default function TicketListPageContent({
   }
 
   const handleClearFilters = () => {
-    setCalendarMode('range')
+    setCalendarMode('single')
     setIsDatePickerOpen(false)
     resetFilters()
   }
@@ -157,6 +157,10 @@ export default function TicketListPageContent({
     setDateFrom(undefined)
     setDateTo(undefined)
   }
+
+  // Periodo con sola data di inizio: la ricerca resta bloccata finché non si
+  // sceglie anche la data di fine.
+  const isDateRangeIncomplete = !!dateFrom && !dateTo
 
   const dateRangeLabel = () => {
     if (dateFrom && dateTo) {
@@ -340,6 +344,11 @@ export default function TicketListPageContent({
               }}
               className="w-full p-3"
             />
+          )}
+          {calendarMode === 'range' && isDateRangeIncomplete && (
+            <div className="border-t border-red-200 bg-red-50 px-3 py-2 text-center text-[12px] font-semibold text-red-700">
+              {t('select_end_date', 'Seleziona anche una data di fine')}
+            </div>
           )}
         </div>
       )}
@@ -550,6 +559,7 @@ export default function TicketListPageContent({
 
             <Button
               onClick={fetchTickets}
+              disabled={isDateRangeIncomplete}
               className="text-bold shrink-0 bg-tertiary text-[13px] text-tertiary-foreground min-[1400px]:text-[14px] 3xl:w-[80px] 3xl:text-[14px]"
             >
               {t('reload')}
@@ -648,7 +658,11 @@ export default function TicketListPageContent({
                 </Select>
               </div>
             </div>
-            <Button onClick={fetchTickets} className={ticketFilterReloadClass}>
+            <Button
+              onClick={fetchTickets}
+              disabled={isDateRangeIncomplete}
+              className={ticketFilterReloadClass}
+            >
               {t('reload')}
             </Button>
             <Button
@@ -755,7 +769,7 @@ export default function TicketListPageContent({
                           isCalcio
                             ? 'text-[16px]'
                             : 'text-[12px] lg:text-[15px]',
-                          isCancelled && 'bg-betSlip',
+                          isCancelled && 'bg-betSlip text-[#1e1e1e]',
                         )}
                         style={fitRowStyle(itemIdx)}
                       >
