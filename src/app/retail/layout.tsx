@@ -5,6 +5,7 @@ import Navbar from '@/retail-components/navbar'
 import { Toaster } from '@/retail-components/ui/sonner'
 /* import UrlDebugBar from '@/retail-components/url-debug-bar' */
 import ZoomBlocker from '@/retail-components/zoom-blocker'
+import BetTemplateProvider from '@/retail-contexts/bet-template-context'
 import BetsContextProvider from '@/retail-contexts/bets-context'
 import CashierContextProvider from '@/retail-contexts/cashier-context'
 import EventsContextProvider from '@/retail-contexts/events-context'
@@ -160,7 +161,9 @@ function SkinBody({ children }: { children: React.ReactNode }) {
         <EventsContextProvider key={pathname}>
           {/* <UrlDebugBar /> */}
           <RootContextProvider>
-            <RetailShell>{children}</RetailShell>
+            <BetTemplateProvider>
+              <RetailShell>{children}</RetailShell>
+            </BetTemplateProvider>
           </RootContextProvider>
         </EventsContextProvider>
       </CashierContextProvider>
