@@ -151,25 +151,24 @@ function NavbarContent() {
                 </>
               ),
             },
-            // Pulsante calcio nascosto
-            // FOOTBALL: {
-            //   show: navCfg.showFootball,
-            //   href: '/retail/calcio',
-            //   active: pathname.includes('/retail/calcio'),
-            //   gapClass: 'gap-2',
-            //   content: (
-            //     <Image
-            //       src="/soccer.png"
-            //       alt="Calcio"
-            //       width={40}
-            //       height={20}
-            //       className="size-8 object-contain brightness-0 invert filter"
-            //     />
-            //   ),
-            // },
-          }[key as Exclude<typeof key, 'FOOTBALL'>]
+            FOOTBALL: {
+              show: navCfg.showFootball,
+              href: '/retail/calcio',
+              active: pathname.includes('/retail/calcio'),
+              gapClass: 'gap-2',
+              content: (
+                <Image
+                  src="/soccer.png"
+                  alt="Calcio"
+                  width={40}
+                  height={20}
+                  className="size-8 object-contain brightness-0 invert filter"
+                />
+              ),
+            },
+          }[key]
 
-          if (!button?.show) return null
+          if (!button.show) return null
 
           return (
             <Link
