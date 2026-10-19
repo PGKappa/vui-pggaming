@@ -569,3 +569,33 @@ export function generateSystemGroups(
 
   return groups
 }
+
+export function distributeExactStake(
+  groups: { name: string; combinations: number }[],
+  total: number,
+): Record<string, number> {
+  const totalCents = Math.round(total * 100)
+  const totalCombinations = groups.reduce((sum, g) => sum + g.combinations, 0)
+  if (totalCents <= 0 || totalCombinations <= 0) return {}
+
+  const exact = groups.map(
+    (g) => (totalCents * g.combinations) / totalCombinations,
+  )
+  const cents = exact.map((v) => Math.floor(v))
+  let leftover = totalCents - cents.reduce((sum, c) => sum + c, 0)
+
+  const byRemainder = exact
+    .map((v, i) => ({ i, remainder: v - cents[i] }))
+    .sort((a, b) => b.remainder - a.remainder || a.i - b.i)
+  for (const { i } of byRemainder) {
+    if (leftover <= 0) break
+    cents[i] += 1
+    leftover -= 1
+  }
+
+  const stakes: Record<string, number> = {}
+  groups.forEach((g, i) => {
+    stakes[g.name] = g.combinations > 0 ? cents[i] / 100 / g.combinations : 0
+  })
+  return stakes
+}
