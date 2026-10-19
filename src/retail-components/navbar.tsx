@@ -42,10 +42,14 @@ function NavbarContent() {
     if (pathname.includes('/calcio')) {
       // Link per il calcio
       return `https://d190050z3qr0m1.cloudfront.net/public/Soccer_Gaming_manual_${lang}.html`
-    } else {
-      // Per cani e cavalli
-      return `https://d190050z3qr0m1.cloudfront.net/public/RD-RH_Gamingmanual_${lang}.html`
     }
+    
+    if (pathname.includes('dogs8') || pathname.includes('cani8')) {
+      return `https://d190050z3qr0m1.cloudfront.net/public/RD-RH_8_Gamingmanual_${lang}.html`
+    }
+
+    // Per cani e cavalli
+    return `https://d190050z3qr0m1.cloudfront.net/public/RD-RH_Gamingmanual_${lang}.html`
   }
 
   return (
