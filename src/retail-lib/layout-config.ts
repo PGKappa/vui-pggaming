@@ -324,6 +324,7 @@ const layoutByLanguage: Record<string, LayoutConfig> = {
       eventNameFontSize: 'text-[14px]',
       eventSubtitleFontSize: 'text-[13px] top-[-4px]',
       eventSubtitleBottom: 'bottom-[5px]',
+      slidesPerView: { below1520: 3, from1520: 4, from1790: 5, from1920: 6 },
     }),
     eventBets: {
       eventIdMargin: 'mr-[215px]',
@@ -341,6 +342,9 @@ const layoutByLanguage: Record<string, LayoutConfig> = {
     },
   },
 }
+
+// Francese: testi lunghi come lo spagnolo, stesso layout
+layoutByLanguage.fr = layoutByLanguage.es
 
 /** Default layout (English) used as fallback for unknown languages */
 const defaultLayout = layoutByLanguage.en

@@ -195,7 +195,7 @@ export default function EventResultDetails({
                     className="bg-white/5 text-white"
                     onClick={handleOpenReplay}
                   >
-                    RETRY
+                    {t('retry', 'RETRY')}
                   </Button>
                 </div>
               ) : replayUrl ? (
@@ -224,7 +224,7 @@ export default function EventResultDetails({
                 className="min-w-[160px] bg-background text-foreground transition-opacity hover:opacity-80"
                 onClick={() => setShowReplay(false)}
               >
-                RESULTS
+                {t('results_button', 'RESULTS')}
               </Button>
             </div>
           </div>
@@ -755,7 +755,7 @@ export default function EventResultDetails({
               className="min-w-[160px] border-border bg-background text-foreground transition-opacity hover:opacity-80"
               onClick={handleOpenReplay}
             >
-              REPLAY
+              {t('replay', 'REPLAY')}
             </Button>
           </div>
         </div>
@@ -772,7 +772,7 @@ export default function EventResultDetails({
             className="min-w-[140px] border-border bg-background text-foreground transition-opacity hover:opacity-80"
             onClick={handleOpenReplay}
           >
-            REPLAY
+            {t('replay', 'REPLAY')}
           </Button>
         </div>
       </div>
@@ -870,7 +870,7 @@ export default function EventResultDetails({
               className="min-w-[160px] bg-background text-foreground transition-opacity hover:opacity-80"
               onClick={handleOpenReplay}
             >
-              REPLAY
+              {t('replay', 'REPLAY')}
             </Button>
           </div>
         </div>

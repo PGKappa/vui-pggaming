@@ -43,9 +43,28 @@ export function normalizeMarketCode(
     O: 'O', // Over 3.5
   }
 
+  // Mappatura Francese -> Inglese (codici della lista codici francese)
+  const frenchToEnglish: Record<string, string> = {
+    G: 'W', // Gagnant
+    P2: 'P', // Placé 1er 2e
+    P3: 'S', // Placé 1-3
+    E: 'E', // Exacta
+    Q: 'Q', // Quinella
+    T: 'T', // Trifecta
+    BT: 'BT', // Boxed Trifecta
+    PA: 'EV', // Paires
+    IM: 'OD', // Impaires
+    MO: 'U', // Moins 3.5
+    PL: 'O', // Plus 3.5
+  }
+
   // Se la lingua è spagnola, normalizza
   if (language === 'es') {
     return spanishToEnglish[upperCode] || upperCode
+  }
+
+  if (language === 'fr') {
+    return frenchToEnglish[upperCode] || upperCode
   }
 
   // Se la lingua è italiana, normalizza
@@ -98,6 +117,23 @@ export function getLocalizedMarketCode(
     return englishToItalian[upperCode] || upperCode
   }
 
+  if (language === 'fr') {
+    const englishToFrench: Record<string, string> = {
+      W: 'G',
+      P: 'P2',
+      S: 'P3',
+      E: 'E',
+      Q: 'Q',
+      T: 'T',
+      BT: 'BT',
+      EV: 'PA',
+      OD: 'IM',
+      U: 'MO',
+      O: 'PL',
+    }
+    return englishToFrench[upperCode] || upperCode
+  }
+
   return upperCode
 }
 
@@ -124,6 +160,16 @@ export function getLocalizedMarketValue(
       ODD: 'Dispari',
       UNDER: 'Under',
       OVER: 'Over',
+    }
+    return translations[upperValue] || value
+  }
+
+  if (language === 'fr') {
+    const translations: Record<string, string> = {
+      EVEN: 'Paires',
+      ODD: 'Impaires',
+      UNDER: 'Moins',
+      OVER: 'Plus',
     }
     return translations[upperValue] || value
   }

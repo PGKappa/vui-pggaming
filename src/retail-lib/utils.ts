@@ -23,7 +23,12 @@ export function normalizeMarketName(market: string): string {
   const m = market.toLowerCase().trim()
 
   // ── Racing markets ───────────────────────────────────────────────────────
-  if (m.includes('winn') || m.includes('vinc') || m.includes('ganador'))
+  if (
+    m.includes('winn') ||
+    m.includes('vinc') ||
+    m.includes('ganador') ||
+    m.includes('gagnant')
+  )
     return 'winner'
 
   if (m.includes('exacta') || m.includes('accoppiata in ordine'))
@@ -46,10 +51,16 @@ export function normalizeMarketName(market: string): string {
   if (
     m.includes('show') ||
     m.includes('podi') ||
+    m.includes('placé 1-3') ||
     (m.includes('colocado') && m.includes('3'))
   )
     return 'show'
-  if (m.includes('place') || m.includes('piazz') || m.includes('colocado'))
+  if (
+    m.includes('place') ||
+    m.includes('placé') ||
+    m.includes('piazz') ||
+    m.includes('colocado')
+  )
     return 'placed'
   if (
     m.includes('even') ||
@@ -57,7 +68,8 @@ export function normalizeMarketName(market: string): string {
     m.includes('pari') ||
     m.includes('dispari') ||
     m.includes('par') ||
-    m.includes('impar')
+    m.includes('impar') ||
+    m.includes('pair')
   )
     return 'even_odd'
 
@@ -81,7 +93,9 @@ export function normalizeMarketName(market: string): string {
     m.includes('under') ||
     m.includes('over') ||
     m.includes('menos') ||
-    m.includes('más')
+    m.includes('más') ||
+    m.includes('moins') ||
+    /^plus\b/.test(m)
   ) {
     // Use last number match so "(1.5)" is preferred over "1" in "1x2"
     const allMatches = [...m.matchAll(/(\d+\.?\d*)/g)]
