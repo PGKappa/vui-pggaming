@@ -2,6 +2,7 @@
 
 import { RootContext } from '@/virtual-contexts/root-context'
 import { Discipline, UpcomingRace } from '@/virtual-lib/types'
+import { getOperatorFromUrl } from '@/virtual-lib/utils'
 import { t } from 'i18next'
 import Image from 'next/image'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
@@ -105,7 +106,7 @@ export default function LiveMatchInfo() {
             headers: {
               accept: 'application/json',
               authorization: `Bearer ${initCode}`,
-              operator: 'sc',
+              operator: getOperatorFromUrl('sc'),
             },
             method: 'GET',
             mode: 'cors',

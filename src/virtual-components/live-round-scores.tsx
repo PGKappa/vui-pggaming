@@ -8,9 +8,11 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Table, TableBody, TableCell, TableRow } from './ui/table'
 
 export default function LiveRoundScores() {
-  const { liveRound } = useContext(RootContext)
+  const { liveRound, upcomingRounds } = useContext(RootContext)
 
-  if (!liveRound) {
+  // Lo spinner ha senso solo finche' il palinsesto sta arrivando: dopo, se non
+  // c'e' un round in corso, si dice e basta.
+  if (!liveRound && !upcomingRounds) {
     return (
       <Card>
         <CardHeader>
@@ -18,6 +20,21 @@ export default function LiveRoundScores() {
         </CardHeader>
         <CardContent className="flex flex-col items-center">
           <LoadingSpinner />
+        </CardContent>
+      </Card>
+    )
+  }
+
+  if (!liveRound) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="h-5">{t('live', 'In diretta')}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="py-3 text-center text-sm opacity-70">
+            {t('no_live_scores', 'Nessun punteggio in diretta disponibile')}
+          </p>
         </CardContent>
       </Card>
     )
@@ -31,6 +48,11 @@ export default function LiveRoundScores() {
         </CardTitle>
       </CardHeader>
       <CardContent>
+        {!liveRound.scores.length ? (
+          <p className="py-3 text-center text-sm opacity-70">
+            {t('no_live_scores', 'Nessun punteggio in diretta disponibile')}
+          </p>
+        ) : (
         <Table>
           <TableBody className="border-b border-t border-card-foreground">
             {liveRound.scores.map((score, index) => (
@@ -51,6 +73,7 @@ export default function LiveRoundScores() {
             ))}
           </TableBody>
         </Table>
+        )}
       </CardContent>
     </Card>
   )

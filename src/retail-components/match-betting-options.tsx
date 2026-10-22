@@ -1,23 +1,20 @@
 'use client'
 
-import { Discipline, Market } from '@/retail-lib/types'
-import { format } from 'date-fns'
-import { ChevronDown, ChevronsLeftIcon } from 'lucide-react'
+import { Discipline, Market, TeamRanking } from '@/retail-lib/types'
+import { ChevronDown } from 'lucide-react'
 import { useDetectClickOutside } from 'react-detect-click-outside'
-import { useTranslation } from 'react-i18next'
 import { useRef } from 'react'
 import BetEntryToggle from './bet-entry-toggle'
-import MatchResultCard from './match-result-card'
-import MatchStatistics from './match-statistics-card'
+import { detailMarketPriority } from '@/retail-lib/market-order'
 import CustomScrollbar from './custom-scrollbar'
+import MatchStatisticsCard from './match-statistics-card'
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from './ui/accordion'
-import { Button } from './ui/button'
-import { Separator } from './ui/separator'
+
 
 export default function MatchBettingOptions(props: {
   round: {
@@ -28,10 +25,16 @@ export default function MatchBettingOptions(props: {
   }
   teams: string
   markets: Market[]
+  standings?: TeamRanking[]
+  eventId?: number
   close: () => void
 }) {
-  const { t } = useTranslation()
+
   const scrollContainerRef = useRef<HTMLDivElement>(null)
+
+  const orderedMarkets = [...props.markets].sort(
+    (a, b) => detailMarketPriority(a.name) - detailMarketPriority(b.name),
+  )
 
   const ref = useDetectClickOutside({
     onTriggered: props.close,
@@ -39,24 +42,8 @@ export default function MatchBettingOptions(props: {
 
   return (
     <div ref={ref} className="flex h-full w-full flex-col gap-4">
-      <div className="flex flex-row items-center justify-between bg-bet p-3 text-accent-foreground">
-        <div className="flex flex-row items-center gap-2">
-          <Button
-            className="bg-accent text-tertiary-foreground"
-            onClick={props.close}
-            size="icon-lg"
-          >
-            <ChevronsLeftIcon style={{ zoom: 2 }} />
-          </Button>
-          <span className="text-[16px]">
-            {props.round.name} {t('round')} {props.round.number} /
-          </span>
-          <span className="text-[16px] font-semibold">{props.teams}</span>
-        </div>
-        <span className="relative left-[-5px] text-[17px] font-semibold">
-          {format(props.round.startingAt, 'HH:mm')}
-        </span>
-      </div>
+      {/* Barra rossa (nome giornata/squadre/orario) nascosta su richiesta:
+          il dettaglio si chiude cliccando fuori. Ripristinabile se serve. */}
 
       <div className="flex flex-1 gap-0 overflow-hidden">
         {/* Contenuto scrollabile - scrollbar nascosta */}
@@ -66,31 +53,20 @@ export default function MatchBettingOptions(props: {
             className="no-scrollbar h-full overflow-y-scroll"
           >
             <div className="flex flex-col gap-4">
-              <div className="flex flex-row items-start justify-between">
-                <MatchResultCard
-                  matchResult={{
-                    teams: props.teams,
-                    score1: 1,
-                    score2: 2,
-                  }}
-                />
-                <Separator
-                  orientation="vertical"
-                  className="mx-4 h-auto bg-border"
-                  style={{ minHeight: '200px', width: '1px' }}
-                />
-                <MatchStatistics
-                  match={{
-                    teams: props.teams,
-                    probabilities: [10, 50, 40],
-                    startTime: props.round.startingAt,
-                  }}
-                />
-              </div>
+              {/* Statistiche con dati reali: percentuali ricavate dalle quote
+                  1X2 del palinsesto, forma recente dalla classifica del
+                  torneo. Il riquadro RISULTATO non viene piu' mostrato. */}
+              <MatchStatisticsCard
+                teams={props.teams}
+                markets={props.markets}
+                standings={props.standings}
+                eventId={props.eventId}
+                groupId={props.round.roundId}
+              />
 
               <div className="pb-20">
                 <Accordion type="multiple" className="space-y-2">
-                  {props.markets.map((market) => (
+                  {orderedMarkets.map((market) => (
                     <AccordionItem
                       key={market.name}
                       value={market.name}

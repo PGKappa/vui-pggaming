@@ -10,10 +10,12 @@ function NavbarContent() {
   const pathname = usePathname()
   const initCode = searchParams.get('init_code')
   const skin = searchParams.get('skin') || 'default'
+  const operator = searchParams.get('operator') || searchParams.get('partner')
 
   const queryParams = new URLSearchParams()
   if (initCode) queryParams.set('init_code', initCode)
   if (skin) queryParams.set('skin', skin)
+  if (operator) queryParams.set('operator', operator)
   const queryString = queryParams.toString() ? `?${queryParams.toString()}` : ''
 
   const isActive = (path: string) => {
@@ -64,7 +66,7 @@ function NavbarContent() {
         <span className="text-xs font-medium">{t('horses')}</span>
       </Link>
 
-   {/**   <Link
+      <Link
         href={`/virtual/calcio${queryString}`}
         className={cn(
           'flex w-full flex-row items-center justify-center px-2 py-2',
@@ -84,7 +86,6 @@ function NavbarContent() {
         />
         <span className="pl-2 text-xs font-medium">{t('football')}</span>
       </Link>
-      */} 
     </nav>
   )
 }
@@ -102,10 +103,10 @@ export default function Navbar() {
             <div className="h-6 w-10 animate-pulse rounded bg-gray-200" />
             <span className="text-xs font-medium">{t('horses')}</span>
           </div>
-        {/**  <div className="flex w-full flex-row items-center justify-center px-2 py-2">
+          <div className="flex w-full flex-row items-center justify-center px-2 py-2">
             <div className="h-6 w-10 animate-pulse rounded bg-gray-200" />
             <span className="text-xs font-medium">{t('football')}</span>
-          </div> */}
+          </div>
         </nav>
       }
     >

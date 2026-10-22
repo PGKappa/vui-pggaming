@@ -342,13 +342,18 @@ function createContextDataFromCashierData(
       typeof window !== 'undefined' &&
       new URLSearchParams(window.location.search).get('football') === '1'
 
-    // Football flag: checked in multiple possible locations in the cashier response
+    // Football: mostrato di default. Il prodotto calcio (/retail/calcio) e'
+    // sempre disponibile tramite la sua API dedicata, quindi il tasto resta
+    // visibile per poter navigare fra le discipline; si nasconde SOLO se il
+    // backend lo disabilita esplicitamente con football === false (in root,
+    // in configs o in intl). Restano validi il forzamento da URL e il
+    // riconoscimento del canale, che decide anche la posizione del pulsante.
     const showFootball =
       footballForcedByUrl ||
-      cashierData.football === true ||
-      cashierData.configs?.football === true ||
-      cashierData.intl?.football === true ||
-      channels.some(isFootball)
+      channels.some(isFootball) ||
+      (cashierData.football !== false &&
+        cashierData.configs?.football !== false &&
+        cashierData.intl?.football !== false)
 
     // Ordine dei pulsanti: segue la posizione REALE di ciascuna disciplina
     // nell'array `channels` restituito dall'API per questo operatore — non

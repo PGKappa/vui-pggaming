@@ -8,8 +8,9 @@ import {
 } from '@/retail-lib/types'
 import {
   createPGVirtualAPICall,
+  fetchSoccerInit,
   parseAPIDate,
-  SOCCER_API_URL,
+  withDerivedDoppiaChance,
 } from '@/retail-lib/utils'
 import { usePathname } from 'next/navigation'
 import {
@@ -657,13 +658,10 @@ export default function EventsContextProvider(props: {
         if (shouldFetchSoccer) {
           const allSoccerResults: EventResult[] = []
           try {
-            // TODO: Sostituire con l'endpoint corretto per il calcio
-            const soccerResponse = await fetch(
-              `${SOCCER_API_URL}?t=${Date.now()}`,
-            )
-            if (soccerResponse.ok) {
-              const soccerData = await soccerResponse.json()
-
+            // Calcio: init PGVirtual (demo). Restituisce ~20 incontri nel
+            // formato schedules.schedule[].mag_event.
+            const soccerData = await fetchSoccerInit()
+            {
               const scheduleArray = soccerData.schedules?.schedule || []
 
               if (scheduleArray.length === 0) {
@@ -671,7 +669,11 @@ export default function EventsContextProvider(props: {
               }
 
               const firstSchedule = scheduleArray[0]
-              const allEvents = firstSchedule.mag_event || []
+              // Il feed passa più giornate, distribuite su più "schedule" e/o su
+              // più groupId: raccogliamo TUTTI gli eventi, non solo schedule[0].
+              const allEvents = scheduleArray.flatMap(
+                (s: any) => s.mag_event || [],
+              )
 
               // Raggruppa eventi per groupId (come nel vecchio codice)
               const eventsByGroup: Record<number, any[]> = {}
@@ -698,21 +700,32 @@ export default function EventsContextProvider(props: {
                       firstEvent.eventIdentity.scheduleType ??
                       firstSchedule.scheduleName,
                     mag_event: events.map((event) => {
-                      return {
+                      return withDerivedDoppiaChance({
                         ...event,
                         startTime: new Date(
                           event.eventIdentity.startTime,
                         ).toISOString(),
-                      }
+                      })
                     }),
                   }
                 },
               )
 
+              // Ordina le giornate per orario di inizio
+              rounds.sort(
+                (a, b) =>
+                  new Date(a.mag_event[0].startTime).getTime() -
+                  new Date(b.mag_event[0].startTime).getTime(),
+              )
+
+              if (rounds.length === 0) {
+                return
+              }
+
               const timezone = getTimezone?.() || 'Europe/Rome'
 
-              // Crea UpcomingEvent per ogni round (non per ogni partita singola)
-              const upcomingSoccerEvents = rounds.map((round) => {
+              // Mostra le prossime 10 giornate (il feed ne passa fino a 20)
+              const upcomingSoccerEvents = rounds.slice(0, 10).map((round) => {
                 const eventDate = parseAPIDate(
                   round.mag_event[0].startTime,
                   timezone,
@@ -804,12 +817,6 @@ export default function EventsContextProvider(props: {
                   results: allSoccerResults,
                 })
               }
-            } else {
-              console.error('⚽ Soccer API response NOT OK:', {
-                status: soccerResponse.status,
-                statusText: soccerResponse.statusText,
-              })
-              isFetchingEvents = false
             }
           } catch (error) {
             console.error('⚽ Error fetching soccer events:', error)

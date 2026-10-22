@@ -36,6 +36,7 @@ export default function UpcomingRoundCard(props: {
           }
           teams: string
           markets: Market[]
+          eventId?: number
         }
       | undefined
     >
@@ -189,22 +190,48 @@ export default function UpcomingRoundCard(props: {
     ? [
         {
           name: t('main'),
-          markets: props.round.mag_event[0].markets.market.filter((market) =>
-            ['1X2', 'Double Chance', 'Under\/Over 2.5', 'Gol no gol'].includes(
-              market.name.trim(),
-            ),
-          ),
+          // Ordine colonne come il riferimento online: 1X2, Doppia Chance,
+          // Gol no gol, Under/Over 2.5 (il feed manda la DC per ultima).
+          markets: props.round.mag_event[0].markets.market
+            .filter((market) =>
+              [
+                '1X2',
+                'Esito finale 1X2',
+                'Double Chance',
+                'Doppia Chance',
+                'Under\/Over 2.5',
+                'Gol no gol',
+              ].includes(market.name.trim()),
+            )
+            .sort((a, b) => {
+              const prio = (name: string) => {
+                const n = name.trim().toLowerCase()
+                if (n === '1x2' || n.includes('esito finale')) return 0
+                if (n.includes('chance')) return 1
+                if (n.includes('gol no gol')) return 2
+                return 3
+              }
+              return prio(a.name) - prio(b.name)
+            }),
         },
         {
           name: t('under/over'),
-          markets: props.round.mag_event[0].markets.market.filter((market) =>
-            [
-              'Under/Over 1.5',
-              'Under/Over 2.5',
-              'Under/Over 3.5',
-              'Under/Over 4.5',
-            ].includes(market.name.trim()),
-          ),
+          // Colonne in ordine crescente di soglia (1.5, 2.5, 3.5, 4.5):
+          // il feed le manda in ordine sparso.
+          markets: props.round.mag_event[0].markets.market
+            .filter((market) =>
+              [
+                'Under/Over 1.5',
+                'Under/Over 2.5',
+                'Under/Over 3.5',
+                'Under/Over 4.5',
+              ].includes(market.name.trim()),
+            )
+            .sort(
+              (a, b) =>
+                parseFloat(a.name.match(/\d+\.\d+/)?.[0] ?? '0') -
+                parseFloat(b.name.match(/\d+\.\d+/)?.[0] ?? '0'),
+            ),
         },
         {
           name: t('exact_result'),
@@ -224,11 +251,27 @@ export default function UpcomingRoundCard(props: {
         },
         {
           name: t('multi_goal'),
-          markets: props.round.mag_event[0].markets.market.filter((market) =>
-            ['Multigoal', 'Multigoal Home', 'Multigoal Away'].includes(
-              market.name.trim(),
-            ),
-          ),
+          // Colonne in ordine: Multigoal, Multi Goal Casa, Multi Goal Trasferta.
+          markets: props.round.mag_event[0].markets.market
+            .filter((market) =>
+              [
+                'Multigoal',
+                'Multigoal Home',
+                'Multigoal Away',
+                'Somma gol',
+                'Somma gol Casa',
+                'Somma gol Trasferta',
+              ].includes(market.name.trim()),
+            )
+            .sort((a, b) => {
+              const prio = (name: string) => {
+                const n = name.trim().toLowerCase()
+                if (n.includes('casa') || n.includes('home')) return 1
+                if (n.includes('trasferta') || n.includes('away')) return 2
+                return 0
+              }
+              return prio(a.name) - prio(b.name)
+            }),
         },
         {
           name: t('home/away_team'),
@@ -246,13 +289,21 @@ export default function UpcomingRoundCard(props: {
         {
           name: t('partial/final'),
           markets: props.round.mag_event[0].markets.market.filter((market) =>
-            ['Half Time\/ Full Time'].includes(market.name.trim()),
+            ['Half Time\/ Full Time', 'Parziale\/Finale'].includes(
+              market.name.trim(),
+            ),
           ),
         },
         {
           name: t('special'),
           markets: props.round.mag_event[0].markets.market.filter((market) =>
-            ['First Scorer', 'Red Card'].includes(market.name.trim()),
+            [
+              'First Scorer',
+              'Red Card',
+              'Primo marcatore',
+              'Cartellino Rosso',
+              'Margine di vittoria',
+            ].includes(market.name.trim()),
           ),
         },
       ]
@@ -572,6 +623,7 @@ export default function UpcomingRoundCard(props: {
                             },
                             teams: teamNames,
                             markets: match.markets.market,
+                            eventId: match.eventIdentity.eventId,
                           })
                         }
                       >

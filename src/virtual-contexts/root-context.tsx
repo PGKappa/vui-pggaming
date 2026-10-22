@@ -15,7 +15,14 @@ import {
   UpcomingRound,
   User,
 } from '@/virtual-lib/types'
-import { BASE_API_URL, fetchCashierInit } from '@/virtual-lib/utils'
+import {
+  BASE_API_URL,
+  fetchCashierInit,
+  fetchSoccerInit,
+  getOperatorFromUrl,
+  withDerivedDoppiaChance,
+  SOCCER_ROUNDS_TO_SHOW,
+} from '@/virtual-lib/utils'
 import { createContext, useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -55,95 +62,14 @@ export type RootContextType = {
 const defaultRootContext: RootContextType = {
   upcomingEvents: undefined,
   eventResults: undefined,
-  //TODO: remove mock data
-  liveRound: {
-    name: 'Super League',
-    number: 28,
-    scores: [
-      { team1: 'BUR', team2: 'EVE', score1: 2, score2: 0 },
-      { team1: 'MCI', team2: 'MUN', score1: 1, score2: 1 },
-      { team1: 'TOT', team2: 'ARS', score1: 0, score2: 0 },
-      { team1: 'CHE', team2: 'LIV', score1: 1, score2: 1 },
-    ],
-    startingAt: new Date('2025-02-10T20:00:00Z'),
-  },
-  roundStatistics: {
-    name: 'Super League',
-    number: 29,
-    matches: [
-      {
-        teams: 'NAP - GEN',
-        probabilities: [30, 50, 20],
-        startTime: new Date('2025-02-10T00:01:00Z'),
-      },
-      {
-        teams: 'CAT - ELE',
-        probabilities: [30, 50, 20],
-        startTime: new Date('2025-02-10T00:01:00Z'),
-      },
-      {
-        teams: 'JUV - MIL',
-        probabilities: [30, 50, 20],
-        startTime: new Date('2025-02-10T00:01:00Z'),
-      },
-      {
-        teams: 'INT - ROM',
-        probabilities: [30, 50, 20],
-        startTime: new Date('2025-02-10T00:01:00Z'),
-      },
-    ],
-  },
-  teamRankings: [
-    {
-      position: 1,
-      team: 'NAP',
-      played: 26,
-      wins: 14,
-      draws: 8,
-      losses: 4,
-      points: 50,
-      last8: ['W', 'W', 'L', 'W', 'W', 'X', 'L', 'W'],
-    },
-    {
-      position: 2,
-      team: 'JUV',
-      played: 26,
-      wins: 14,
-      draws: 8,
-      losses: 4,
-      points: 50,
-      last8: ['W', 'W', 'L', 'W', 'W', 'X', 'L', 'L'],
-    },
-    {
-      position: 3,
-      team: 'GEN',
-      played: 26,
-      wins: 13,
-      draws: 7,
-      losses: 6,
-      points: 46,
-      last8: ['L', 'W', 'L', 'X', 'W', 'X', 'W', 'X'],
-    },
-    {
-      position: 4,
-      team: 'MIL',
-      played: 26,
-      wins: 13,
-      draws: 7,
-      losses: 6,
-      points: 46,
-      last8: ['L', 'W', 'L', 'X', 'W', 'X', 'W', 'W'],
-    },
-  ],
+  // Niente dati finti: il riquadro live, le percentuali e la classifica si
+  // riempiono con quelli veri del feed (classifica dal hub a fine giornata,
+  // percentuali dalle quote della partita).
+  liveRound: undefined,
+  roundStatistics: undefined,
+  teamRankings: undefined,
   betsHistory: [],
-  matchResult: [
-    {
-      round: { name: 'Super League', number: 28 },
-      teams: 'NAP - GEN',
-      score1: 2,
-      score2: 0,
-    },
-  ],
+  matchResult: undefined,
 }
 
 export const RootContext = createContext<RootContextType>(defaultRootContext)
@@ -418,7 +344,7 @@ export default function RootContextProvider(props: {
           accept: 'application/json',
           'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
           authorization: `Bearer ${initCode}`,
-          operator: 'sc',
+          operator: getOperatorFromUrl('sc'),
           ...options?.headers,
         },
         mode: 'cors',
@@ -730,17 +656,19 @@ export default function RootContextProvider(props: {
         return
       }
 
-      const response = await apiRequest<{
-        schedules: {
-          schedule: UpcomingRound[]
-        }
-      }>('/football/20/', {
-        method: 'GET',
+      // Calcio: stesso feed della cassa (init + next cashier/soccer PGVirtual).
+      // Sostituisce il vecchio proxy /football/20/ (403/CORS) e i relativi hack.
+      const response = await fetchSoccerInit().catch((error: unknown) => {
+        debugLog('SOCCER', 'fetchSoccerInit failed', error)
+        return null
       })
 
       if (!response?.schedules?.schedule?.length) return
 
-      const allEvents = response.schedules.schedule[0].mag_event.slice(4) || [] //TODO: remove .slice(4) when the API is fixed
+      const scheduleArray = response.schedules.schedule as UpcomingRound[]
+      const firstSchedule = scheduleArray[0]
+      // Il feed distribuisce le giornate su più schedule/groupId: raccogli tutto.
+      const allEvents = scheduleArray.flatMap((s) => s.mag_event || [])
 
       const eventsByGroup: Record<number, UpcomingMatch[]> = {}
 
@@ -754,31 +682,31 @@ export default function RootContextProvider(props: {
         }
       })
 
-      const rounds: UpcomingRound[] = Object.entries(eventsByGroup).map(
-        ([groupId, events]) => {
+      const rounds: UpcomingRound[] = Object.entries(eventsByGroup)
+        .map(([groupId, events]) => {
           const firstEvent = events[0]
 
           return {
-            ...response.schedules.schedule[0],
+            ...firstSchedule,
             scheduleId: Number(groupId),
             scheduleName:
-              firstEvent.eventIdentity.scheduleType ??
-              response.schedules.schedule[0].scheduleName,
-            mag_event: events.map((event) => {
-              //TODO: replace this events.map() with events when the API is fixed
-              const startTime = new Date()
-              startTime.setMinutes(new Date(event.startTime).getMinutes())
-              startTime.setSeconds(0)
-              startTime.setMilliseconds(0)
-
-              return {
+              firstEvent.eventIdentity.scheduleType ?? firstSchedule.scheduleName,
+            mag_event: events.map((event) =>
+              withDerivedDoppiaChance({
                 ...event,
-                startTime: startTime.toISOString(),
-              }
-            }),
+                startTime: new Date(
+                  event.eventIdentity.startTime,
+                ).toISOString(),
+              }),
+            ),
           }
-        },
-      )
+        })
+        .sort(
+          (a, b) =>
+            new Date(a.mag_event[0].startTime).getTime() -
+            new Date(b.mag_event[0].startTime).getTime(),
+        )
+        .slice(0, SOCCER_ROUNDS_TO_SHOW)
 
       setRootContext((prev) => ({
         ...prev,

@@ -82,9 +82,12 @@ export default function BetEntryToggle(props: {
     if (lower === 'under') return underLabel
     if (lower === 'over') return overLabel
 
-    if (marketName === 'Half Time\/ Full Time') {
-      if (outcome.length === 2) {
-        return `${outcome[0]} / ${outcome[1]}`
+    {
+      const mn = marketName.trim().toLowerCase()
+      if (mn === 'half time/ full time' || mn === 'parziale/finale') {
+        if (outcome.length === 2) {
+          return `${outcome[0]} / ${outcome[1]}`
+        }
       }
     }
 

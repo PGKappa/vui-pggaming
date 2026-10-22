@@ -421,7 +421,9 @@ export default function BettingSlip({
       if (stakes[group.name] > 0) {
         newSelections[group.name] = true
       } else {
-        newSelections[group.name] = false
+        // Nella ripartizione automatica (dopo un click su una combinazione)
+        // la selezione scelta dall'utente non va mai tolta
+        newSelections[group.name] = auto
         groupsWithoutStake.push(group.name)
       }
     }

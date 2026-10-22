@@ -123,5 +123,17 @@
   "enter_system_amount": "Please enter a valid system amount",
   "bet_submitted_successfully": "Bet submitted successfully",
   "bet_submission_error": "Error submitting bet",
-  "submitting": "Submitting..."
+  "submitting": "Submitting...",
+  "no_live_scores": "No live scores available",
+  "standings_waiting": "Standings arrive from the feed at the end of each round.",
+  "standings_updated": "updated at",
+  "form_W": "W",
+  "form_D": "D",
+  "form_L": "L",
+  "last_5_matches": "Last 5 matches",
+  "head_to_head": "Head to head",
+  "balance": "Record",
+  "draws": "draws",
+  "form_unavailable": "history not available yet",
+  "statistics_unavailable": "statistics not available"
 }

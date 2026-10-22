@@ -36,7 +36,7 @@
   "ticket_history": "Storico schedine",
   "no_bets_placed": "Nessuna scommessa effettuata",
   "ticket_code": "Codice schedina",
-  "ticket_check":"Controlla Schedina",
+  "ticket_check": "Controlla Schedina",
   "date_hour": "Data e ora",
   "amount_played": "Importo giocato",
   "winning": "Vincita",
@@ -60,5 +60,18 @@
   "max": "Max",
   "stake": "Puntata",
   "min_win": "Vincita Min",
-  "max_win": "Vincita Max"
+  "max_win": "Vincita Max",
+  "no_live_scores": "Nessun punteggio in diretta disponibile",
+  "live": "In diretta",
+  "standings_waiting": "La classifica arriva dal feed a ogni fine giornata.",
+  "standings_updated": "aggiornata alle",
+  "form_W": "V",
+  "form_D": "N",
+  "form_L": "P",
+  "last_5_matches": "Ultime 5 partite",
+  "head_to_head": "Precedenti",
+  "balance": "Bilancio",
+  "draws": "pareggi",
+  "form_unavailable": "storico non ancora disponibile",
+  "statistics_unavailable": "statistiche non disponibili"
 }
