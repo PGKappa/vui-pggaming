@@ -1,3 +1,4 @@
+import type { StandingsState } from '@/retail-lib/soccer-standings'
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden'
 import { useTranslation } from 'react-i18next'
 import Leaderboard from './leaderboard'
@@ -6,8 +7,10 @@ import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from 
 
 export default function LeaderboardSheet({
   highlightedTeams = [],
+  standings,
 }: {
   highlightedTeams: string[]
+  standings: StandingsState
 }) {
   const { t } = useTranslation()
   return (
@@ -25,7 +28,7 @@ export default function LeaderboardSheet({
           <SheetTitle>{t('ranking')}</SheetTitle>
           <SheetDescription />
         </VisuallyHidden>
-        <Leaderboard highlightedTeams={highlightedTeams} />
+        <Leaderboard highlightedTeams={highlightedTeams} standings={standings} />
       </SheetContent>
     </Sheet>
   )

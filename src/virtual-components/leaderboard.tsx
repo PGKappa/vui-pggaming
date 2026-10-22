@@ -1,9 +1,7 @@
 'use client'
 
-import { RootContext } from '@/virtual-contexts/root-context'
-import { useContext } from 'react'
+import type { StandingsState } from '@/retail-lib/soccer-standings'
 import { useTranslation } from 'react-i18next'
-import LoadingSpinner from './loading-spinner'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import {
   Table,
@@ -16,19 +14,34 @@ import {
 
 export default function Leaderboard({
   highlightedTeams = [],
+  standings,
 }: {
   highlightedTeams: string[]
+  standings: StandingsState
 }) {
-  const { teamRankings } = useContext(RootContext)
   const { t } = useTranslation()
+  const rankings = standings.rankings
+
+  const updatedAt = standings.updatedAt
+    ? new Date(standings.updatedAt).toLocaleTimeString('it-IT', {
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    : undefined
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>{t('ranking')}</CardTitle>
+        {updatedAt && (
+          <p className="text-xs opacity-70">
+            {t('standings_updated', 'aggiornata alle')} {updatedAt}
+            {standings.round ? ` · ${t('round')} ${standings.round}` : ''}
+          </p>
+        )}
       </CardHeader>
       <CardContent>
-        {teamRankings ? (
+        {rankings.length ? (
           <Table>
             <TableHeader>
               <TableRow>
@@ -43,7 +56,7 @@ export default function Leaderboard({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {teamRankings.map((ranking) => (
+              {rankings.map((ranking) => (
                 <TableRow key={ranking.team}>
                   <TableCell
                     className={`font-medium ${highlightedTeams.includes(ranking.team) ? 'bg-accent text-accent-foreground' : ''}`}
@@ -74,7 +87,7 @@ export default function Leaderboard({
                             key={i}
                             className={`inline-block font-mono text-sm font-medium ${textColor}`}
                           >
-                            {result}
+                            {t(`form_${result}`, result)}
                           </span>
                         )
                       })}
@@ -85,9 +98,14 @@ export default function Leaderboard({
             </TableBody>
           </Table>
         ) : (
-          <div className="flex flex-col items-center">
-            <LoadingSpinner />
-          </div>
+          // Niente classifica finta: finche' non arriva quella vera si dice
+          // com'e'. Si popola a ogni fine giornata.
+          <p className="py-4 text-center text-sm opacity-70">
+            {t(
+              'standings_waiting',
+              'La classifica arriva dal feed a ogni fine giornata.',
+            )}
+          </p>
         )}
       </CardContent>
     </Card>

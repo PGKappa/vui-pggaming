@@ -1,11 +1,9 @@
 'use client'
 
-import { RootContext } from '@/retail-contexts/root-context'
-import { TeamRanking } from '@/retail-lib/types'
+import type { StandingsState } from '@/retail-lib/soccer-standings'
 import { ChevronDown, ChevronUp } from 'lucide-react'
-import { useContext, useMemo, useRef } from 'react'
+import { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
-import LoadingSpinner from './loading-spinner'
 import { Button } from './ui/button'
 import { Card, CardHeader, CardTitle } from './ui/card'
 import CustomScrollbar from './custom-scrollbar'
@@ -13,288 +11,26 @@ import CustomScrollbar from './custom-scrollbar'
 interface LeaderboardProps {
   isExpanded: boolean
   onToggle: (expanded: boolean) => void
+  // Stato fornito dalla pagina, che resta in ascolto del hub anche quando
+  // la classifica non è montata (nessuna giornata selezionata).
+  standings: StandingsState
 }
-
-// Default mock data per leaderboard - questa è fixture per testing
-const DEFAULT_TEAM_RANKINGS: TeamRanking[] = [
-  {
-    position: 1,
-    team: 'LEE',
-    played: 17,
-    wins: 14,
-    draws: 2,
-    losses: 1,
-    points: 44,
-    goalsFor: 42,
-    goalsAgainst: 12,
-    goalDifference: 30,
-    last8: ['W', 'W', 'W', 'W', 'W', 'W', 'D', 'W'],
-  },
-  {
-    position: 2,
-    team: 'BUR',
-    played: 17,
-    wins: 11,
-    draws: 4,
-    losses: 2,
-    points: 37,
-    goalsFor: 35,
-    goalsAgainst: 18,
-    goalDifference: 17,
-    last8: ['W', 'W', 'D', 'W', 'W', 'W', 'D', 'W'],
-  },
-  {
-    position: 3,
-    team: 'WAT',
-    played: 17,
-    wins: 11,
-    draws: 1,
-    losses: 5,
-    points: 34,
-    goalsFor: 32,
-    goalsAgainst: 21,
-    goalDifference: 11,
-    last8: ['W', 'L', 'W', 'W', 'L', 'W', 'W', 'W'],
-  },
-  {
-    position: 4,
-    team: 'NOR',
-    played: 17,
-    wins: 10,
-    draws: 3,
-    losses: 4,
-    points: 33,
-    goalsFor: 28,
-    goalsAgainst: 19,
-    goalDifference: 9,
-    last8: ['W', 'D', 'W', 'L', 'W', 'W', 'D', 'W'],
-  },
-  {
-    position: 5,
-    team: 'BRE',
-    played: 17,
-    wins: 9,
-    draws: 4,
-    losses: 4,
-    points: 31,
-    goalsFor: 26,
-    goalsAgainst: 20,
-    goalDifference: 6,
-    last8: ['W', 'D', 'L', 'W', 'D', 'W', 'W', 'D'],
-  },
-  {
-    position: 6,
-    team: 'WOL',
-    played: 17,
-    wins: 8,
-    draws: 6,
-    losses: 3,
-    points: 30,
-    goalsFor: 24,
-    goalsAgainst: 17,
-    goalDifference: 7,
-    last8: ['D', 'W', 'D', 'W', 'D', 'D', 'W', 'W'],
-  },
-  {
-    position: 7,
-    team: 'MCI',
-    played: 17,
-    wins: 8,
-    draws: 5,
-    losses: 4,
-    points: 29,
-    goalsFor: 31,
-    goalsAgainst: 22,
-    goalDifference: 9,
-    last8: ['W', 'D', 'L', 'W', 'D', 'W', 'D', 'W'],
-  },
-  {
-    position: 8,
-    team: 'MUN',
-    played: 17,
-    wins: 8,
-    draws: 4,
-    losses: 5,
-    points: 28,
-    goalsFor: 23,
-    goalsAgainst: 24,
-    goalDifference: -1,
-    last8: ['L', 'W', 'W', 'D', 'L', 'W', 'W', 'D'],
-  },
-  {
-    position: 9,
-    team: 'LIV',
-    played: 17,
-    wins: 7,
-    draws: 6,
-    losses: 4,
-    points: 27,
-    goalsFor: 25,
-    goalsAgainst: 22,
-    goalDifference: 3,
-    last8: ['D', 'W', 'D', 'L', 'D', 'W', 'D', 'W'],
-  },
-  {
-    position: 10,
-    team: 'CHE',
-    played: 17,
-    wins: 7,
-    draws: 5,
-    losses: 5,
-    points: 26,
-    goalsFor: 22,
-    goalsAgainst: 23,
-    goalDifference: -1,
-    last8: ['W', 'L', 'D', 'W', 'L', 'D', 'W', 'D'],
-  },
-  {
-    position: 11,
-    team: 'ARS',
-    played: 17,
-    wins: 7,
-    draws: 4,
-    losses: 6,
-    points: 25,
-    goalsFor: 21,
-    goalsAgainst: 25,
-    goalDifference: -4,
-    last8: ['L', 'W', 'D', 'L', 'W', 'W', 'D', 'L'],
-  },
-  {
-    position: 12,
-    team: 'MCU',
-    played: 17,
-    wins: 6,
-    draws: 6,
-    losses: 5,
-    points: 24,
-    goalsFor: 20,
-    goalsAgainst: 22,
-    goalDifference: -2,
-    last8: ['D', 'L', 'W', 'D', 'D', 'W', 'L', 'D'],
-  },
-  {
-    position: 13,
-    team: 'CIA',
-    played: 17,
-    wins: 6,
-    draws: 5,
-    losses: 6,
-    points: 23,
-    goalsFor: 19,
-    goalsAgainst: 24,
-    goalDifference: -5,
-    last8: ['L', 'D', 'W', 'L', 'D', 'L', 'W', 'D'],
-  },
-  {
-    position: 14,
-    team: 'GBI',
-    played: 17,
-    wins: 5,
-    draws: 7,
-    losses: 5,
-    points: 22,
-    goalsFor: 18,
-    goalsAgainst: 23,
-    goalDifference: -5,
-    last8: ['D', 'D', 'L', 'D', 'W', 'D', 'L', 'D'],
-  },
-  {
-    position: 15,
-    team: 'NSC',
-    played: 17,
-    wins: 5,
-    draws: 6,
-    losses: 6,
-    points: 21,
-    goalsFor: 17,
-    goalsAgainst: 25,
-    goalDifference: -8,
-    last8: ['L', 'D', 'W', 'L', 'D', 'L', 'D', 'W'],
-  },
-  {
-    position: 16,
-    team: 'FBI',
-    played: 17,
-    wins: 4,
-    draws: 8,
-    losses: 5,
-    points: 20,
-    goalsFor: 16,
-    goalsAgainst: 24,
-    goalDifference: -8,
-    last8: ['D', 'L', 'D', 'D', 'L', 'D', 'D', 'D'],
-  },
-  {
-    position: 17,
-    team: 'NAP',
-    played: 17,
-    wins: 4,
-    draws: 6,
-    losses: 7,
-    points: 18,
-    goalsFor: 15,
-    goalsAgainst: 27,
-    goalDifference: -12,
-    last8: ['L', 'D', 'L', 'W', 'L', 'D', 'L', 'D'],
-  },
-  {
-    position: 18,
-    team: 'LOT',
-    played: 17,
-    wins: 3,
-    draws: 7,
-    losses: 7,
-    points: 16,
-    goalsFor: 14,
-    goalsAgainst: 28,
-    goalDifference: -14,
-    last8: ['L', 'D', 'L', 'D', 'L', 'W', 'D', 'L'],
-  },
-  {
-    position: 19,
-    team: 'ARC',
-    played: 17,
-    wins: 2,
-    draws: 6,
-    losses: 9,
-    points: 12,
-    goalsFor: 12,
-    goalsAgainst: 32,
-    goalDifference: -20,
-    last8: ['L', 'L', 'D', 'L', 'L', 'D', 'W', 'L'],
-  },
-  {
-    position: 20,
-    team: 'UDO',
-    played: 17,
-    wins: 1,
-    draws: 4,
-    losses: 12,
-    points: 7,
-    goalsFor: 9,
-    goalsAgainst: 38,
-    goalDifference: -29,
-    last8: ['L', 'L', 'L', 'D', 'L', 'L', 'L', 'W'],
-  },
-]
 
 export default function Leaderboard({
   isExpanded,
   onToggle,
+  standings,
 }: LeaderboardProps) {
   const { t } = useTranslation()
-  const { teamRankings } = useContext(RootContext)
+  const displayRankings = standings.rankings
   const leaderboardScrollRef = useRef<HTMLDivElement>(null)
 
-  // Usa teamRankings da contesto se disponibile, altrimenti fallback a default
-  const displayRankings = useMemo(
-    () =>
-      teamRankings && teamRankings.length > 0
-        ? teamRankings
-        : DEFAULT_TEAM_RANKINGS,
-    [teamRankings],
-  )
+  const updatedAt = standings.updatedAt
+    ? new Date(standings.updatedAt).toLocaleTimeString('it-IT', {
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    : null
 
   const handleToggle = () => {
     const newExpandedState = !isExpanded
@@ -331,6 +67,12 @@ export default function Leaderboard({
             <CardTitle className="realtive bottom-[1px] justify-start text-[16px] font-bold">
               {t('standings').toUpperCase()}
             </CardTitle>
+            {updatedAt && (
+              <span className="ml-4 text-[12px] opacity-70">
+                {t('standings_updated', 'aggiornata alle')} {updatedAt}
+                {standings.round ? ` · ${t('round')} ${standings.round}` : ''}
+              </span>
+            )}
             <Button variant="ghost" size="icon-lg">
               {isExpanded ? (
                 <ChevronDown style={{ zoom: 1.2, marginLeft: '27px' }} />
@@ -365,7 +107,7 @@ export default function Leaderboard({
                 </div>
               </div>
 
-              {displayRankings && displayRankings.length > 0 ? (
+              {displayRankings.length > 0 ? (
                 <div className="pb-20">
                   <table className="w-full">
                     <tbody>
@@ -409,7 +151,7 @@ export default function Leaderboard({
                                   key={i}
                                   className={`inline-block font-mono text-lg font-semibold ${textColor}`}
                                 >
-                                  {result}
+                                  {t(`form_${result}`, result)}
                                 </span>
                               )
                             })}
@@ -420,8 +162,16 @@ export default function Leaderboard({
                   </table>
                 </div>
               ) : (
-                <div className="flex flex-col items-center">
-                  <LoadingSpinner />
+                <div className="flex flex-col items-center gap-2 p-10 text-center text-[15px]">
+                  <span className="font-semibold">
+                    {t(
+                      'standings_waiting',
+                      'Classifica in attesa della prossima giornata conclusa',
+                    )}
+                  </span>
+                  {standings.note && (
+                    <span className="opacity-70">{standings.note}</span>
+                  )}
                 </div>
               )}
             </div>

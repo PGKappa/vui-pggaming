@@ -274,5 +274,15 @@
   "amount_by_type": "Сумма по типу",
   "pay": "Оплатить",
   "pay_error": "Ошибка оплаты",
-  "pay_success": "Оплата произведена"
+  "pay_success": "Оплата произведена",
+  "last_5_matches": "Последние 5 матчей",
+  "head_to_head": "Очные встречи",
+  "draws": "ничьи",
+  "form_unavailable": "история пока недоступна",
+  "statistics_unavailable": "статистика недоступна",
+  "form_W": "W",
+  "form_D": "D",
+  "form_L": "L",
+  "no_live_scores": "Нет счета в прямом эфире",
+  "live": "В прямом эфире"
 }

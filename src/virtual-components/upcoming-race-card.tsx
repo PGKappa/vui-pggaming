@@ -1,6 +1,6 @@
 import { BetsContext } from '@/virtual-contexts/bets-context'
 import { UpcomingEvent, UpcomingRace } from '@/virtual-lib/types'
-import { getRacerColors } from '@/virtual-lib/utils'
+import { getOperatorFromUrl, getRacerColors } from '@/virtual-lib/utils'
 import { t } from 'i18next'
 import { useContext, useEffect, useState } from 'react'
 import BetCombinationsTable from './bet-combination-table'
@@ -158,7 +158,7 @@ export default function UpcomingRaceCard({
             headers: {
               accept: 'application/json',
               authorization: `Bearer ${initCode}`,
-              operator: 'sc',
+              operator: getOperatorFromUrl('sc'),
             },
             method: 'GET',
             mode: 'cors',
