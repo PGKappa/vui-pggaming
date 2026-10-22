@@ -90,8 +90,8 @@ export default function Home() {
 
   return (
     <div className="retail-page-row min-w-0">
-      <div className="retail-left-col gap-2">
-        <div className="bg-betslip flex h-[88px] w-full shrink-0 flex-row items-center justify-center pb-[2px]">
+      <div className="retail-left-col">
+        <div className="bg-betslip flex h-[102px] w-full shrink-0 flex-row items-center justify-center pr-2">
           <UpcomingEventsCarousel
             selectedEvent={selectedEvent}
             setSelectedEvent={(event) => {
@@ -103,7 +103,7 @@ export default function Home() {
           />
         </div>
 
-        <div className="flex w-full flex-col gap-2 tabular-nums">
+        <div className="flex w-full flex-col gap-2 pt-[2px] tabular-nums">
           {!!searchEventResults ? (
             <SearchEventResults />
           ) : selectedEvent ? (

@@ -338,9 +338,14 @@ function createContextDataFromCashierData(
     const racingCount = [hasDogs6, hasDogs8, hasHorses].filter(Boolean).length
     const showMix = racingCount >= 2
 
-    const footballForcedByUrl =
-      typeof window !== 'undefined' &&
-      new URLSearchParams(window.location.search).get('football') === '1'
+    // ?football=1 forza il calcio visibile, ?football=0 lo forza nascosto;
+    // senza parametro decide la logica sotto.
+    const footballParam =
+      typeof window !== 'undefined'
+        ? new URLSearchParams(window.location.search).get('football')
+        : null
+    const footballForcedByUrl = footballParam === '1'
+    const footballHiddenByUrl = footballParam === '0'
 
     // Football: mostrato di default. Il prodotto calcio (/retail/calcio) e'
     // sempre disponibile tramite la sua API dedicata, quindi il tasto resta
@@ -349,11 +354,12 @@ function createContextDataFromCashierData(
     // in configs o in intl). Restano validi il forzamento da URL e il
     // riconoscimento del canale, che decide anche la posizione del pulsante.
     const showFootball =
-      footballForcedByUrl ||
-      channels.some(isFootball) ||
-      (cashierData.football !== false &&
-        cashierData.configs?.football !== false &&
-        cashierData.intl?.football !== false)
+      !footballHiddenByUrl &&
+      (footballForcedByUrl ||
+        channels.some(isFootball) ||
+        (cashierData.football !== false &&
+          cashierData.configs?.football !== false &&
+          cashierData.intl?.football !== false))
 
     // Ordine dei pulsanti: segue la posizione REALE di ciascuna disciplina
     // nell'array `channels` restituito dall'API per questo operatore — non
