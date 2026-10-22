@@ -236,7 +236,7 @@ export default function UpcomingRoundCard(props: {
         {
           name: t('exact_result'),
           markets: props.round.mag_event[0].markets.market.filter((market) =>
-            ['Correct Score'].includes(market.name.trim()),
+            ['Correct Score', 'Risultato esatto'].includes(market.name.trim()),
           ),
         },
         {
@@ -246,6 +246,9 @@ export default function UpcomingRoundCard(props: {
               'Combo 1x2 + Goal\/No Goal',
               'Combo 1x2 + Under\/Over (1.5)',
               'Combo 1x2 + Under\/Over (2.5)',
+              'Combo Vincente & Segna',
+              'Combo Vincente & Goals (1.5)',
+              'Combo Vincente & Goals (2.5)',
             ].includes(market.name.trim()),
           ),
         },
@@ -283,6 +286,12 @@ export default function UpcomingRoundCard(props: {
               'Away Under\/Over 0.5',
               'Away Under\/Over 1.5',
               'Away Under\/Over 2.5',
+              'Casa Under/Over 0.5',
+              'Casa Under/Over 1.5',
+              'Casa Under/Over 2.5',
+              'Trasferta Under/Over 0.5',
+              'Trasferta Under/Over 1.5',
+              'Trasferta Under/Over 2.5',
             ].includes(market.name.trim()),
           ),
         },
