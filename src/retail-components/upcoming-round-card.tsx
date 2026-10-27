@@ -67,10 +67,11 @@ export default function UpcomingRoundCard(props: {
         cellPadding: 'px-2.5',
         gap: 'gap-11',
       },
+      // Speciale ha 17 quote in riga: tasti stretti e gap ridotti
       special: {
         container: 'flex items-center justify-center',
-        cellPadding: 'px-7',
-        gap: 'gap-10',
+        cellPadding: 'px-1',
+        gap: 'gap-1.5',
       },
     },
     special: {
@@ -607,7 +608,7 @@ export default function UpcomingRoundCard(props: {
                                       }}
                                       marketName={market.name}
                                       variant="roundcard"
-                                      className="h-[50px] w-[100px] text-[16px] font-semibold tabular-nums"
+                                      className={`h-[50px] ${selectedTab === t('special') ? 'w-[68px] whitespace-nowrap' : 'w-[100px]'} text-[16px] font-semibold tabular-nums`}
                                     />
                                   ))}
                               </div>

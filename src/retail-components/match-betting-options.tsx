@@ -1,12 +1,13 @@
 'use client'
 
 import { Discipline, Market, TeamRanking } from '@/retail-lib/types'
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, ChevronLeft } from 'lucide-react'
 import { useDetectClickOutside } from 'react-detect-click-outside'
 import { useRef } from 'react'
 import BetEntryToggle from './bet-entry-toggle'
 import { detailMarketPriority } from '@/retail-lib/market-order'
 import CustomScrollbar from './custom-scrollbar'
+import { Button } from './ui/button'
 import MatchStatisticsCard from './match-statistics-card'
 import {
   Accordion,
@@ -56,13 +57,24 @@ export default function MatchBettingOptions(props: {
               {/* Statistiche con dati reali: percentuali ricavate dalle quote
                   1X2 del palinsesto, forma recente dalla classifica del
                   torneo. Il riquadro RISULTATO non viene piu' mostrato. */}
-              <MatchStatisticsCard
-                teams={props.teams}
-                markets={props.markets}
-                standings={props.standings}
-                eventId={props.eventId}
-                groupId={props.round.roundId}
-              />
+              <div className="relative">
+                {/* Torna alla lista mercati della giornata */}
+                <Button
+                  variant="action"
+                  size="icon-lg"
+                  className="absolute left-2 top-2 z-10"
+                  onClick={props.close}
+                >
+                  <ChevronLeft style={{ zoom: 1.2 }} />
+                </Button>
+                <MatchStatisticsCard
+                  teams={props.teams}
+                  markets={props.markets}
+                  standings={props.standings}
+                  eventId={props.eventId}
+                  groupId={props.round.roundId}
+                />
+              </div>
 
               <div className="pb-20">
                 <Accordion type="multiple" className="space-y-2">
