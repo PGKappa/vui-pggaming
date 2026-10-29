@@ -594,14 +594,6 @@ export default function BettingSlip({
     })
 
     setSelectedGroups(newSelectedGroups)
-
-    // Con un importo valido nel campo Dividi/Aggiungi, spuntando tutti i
-    // gruppi l'importo viene diviso subito su tutte le combinazioni
-    if (checked && systemDistributeStake >= minStake) {
-      handleDistributeStake(systemDistributeStake, newSelectedGroups)
-      return
-    }
-
     setSystemGroupStakes((prev) => ({ ...prev, ...newStakes }))
   }
 
@@ -612,30 +604,12 @@ export default function BettingSlip({
       systemGroups.every((group) => updatedSelections[group.name]),
     )
 
-    // I gruppi non spuntati non ricevono importo
-    const zeroStakes: Record<string, number> = {}
-    systemGroups.forEach((group) => {
-      if (!updatedSelections[group.name]) zeroStakes[group.name] = 0
-    })
-    setSystemGroupStakes((prev) => ({ ...prev, ...zeroStakes }))
-
-    const hasSelectedGroups = systemGroups.some(
-      (group) => updatedSelections[group.name],
-    )
-    if (!hasSelectedGroups) return
-
-    // Senza un importo valido nel campo Dividi/Aggiungi il gruppo appena
-    // abilitato parte dal minimo, come prima
-    if (systemDistributeStake < minStake) {
-      if (checked) {
-        setSystemGroupStakes((prev) => ({ ...prev, [groupName]: minStake }))
-      }
-      return
-    }
-
-    // L'importo del campo Dividi/Aggiungi viene ridistribuito su tutti i
-    // gruppi spuntati, così l'importo totale resta il più vicino possibile
-    handleDistributeStake(systemDistributeStake, updatedSelections)
+    // Il checkbox serve solo a selezionare/deselezionare il gruppo: nessuna
+    // ridistribuzione dell'importo totale sulle combinazioni
+    setSystemGroupStakes((prev) => ({
+      ...prev,
+      [groupName]: checked ? minStake : 0,
+    }))
   }
 
   // Filtered by `stake > 0` — the exact predicate used when building the
