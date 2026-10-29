@@ -11,7 +11,13 @@ import {
 } from '@/retail-components/ui/table'
 import { Discipline, Market, UpcomingRound } from '@/retail-lib/types'
 import { ChevronRight } from 'lucide-react'
-import { Dispatch, SetStateAction, useState } from 'react'
+import {
+  Dispatch,
+  SetStateAction,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react'
 import { useTranslation } from 'react-i18next'
 import BetEntryToggle from './bet-entry-toggle'
 
@@ -22,6 +28,19 @@ function chunkArray<T>(arr: T[], chunkSize: number): T[][] {
   }
   return res
 }
+
+// Scala della griglia quote: a piena larghezza (viewport 1920) i tasti sono
+// a grandezza piena, a 1280 scendono a MIN_SCALE. Sotto non si rimpicciolisce
+// oltre: le colonne finali che non entrano vengono nascoste (tutti i mercati
+// restano nel dettaglio del singolo evento).
+const CARD_WIDTH_FULL = 1490
+const CARD_WIDTH_MIN = 850
+const MIN_SCALE = 0.8
+// Colonna squadra + colonna freccia + divisori + margine di sicurezza
+const FIXED_COLUMNS_WIDTH = 130 + 48 + 2 + 8
+
+// Misura in px a scala piena -> valore CSS che segue --odds-u
+const u = (px: number) => `calc(${px}*var(--odds-u))`
 
 export default function UpcomingRoundCard(props: {
   round: UpcomingRound
@@ -49,54 +68,63 @@ export default function UpcomingRoundCard(props: {
     normal: {
       main: {
         container: 'flex items-center justify-center',
-        cellPadding: 'px-2',
-        gap: 'gap-6',
+        cellClass: '',
+        pad: 8,
+        gap: 24,
       },
       underover: {
         container: 'flex items-center justify-center',
-        cellPadding: 'px-3',
-        gap: 'gap-11',
+        cellClass: '',
+        pad: 12,
+        gap: 44,
       },
       multigoal: {
         container: 'flex items-center justify-center',
-        cellPadding: 'px-2.5',
-        gap: 'gap-9',
+        cellClass: '',
+        pad: 10,
+        gap: 36,
       },
       partialeFinale: {
         container: 'flex items-center justify-center',
-        cellPadding: 'px-2.5',
-        gap: 'gap-11',
+        cellClass: '',
+        pad: 10,
+        gap: 44,
       },
       // Speciale ha 17 quote in riga: tasti stretti e gap ridotti
       special: {
         container: 'flex items-center justify-center',
-        cellPadding: 'px-1',
-        gap: 'gap-1.5',
+        cellClass: '',
+        pad: 4,
+        gap: 6,
       },
     },
     special: {
       homeaway: {
         container: 'flex items-center justify-center',
-        cellPadding: 'px-2',
-        gap: 'gap-2',
+        cellClass: '',
+        pad: 8,
+        gap: 8,
         rowGap: 'gap-2',
       },
       exact_result: {
         container: 'flex items-center justify-center',
-        cellPadding: 'px-2 py-2',
-        gap: 'gap-3',
+        cellClass: 'py-2',
+        pad: 8,
+        gap: 12,
         rowGap: 'gap-0',
       },
       combo: {
         container: 'flex items-center justify-between',
-        cellPadding: 'px-9 py-2',
-        gap: 'gap-2',
+        cellClass: 'py-2',
+        pad: 36,
+        gap: 8,
         rowGap: 'gap-2',
       },
       homeawayFull: {
         container: 'flex items-center justify-between',
-        cellPadding: 'px-3',
-        gap: 'gap-2',
+        cellClass: '',
+        pad: 12,
+        gap: 8,
         rowGap: 'gap-2',
       },
     },
@@ -325,6 +353,137 @@ export default function UpcomingRoundCard(props: {
     marketTabs.length > 0 ? marketTabs[0].name : '',
   )
 
+  const cardRef = useRef<HTMLDivElement>(null)
+  const [cardWidth, setCardWidth] = useState<number>()
+
+  useLayoutEffect(() => {
+    const card = cardRef.current
+    if (!card) return
+    const observer = new ResizeObserver(([entry]) =>
+      setCardWidth(entry.contentRect.width),
+    )
+    observer.observe(card)
+    return () => observer.disconnect()
+  }, [hasEvents])
+
+  const scale = cardWidth
+    ? Math.min(
+        1,
+        Math.max(
+          MIN_SCALE,
+          MIN_SCALE +
+            ((1 - MIN_SCALE) * (cardWidth - CARD_WIDTH_MIN)) /
+              (CARD_WIDTH_FULL - CARD_WIDTH_MIN),
+        ),
+      )
+    : 1
+  const availableWidth = cardWidth ? cardWidth - FIXED_COLUMNS_WIDTH : Infinity
+
+  const isSpecialTab = specialTabs.includes(selectedTab)
+  const tabConfig = isSpecialTab
+    ? getSpecialTabConfig(selectedTab)
+    : getLayoutConfig(selectedTab)
+  const buttonWidth = selectedTab === t('special') ? 68 : 100
+  const optionsCount = (market: Market) =>
+    market.selections.flatMap(({ selection }) => selection).length
+
+  const tabMarkets =
+    marketTabs.find((tab) => tab.name === selectedTab)?.markets ?? []
+
+  // Tasti per riga a piena larghezza (Combo e Risultato esatto vanno gia' a
+  // capo, gli altri stanno su una riga sola)
+  const naturalPerRow = (market: Market) => {
+    const count = optionsCount(market)
+    if (!isSpecialTab || selectedTab === t('home/away_team')) return count
+    return Math.min(count, selectedTab === t('combo') ? 3 : 12)
+  }
+
+  // Risultato esatto ha un solo mercato: invece di nascondere quote si
+  // riducono i tasti per riga (righe bilanciate) finche' entrano.
+  const buttonsPerRow = (market: Market) => {
+    const natural = naturalPerRow(market)
+    if (selectedTab !== t('exact_result')) return natural
+    const fitGap = Math.min(tabConfig.gap, 8)
+    const fit = Math.floor(
+      (availableWidth / scale - 1 - 2 * tabConfig.pad + fitGap) /
+        (buttonWidth + fitGap),
+    )
+    if (fit >= natural) return natural
+    const rows = Math.ceil(optionsCount(market) / Math.max(1, fit))
+    return Math.ceil(optionsCount(market) / rows)
+  }
+
+  const marketWidth = (market: Market) => {
+    const perRow = buttonsPerRow(market)
+    return (
+      1 +
+      (2 * tabConfig.pad +
+        perRow * buttonWidth +
+        (perRow - 1) * tabConfig.gap) *
+        scale
+    )
+  }
+  // Colonne occupate dal mercato in tabella (colSpan)
+  const marketColumns = (market: Market) =>
+    isSpecialTab ? 1 : optionsCount(market)
+
+  // Con table-fixed lo spazio si divide in parti uguali per colonna: ogni
+  // mercato deve entrare nella sua quota, altrimenti si toglie l'ultimo.
+  let visibleCount = tabMarkets.length
+  while (visibleCount > 1) {
+    const shown = tabMarkets.slice(0, visibleCount)
+    const totalColumns = shown.reduce((sum, m) => sum + marketColumns(m), 0)
+    const fits = shown.every(
+      (m) =>
+        marketWidth(m) <= (availableWidth * marketColumns(m)) / totalColumns,
+    )
+    if (fits) break
+    visibleCount--
+  }
+  const visibleMarkets = tabMarkets.slice(0, visibleCount)
+  const visibleColumns = visibleMarkets.reduce(
+    (sum, m) => sum + marketColumns(m),
+    0,
+  )
+
+  // Se sono state nascoste colonne resta spazio libero nelle celle: i tasti
+  // stretti (Speciale) tornano larghi come gli altri e lo spazio rimasto si
+  // divide in parti uguali tra i tasti e ai lati. A piena larghezza restano
+  // le misure del config.
+  const marketButtonsStyle = (market: Market) => {
+    const perRow = buttonsPerRow(market)
+    const cellWidth =
+      (availableWidth * marketColumns(market)) / visibleColumns / scale
+    const room = cellWidth - 2 * tabConfig.pad
+    if (
+      visibleCount === tabMarkets.length &&
+      perRow === naturalPerRow(market)
+    ) {
+      // Misure del config; se la riga non entra (Parziale/Finale, un solo
+      // mercato su una riga) si riducono prima il gap e poi i tasti, fino
+      // alla larghezza dei tasti di Speciale.
+      const minGap = Math.min(tabConfig.gap, 8)
+      const width = Math.min(
+        buttonWidth,
+        Math.max(68, (room - (perRow - 1) * minGap) / perRow),
+      )
+      const gap = Math.min(
+        tabConfig.gap,
+        Math.max(0, (room - perRow * width) / Math.max(1, perRow - 1)),
+      )
+      return {
+        gap: u(gap),
+        '--odds-btn-w': u(width),
+      } as React.CSSProperties
+    }
+    const width = Math.max(
+      buttonWidth,
+      Math.min(100, (room - (perRow - 1) * tabConfig.gap) / perRow),
+    )
+    const gap = Math.max(tabConfig.gap, (room - perRow * width) / (perRow + 1))
+    return { gap: u(gap), '--odds-btn-w': u(width) } as React.CSSProperties
+  }
+
   const handleTabChange = (tabName: string) => {
     setSelectedTab(tabName)
 
@@ -350,7 +509,7 @@ export default function UpcomingRoundCard(props: {
 
       return (
         <div className="flex flex-col">
-          <span className="text-[20px]">
+          <span>
             {t('home_extended').toUpperCase()} {t('un/ov')} {value}
           </span>
         </div>
@@ -363,7 +522,7 @@ export default function UpcomingRoundCard(props: {
 
       return (
         <div className="flex flex-col">
-          <span className="text-[20px]">
+          <span>
             {t('away_extended').toUpperCase()} {t('un/ov')} {value}
           </span>
         </div>
@@ -384,13 +543,20 @@ export default function UpcomingRoundCard(props: {
   }
 
   return (
-    <Card className="border-card-foreground">
-      <CardHeader className="sticky top-0 z-40 flex h-[72px] w-full flex-row items-center justify-start gap-2 bg-accent px-2">
+    <Card
+      ref={cardRef}
+      className="border-card-foreground"
+      style={{ '--odds-u': `${scale}px` } as React.CSSProperties}
+    >
+      {/* Tab mercati: se a risoluzioni basse non entrano compare la
+          scrollbar sottile orizzontale, visibile solo al passaggio del
+          mouse (.hover-scrollbar) */}
+      <CardHeader className="sticky top-0 z-40 flex h-[72px] w-full flex-row items-center justify-start hover-scrollbar gap-2 overflow-x-auto bg-accent pl-[14px] pr-2">
         {marketTabs.map((tab, index) => (
           <Button
             key={index}
             variant={selectedTab === tab.name ? 'marketSelected' : 'market'}
-            className="relative left-[6px] h-[47px] w-[177px] px-2 pb-[1px] text-[15px] font-semibold uppercase"
+            className="h-[47px] w-[177px] shrink-0 px-2 pb-[1px] text-[15px] font-semibold uppercase"
             onClick={() => handleTabChange(tab.name)}
           >
             {tab.name}
@@ -406,40 +572,33 @@ export default function UpcomingRoundCard(props: {
                 {t('round')} {props.round.scheduleId}
               </TableHead>
               <TableHead className="w-[1px] bg-card-header p-0"></TableHead>
-              {marketTabs
-                .find((tab) => tab.name === selectedTab)
-                ?.markets.map((market, index) => {
-                  const optionsCount = market.selections.flatMap(
-                    ({ selection }) => selection,
-                  ).length
-
-                  const isSpecialTab = specialTabs.includes(selectedTab)
-                  if (isSpecialTab) {
-                    return (
-                      <React.Fragment key={`special-${index}`}>
-                        <TableHead className="w-[1px] bg-card-header p-0"></TableHead>
-                        <TableHead
-                          className="text-center font-semibold"
-                          colSpan={1}
-                        >
-                          {formatMarketHeader(market.name)}
-                        </TableHead>
-                      </React.Fragment>
-                    )
-                  }
-
+              {visibleMarkets.map((market, index) => {
+                if (isSpecialTab) {
                   return (
-                    <React.Fragment key={`market-${index}`}>
+                    <React.Fragment key={`special-${index}`}>
                       <TableHead className="w-[1px] bg-card-header p-0"></TableHead>
                       <TableHead
-                        className="p-0 text-center font-semibold"
-                        colSpan={optionsCount}
+                        className="text-center font-semibold"
+                        colSpan={1}
                       >
                         {formatMarketHeader(market.name)}
                       </TableHead>
                     </React.Fragment>
                   )
-                })}{' '}
+                }
+
+                return (
+                  <React.Fragment key={`market-${index}`}>
+                    <TableHead className="w-[1px] bg-card-header p-0"></TableHead>
+                    <TableHead
+                      className="p-0 text-center font-semibold"
+                      colSpan={optionsCount(market)}
+                    >
+                      {formatMarketHeader(market.name)}
+                    </TableHead>
+                  </React.Fragment>
+                )
+              })}{' '}
               <TableHead className="w-[1px] bg-card-header p-0"></TableHead>{' '}
               <TableHead className="w-[48px] min-w-[48px] max-w-[48px]"></TableHead>
             </TableRow>
@@ -474,28 +633,26 @@ export default function UpcomingRoundCard(props: {
                     <TableCell className="w-[1px] bg-white p-0"></TableCell>
 
                     {(() => {
-                      const currentMarkets =
-                        marketTabs.find((tab) => tab.name === selectedTab)
-                          ?.markets || []
-                      const isSpecialTab = specialTabs.includes(selectedTab)
-
-                      return currentMarkets.map((market, marketIndex) => {
+                      return visibleMarkets.map((market, marketIndex) => {
                         if (isSpecialTab) {
                           // Per CASA/TRASFERTA mostriamo i pulsanti di ogni mercato in riga
                           if (selectedTab === t('home/away_team')) {
                             const options = market.selections.flatMap(
                               ({ selection }) => selection,
                             )
-                            const config = getSpecialTabConfig(selectedTab)
 
                             return (
                               <React.Fragment
                                 key={`special-market-${marketIndex}`}
                               >
                                 <TableCell className="w-[1px] bg-black p-0"></TableCell>
-                                <TableCell className={config.cellPadding}>
+                                <TableCell
+                                  className={tabConfig.cellClass}
+                                  style={{ paddingInline: u(tabConfig.pad) }}
+                                >
                                   <div
-                                    className={`${config.container} ${config.gap}`}
+                                    className={tabConfig.container}
+                                    style={marketButtonsStyle(market)}
                                   >
                                     {options.map((option, i) => (
                                       <BetEntryToggle
@@ -514,7 +671,7 @@ export default function UpcomingRoundCard(props: {
                                         }}
                                         marketName={market.name}
                                         variant="roundcard"
-                                        className="h-[50px] w-[100px] text-[16px] font-semibold tabular-nums"
+                                        className="h-[50px] w-[var(--odds-btn-w)] text-[length:calc(16*var(--odds-u))] font-semibold tabular-nums"
                                       />
                                     ))}
                                   </div>
@@ -523,26 +680,29 @@ export default function UpcomingRoundCard(props: {
                             )
                           }
 
-                          let chunckSize = 12
-                          if (selectedTab === t('combo')) chunckSize = 3
-
                           const options = market.selections.flatMap(
                             ({ selection }) => selection,
                           )
-                          const optionsChunks = chunkArray(options, chunckSize)
-                          const config = getSpecialTabConfig(selectedTab)
+                          const optionsChunks = chunkArray(
+                            options,
+                            buttonsPerRow(market),
+                          )
 
                           return (
                             <React.Fragment
                               key={`special-market-${marketIndex}`}
                             >
                               <TableCell className="w-[1px] bg-black p-0"></TableCell>
-                              <TableCell className={config.cellPadding}>
+                              <TableCell
+                                className={tabConfig.cellClass}
+                                style={{ paddingInline: u(tabConfig.pad) }}
+                              >
                                 <div className="flex flex-col gap-2">
                                   {optionsChunks.map((chunk, chunkIndex) => (
                                     <div
                                       key={chunkIndex}
-                                      className={`${config.container} ${config.gap}`}
+                                      className={tabConfig.container}
+                                      style={marketButtonsStyle(market)}
                                     >
                                       {chunk.map((option, i) => (
                                         <BetEntryToggle
@@ -563,7 +723,7 @@ export default function UpcomingRoundCard(props: {
                                           }}
                                           marketName={market.name}
                                           variant="roundcard"
-                                          className="h-[50px] w-[100px] text-[16px] font-semibold tabular-nums"
+                                          className="h-[50px] w-[var(--odds-btn-w)] text-[length:calc(16*var(--odds-u))] font-semibold tabular-nums"
                                         />
                                       ))}
                                     </div>
@@ -578,39 +738,44 @@ export default function UpcomingRoundCard(props: {
                           <React.Fragment key={`regular-market-${marketIndex}`}>
                             <TableCell className="w-[1px] bg-black p-0"></TableCell>
                             <TableCell
-                              colSpan={
-                                market.selections.flatMap(
-                                  ({ selection }) => selection,
-                                ).length
-                              }
-                              className={
-                                getLayoutConfig(selectedTab).cellPadding
-                              }
+                              colSpan={optionsCount(market)}
+                              className={tabConfig.cellClass}
+                              style={{ paddingInline: u(tabConfig.pad) }}
                             >
-                              <div
-                                className={`${getLayoutConfig(selectedTab).container} ${getLayoutConfig(selectedTab).gap}`}
-                              >
-                                {market.selections
-                                  .flatMap(({ selection }) => selection)
-                                  .map((option, i) => (
-                                    <BetEntryToggle
-                                      key={i}
-                                      bet={{
-                                        discipline: Discipline.SOCCER,
-                                        event: {
-                                          name: match.eventIdentity.eventName,
-                                          number: match.eventIdentity.eventId,
-                                          startingAt: matchStart,
-                                          roundId: match.eventIdentity.groupId,
-                                        },
-                                        competitors: teamNames,
-                                        option: option,
-                                      }}
-                                      marketName={market.name}
-                                      variant="roundcard"
-                                      className={`h-[50px] ${selectedTab === t('special') ? 'w-[68px] whitespace-nowrap' : 'w-[100px]'} text-[16px] font-semibold tabular-nums`}
-                                    />
-                                  ))}
+                              <div className="flex flex-col gap-2">
+                                {chunkArray(
+                                  market.selections.flatMap(
+                                    ({ selection }) => selection,
+                                  ),
+                                  buttonsPerRow(market),
+                                ).map((chunk, chunkIndex) => (
+                                  <div
+                                    key={chunkIndex}
+                                    className={tabConfig.container}
+                                    style={marketButtonsStyle(market)}
+                                  >
+                                    {chunk.map((option, i) => (
+                                      <BetEntryToggle
+                                        key={i}
+                                        bet={{
+                                          discipline: Discipline.SOCCER,
+                                          event: {
+                                            name: match.eventIdentity.eventName,
+                                            number: match.eventIdentity.eventId,
+                                            startingAt: matchStart,
+                                            roundId:
+                                              match.eventIdentity.groupId,
+                                          },
+                                          competitors: teamNames,
+                                          option: option,
+                                        }}
+                                        marketName={market.name}
+                                        variant="roundcard"
+                                        className={`h-[50px] w-[var(--odds-btn-w)] ${selectedTab === t('special') ? 'whitespace-nowrap' : ''} text-[length:calc(16*var(--odds-u))] font-semibold tabular-nums`}
+                                      />
+                                    ))}
+                                  </div>
+                                ))}
                               </div>
                             </TableCell>
                           </React.Fragment>
