@@ -167,11 +167,6 @@ export default function BettingSlip({
     Record<string, number>
   >({})
   const [systemDistributeStake, setSystemDistributeStake] = useState(0)
-  // Ultima azione scelta nella riga dividi/aggiungi: viene riapplicata
-  // automaticamente quando cambia la selezione delle combinazioni
-  const [systemStakeMode, setSystemStakeMode] = useState<
-    'divide' | 'add' | null
-  >(null)
   const [selectedGroups, setSelectedGroups] = useState<Record<string, boolean>>(
     {},
   )
@@ -242,10 +237,21 @@ export default function BettingSlip({
     if (total > 0) lastSystemTotalStakeRef.current = total
   }, [betMode, systemGroupStakes])
 
+  // raceFieldSizes cambia ad ogni evento aperto e rigenera i gruppi: la
+  // selezione delle combinazioni va resettata solo se cambia la loro struttura
+  const systemGroupsSignature = baseSystemGroups
+    .map((group) => `${group.name}:${group.combinations.length}`)
+    .join('|')
+
   const prevBetModeRef = useRef(betMode)
+  const prevSystemGroupsSignatureRef = useRef(systemGroupsSignature)
   useEffect(() => {
     const prevMode = prevBetModeRef.current
+    const prevSignature = prevSystemGroupsSignatureRef.current
     prevBetModeRef.current = betMode
+    prevSystemGroupsSignatureRef.current = systemGroupsSignature
+
+    if (prevMode === betMode && prevSignature === systemGroupsSignature) return
 
     if (betMode === 'SYSTEM' && baseSystemGroups.length > 0) {
       const carryOverAmount =
@@ -297,7 +303,7 @@ export default function BettingSlip({
       setAllGroupsSelected(false)
       setSystemGroupStakes({})
     }
-  }, [betMode, baseSystemGroups])
+  }, [betMode, baseSystemGroups, systemGroupsSignature])
 
   const getTicketType = (entries: BetEntry[]): string => {
     const disciplines = new Set(entries.map((entry) => entry.bet.discipline))
@@ -316,25 +322,22 @@ export default function BettingSlip({
     else return 'single'
   }
 
-  const handleDistributeStake = (
-    selection: Record<string, boolean> = selectedGroups,
-    auto = false,
-  ) => {
+  const handleDistributeStake = () => {
     if (systemDistributeStake <= 0) {
-      if (!auto) toast.error(t('enter_valid_amount'))
+      toast.error(t('enter_valid_amount'))
       return
     }
     if (systemDistributeStake < minStake) {
-      if (!auto) toast.error(t('min_stake_error', { min: minStake }))
+      toast.error(t('min_stake_error', { min: minStake }))
       return
     }
     if (systemGroups.length === 0) return
 
     const selectedGroupsList = systemGroups.filter(
-      (group) => selection[group.name],
+      (group) => selectedGroups[group.name],
     )
     if (selectedGroupsList.length === 0) {
-      if (!auto) toast.error(t('select_at_least_one_group'))
+      toast.error(t('select_at_least_one_group'))
       return
     }
 
@@ -421,9 +424,7 @@ export default function BettingSlip({
       if (stakes[group.name] > 0) {
         newSelections[group.name] = true
       } else {
-        // Nella ripartizione automatica (dopo un click su una combinazione)
-        // la selezione scelta dall'utente non va mai tolta
-        newSelections[group.name] = auto
+        newSelections[group.name] = false
         groupsWithoutStake.push(group.name)
       }
     }
@@ -451,32 +452,29 @@ export default function BettingSlip({
     }, 0)
   }
 
-  const handleAddStakeToAll = (
-    selection: Record<string, boolean> = selectedGroups,
-    auto = false,
-  ) => {
+  const handleAddStakeToAll = () => {
     if (systemDistributeStake <= 0) {
-      if (!auto) toast.error(t('enter_valid_amount'))
+      toast.error(t('enter_valid_amount'))
       return
     }
     if (systemDistributeStake < minStake) {
-      if (!auto) toast.error(t('min_stake_error', { min: minStake }))
+      toast.error(t('min_stake_error', { min: minStake }))
       return
     }
 
     const hasSelectedGroups = systemGroups.some(
-      (group) => selection[group.name],
+      (group) => selectedGroups[group.name],
     )
     if (!hasSelectedGroups) {
-      if (!auto) toast.error(t('select_at_least_one_group'))
+      toast.error(t('select_at_least_one_group'))
       return
     }
 
     const newStakes: Record<string, number> = {}
-    const newSelections = { ...selection }
+    const newSelections = { ...selectedGroups }
 
-    Object.keys(selection).forEach((groupName) => {
-      if (selection[groupName]) {
+    Object.keys(selectedGroups).forEach((groupName) => {
+      if (selectedGroups[groupName]) {
         newStakes[groupName] = systemDistributeStake
         newSelections[groupName] = true
       }
@@ -495,15 +493,7 @@ export default function BettingSlip({
     }, 0)
   }
 
-  const reapplySystemStakeMode = (selection: Record<string, boolean>) => {
-    if (systemStakeMode === 'divide') handleDistributeStake(selection, true)
-    else if (systemStakeMode === 'add') handleAddStakeToAll(selection, true)
-  }
-
   const handleUpdateGroupStake = (groupName: string, value: number) => {
-    // Una modifica manuale dell'importo di un gruppo disattiva la
-    // ripartizione automatica dividi/aggiungi
-    setSystemStakeMode(null)
     const numValue = Number(value)
     const finalValue = Math.max(0, isNaN(numValue) ? 0 : numValue)
     const roundedValue = Math.round(finalValue * 100) / 100
@@ -548,7 +538,6 @@ export default function BettingSlip({
   const handleDirectAmountInput = (value: number) => {
     // L'importo totale inserito viene riportato anche nella riga dividi/aggiungi
     setSystemDistributeStake(Math.max(value, 0))
-    setSystemStakeMode('divide')
 
     if (value <= 0) {
       setGlobal(0)
@@ -616,24 +605,21 @@ export default function BettingSlip({
 
     setSelectedGroups(newSelectedGroups)
     setSystemGroupStakes((prev) => ({ ...prev, ...newStakes }))
-    if (checked) reapplySystemStakeMode(newSelectedGroups)
   }
 
   const handleGroupToggle = (groupName: string, checked: boolean) => {
-    setSelectedGroups((prev) => ({ ...prev, [groupName]: checked }))
-
-    if (checked) {
-      setSystemGroupStakes((prev) => ({ ...prev, [groupName]: minStake }))
-    } else {
-      setSystemGroupStakes((prev) => ({ ...prev, [groupName]: 0 }))
-    }
-
     const updatedSelections = { ...selectedGroups, [groupName]: checked }
-    const allSelected = systemGroups.every(
-      (group) => updatedSelections[group.name],
+    setSelectedGroups(updatedSelections)
+    setAllGroupsSelected(
+      systemGroups.every((group) => updatedSelections[group.name]),
     )
-    setAllGroupsSelected(allSelected)
-    reapplySystemStakeMode(updatedSelections)
+
+    // Il checkbox serve solo a selezionare/deselezionare il gruppo: nessuna
+    // ridistribuzione dell'importo totale sulle combinazioni
+    setSystemGroupStakes((prev) => ({
+      ...prev,
+      [groupName]: checked ? minStake : 0,
+    }))
   }
 
   const totalSystemStake = useMemo(() => {
@@ -1587,10 +1573,7 @@ export default function BettingSlip({
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => {
-                              setSystemStakeMode('divide')
-                              handleDistributeStake()
-                            }}
+                            onClick={() => handleDistributeStake()}
                             className="h-8 w-7 bg-minusButtonDark p-3 text-[19px] text-bet-foreground opacity-50 hover:opacity-90"
                           >
                             <DivideIcon className="h-4 w-4" />
@@ -1608,10 +1591,7 @@ export default function BettingSlip({
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => {
-                              setSystemStakeMode('add')
-                              handleAddStakeToAll()
-                            }}
+                            onClick={() => handleAddStakeToAll()}
                             className="h-8 w-7 bg-plusButton p-3 text-[19px] text-bet-foreground hover:opacity-90"
                           >
                             <CornerDownLeft className="h-4 w-4" />
