@@ -67,12 +67,7 @@ export default function Leaderboard({
             <CardTitle className="realtive bottom-[1px] justify-start text-[16px] font-bold">
               {t('standings').toUpperCase()}
             </CardTitle>
-            {updatedAt && (
-              <span className="ml-4 text-[12px] opacity-70">
-                {t('standings_updated', 'aggiornata alle')} {updatedAt}
-                {standings.round ? ` · ${t('round')} ${standings.round}` : ''}
-              </span>
-            )}
+            
             <Button variant="ghost" size="icon-lg">
               {isExpanded ? (
                 <ChevronDown style={{ zoom: 1.2, marginLeft: '27px' }} />

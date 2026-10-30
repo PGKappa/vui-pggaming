@@ -103,7 +103,7 @@ export default function Home() {
           />
         </div>
 
-        <div className="flex w-full flex-col gap-2 pt-[2px] tabular-nums">
+        <div className="retail-race-body w-full gap-2 tabular-nums">
           {!!searchEventResults ? (
             <SearchEventResults />
           ) : selectedEvent ? (
@@ -117,7 +117,7 @@ export default function Home() {
                 close={() => setMatchBetOptions(undefined)}
               />
             ) : (
-              <div className="relative h-[942px]">
+              <div className="relative h-full">
                 {/* Scroll principale della pagina */}
                 <div className="h-full overflow-hidden">
                   <div

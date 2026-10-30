@@ -117,13 +117,13 @@ export default function EventBets(props: {
             </div>
           </div>
           {eventBets[0].bet.discipline === 'SOCCER' ? (
-            <div className="relative bottom-[1px] ml-[3px] flex items-center justify-between pb-[4px]">
+            <div className="relative bottom-[1px] ml-[3px] flex items-center gap-2 whitespace-nowrap pb-[4px]">
               <span className="text-[13px] uppercase">
                 {eventBets[0].bet.competitors}
               </span>
               <span className="text-[10px]">|</span>
               {eventBets[0].bet.event.roundId && (
-                <span className="relative mr-[200px] text-[13px] font-bold text-accent">
+                <span className="relative text-[13px] font-bold text-accent">
                   {t('round').toUpperCase()} {eventBets[0].bet.event.roundId}
                 </span>
               )}
@@ -264,13 +264,13 @@ export default function EventBets(props: {
                 key={betEntry.id}
                 className="flex items-center  text-sm"
               >
-                <span className="mr-[1px] w-[126px] text-[12px] capitalize break-all">
+                <span className="mr-2 min-w-0 flex-1 text-[12px] capitalize leading-tight">
                   {translatedMarket}
                 </span>
-                <span className="ml-[0px] w-[118px] text-left text-[13px] font-normal break-all">
+                <span className="mr-2 max-w-[55%] shrink-0 text-left text-[13px] font-normal leading-tight">
                   {outcomeDisplay}
                 </span>
-                <span className="relative right-1 grid w-[96px] justify-end break-all text-[13px] font-semibold">
+                <span className="relative right-1 w-[48px] shrink-0 text-right text-[13px] font-semibold">
                   {betEntry.bet.option.decPrice.toFixed(2)}
                 </span>
                 <Button
