@@ -1,8 +1,9 @@
 'use client'
+import { probabilitiesFromOdds } from '@/retail-lib/soccer-stats'
 import { RootContext } from '@/virtual-contexts/root-context'
-import { MatchStatistics } from '@/virtual-lib/types'
+import { Market } from '@/virtual-lib/types'
 import { PlusIcon } from 'lucide-react'
-import { useContext } from 'react'
+import { useContext, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import LoadingSpinner from './loading-spinner'
 import { Badge } from './ui/badge'
@@ -17,13 +18,37 @@ import {
   TableRow,
 } from './ui/table'
 
+// La partita scelta porta con se' i mercati e gli identificativi: servono al
+// riquadro statistiche per le percentuali, la forma e i precedenti.
+export type SelectedMatch = {
+  teams: string
+  markets: Market[]
+  startTime: Date
+  eventId?: number
+  groupId?: number
+}
+
 export default function LiveRoundStatistics(props: {
-  onMatchSelect: (match: MatchStatistics) => void
+  onMatchSelect: (match: SelectedMatch) => void
 }) {
-  const { roundStatistics } = useContext(RootContext)
+  const { upcomingRounds } = useContext(RootContext)
   const { t, i18n } = useTranslation()
 
-  if (!roundStatistics) {
+  // Le percentuali sono le quote 1X2 della partita, normalizzate a 100:
+  // nessun dato inventato e nessuna chiamata in piu'.
+  const round = upcomingRounds?.[0]
+  const matches = useMemo(() => {
+    return (round?.mag_event ?? []).map((match) => ({
+      teams: match.teams.team.map((team) => team.name || '').join(' - '),
+      markets: match.markets.market,
+      startTime: new Date(match.startTime),
+      eventId: match.eventIdentity?.eventId,
+      groupId: match.eventIdentity?.groupId,
+      probabilities: probabilitiesFromOdds(match.markets.market),
+    }))
+  }, [round])
+
+  if (!upcomingRounds) {
     return (
       <Card>
         <CardHeader>
@@ -36,12 +61,25 @@ export default function LiveRoundStatistics(props: {
     )
   }
 
+  if (!round || !matches.length) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('statistics')}</CardTitle>
+        </CardHeader>
+        <CardContent className="py-4 text-center text-sm opacity-70">
+          {t('no_matches')}
+        </CardContent>
+      </Card>
+    )
+  }
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>
-          {t('statistics')} {roundStatistics.name} {t('round')}{' '}
-          {roundStatistics.number}
+          {t('statistics')} {round.scheduleName} {t('round')}{' '}
+          {round.scheduleId}
         </CardTitle>
       </CardHeader>
 
@@ -58,13 +96,30 @@ export default function LiveRoundStatistics(props: {
           </TableHeader>
 
           <TableBody className="border-b border-t border-card-foreground">
-            {roundStatistics.matches.map((match, index) => {
-              const formattedTime = new Date(
-                match.startTime,
-              ).toLocaleTimeString(i18n.language, {
-                hour: '2-digit',
-                minute: '2-digit',
-              })
+            {matches.map((match, index) => {
+              const formattedTime = match.startTime.toLocaleTimeString(
+                i18n.language,
+                {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                },
+              )
+              const percentuali = match.probabilities
+                ? [
+                    match.probabilities.home,
+                    match.probabilities.draw,
+                    match.probabilities.away,
+                  ]
+                : undefined
+              const select = () =>
+                props.onMatchSelect({
+                  teams: match.teams,
+                  markets: match.markets,
+                  startTime: match.startTime,
+                  eventId: match.eventId,
+                  groupId: match.groupId,
+                })
+
               return (
                 <TableRow
                   key={index}
@@ -79,25 +134,30 @@ export default function LiveRoundStatistics(props: {
                     </div>
                   </TableCell>
 
-                  {match.probabilities.map((probability, index) => (
-                    <TableCell key={index} className="text-center font-bold">
-                      {probability}%
-                    </TableCell>
-                  ))}
+                  {(percentuali ?? [null, null, null]).map(
+                    (probability, colonna) => (
+                      <TableCell
+                        key={colonna}
+                        className="text-center font-bold tabular-nums"
+                      >
+                        {probability === null ? '–' : `${probability}%`}
+                      </TableCell>
+                    ),
+                  )}
 
                   <TableCell>
                     <Button
                       variant="ghost"
                       size="icon-sm"
                       className="hidden text-center lg:flex"
-                      onClick={() => props.onMatchSelect(match)}
+                      onClick={select}
                     >
                       <PlusIcon className="h-4 w-4" />
                     </Button>
 
                     <div
                       className="absolute inset-0 h-full w-full lg:hidden"
-                      onClick={() => props.onMatchSelect(match)}
+                      onClick={select}
                     />
                   </TableCell>
                 </TableRow>

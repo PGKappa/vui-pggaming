@@ -148,7 +148,7 @@
   "pending": "Pendiente",
   "cancelled": "Cancelado",
   "payment": "Pago",
-  "balance": "Saldo",
+  "balance": "Balance",
   "paid": "Pagado",
   "unpaid": "No Pagado",
   "from": "Desde",
@@ -376,5 +376,15 @@
   "collected": "Cobrado",
   "not_collected": "Pendiente",
   "pay_error": "Error en el pago",
-  "pay_success": "Pago realizado"
+  "pay_success": "Pago realizado",
+  "last_5_matches": "Últimos 5 partidos",
+  "head_to_head": "Enfrentamientos",
+  "draws": "empates",
+  "form_unavailable": "historial aún no disponible",
+  "statistics_unavailable": "estadísticas no disponibles",
+  "form_W": "W",
+  "form_D": "D",
+  "form_L": "L",
+  "no_live_scores": "No hay marcadores en directo",
+  "live": "En directo"
 }

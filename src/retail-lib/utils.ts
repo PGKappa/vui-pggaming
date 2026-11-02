@@ -176,6 +176,158 @@ export const CASHIER_API_URL = API_URLS.CASHIER_INIT
 export const SOCCER_API_URL = API_URLS.SOCCER
 export const BASE_API_URL = API_URLS.BASE
 
+// ===== Calcio (soccer) — endpoint PGVirtual =====
+// Per ora l'ambiente calcio è quello DEMO (l'endpoint non è ancora attivo su
+// api-btprod: risponde 404). Operator e init_code sono quelli forniti da Daniele
+// per la demo; in futuro andranno parametrizzati come per dogs/horses.
+export const SOCCER_CONFIG = {
+  INIT: 'https://demo-pg.pgvirtual.eu/api/init/cashier/soccer',
+  NEXT: 'https://demo-pg.pgvirtual.eu/api/next/cashier/soccer',
+  OPERATOR: 'pg',
+  INIT_CODE: 'TEST-EUR-en-US-1',
+} as const
+
+// Quante giornate calcio mostrare nella barra in alto.
+export const SOCCER_ROUNDS_TO_SHOW = 10
+
+// Tutte le chiamate soccer passano in fila: richieste simultanee con lo
+// stesso token fanno scattare 401 casuali nel middleware di sessione.
+let soccerQueue: Promise<unknown> = Promise.resolve()
+function enqueueSoccer<T>(task: () => Promise<T>): Promise<T> {
+  const run = soccerQueue.then(task)
+  soccerQueue = run.catch(() => {})
+  return run
+}
+
+// Richiesta soccer (Bearer + Operator; JSON solo se c'è body). Restituisce
+// il JSON senza controllare ret_code.
+function soccerRequest(
+  url: string,
+  method: 'GET' | 'POST',
+  body?: object,
+): Promise<any> {
+  return enqueueSoccer(async () => {
+    const response = await fetch(url, {
+      method,
+      headers: {
+        Authorization: `Bearer ${SOCCER_CONFIG.INIT_CODE}`,
+        Operator: SOCCER_CONFIG.OPERATOR,
+        ...(body ? { 'Content-Type': 'application/json' } : {}),
+      },
+      mode: 'cors',
+      ...(body ? { body: JSON.stringify(body) } : {}),
+    })
+    // HTTP non-2xx = rete / deploy mancante / metodo sbagliato (405).
+    if (!response.ok) {
+      throw new Error(`Soccer HTTP ${response.status} su ${url}`)
+    }
+    return response.json()
+  })
+}
+
+// Token per il hub realtime (JWT con TTL 5 minuti: serve solo a connettersi).
+export async function fetchSoccerRealtimeToken(): Promise<string | undefined> {
+  const data = await soccerPost(SOCCER_CONFIG.INIT)
+  return data?.realtime_token
+}
+
+// Risultato di una partita conclusa; ret_code va controllato dal chiamante
+// ("04" = evento non trovato).
+export function fetchSoccerResult(groupId: string, eventId: string): Promise<any> {
+  const origin = new URL(SOCCER_CONFIG.INIT).origin
+  return soccerRequest(
+    `${origin}/api/soccer/event/results/${groupId}/${eventId}`,
+    'GET',
+  )
+}
+
+async function soccerPost(url: string, body?: object): Promise<any> {
+  const data = await soccerRequest(url, 'POST', body)
+  // Gli errori applicativi PGVirtual arrivano con HTTP 200: conta ret_code.
+  // 1024 (numero) = successo; qualunque altro valore, incl. stringhe "04"/"17",
+  // è errore. NB: soccer_available:false ha comunque ret_code 1024 (non è errore),
+  // e viene gestito a valle come "nessuna giornata al momento".
+  if (data?.ret_code !== 1024) {
+    throw new Error(`Soccer ret_code ${data?.ret_code}: ${data?.description}`)
+  }
+  return data
+}
+
+// Next calcio: offset=N restituisce la giornata in posizione N (10 incontri).
+export async function fetchSoccerNext(offset: number): Promise<any> {
+  return soccerPost(SOCCER_CONFIG.NEXT, { offset })
+}
+
+// Init calcio: init copre le prime 2 giornate (offset 0 e 1); con next(offset)
+// recuperiamo le successive fino ad avere SOCCER_ROUNDS_TO_SHOW giornate.
+// Uniamo tutti gli "schedule" in un'unica risposta: il raggruppamento per
+// groupId a valle deduplica eventuali giornate ripetute.
+export async function fetchSoccerInit(): Promise<any> {
+  const init = await soccerPost(SOCCER_CONFIG.INIT)
+  const offsets = Array.from(
+    { length: Math.max(0, SOCCER_ROUNDS_TO_SHOW - 2) },
+    (_, i) => i + 2,
+  )
+  // In sequenza: più chiamate in parallelo con lo stesso token fanno
+  // scattare 401 casuali nel middleware di sessione e la giornata va persa.
+  const extra: any[] = []
+  for (const o of offsets) {
+    const page =
+      (await fetchSoccerNext(o).catch(() => null)) ??
+      (await fetchSoccerNext(o).catch(() => null))
+    if (page) extra.push(page)
+  }
+  const schedule = [init, ...extra].flatMap(
+    (r: any) => r?.schedules?.schedule || [],
+  )
+  return { ...init, schedules: { schedule } }
+}
+
+// Il feed demo NON manda il mercato "Doppia Chance": lo DERIVIAMO dalle quote
+// 1X2 (formula standard 1/(1/oA + 1/oB)). Le quote reali potrebbero differire:
+// se serve la doppia chance "vera" va aggiunta lato backend.
+export function withDerivedDoppiaChance<T extends { markets?: any }>(
+  event: T,
+): T {
+  const markets: any[] = event?.markets?.market || []
+  if (markets.length === 0) return event
+  // Già presente? non fare nulla.
+  if (markets.some((m) => /doppia\s*chance|double\s*chance/i.test(m?.name || '')))
+    return event
+
+  const m1x2 = markets.find((m) =>
+    /esito\s*finale|(^|\s)1x2($|\s)/i.test(m?.name || ''),
+  )
+  const sels = m1x2?.selections?.[0]?.selection || m1x2?.selection?.selection || []
+  const price = (o: string) =>
+    Number(sels.find((s: any) => String(s.outcome).toUpperCase() === o)?.decPrice)
+  const o1 = price('1')
+  const oX = price('X')
+  const o2 = price('2')
+  if (!o1 || !oX || !o2) return event
+
+  const dc = (a: number, b: number) =>
+    Math.round((1 / (1 / a + 1 / b)) * 100) / 100
+
+  const doppiaChance = {
+    name: 'Doppia Chance',
+    selections: [
+      {
+        selection: [
+          { outcome: '1X', decPrice: dc(o1, oX) },
+          { outcome: 'X2', decPrice: dc(oX, o2) },
+          { outcome: '12', decPrice: dc(o1, o2) },
+        ],
+      },
+    ],
+  }
+
+  return {
+    ...event,
+    markets: { ...event.markets, market: [...markets, doppiaChance] },
+  }
+}
+
 export function getTimeDistanceFromNow(targetTime: Date) {
   const diff = targetTime.getTime() - Date.now()
 

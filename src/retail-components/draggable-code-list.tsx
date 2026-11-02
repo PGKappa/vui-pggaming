@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { Button } from '@/retail-components/ui/button'
 import { X, Printer } from 'lucide-react'
 import Image from 'next/image'
+import { createPortal } from 'react-dom'
 import { RootContext } from '@/retail-contexts/root-context'
 import { SkinContext, SkinType } from '@/retail-contexts/skin-context'
 
@@ -384,88 +385,92 @@ export default function DraggableCodeList({
         i
       </Button>
 
-      {isOpen && (
-        <div
-          ref={dragRef}
-          className={`fixed z-50 flex cursor-move flex-col border border-border bg-background shadow-2xl ${isDragging || isResizing ? 'select-none' : ''}`}
-          style={{
-            left: `${position.x}px`,
-            top: `${position.y}px`,
-            width: `${size.width}px`,
-            height: `${size.height}px`,
-            visibility: isImageReady ? 'visible' : 'hidden',
-          }}
-          onMouseDown={handleMouseDown}
-          onTouchStart={handleTouchStart}
-        >
-          <div className="flex h-14 shrink-0 select-none items-center justify-center border-black bg-accent">
-            <h2 className="text-[16px] font-bold text-accent-foreground">
-              {t('code_list').toUpperCase()}
-            </h2>
-
-            <div
-              className="absolute right-4 flex cursor-default items-center space-x-2 bg-transparent"
-              onMouseDown={(e) => e.stopPropagation()}
-              onTouchStart={(e) => e.stopPropagation()}
-            >
-              <Button
-                variant={'ghost'}
-                size="icon"
-                onClick={handlePrint}
-                title="Print"
-                className="cursor-pointer bg-transparent transition-opacity hover:opacity-80"
-              >
-                <Printer
-                  className="h-4 w-4 text-accent-foreground"
-                  style={{ zoom: 1.3 }}
-                />
-              </Button>
-              <Button
-                variant={'ghost'}
-                size="icon"
-                onClick={handleClose}
-                title="Close"
-                className="cursor-pointer bg-transparent transition-opacity hover:opacity-80"
-              >
-                <X
-                  className="h-4 w-4 text-accent-foreground"
-                  style={{ zoom: 1.3 }}
-                />
-              </Button>
-            </div>
-          </div>
-
-          <div className="relative flex-1 overflow-hidden">
-            <Image
-              src={config.image}
-              alt={config.alt}
-              width={1920}
-              height={1080}
-              className="h-full w-full object-fill"
-              priority
-              onLoadingComplete={handleImageLoad}
-            />
-          </div>
-
-          {/* Resize Handle */}
+      {/* Portal su body: dentro la colonna schedina (sticky) lo z-index
+          restava confinato e la finestra finiva sotto la griglia quote */}
+      {isOpen &&
+        createPortal(
           <div
-            className="absolute bottom-0 right-0 z-10 h-6 w-6 cursor-nwse-resize bg-accent/50 hover:bg-accent"
-            onMouseDown={handleResizeStart}
-            onTouchStart={handleResizeTouchStart}
-            title="Ridimensiona"
+            ref={dragRef}
+            className={`fixed z-50 flex cursor-move flex-col border border-border bg-background shadow-2xl ${isDragging || isResizing ? 'select-none' : ''}`}
+            style={{
+              left: `${position.x}px`,
+              top: `${position.y}px`,
+              width: `${size.width}px`,
+              height: `${size.height}px`,
+              visibility: isImageReady ? 'visible' : 'hidden',
+            }}
+            onMouseDown={handleMouseDown}
+            onTouchStart={handleTouchStart}
           >
-            <svg
-              className="h-full w-full p-1 text-accent-foreground"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="3"
+            <div className="flex h-14 shrink-0 select-none items-center justify-center border-black bg-accent">
+              <h2 className="text-[16px] font-bold text-accent-foreground">
+                {t('code_list').toUpperCase()}
+              </h2>
+
+              <div
+                className="absolute right-4 flex cursor-default items-center space-x-2 bg-transparent"
+                onMouseDown={(e) => e.stopPropagation()}
+                onTouchStart={(e) => e.stopPropagation()}
+              >
+                <Button
+                  variant={'ghost'}
+                  size="icon"
+                  onClick={handlePrint}
+                  title="Print"
+                  className="cursor-pointer bg-transparent transition-opacity hover:opacity-80"
+                >
+                  <Printer
+                    className="h-4 w-4 text-accent-foreground"
+                    style={{ zoom: 1.3 }}
+                  />
+                </Button>
+                <Button
+                  variant={'ghost'}
+                  size="icon"
+                  onClick={handleClose}
+                  title="Close"
+                  className="cursor-pointer bg-transparent transition-opacity hover:opacity-80"
+                >
+                  <X
+                    className="h-4 w-4 text-accent-foreground"
+                    style={{ zoom: 1.3 }}
+                  />
+                </Button>
+              </div>
+            </div>
+
+            <div className="relative flex-1 overflow-hidden">
+              <Image
+                src={config.image}
+                alt={config.alt}
+                width={1920}
+                height={1080}
+                className="h-full w-full object-fill"
+                priority
+                onLoadingComplete={handleImageLoad}
+              />
+            </div>
+
+            {/* Resize Handle */}
+            <div
+              className="absolute bottom-0 right-0 z-10 h-6 w-6 cursor-nwse-resize bg-accent/50 hover:bg-accent"
+              onMouseDown={handleResizeStart}
+              onTouchStart={handleResizeTouchStart}
+              title="Ridimensiona"
             >
-              <path d="M16 20 L20 20 L20 16 M12 20 L20 12" />
-            </svg>
-          </div>
-        </div>
-      )}
+              <svg
+                className="h-full w-full p-1 text-accent-foreground"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="3"
+              >
+                <path d="M16 20 L20 20 L20 16 M12 20 L20 12" />
+              </svg>
+            </div>
+          </div>,
+          document.body,
+        )}
     </>
   )
 }

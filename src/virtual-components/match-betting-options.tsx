@@ -1,10 +1,13 @@
 'use client'
 
+import { detailMarketPriority } from '@/retail-lib/market-order'
+import type { TeamRanking as SoccerTeamRanking } from '@/retail-lib/types'
 import { Discipline, Market } from '@/virtual-lib/types'
 import { format } from 'date-fns'
 import { t } from 'i18next'
 import { ChevronsLeftIcon } from 'lucide-react'
 import BetEntryToggle from './bet-entry-toggle'
+import MatchStatisticsCard from './match-statistics-card'
 import {
   Accordion,
   AccordionContent,
@@ -22,8 +25,16 @@ export default function MatchBettingOptions(props: {
   }
   teams: string
   markets: Market[]
+  eventId?: number
+  groupId?: number
+  standings?: SoccerTeamRanking[]
   close: () => void
 }) {
+  // Stesso ordine dei mercati della cassa.
+  const orderedMarkets = [...props.markets].sort(
+    (a, b) => detailMarketPriority(a.name) - detailMarketPriority(b.name),
+  )
+
   return (
     <div className="flex w-full flex-col gap-2">
       <div className="flex flex-row items-center justify-between">
@@ -38,8 +49,16 @@ export default function MatchBettingOptions(props: {
         </div>
         <Badge>{format(props.round.startingAt, 'HH:mm')}</Badge>
       </div>
+      <MatchStatisticsCard
+        teams={props.teams}
+        markets={props.markets}
+        eventId={props.eventId}
+        groupId={props.groupId}
+        standings={props.standings}
+      />
+
       <Accordion type="multiple">
-        {props.markets.map((market) => (
+        {orderedMarkets.map((market) => (
           <AccordionItem key={market.name} value={market.name}>
             <AccordionTrigger>{market.name.toUpperCase()}</AccordionTrigger>
             <AccordionContent>

@@ -17,6 +17,24 @@ export const BASE_API_URL = API_URLS.BASE
 export const CASHIER_API_URL = API_URLS.CASHIER_INIT
 export const PGVIRTUAL_API_URL = API_URLS.PGVIRTUAL
 
+// Calcio: stesso feed della cassa (init/next cashier/soccer su demo PGVirtual).
+// Unica fonte di verità in retail-lib: ri-esportiamo per non duplicare logica.
+export {
+  fetchSoccerInit,
+  fetchSoccerNext,
+  withDerivedDoppiaChance,
+  SOCCER_ROUNDS_TO_SHOW,
+} from '@/retail-lib/utils'
+
+// Operatore dalla URL (?operator= o ?partner=), come nel retail. Senza
+// parametro si mantiene il default storico della singola chiamata: con un
+// init_code di un altro operatore il backend risponde 500/401.
+export function getOperatorFromUrl(fallback: string): string {
+  if (typeof window === 'undefined') return fallback
+  const params = new URLSearchParams(window.location.search)
+  return params.get('operator') || params.get('partner') || fallback
+}
+
 // Helper per chiamate API PGVirtual per Virtual
 export function createPGVirtualAPICall(
   endpoint: string,
@@ -29,7 +47,7 @@ export function createPGVirtualAPICall(
       accept: 'application/json',
       'accept-language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
       authorization: `Bearer ${initCode}`,
-      operator: 'bingoal',
+      operator: getOperatorFromUrl('bingoal'),
       ...options?.headers,
     },
     mode: 'cors',
@@ -44,7 +62,7 @@ export async function fetchCashierInit(initCode: string): Promise<any> {
     headers: {
       accept: 'application/json',
       authorization: `Bearer ${initCode}`,
-      operator: 'bingoal',
+      operator: getOperatorFromUrl('bingoal'),
     },
     mode: 'cors',
     credentials: 'include',

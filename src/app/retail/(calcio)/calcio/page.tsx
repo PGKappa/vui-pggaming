@@ -1,6 +1,7 @@
 'use client'
 import BettingSlip from '@/retail-components/betting-slip'
 import Leaderboard from '@/retail-components/leaderboard'
+import { useSoccerStandings } from '@/retail-lib/soccer-standings'
 import MatchBettingOptions from '@/retail-components/match-betting-options'
 import SearchEventResults from '@/retail-components/search-event-results'
 import { UpcomingEventsCarousel } from '@/retail-components/upcoming-events-carousel'
@@ -31,6 +32,7 @@ export default function Home() {
     }
     teams: string
     markets: Market[]
+    eventId?: number
   }>()
 
   const [selectedEvent, setSelectedEvent] = useState<UpcomingEvent | undefined>(
@@ -38,6 +40,16 @@ export default function Home() {
   )
 
   const [isLeaderboardExpanded, setIsLeaderboardExpanded] = useState(false)
+
+  // La classifica e' quella del campionato a cui appartiene la giornata in
+  // cartellone: si passa una sua partita, cosi' legge lo stesso torneo che
+  // leggono le statistiche e le due non possono discordare.
+  const partitaInCartellone = (selectedEvent?.data as UpcomingRound | undefined)
+    ?.mag_event?.[0]?.eventIdentity
+  const standings = useSoccerStandings(
+    partitaInCartellone?.eventId,
+    partitaInCartellone?.groupId,
+  )
 
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const pageScrollRef = useRef<HTMLDivElement>(null)
@@ -78,8 +90,8 @@ export default function Home() {
 
   return (
     <div className="retail-page-row min-w-0">
-      <div className="retail-left-col gap-2">
-        <div className="bg-betslip flex h-[88px] w-full shrink-0 flex-row items-center justify-center pb-[2px]">
+      <div className="retail-left-col">
+        <div className="bg-betslip flex h-[102px] w-full shrink-0 flex-row items-center justify-center pr-2">
           <UpcomingEventsCarousel
             selectedEvent={selectedEvent}
             setSelectedEvent={(event) => {
@@ -91,7 +103,7 @@ export default function Home() {
           />
         </div>
 
-        <div className="flex w-full flex-col gap-2 tabular-nums">
+        <div className="retail-race-body w-full gap-2 tabular-nums">
           {!!searchEventResults ? (
             <SearchEventResults />
           ) : selectedEvent ? (
@@ -100,10 +112,12 @@ export default function Home() {
                 round={matchBetOptions.round}
                 teams={matchBetOptions.teams}
                 markets={matchBetOptions.markets}
+                standings={standings.rankings}
+                eventId={matchBetOptions.eventId}
                 close={() => setMatchBetOptions(undefined)}
               />
             ) : (
-              <div className="relative h-[942px]">
+              <div className="relative h-full">
                 {/* Scroll principale della pagina */}
                 <div className="h-full overflow-hidden">
                   <div
@@ -152,8 +166,10 @@ export default function Home() {
                       </div>
                     </div>
 
+                    {/* Classifica reale: si aggiorna a ogni fine giornata */}
                     <div className="relative bottom-[15px]">
                       <Leaderboard
+                        standings={standings}
                         isExpanded={isLeaderboardExpanded}
                         onToggle={setIsLeaderboardExpanded}
                       />

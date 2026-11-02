@@ -27,6 +27,8 @@ export default function UpcomingRoundCard(props: {
           }
           teams: string
           markets: Market[]
+          eventId?: number
+          groupId?: number
         }
       | undefined
     >
@@ -86,8 +88,10 @@ export default function UpcomingRoundCard(props: {
                   .map((t) => t.name || '')
                   .join(' - ')
 
-                const mainMarket = match.markets.market.find(
-                  (m) => m.name === 'Esito finale 1X2',
+                const mainMarket = match.markets.market.find((m) =>
+                  ['esito finale 1x2', '1x2'].includes(
+                    m.name.trim().toLowerCase(),
+                  ),
                 )
                 const marketOptions =
                   mainMarket?.selections.flatMap(
@@ -142,6 +146,8 @@ export default function UpcomingRoundCard(props: {
                             },
                             teams: teamNames,
                             markets: match.markets.market,
+                            eventId: match.eventIdentity?.eventId,
+                            groupId: match.eventIdentity?.groupId,
                           })
                         }
                       >

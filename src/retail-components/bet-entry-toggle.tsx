@@ -82,9 +82,12 @@ export default function BetEntryToggle(props: {
     if (lower === 'under') return underLabel
     if (lower === 'over') return overLabel
 
-    if (marketName === 'Half Time\/ Full Time') {
-      if (outcome.length === 2) {
-        return `${outcome[0]} / ${outcome[1]}`
+    {
+      const mn = marketName.trim().toLowerCase()
+      if (mn === 'half time/ full time' || mn === 'parziale/finale') {
+        if (outcome.length === 2) {
+          return `${outcome[0]} / ${outcome[1]}`
+        }
       }
     }
 
@@ -210,7 +213,7 @@ export default function BetEntryToggle(props: {
         props.variant === 'matchcard'
           ? 'flex flex-row justify-between px-4 text-[19px] capitalize tabular-nums'
           : props.variant === 'roundcard'
-            ? 'flex flex-col justify-between text-[19px]'
+            ? 'flex flex-col justify-center gap-[2px] text-[19px] leading-tight'
             : props.variant === 'racecard'
               ? 'rounded-sm text-center text-[19px]'
               : props.variant === 'racecombination'
@@ -234,10 +237,10 @@ export default function BetEntryToggle(props: {
         </>
       ) : props.variant === 'roundcard' ? (
         <>
-          <span className="pt-[1px] font-semibold capitalize">
+          <span className="font-semibold capitalize">
             {formattedOutcome}
           </span>
-          <span className="relative bottom-[4px] text-[18px]">
+          <span className="text-[length:calc(18*var(--odds-u,1px))]">
             {props.bet.option.decPrice.toFixed(2)}
           </span>
         </>
