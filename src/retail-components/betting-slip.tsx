@@ -1759,7 +1759,12 @@ export default function BettingSlip({
 
               <Separator />
 
-              <div className="flex w-full flex-row items-center justify-between bg-backgroundBetslip px-4 py-3 text-searchResultText">
+              <div
+                className={cn(
+                  'flex w-full flex-row items-center justify-between bg-backgroundBetslip px-4 text-searchResultText',
+                  betTemplate.showMinMaxWin ? 'pb-2 pt-[23px]' : 'py-3',
+                )}
+              >
                 <span className="text-[15px] font-semibold">
                   {t('total_combinations').toUpperCase()}
                 </span>
@@ -1776,7 +1781,12 @@ export default function BettingSlip({
 
               <Separator />
 
-              <div className="mt-2 flex w-full flex-row items-center justify-between px-4 py-3 text-searchResultText">
+              <div
+                className={cn(
+                  'flex w-full flex-row items-center justify-between px-4 text-searchResultText',
+                  betTemplate.showMinMaxWin ? 'py-2' : 'mt-2 py-3',
+                )}
+              >
                 <div className="flex items-center space-x-2">
                   <span className="text-[15px] font-semibold">
                     {t('amount').toUpperCase()}
@@ -1802,7 +1812,7 @@ export default function BettingSlip({
                     currencySymbol={currencySymbol}
                   />
                 ) : (
-                  <span className="text-[16px] font-semibold tabular-nums">
+                  <span className="text-[15px] font-semibold tabular-nums">
                     {actualTotalStake.toFixed(2)} {currencySymbol}
                   </span>
                 )}
@@ -1811,20 +1821,20 @@ export default function BettingSlip({
               <Separator />
 
               {betTemplate.showMinMaxWin ? (
-                <div className="flex w-full flex-col bg-backgroundBetslip px-4 py-3 text-searchResultText">
+                <div className="flex w-full flex-col gap-[17px] bg-backgroundBetslip px-4 pb-[7px] pt-2 text-searchResultText">
                   <div className="flex w-full flex-row items-center justify-between">
-                    <span className="text-[17px] font-semibold tabular-nums">
+                    <span className="text-[15px] font-semibold tabular-nums">
                       {t('min_win').toUpperCase()}
                     </span>
-                    <span className="text-[17px] font-semibold tabular-nums">
+                    <span className="text-[15px] font-semibold tabular-nums">
                       {systemMinWin.toFixed(2)} {currencySymbol}
                     </span>
                   </div>
                   <div className="flex w-full flex-row items-center justify-between">
-                    <span className="text-[17px] font-semibold tabular-nums">
+                    <span className="text-[15px] font-semibold tabular-nums">
                       {t('max_win').toUpperCase()}
                     </span>
-                    <span className="text-[17px] font-semibold tabular-nums">
+                    <span className="text-[15px] font-semibold tabular-nums">
                       {totalSystemPotentialWin.toFixed(2)} {currencySymbol}
                     </span>
                   </div>
