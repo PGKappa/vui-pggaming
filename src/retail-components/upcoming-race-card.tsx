@@ -396,10 +396,21 @@ export default function UpcomingRaceCard({
     return (
       <TableHeader className="h-14 bg-card-header text-[16px] text-card-header-foreground">
         <TableRow>
-          <TableHead className="w-[18%] min-w-0 text-center font-semibold max-[1399px]:w-1/4 min-[1400px]:max-[1439px]:w-1/4 min-[1440px]:w-1/6">
-            <span className='inline-block w-full h-full leading-[54px] align-middle'>
+          <TableHead className="relative w-[18%] min-w-0 text-center font-semibold max-[1399px]:w-1/4 min-[1400px]:max-[1439px]:w-1/4 min-[1440px]:w-1/6">
+            <span
+              className={cn(
+                'inline-block w-full h-full leading-[54px] align-middle',
+                activeTab !== 'main' && 'relative left-[-20px]',
+              )}
+            >
               {t('starters_list').toUpperCase()}
             </span>
+            {/* Stessa colonna da 44px della quota nelle righe; 5px = p-2 + pr-[1px] - left-1 */}
+            {activeTab !== 'main' && (
+              <span className="absolute right-[5px] top-0 w-[44px] text-center text-[14px] leading-[54px]">
+                V.
+              </span>
+            )}
           </TableHead>
           <TableHead className="w-[1px] p-0" />
 
@@ -975,9 +986,9 @@ export default function UpcomingRaceCard({
                     className="border-b border-border text-[19px]"
                   >
                     <TableCell className="relative left-1 p-2 text-[18px]">
-                      <div className="flex items-center space-x-[7px]">
+                      <div className="flex items-center space-x-[7px] pr-[1px]">
                         <div
-                          className="flex h-[33px] w-[33px] items-center justify-center rounded-md text-[21px] font-semibold tabular-nums"
+                          className="flex h-[33px] w-[33px] shrink-0 items-center justify-center rounded-md text-[21px] font-semibold tabular-nums"
                           style={
                             getRacerColors(
                               racer.number,
@@ -987,11 +998,18 @@ export default function UpcomingRaceCard({
                         >
                           {racer.number}
                         </div>
-                        <div>
+                        <div className="min-w-0 flex-1">
                           <div className="truncate pl-1 pt-0.5 text-[17px] font-semibold">
                             {racer.name}
                           </div>
                         </div>
+                        {activeTab !== 'main' && raceInfo.odds?.winner?.[racer.number.toString()] && (
+                          <span className="w-[44px] shrink-0 pt-0.5 text-center text-[14px] font-semibold tabular-nums text-tertiary">
+                            {parseFloat(
+                              raceInfo.odds.winner[racer.number.toString()],
+                            ).toFixed(2)}
+                          </span>
+                        )}
                       </div>
                     </TableCell>
 
