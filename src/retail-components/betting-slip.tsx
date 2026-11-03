@@ -144,6 +144,7 @@ export default function BettingSlip({
     1000, 2000, 3000, 5000, 10000,
   ]
   const minStake = Number(rootContext?.getMinStake?.()) || 0.5
+  const systemGroupMinStake = betTemplate.systemGroupMinStake ?? minStake
   const minBet = Number(rootContext?.getMinBet?.()) || 0
   const maxWin = Number(rootContext?.getMaxWin?.()) || 1000000000
   const maxEvents = Number(rootContext?.getMaxEvents?.()) || 10
@@ -678,7 +679,7 @@ export default function BettingSlip({
 
     systemGroups.forEach((group) => {
       newSelectedGroups[group.name] = checked
-      newStakes[group.name] = checked ? minStake : 0
+      newStakes[group.name] = checked ? systemGroupMinStake : 0
     })
 
     setSelectedGroups(newSelectedGroups)
@@ -696,7 +697,7 @@ export default function BettingSlip({
     // ridistribuzione dell'importo totale sulle combinazioni
     setSystemGroupStakes((prev) => ({
       ...prev,
-      [groupName]: checked ? minStake : 0,
+      [groupName]: checked ? systemGroupMinStake : 0,
     }))
   }
 
@@ -846,10 +847,10 @@ export default function BettingSlip({
         (group) =>
           selectedGroups[group.name] &&
           group.stake > 0 &&
-          group.stake < minStake,
+          group.stake < systemGroupMinStake,
       )
       if (invalidGroups.length > 0) {
-        toast.error(t('min_stake_error', { min: minStake }))
+        toast.error(t('min_stake_error', { min: systemGroupMinStake }))
         return
       }
 

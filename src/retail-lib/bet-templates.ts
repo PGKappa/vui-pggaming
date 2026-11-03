@@ -13,6 +13,9 @@ export type BetTemplate = {
   showGroupDetails: boolean
   editableTotalStake: boolean
   showMinMaxWin: boolean
+  // Importo minimo per combinazione di un gruppo Sistema; se assente vale il
+  // min stake del cashier
+  systemGroupMinStake?: number
   components?: Partial<BetTemplateSlots>
 }
 
@@ -32,6 +35,7 @@ export const BET_TEMPLATES = {
     showGroupDetails: false,
     editableTotalStake: false,
     showMinMaxWin: true,
+    systemGroupMinStake: 0.01,
   },
 } as const satisfies Record<string, BetTemplate>
 
