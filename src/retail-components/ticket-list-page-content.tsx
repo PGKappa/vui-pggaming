@@ -431,9 +431,9 @@ export default function TicketListPageContent({
     (acc, item) => acc + (parseFloat(item.amount_won || '0') || 0),
     0,
   )
-  // Come per il singolo ticket: il valore mostrato è sempre senza segno
-  // (giocato - vinto), rosso solo quando il totale vinto supera il totale
-  // giocato.
+  // Come per il singolo ticket: il valore mostrato è (giocato - vinto) in
+  // modulo, rosso e preceduto da "-" solo quando il totale vinto supera il
+  // totale giocato.
   const netSaldo = Math.abs(totalPlayed - totalWon)
   const totalIsProfit = totalWon > totalPlayed
 
@@ -825,6 +825,7 @@ export default function TicketListPageContent({
                                   : '',
                               )}
                             >
+                              {getItemSaldo(item) > 0 ? '-' : ''}
                               {formatCurrency(
                                 Math.abs(getItemSaldo(item)),
                                 currencySymbol,
@@ -932,6 +933,7 @@ export default function TicketListPageContent({
                     totalIsProfit ? 'text-ticket-lost' : '',
                   )}
                 >
+                  {totalIsProfit ? '-' : ''}
                   {formatCurrency(netSaldo, currencySymbol)}
                 </td>
                 <td style={totalCellStyle} className={totalCellClass()} />
