@@ -146,5 +146,11 @@
   "select_at_least_one_group": "Seleziona almeno un gruppo per distribuire l'importo",
   "total_combinations": "Totale Combinazioni",
   "total_played": "Totale Giocato",
-  "other": "Altro"
+  "other": "Altro",
+  "pending": "In Attesa",
+  "active": "In Corso",
+  "won": "Vincente",
+  "lost": "Perdente",
+  "cancelled": "Annullato",
+  "void": "Nullo"
 }

@@ -164,7 +164,7 @@ export default function Home() {
 
         {/* Betting slip - rightmost column */}
         <div className="bg-background text-foreground lg:col-span-1">
-          <div className="hidden lg:block">
+          <div className="hidden lg:sticky lg:top-3 lg:block lg:h-[calc(100vh-84px)]">
             <BettingSlip />
           </div>
         </div>

@@ -124,5 +124,11 @@
   "select_at_least_one_group": "Selecciona al menos un grupo para distribui el importe",
   "total_combinations": "Combinaciones Totales",
   "total_played": "Total Jugado",
-  "other": "Otro"
+  "other": "Otro",
+  "pending": "Pendiente",
+  "active": "Activo",
+  "won": "Ganado",
+  "lost": "Perdido",
+  "cancelled": "Cancelado",
+  "void": "Nulo"
 }

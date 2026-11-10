@@ -112,8 +112,8 @@ export default function Home() {
         </div>
 
         {/* Second column - Betting slip */}
-        <div className="hidden lg:sticky lg:top-3 lg:col-span-1 lg:block">
-          <div>
+        <div className="hidden lg:sticky lg:top-3 lg:col-span-1 lg:block lg:h-[calc(100vh-84px)]">
+          <div className="h-full">
             <BettingSlip />
           </div>
         </div>

@@ -1,5 +1,5 @@
 import { BetsContext } from '@/virtual-contexts/bets-context'
-import { BetEntry } from '@/virtual-lib/types'
+import { BetEntry, Discipline } from '@/virtual-lib/types'
 import useTimeLeft from '@/virtual-lib/use-time-left'
 import { format } from 'date-fns'
 import { t } from 'i18next'
@@ -61,75 +61,87 @@ export default function EventBets(props: {
     if (pathname.includes('/cani')) return t('dogs')
     return t('other')
   }
+  const firstBet = eventBets[0].bet
+
+  // Layout ricalcato sul blocco evento della betslip retail
   return (
     <li>
-      <div className="flex flex-col gap-2 rounded-t-sm border border-border bg-muted/60 px-3 py-2.5">
-        <div className="flex flex-row items-center justify-between pb-1">
-          {betMode === 'SYSTEM' && (
-            <div className="flex flex-row items-center gap-2 pl-1">
+      <div className="flex h-[89px] flex-col gap-0 border border-betSlip-foreground p-1">
+        <div className="flex flex-row justify-between">
+          <div className={betMode === 'SYSTEM' ? 'visible' : 'invisible'}>
+            <div className="flex flex-row items-center space-x-2 pl-1 pt-1">
               <Checkbox
                 checked={eventBets[0].fixed}
                 onCheckedChange={() => toggleEventBetsFixed(eventKey)}
               />
-              <span className="text-[12px]">{t('fixed')}</span>
+              <span className="text-[12px] font-semibold">{t('fixed')}</span>
             </div>
-          )}
-
-          {betMode !== 'SYSTEM' && (
-            <div className="flex flex-row items-center gap-2 pl-1"></div>
-          )}
-
+          </div>
           <Button
             variant="ghost"
-            className="group size-5 hover:text-tertiary-foreground"
+            className="size-7 bg-transparent hover:bg-transparent"
             size="icon"
             onClick={() => removeEventBets(eventKey)}
           >
             <Image
               src="/bin.svg"
               alt="Bin"
-              width={15}
-              height={15}
-              className="size-5 object-contain brightness-0 group-hover:brightness-0 group-hover:invert"
+              width={40}
+              height={20}
+              className="size-[17px] object-contain brightness-0"
             />
           </Button>
         </div>
 
-        <div className="flex items-center justify-between">
-          <span className="text-[12px] font-semibold">{getCategory()}</span>
-
-          <div className="flex items-center gap-3">
-            <span className="text-[12px]">
-              {format(eventBets[0].bet.event.startingAt, 'HH:mm')}
+        <div className="mt-[1px] flex items-center justify-between">
+          <span className="ml-[3px] text-[15px] font-semibold uppercase">
+            {getCategory()}
+          </span>
+          <div className="mr-1 flex items-center space-x-2">
+            <span className="text-[15px] font-bold tabular-nums">
+              {format(firstBet.event.startingAt, 'HH:mm')}
             </span>
-            <Badge className="h-6 w-14 rounded-sm text-sm">
+            <Badge className="mr-[4px] h-[27px] w-[61px] items-center justify-center rounded-sm bg-card-header text-[14px] tabular-nums text-card-header-foreground hover:bg-card-header">
               {timeToEventStart}
             </Badge>
           </div>
         </div>
 
-        <span className="text-[12px]">ID {eventBets[0].bet.event.number}</span>
+        {firstBet.discipline === Discipline.FOOTBALL ? (
+          <div className="ml-[3px] flex items-center gap-2 whitespace-nowrap pb-[4px]">
+            <span className="text-[13px] uppercase">
+              {firstBet.competitors}
+            </span>
+            <span className="text-[10px]">|</span>
+            <span className="text-[13px] font-bold text-tertiary">
+              {t('round').toUpperCase()} {firstBet.event.number}
+            </span>
+          </div>
+        ) : (
+          <div className="ml-[3px] flex items-center pb-[4px]">
+            <span className="text-[13px] font-bold text-tertiary">
+              ID {firstBet.event.number}
+            </span>
+          </div>
+        )}
       </div>
 
-      <div className="divide-y divide-border rounded-b-sm border border-t-0 border-border bg-card px-3">
+      <div className="-space-y-[8px] border border-t-0 border-betSlip-foreground bg-white pl-[7px] pr-2 pt-[2px] tabular-nums">
         {eventBets.map((betEntry) => (
-          <div
-            key={betEntry.id}
-            className="flex items-center gap-3 py-2.5 text-[12px]"
-          >
-            <span className="flex-1 text-[12px]">
+          <div key={betEntry.id} className="flex items-center text-sm">
+            <span className="mr-2 min-w-0 flex-1 text-[12px] capitalize leading-tight">
               {translateMarket(betEntry.market)}
             </span>
-            <span className="text-[12px]">
+            <span className="mr-2 max-w-[55%] shrink-0 text-left text-[13px] font-normal leading-tight">
               {translateOutcome(betEntry.bet.option.outcome)}
             </span>
-            <span className="text-[12px] font-bold">
+            <span className="relative right-1 w-[48px] shrink-0 text-right text-[13px] font-semibold">
               {betEntry.bet.option.decPrice.toFixed(2)}
             </span>
             <Button
               variant="ghost"
               size="icon"
-              className="size-5"
+              className="h-[40px] w-[24px] shrink-0 translate-x-[3px] translate-y-[-2px] bg-transparent hover:bg-transparent"
               onClick={() =>
                 removeBet(
                   betEntry.market,
@@ -139,7 +151,7 @@ export default function EventBets(props: {
                 )
               }
             >
-              <CircleXIcon className="size-4" />
+              <CircleXIcon className="mt-[1px] h-[17px] scale-[1.4]" />
             </Button>
           </div>
         ))}

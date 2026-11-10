@@ -9,9 +9,11 @@ import { RootContext } from '@/virtual-contexts/root-context'
 import { distributeExactStake } from '@/retail-lib/system-bets'
 import { generateSystemGroups } from '@/virtual-lib/system-bets'
 import { BetEntry, Discipline, SubmittedTicket } from '@/virtual-lib/types'
+import { extractTicketId, storeTicketId } from '@/virtual-lib/ticket-history'
 import { useBetTemplate } from '@/virtual-lib/use-bet-template'
 import { createPGVirtualAPICall } from '@/virtual-lib/utils'
 import {
+  ChevronDown,
   CircleXIcon,
   CornerDownLeft,
   DivideIcon,
@@ -25,12 +27,7 @@ import { toast } from 'sonner'
 import BetsHistoryDialog from './bets-history-dialog'
 import EventBets from './event-bets'
 import { ScrollArea } from './ui/scroll-area'
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from './ui/accordion'
+import { Accordion, AccordionContent, AccordionItem } from './ui/accordion'
 import { Checkbox } from './ui/checkbox'
 
 export type BetMode = 'SINGLE' | 'MULTIPLE' | 'SYSTEM'
@@ -416,6 +413,14 @@ export default function BettingSlip() {
       // Successo
       toast.success(t('bet_submitted_successfully'))
 
+      // Salva il codice ticket per "Le mie scommesse"
+      const ticketId = extractTicketId(result)
+      if (ticketId && rootContext?.initCode) {
+        storeTicketId(rootContext.initCode, ticketId)
+      } else {
+        console.warn('Ticket id non trovato nella risposta:', result)
+      }
+
       // Invia postMessage al parent con i dati del ticket
       try {
         const postMessageData = {
@@ -570,102 +575,117 @@ export default function BettingSlip() {
     )
   }, [betsByEvent])
 
+  // Layout ricalcato sulla betslip retail (altezze, spazi e larghezze fisse),
+  // con la palette web e le funzioni web.
+  const isMultipleTabActive =
+    !isSystemMandatory &&
+    (!isSystemToggleEnabled || systemToggleMode === 'multiple')
+  const isSystemTabActive =
+    isSystemMandatory ||
+    (isSystemToggleEnabled && systemToggleMode === 'system')
+
+  const groupsScrollHeight = (() => {
+    const groupHeight = 59
+    const detailsHeight = 55
+    const visible = Math.min(Math.max(systemGroups.length, 1), 3)
+    const openDetails = betTemplate.showGroupDetails
+      ? systemGroupsOpen.filter((name) =>
+          systemGroups.some((group) => group.name === name),
+        ).length
+      : 0
+    return (
+      groupHeight * visible + Math.min(openDetails, visible) * detailsHeight
+    )
+  })()
+
   return (
     <Card
-      className="flex h-full w-full flex-col overflow-hidden bg-card text-betSlip-foreground shadow-sm"
+      className="grid h-full min-h-0 w-full flex-1 grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-none bg-card text-betSlip-foreground shadow-sm"
       data-testid="betting-slip"
     >
-      <div className="grid grid-cols-2 bg-card-header text-center text-card-header-foreground">
-        <span className="flex h-12 w-full items-center justify-center gap-2 text-sm font-bold uppercase tracking-wide">
-          {t('bet_slip')}
-          <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-white px-1.5 text-xs font-bold text-card-header">
-            {betEntries.length}
+      {/* INTESTAZIONE: barra 52px + tab 41px */}
+      <div className="grid grid-cols-2 text-center">
+        <div className="col-span-2 grid h-[52px] w-full grid-cols-2 items-center bg-card-header text-card-header-foreground">
+          <span className="text-[14px] font-semibold">
+            {t('bet_slip').toUpperCase()} ({betEntries.length})
           </span>
-        </span>
-        <div className="flex h-12 items-center justify-center border-l border-white/15 [&_button]:h-12 [&_button]:w-full [&_button]:rounded-none [&_button]:py-0 [&_button]:text-sm [&_button]:font-semibold [&_button]:uppercase [&_button]:text-card-header-foreground/80 hover:[&_button]:bg-white/10 hover:[&_button]:text-card-header-foreground">
-          <BetsHistoryDialog />
+          <div className="flex h-full items-center justify-center border-l border-white/15 [&_button]:h-[52px] [&_button]:w-full [&_button]:rounded-none [&_button]:px-4 [&_button]:py-0 [&_button]:text-[13px] [&_button]:font-semibold [&_button]:uppercase [&_button]:text-card-header-foreground/85 hover:[&_button]:bg-white/10 hover:[&_button]:text-card-header-foreground">
+            <BetsHistoryDialog />
+          </div>
         </div>
-      </div>
 
-      <div className="grid grid-cols-2 border-t border-white/10 bg-secondary text-center">
-        <div
-          className={`relative flex h-11 w-full flex-col items-center justify-center transition-colors ${
-            isSystemMandatory
-              ? 'cursor-not-allowed opacity-50'
-              : 'cursor-pointer hover:bg-white/5'
-          }`}
-          onClick={() =>
-            !isSystemMandatory &&
-            isSystemToggleEnabled &&
-            setSystemToggleMode('multiple')
-          }
-        >
-          <span
-            className={`text-sm font-semibold uppercase tracking-wide ${
+        <div className="col-span-2 flex h-[41px] w-full flex-row bg-card-header">
+          <div
+            className={`relative flex w-full flex-col items-center justify-center border-b-4 ${
+              isMultipleTabActive ? 'border-tertiary' : 'border-white/15'
+            } ${
+              isSystemMandatory
+                ? 'cursor-not-allowed'
+                : isSystemToggleEnabled
+                  ? 'cursor-pointer'
+                  : ''
+            }`}
+            onClick={() =>
               !isSystemMandatory &&
-              (!isSystemToggleEnabled || systemToggleMode === 'multiple')
-                ? 'text-secondary-foreground'
-                : 'text-secondary-foreground/55'
-            }`}
+              isSystemToggleEnabled &&
+              setSystemToggleMode('multiple')
+            }
           >
-            {effectiveMode === 'SINGLE'
-              ? t('single')
-              : `${t('multiple')} (${Object.entries(betsByEvent).length})`}
-          </span>
+            <span
+              className={`pt-1 text-[14px] text-card-header-foreground ${
+                isMultipleTabActive ? 'font-semibold' : 'font-normal opacity-60'
+              }`}
+            >
+              {effectiveMode === 'SINGLE'
+                ? t('single').toUpperCase()
+                : `${t('multiple').toUpperCase()} (${Object.entries(betsByEvent).length})`}
+            </span>
+          </div>
 
-          {!isSystemMandatory &&
-            (!isSystemToggleEnabled || systemToggleMode === 'multiple') && (
-              <div className="absolute inset-x-0 bottom-0 h-[3px] bg-tertiary"></div>
-            )}
-        </div>
-
-        <div
-          className={`relative flex h-11 w-full flex-col items-center justify-center transition-colors ${
-            !isSystemToggleEnabled && !isSystemMandatory
-              ? 'cursor-not-allowed opacity-50'
-              : 'cursor-pointer hover:bg-white/5'
-          }`}
-          onClick={() =>
-            !isSystemMandatory &&
-            isSystemToggleEnabled &&
-            setSystemToggleMode('system')
-          }
-        >
-          <span
-            className={`text-sm font-semibold uppercase tracking-wide ${
-              isSystemMandatory ||
-              (isSystemToggleEnabled && systemToggleMode === 'system')
-                ? 'text-secondary-foreground'
-                : 'text-secondary-foreground/55'
+          <div
+            className={`relative flex w-full flex-col items-center justify-center border-b-4 ${
+              isSystemTabActive ? 'border-tertiary' : 'border-white/15'
+            } ${
+              isSystemToggleEnabled || isSystemMandatory
+                ? 'cursor-pointer'
+                : 'cursor-not-allowed'
             }`}
+            onClick={() =>
+              !isSystemMandatory &&
+              isSystemToggleEnabled &&
+              setSystemToggleMode('system')
+            }
           >
-            {t('system')}
-          </span>
-          {(isSystemMandatory ||
-            (isSystemToggleEnabled && systemToggleMode === 'system')) && (
-            <div className="absolute inset-x-0 bottom-0 h-[3px] bg-tertiary"></div>
-          )}
+            <span
+              className={`pt-1 text-[14px] text-card-header-foreground ${
+                isSystemTabActive ? 'font-semibold' : 'font-normal opacity-60'
+              }`}
+            >
+              {t('system').toUpperCase()}
+            </span>
+          </div>
         </div>
       </div>
 
-      <CardContent className="min-h-[72px] overflow-hidden p-3 text-betSlip-foreground">
+      {/* SELEZIONI */}
+      <CardContent className="min-h-[72px] w-full overflow-hidden bg-white p-2 text-betSlip-foreground">
         {betEntries.length === 0 ? (
-          <div className="relative flex h-full items-start justify-center pt-2">
-            <span className="text-sm font-medium leading-none text-muted-foreground">
+          <div className="relative flex h-full min-h-0 items-start justify-center pt-2">
+            <span className="text-[15px] font-normal leading-none">
               {t('no_selection')}
             </span>
             <Button
               variant="betNow"
               size="icon-sm"
-              className="absolute right-0 top-0 font-bold"
+              className="absolute right-0 top-1 rounded-none font-bold"
               onClick={restoreLastSubmittedTicket}
             >
               <RotateCcwIcon />
             </Button>
           </div>
         ) : (
-          <ScrollArea className="h-full">
-            <ul className="flex flex-col gap-2">
+          <ScrollArea className="h-full w-full">
+            <ul className="flex flex-col space-y-2">
               {Object.entries(betsByEvent).map(([eventKey, eventBets]) => (
                 <EventBets
                   key={eventKey}
@@ -679,373 +699,447 @@ export default function BettingSlip() {
         )}
       </CardContent>
 
-      <Separator />
+      <div className="flex min-h-0 flex-col">
+        <Separator />
 
-      <CardFooter className="flex flex-col gap-2 p-0">
-        {effectiveMode !== 'SYSTEM' ? (
-          // SINGLE/MULTIPLE - Input diretto per importo
-          <>
-            <div className="flex w-full items-center border-y border-border bg-muted px-3 py-2">
-              <span className="text-sm font-bold uppercase tracking-wide">
-                {t('amount')}
-              </span>
-            </div>
+        <CardFooter className="relative flex shrink-0 flex-col bg-card p-0">
+          {effectiveMode !== 'SYSTEM' ? (
+            // SINGOLA / MULTIPLA
+            <>
+              <div className="h-[30px] w-full bg-card-header" />
 
-            <div className="flex w-full flex-row items-center justify-between gap-4 px-3 py-1">
-              <span className="text-sm font-semibold">{t('total')}</span>
-              <div className="flex h-9 w-fit items-center overflow-hidden rounded-sm border border-input">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-9 w-9 rounded-none bg-tertiary p-0 text-lg font-bold text-tertiary-foreground hover:bg-tertiary/90 hover:text-tertiary-foreground"
-                  onClick={() => setGlobal((prev) => Math.max(prev - 1, 1))}
-                >
-                  -
-                </Button>
-                <Input
-                  type="number"
-                  value={global}
-                  className="h-9 w-24 rounded-none border-0 bg-card text-center text-md font-semibold tabular-nums shadow-none focus-visible:ring-0"
-                  onChange={(e) => setGlobal(parseFloat(e.target.value))}
-                />
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-9 w-9 rounded-none bg-tertiary p-0 text-lg font-bold text-tertiary-foreground hover:bg-tertiary/90 hover:text-tertiary-foreground"
-                  onClick={() => setGlobal((prev) => prev + 1)}
-                >
-                  +
-                </Button>
+              <div className="relative top-[7px] flex w-full flex-row items-center justify-between px-4 py-3">
+                <span className="text-[15px] font-semibold">
+                  {t('total_odd').toUpperCase()}
+                </span>
+                <span className="text-[15px] font-bold tabular-nums">
+                  {totalOdds.toFixed(2)}
+                </span>
               </div>
-            </div>
 
-            <div className="w-full px-3">
-              <div className="divide-y divide-border">
-                <div className="flex items-center justify-between gap-4 py-2 text-sm font-semibold">
-                  <span>{t('total')}</span>
-                  <span>
-                    {currencySymbol} {global.toFixed(2)}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between py-2 text-sm">
-                  <span className="text-muted-foreground">
-                    {t('total_odd')}
-                  </span>
-                  <span className="font-semibold tabular-nums">
-                    {totalOdds.toFixed(2)}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between py-2 text-md font-bold">
-                  <span className="uppercase">{t('potential_win')}</span>
-                  <span className="tabular-nums">
-                    {currencySymbol} {potentialWinning.toFixed(2)}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </>
-        ) : (
-          // SYSTEM - Accordion con gruppi
-          <div className="flex h-full w-full flex-col">
-            {/* Accordion principale COMBINATIONS */}
-            <Accordion
-              type="single"
-              collapsible
-              value={accordionOpen}
-              onValueChange={setAccordionOpen}
-              className="w-full"
-            >
-              <AccordionItem value="combinations" className="gap-0 border-none">
-                <AccordionTrigger className="bg-betSlip-header px-3 py-2 text-[14px] font-bold text-betSlip-header-foreground hover:no-underline">
-                  <div className="flex w-full items-center justify-between pr-2">
-                    <span>{t('combinations').toUpperCase()}</span>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent className="pb-0">
-                  <div className="space-y-3 border-b px-3 py-3">
-                    <div className="flex items-center justify-between gap-2">
-                      <Checkbox
-                        id="all-groups"
-                        checked={allGroupsSelected}
-                        onCheckedChange={handleAllGroupsToggle}
-                      />
-                      <div className="mr-1.5 flex items-center gap-2 text-[13px] font-semibold">
-                        <span>{t('divide').toUpperCase()}</span>
-                        <div className="relative flex w-full items-center border border-border">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-9 w-9 rounded-none bg-accent px-3 text-white"
-                            onClick={handleDistributeStake}
-                          >
-                            <DivideIcon className="h-4 w-4" />
-                          </Button>
-                          <Input
-                            type="number"
-                            value={systemDistributeStake}
-                            onChange={(e) =>
-                              setSystemDistributeStake(
-                                parseFloat(e.target.value) || 0,
-                              )
-                            }
-                            className="h-9 w-32 flex-1 rounded-none bg-white text-center text-[13px] text-black"
-                          />
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-9 w-9 rounded-none bg-accent px-3 text-white"
-                            onClick={handleAddStakeToAll}
-                          >
-                            <CornerDownLeft className="h-4 w-4" />
-                          </Button>
-                        </div>
-                        <span>{t('add').toUpperCase()}</span>
-                      </div>
-                    </div>
-                  </div>
+              <Separator className="mt-[7px]" />
 
-                  {/* Sub-accordion per ogni gruppo */}
-                  <Accordion
-                    type="multiple"
-                    value={systemGroupsOpen}
-                    onValueChange={setSystemGroupsOpen}
-                    className="w-full"
+              <div className="mt-2 flex w-full flex-row items-center justify-between px-4 py-3">
+                <span className="text-[15px] font-semibold">
+                  {t('amount').toUpperCase()}
+                </span>
+                <div className="flex w-fit items-center border border-border">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-7 rounded-none bg-tertiary p-3 text-[19px] text-tertiary-foreground hover:bg-tertiary/90 hover:text-tertiary-foreground"
+                    onClick={() => setGlobal((prev) => Math.max(prev - 1, 1))}
                   >
-                    {systemGroups.map((group) => (
-                      <AccordionItem
-                        key={group.name}
-                        value={group.name}
-                        className="bg-white"
-                      >
-                        <AccordionTrigger
-                          className={`bg-betSlip-header px-3 py-2 text-betSlip-header-foreground hover:no-underline ${
-                            betTemplate.showGroupDetails ? '' : '[&>svg]:hidden'
-                          }`}
-                        >
-                          <div className="flex w-full items-center justify-between pr-2">
-                            <div className="flex items-center gap-2">
-                              <Checkbox
-                                id={`group-${group.name}`}
-                                checked={selectedGroups[group.name] || false}
-                                onCheckedChange={(checked) =>
-                                  handleGroupToggle(
-                                    group.name,
-                                    checked as boolean,
-                                  )
-                                }
-                                onClick={(e) => e.stopPropagation()}
-                                className="border-white data-[state=checked]:bg-white data-[state=checked]:text-card-header"
-                              />
-                              <span className="text-[13px] font-semibold">
-                                {group.name.toUpperCase()} (
-                                {group.combinations.length})
-                              </span>
-                            </div>
-                            <span className="relative flex items-center">
-                              <div className="flex items-center gap-0 border">
-                                {betTemplate.showGroupStakeIncrement && (
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-8 w-7 rounded-none bg-accent px-3 text-white"
-                                    onClick={() =>
-                                      updateSystemGroupStake(
-                                        group.name,
-                                        Math.max(group.stake - 0.05, 0),
-                                      )
-                                    }
-                                  >
-                                    <MinusIcon className="h-4 w-4" />
-                                  </Button>
-                                )}
-                                <Input
-                                  type="number"
-                                  value={
-                                    betTemplate.exactStakeDistribution
-                                      ? Number(group.stake.toFixed(2))
-                                      : group.stake
-                                  }
-                                  onChange={(e) =>
-                                    updateSystemGroupStake(
-                                      group.name,
-                                      parseFloat(e.target.value) || 0,
-                                    )
-                                  }
-                                  className="h-8 w-32 flex-1 rounded-none bg-white text-center text-[13px] text-black"
-                                  step="0.5"
-                                  min="0"
-                                />
-                                {betTemplate.showGroupStakeIncrement && (
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="h-8 w-7 rounded-none bg-accent px-3 text-white"
-                                    onClick={() =>
-                                      updateSystemGroupStake(
-                                        group.name,
-                                        group.stake + 0.05,
-                                      )
-                                    }
-                                  >
-                                    <PlusIcon className="h-4 w-4" />
-                                  </Button>
-                                )}
-                              </div>
-                            </span>
-                          </div>
-                        </AccordionTrigger>
-                        {betTemplate.showGroupDetails && (
-                          <AccordionContent className="border-b bg-white px-4">
-                            {/* Input stake per questo gruppo */}
-                            <div className="relative top-1.5 grid grid-cols-3">
-                              <div className="relative left-[1px] text-center">
-                                <div className="text-[11px] text-primary">
-                                  {t('min win').toUpperCase()}
-                                </div>
-                                <div className="relative top-[1px] text-[13px] font-semibold">
-                                  {currencySymbol}{' '}
-                                  {(group.minWin * group.stake).toFixed(2)}
-                                </div>
-                              </div>
-                              <div className="relative right-[16px] text-center text-[11px]">
-                                <div className="text-primary">
-                                  {t('max win').toUpperCase()}
-                                </div>
-                                <div className="relative top-[1px] text-[13px] font-semibold">
-                                  {currencySymbol}{' '}
-                                  {(group.maxWin * group.stake).toFixed(2)}
-                                </div>
-                              </div>
-                              <div className="relative right-[18px] text-center text-[11px]">
-                                <div className="text-primary">
-                                  {t('total_played').toUpperCase()}
-                                </div>
-                                <div className="relative top-[1px] text-[13px] font-semibold">
-                                  {currencySymbol}{' '}
-                                  {(
-                                    group.stake * group.combinations.length
-                                  ).toFixed(2)}
-                                </div>
-                              </div>
-                            </div>
-                          </AccordionContent>
-                        )}
-                      </AccordionItem>
-                    ))}
-                  </Accordion>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-
-            {/* COMBINACIONES TOTALES */}
-            <div className="flex items-center justify-between px-3 py-2">
-              <span className="text-[13px] font-bold">
-                {t('total_combinations')}
-              </span>
-              <span className="text-[13px] font-bold">
-                {systemGroups.reduce(
-                  (sum, g) => sum + (g.stake > 0 ? g.combinations.length : 0),
-                  0,
-                )}
-                /
-                {systemGroups.reduce(
-                  (sum, g) => sum + g.combinations.length,
-                  0,
-                )}
-              </span>
-            </div>
-
-            {/* IMPORTE: modificabile (standard) o solo totale giocato (noIncrement) */}
-            {betTemplate.editableTotalStake ? (
-              <div className="flex flex-row items-center justify-between px-3">
-                <span className="text-[13px] font-semibold">
-                  {t('amount').toUpperCase()}
-                </span>
-                <div className="flex items-center bg-white">
-                  <Input
-                    type="number"
-                    value={systemDistributeStake}
-                    onChange={(e) =>
-                      setSystemDistributeStake(parseFloat(e.target.value) || 0)
-                    }
-                    className="h-8 w-[240px] flex-1 rounded-none border bg-white text-center text-[13px]"
-                  />
+                    <MinusIcon className="h-4 w-4" />
+                  </Button>
+                  <div className="relative">
+                    <Input
+                      type="number"
+                      value={global}
+                      className="h-8 w-[174px] rounded-none border-0 border-x bg-white pl-6 pr-6 text-center text-[16px] tabular-nums text-black shadow-none focus-visible:ring-0"
+                      onChange={(e) => setGlobal(parseFloat(e.target.value))}
+                    />
+                    <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[13px] text-black">
+                      {currencySymbol}
+                    </span>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-7 rounded-none bg-tertiary p-3 text-[19px] text-tertiary-foreground hover:bg-tertiary/90 hover:text-tertiary-foreground"
+                    onClick={() => setGlobal((prev) => prev + 1)}
+                  >
+                    <PlusIcon className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
-            ) : (
-              <div className="flex flex-row items-center justify-between px-3 py-1">
-                <span className="text-[13px] font-semibold">
-                  {t('amount').toUpperCase()}
-                </span>
-                <span className="text-[13px] font-bold tabular-nums">
-                  {currencySymbol} {systemTotalPlayed.toFixed(2)}
-                </span>
-              </div>
-            )}
 
-            {/* GANANCIA POTENCIAL: vincita min/max (noIncrement) */}
-            {betTemplate.showMinMaxWin ? (
-              <div className="flex flex-col gap-1 px-3 pt-2">
-                <div className="flex flex-row items-center justify-between">
-                  <span className="text-[13px] font-semibold">
-                    {t('min_win').toUpperCase()}
-                  </span>
-                  <span className="text-[13px] font-bold tabular-nums">
-                    {currencySymbol} {systemMinWin.toFixed(2)}
-                  </span>
-                </div>
-                <div className="flex flex-row items-center justify-between">
-                  <span className="text-[13px] font-semibold">
-                    {t('max_win').toUpperCase()}
-                  </span>
-                  <span className="text-[13px] font-bold tabular-nums">
-                    {currencySymbol} {systemMaxWin.toFixed(2)}
-                  </span>
-                </div>
-              </div>
-            ) : (
-              <div className="flex flex-row items-center justify-between px-3 pt-2">
-                <span className="text-[13px] font-semibold">
+              <Separator />
+
+              <div className="relative top-[3px] flex w-full flex-row items-center justify-between px-4 py-3">
+                <span className="text-[17px] font-semibold">
                   {t('potential_win').toUpperCase()}
                 </span>
-                <div className="flex items-center bg-white">
-                  <Input
-                    type="number"
-                    value={systemDistributeStake}
-                    onChange={(e) =>
-                      setSystemDistributeStake(parseFloat(e.target.value) || 0)
-                    }
-                    className="h-8 w-[240px] flex-1 rounded-none border bg-white text-center text-[13px]"
-                  />
-                </div>
+                <span className="text-[17px] font-semibold tabular-nums">
+                  {potentialWinning.toFixed(2)} {currencySymbol}
+                </span>
               </div>
-            )}
+            </>
+          ) : (
+            // SISTEMA
+            <>
+              <Accordion
+                type="single"
+                value={accordionOpen}
+                onValueChange={setAccordionOpen}
+                className="w-full"
+              >
+                <AccordionItem
+                  value="combinations"
+                  className="border-none bg-muted"
+                >
+                  <div className="relative flex h-[34px] w-full items-center justify-between bg-card-header px-4 text-[13px] text-card-header-foreground">
+                    <span className="leading-none">
+                      {t('combinations').toUpperCase()}
+                    </span>
+                    <button
+                      onClick={() =>
+                        setAccordionOpen(
+                          accordionOpen === 'combinations'
+                            ? ''
+                            : 'combinations',
+                        )
+                      }
+                      className="ml-2 flex size-5 items-center justify-center bg-transparent transition-transform duration-200"
+                      style={{
+                        transform:
+                          accordionOpen === 'combinations'
+                            ? 'rotate(180deg)'
+                            : 'rotate(0deg)',
+                      }}
+                    >
+                      <ChevronDown className="w-5 shrink-0" />
+                    </button>
+                  </div>
+                  <AccordionContent className="pb-0">
+                    {/* DIVIDI / AGGIUNGI */}
+                    <div className="-mt-px flex h-[54px] items-center border-b bg-muted px-4">
+                      <div className="flex w-full items-center space-x-2">
+                        <Checkbox
+                          id="all-groups"
+                          checked={allGroupsSelected}
+                          onCheckedChange={handleAllGroupsToggle}
+                        />
+                        <div className="flex h-[33px] min-w-0 flex-1 items-center space-x-2">
+                          <span className="text-[12px] font-semibold">
+                            {t('divide').toUpperCase()}
+                          </span>
+                          <div className="flex min-w-0 flex-1 items-center border border-border">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={handleDistributeStake}
+                              className="h-8 w-7 shrink-0 rounded-none bg-tertiary p-3 text-[19px] text-tertiary-foreground hover:bg-tertiary/90 hover:text-tertiary-foreground"
+                            >
+                              <DivideIcon className="h-4 w-4" />
+                            </Button>
+                            <div className="relative flex min-w-0 flex-1">
+                              <Input
+                                type="number"
+                                value={systemDistributeStake}
+                                onChange={(e) =>
+                                  setSystemDistributeStake(
+                                    parseFloat(e.target.value) || 0,
+                                  )
+                                }
+                                className="h-8 w-full min-w-0 rounded-none border-0 bg-white pl-6 pr-6 text-center text-[13px] text-black shadow-none focus-visible:ring-0"
+                              />
+                              <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[13px] text-black">
+                                {currencySymbol}
+                              </span>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={handleAddStakeToAll}
+                              className="h-8 w-7 shrink-0 rounded-none bg-tertiary p-3 text-[19px] text-tertiary-foreground hover:bg-tertiary/90 hover:text-tertiary-foreground"
+                            >
+                              <CornerDownLeft className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          <span className="text-[12px] font-semibold">
+                            {t('add').toUpperCase()}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <Separator />
+
+                    {/* GRUPPI: righe da 59px, al massimo 3 visibili */}
+                    <ScrollArea
+                      className="overflow-hidden"
+                      style={{ height: `${groupsScrollHeight}px` }}
+                    >
+                      <Accordion
+                        type="multiple"
+                        value={systemGroupsOpen}
+                        onValueChange={setSystemGroupsOpen}
+                        className="w-full"
+                      >
+                        {systemGroups.map((group) => {
+                          const isOpen = systemGroupsOpen.includes(group.name)
+                          return (
+                            <AccordionItem
+                              key={group.name}
+                              value={group.name}
+                              className="border-b-0 bg-white"
+                            >
+                              <div
+                                className={`relative flex h-[59px] items-center border-b px-4 ${
+                                  isOpen ? 'bg-muted' : 'bg-white'
+                                }`}
+                              >
+                                <div className="flex w-full items-center justify-between">
+                                  <div className="flex items-center space-x-2">
+                                    <Checkbox
+                                      id={`group-${group.name}`}
+                                      checked={
+                                        selectedGroups[group.name] || false
+                                      }
+                                      onCheckedChange={(checked) =>
+                                        handleGroupToggle(
+                                          group.name,
+                                          checked as boolean,
+                                        )
+                                      }
+                                    />
+                                    <span className="pt-0.5 text-[12px] font-semibold">
+                                      {group.name.toUpperCase()}
+                                    </span>
+                                    <span className="pt-0.5 text-[12px] font-semibold text-muted-foreground">
+                                      (x{group.combinations.length})
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center">
+                                    <div className="flex items-center border">
+                                      {betTemplate.showGroupStakeIncrement && (
+                                        <Button
+                                          variant="ghost"
+                                          size="sm"
+                                          disabled={group.stake <= 0}
+                                          className="h-8 w-7 rounded-none bg-tertiary p-3 text-[19px] text-tertiary-foreground hover:bg-tertiary/90 hover:text-tertiary-foreground"
+                                          onClick={() =>
+                                            updateSystemGroupStake(
+                                              group.name,
+                                              Math.max(group.stake - 0.05, 0),
+                                            )
+                                          }
+                                        >
+                                          <MinusIcon className="h-4 w-4" />
+                                        </Button>
+                                      )}
+                                      <div className="relative">
+                                        <Input
+                                          type="number"
+                                          value={
+                                            betTemplate.exactStakeDistribution
+                                              ? Number(group.stake.toFixed(2))
+                                              : group.stake
+                                          }
+                                          onChange={(e) =>
+                                            updateSystemGroupStake(
+                                              group.name,
+                                              parseFloat(e.target.value) || 0,
+                                            )
+                                          }
+                                          className="h-8 w-[142px] rounded-none border-0 bg-white pl-6 pr-6 text-center text-[13px] text-black shadow-none focus-visible:ring-0"
+                                          step="0.5"
+                                          min="0"
+                                        />
+                                        <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[13px] text-black">
+                                          {currencySymbol}
+                                        </span>
+                                      </div>
+                                      {betTemplate.showGroupStakeIncrement && (
+                                        <Button
+                                          variant="ghost"
+                                          size="sm"
+                                          className="h-8 w-7 rounded-none bg-tertiary p-3 text-[19px] text-tertiary-foreground hover:bg-tertiary/90 hover:text-tertiary-foreground"
+                                          onClick={() =>
+                                            updateSystemGroupStake(
+                                              group.name,
+                                              group.stake + 0.05,
+                                            )
+                                          }
+                                        >
+                                          <PlusIcon className="h-4 w-4" />
+                                        </Button>
+                                      )}
+                                    </div>
+                                    {betTemplate.showGroupDetails && (
+                                      <button
+                                        onClick={() =>
+                                          setSystemGroupsOpen((prev) =>
+                                            prev.includes(group.name)
+                                              ? prev.filter(
+                                                  (name) => name !== group.name,
+                                                )
+                                              : [...prev, group.name],
+                                          )
+                                        }
+                                        className="ml-2 flex size-5 items-center justify-center bg-transparent transition-transform duration-200"
+                                        style={{
+                                          transform: isOpen
+                                            ? 'rotate(180deg)'
+                                            : 'rotate(0deg)',
+                                        }}
+                                      >
+                                        <ChevronDown className="w-5 shrink-0" />
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                              {betTemplate.showGroupDetails && (
+                                <AccordionContent className="h-[55px] border-b px-4 pb-0">
+                                  <div className="grid h-full grid-cols-3 items-center text-center">
+                                    <div>
+                                      <div className="text-[12px] font-semibold capitalize">
+                                        {t('min_win')}
+                                      </div>
+                                      <div className="text-[13px] font-normal tabular-nums">
+                                        {(group.minWin * group.stake).toFixed(
+                                          2,
+                                        )}{' '}
+                                        {currencySymbol}
+                                      </div>
+                                    </div>
+                                    <div>
+                                      <div className="text-[12px] font-semibold capitalize">
+                                        {t('max_win')}
+                                      </div>
+                                      <div className="text-[13px] font-normal tabular-nums">
+                                        {(group.maxWin * group.stake).toFixed(
+                                          2,
+                                        )}{' '}
+                                        {currencySymbol}
+                                      </div>
+                                    </div>
+                                    <div>
+                                      <div className="text-[12px] font-semibold">
+                                        {t('total_played')}
+                                      </div>
+                                      <div className="text-[13px] font-normal tabular-nums">
+                                        {(
+                                          group.stake *
+                                          group.combinations.length
+                                        ).toFixed(2)}{' '}
+                                        {currencySymbol}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </AccordionContent>
+                              )}
+                            </AccordionItem>
+                          )
+                        })}
+                      </Accordion>
+                    </ScrollArea>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+
+              <Separator />
+
+              <div className="relative top-[7px] flex w-full flex-row items-center justify-between px-4 py-3">
+                <span className="text-[15px] font-semibold">
+                  {t('total_combinations').toUpperCase()}
+                </span>
+                <span className="text-[15px] font-semibold tabular-nums">
+                  {systemGroups.reduce(
+                    (sum, g) => sum + (g.stake > 0 ? g.combinations.length : 0),
+                    0,
+                  )}
+                  /
+                  {systemGroups.reduce(
+                    (sum, g) => sum + g.combinations.length,
+                    0,
+                  )}
+                </span>
+              </div>
+
+              <Separator className="mt-[7px]" />
+
+              <div className="mt-2 flex w-full flex-row items-center justify-between px-4 py-3">
+                <span className="text-[15px] font-semibold">
+                  {t('amount').toUpperCase()}
+                </span>
+                {betTemplate.editableTotalStake ? (
+                  <div className="relative">
+                    <Input
+                      type="number"
+                      value={systemDistributeStake}
+                      onChange={(e) =>
+                        setSystemDistributeStake(
+                          parseFloat(e.target.value) || 0,
+                        )
+                      }
+                      className="h-8 w-[220px] rounded-none border bg-white pl-6 pr-6 text-center text-[16px] tabular-nums text-black shadow-none focus-visible:ring-0"
+                    />
+                    <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[13px] text-black">
+                      {currencySymbol}
+                    </span>
+                  </div>
+                ) : (
+                  <span className="text-[16px] font-semibold tabular-nums">
+                    {systemTotalPlayed.toFixed(2)} {currencySymbol}
+                  </span>
+                )}
+              </div>
+
+              <Separator />
+
+              {betTemplate.showMinMaxWin ? (
+                <div className="relative top-[3px] flex w-full flex-col px-4 py-3">
+                  <div className="flex w-full flex-row items-center justify-between">
+                    <span className="text-[17px] font-semibold tabular-nums">
+                      {t('min_win').toUpperCase()}
+                    </span>
+                    <span className="text-[17px] font-semibold tabular-nums">
+                      {systemMinWin.toFixed(2)} {currencySymbol}
+                    </span>
+                  </div>
+                  <div className="flex w-full flex-row items-center justify-between">
+                    <span className="text-[17px] font-semibold tabular-nums">
+                      {t('max_win').toUpperCase()}
+                    </span>
+                    <span className="text-[17px] font-semibold tabular-nums">
+                      {systemMaxWin.toFixed(2)} {currencySymbol}
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <div className="relative top-[3px] flex w-full flex-row items-center justify-between px-4 py-3">
+                  <span className="text-[17px] font-semibold tabular-nums">
+                    {t('potential_win').toUpperCase()}
+                  </span>
+                  <span className="text-[17px] font-semibold tabular-nums">
+                    {systemDistributeStake.toFixed(2)} {currencySymbol}
+                  </span>
+                </div>
+              )}
+            </>
+          )}
+        </CardFooter>
+
+        <div className="shrink-0 bg-card">
+          <div className="flex items-center justify-end px-3 pt-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-7 gap-1.5 px-1 text-[13px] text-muted-foreground hover:bg-transparent hover:text-destructive"
+              onClick={removeAllBets}
+              disabled={betEntries.length === 0}
+            >
+              {t('remove_all')}
+              <CircleXIcon className="size-4" />
+            </Button>
           </div>
-        )}
-      </CardFooter>
-
-      <div className="flex items-center justify-end px-2 py-1">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="gap-1.5 text-sm text-muted-foreground hover:bg-muted hover:text-destructive"
-          onClick={removeAllBets}
-          disabled={betEntries.length === 0}
-        >
-          {t('remove_all')}
-          <CircleXIcon className="size-4" />
-        </Button>
+          <div className="w-full px-3 pb-3 pt-2">
+            <Button
+              variant="betNow"
+              disabled={betEntries.length === 0 || isSubmitting}
+              onClick={handleSubmitTicket}
+              className="h-12 w-full rounded-none text-[18px] font-bold"
+            >
+              {isSubmitting
+                ? t('submitting') || 'Submitting...'
+                : t('bet_now').toUpperCase()}
+            </Button>
+          </div>
+        </div>
       </div>
-
-      <Button
-        variant="betNow"
-        disabled={betEntries.length === 0 || isSubmitting}
-        size="lg"
-        className="h-12 w-full rounded-none text-md font-bold uppercase tracking-wide"
-        onClick={handleSubmitTicket}
-      >
-        {isSubmitting ? t('submitting') || 'Submitting...' : t('bet_now')}
-      </Button>
     </Card>
   )
 }
