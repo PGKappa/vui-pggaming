@@ -2,14 +2,16 @@ import { Badge } from '@/virtual-components/ui/badge'
 import { Separator } from '@/virtual-components/ui/separator'
 import { RootContext } from '@/virtual-contexts/root-context'
 import { Discipline } from '@/virtual-lib/types'
-import { getTimeDistanceFromNow } from '@/virtual-lib/utils'
+import { cn, getTimeDistanceFromNow } from '@/virtual-lib/utils'
 import { t } from 'i18next'
 import { useContext, useEffect, useState } from 'react'
 
 export default function MatchEndBadge({
   discipline,
+  className,
 }: {
   discipline: Discipline
+  className?: string
 }) {
   const { upcomingRounds, upcomingEvents } = useContext(RootContext)
   const [timeToNextRound, setTimeToNextRound] = useState('')
@@ -57,10 +59,19 @@ export default function MatchEndBadge({
   }, [upcomingRounds, upcomingEvents, discipline])
 
   return (
-    <Badge className="flex w-fit flex-row items-center justify-center gap-2 py-0">
-      <span className="text-md">{t('end_play')}</span>
-      <Separator orientation="vertical" className="h-5 bg-destructive" />
-      <span className="text-md font-normal">{timeToNextRound}</span>
+    <Badge
+      className={cn(
+        'flex w-fit flex-row items-center justify-center gap-3 rounded-sm px-4 py-1.5 shadow-sm hover:bg-badge',
+        className,
+      )}
+    >
+      <span className="text-sm font-semibold uppercase tracking-wide">
+        {t('end_play')}
+      </span>
+      <Separator orientation="vertical" className="h-4 bg-white/40" />
+      <span className="min-w-[44px] text-md font-bold tabular-nums">
+        {timeToNextRound}
+      </span>
     </Badge>
   )
 }

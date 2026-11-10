@@ -20,7 +20,9 @@ import { RootContext } from '@/virtual-contexts/root-context'
 import { Market, Discipline } from '@/virtual-lib/types'
 import {
   useContext,
+  useEffect,
   useMemo,
+  useRef,
   useState,
   type Dispatch,
   type SetStateAction,
@@ -50,6 +52,13 @@ export default function Home() {
   )
   const [matchBetOptions, setMatchBetOptions] = useState<MatchBetOptions>()
 
+  // apertura dei mercati di un evento: porta all'inizio dei mercati
+  const marketsRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (matchBetOptions)
+      marketsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [matchBetOptions])
+
   const [selectedMatch, setSelectedMatch] = useState<SelectedMatch>()
   // Il dettaglio porta gia' le sue statistiche: chiude quella di fianco, per
   // non mostrare due volte la stessa cosa.
@@ -66,10 +75,10 @@ export default function Home() {
 
   return (
     <>
-      <div className="container mb-10 mt-1 grid grid-cols-1 justify-center gap-3 bg-columnL-background text-columnL-foreground lg:mb-4 lg:grid-cols-4">
+      <div className="container mb-10 grid grid-cols-1 justify-center gap-3 bg-columnL-background p-2 text-columnL-foreground sm:p-3 lg:mb-4 lg:grid-cols-4">
         {/* First column - top content */}
-        <div className="flex flex-col items-center gap-4 lg:col-span-2">
-          <div className="flex w-full flex-col gap-1">
+        <div className="flex min-w-0 flex-col items-center gap-3 lg:col-span-2">
+          <div className="flex w-full flex-col gap-3">
             <LiveMatchInfo />
             <VideoStreamCard
               streamUrl={liveRound?.streamUrl}
@@ -78,15 +87,17 @@ export default function Home() {
           </div>
           <MatchEndBadge discipline={Discipline.FOOTBALL} />
           {matchBetOptions && (
-            <MatchBettingOptions
-              round={matchBetOptions.round}
-              teams={matchBetOptions.teams}
-              markets={matchBetOptions.markets}
-              eventId={matchBetOptions.eventId}
-              groupId={matchBetOptions.groupId}
-              standings={standings.rankings}
-              close={() => setMatchBetOptions(undefined)}
-            />
+            <div ref={marketsRef} className="w-full scroll-mt-3">
+              <MatchBettingOptions
+                round={matchBetOptions.round}
+                teams={matchBetOptions.teams}
+                markets={matchBetOptions.markets}
+                eventId={matchBetOptions.eventId}
+                groupId={matchBetOptions.groupId}
+                standings={standings.rankings}
+                close={() => setMatchBetOptions(undefined)}
+              />
+            </div>
           )}
           {!upcomingRounds && (
             <div className="flex justify-center">

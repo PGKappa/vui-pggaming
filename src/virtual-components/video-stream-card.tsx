@@ -29,7 +29,7 @@ export default function VideoStreamCard(props: {
     (props.discipline ? getDisciplineVideoUrl(props.discipline) : undefined)
 
   return (
-    <div className="aspect-video">
+    <div className="aspect-video overflow-hidden bg-black shadow-sm">
       {videoUrl ? (
         <ReactPlayer
           playing={true}

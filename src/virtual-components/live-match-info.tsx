@@ -7,7 +7,6 @@ import { t } from 'i18next'
 import Image from 'next/image'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import LatecomersDialog from './latecomers-dialog'
-import { Button } from '@/retail-components/ui/button'
 import { Clock } from 'lucide-react'
 
 export default function LiveMatchInfo() {
@@ -146,37 +145,37 @@ export default function LiveMatchInfo() {
         return {
           icon: (
             <Image
-              src="/dog-image.png"
+              src="/dog.png"
               alt="Dogs"
-              width={36}
-              height={36}
-              className="object-contain"
+              width={64}
+              height={64}
+              className="size-8 object-contain"
             />
           ),
-          name: t('dogs'),
+          name: t('dog_racing'),
         }
       case Discipline.HORSES:
         return {
           icon: (
             <Image
-              src="/horse-image.png"
+              src="/horse.png"
               alt="Horses"
-              width={36}
-              height={36}
-              className="object-contain"
+              width={64}
+              height={64}
+              className="size-8 object-contain"
             />
           ),
-          name: t('horses'),
+          name: t('horse_racing'),
         }
       default:
         return {
           icon: (
             <Image
-              src="/icon-calcio.png"
+              src="/soccer.png"
               alt="Football"
-              width={24}
-              height={24}
-              className="object-contain"
+              width={64}
+              height={64}
+              className="size-7 object-contain brightness-0 invert"
             />
           ),
           name: t('football'),
@@ -194,53 +193,37 @@ export default function LiveMatchInfo() {
 
   return (
     <>
-      {getCurrentDiscipline() === Discipline.FOOTBALL ? (
-        // Layout semplice per calcio
-        <div className="flex h-12 w-full items-center justify-between">
-          <div className="flex flex-row items-center gap-2">
-            {disciplineInfo.icon}
-            <span>{disciplineInfo.name}</span>
-          </div>
-          <span className="text-xl">{formattedTime}</span>
+      <div className="flex h-12 w-full items-center justify-between gap-3 bg-card-header px-3 text-card-header-foreground shadow-sm">
+        <div className="flex min-w-0 flex-row items-center gap-3">
+          {disciplineInfo.icon}
+          <span className="truncate text-md font-bold uppercase tracking-wide">
+            {disciplineInfo.name}
+          </span>
         </div>
-      ) : (
-        <div className="grid h-12 w-full grid-cols-1 lg:grid-cols-3">
-          <div className="lg:col-span-2">
-            <div
-              className="grid h-12 w-full items-center"
-              style={{ gridTemplateColumns: 'auto 1fr auto' }}
-            >
-              <div className="flex flex-row items-center gap-2">
-                {disciplineInfo.icon}
-                <span>
-                  {disciplineInfo.name}
-                  {(getCurrentDiscipline() === Discipline.DOGS ||
-                    getCurrentDiscipline() === Discipline.HORSES) &&
-                    ` ${t('race')}`}
-                </span>
-              </div>
-              <div></div>
-              <span className="text-xl">{formattedTime}</span>
-            </div>
+
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <span className="hidden text-xs font-semibold uppercase opacity-75 sm:inline">
+              {t('next_race')}
+            </span>
+            <span className="rounded-sm bg-white px-2 py-0.5 text-lg font-bold tabular-nums text-card-foreground">
+              {formattedTime}
+            </span>
           </div>
 
-          <div className="lg:col-span-1">
-            <div className="flex h-12 items-center justify-end">
-              {shouldShowLatecomersButton && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-11 w-11 border-border text-secondary-foreground"
-                  onClick={() => setIsLatecomersOpen(true)}
-                  title="Late Comers"
-                >
-                  <Clock style={{ zoom: 1.3 }} />
-                </Button>
-              )}
-            </div>
-          </div>
+          {shouldShowLatecomersButton && (
+            <button
+              type="button"
+              className="flex h-9 shrink-0 items-center gap-2 whitespace-nowrap rounded-sm border border-white/15 bg-secondary px-3 text-sm font-semibold uppercase text-secondary-foreground transition-colors hover:bg-tertiary hover:text-tertiary-foreground"
+              onClick={() => setIsLatecomersOpen(true)}
+              title={t('latecomers')}
+            >
+              <Clock className="size-4" />
+              <span className="hidden md:inline">{t('latecomers')}</span>
+            </button>
+          )}
         </div>
-      )}
+      </div>
 
       <LatecomersDialog
         isOpen={isLatecomersOpen}

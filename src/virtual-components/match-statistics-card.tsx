@@ -153,7 +153,7 @@ export default function MatchStatisticsCard({
               onClick={onBack}
               variant="ghost"
               size="icon"
-              className="absolute left-0 top-0"
+              className="absolute left-0 top-0 hover:bg-transparent hover:text-current focus-visible:ring-0"
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>

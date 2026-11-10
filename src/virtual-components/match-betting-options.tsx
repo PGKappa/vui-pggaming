@@ -7,7 +7,6 @@ import { format } from 'date-fns'
 import { t } from 'i18next'
 import { ChevronsLeftIcon } from 'lucide-react'
 import BetEntryToggle from './bet-entry-toggle'
-import MatchStatisticsCard from './match-statistics-card'
 import {
   Accordion,
   AccordionContent,
@@ -49,18 +48,12 @@ export default function MatchBettingOptions(props: {
         </div>
         <Badge>{format(props.round.startingAt, 'HH:mm')}</Badge>
       </div>
-      <MatchStatisticsCard
-        teams={props.teams}
-        markets={props.markets}
-        eventId={props.eventId}
-        groupId={props.groupId}
-        standings={props.standings}
-      />
-
       <Accordion type="multiple">
         {orderedMarkets.map((market) => (
           <AccordionItem key={market.name} value={market.name}>
-            <AccordionTrigger>{market.name.toUpperCase()}</AccordionTrigger>
+            <AccordionTrigger className="font-semibold text-card-header-foreground [&>svg]:text-card-header-foreground">
+              {market.name.toUpperCase()}
+            </AccordionTrigger>
             <AccordionContent>
               <div className="grid grid-cols-3 gap-4 px-8">
                 {market.selections[0].selection.map((option) => (

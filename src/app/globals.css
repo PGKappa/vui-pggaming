@@ -66,69 +66,83 @@ html.no-scrollbar body::-webkit-scrollbar-track,
 
   :root,
   .default {
-    --background: 0 0% 16%;
-    --foreground: 0 0% 100%;
+    /* Web (virtual) default skin - allineato alla palette retail-default */
+    --background: 214 24% 94%;
+    --foreground: 215 35% 13%;
 
-    --columnL-background: 0 0% 16%;
-    --columnL-foreground: 0 0% 100%;
+    --columnL-background: 214 24% 94%;
+    --columnL-foreground: 215 35% 13%;
 
-    --card: 0 0% 16%;
-    --card-foreground: 0 0% 100%;
-    --card-header: 0 0% 23%;
+    --card: 0 0% 100%;
+    --card-foreground: 215 35% 13%;
+    --card-header: 212 62% 23%;
     --card-header-foreground: 0 0% 100%;
 
-    --primary: 0 0% 0%;
+    --primary: 212 62% 23%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 352 23% 19%;
-    --secondary-foreground: 0 0% 90%;
+    --secondary: 211 64% 26%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 0 0% 14%;
-    --muted-foreground: 220 9% 65%;
+    --tertiary: 212 58% 51%;
+    --tertiary-foreground: 0 0% 100%;
 
-    --accent: 353 100% 44%;
+    --muted: 214 24% 94%;
+    --muted-foreground: 215 14% 42%;
+
+    --accent: 212 62% 23%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 62% 30%;
+    --destructive: 0 72% 45%;
     --destructive-foreground: 0 0% 100%;
 
     --table-foreground: 0 0% 0%;
 
-    --badge-background: 353 100% 44%;
+    --badge-background: 212 62% 23%;
     --badge-foreground: 0 0% 100%;
 
-    --betEntry-background: 0 0% 0%;
-    --betEntry-foreground: 0 0% 100%;
-    --betEntry-border: 0 0% 0%;
+    --betEntry-background: 0 0% 92%;
+    --betEntry-foreground: 0 0% 0%;
+    --betEntry-border: 0 0% 62%;
 
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 0 0% 20%;
+    --border: 214 18% 84%;
+    --input: 214 18% 78%;
+    --ring: 212 58% 51%;
 
     --radius: 0.4rem;
 
-    --bet: 353 100% 44%;
+    --bet: 212 58% 51%;
     --bet-foreground: 0 0% 100%;
 
-    --betSlip: 0 0% 85%;
-    --betSlip-foreground: 0 0% 0%;
-    --betSlip-header: 0 0% 100%;
+    --selected-event: 212 58% 51%;
+    --carousel-arrow: 212 58% 51%;
 
-    --betHistory: 353 100% 44%;
+    --loading1: 207 18% 76%;
+    --loading2: 212 58% 51%;
+
+    --betSlip: 214 24% 94%;
+    --betSlip-foreground: 215 35% 13%;
+    --betSlip-header: 212 62% 23%;
+    --betSlip-header-foreground: 0 0% 100%;
+
+    --betHistory: 212 62% 23%;
     --betHistory-foreground: 0 0% 0%;
     --betHistory-header: 0 0% 100%;
 
     --navbarTop: 0 0% 0%;
     --navbarTop-foreground: 0 0% 100%;
 
+    --navbarBg: 212 62% 23%;
+    --navbarBg-foreground: 0 0% 100%;
+
     --chart-1: 0 0% 63%;
-    --chart-2: 353 100% 44%;
+    --chart-2: 212 62% 23%;
     --chart-3: 0 0% 100%;
 
     --footer-ranking: 0 0% 100%;
     --footer-ranking-foreground: 0 0% 0%;
 
-    --footer-betslip: 353 100% 44%;
+    --footer-betslip: 212 62% 23%;
     --footer-betslip-foreground: 0 0% 100%;
 
     --ticket-won: 142 71% 45%;
@@ -137,6 +151,16 @@ html.no-scrollbar body::-webkit-scrollbar-track,
   }
 
   .sportradar {
+    --tertiary: 240 100% 11.8%;
+    --tertiary-foreground: 0 0% 100%;
+    --selected-event: 240 100% 11.8%;
+    --carousel-arrow: 240 100% 11.8%;
+    --loading1: 0 0% 75%;
+    --loading2: 240 100% 11.8%;
+    --navbarBg: var(--navbarTop);
+    --navbarBg-foreground: var(--navbarTop-foreground);
+    --betSlip-header-foreground: 0 0% 0%;
+
     --background: 0 0% 100%;
     --foreground: 0 0% 0%;
 
@@ -208,6 +232,16 @@ html.no-scrollbar body::-webkit-scrollbar-track,
   }
 
   .dp {
+    --tertiary: 213 61% 51%;
+    --tertiary-foreground: 0 0% 100%;
+    --selected-event: 213 61% 51%;
+    --carousel-arrow: 213 61% 51%;
+    --loading1: 0 0% 75%;
+    --loading2: 213 61% 51%;
+    --navbarBg: var(--navbarTop);
+    --navbarBg-foreground: var(--navbarTop-foreground);
+    --betSlip-header-foreground: 0 0% 0%;
+
     --background: 0 0% 100%;
     --foreground: 0 0% 0%;
 
@@ -279,6 +313,16 @@ html.no-scrollbar body::-webkit-scrollbar-track,
   }
 
   .sc {
+    --tertiary: 344 100% 42%;
+    --tertiary-foreground: 0 0% 100%;
+    --selected-event: 344 100% 42%;
+    --carousel-arrow: 344 100% 42%;
+    --loading1: 0 0% 75%;
+    --loading2: 344 100% 42%;
+    --navbarBg: var(--navbarTop);
+    --navbarBg-foreground: var(--navbarTop-foreground);
+    --betSlip-header-foreground: 0 0% 0%;
+
     --background: 0 0% 100%;
     --foreground: 0 0% 0%;
 

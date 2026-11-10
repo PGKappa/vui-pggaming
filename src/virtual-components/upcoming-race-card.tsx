@@ -323,44 +323,48 @@ export default function UpcomingRaceCard({
     setDisorderSelection([])
   }
 
+  const baseColumns =
+    'minmax(170px, 1.3fr) 1px minmax(150px, 1fr) 1px minmax(180px, 1.2fr) 1px'
+  const gridTemplateColumns =
+    activeTab === 'main'
+      ? `${baseColumns} 1fr 1px 1fr 1px 1fr`
+      : activeTab === 'couples'
+        ? `${baseColumns} 1fr 1fr 1px 1fr`
+        : `${baseColumns} 1fr 1fr 1fr 1px 1fr`
+
   const renderTableHeader = () => {
     return (
       <div
-        className="grid h-12 items-center bg-card-header text-sm text-card-header-foreground"
+        className="grid h-11 items-center bg-card-header text-xs uppercase tracking-wide text-card-header-foreground"
         style={{
-          gridTemplateColumns:
-            activeTab === 'main'
-              ? '200px 1px 200px 1px 200px 1px 181px 1px 181px 1px 181px'
-              : activeTab === 'couples'
-                ? '200px 1px 200px 1px 200px 1px 180px 180px 1px 183px'
-                : '200px 1px 200px 1px 200px 1px 130px 130px 130px 1px 155px',
+          gridTemplateColumns: gridTemplateColumns,
         }}
       >
         <div className="text-center font-bold">
           {t('starters').toUpperCase()}
         </div>
-        <div className="bg-border" />
+        <div className="h-full bg-white/15" />
 
         <div className="text-center font-bold">
           {t('performance').toUpperCase()}
         </div>
-        <div className="bg-border" />
+        <div className="h-full bg-white/15" />
 
         <div className="text-center font-bold">
           {t('history').toUpperCase()}
         </div>
-        <div className="bg-border" />
+        <div className="h-full bg-white/15" />
 
         {activeTab === 'main' && (
           <>
             <div className="text-center font-bold">
               {t('winner').toUpperCase()}
             </div>
-            <div className="bg-border" />
+            <div className="h-full bg-white/15" />
             <div className="text-center font-bold">
               {t('place_2').toUpperCase()}
             </div>
-            <div className="bg-border" />
+            <div className="h-full bg-white/15" />
             <div className="text-center font-bold">
               {t('show_3').toUpperCase()}
             </div>
@@ -375,7 +379,7 @@ export default function UpcomingRaceCard({
             >
               {t('exacta').toUpperCase()}
             </div>
-            <div className="bg-border" />
+            <div className="h-full bg-white/15" />
             <div className="text-center font-bold">
               {t('any_order').toUpperCase()}
             </div>
@@ -389,7 +393,7 @@ export default function UpcomingRaceCard({
               {t('trifecta').toUpperCase()}
             </div>
             <div className="text-center font-bold"></div>
-            <div className="bg-border" />
+            <div className="h-full bg-white/15" />
             <div className="text-center font-bold">
               {t('any_order').toUpperCase()}
             </div>
@@ -403,7 +407,7 @@ export default function UpcomingRaceCard({
     if (activeTab === 'main') {
       return (
         <>
-          <div className="p-1 text-center">
+          <div className="flex items-center justify-center px-2 py-1.5">
             <BetEntryToggle
               marketName="Winner"
               bet={{
@@ -423,12 +427,12 @@ export default function UpcomingRaceCard({
                 track: `${t('track')} 6`,
               }}
               variant="racecard"
-              className="h-11 w-16 text-md"
+              className="h-11 w-full max-w-[110px] text-md font-semibold tabular-nums"
             />
           </div>
-          <div className="bg-border" />
+          <div className="h-full bg-border" />
 
-          <div className="p-1 text-center">
+          <div className="flex items-center justify-center px-2 py-1.5">
             <BetEntryToggle
               marketName="Placed"
               bet={{
@@ -448,13 +452,13 @@ export default function UpcomingRaceCard({
                 track: `${t('track')} 6`,
               }}
               variant="racecard"
-              className="h-11 w-16 text-md"
+              className="h-11 w-full max-w-[110px] text-md font-semibold tabular-nums"
             />
           </div>
 
-          <div className="bg-border" />
+          <div className="h-full bg-border" />
 
-          <div className="p-1 text-center">
+          <div className="flex items-center justify-center px-2 py-1.5">
             <BetEntryToggle
               marketName="Show"
               bet={{
@@ -474,7 +478,7 @@ export default function UpcomingRaceCard({
                 track: `${t('track')} 6`,
               }}
               variant="racecard"
-              className="h-11 w-16 text-md"
+              className="h-11 w-full max-w-[110px] text-md font-semibold tabular-nums"
             />
           </div>
         </>
@@ -484,16 +488,16 @@ export default function UpcomingRaceCard({
       return (
         <>
           <div
-            className={`flex h-12 cursor-pointer items-center justify-center text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
+            className={`flex h-12 cursor-pointer items-center justify-center px-2 text-center ${isAnyOrderMode ? 'bg-muted' : ''}`}
             onClick={handleMarketTypeToggle}
           >
             <Toggle
               pressed={position1Selection.includes(racer.number)}
               onPressedChange={() => togglePosition1Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className={`h-11 w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
+              className={`h-11 w-full max-w-[90px] text-sm font-semibold ${
                 position1Selection.includes(racer.number)
-                  ? 'bg-accent text-accent-foreground'
+                  ? 'bg-bet text-bet-foreground'
                   : ''
               }`}
             >
@@ -502,16 +506,16 @@ export default function UpcomingRaceCard({
           </div>
 
           <div
-            className={`flex cursor-pointer items-center justify-center text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
+            className={`flex cursor-pointer items-center justify-center px-2 text-center ${isAnyOrderMode ? 'bg-muted' : ''}`}
             onClick={handleMarketTypeToggle}
           >
             <Toggle
               pressed={position2Selection.includes(racer.number)}
               onPressedChange={() => togglePosition2Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className={`h-11 w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
+              className={`h-11 w-full max-w-[90px] text-sm font-semibold ${
                 position2Selection.includes(racer.number)
-                  ? 'bg-accent text-accent-foreground'
+                  ? 'bg-bet text-bet-foreground'
                   : ''
               }`}
             >
@@ -519,7 +523,7 @@ export default function UpcomingRaceCard({
             </Toggle>
           </div>
 
-          <div className="bg-border" />
+          <div className="h-full bg-border" />
 
           <div className="p-0">
             <div
@@ -527,15 +531,15 @@ export default function UpcomingRaceCard({
               onClick={handleMarketTypeToggle}
             >
               <div
-                className={`flex flex-1 items-center justify-center p-1 ${!isAnyOrderMode ? 'bg-gray-300' : ''}`}
+                className={`flex flex-1 items-center justify-center p-1 ${!isAnyOrderMode ? 'bg-muted' : ''}`}
               >
                 <Toggle
                   pressed={disorderSelection.includes(racer.number)}
                   onPressedChange={() => toggleDisorderSelection(racer.number)}
                   onClick={(e) => e.stopPropagation()}
-                  className={`h-11 w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
+                  className={`h-11 w-full max-w-[90px] text-sm font-semibold ${
                     disorderSelection.includes(racer.number)
-                      ? 'bg-accent text-accent-foreground'
+                      ? 'bg-bet text-bet-foreground'
                       : ''
                   }`}
                 >
@@ -553,16 +557,16 @@ export default function UpcomingRaceCard({
       return (
         <>
           <div
-            className={`flex h-12 cursor-pointer items-center justify-center text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
+            className={`flex h-12 cursor-pointer items-center justify-center px-2 text-center ${isAnyOrderMode ? 'bg-muted' : ''}`}
             onClick={handleMarketTypeToggle}
           >
             <Toggle
               pressed={position1Selection.includes(racer.number)}
               onPressedChange={() => togglePosition1Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className={`h-11 w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
+              className={`h-11 w-full max-w-[90px] text-sm font-semibold ${
                 position1Selection.includes(racer.number)
-                  ? 'bg-accent text-accent-foreground'
+                  ? 'bg-bet text-bet-foreground'
                   : ''
               }`}
             >
@@ -571,16 +575,16 @@ export default function UpcomingRaceCard({
           </div>
 
           <div
-            className={`flex cursor-pointer items-center justify-center text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
+            className={`flex cursor-pointer items-center justify-center px-2 text-center ${isAnyOrderMode ? 'bg-muted' : ''}`}
             onClick={handleMarketTypeToggle}
           >
             <Toggle
               pressed={position2Selection.includes(racer.number)}
               onPressedChange={() => togglePosition2Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className={`h-11 w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
+              className={`h-11 w-full max-w-[90px] text-sm font-semibold ${
                 position2Selection.includes(racer.number)
-                  ? 'bg-accent text-accent-foreground'
+                  ? 'bg-bet text-bet-foreground'
                   : ''
               }`}
             >
@@ -589,16 +593,16 @@ export default function UpcomingRaceCard({
           </div>
 
           <div
-            className={`flex cursor-pointer items-center justify-center text-center ${isAnyOrderMode ? 'bg-gray-300' : ''}`}
+            className={`flex cursor-pointer items-center justify-center px-2 text-center ${isAnyOrderMode ? 'bg-muted' : ''}`}
             onClick={handleMarketTypeToggle}
           >
             <Toggle
               pressed={position3Selection.includes(racer.number)}
               onPressedChange={() => togglePosition3Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className={`h-11 w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
+              className={`h-11 w-full max-w-[90px] text-sm font-semibold ${
                 position3Selection.includes(racer.number)
-                  ? 'bg-accent text-accent-foreground'
+                  ? 'bg-bet text-bet-foreground'
                   : ''
               }`}
             >
@@ -606,7 +610,7 @@ export default function UpcomingRaceCard({
             </Toggle>
           </div>
 
-          <div className="bg-border" />
+          <div className="h-full bg-border" />
 
           <div className="p-0">
             <div
@@ -614,15 +618,15 @@ export default function UpcomingRaceCard({
               onClick={handleMarketTypeToggle}
             >
               <div
-                className={`flex flex-1 items-center justify-center p-1 ${!isAnyOrderMode ? 'bg-gray-300' : ''}`}
+                className={`flex flex-1 items-center justify-center p-1 ${!isAnyOrderMode ? 'bg-muted' : ''}`}
               >
                 <Toggle
                   pressed={disorderSelection.includes(racer.number)}
                   onPressedChange={() => toggleDisorderSelection(racer.number)}
                   onClick={(e) => e.stopPropagation()}
-                  className={`h-11 w-16 border-betEntry-border text-sm data-[state=on]:bg-accent data-[state=on]:text-accent-foreground ${
+                  className={`h-11 w-full max-w-[90px] text-sm font-semibold ${
                     disorderSelection.includes(racer.number)
-                      ? 'bg-accent text-accent-foreground'
+                      ? 'bg-bet text-bet-foreground'
                       : ''
                   }`}
                 >
@@ -645,18 +649,18 @@ export default function UpcomingRaceCard({
     }
 
     return (
-      <div className="mt-4 w-full">
-        <div className="grid grid-cols-2 gap-0.5">
+      <div className="mt-3 w-full border-t border-border">
+        <div className="grid grid-cols-1 md:grid-cols-2 md:divide-x md:divide-border">
           {/* Even/Odd Market */}
           <div>
             <div className="bg-card-header text-card-header-foreground">
-              <div className="flex h-12 items-center justify-center text-md font-bold">
+              <div className="flex h-11 items-center justify-center text-sm font-bold tracking-wide">
                 {t('even_odd').toUpperCase()}
               </div>
             </div>
 
-            <div className="flex h-12">
-              <div className="flex flex-1 items-center justify-between p-2">
+            <div className="flex gap-3 p-3">
+              <div className="flex flex-1 items-center">
                 <BetEntryToggle
                   marketName="Even/Odd"
                   bet={{
@@ -674,11 +678,11 @@ export default function UpcomingRaceCard({
                     track: `${t('track')} 6`,
                   }}
                   variant="matchcard"
-                  className="h-10 w-full text-md text-white"
+                  className="h-11 w-full text-md"
                 />
               </div>
 
-              <div className="flex flex-1 items-center justify-between p-2">
+              <div className="flex flex-1 items-center">
                 <BetEntryToggle
                   marketName="Even/Odd"
                   bet={{
@@ -696,7 +700,7 @@ export default function UpcomingRaceCard({
                     track: `${t('track')} 6`,
                   }}
                   variant="matchcard"
-                  className="h-10 w-full text-md text-white"
+                  className="h-11 w-full text-md"
                 />
               </div>
             </div>
@@ -705,13 +709,13 @@ export default function UpcomingRaceCard({
           {/* Under/Over Market */}
           <div>
             <div className="bg-card-header text-card-header-foreground">
-              <div className="flex h-12 items-center justify-center text-md font-bold">
+              <div className="flex h-11 items-center justify-center text-sm font-bold tracking-wide">
                 {t('under_over').toUpperCase()} 3.5
               </div>
             </div>
 
-            <div className="flex h-12">
-              <div className="flex flex-1 items-center justify-between p-2">
+            <div className="flex gap-3 p-3">
+              <div className="flex flex-1 items-center">
                 <BetEntryToggle
                   marketName="Under/Over"
                   bet={{
@@ -731,11 +735,11 @@ export default function UpcomingRaceCard({
                     track: `${t('track')} 6`,
                   }}
                   variant="matchcard"
-                  className="h-10 w-full text-md text-white"
+                  className="h-11 w-full text-md"
                 />
               </div>
 
-              <div className="flex flex-1 items-center justify-between p-2">
+              <div className="flex flex-1 items-center">
                 <BetEntryToggle
                   marketName="Under/Over"
                   bet={{
@@ -755,7 +759,7 @@ export default function UpcomingRaceCard({
                     track: `${t('track')} 6`,
                   }}
                   variant="matchcard"
-                  className="h-10 w-full text-md text-white"
+                  className="h-11 w-full text-md"
                 />
               </div>
             </div>
@@ -767,21 +771,23 @@ export default function UpcomingRaceCard({
 
   return (
     <>
-      <Card className="h-full w-full">
-        <CardHeader className="flex h-12 flex-row items-center justify-between rounded-sm pr-2">
+      <Card className="w-full overflow-hidden shadow-sm">
+        <CardHeader className="flex h-14 flex-row items-center justify-between space-y-0 border-b border-white/10 px-3 py-0">
           <div className="flex items-center gap-2">
             {Object.entries(tabConfig).map(([key, config]) => (
               <Button
                 key={key}
-                variant={activeTab === key ? 'marketSelected' : 'market'}
-                className="h-10 w-24 border text-md font-semibold"
+                className={`h-10 min-w-[90px] rounded-sm px-3 text-sm font-semibold uppercase shadow-none sm:min-w-[120px] sm:px-4 ${
+                  activeTab === key
+                    ? 'bg-white text-card-header hover:bg-white'
+                    : 'border border-white/15 bg-secondary text-secondary-foreground hover:bg-tertiary'
+                }`}
                 onClick={() => handleTabChange(key as TabType)}
               >
                 {config.name}
               </Button>
             ))}
           </div>
-
         </CardHeader>
 
         <CardContent>
@@ -789,28 +795,23 @@ export default function UpcomingRaceCard({
             <div className="min-w-[800px]">
               {renderTableHeader()}
 
-              <div className="">
+              <div>
                 {!isLoading &&
                 raceInfo?.racers &&
                 raceInfo.racers.length > 0 ? (
                   raceInfo.racers.map((racer) => (
                     <div
                       key={racer.number}
-                      className="grid items-center border-b border-border text-md"
+                      className="grid min-h-[56px] items-stretch border-b border-border text-md transition-colors hover:bg-muted/60"
                       style={{
-                        gridTemplateColumns:
-                          activeTab === 'main'
-                            ? '200px 1px 200px 1px 200px 1px 181px 1px 181px 1px 181px'
-                            : activeTab === 'couples'
-                              ? '200px 1px 200px 1px 200px 1px 180px 180px 1px 183px'
-                              : '200px 1px 200px 1px 200px 1px 130px 130px 130px 1px 155px',
+                        gridTemplateColumns: gridTemplateColumns,
                       }}
                     >
                       {/* Informazioni sul corridore */}
-                      <div className="p-2">
-                        <div className="flex items-center gap-3">
+                      <div className="flex items-center px-3 py-2">
+                        <div className="flex min-w-0 items-center gap-3">
                           <div
-                            className="flex h-8 w-8 items-center justify-center rounded-md text-xl font-bold"
+                            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm text-xl font-bold"
                             style={
                               getRacerColors(
                                 racer.number,
@@ -821,45 +822,44 @@ export default function UpcomingRaceCard({
                             {racer.number}
                           </div>
                           <div>
-                            <div className="font-semibold">{racer.name}</div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="bg-border" />
-
-                      {/* Performance */}
-                      <div className="p-2">
-                        <div className="flex items-center justify-center gap-3">
-                          <div className="flex space-x-1">
-                            <div className="flex flex-col items-center justify-center gap-1">
-                              {racer.performance}%
-                              <Progress
-                                value={racer.performance}
-                                className="w-36 [&>div]:rounded-r-full [&>div]:bg-accent"
-                                style={{ height: '8px' }}
-                              />
+                            <div className="truncate font-semibold">
+                              {racer.name}
                             </div>
                           </div>
                         </div>
                       </div>
 
-                      <div className="bg-border" />
+                      <div className="h-full bg-border" />
+
+                      {/* Performance */}
+                      <div className="flex items-center justify-center px-4 py-2">
+                        <div className="flex w-full max-w-[180px] flex-col items-center gap-1">
+                          <span className="text-sm font-semibold tabular-nums">
+                            {racer.performance}%
+                          </span>
+                          <Progress
+                            value={racer.performance}
+                            className="h-2 w-full bg-border [&>div]:bg-tertiary"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="h-full bg-border" />
 
                       {/* Storico */}
-                      <div>
-                        <div className="flex items-center justify-center gap-1">
+                      <div className="flex items-center justify-center">
+                        <div className="flex items-center justify-center gap-1.5">
                           <MedalsHistory history={racer.history} />
                         </div>
                       </div>
 
-                      <div className="bg-border" />
+                      <div className="h-full bg-border" />
 
                       {renderTabSpecificCells(racer)}
                     </div>
                   ))
                 ) : (
-                  <div className="col-span-full border-0 py-6 text-center text-sm">
+                  <div className="col-span-full border-0 py-10 text-center text-sm text-muted-foreground">
                     {isLoading
                       ? `${t('loading')}...`
                       : raceInfo

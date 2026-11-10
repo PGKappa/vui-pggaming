@@ -135,5 +135,15 @@
   "balance": "Record",
   "draws": "draws",
   "form_unavailable": "history not available yet",
-  "statistics_unavailable": "statistics not available"
+  "statistics_unavailable": "statistics not available",
+  "next_race": "Next race",
+  "dog_racing": "Dog Racing",
+  "horse_racing": "Horse Racing",
+  "add": "Add",
+  "divide": "Divide",
+  "select_at_least_one_group": "Select at least one group to distribute the amount",
+  "total_combinations": "Total Combinations",
+  "total_played": "Total Played",
+  "combinations": "Combinations",
+  "other": "Other"
 }

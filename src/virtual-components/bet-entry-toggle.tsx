@@ -3,6 +3,7 @@ import { Bet } from '@/virtual-lib/types'
 import { useContext, useMemo } from 'react'
 import { Toggle } from './ui/toggle'
 import { cn } from '@/virtual-lib/utils'
+import { t } from 'i18next'
 
 type BetEntryToggleVariants =
   | 'roundcard'
@@ -66,16 +67,24 @@ export default function BetEntryToggle(props: {
                 ? 'flex flex-col justify-between text-[19px]'
                 : '',
         isSelected
-          ? 'bg-bet text-white'
+          ? 'border-bet bg-bet text-bet-foreground'
           : 'bg-betEntry text-betEntry-foreground',
         props.className,
       )}
     >
       {props.variant === 'matchcard' ? (
         <>
-          <span>{props.bet.option.decPrice?.toFixed(2) || '0.00'}</span>
-          <span className="font-bold">{props.bet.option.outcome || 'N/A'}</span>
-          {/* <span className="font-bold">{props.marketName}</span> */}
+          <span className="font-semibold capitalize">
+            {props.bet.option.outcome
+              ? t(props.bet.option.outcome, {
+                  nsSeparator: false,
+                  keySeparator: false,
+                })
+              : 'N/A'}
+          </span>
+          <span className="font-bold tabular-nums">
+            {props.bet.option.decPrice?.toFixed(2) || '0.00'}
+          </span>
         </>
       ) : props.variant === 'roundcard' ? (
         <>

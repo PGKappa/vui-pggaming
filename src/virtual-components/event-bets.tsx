@@ -11,6 +11,29 @@ import { Button } from './ui/button'
 import { Checkbox } from '@/virtual-components/ui/checkbox'
 import { usePathname } from 'next/navigation'
 
+// I mercati corse sono salvati con il nome interno (usato anche per il ticket):
+// qui li traduciamo solo per la visualizzazione.
+const RACE_MARKET_LABELS: Record<string, string> = {
+  Winner: 'winner',
+  Placed: 'place_2',
+  Show: 'show_3',
+  'Even/Odd': 'even_odd',
+  'Under/Over': 'under_over',
+  Exacta: 'exacta',
+  Quinella: 'quinella',
+  Trifecta: 'trifecta',
+  'Box Trifecta': 'boxed_trifecta',
+}
+
+const translateMarket = (market: string) => {
+  const key = RACE_MARKET_LABELS[market]
+  if (!key) return market
+  return market === 'Under/Over' ? `${t(key)} 3.5` : t(key)
+}
+
+const translateOutcome = (outcome: string) =>
+  t(outcome, { nsSeparator: false, keySeparator: false })
+
 export default function EventBets(props: {
   betMode: 'SINGLE' | 'MULTIPLE' | 'SYSTEM'
   eventKey: string
@@ -24,6 +47,10 @@ export default function EventBets(props: {
   const timeToEventStart = useTimeLeft(eventBets[0].bet.event.startingAt)
 
   const getCategory = () => {
+    const discipline = eventBets[0]?.bet?.discipline
+    if (discipline === 'DOGS') return t('dog_racing')
+    if (discipline === 'HORSES') return t('horse_racing')
+
     if (eventBets[0]?.bet?.event?.name) {
       return eventBets[0].bet.event.name
     }
@@ -36,8 +63,8 @@ export default function EventBets(props: {
   }
   return (
     <li>
-      <div className="flex flex-col gap-1 border border-betSlip-foreground bg-primary-foreground p-1">
-        <div className="flex flex-row justify-between">
+      <div className="flex flex-col gap-2 rounded-t-sm border border-border bg-muted/60 px-3 py-2.5">
+        <div className="flex flex-row items-center justify-between pb-1">
           {betMode === 'SYSTEM' && (
             <div className="flex flex-row items-center gap-2 pl-1">
               <Checkbox
@@ -68,10 +95,10 @@ export default function EventBets(props: {
           </Button>
         </div>
 
-        <div className="flex items-center justify-between bg-primary-foreground">
+        <div className="flex items-center justify-between">
           <span className="text-[12px] font-semibold">{getCategory()}</span>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <span className="text-[12px]">
               {format(eventBets[0].bet.event.startingAt, 'HH:mm')}
             </span>
@@ -84,14 +111,18 @@ export default function EventBets(props: {
         <span className="text-[12px]">ID {eventBets[0].bet.event.number}</span>
       </div>
 
-      <div className="border border-betSlip-foreground bg-primary-foreground p-1">
+      <div className="divide-y divide-border rounded-b-sm border border-t-0 border-border bg-card px-3">
         {eventBets.map((betEntry) => (
           <div
             key={betEntry.id}
-            className="flex items-center gap-10 text-[12px]"
+            className="flex items-center gap-3 py-2.5 text-[12px]"
           >
-            <span className="flex-1 text-[12px]">{betEntry.market}</span>
-            <span className="text-[12px]">{betEntry.bet.option.outcome}</span>
+            <span className="flex-1 text-[12px]">
+              {translateMarket(betEntry.market)}
+            </span>
+            <span className="text-[12px]">
+              {translateOutcome(betEntry.bet.option.outcome)}
+            </span>
             <span className="text-[12px] font-bold">
               {betEntry.bet.option.decPrice.toFixed(2)}
             </span>
