@@ -65,7 +65,9 @@ export default function RootLayout({
   const { i18n } = useTranslation()
 
   return (
-    <html lang={i18n.language}>
+    // thin-scrollbar: barra di scorrimento della pagina sottile, come quella
+    // degli ultimi risultati
+    <html lang={i18n.language} className="thin-scrollbar">
       <head>
         <title>{metadata.title}</title>
         <meta name="description" content={metadata.description} />

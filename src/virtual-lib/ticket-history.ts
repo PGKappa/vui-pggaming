@@ -108,3 +108,131 @@ export function ticketStatusKey(status: number): string {
       return 'pending'
   }
 }
+
+// ===== Lista ticket (pagina "Le mie scommesse", identica alla cassa) =====
+
+/** dd-MM-yyyy → mezzanotte locale */
+function parseDayParam(value: string): Date | undefined {
+  const [day, month, year] = value.split('-').map(Number)
+  if (!day || !month || !year) return undefined
+  return new Date(year, month - 1, day)
+}
+
+// filtro stato come i codici della cassa (STATUS_MAP / PAYMENT_MAP)
+function matchesStatus(status: number, filter: number): boolean {
+  switch (filter) {
+    case 0:
+      return true
+    case 1:
+      return status === 0 || status === 1
+    case 4:
+      return status === 4 || status === 6
+    case 5:
+      return status === 5 || status === 9
+    default:
+      return status === filter
+  }
+}
+
+function matchesPayment(status: number, filter: number): boolean {
+  if (filter === 1) return status === 6
+  if (filter === 2) return status === 4
+  return true
+}
+
+/**
+ * Risposta nel formato di /api/ticket/list costruita dai ticket giocati da
+ * questo browser (il cui dettaglio è accessibile anche al giocatore).
+ * Gli orari sono convertiti da UTC all'ora locale, come li mostra la lista.
+ */
+export async function fetchStoredTicketList(
+  initCode: string,
+  request: {
+    dateStart: string
+    dateEnd: string
+    status: number
+    payment: number
+  },
+  fetchTicket: (ticketId: number) => Promise<any>,
+) {
+  const from = parseDayParam(request.dateStart)
+  const toDay = parseDayParam(request.dateEnd)
+  const to = toDay
+    ? new Date(toDay.getFullYear(), toDay.getMonth(), toDay.getDate() + 1)
+    : undefined
+
+  const infos = await Promise.all(
+    getStoredTicketIds(initCode).map(async (id) => {
+      try {
+        const data = await fetchTicket(id)
+        return data?.ret_code === 1024 ? data.info : undefined
+      } catch {
+        return undefined
+      }
+    }),
+  )
+
+  const items = infos
+    .filter((info) => info?.ticket_id && Array.isArray(info.time))
+    .map((info) => {
+      const date = parseTicketTime(info.time)
+      return {
+        ticket_id: Number(info.ticket_id),
+        time: [
+          date.getFullYear(),
+          date.getMonth(),
+          date.getDate(),
+          date.getHours(),
+          date.getMinutes(),
+          date.getSeconds(),
+        ],
+        amount: String(info.amount ?? '0'),
+        amount_won: String(info.amount_won ?? '0'),
+        intl: info.intl,
+        // la lista cassa ha la colonna terminale: sul web è sempre "WEB"
+        terminal_id: 'WEB',
+        status: Number(info.status),
+        _date: date,
+      }
+    })
+    .filter(
+      (item) =>
+        (!from || item._date >= from) &&
+        (!to || item._date < to) &&
+        matchesStatus(item.status, request.status) &&
+        matchesPayment(item.status, request.payment),
+    )
+    .sort((a, b) => b._date.getTime() - a._date.getTime())
+    .map(({ _date, ...item }) => item)
+
+  const sum = (values: number[]) =>
+    Math.round(values.reduce((acc, value) => acc + value, 0) * 100) / 100
+  const totIn = sum(items.map((item) => parseFloat(item.amount) || 0))
+  const totOut = sum(items.map((item) => parseFloat(item.amount_won) || 0))
+  const totCancelled = sum(
+    items
+      .filter((item) => item.status === 2)
+      .map((item) => parseFloat(item.amount) || 0),
+  )
+
+  return {
+    ret_code: 1024,
+    description: 'Success',
+    items,
+    info: {
+      count: items.length,
+      count_paid: items.filter((item) => item.status === 6).length,
+      count_won: items.filter((item) => item.status === 4 || item.status === 6)
+        .length,
+      tot_in: totIn.toFixed(2),
+      tot_cancelled: totCancelled.toFixed(2),
+      tot_out: totOut.toFixed(2),
+      tot_profit: Math.round((totIn - totOut) * 100) / 100,
+      grandtotal: {
+        in: totIn,
+        cancelled: totCancelled.toFixed(2),
+        out: totOut.toFixed(2),
+      },
+    },
+  }
+}

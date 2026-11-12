@@ -975,3 +975,13 @@ body > div.relative.z-50.flex.h-16.w-full.flex-row.items-center.justify-start.bg
     scrollbar-color: #cdd2dc transparent;
   }
 }
+
+/* Fallback dei colori usati dal dettaglio ticket retail (aperto in un portal
+   su <body>) anche nelle skin web; le skin retail li ridefiniscono con una
+   classe, che ha priorità sul selettore body. */
+@layer base {
+  body {
+    --replay: 206 61% 18%;
+    --replay-foreground: 0 0% 100%;
+  }
+}

@@ -3,12 +3,18 @@
 import { RootContext } from '@/virtual-contexts/root-context'
 import { Discipline, UpcomingRace } from '@/virtual-lib/types'
 import { getOperatorFromUrl, PGVIRTUAL_API_URL } from '@/virtual-lib/utils'
-import { t } from 'i18next'
+import i18n, { t } from 'i18next'
 import Image from 'next/image'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import LatecomersDialog from './latecomers-dialog'
-import { ChevronDown, Clock, Search } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { ChevronDown, Clock, Info, Search } from 'lucide-react'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/virtual-components/ui/dialog'
+import { usePathname, useRouter } from 'next/navigation'
 
 export default function LiveMatchInfo(
   props: {
@@ -23,6 +29,7 @@ export default function LiveMatchInfo(
     null,
   )
   const [isLatecomersOpen, setIsLatecomersOpen] = useState(false)
+  const [isInfoOpen, setIsInfoOpen] = useState(false)
   const [raceInfo, setRaceInfo] = useState<UpcomingRace>()
   const router = useRouter()
 
@@ -32,10 +39,23 @@ export default function LiveMatchInfo(
 
   const getInitCode = () => localStorage.getItem('initCode')
 
-  const getCurrentDiscipline = useCallback((): Discipline => {
-    if (typeof window === 'undefined') return Discipline.FOOTBALL
+  // Regolamento del gioco, come il tasto "i" della cassa: manuale diverso per
+  // i levrieri a 8; disponibile in it/en/es/fr, altrimenti in inglese
+  const getInfoLink = () => {
+    const language = (i18n.language || 'en').slice(0, 2)
+    const lang = ['it', 'en', 'es', 'fr'].includes(language) ? language : 'en'
+    const manual = pathname?.includes('dogs8')
+      ? 'RD-RH_8_Gamingmanual'
+      : 'RD-RH_Gamingmanual'
+    return `https://d190050z3qr0m1.cloudfront.net/public/${manual}_${lang}.html`
+  }
 
-    const path = window.location.pathname
+  // percorso dal router: window.location, durante la navigazione interna,
+  // può essere ancora quello della pagina precedente (es. /virtual/bets)
+  const pathname = usePathname()
+
+  const getCurrentDiscipline = useCallback((): Discipline => {
+    const path = pathname ?? ''
     // dogs8 prima di dogs: '/virtual/dogs8' contiene anche 'dogs'
     if (path.includes('dogs8')) {
       return Discipline.DOGS8
@@ -46,7 +66,7 @@ export default function LiveMatchInfo(
     } else {
       return Discipline.FOOTBALL
     }
-  }, [])
+  }, [pathname])
 
   // Aggiorna il prossimo evento periodicamente
   useEffect(() => {
@@ -172,7 +192,7 @@ export default function LiveMatchInfo(
               className="size-8 object-contain"
             />
           ),
-          name: t('dog_racing'),
+          name: t('dog6_racing'),
         }
       case Discipline.DOGS8:
         return {
@@ -198,7 +218,7 @@ export default function LiveMatchInfo(
               className="size-8 object-contain"
             />
           ),
-          name: t('horse_racing'),
+          name: t('horse6_racing'),
         }
       default:
         return {
@@ -282,6 +302,18 @@ export default function LiveMatchInfo(
               </button>
             )}
 
+            {shouldShowLatecomersButton && (
+              <button
+                type="button"
+                className="flex h-9 shrink-0 items-center gap-2 whitespace-nowrap rounded-sm border border-white/15 bg-secondary px-3 text-sm font-semibold uppercase text-secondary-foreground transition-colors hover:bg-tertiary hover:text-tertiary-foreground"
+                onClick={() => setIsInfoOpen(true)}
+                title={t('game_rules')}
+              >
+                <Info className="size-4" />
+                <span className="hidden md:inline">Info</span>
+              </button>
+            )}
+
             {onToggleMedia && (
               <button
                 type="button"
@@ -299,6 +331,21 @@ export default function LiveMatchInfo(
           </div>
         )}
       </div>
+
+      <Dialog open={isInfoOpen} onOpenChange={setIsInfoOpen}>
+        <DialogContent className="h-[90vh] max-w-5xl gap-0 overflow-hidden p-0">
+          <DialogHeader className="shrink-0 bg-card-header px-4 py-3 text-card-header-foreground">
+            <DialogTitle>{t('game_rules').toUpperCase()}</DialogTitle>
+          </DialogHeader>
+          {isInfoOpen && (
+            <iframe
+              src={getInfoLink()}
+              className="min-h-0 w-full flex-1 border-0 bg-white"
+              title={t('game_rules')}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
 
       <LatecomersDialog
         isOpen={isLatecomersOpen}

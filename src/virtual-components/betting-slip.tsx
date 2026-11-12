@@ -28,7 +28,7 @@ import {
 import { useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
-import BetsHistoryDialog from './bets-history-dialog'
+import { useRouter } from 'next/navigation'
 import EventBets from './event-bets'
 import { ScrollArea } from './ui/scroll-area'
 import { Accordion, AccordionContent, AccordionItem } from './ui/accordion'
@@ -37,6 +37,7 @@ import { Checkbox } from './ui/checkbox'
 export type BetMode = 'SINGLE' | 'MULTIPLE' | 'SYSTEM'
 
 export default function BettingSlip() {
+  const router = useRouter()
   const {
     betEntries,
     betsByEvent,
@@ -804,7 +805,16 @@ export default function BettingSlip() {
             {t('bet_slip').toUpperCase()} ({betEntries.length})
           </span>
           <div className="flex h-full items-center justify-center border-l border-white/15 [&_button]:h-[52px] [&_button]:w-full [&_button]:rounded-none [&_button]:px-4 [&_button]:py-0 [&_button]:text-[13px] [&_button]:font-semibold [&_button]:uppercase [&_button]:text-card-header-foreground/85 hover:[&_button]:bg-white/10 hover:[&_button]:text-card-header-foreground">
-            <BetsHistoryDialog />
+            {/* apre la pagina Lista ticket (come la cassa), mantenendo i
+                parametri dell'URL (init_code, skin, operator...) */}
+            <button
+              type="button"
+              onClick={() =>
+                router.push(`/virtual/bets${window.location.search}`)
+              }
+            >
+              {t('my_bets')}
+            </button>
           </div>
         </div>
 

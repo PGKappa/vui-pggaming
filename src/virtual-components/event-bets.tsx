@@ -50,9 +50,9 @@ export default function EventBets(props: {
 
   const getCategory = () => {
     const discipline = eventBets[0]?.bet?.discipline
-    if (discipline === 'DOGS') return t('dog_racing')
+    if (discipline === 'DOGS') return t('dog6_racing')
     if (discipline === 'DOGS8') return t('dog8_racing')
-    if (discipline === 'HORSES') return t('horse_racing')
+    if (discipline === 'HORSES') return t('horse6_racing')
 
     if (eventBets[0]?.bet?.event?.name) {
       return eventBets[0].bet.event.name

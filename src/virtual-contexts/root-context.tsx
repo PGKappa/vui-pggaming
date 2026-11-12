@@ -572,7 +572,6 @@ export default function RootContextProvider(props: {
           getTranslation,
         }))
 
-        toast.success('Cashier data loaded from cache!')
         setIsLoading(false)
         setIsCashierReady(true)
         return
@@ -683,7 +682,6 @@ export default function RootContextProvider(props: {
           // Salva i dati cashier in cache
           saveCashierToCache(initCode, cashierData, contextData)
 
-          toast.success('User data fetched successfully!')
           setIsLoading(false)
           setIsCashierReady(true)
         } else {

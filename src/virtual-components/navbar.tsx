@@ -98,7 +98,7 @@ function NavbarContent() {
           className="size-7 object-contain"
           priority
         />
-        <span>{t('greyhounds')}</span>
+        <span>{t('dog6_racing')}</span>
         {/* il timer serve solo sulle discipline non selezionate */}
         {!isActive('/virtual/dogs') && (
           <NextEventTimer discipline={Discipline.DOGS} />
@@ -117,7 +117,7 @@ function NavbarContent() {
           height={33}
           className="size-7 object-contain"
         />
-        <span>{t('greyhounds')} 8</span>
+        <span>{t('dog8_racing')}</span>
         {/* il timer serve solo sulle discipline non selezionate */}
         {!isActive('/virtual/dogs8') && (
           <NextEventTimer discipline={Discipline.DOGS8} />
@@ -137,7 +137,7 @@ function NavbarContent() {
           className="size-7 object-contain"
           priority
         />
-        <span>{t('horses')}</span>
+        <span>{t('horse6_racing')}</span>
         {/* il timer serve solo sulle discipline non selezionate */}
         {!isActive('/virtual/horses') && (
           <NextEventTimer discipline={Discipline.HORSES} />
@@ -173,18 +173,20 @@ export default function Navbar() {
         <nav className="flex w-full flex-row gap-2 bg-navbarBg p-2 text-navbarBg-foreground">
           <div className="flex h-11 w-full flex-row items-center justify-center gap-2 px-2">
             <div className="h-5 w-10 animate-pulse rounded bg-white/20" />
-            <span className="text-sm font-semibold uppercase">{t('greyhounds')}</span>
+            <span className="text-sm font-semibold uppercase">
+              {t('dog6_racing')}
+            </span>
           </div>
           <div className="flex h-11 w-full flex-row items-center justify-center gap-2 px-2">
             <div className="h-5 w-10 animate-pulse rounded bg-white/20" />
             <span className="text-sm font-semibold uppercase">
-              {t('greyhounds')} 8
+              {t('dog8_racing')}
             </span>
           </div>
           <div className="flex h-11 w-full flex-row items-center justify-center gap-2 px-2">
             <div className="h-6 w-10 animate-pulse rounded bg-white/20" />
             <span className="text-sm font-semibold uppercase">
-              {t('horses')}
+              {t('horse6_racing')}
             </span>
           </div>
           <div className="flex h-11 w-full flex-row items-center justify-center gap-2 px-2">

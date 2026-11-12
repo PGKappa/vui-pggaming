@@ -24,7 +24,7 @@ import {
   formatCurrency,
 } from '@/retail-lib/use-ticket-list'
 import { cn } from '@/retail-lib/utils'
-import { ChevronDown } from 'lucide-react'
+import { ArrowLeft, ChevronDown } from 'lucide-react'
 import { format } from 'date-fns'
 import { it } from 'date-fns/locale'
 import { useState, useRef, useEffect } from 'react'
@@ -35,10 +35,13 @@ import { type DateRange } from 'react-day-picker'
 interface TicketListPageContentProps {
   returnPath: string
   variant?: 'standard' | 'calcio'
+  /** se passato, mostra a sinistra del titolo una freccia per tornare indietro (web) */
+  onBack?: () => void
 }
 
 export default function TicketListPageContent({
   variant = 'standard',
+  onBack,
 }: TicketListPageContentProps) {
   const { t } = useTranslation()
   const [calendarMode, setCalendarMode] = useState<'single' | 'range'>('range')
@@ -362,6 +365,17 @@ export default function TicketListPageContent({
         )}
         style={{ borderLeft: '1px solid white' }}
       >
+        {onBack && (
+          <button
+            type="button"
+            aria-label={t('back')}
+            title={t('back')}
+            onClick={onBack}
+            className="absolute left-2 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center text-accent-foreground transition-opacity hover:opacity-75"
+          >
+            <ArrowLeft className="size-6" />
+          </button>
+        )}
         <h2
           className={cn(
             'font-bold uppercase',

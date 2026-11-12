@@ -7,6 +7,7 @@ import {
   TicketListResponse,
 } from '@/retail-lib/types'
 import { createPGVirtualAPICall } from '@/retail-lib/utils'
+import { TicketListSourceContext } from '@/retail-lib/ticket-list-source'
 import { format } from 'date-fns'
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 
@@ -109,6 +110,7 @@ export function formatCurrency(
 
 export function useTicketList() {
   const rootContext = useContext(RootContext)
+  const source = useContext(TicketListSourceContext)
 
   const [terminal, setTerminal] = useState('all')
   const [status, setStatus] = useState('all')
@@ -254,14 +256,16 @@ export function useTicketList() {
         accountingMode: false,
       }
 
-      const response = await createPGVirtualAPICall(
-        '/api/ticket/list',
-        rootContext.initCode,
-        { method: 'POST', body: JSON.stringify(body) },
-        rootContext.operator,
-      )
-
-      const data: TicketListResponse = await response.json()
+      const data: TicketListResponse = source.fetchList
+        ? await source.fetchList(body)
+        : await (
+            await createPGVirtualAPICall(
+              '/api/ticket/list',
+              rootContext.initCode,
+              { method: 'POST', body: JSON.stringify(body) },
+              rootContext.operator,
+            )
+          ).json()
 
       if (data.ret_code === 1024) {
         const rawItems = data.items ?? []
@@ -305,7 +309,12 @@ export function useTicketList() {
     } finally {
       setLoading(false)
     }
-  }, [rootContext.initCode, rootContext.operator, fetchDisciplines])
+  }, [
+    rootContext.initCode,
+    rootContext.operator,
+    fetchDisciplines,
+    source,
+  ])
 
   const didMount = React.useRef(false)
   useEffect(() => {

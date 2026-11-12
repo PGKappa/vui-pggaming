@@ -171,7 +171,7 @@
   "dog6_races_label": "Levrieri 6 Reali",
   "dog6_racing": "Levrieri Reali 6",
   "dog8_races_label": "Levrieri 8 Reali",
-  "dog8_racing": "Corsa di Levrieri 8",
+  "dog8_racing": "Levrieri Reali 8",
   "double_chance": "Doppia Chance",
   "event_completed_detailed_results": "Evento completato - risultati dettagliati disponibili solo per corse di cavalli e cani",
   "failed_fetch_results": "Errore nel recupero dei risultati",
@@ -199,5 +199,6 @@
   "under_full": "Under",
   "search_results": "Ricerca risultati",
   "back": "Indietro",
-  "greyhounds": "Levrieri"
+  "greyhounds": "Levrieri",
+  "game_rules": "Informazioni"
 }
