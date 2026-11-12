@@ -66,7 +66,11 @@ export default function MyBetsPage() {
     <div className="retail-default">
       <RetailRootContext.Provider value={retailContext}>
         <TicketListSourceContext.Provider value={source}>
-          <TicketListPageContent returnPath="/virtual/dogs" onBack={goBack} />
+          <TicketListPageContent
+            returnPath="/virtual/dogs"
+            onBack={goBack}
+            fullWidth
+          />
         </TicketListSourceContext.Provider>
       </RetailRootContext.Provider>
     </div>

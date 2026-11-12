@@ -36,7 +36,7 @@ function AppContent({ children }: { children: React.ReactNode }) {
         {/* la navbar sta dentro il provider per leggere i prossimi eventi
             (timer di inizio gara accanto a ogni disciplina) */}
         <RootContextProvider>
-          <header className="container">
+          <header className="mx-auto w-full max-w-[1920px]">
             <Navbar />
           </header>
           <BetsContextProvider>{children}</BetsContextProvider>

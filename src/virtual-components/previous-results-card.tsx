@@ -15,6 +15,10 @@ const GRID = '56px 52px 1fr'
 // risultati visibili senza scroll a pannello chiuso
 const VISIBLE_RESULTS = 7
 
+// altezze minime di riga (px): numero 24 + nome 14 + spazi
+const ROW_WITH_NAME = 44
+const ROW_WITH_BADGE = 28
+
 export default function PreviousResultsCard({
   results,
   discipline,
@@ -26,6 +30,11 @@ export default function PreviousResultsCard({
   const canExpand = (results?.length ?? 0) > VISIBLE_RESULTS
   const isOpen = expanded && canExpand
   const visibleResults = isOpen ? results : results?.slice(0, VISIBLE_RESULTS)
+  // a risoluzioni basse il video è più basso e le righe non contengono
+  // numero + nome: sotto questa altezza si mostra solo il numero (nome nel
+  // tooltip), e sotto la seconda anche il numero si rimpicciolisce
+  const showNames = !rowHeight || rowHeight >= ROW_WITH_NAME
+  const smallBadge = !!rowHeight && rowHeight < ROW_WITH_BADGE
 
   // l'altezza della sezione è fissa (la decide il video): ogni riga occupa
   // 1/7 dello spazio, così chiuso ne entrano 7 e aperto si scorre il resto
@@ -107,21 +116,23 @@ export default function PreviousResultsCard({
                   <div
                     key={`${competitor.number}-${index}`}
                     className="flex min-w-0 flex-col items-center gap-0.5"
+                    title={competitor.name}
                   >
                     <div
-                      className="flex h-6 w-6 items-center justify-center rounded-sm pt-0.5 text-base font-bold tabular-nums leading-none"
+                      className={`flex items-center justify-center rounded-sm pt-0.5 font-bold tabular-nums leading-none ${
+                        smallBadge ? 'size-5 text-sm' : 'size-6 text-base'
+                      }`}
                       style={
                         getRacerColors(competitor.number, discipline).style
                       }
                     >
                       {competitor.number}
                     </div>
-                    <div
-                      className="w-full truncate text-center text-[11px] leading-tight"
-                      title={competitor.name}
-                    >
-                      {competitor.name}
-                    </div>
+                    {showNames && (
+                      <div className="w-full truncate text-center text-[11px] leading-tight">
+                        {competitor.name}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

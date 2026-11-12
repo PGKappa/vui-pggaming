@@ -38,9 +38,9 @@ export default function Home() {
 
   return (
     <>
-      <div className="container mb-16 grid grid-cols-1 items-start gap-3 bg-columnL-background p-2 text-columnL-foreground sm:p-3 lg:mb-0 lg:grid-cols-4">
+      <div className="mx-auto mb-16 grid w-full max-w-[1920px] grid-cols-1 items-start gap-3 bg-columnL-background p-2 text-columnL-foreground sm:p-3 lg:mb-0 lg:grid-cols-[minmax(0,3fr)_minmax(360px,1fr)]">
         {/* First column - contenuto principale */}
-        <div className="flex min-w-0 flex-col items-center gap-3 lg:col-span-3">
+        <div className="flex min-w-0 flex-col items-center gap-3">
           <div className="flex w-full flex-col gap-3">
             <LiveMatchInfo
               mediaOpen={mediaOpen}
@@ -85,7 +85,7 @@ export default function Home() {
         </div>
 
         {/* Second column - Betting slip */}
-        <div className="hidden lg:sticky lg:top-3 lg:col-span-1 lg:block lg:h-[calc(100vh-84px)]">
+        <div className="hidden lg:block lg:h-[max(calc(100vh-84px),716px)] [@media(min-height:800px)]:lg:sticky [@media(min-height:800px)]:lg:top-3">
           <div className="h-full">
             <BettingSlip />
           </div>

@@ -7,7 +7,7 @@ import i18n, { t } from 'i18next'
 import Image from 'next/image'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import LatecomersDialog from './latecomers-dialog'
-import { ChevronDown, Clock, Info, Search } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -47,7 +47,27 @@ export default function LiveMatchInfo(
     const manual = pathname?.includes('dogs8')
       ? 'RD-RH_8_Gamingmanual'
       : 'RD-RH_Gamingmanual'
-    return `https://d190050z3qr0m1.cloudfront.net/public/${manual}_${lang}.html`
+    // copia locale (public/manuals) del manuale su cloudfront: stessa origine,
+    // così si può applicare la scrollbar sottile dentro l'iframe
+    return `/manuals/${manual}_${lang}.html`
+  }
+
+  const applyThinScrollbar = (
+    event: React.SyntheticEvent<HTMLIFrameElement>,
+  ) => {
+    const doc = event.currentTarget.contentDocument
+    if (!doc || doc.getElementById('thin-scrollbar-style')) return
+    const style = doc.createElement('style')
+    style.id = 'thin-scrollbar-style'
+    style.textContent = `
+      ::-webkit-scrollbar { width: 4px; height: 4px; }
+      ::-webkit-scrollbar-thumb { background: #cdd2dc; border-radius: 2px; }
+      ::-webkit-scrollbar-thumb:hover { background: #b8bec9; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      @supports not selector(::-webkit-scrollbar) {
+        html { scrollbar-width: thin; scrollbar-color: #cdd2dc transparent; }
+      }`
+    doc.head.appendChild(style)
   }
 
   // percorso dal router: window.location, durante la navigazione interna,
@@ -192,7 +212,7 @@ export default function LiveMatchInfo(
               className="size-8 object-contain"
             />
           ),
-          name: t('dog6_racing'),
+          name: `${t('real_greyhounds')} - ${t('track')} 6`,
         }
       case Discipline.DOGS8:
         return {
@@ -205,7 +225,7 @@ export default function LiveMatchInfo(
               className="size-8 object-contain"
             />
           ),
-          name: t('dog8_racing'),
+          name: `${t('real_greyhounds')} - ${t('track')} 8`,
         }
       case Discipline.HORSES:
         return {
@@ -218,7 +238,7 @@ export default function LiveMatchInfo(
               className="size-8 object-contain"
             />
           ),
-          name: t('horse6_racing'),
+          name: `${t('real_horses')} - ${t('track')} 6`,
         }
       default:
         return {
@@ -252,13 +272,18 @@ export default function LiveMatchInfo(
     <>
       {/* Corse: su desktop la barra segue la griglia video (2/3) + ultimi
           risultati (1/3), così "Prossima corsa" finisce dove finisce il video
-          e i tasti stanno sopra gli ultimi risultati */}
+          e i tasti stanno sopra gli ultimi risultati. Se i tasti non entrano
+          nel terzo, la colonna destra si allarga quanto serve invece di
+          sovrapporsi all'orario; sotto xl i tasti hanno testo più piccolo e
+          sotto 2xl si nasconde la scritta "Prossima corsa" */}
       <div
         className={`flex h-12 w-full items-center gap-3 bg-card-header px-3 text-card-header-foreground shadow-sm ${
-          shouldShowLatecomersButton ? 'lg:grid lg:grid-cols-3 lg:px-0' : ''
+          shouldShowLatecomersButton
+            ? 'lg:grid lg:grid-cols-[minmax(0,2fr)_minmax(max-content,1fr)] lg:px-0'
+            : ''
         }`}
       >
-        <div className="flex min-w-0 flex-1 items-center justify-between gap-3 lg:col-span-2 lg:pl-3">
+        <div className="flex min-w-0 flex-1 items-center justify-between gap-3 lg:pl-3">
           <div className="flex min-w-0 flex-row items-center gap-3">
             {disciplineInfo.icon}
             <span className="truncate text-md font-bold uppercase tracking-wide">
@@ -267,7 +292,7 @@ export default function LiveMatchInfo(
           </div>
 
           <div className="flex shrink-0 items-center gap-2">
-            <span className="hidden text-xs font-semibold uppercase opacity-75 sm:inline">
+            <span className="hidden text-xs font-semibold uppercase opacity-75 2xl:inline">
               {t('next_race')}
             </span>
             <span className="rounded-sm bg-white px-2 py-0.5 text-lg font-bold tabular-nums text-card-foreground">
@@ -278,40 +303,37 @@ export default function LiveMatchInfo(
 
         {(shouldShowLatecomersButton || onToggleMedia) && (
           <div className="flex shrink-0 items-center justify-end gap-3 lg:pr-3">
+            {/* i tre tasti hanno tutti la larghezza del più largo: colonne
+                uguali (1fr) in una griglia larga quanto il contenuto */}
             {shouldShowLatecomersButton && (
-              <button
-                type="button"
-                className="flex h-9 shrink-0 items-center gap-2 whitespace-nowrap rounded-sm border border-white/15 bg-secondary px-3 text-sm font-semibold uppercase text-secondary-foreground transition-colors hover:bg-tertiary hover:text-tertiary-foreground"
-                onClick={() => setIsLatecomersOpen(true)}
-                title={t('latecomers')}
-              >
-                <Clock className="size-4" />
-                <span className="hidden md:inline">{t('latecomers')}</span>
-              </button>
-            )}
+              <div className="grid shrink-0 auto-cols-fr grid-flow-col gap-3">
+                <button
+                  type="button"
+                  className="flex h-9 items-center justify-center whitespace-nowrap rounded-sm border border-white/15 bg-secondary px-2 text-xs font-semibold uppercase text-secondary-foreground transition-colors hover:bg-tertiary hover:text-tertiary-foreground xl:px-3 xl:text-sm"
+                  onClick={() => setIsLatecomersOpen(true)}
+                  title={t('latecomers')}
+                >
+                  <span>{t('latecomers')}</span>
+                </button>
 
-            {shouldShowLatecomersButton && (
-              <button
-                type="button"
-                className="flex h-9 shrink-0 items-center gap-2 whitespace-nowrap rounded-sm border border-white/15 bg-secondary px-3 text-sm font-semibold uppercase text-secondary-foreground transition-colors hover:bg-tertiary hover:text-tertiary-foreground"
-                onClick={openSearchResults}
-                title={t('search_results')}
-              >
-                <Search className="size-4" />
-                <span className="hidden md:inline">{t('search_results')}</span>
-              </button>
-            )}
+                <button
+                  type="button"
+                  className="flex h-9 items-center justify-center whitespace-nowrap rounded-sm border border-white/15 bg-secondary px-2 text-xs font-semibold uppercase text-secondary-foreground transition-colors hover:bg-tertiary hover:text-tertiary-foreground xl:px-3 xl:text-sm"
+                  onClick={openSearchResults}
+                  title={t('search_results')}
+                >
+                  <span>{t('search_results')}</span>
+                </button>
 
-            {shouldShowLatecomersButton && (
-              <button
-                type="button"
-                className="flex h-9 shrink-0 items-center gap-2 whitespace-nowrap rounded-sm border border-white/15 bg-secondary px-3 text-sm font-semibold uppercase text-secondary-foreground transition-colors hover:bg-tertiary hover:text-tertiary-foreground"
-                onClick={() => setIsInfoOpen(true)}
-                title={t('game_rules')}
-              >
-                <Info className="size-4" />
-                <span className="hidden md:inline">Info</span>
-              </button>
+                <button
+                  type="button"
+                  className="flex h-9 items-center justify-center whitespace-nowrap rounded-sm border border-white/15 bg-secondary px-2 text-xs font-semibold uppercase text-secondary-foreground transition-colors hover:bg-tertiary hover:text-tertiary-foreground xl:px-3 xl:text-sm"
+                  onClick={() => setIsInfoOpen(true)}
+                  title={t('game_rules')}
+                >
+                  <span>Info</span>
+                </button>
+              </div>
             )}
 
             {onToggleMedia && (
@@ -333,13 +355,14 @@ export default function LiveMatchInfo(
       </div>
 
       <Dialog open={isInfoOpen} onOpenChange={setIsInfoOpen}>
-        <DialogContent className="h-[90vh] max-w-5xl gap-0 overflow-hidden p-0">
-          <DialogHeader className="shrink-0 bg-card-header px-4 py-3 text-card-header-foreground">
+        <DialogContent className="left-0 top-0 h-dvh w-screen max-w-none translate-x-0 translate-y-0 gap-0 overflow-hidden border-0 p-0 [&>button:last-child]:top-3">
+          <DialogHeader className="flex h-12 shrink-0 items-center justify-center bg-card-header px-4 py-0 text-card-header-foreground">
             <DialogTitle>{t('game_rules').toUpperCase()}</DialogTitle>
           </DialogHeader>
           {isInfoOpen && (
             <iframe
               src={getInfoLink()}
+              onLoad={applyThinScrollbar}
               className="min-h-0 w-full flex-1 border-0 bg-white"
               title={t('game_rules')}
             />
