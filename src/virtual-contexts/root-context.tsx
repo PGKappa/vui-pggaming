@@ -6,7 +6,7 @@ import {
   EventResult,
   LiveRound,
   MatchResult,
-  RaceResult,
+  PreviousChannelResult,
   RoundStatistics,
   TeamRanking,
   Ticket,
@@ -20,6 +20,7 @@ import {
   fetchCashierInit,
   fetchSoccerInit,
   getOperatorFromUrl,
+  PGVIRTUAL_API_URL,
   withDerivedDoppiaChance,
   SOCCER_ROUNDS_TO_SHOW,
 } from '@/virtual-lib/utils'
@@ -32,6 +33,64 @@ const debugLog = (section: string, message: string, data?: any) => {
   if (DEBUG_ENABLED) {
     console.log(`[${section}] ${message}`, data || '')
   }
+}
+
+// Aggiornamento delle corse: abbastanza frequente da risincronizzare il conto
+// alla rovescia con `since` e far comparire subito le nuove corse
+const RACING_REFRESH_MS = 45 * 1000
+
+// Canale di una disciplina riconosciuto da game_id o, in mancanza, dal nome
+// (stesse regole della cassa: i cani a 8 sono un'altra disciplina)
+function findRacingChannel(
+  channels: any[],
+  discipline: 'DOGS' | 'DOGS8' | 'HORSES',
+) {
+  const matches = (value: unknown) => {
+    if (typeof value !== 'string') return false
+    if (discipline === 'HORSES') return /horse|cavall/i.test(value)
+    const isDog = /dog|grey|levrier|cani/i.test(value)
+    return discipline === 'DOGS8'
+      ? isDog && /8/.test(value)
+      : isDog && !/8/.test(value)
+  }
+  return (
+    channels.find((channel) => matches(channel?.game_id)) ??
+    channels.find((channel) => !channel?.game_id && matches(channel?.name))
+  )
+}
+
+// Orario di partenza: prima `since` (secondi mancanti, calcolati dal server:
+// non dipende dall'orologio del dispositivo), poi start_time "HH:mm" sulla
+// data di `time`, infine `time`
+function resolveEventStartTime(event: any, fetchedAt: number): Date {
+  const since = Number(event?.since)
+  if (event?.since !== undefined && event?.since !== null && since > 0) {
+    return new Date(fetchedAt + since * 1000)
+  }
+  const startTime = new Date(event?.time ?? fetchedAt)
+  if (isNaN(startTime.getTime())) startTime.setTime(fetchedAt)
+  if (typeof event?.start_time === 'string') {
+    const [hours, minutes] = event.start_time.split(':')
+    startTime.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0, 0)
+  }
+  return startTime
+}
+
+// Dati scaricati da meno di maxAge (per non ripetere la chiamata)
+function isRecentFetch(key: string, maxAge: number): boolean {
+  const lastFetch = Number(localStorage.getItem(key))
+  return lastFetch > 0 && Date.now() - lastFetch < maxAge
+}
+
+// Ultimi risultati del canale (prev_events), dal più recente
+function sortPreviousResults(prevEvents: unknown): PreviousChannelResult {
+  if (!Array.isArray(prevEvents)) return []
+  return prevEvents
+    .filter((event) => Array.isArray(event?.arrival))
+    .sort(
+      (a, b) =>
+        (parseInt(b.ext_event_id) || 0) - (parseInt(a.ext_event_id) || 0),
+    )
 }
 
 export type RootContextType = {
@@ -49,6 +108,8 @@ export type RootContextType = {
   upcomingRounds?: UpcomingRound[]
   upcomingEvents?: UpcomingEvent[]
   eventResults?: EventResult[]
+  /** ultimi risultati delle corse, da prev_events di /api/event/list */
+  previousResults?: Partial<Record<Discipline, PreviousChannelResult>>
   betsHistory: Ticket[]
   matchResult?: MatchResult[]
   getCurrencySymbol?: () => string
@@ -96,12 +157,15 @@ export default function RootContextProvider(props: {
   // Cache keys for localStorage
   const CACHE_KEYS = {
     DOGS_EVENTS: 'virtual_dogs_events_cache',
+    DOGS8_EVENTS: 'virtual_dogs8_events_cache',
     HORSES_EVENTS: 'virtual_horses_events_cache',
     SOCCER_EVENTS: 'virtual_soccer_events_cache',
-    DOGS_RESULTS: 'virtual_dogs_results_cache',
-    HORSES_RESULTS: 'virtual_horses_results_cache',
+    DOGS_PREV_RESULTS: 'virtual_dogs_prev_results_cache',
+    DOGS8_PREV_RESULTS: 'virtual_dogs8_prev_results_cache',
+    HORSES_PREV_RESULTS: 'virtual_horses_prev_results_cache',
     SOCCER_RESULTS: 'virtual_soccer_results_cache',
     LAST_DOGS_FETCH_TIME: 'virtual_dogs_last_fetch',
+    LAST_DOGS8_FETCH_TIME: 'virtual_dogs8_last_fetch',
     LAST_HORSES_FETCH_TIME: 'virtual_horses_last_fetch',
     LAST_SOCCER_FETCH_TIME: 'virtual_soccer_last_fetch',
     CASHIER_DATA: 'virtual_cashier_data_cache',
@@ -228,14 +292,18 @@ export default function RootContextProvider(props: {
   const loadCachedRacingEvents = useCallback(() => {
     const cachedDogsEvents = loadFromCache(CACHE_KEYS.DOGS_EVENTS)
     const cachedHorsesEvents = loadFromCache(CACHE_KEYS.HORSES_EVENTS)
-    const cachedDogsResults = loadFromCache(CACHE_KEYS.DOGS_RESULTS)
-    const cachedHorsesResults = loadFromCache(CACHE_KEYS.HORSES_RESULTS)
+    const cachedDogsResults = loadFromCache(CACHE_KEYS.DOGS_PREV_RESULTS)
+    const cachedHorsesResults = loadFromCache(CACHE_KEYS.HORSES_PREV_RESULTS)
+    const cachedDogs8Events = loadFromCache(CACHE_KEYS.DOGS8_EVENTS)
+    const cachedDogs8Results = loadFromCache(CACHE_KEYS.DOGS8_PREV_RESULTS)
 
     if (
       cachedDogsEvents ||
       cachedHorsesEvents ||
+      cachedDogs8Events ||
       cachedDogsResults ||
-      cachedHorsesResults
+      cachedHorsesResults ||
+      cachedDogs8Results
     ) {
       setRootContext((prev) => ({
         ...prev,
@@ -243,26 +311,25 @@ export default function RootContextProvider(props: {
           ...(prev.upcomingEvents?.filter(
             (event) =>
               event.discipline !== Discipline.DOGS &&
+              event.discipline !== Discipline.DOGS8 &&
               event.discipline !== Discipline.HORSES,
           ) || []),
           ...(cachedDogsEvents || []),
+          ...(cachedDogs8Events || []),
           ...(cachedHorsesEvents || []),
         ],
-        eventResults: [
-          ...(prev.eventResults?.filter(
-            (result) =>
-              result.discipline !== Discipline.DOGS &&
-              result.discipline !== Discipline.HORSES,
-          ) || []),
-          ...((cachedDogsResults as EventResult[])?.map((r) => ({
-            ...r,
-            startTime: new Date(r.startTime),
-          })) || []),
-          ...((cachedHorsesResults as EventResult[])?.map((r) => ({
-            ...r,
-            startTime: new Date(r.startTime),
-          })) || []),
-        ],
+        previousResults: {
+          ...prev.previousResults,
+          ...(cachedDogsResults
+            ? { [Discipline.DOGS]: sortPreviousResults(cachedDogsResults) }
+            : {}),
+          ...(cachedHorsesResults
+            ? { [Discipline.HORSES]: sortPreviousResults(cachedHorsesResults) }
+            : {}),
+          ...(cachedDogs8Results
+            ? { [Discipline.DOGS8]: sortPreviousResults(cachedDogs8Results) }
+            : {}),
+        },
       }))
 
       return true
@@ -273,8 +340,10 @@ export default function RootContextProvider(props: {
     loadFromCache,
     CACHE_KEYS.DOGS_EVENTS,
     CACHE_KEYS.HORSES_EVENTS,
-    CACHE_KEYS.DOGS_RESULTS,
-    CACHE_KEYS.HORSES_RESULTS,
+    CACHE_KEYS.DOGS_PREV_RESULTS,
+    CACHE_KEYS.HORSES_PREV_RESULTS,
+    CACHE_KEYS.DOGS8_EVENTS,
+    CACHE_KEYS.DOGS8_PREV_RESULTS,
   ])
 
   const loadCachedSoccerEvents = useCallback(() => {
@@ -338,7 +407,7 @@ export default function RootContextProvider(props: {
   // Helper per chiamate API PGVirtual
   const pgVirtualFetch = useCallback(
     (endpoint: string, options?: RequestInit) => {
-      return fetch(`https://api-btprod.pgvirtual.eu${endpoint}`, {
+      return fetch(`${PGVIRTUAL_API_URL}${endpoint}`, {
         ...options,
         headers: {
           accept: 'application/json',
@@ -721,204 +790,99 @@ export default function RootContextProvider(props: {
       )
     }
 
-    const fetchUpcomingHorseEvents = async () => {
-      // Controlla cache prima di fare la chiamata
-      if (isCacheValid(CACHE_KEYS.LAST_HORSES_FETCH_TIME)) {
+    // Corse (cani e cavalli): una sola chiamata a /api/event/list per entrambe
+    // le discipline. I canali si riconoscono da game_id (come la cassa); la
+    // posizione nell'array resta solo come riserva.
+    const fetchRacingEvents = async (force = false) => {
+      if (
+        !force &&
+        isRecentFetch(CACHE_KEYS.LAST_DOGS_FETCH_TIME, RACING_REFRESH_MS) &&
+        isRecentFetch(CACHE_KEYS.LAST_DOGS8_FETCH_TIME, RACING_REFRESH_MS) &&
+        isRecentFetch(CACHE_KEYS.LAST_HORSES_FETCH_TIME, RACING_REFRESH_MS)
+      ) {
         return
       }
 
       try {
         const response = await pgVirtualFetch('/api/event/list')
-
         if (!response.ok) {
-          throw new Error(`Failed to fetch horse events: ${response.status}`)
+          throw new Error(`Failed to fetch racing events: ${response.status}`)
         }
+        const fetchedAt = Date.now()
+        const data = await response.json()
+        const channels: any[] = Array.isArray(data?.channels)
+          ? data.channels
+          : []
 
-        const horseEvents = await response.json()
-        const horseChannel = horseEvents.channels?.[1]
+        const disciplines = [
+          {
+            discipline: Discipline.DOGS,
+            channel: findRacingChannel(channels, 'DOGS') ?? channels[0],
+            name: 'Dog Race',
+            eventsKey: CACHE_KEYS.DOGS_EVENTS,
+            resultsKey: CACHE_KEYS.DOGS_PREV_RESULTS,
+            fetchKey: CACHE_KEYS.LAST_DOGS_FETCH_TIME,
+          },
+          {
+            discipline: Discipline.HORSES,
+            channel: findRacingChannel(channels, 'HORSES') ?? channels[1],
+            name: 'Horse Race',
+            eventsKey: CACHE_KEYS.HORSES_EVENTS,
+            resultsKey: CACHE_KEYS.HORSES_PREV_RESULTS,
+            fetchKey: CACHE_KEYS.LAST_HORSES_FETCH_TIME,
+          },
+          {
+            // cani a 8: solo da game_id/nome (nessuna posizione di riserva)
+            discipline: Discipline.DOGS8,
+            channel: findRacingChannel(channels, 'DOGS8'),
+            name: 'Dog Race 8',
+            eventsKey: CACHE_KEYS.DOGS8_EVENTS,
+            resultsKey: CACHE_KEYS.DOGS8_PREV_RESULTS,
+            fetchKey: CACHE_KEYS.LAST_DOGS8_FETCH_TIME,
+          },
+        ]
 
-        if (!horseChannel?.next_events) {
-          debugLog('ERROR', 'Invalid horse channel data')
-          return
-        }
+        for (const item of disciplines) {
+          const channel = item.channel
+          if (!channel?.next_events) {
+            debugLog('ERROR', `Invalid ${item.discipline} channel data`)
+            continue
+          }
 
-        const upcomingHorseEvents: UpcomingEvent[] =
-          horseChannel.next_events.map(
-            (event: any, index: number): UpcomingEvent => {
-              const startTime = new Date(event.time)
-              const [hours, minutes] = event.start_time.split(':')
-              startTime.setHours(parseInt(hours, 10), parseInt(minutes, 10))
-
-              return {
-                id: parseInt(event.int_event_id),
-                extId: event.ext_pal_id,
-                duration: horseChannel.duration?.[index],
-                discipline: Discipline.HORSES,
-                name: 'Horse Race',
-                startTime: event.start_time,
-                time: startTime,
-              }
-            },
-          )
-
-        const horseEventResults: EventResult[] = await Promise.all(
-          (horseChannel.prev_events || []).map(async (event: any) => {
-            const startTime = new Date(event.time)
-
-            let detailedResult = null
-            try {
-              const res = await pgVirtualFetch(
-                `/api/event/results/${event.ext_pal_id}/${event.int_event_id}`,
-              )
-              if (res.ok) detailedResult = await res.json()
-            } catch (error) {
-              console.warn('Failed to fetch detailed result:', error)
-            }
-
-            return {
-              id: event.int_event_id,
-              extId: event.ext_pal_id,
-              name: `Horse Race ${event.int_event_id}`,
-              startTime,
-              time: event.time,
-              discipline: Discipline.HORSES,
-              result: {
-                podium: event.arrival.map((horse: any, index: number) => ({
-                  name: horse.name,
-                  number: horse.number,
-                  position: index + 1,
-                })),
-                odds: (detailedResult as any)?.odds || {},
-              } as RaceResult,
-            } as EventResult
-          }),
-        )
-
-        setRootContext((prev) => ({
-          ...prev,
-          upcomingEvents: [
-            ...(prev.upcomingEvents?.filter(
-              (event) => event.discipline !== Discipline.HORSES,
-            ) || []),
-            ...upcomingHorseEvents,
-          ],
-          eventResults: [
-            ...(prev.eventResults?.filter(
-              (e) => e.discipline !== Discipline.HORSES,
-            ) || []),
-            ...horseEventResults,
-          ],
-        }))
-
-        // Salva in cache
-        saveToCache(CACHE_KEYS.HORSES_EVENTS, upcomingHorseEvents)
-        saveToCache(CACHE_KEYS.HORSES_RESULTS, horseEventResults)
-        localStorage.setItem(
-          CACHE_KEYS.LAST_HORSES_FETCH_TIME,
-          Date.now().toString(),
-        )
-      } catch (error) {
-        console.error('Horse events fetch error:', error)
-      }
-    }
-
-    const fetchUpcomingDogEvents = async () => {
-      // Controlla cache prima di fare la chiamata
-      if (isCacheValid(CACHE_KEYS.LAST_DOGS_FETCH_TIME)) {
-        return
-      }
-
-      try {
-        const response = await pgVirtualFetch('/api/event/list')
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch dog events: ${response.status}`)
-        }
-
-        const dogEvents = await response.json()
-        const dogChannel = dogEvents.channels?.[0]
-
-        if (!dogChannel?.next_events) {
-          debugLog('ERROR', 'Invalid dog channel data')
-          return
-        }
-
-        const upcomingDogEvents: UpcomingEvent[] = dogChannel.next_events.map(
-          (event: any, index: number): UpcomingEvent => {
-            const startTime = new Date(event.time)
-            const [hours, minutes] = event.start_time.split(':')
-            startTime.setHours(parseInt(hours, 10), parseInt(minutes, 10))
-
-            return {
+          const events: UpcomingEvent[] = channel.next_events.map(
+            (event: any, index: number): UpcomingEvent => ({
               id: parseInt(event.int_event_id),
               extId: event.ext_pal_id,
-              duration: dogChannel.duration?.[index],
-              discipline: Discipline.DOGS,
-              name: 'Dog Race',
+              duration: channel.duration?.[index],
+              discipline: item.discipline,
+              name: item.name,
               startTime: event.start_time,
-              time: startTime,
-            }
-          },
-        )
+              time: resolveEventStartTime(event, fetchedAt),
+            }),
+          )
 
-        const dogEventResults: EventResult[] = await Promise.all(
-          (dogChannel.prev_events || []).map(async (event: any) => {
-            const startTime = new Date(event.time)
+          const previous = sortPreviousResults(channel.prev_events)
 
-            let detailedResult = null
-            try {
-              const res = await pgVirtualFetch(
-                `/api/event/results/${event.ext_pal_id}/${event.int_event_id}`,
-              )
-              if (res.ok) detailedResult = await res.json()
-            } catch (error) {
-              console.warn('Failed to fetch detailed result:', error)
-            }
+          setRootContext((prev) => ({
+            ...prev,
+            upcomingEvents: [
+              ...(prev.upcomingEvents?.filter(
+                (event) => event.discipline !== item.discipline,
+              ) || []),
+              ...events,
+            ],
+            previousResults: {
+              ...prev.previousResults,
+              [item.discipline]: previous,
+            },
+          }))
 
-            return {
-              id: event.int_event_id,
-              extId: event.ext_pal_id,
-              name: `Dog Race ${event.int_event_id}`,
-              startTime,
-              time: event.time,
-              discipline: Discipline.DOGS,
-              result: {
-                podium: event.arrival.map((dog: any, index: number) => ({
-                  name: dog.name,
-                  number: dog.number,
-                  position: index + 1,
-                })),
-                odds: (detailedResult as any)?.odds || {},
-              } as RaceResult,
-            } as EventResult
-          }),
-        )
-
-        setRootContext((prev) => ({
-          ...prev,
-          upcomingEvents: [
-            ...(prev.upcomingEvents?.filter(
-              (event) => event.discipline !== Discipline.DOGS,
-            ) || []),
-            ...upcomingDogEvents,
-          ],
-          eventResults: [
-            ...(prev.eventResults?.filter(
-              (e) => e.discipline !== Discipline.DOGS,
-            ) || []),
-            ...dogEventResults,
-          ],
-        }))
-
-        // Salva in cache
-        saveToCache(CACHE_KEYS.DOGS_EVENTS, upcomingDogEvents)
-        saveToCache(CACHE_KEYS.DOGS_RESULTS, dogEventResults)
-        localStorage.setItem(
-          CACHE_KEYS.LAST_DOGS_FETCH_TIME,
-          Date.now().toString(),
-        )
+          saveToCache(item.eventsKey, events)
+          saveToCache(item.resultsKey, previous)
+          localStorage.setItem(item.fetchKey, fetchedAt.toString())
+        }
       } catch (error) {
-        console.error('Dog events fetch error:', error)
+        console.error('Racing events fetch error:', error)
       }
     }
 
@@ -926,23 +890,22 @@ export default function RootContextProvider(props: {
     loadCachedSoccerEvents()
     loadCachedRacingEvents()
 
-    // Poi fa le chiamate API (che verranno saltate se cache è valida)
+    // Poi fa le chiamate API (saltate se i dati sono ancora freschi)
     fetchUpcomingRounds()
-    fetchUpcomingHorseEvents()
-    fetchUpcomingDogEvents()
+    fetchRacingEvents()
 
-    // Refresh automatico ogni 5 minuti
-    const refreshInterval = setInterval(
-      () => {
-        fetchUpcomingRounds()
-        fetchUpcomingHorseEvents()
-        fetchUpcomingDogEvents()
-      },
-      3 * 60 * 1000, // 5 minuti
+    // Corse: aggiornamento frequente, così l'orario di partenza resta
+    // allineato a `since` del server e le nuove corse compaiono subito
+    const racingInterval = setInterval(
+      () => fetchRacingEvents(true),
+      RACING_REFRESH_MS,
     )
+    // Calcio: ogni 3 minuti (saltato se la cache ha meno di 5 minuti)
+    const soccerInterval = setInterval(fetchUpcomingRounds, 3 * 60 * 1000)
 
     return () => {
-      clearInterval(refreshInterval)
+      clearInterval(racingInterval)
+      clearInterval(soccerInterval)
     }
   }, [
     initCode,
@@ -958,9 +921,12 @@ export default function RootContextProvider(props: {
     CACHE_KEYS.LAST_DOGS_FETCH_TIME,
     CACHE_KEYS.SOCCER_EVENTS,
     CACHE_KEYS.HORSES_EVENTS,
-    CACHE_KEYS.HORSES_RESULTS,
+    CACHE_KEYS.HORSES_PREV_RESULTS,
     CACHE_KEYS.DOGS_EVENTS,
-    CACHE_KEYS.DOGS_RESULTS,
+    CACHE_KEYS.DOGS_PREV_RESULTS,
+    CACHE_KEYS.LAST_DOGS8_FETCH_TIME,
+    CACHE_KEYS.DOGS8_EVENTS,
+    CACHE_KEYS.DOGS8_PREV_RESULTS,
   ])
 
   // Cleanup periodico degli eventi passati

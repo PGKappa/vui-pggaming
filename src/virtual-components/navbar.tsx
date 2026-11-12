@@ -1,9 +1,57 @@
+import { RootContext } from '@/virtual-contexts/root-context'
+import { Discipline } from '@/virtual-lib/types'
 import { cn } from '@/virtual-lib/utils'
 import { t } from 'i18next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
-import { Suspense } from 'react'
+import { Suspense, useContext, useEffect, useState } from 'react'
+
+// Conto alla rovescia (MM:SS) verso l'evento più vicino della disciplina,
+// nello stesso formato del carosello eventi (useTimeLeft)
+function formatTimeLeft(ms: number) {
+  const totalSeconds = Math.floor(ms / 1000)
+  const minutes = Math.floor(totalSeconds / 60)
+  const seconds = totalSeconds % 60
+  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+}
+
+function NextEventTimer({ discipline }: { discipline: Discipline }) {
+  const { upcomingEvents, upcomingRounds } = useContext(RootContext)
+  const [timeLeft, setTimeLeft] = useState<string>()
+
+  useEffect(() => {
+    const update = () => {
+      const now = Date.now()
+      const times =
+        discipline === Discipline.FOOTBALL
+          ? (upcomingRounds ?? []).map((round) =>
+              new Date(round.mag_event?.[0]?.startTime ?? NaN).getTime(),
+            )
+          : (upcomingEvents ?? [])
+              .filter((event) => event.discipline === discipline)
+              .map((event) => new Date(event.time).getTime())
+      const next = Math.min(
+        ...times.filter((time) => Number.isFinite(time) && time > now),
+      )
+      setTimeLeft(
+        Number.isFinite(next) ? formatTimeLeft(next - now) : undefined,
+      )
+    }
+
+    update()
+    const intervalId = setInterval(update, 1000)
+    return () => clearInterval(intervalId)
+  }, [discipline, upcomingEvents, upcomingRounds])
+
+  if (!timeLeft) return null
+
+  return (
+    <span className="min-w-[56px] rounded-sm bg-white px-2 py-0.5 text-center text-sm font-bold tabular-nums text-black">
+      {timeLeft}
+    </span>
+  )
+}
 
 function NavbarContent() {
   const searchParams = useSearchParams()
@@ -20,8 +68,11 @@ function NavbarContent() {
   if (betTemplate) queryParams.set('bet', betTemplate)
   const queryString = queryParams.toString() ? `?${queryParams.toString()}` : ''
 
+  // confronto esatto sul percorso: '/virtual/dogs' non deve risultare attivo
+  // su '/virtual/dogs8'
   const isActive = (path: string) => {
-    return pathname.includes(path)
+    const current = pathname.replace(/\/+$/, '')
+    return current === path || current.startsWith(`${path}/`)
   }
 
   const tabClass = (path: string) =>
@@ -47,7 +98,30 @@ function NavbarContent() {
           className="size-7 object-contain"
           priority
         />
-        <span>{t('dogs')}</span>
+        <span>{t('greyhounds')}</span>
+        {/* il timer serve solo sulle discipline non selezionate */}
+        {!isActive('/virtual/dogs') && (
+          <NextEventTimer discipline={Discipline.DOGS} />
+        )}
+      </Link>
+
+      <Link
+        href={`/virtual/dogs8${queryString}`}
+        className={tabClass('/virtual/dogs8')}
+        prefetch={false}
+      >
+        <Image
+          src="/dog.png"
+          alt="Dogs 8"
+          width={60}
+          height={33}
+          className="size-7 object-contain"
+        />
+        <span>{t('greyhounds')} 8</span>
+        {/* il timer serve solo sulle discipline non selezionate */}
+        {!isActive('/virtual/dogs8') && (
+          <NextEventTimer discipline={Discipline.DOGS8} />
+        )}
       </Link>
 
       <Link
@@ -64,6 +138,10 @@ function NavbarContent() {
           priority
         />
         <span>{t('horses')}</span>
+        {/* il timer serve solo sulle discipline non selezionate */}
+        {!isActive('/virtual/horses') && (
+          <NextEventTimer discipline={Discipline.HORSES} />
+        )}
       </Link>
 
       <Link
@@ -79,6 +157,10 @@ function NavbarContent() {
           className="size-7 object-contain brightness-0 invert"
         />
         <span>{t('football')}</span>
+        {/* il timer serve solo sulle discipline non selezionate */}
+        {!isActive('/virtual/calcio') && (
+          <NextEventTimer discipline={Discipline.FOOTBALL} />
+        )}
       </Link>
     </nav>
   )
@@ -91,7 +173,13 @@ export default function Navbar() {
         <nav className="flex w-full flex-row gap-2 bg-navbarBg p-2 text-navbarBg-foreground">
           <div className="flex h-11 w-full flex-row items-center justify-center gap-2 px-2">
             <div className="h-5 w-10 animate-pulse rounded bg-white/20" />
-            <span className="text-sm font-semibold uppercase">{t('dogs')}</span>
+            <span className="text-sm font-semibold uppercase">{t('greyhounds')}</span>
+          </div>
+          <div className="flex h-11 w-full flex-row items-center justify-center gap-2 px-2">
+            <div className="h-5 w-10 animate-pulse rounded bg-white/20" />
+            <span className="text-sm font-semibold uppercase">
+              {t('greyhounds')} 8
+            </span>
           </div>
           <div className="flex h-11 w-full flex-row items-center justify-center gap-2 px-2">
             <div className="h-6 w-10 animate-pulse rounded bg-white/20" />

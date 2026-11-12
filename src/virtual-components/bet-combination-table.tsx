@@ -297,16 +297,20 @@ export default function BetCombinationsTable({
     }
   }
 
+  // Nome del mercato salvato nella giocata: sempre in inglese, come gli altri
+  // mercati del web. La schedina lo traduce solo a schermo (event-bets) e il
+  // ticket lo converte nel codice API (getAPIMarketName): un nome tradotto
+  // ("Accoppiata in Ordine", "Box. Trifecta") arriverebbe al backend così com'è.
   const getMarketName = () => {
     switch (marketType) {
       case 'exacta':
-        return `${t('exacta')}`
+        return 'Exacta'
       case 'quinella':
-        return `${t('quinella')}`
+        return 'Quinella'
       case 'trifecta':
-        return `${t('trifecta')}`
+        return 'Trifecta'
       case 'boxtrifecta':
-        return `${t('boxed_trifecta')}`
+        return 'Box Trifecta'
       default:
         return ''
     }
@@ -315,6 +319,7 @@ export default function BetCombinationsTable({
   const marketName = getMarketName()
 
   const allBetsSelected = useMemo(() => {
+    if (combinations.length === 0) return false
     return combinations.every((bet) =>
       betEntries.find(
         (entry) =>

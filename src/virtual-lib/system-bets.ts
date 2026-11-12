@@ -1,185 +1,95 @@
-import { BetEntry, SystemGroup } from './types'
-import { t } from 'i18next'
+import { generateSystemGroups as generateRetailSystemGroups } from '@/retail-lib/system-bets'
+import type {
+  BetEntry as RetailBetEntry,
+  SystemGroup as RetailSystemGroup,
+} from '@/retail-lib/types'
+import { normalizeMarketName } from '@/retail-lib/utils'
+import { BetEntry, Discipline, SystemGroup } from './types'
 
-export function getCombinations(
+// Soglia under/over delle corse virtual: il mercato arriva come "Under/Over"
+// senza numero, ma il calcolo vincite ne ha bisogno (cani a 8: 4.5, come la
+// cassa; corse a 6: 3.5)
+const underOverThreshold = (entry: BetEntry) =>
+  entry.bet.discipline === Discipline.DOGS8 ? '4.5' : '3.5'
+
+/**
+ * Gruppi del sistema calcolati con la stessa logica del retail: chiave evento
+ * disciplina+numero, fisse, più selezioni sullo stesso evento (vincita min/max
+ * sulle combinazioni che possono vincere insieme) e limiti da cashier_init.
+ * Le combinazioni restituite contengono le BetEntry originali del virtual.
+ */
+export function generateSystemGroups(
   entries: BetEntry[],
-  comboSize: number,
-  fixed: BetEntry[] = [],
-): BetEntry[][] {
-  const result: BetEntry[][] = []
+  limits?: {
+    maxSelections?: number
+    maxEvents?: number
+    fieldSizeByEvent?: Record<string, number>
+  },
+): SystemGroup[] {
+  const originalsById = new Map(entries.map((entry) => [entry.id, entry]))
 
-  const eventKey = (e: BetEntry) => e.bet.event.number.toString()
-
-  const fixedGroups: Record<string, BetEntry[]> = {}
-  fixed.forEach((f) => {
-    const key = eventKey(f)
-    if (!fixedGroups[key]) {
-      fixedGroups[key] = []
-    }
-    fixedGroups[key].push(f)
+  const retailEntries = entries.map((entry) => {
+    const market =
+      normalizeMarketName(entry.market) === 'underover'
+        ? `${entry.market} ${underOverThreshold(entry)}`
+        : entry.market
+    return { ...entry, market } as unknown as RetailBetEntry
   })
-  const fixedEventKeys = Object.keys(fixedGroups)
 
-  const fixedCombos: BetEntry[][] = []
-  const buildFixedCombo = (idx: number, path: BetEntry[]) => {
-    if (idx === fixedEventKeys.length) {
-      fixedCombos.push([...path])
-      return
-    }
-    const groupKey = fixedEventKeys[idx]
-    for (const option of fixedGroups[groupKey]) {
-      path.push(option)
-      buildFixedCombo(idx + 1, path)
-      path.pop()
-    }
-  }
-  buildFixedCombo(0, [])
+  const toVirtual = (combos?: RetailBetEntry[][]): BetEntry[][] | undefined =>
+    combos?.map((combo) =>
+      combo.map((entry) => originalsById.get(entry.id) as BetEntry),
+    )
 
-  const nonFixed = entries.filter((e) => !fixedGroups[eventKey(e)])
-
-  const chooseRest = (
-    needed: number,
-    pool: BetEntry[],
-    usedEvents: Set<string>,
-    sink: BetEntry[][],
-  ) => {
-    if (needed === 0) {
-      sink.push([])
-      return
-    }
-    if (needed > pool.length) return
-
-    const stack: {
-      startIdx: number
-      path: BetEntry[]
-      used: Set<string>
-      remaining: number
-    }[] = [
-      { startIdx: 0, path: [], used: new Set(usedEvents), remaining: needed },
-    ]
-
-    while (stack.length > 0) {
-      const { startIdx, path, used, remaining } = stack.pop()!
-
-      if (remaining === 0) {
-        sink.push([...path])
-        continue
-      }
-
-      if (startIdx >= pool.length || remaining > pool.length - startIdx)
-        continue
-
-      for (let i = startIdx; i < pool.length; i++) {
-        const item = pool[i]
-        const key = eventKey(item)
-        if (used.has(key)) continue
-
-        const newUsed = new Set(used)
-        newUsed.add(key)
-        const newPath = [...path, item]
-
-        stack.push({
-          startIdx: i + 1,
-          path: newPath,
-          used: newUsed,
-          remaining: remaining - 1,
-        })
-      }
-    }
-  }
-
-  for (const fc of fixedCombos) {
-    const used = new Set<string>(fc.map(eventKey))
-    const remainingNeeded = comboSize - fc.length
-    if (remainingNeeded < 0) continue
-    if (remainingNeeded === 0) {
-      result.push(fc)
-      continue
-    }
-    const restCombos: BetEntry[][] = []
-    chooseRest(remainingNeeded, nonFixed, used, restCombos)
-    for (const rc of restCombos) {
-      result.push([...fc, ...rc])
-    }
-  }
-
-  return result
+  return generateRetailSystemGroups(retailEntries, limits).map(
+    (group: RetailSystemGroup) => ({
+      ...group,
+      combinations: toVirtual(group.combinations) ?? [],
+      minWinAssignedCombinations: toVirtual(group.minWinAssignedCombinations),
+      maxWinAssignedCombinations: toVirtual(group.maxWinAssignedCombinations),
+    }),
+  )
 }
 
-export function generateSystemGroups(entries: BetEntry[]): SystemGroup[] {
-  const groups: SystemGroup[] = []
-
-  if (entries.length > 50) {
-    console.warn(
-      'Too many bet entries for system groups generation:',
-      entries.length,
-    )
-    return groups
+/**
+ * Vincita minima e massima di un gruppo, con ogni combinazione arrotondata al
+ * centesimo (come il retail).
+ */
+export function computeGroupWinRounded(group: SystemGroup): {
+  minWin: number
+  maxWin: number
+} {
+  if (group.stake <= 0 || group.combinations.length === 0) {
+    return { minWin: 0, maxWin: 0 }
   }
 
-  const eventsSet = new Set<string>()
-  entries.forEach((entry) => {
-    const eventKey = entry.bet.event.number.toString()
-    eventsSet.add(eventKey)
-  })
-  const eventsNumber = eventsSet.size
-
-  if (eventsNumber > 15) {
-    console.warn('Too many events for system groups generation:', eventsNumber)
-    return groups
+  const comboWin = (combo: BetEntry[]) => {
+    const odds = combo.reduce(
+      (acc, entry) => acc * entry.bet.option.decPrice,
+      1,
+    )
+    return Math.round(odds * group.stake * 100) / 100
   }
 
-  const nonFixedEntries: BetEntry[] = []
-  const fixedEntries: BetEntry[] = []
+  const maxCombos = group.maxWinAssignedCombinations ?? group.combinations
+  const maxWin = maxCombos.reduce((acc, combo) => acc + comboWin(combo), 0)
 
-  entries.forEach((entry) => {
-    if (entry.fixed) {
-      fixedEntries.push(entry)
-    } else {
-      nonFixedEntries.push(entry)
-    }
-  })
-
-  for (let size = 1; size <= eventsNumber; size++) {
-    const combos = getCombinations(nonFixedEntries, size, fixedEntries)
-    if (combos.length === 0) continue
-    const minWin = Math.min(
-      ...combos.map((combo) =>
-        combo.reduce((acc, entry) => acc * entry.bet.option.decPrice, 1),
-      ),
-    )
-    const maxWin = combos.reduce(
-      (acc, combo) =>
-        acc + combo.reduce((acc, entry) => acc * entry.bet.option.decPrice, 1),
+  let minWin: number
+  if (group.minWinAssignedCombinations !== undefined) {
+    minWin = group.minWinAssignedCombinations.reduce(
+      (acc, combo) => acc + comboWin(combo),
       0,
     )
-
-    let name = ''
-
-    switch (size) {
-      case 1:
-        name = t('single')
-        break
-      case 2:
-        name = t('double')
-        break
-      case 3:
-        name = t('triple')
-        break
-      default:
-        name = `${size}${t('-ple')}`
-        break
-    }
-
-    groups.push({
-      name,
-      size,
-      combinations: combos,
-      stake: 0,
-      minWin,
-      maxWin,
-    })
+  } else {
+    minWin = group.combinations.reduce(
+      (min, combo) => Math.min(min, comboWin(combo)),
+      Infinity,
+    )
+    if (minWin === Infinity) minWin = 0
   }
 
-  return groups
+  return {
+    minWin: Math.round(minWin * 100) / 100,
+    maxWin: Math.round(maxWin * 100) / 100,
+  }
 }

@@ -7,7 +7,11 @@ import { Separator } from '@/virtual-components/ui/separator'
 import { BetsContext } from '@/virtual-contexts/bets-context'
 import { RootContext } from '@/virtual-contexts/root-context'
 import { distributeExactStake } from '@/retail-lib/system-bets'
-import { generateSystemGroups } from '@/virtual-lib/system-bets'
+import { getBettingLimits } from '@/virtual-lib/betting-limits'
+import {
+  computeGroupWinRounded,
+  generateSystemGroups,
+} from '@/virtual-lib/system-bets'
 import { BetEntry, Discipline, SubmittedTicket } from '@/virtual-lib/types'
 import { extractTicketId, storeTicketId } from '@/virtual-lib/ticket-history'
 import { useBetTemplate } from '@/virtual-lib/use-bet-template'
@@ -36,6 +40,7 @@ export default function BettingSlip() {
   const {
     betEntries,
     betsByEvent,
+    betMode,
     isSystemToggleEnabled,
     systemToggleMode,
     setSystemToggleMode,
@@ -48,13 +53,30 @@ export default function BettingSlip() {
   // Ottieni simbolo valuta dal context
   const currencySymbol = rootContext?.getCurrencySymbol?.() || '€'
 
+  // Limiti di gioco da cashier_init (stesse chiavi e default del retail)
+  const {
+    minStake,
+    minBet,
+    maxWin,
+    minStakeIncrement,
+    systemStakeIncrement,
+    maxEvents,
+    maxSelections,
+    maxCombinations,
+  } = getBettingLimits(rootContext?.cashierData)
+
   // template betslip (standard | noIncrement) come sul retail, da ?bet=
   const { template: betTemplate } = useBetTemplate()
 
-  const totalOdds = betEntries.reduce(
-    (total, betEntry) => total * betEntry.bet.option.decPrice,
-    betEntries.length > 0 ? 1 : 0,
-  )
+  const totalOdds =
+    betEntries.length > 0
+      ? Math.round(
+          betEntries.reduce(
+            (total, betEntry) => total * betEntry.bet.option.decPrice,
+            1,
+          ) * 100,
+        ) / 100
+      : 0
 
   const [global, setGlobal] = useState(0)
   const potentialWinning = global * totalOdds
@@ -82,37 +104,16 @@ export default function BettingSlip() {
     setPrintFunctionName(funcName)
   }, [])
 
-  // Determina la modalità effettiva basata sul toggle
-  const effectiveMode = useMemo(() => {
-    // Caso 1: Una sola scommessa o meno -> SINGLE
-    if (betEntries.length <= 1) return 'SINGLE'
-
-    // Caso 2: Più eventi E almeno un evento ha 2+ bet -> SYSTEM obbligatorio
-    const eventGroups = Object.values(betsByEvent)
-    const hasEventWithMultipleBets = eventGroups.some(
-      (group) => group.length > 1,
-    )
-    const hasMultipleEvents = Object.keys(betsByEvent).length > 1
-
-    if (hasMultipleEvents && hasEventWithMultipleBets) {
-      return 'SYSTEM' // SYSTEM obbligatorio, no toggle
-    }
-
-    // Caso 3: Toggle abilitato -> usa la selezione dell'utente
-    if (isSystemToggleEnabled) {
-      return systemToggleMode === 'system' ? 'SYSTEM' : 'MULTIPLE'
-    }
-
-    // Caso 4: Default -> MULTIPLE (più bet, ma non condizioni per SYSTEM)
-    return 'MULTIPLE'
-  }, [betEntries.length, betsByEvent, isSystemToggleEnabled, systemToggleMode])
+  // La modalità arriva dal contesto (stessa regola del retail): più selezioni
+  // sullo stesso evento -> SYSTEM, anche con un solo evento
+  const effectiveMode = betMode
 
   const baseSystemGroups = useMemo(() => {
     if (effectiveMode !== 'SYSTEM') {
       return []
     }
-    return generateSystemGroups(betEntries)
-  }, [betEntries, effectiveMode])
+    return generateSystemGroups(betEntries, { maxSelections, maxEvents })
+  }, [betEntries, effectiveMode, maxSelections, maxEvents])
 
   // Combina i gruppi base con le puntate inserite dall'utente
   const systemGroups = useMemo(() => {
@@ -122,41 +123,34 @@ export default function BettingSlip() {
     }))
   }, [baseSystemGroups, systemGroupStakes])
 
-  // importo totale giocato e vincite min/max del sistema
-  const systemTotalPlayed = systemGroups.reduce(
-    (sum, group) => sum + group.stake * group.combinations.length,
+  const activeSystemGroups = systemGroups.filter((group) => group.stake > 0)
+
+  // importo totale giocato e vincite min/max del sistema (ogni combinazione
+  // arrotondata al centesimo, fisse e stesso evento come sul retail)
+  const systemTotalPlayed =
+    Math.round(
+      activeSystemGroups.reduce(
+        (sum, group) => sum + group.stake * group.combinations.length,
+        0,
+      ) * 100,
+    ) / 100
+  const systemCombinationsCount = activeSystemGroups.reduce(
+    (sum, group) => sum + group.combinations.length,
     0,
   )
   const systemMinWin = (() => {
-    const mins = systemGroups
-      .filter((group) => group.stake > 0)
-      .map((group) => group.minWin * group.stake)
+    const mins = activeSystemGroups
+      .map((group) => computeGroupWinRounded(group).minWin)
       .filter((value) => value > 0)
     return mins.length > 0 ? Math.min(...mins) : 0
   })()
-  const systemMaxWin = systemGroups
-    .filter((group) => group.stake > 0)
-    .reduce((sum, group) => sum + group.maxWin * group.stake, 0)
-
-  // Calcola i totali per la modalità SYSTEM
-  /* const systemTotals = useMemo(() => {
-    const totalStake = systemGroups.reduce((sum, group) => sum + group.stake, 0)
-    const minWin = systemGroups.reduce((sum, group) => {
-      if (group.stake === 0) return sum
-      return sum + group.minWin * group.stake
-    }, 0)
-    const maxWin = systemGroups.reduce((sum, group) => {
-      if (group.stake === 0) return sum
-      return sum + group.maxWin * group.stake
-    }, 0)
-
-    const totalOdds = systemGroups.reduce((sum, group) => {
-      if (group.stake === 0) return sum
-      return sum + ((group.minWin + group.maxWin) / 2) * group.stake
-    }, 0)
-
-    return { totalStake, minWin, maxWin, totalOdds }
-  }, [systemGroups]) */
+  const systemMaxWin =
+    Math.round(
+      activeSystemGroups.reduce(
+        (sum, group) => sum + computeGroupWinRounded(group).maxWin,
+        0,
+      ) * 100,
+    ) / 100
 
   // Funzione per calcolare il type basato sulle discipline nel ticket
   const getTicketType = (entries: BetEntry[]): string => {
@@ -166,10 +160,13 @@ export default function BettingSlip() {
       return 'football'
     }
 
-    const hasDogs = disciplines.has(Discipline.DOGS)
+    const hasDogs =
+      disciplines.has(Discipline.DOGS) || disciplines.has(Discipline.DOGS8)
     const hasHorses = disciplines.has(Discipline.HORSES)
 
-    if (hasDogs) {
+    if (hasDogs && hasHorses) {
+      return 'dogs-horses'
+    } else if (hasDogs) {
       return 'dogs'
     } else if (hasHorses) {
       return 'horses'
@@ -229,27 +226,130 @@ export default function BettingSlip() {
     return API_MARKET_NAMES[normalized] || normalized
   }
 
-  const handleSubmitTicket = async () => {
+  // Controlla che un importo sia multiplo del passo minimo
+  const isMultipleOf = (value: number, step: number) => {
+    if (step <= 0) return true
+    return Math.abs(value - Math.round(value / step) * step) <= 0.0001
+  }
+
+  // Errori del backend che indicano evento partito / mercato chiuso
+  const isEventStartedError = (message: string) => {
+    const lower = message.toLowerCase()
+    return [
+      'event started',
+      'event_started',
+      'market closed',
+      'not available',
+      'odds not found',
+      'event is closed',
+      'event closed',
+    ].some((text) => lower.includes(text))
+  }
+
+  // Validazioni prima dell'invio (stessi controlli e limiti del retail)
+  const validateTicket = (): boolean => {
+    if (!rootContext?.initCode) {
+      toast.error(t('login_required'))
+      return false
+    }
+    if (rootContext?.cashierData?.ret_code !== 1024) {
+      toast.error(t('cashier_not_initialized'))
+      return false
+    }
     if (betEntries.length === 0) {
       toast.error(t('no_bet_selected'))
-      return
+      return false
     }
 
-    if (effectiveMode !== 'SYSTEM' && global <= 0) {
-      toast.error(t('enter_valid_amount'))
-      return
-    }
-
-    if (effectiveMode === 'SYSTEM') {
-      const totalSystemStake = systemGroups.reduce(
-        (sum, group) => sum + group.stake,
-        0,
-      )
-      if (totalSystemStake <= 0) {
-        toast.error(t('enter_system_amount'))
-        return
+    const expiredCount = betEntries.filter(
+      (entry) => new Date(entry.bet.event.startingAt) <= new Date(),
+    ).length
+    if (expiredCount > 0) {
+      if (expiredCount === betEntries.length) {
+        toast.warning(t('event_started_single'))
+      } else {
+        toast.warning(
+          expiredCount > 1
+            ? t('event_started_removed_plural', { count: expiredCount })
+            : t('event_started_removed', { count: expiredCount }),
+        )
       }
+      return false
     }
+
+    if (betEntries.length > maxSelections) {
+      toast.error(t('max_selections_error', { max: maxSelections }))
+      return false
+    }
+
+    if (effectiveMode !== 'SYSTEM') {
+      if (!(global > 0)) {
+        toast.error(t('enter_valid_amount'))
+        return false
+      }
+      if (!isMultipleOf(global, minStakeIncrement)) {
+        toast.error(
+          t('stake_increment_error', { increment: minStakeIncrement }),
+        )
+        return false
+      }
+      if (Math.round(global * 100) < Math.round(minStake * 100)) {
+        toast.error(t('min_stake_error', { min: minStake }))
+        return false
+      }
+      if (minBet > 0 && global < minBet) {
+        toast.error(t('min_bet_error', { min: minBet }))
+        return false
+      }
+      if (potentialWinning > maxWin) {
+        toast.error(t('max_win_error', { max: maxWin }))
+        return false
+      }
+      return true
+    }
+
+    // SISTEMA
+    const eventsCount = Object.keys(betsByEvent).length
+    if (eventsCount > maxEvents) {
+      toast.error(t('max_events_system', { max: maxEvents }))
+      return false
+    }
+    if (activeSystemGroups.length === 0) {
+      toast.error(t('enter_system_amount'))
+      return false
+    }
+    if (systemCombinationsCount > maxCombinations) {
+      toast.error(t('max_combinations_error', { max: maxCombinations }))
+      return false
+    }
+    if (activeSystemGroups.some((group) => group.stake < minStake)) {
+      toast.error(t('min_stake_error', { min: minStake }))
+      return false
+    }
+    if (
+      !betTemplate.exactStakeDistribution &&
+      activeSystemGroups.some(
+        (group) => !isMultipleOf(group.stake, systemStakeIncrement),
+      )
+    ) {
+      toast.error(
+        t('stake_increment_error', { increment: systemStakeIncrement }),
+      )
+      return false
+    }
+    if (minBet > 0 && systemTotalPlayed < minBet) {
+      toast.error(t('min_bet_error', { min: minBet }))
+      return false
+    }
+    if (systemMaxWin > maxWin) {
+      toast.error(t('max_win_error', { max: maxWin }))
+      return false
+    }
+    return true
+  }
+
+  const handleSubmitTicket = async () => {
+    if (!validateTicket()) return
 
     setIsSubmitting(true)
 
@@ -281,28 +381,13 @@ export default function BettingSlip() {
                 apiMarketName === 'underover'
               ) {
                 const lowerOutcome = cleanOutcome.toLowerCase()
-                if (
-                  lowerOutcome === 'par' ||
-                  lowerOutcome === 'pari' ||
-                  lowerOutcome === 'even'
-                ) {
+                if (['par', 'pari', 'even'].includes(lowerOutcome)) {
                   cleanOutcome = 'even'
-                } else if (
-                  lowerOutcome === 'impar' ||
-                  lowerOutcome === 'dispari' ||
-                  lowerOutcome === 'odd'
-                ) {
+                } else if (['impar', 'dispari', 'odd'].includes(lowerOutcome)) {
                   cleanOutcome = 'odd'
-                } else if (
-                  lowerOutcome === 'menos' ||
-                  lowerOutcome === 'under'
-                ) {
+                } else if (['menos', 'under'].includes(lowerOutcome)) {
                   cleanOutcome = 'under'
-                } else if (
-                  lowerOutcome === 'más' ||
-                  lowerOutcome === 'mas' ||
-                  lowerOutcome === 'over'
-                ) {
+                } else if (['más', 'mas', 'over'].includes(lowerOutcome)) {
                   cleanOutcome = 'over'
                 } else {
                   cleanOutcome = lowerOutcome
@@ -311,7 +396,7 @@ export default function BettingSlip() {
 
               acc[apiMarketName].push({
                 description: cleanOutcome,
-                odds: entry.bet.option.decPrice.toString(),
+                odds: entry.bet.option.decPrice.toFixed(2),
                 status: 1,
               })
               return acc
@@ -334,19 +419,31 @@ export default function BettingSlip() {
               ? 'horses6'
               : firstEntry.bet.discipline === Discipline.DOGS
                 ? 'dogs6'
-                : 'soccer'
+                : firstEntry.bet.discipline === Discipline.DOGS8
+                  ? 'dogs8'
+                  : 'soccer'
           const channelId =
             firstEntry.bet.discipline === Discipline.HORSES
               ? 3
               : firstEntry.bet.discipline === Discipline.DOGS
                 ? 4
-                : 1
+                : firstEntry.bet.discipline === Discipline.DOGS8
+                  ? 5 // id del canale dogs8 in /api/event/list
+                  : 1
 
-          // Prendi palimpsestId dall'evento
+          // palimpsestId: dall'evento della giocata, poi dall'evento nel
+          // palinsesto caricato (id + disciplina), infine il default storico
           const eventAny = firstEntry.bet.event as any
+          const liveEvent = rootContext?.upcomingEvents?.find(
+            (event) =>
+              event.id === firstEntry.bet.event.number &&
+              event.discipline === firstEntry.bet.discipline,
+          ) as any
           const palimpsestId =
             eventAny.palimpsestId ||
             eventAny.extId ||
+            liveEvent?.extId ||
+            liveEvent?.palimpsestId ||
             (firstEntry.bet.discipline === Discipline.HORSES
               ? '1000003504'
               : '1000003502')
@@ -356,7 +453,7 @@ export default function BettingSlip() {
             channelId: channelId,
             palimpsestId: palimpsestId,
             eventId: eventId,
-            isBanker: false,
+            isBanker: entries.some((entry) => entry.fixed === true),
             markets: markets,
           }
         },
@@ -366,7 +463,8 @@ export default function BettingSlip() {
       const ticketType = getTicketType(betEntries)
       const ticketMode = getTicketMode(effectiveMode, betEntries)
 
-      // Prepara il payload nel formato esatto dell'API
+      // system: { dimensione: importo totale del gruppo } come sul retail.
+      // Per singola/multipla la dimensione è il numero di selezioni.
       const ticketData = {
         placeBet: {
           currency: rootContext?.getCurrencyCode?.() || 'USD',
@@ -375,14 +473,17 @@ export default function BettingSlip() {
           ...(effectiveMode === 'SYSTEM'
             ? {
                 system: Object.fromEntries(
-                  systemGroups
-                    .filter((group) => group.stake > 0)
-                    .map((group) => [group.size.toString(), group.stake]),
+                  activeSystemGroups.map((group) => [
+                    group.size.toString(),
+                    Math.round(group.stake * group.combinations.length * 100) /
+                      100,
+                  ]),
                 ),
               }
             : {
                 system: {
-                  '1': effectiveMode === 'SINGLE' ? global : global,
+                  [betEntries.length.toString()]:
+                    Math.round(global * 100) / 100,
                 },
               }),
           selections: selections,
@@ -404,14 +505,47 @@ export default function BettingSlip() {
       if (!response.ok) {
         const errorText = await response.text()
         console.error('API Error:', response.status, errorText)
-        throw new Error(`HTTP error! status: ${response.status}`)
+        let message = errorText
+        try {
+          const errorJson = JSON.parse(errorText)
+          message =
+            errorJson.ret_msg || errorJson.message || errorJson.error || ''
+        } catch {
+          /* risposta non JSON */
+        }
+        if (isEventStartedError(message)) {
+          toast.warning(t('backend_event_started'))
+        } else {
+          toast.error(message || t('bet_submission_error'))
+        }
+        return
       }
 
       const result = await response.json()
       console.log('Ticket submitted successfully:', result)
 
+      const retCode = parseInt(result.ret_code)
+      if (!isNaN(retCode) && retCode !== 1024) {
+        const message = result.description || result.ret_msg || ''
+        if (isEventStartedError(message)) {
+          toast.warning(t('backend_event_started'))
+        } else {
+          toast.error(message || t('bet_submission_error'))
+        }
+        return
+      }
+
       // Successo
       toast.success(t('bet_submitted_successfully'))
+
+      const playedAmount =
+        effectiveMode === 'SYSTEM'
+          ? systemTotalPlayed
+          : Math.round(global * 100) / 100
+      const potentialWin =
+        effectiveMode === 'SYSTEM'
+          ? systemMaxWin
+          : Math.round(potentialWinning * 100) / 100
 
       // Salva il codice ticket per "Le mie scommesse"
       const ticketId = extractTicketId(result)
@@ -441,17 +575,8 @@ export default function BettingSlip() {
       // Salva per storico
       const newTicket: SubmittedTicket = {
         date: new Date(),
-        amount:
-          effectiveMode === 'SYSTEM'
-            ? systemGroups.reduce((sum, group) => sum + group.stake, 0)
-            : global,
-        winning:
-          effectiveMode === 'SYSTEM'
-            ? systemGroups.reduce(
-                (sum, group) => sum + group.maxWin * group.stake,
-                0,
-              )
-            : potentialWinning,
+        amount: playedAmount,
+        winning: potentialWin,
         betEntries: betEntries,
       }
 
@@ -461,6 +586,7 @@ export default function BettingSlip() {
       removeAllBets()
       setGlobal(0)
       setSystemGroupStakes({})
+      setSystemDistributeStake(0)
     } catch (error) {
       console.error('Error submitting ticket:', error)
       toast.error(t('bet_submission_error'))
@@ -483,6 +609,10 @@ export default function BettingSlip() {
   const handleDistributeStake = () => {
     if (systemDistributeStake <= 0) {
       toast.error(t('enter_valid_amount'))
+      return
+    }
+    if (systemDistributeStake < minStake) {
+      toast.error(t('min_stake_error', { min: minStake }))
       return
     }
 
@@ -508,21 +638,89 @@ export default function BettingSlip() {
       return
     }
 
+    // Come il retail: puntata per combinazione multipla del passo minimo del
+    // sistema, il resto va ai gruppi con meno combinazioni
+    const step = systemStakeIncrement
     const totalCombinations = selectedGroupsList.reduce(
       (sum, group) => sum + group.combinations.length,
       0,
     )
+    const baseStake =
+      Math.floor(systemDistributeStake / totalCombinations / step) * step
+    let remaining = systemDistributeStake - baseStake * totalCombinations
 
-    const stakePerCombination = roundCents(
-      systemDistributeStake / totalCombinations,
-    )
-    const newStakes: Record<string, number> = {}
-
+    const stakes: Record<string, number> = {}
     for (const group of selectedGroupsList) {
-      newStakes[group.name] = stakePerCombination
+      stakes[group.name] = baseStake
     }
 
-    setSystemGroupStakes((prev) => ({ ...prev, ...newStakes }))
+    const groupsByPriority = [...selectedGroupsList].sort(
+      (a, b) => a.combinations.length - b.combinations.length,
+    )
+    for (let pass = 0; pass < 2 && remaining >= step; pass++) {
+      for (const group of groupsByPriority) {
+        if (remaining < step) break
+        const additional =
+          Math.floor(remaining / group.combinations.length / step) * step
+        if (additional >= step) {
+          stakes[group.name] += additional
+          remaining -= additional * group.combinations.length
+          remaining = Math.round(remaining / step) * step
+        }
+      }
+    }
+
+    const roundedStakes: Record<string, number> = {}
+    for (const [name, stake] of Object.entries(stakes)) {
+      roundedStakes[name] = roundCents(stake)
+    }
+    setSystemGroupStakes((prev) => ({ ...prev, ...roundedStakes }))
+
+    if (Object.values(roundedStakes).some((stake) => stake <= 0)) {
+      const difference = roundCents(
+        totalCombinations * minStake - systemDistributeStake,
+      )
+      if (difference > 0) {
+        toast.error(
+          t('min_stake_per_combination_not_met', {
+            amount: `${currencySymbol}${difference}`,
+          }),
+        )
+      }
+    }
+  }
+
+  // Importo totale del sistema inserito a mano: ripartito sulle combinazioni
+  // dei gruppi selezionati, oppure sul gruppo più grande (come il retail)
+  const handleSystemTotalInput = (value: number) => {
+    setSystemDistributeStake(Math.max(value, 0))
+    if (!(value > 0) || systemGroups.length === 0) {
+      setSystemGroupStakes({})
+      return
+    }
+
+    let targetGroups = systemGroups.filter(
+      (group) => selectedGroups[group.name],
+    )
+    if (targetGroups.length === 0) {
+      const largest = systemGroups.reduce((a, b) => (b.size > a.size ? b : a))
+      targetGroups = [largest]
+      setSelectedGroups({ [largest.name]: true })
+      setAllGroupsSelected(systemGroups.length === 1)
+    }
+
+    const totalCombinations = targetGroups.reduce(
+      (sum, group) => sum + group.combinations.length,
+      0,
+    )
+    const stakes: Record<string, number> = {}
+    systemGroups.forEach((group) => {
+      stakes[group.name] = 0
+    })
+    targetGroups.forEach((group) => {
+      stakes[group.name] = roundCents(value / totalCombinations)
+    })
+    setSystemGroupStakes(stakes)
   }
 
   // Funzione per aggiungere stake a tutti i gruppi selezionati
@@ -568,11 +766,7 @@ export default function BettingSlip() {
 
   // Controlla se siamo in modalità SYSTEM obbligatoria (almeno un evento con 2+ bet)
   const isSystemMandatory = useMemo(() => {
-    const eventGroups = Object.values(betsByEvent)
-    return (
-      eventGroups.some((group) => group.length > 1) &&
-      Object.keys(betsByEvent).length > 1
-    )
+    return Object.values(betsByEvent).some((group) => group.length > 1)
   }, [betsByEvent])
 
   // Layout ricalcato sulla betslip retail (altezze, spazi e larghezze fisse),
@@ -737,7 +931,9 @@ export default function BettingSlip() {
                       type="number"
                       value={global}
                       className="h-8 w-[174px] rounded-none border-0 border-x bg-white pl-6 pr-6 text-center text-[16px] tabular-nums text-black shadow-none focus-visible:ring-0"
-                      onChange={(e) => setGlobal(parseFloat(e.target.value))}
+                      onChange={(e) =>
+                        setGlobal(Math.max(parseFloat(e.target.value) || 0, 0))
+                      }
                     />
                     <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[13px] text-black">
                       {currencySymbol}
@@ -912,7 +1108,11 @@ export default function BettingSlip() {
                                           onClick={() =>
                                             updateSystemGroupStake(
                                               group.name,
-                                              Math.max(group.stake - 0.05, 0),
+                                              Math.max(
+                                                group.stake -
+                                                  systemStakeIncrement,
+                                                0,
+                                              ),
                                             )
                                           }
                                         >
@@ -949,7 +1149,8 @@ export default function BettingSlip() {
                                           onClick={() =>
                                             updateSystemGroupStake(
                                               group.name,
-                                              group.stake + 0.05,
+                                              group.stake +
+                                                systemStakeIncrement,
                                             )
                                           }
                                         >
@@ -989,9 +1190,9 @@ export default function BettingSlip() {
                                         {t('min_win')}
                                       </div>
                                       <div className="text-[13px] font-normal tabular-nums">
-                                        {(group.minWin * group.stake).toFixed(
-                                          2,
-                                        )}{' '}
+                                        {computeGroupWinRounded(
+                                          group,
+                                        ).minWin.toFixed(2)}{' '}
                                         {currencySymbol}
                                       </div>
                                     </div>
@@ -1000,9 +1201,9 @@ export default function BettingSlip() {
                                         {t('max_win')}
                                       </div>
                                       <div className="text-[13px] font-normal tabular-nums">
-                                        {(group.maxWin * group.stake).toFixed(
-                                          2,
-                                        )}{' '}
+                                        {computeGroupWinRounded(
+                                          group,
+                                        ).maxWin.toFixed(2)}{' '}
                                         {currencySymbol}
                                       </div>
                                     </div>
@@ -1061,9 +1262,7 @@ export default function BettingSlip() {
                       type="number"
                       value={systemDistributeStake}
                       onChange={(e) =>
-                        setSystemDistributeStake(
-                          parseFloat(e.target.value) || 0,
-                        )
+                        handleSystemTotalInput(parseFloat(e.target.value) || 0)
                       }
                       className="h-8 w-[220px] rounded-none border bg-white pl-6 pr-6 text-center text-[16px] tabular-nums text-black shadow-none focus-visible:ring-0"
                     />
@@ -1105,7 +1304,7 @@ export default function BettingSlip() {
                     {t('potential_win').toUpperCase()}
                   </span>
                   <span className="text-[17px] font-semibold tabular-nums">
-                    {systemDistributeStake.toFixed(2)} {currencySymbol}
+                    {systemMaxWin.toFixed(2)} {currencySymbol}
                   </span>
                 </div>
               )}

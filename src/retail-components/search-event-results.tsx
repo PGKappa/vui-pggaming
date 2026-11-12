@@ -4,7 +4,7 @@ import { getRacerColors, createPGVirtualAPICall } from '@/retail-lib/utils'
 import { format } from 'date-fns'
 import { t } from 'i18next'
 import Image from 'next/image'
-import { X } from 'lucide-react'
+import { ArrowLeft, X } from 'lucide-react'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -67,7 +67,12 @@ function getEventId(item: any): string {
   return String(item?.int_event_id ?? item?.event_id ?? item?.id ?? '')
 }
 
-export default function SearchEventResults() {
+export default function SearchEventResults({
+  onBack,
+}: {
+  /** se passato, mostra a sinistra della barra una freccia per tornare indietro (web) */
+  onBack?: () => void
+} = {}) {
   const { t } = useTranslation()
   const rootContext = useContext(RootContext)
   const initCode = rootContext.initCode
@@ -623,7 +628,22 @@ export default function SearchEventResults() {
 
   return (
     <div className="flex h-full flex-col space-y-1">
-      <div className="flex h-16 w-full min-w-0 flex-nowrap items-center space-x-2 overflow-hidden bg-accent px-[24px] min-[1400px]:px-[60px] min-[1600px]:px-[100px] min-[1750px]:px-[130px] min-[1920px]:px-[167px]">
+      <div
+        className={`relative flex h-16 w-full min-w-0 flex-nowrap items-center space-x-2 overflow-hidden bg-accent px-[24px] min-[1400px]:px-[60px] min-[1600px]:px-[100px] min-[1750px]:px-[130px] min-[1920px]:px-[167px] ${
+          onBack ? 'pl-14' : ''
+        }`}
+      >
+        {onBack && (
+          <button
+            type="button"
+            aria-label={t('back')}
+            title={t('back')}
+            onClick={onBack}
+            className="absolute left-2 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center text-accent-foreground transition-opacity hover:opacity-75"
+          >
+            <ArrowLeft className="size-6" />
+          </button>
+        )}
         {/* DISCIPLINA — larghezza fissa = "CARRERAS DE CABALLOS 6" */}
         <div className="mr-1 inline-grid shrink-0">
           <span

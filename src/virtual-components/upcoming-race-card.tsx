@@ -1,6 +1,10 @@
 import { BetsContext } from '@/virtual-contexts/bets-context'
-import { UpcomingEvent, UpcomingRace } from '@/virtual-lib/types'
-import { getOperatorFromUrl, getRacerColors } from '@/virtual-lib/utils'
+import { Discipline, UpcomingEvent, UpcomingRace } from '@/virtual-lib/types'
+import {
+  getOperatorFromUrl,
+  getRacerColors,
+  PGVIRTUAL_API_URL,
+} from '@/virtual-lib/utils'
 import { t } from 'i18next'
 import { useContext, useEffect, useState } from 'react'
 import BetCombinationsTable from './bet-combination-table'
@@ -29,6 +33,10 @@ export default function UpcomingRaceCard({
   race,
   onSelectionChange,
 }: UpcomingRaceCardProps) {
+  // cani a 8: circuito da 8 e under/over 4.5 (come la cassa)
+  const isDogs8 = race.discipline === Discipline.DOGS8
+  const trackSize = isDogs8 ? 8 : 6
+  const underOverLine = isDogs8 ? '4.5' : '3.5'
   const [raceInfo, setRaceInfo] = useState<UpcomingRace>()
   const [activeTab, setActiveTab] = useState<TabType>('main')
 
@@ -153,7 +161,7 @@ export default function UpcomingRaceCard({
       setIsLoading(true)
       try {
         const response = await fetch(
-          `https://api-btprod.pgvirtual.eu/api/event/info/${race.extId}/${race.id}`,
+          `${PGVIRTUAL_API_URL}/api/event/info/${race.extId}/${race.id}`,
           {
             headers: {
               accept: 'application/json',
@@ -424,7 +432,7 @@ export default function UpcomingRaceCard({
                     raceInfo?.odds?.winner?.[racer.number.toString()] || '0',
                   ),
                 },
-                track: `${t('track')} 6`,
+                track: `${t('track')} ${trackSize}`,
               }}
               variant="racecard"
               className="h-11 w-full max-w-[110px] text-md font-semibold tabular-nums"
@@ -449,7 +457,7 @@ export default function UpcomingRaceCard({
                     raceInfo?.odds?.placed?.[racer.number.toString()] || '0',
                   ),
                 },
-                track: `${t('track')} 6`,
+                track: `${t('track')} ${trackSize}`,
               }}
               variant="racecard"
               className="h-11 w-full max-w-[110px] text-md font-semibold tabular-nums"
@@ -475,7 +483,7 @@ export default function UpcomingRaceCard({
                     raceInfo?.odds?.show?.[racer.number.toString()] || '0',
                   ),
                 },
-                track: `${t('track')} 6`,
+                track: `${t('track')} ${trackSize}`,
               }}
               variant="racecard"
               className="h-11 w-full max-w-[110px] text-md font-semibold tabular-nums"
@@ -675,7 +683,7 @@ export default function UpcomingRaceCard({
                       outcome: 'even',
                       decPrice: parseFloat(raceInfo.odds.evenodd?.even || '0'),
                     },
-                    track: `${t('track')} 6`,
+                    track: `${t('track')} ${trackSize}`,
                   }}
                   variant="matchcard"
                   className="h-11 w-full text-md"
@@ -697,7 +705,7 @@ export default function UpcomingRaceCard({
                       outcome: 'odd',
                       decPrice: parseFloat(raceInfo.odds.evenodd?.odd || '0'),
                     },
-                    track: `${t('track')} 6`,
+                    track: `${t('track')} ${trackSize}`,
                   }}
                   variant="matchcard"
                   className="h-11 w-full text-md"
@@ -710,7 +718,7 @@ export default function UpcomingRaceCard({
           <div>
             <div className="bg-card-header text-card-header-foreground">
               <div className="flex h-11 items-center justify-center text-sm font-bold tracking-wide">
-                {t('under_over').toUpperCase()} 3.5
+                {t('under_over').toUpperCase()} {underOverLine}
               </div>
             </div>
 
@@ -732,7 +740,7 @@ export default function UpcomingRaceCard({
                         raceInfo.odds.underover?.under || '0',
                       ),
                     },
-                    track: `${t('track')} 6`,
+                    track: `${t('track')} ${trackSize}`,
                   }}
                   variant="matchcard"
                   className="h-11 w-full text-md"
@@ -756,7 +764,7 @@ export default function UpcomingRaceCard({
                         raceInfo.odds.underover?.over || '0',
                       ),
                     },
-                    track: `${t('track')} 6`,
+                    track: `${t('track')} ${trackSize}`,
                   }}
                   variant="matchcard"
                   className="h-11 w-full text-md"
@@ -788,6 +796,16 @@ export default function UpcomingRaceCard({
               </Button>
             ))}
           </div>
+          {/* ID della corsa selezionata, lo stesso mostrato nel video e negli
+              ultimi risultati (int_event_id = ext_event_id) */}
+          <div className="flex shrink-0 items-center gap-2 text-card-header-foreground">
+            <span className="text-xs font-semibold uppercase opacity-75">
+              ID
+            </span>
+            <span className="rounded-sm bg-white px-2 py-0.5 text-lg font-bold tabular-nums text-card-foreground">
+              {race.id}
+            </span>
+          </div>
         </CardHeader>
 
         <CardContent>
@@ -815,7 +833,7 @@ export default function UpcomingRaceCard({
                             style={
                               getRacerColors(
                                 racer.number,
-                                race.discipline as 'DOGS' | 'HORSES',
+                                race.discipline as 'DOGS' | 'DOGS8' | 'HORSES',
                               ).style
                             }
                           >

@@ -2,26 +2,70 @@ import { PreviousChannelResult } from '@/virtual-lib/types'
 import { getRacerColors } from '@/virtual-lib/utils'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { useTranslation } from 'react-i18next'
+import { ChevronDown } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 
 type PreviousResultsCardProps = {
-  results: PreviousChannelResult
-  discipline: 'DOGS' | 'HORSES'
+  /** undefined finché i dati non sono arrivati */
+  results?: PreviousChannelResult
+  discipline: 'DOGS' | 'DOGS8' | 'HORSES'
 }
 
 const GRID = '56px 52px 1fr'
+// risultati visibili senza scroll a pannello chiuso
+const VISIBLE_RESULTS = 7
 
 export default function PreviousResultsCard({
   results,
   discipline,
 }: PreviousResultsCardProps) {
   const { t } = useTranslation()
+  const [expanded, setExpanded] = useState(false)
+  const listRef = useRef<HTMLDivElement>(null)
+  const [rowHeight, setRowHeight] = useState<number>()
+  const canExpand = (results?.length ?? 0) > VISIBLE_RESULTS
+  const isOpen = expanded && canExpand
+  const visibleResults = isOpen ? results : results?.slice(0, VISIBLE_RESULTS)
+
+  // l'altezza della sezione è fissa (la decide il video): ogni riga occupa
+  // 1/7 dello spazio, così chiuso ne entrano 7 e aperto si scorre il resto
+  useEffect(() => {
+    const list = listRef.current
+    if (!list) return
+    const update = () =>
+      setRowHeight(Math.floor(list.clientHeight / VISIBLE_RESULTS) || undefined)
+    update()
+    const observer = new ResizeObserver(update)
+    observer.observe(list)
+    return () => observer.disconnect()
+  }, [])
+
+  // chiudendo si torna in cima, sugli ultimi 7
+  useEffect(() => {
+    if (!isOpen) listRef.current?.scrollTo({ top: 0 })
+  }, [isOpen])
 
   return (
     <Card className="flex h-full flex-col overflow-hidden shadow-sm">
-      <CardHeader className="h-12 shrink-0 justify-center space-y-0 px-3 py-0">
-        <CardTitle className="text-center text-md font-bold uppercase tracking-wide">
-          {t('latest_results')}
-        </CardTitle>
+      <CardHeader className="h-12 shrink-0 justify-center space-y-0 p-0">
+        <button
+          type="button"
+          disabled={!canExpand}
+          aria-expanded={isOpen}
+          onClick={() => setExpanded((open) => !open)}
+          className="relative flex h-full w-full items-center justify-center px-3 disabled:cursor-default"
+        >
+          <CardTitle className="text-center text-md font-bold uppercase tracking-wide">
+            {t('latest_results')}
+          </CardTitle>
+          {canExpand && (
+            <ChevronDown
+              className={`absolute right-3 size-5 transition-transform ${
+                isOpen ? 'rotate-180' : ''
+              }`}
+            />
+          )}
+        </button>
       </CardHeader>
       <CardContent className="flex min-h-0 flex-1 flex-col p-0">
         <div
@@ -33,14 +77,24 @@ export default function PreviousResultsCard({
           <span>{t('arrival')} 1°-2°-3°</span>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto">
-          {results.map((result, rowIdx) => (
+        <div
+          ref={listRef}
+          className={`flex min-h-0 flex-1 flex-col ${
+            isOpen ? 'thin-scrollbar overflow-y-auto' : 'overflow-hidden'
+          }`}
+        >
+          {!results || results.length === 0 ? (
+            <div className="flex h-full min-h-24 items-center justify-center px-3 text-center text-sm text-muted-foreground">
+              {results ? t('no_results_available') : `${t('loading')}...`}
+            </div>
+          ) : null}
+          {visibleResults?.map((result, rowIdx) => (
             <div
               key={`${result.ext_pal_id}-${result.ext_event_id}`}
-              className={`grid items-center border-b border-border px-2 py-2 ${
+              className={`grid shrink-0 items-center overflow-hidden border-b border-border px-2 py-0.5 ${
                 rowIdx % 2 === 1 ? 'bg-muted/50' : ''
               }`}
-              style={{ gridTemplateColumns: GRID }}
+              style={{ gridTemplateColumns: GRID, height: rowHeight }}
             >
               <div className="text-center text-sm font-bold tabular-nums">
                 {result.start_time}
@@ -52,10 +106,10 @@ export default function PreviousResultsCard({
                 {result.arrival.slice(0, 3).map((competitor, index) => (
                   <div
                     key={`${competitor.number}-${index}`}
-                    className="flex min-w-0 flex-col items-center gap-1"
+                    className="flex min-w-0 flex-col items-center gap-0.5"
                   >
                     <div
-                      className="flex h-7 w-7 items-center justify-center rounded-sm pt-0.5 text-lg font-bold leading-none tabular-nums"
+                      className="flex h-6 w-6 items-center justify-center rounded-sm pt-0.5 text-base font-bold tabular-nums leading-none"
                       style={
                         getRacerColors(competitor.number, discipline).style
                       }
@@ -63,7 +117,7 @@ export default function PreviousResultsCard({
                       {competitor.number}
                     </div>
                     <div
-                      className="w-full truncate text-center text-[11px]"
+                      className="w-full truncate text-center text-[11px] leading-tight"
                       title={competitor.name}
                     >
                       {competitor.name}

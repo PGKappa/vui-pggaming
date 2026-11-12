@@ -2,24 +2,26 @@
 import BettingSlip from '@/virtual-components/betting-slip'
 import BettingSlipSheet from '@/virtual-components/betting-slip-sheet'
 import LiveMatchInfo from '@/virtual-components/live-match-info'
-import MatchEndBadge from '@/virtual-components/match-end-badge'
 import { UpcomingEventsCarousel } from '@/virtual-components/upcoming-events-carousel'
 import UpcomingRaceCard from '@/virtual-components/upcoming-race-card'
 import VideoStreamCard from '@/virtual-components/video-stream-card'
 import PreviousResultsCard from '@/virtual-components/previous-results-card'
 import { RootContext } from '@/virtual-contexts/root-context'
 import { Discipline, UpcomingEvent } from '@/virtual-lib/types'
-import previousResultsMock from '@/virtual-lib/previous-results-mock.json'
+import useAutoAdvanceEvent from '@/virtual-lib/use-auto-advance-event'
 import { t } from 'i18next'
 import { useContext, useEffect, useMemo, useState } from 'react'
 
 export default function Home() {
-  const { upcomingEvents, liveRound } = useContext(RootContext)
+  const { upcomingEvents, liveRound, previousResults } = useContext(RootContext)
 
   // Filtra eventi per cani come in retail
   const dogEvents = useMemo(() => {
     return upcomingEvents?.filter((e) => e.discipline === Discipline.DOGS) || []
   }, [upcomingEvents])
+
+  // video e ultimi risultati, apribili/chiudibili dalla barra in alto
+  const [mediaOpen, setMediaOpen] = useState(false)
 
   const [selectedEvent, setSelectedEvent] = useState<
     UpcomingEvent | undefined
@@ -31,37 +33,8 @@ export default function Home() {
     }
   }, [dogEvents, selectedEvent])
 
-  // AUTO-AGGIORNAMENTO: seleziona automaticamente il prossimo evento quando quello corrente scade
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (selectedEvent) {
-        const now = new Date()
-        const eventTime =
-          selectedEvent.time instanceof Date
-            ? selectedEvent.time
-            : new Date(selectedEvent.time)
-
-        if (eventTime <= now) {
-          // Filtra eventi futuri
-          const futureEvents = dogEvents.filter((e) => {
-            const eTime = e.time instanceof Date ? e.time : new Date(e.time)
-            return eTime > now
-          })
-
-          if (futureEvents.length > 0) {
-            setSelectedEvent(futureEvents[0])
-          } else {
-            // Nessun evento futuro, prendi il più recente
-            if (dogEvents.length > 0) {
-              setSelectedEvent(dogEvents[dogEvents.length - 1])
-            }
-          }
-        }
-      }
-    }, 5000)
-
-    return () => clearInterval(interval)
-  }, [selectedEvent, dogEvents])
+  // quando l'evento selezionato scade passa subito a quello successivo
+  useAutoAdvanceEvent(dogEvents, selectedEvent, setSelectedEvent)
 
   return (
     <>
@@ -69,37 +42,37 @@ export default function Home() {
         {/* First column - contenuto principale */}
         <div className="flex min-w-0 flex-col items-center gap-3 lg:col-span-3">
           <div className="flex w-full flex-col gap-3">
-            <LiveMatchInfo />
-            {/* Video e Previous Results in due colonne affiancate */}
-            <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
-              <div className="lg:col-span-2">
-                <VideoStreamCard
-                  streamUrl={liveRound?.streamUrl}
-                  discipline={Discipline.DOGS}
-                />
-              </div>
-              <div className="relative h-[380px] lg:col-span-1 lg:h-auto">
-                <div className="h-full lg:absolute lg:inset-0">
-                  <PreviousResultsCard
-                    results={previousResultsMock.dogs}
-                    discipline="DOGS"
+            <LiveMatchInfo
+              mediaOpen={mediaOpen}
+              onToggleMedia={() => setMediaOpen((open) => !open)}
+            />
+            {/* Video e Previous Results in due colonne affiancate; chiusi
+                vengono smontati, così il video non scarica il flusso */}
+            {mediaOpen && (
+              <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
+                <div className="lg:col-span-2">
+                  <VideoStreamCard
+                    streamUrl={liveRound?.streamUrl}
+                    discipline={Discipline.DOGS}
                   />
                 </div>
+                <div className="relative h-[380px] lg:col-span-1 lg:h-auto">
+                  <div className="h-full lg:absolute lg:inset-0">
+                    <PreviousResultsCard
+                      results={previousResults?.[Discipline.DOGS]}
+                      discipline="DOGS"
+                    />
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
           </div>
-          {/* Carosello eventi + termine giocata sulla stessa riga */}
-          <div className="flex w-full flex-col items-center gap-3 md:flex-row md:items-stretch">
-            <div className="w-full min-w-0 md:flex-1">
-              <UpcomingEventsCarousel
-                selectedEvent={selectedEvent}
-                setSelectedEvent={setSelectedEvent}
-                events={dogEvents}
-              />
-            </div>
-            <MatchEndBadge
-              discipline={Discipline.DOGS}
-              className="shrink-0 gap-2 px-3 py-1 md:h-14 md:self-center"
+          {/* Carosello eventi a tutta larghezza */}
+          <div className="w-full min-w-0">
+            <UpcomingEventsCarousel
+              selectedEvent={selectedEvent}
+              setSelectedEvent={setSelectedEvent}
+              events={dogEvents}
             />
           </div>
           {selectedEvent ? (

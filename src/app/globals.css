@@ -947,3 +947,31 @@ body > div.relative.z-50.flex.h-16.w-full.flex-row.items-center.justify-start.bg
 }
 
 
+
+/* Scrollbar sottile per i pannelli interni (es. ultimi risultati virtual).
+   Su Chrome scrollbar-width prevale su ::-webkit-scrollbar, quindi lo si
+   usa solo dove le pseudo-classi webkit non esistono (Firefox). */
+.thin-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+.thin-scrollbar::-webkit-scrollbar-thumb {
+  background: #cdd2dc;
+  border-radius: 2px;
+}
+
+.thin-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #b8bec9;
+}
+
+.thin-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@supports not selector(::-webkit-scrollbar) {
+  .thin-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #cdd2dc transparent;
+  }
+}

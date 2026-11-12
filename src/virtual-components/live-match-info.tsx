@@ -2,20 +2,33 @@
 
 import { RootContext } from '@/virtual-contexts/root-context'
 import { Discipline, UpcomingRace } from '@/virtual-lib/types'
-import { getOperatorFromUrl } from '@/virtual-lib/utils'
+import { getOperatorFromUrl, PGVIRTUAL_API_URL } from '@/virtual-lib/utils'
 import { t } from 'i18next'
 import Image from 'next/image'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import LatecomersDialog from './latecomers-dialog'
-import { Clock } from 'lucide-react'
+import { ChevronDown, Clock, Search } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
-export default function LiveMatchInfo() {
+export default function LiveMatchInfo(
+  props: {
+    /** se passati, mostra il tasto che apre/chiude video e ultimi risultati */
+    mediaOpen?: boolean
+    onToggleMedia?: () => void
+  } = {},
+) {
+  const { mediaOpen, onToggleMedia } = props
   const { liveRound, upcomingEvents, upcomingRounds } = useContext(RootContext)
   const [nextEventStartTime, setNextEventStartTime] = useState<Date | null>(
     null,
   )
   const [isLatecomersOpen, setIsLatecomersOpen] = useState(false)
   const [raceInfo, setRaceInfo] = useState<UpcomingRace>()
+  const router = useRouter()
+
+  // apre la pagina ricerca risultati mantenendo init_code, skin, operator...
+  const openSearchResults = () =>
+    router.push(`/virtual/results${window.location.search}`)
 
   const getInitCode = () => localStorage.getItem('initCode')
 
@@ -23,7 +36,10 @@ export default function LiveMatchInfo() {
     if (typeof window === 'undefined') return Discipline.FOOTBALL
 
     const path = window.location.pathname
-    if (path.includes('dogs')) {
+    // dogs8 prima di dogs: '/virtual/dogs8' contiene anche 'dogs'
+    if (path.includes('dogs8')) {
+      return Discipline.DOGS8
+    } else if (path.includes('dogs')) {
       return Discipline.DOGS
     } else if (path.includes('horses')) {
       return Discipline.HORSES
@@ -100,7 +116,7 @@ export default function LiveMatchInfo() {
 
       try {
         const response = await fetch(
-          `https://api-btprod.pgvirtual.eu/api/event/info/${nextEvent.extId}/${nextEvent.id}`,
+          `${PGVIRTUAL_API_URL}/api/event/info/${nextEvent.extId}/${nextEvent.id}`,
           {
             headers: {
               accept: 'application/json',
@@ -134,7 +150,11 @@ export default function LiveMatchInfo() {
 
   const shouldShowLatecomersButton = useMemo(() => {
     const discipline = getCurrentDiscipline()
-    return discipline === Discipline.DOGS || discipline === Discipline.HORSES
+    return (
+      discipline === Discipline.DOGS ||
+      discipline === Discipline.DOGS8 ||
+      discipline === Discipline.HORSES
+    )
   }, [getCurrentDiscipline])
 
   const disciplineInfo = useMemo(() => {
@@ -153,6 +173,19 @@ export default function LiveMatchInfo() {
             />
           ),
           name: t('dog_racing'),
+        }
+      case Discipline.DOGS8:
+        return {
+          icon: (
+            <Image
+              src="/dog.png"
+              alt="Dogs 8"
+              width={64}
+              height={64}
+              className="size-8 object-contain"
+            />
+          ),
+          name: t('dog8_racing'),
         }
       case Discipline.HORSES:
         return {
@@ -185,24 +218,35 @@ export default function LiveMatchInfo() {
 
   if (!nextEventStartTime) return null
 
-  // Formatta il tempo come HH:MM
-  const formattedTime = nextEventStartTime.toLocaleTimeString('it-IT', {
+  // Formatta il tempo come HH:MM. Le corse partono al minuto esatto: l'orario
+  // calcolato da `since` può cadere qualche istante prima (12:19:59), quindi
+  // si arrotonda al minuto più vicino invece di troncare
+  const formattedTime = new Date(
+    Math.round(nextEventStartTime.getTime() / 60000) * 60000,
+  ).toLocaleTimeString('it-IT', {
     hour: '2-digit',
     minute: '2-digit',
   })
 
   return (
     <>
-      <div className="flex h-12 w-full items-center justify-between gap-3 bg-card-header px-3 text-card-header-foreground shadow-sm">
-        <div className="flex min-w-0 flex-row items-center gap-3">
-          {disciplineInfo.icon}
-          <span className="truncate text-md font-bold uppercase tracking-wide">
-            {disciplineInfo.name}
-          </span>
-        </div>
+      {/* Corse: su desktop la barra segue la griglia video (2/3) + ultimi
+          risultati (1/3), così "Prossima corsa" finisce dove finisce il video
+          e i tasti stanno sopra gli ultimi risultati */}
+      <div
+        className={`flex h-12 w-full items-center gap-3 bg-card-header px-3 text-card-header-foreground shadow-sm ${
+          shouldShowLatecomersButton ? 'lg:grid lg:grid-cols-3 lg:px-0' : ''
+        }`}
+      >
+        <div className="flex min-w-0 flex-1 items-center justify-between gap-3 lg:col-span-2 lg:pl-3">
+          <div className="flex min-w-0 flex-row items-center gap-3">
+            {disciplineInfo.icon}
+            <span className="truncate text-md font-bold uppercase tracking-wide">
+              {disciplineInfo.name}
+            </span>
+          </div>
 
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-2">
             <span className="hidden text-xs font-semibold uppercase opacity-75 sm:inline">
               {t('next_race')}
             </span>
@@ -210,26 +254,57 @@ export default function LiveMatchInfo() {
               {formattedTime}
             </span>
           </div>
-
-          {shouldShowLatecomersButton && (
-            <button
-              type="button"
-              className="flex h-9 shrink-0 items-center gap-2 whitespace-nowrap rounded-sm border border-white/15 bg-secondary px-3 text-sm font-semibold uppercase text-secondary-foreground transition-colors hover:bg-tertiary hover:text-tertiary-foreground"
-              onClick={() => setIsLatecomersOpen(true)}
-              title={t('latecomers')}
-            >
-              <Clock className="size-4" />
-              <span className="hidden md:inline">{t('latecomers')}</span>
-            </button>
-          )}
         </div>
+
+        {(shouldShowLatecomersButton || onToggleMedia) && (
+          <div className="flex shrink-0 items-center justify-end gap-3 lg:pr-3">
+            {shouldShowLatecomersButton && (
+              <button
+                type="button"
+                className="flex h-9 shrink-0 items-center gap-2 whitespace-nowrap rounded-sm border border-white/15 bg-secondary px-3 text-sm font-semibold uppercase text-secondary-foreground transition-colors hover:bg-tertiary hover:text-tertiary-foreground"
+                onClick={() => setIsLatecomersOpen(true)}
+                title={t('latecomers')}
+              >
+                <Clock className="size-4" />
+                <span className="hidden md:inline">{t('latecomers')}</span>
+              </button>
+            )}
+
+            {shouldShowLatecomersButton && (
+              <button
+                type="button"
+                className="flex h-9 shrink-0 items-center gap-2 whitespace-nowrap rounded-sm border border-white/15 bg-secondary px-3 text-sm font-semibold uppercase text-secondary-foreground transition-colors hover:bg-tertiary hover:text-tertiary-foreground"
+                onClick={openSearchResults}
+                title={t('search_results')}
+              >
+                <Search className="size-4" />
+                <span className="hidden md:inline">{t('search_results')}</span>
+              </button>
+            )}
+
+            {onToggleMedia && (
+              <button
+                type="button"
+                aria-expanded={mediaOpen}
+                onClick={onToggleMedia}
+                className="flex size-9 shrink-0 items-center justify-center text-card-header-foreground transition-opacity hover:opacity-75"
+              >
+                <ChevronDown
+                  className={`size-5 transition-transform ${
+                    mediaOpen ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       <LatecomersDialog
         isOpen={isLatecomersOpen}
         onOpenChange={setIsLatecomersOpen}
         raceInfo={raceInfo}
-        discipline={getCurrentDiscipline() as 'DOGS' | 'HORSES'}
+        discipline={getCurrentDiscipline() as 'DOGS' | 'DOGS8' | 'HORSES'}
       />
     </>
   )

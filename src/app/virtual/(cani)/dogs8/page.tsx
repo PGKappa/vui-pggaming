@@ -1,0 +1,101 @@
+'use client'
+import BettingSlip from '@/virtual-components/betting-slip'
+import BettingSlipSheet from '@/virtual-components/betting-slip-sheet'
+import LiveMatchInfo from '@/virtual-components/live-match-info'
+import { UpcomingEventsCarousel } from '@/virtual-components/upcoming-events-carousel'
+import UpcomingRaceCard from '@/virtual-components/upcoming-race-card'
+import VideoStreamCard from '@/virtual-components/video-stream-card'
+import PreviousResultsCard from '@/virtual-components/previous-results-card'
+import { RootContext } from '@/virtual-contexts/root-context'
+import { Discipline, UpcomingEvent } from '@/virtual-lib/types'
+import useAutoAdvanceEvent from '@/virtual-lib/use-auto-advance-event'
+import { t } from 'i18next'
+import { useContext, useEffect, useMemo, useState } from 'react'
+
+export default function Home() {
+  const { upcomingEvents, liveRound, previousResults } = useContext(RootContext)
+
+  // Filtra eventi per cani a 8
+  const dog8Events = useMemo(() => {
+    return (
+      upcomingEvents?.filter((e) => e.discipline === Discipline.DOGS8) || []
+    )
+  }, [upcomingEvents])
+
+  // video e ultimi risultati, apribili/chiudibili dalla barra in alto
+  const [mediaOpen, setMediaOpen] = useState(false)
+
+  const [selectedEvent, setSelectedEvent] = useState<
+    UpcomingEvent | undefined
+  >()
+
+  useEffect(() => {
+    if (!selectedEvent && dog8Events.length > 0) {
+      setSelectedEvent(dog8Events[0])
+    }
+  }, [dog8Events, selectedEvent])
+
+  // quando l'evento selezionato scade passa subito a quello successivo
+  useAutoAdvanceEvent(dog8Events, selectedEvent, setSelectedEvent)
+
+  return (
+    <>
+      <div className="container mb-16 grid grid-cols-1 items-start gap-3 bg-columnL-background p-2 text-columnL-foreground sm:p-3 lg:mb-0 lg:grid-cols-4">
+        {/* First column - contenuto principale */}
+        <div className="flex min-w-0 flex-col items-center gap-3 lg:col-span-3">
+          <div className="flex w-full flex-col gap-3">
+            <LiveMatchInfo
+              mediaOpen={mediaOpen}
+              onToggleMedia={() => setMediaOpen((open) => !open)}
+            />
+            {/* Video e Previous Results in due colonne affiancate; chiusi
+                vengono smontati, così il video non scarica il flusso */}
+            {mediaOpen && (
+              <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
+                <div className="lg:col-span-2">
+                  <VideoStreamCard
+                    streamUrl={liveRound?.streamUrl}
+                    discipline={Discipline.DOGS8}
+                  />
+                </div>
+                <div className="relative h-[380px] lg:col-span-1 lg:h-auto">
+                  <div className="h-full lg:absolute lg:inset-0">
+                    <PreviousResultsCard
+                      results={previousResults?.[Discipline.DOGS8]}
+                      discipline="DOGS8"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+          {/* Carosello eventi a tutta larghezza */}
+          <div className="w-full min-w-0">
+            <UpcomingEventsCarousel
+              selectedEvent={selectedEvent}
+              setSelectedEvent={setSelectedEvent}
+              events={dog8Events}
+            />
+          </div>
+          {selectedEvent ? (
+            <UpcomingRaceCard race={selectedEvent} />
+          ) : (
+            <div className="flex h-40 w-full items-center justify-center bg-card text-muted-foreground shadow-sm">
+              {t('no_event_selected')}
+            </div>
+          )}
+        </div>
+
+        {/* Second column - Betting slip */}
+        <div className="hidden lg:sticky lg:top-3 lg:col-span-1 lg:block lg:h-[calc(100vh-84px)]">
+          <div className="h-full">
+            <BettingSlip />
+          </div>
+        </div>
+      </div>
+      <div className="fixed bottom-0 flex w-full justify-center gap-2 lg:hidden">
+        <BettingSlipSheet />
+      </div>
+    </>
+  )
+}

@@ -8,8 +8,8 @@ import SkinProvider, { SkinContext } from '@/virtual-contexts/skin-context'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { useContext } from 'react'
 import { useTranslation } from 'react-i18next'
-import '../../globals.css'
-import '../../../virtual-lib/i18n'
+import '../globals.css'
+import '../../virtual-lib/i18n'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -32,11 +32,13 @@ function AppContent({ children }: { children: React.ReactNode }) {
     <body
       className={`${geistSans.variable} ${geistMono.variable} ${skin} flex h-screen flex-col antialiased`}
     >
-      <header className="container">
-        <Navbar />
-      </header>
       <main className="flex-1">
+        {/* la navbar sta dentro il provider per leggere i prossimi eventi
+            (timer di inizio gara accanto a ogni disciplina) */}
         <RootContextProvider>
+          <header className="container">
+            <Navbar />
+          </header>
           <BetsContextProvider>{children}</BetsContextProvider>
         </RootContextProvider>
       </main>
@@ -52,6 +54,9 @@ function AppContent({ children }: { children: React.ReactNode }) {
   )
 }
 
+// Layout unico per tutte le discipline: con un layout radice per gruppo
+// (cani, cavalli, calcio) Next.js ricaricava l'intera pagina a ogni cambio di
+// disciplina. Così provider, dati in cache e schedina restano montati.
 export default function RootLayout({
   children,
 }: Readonly<{

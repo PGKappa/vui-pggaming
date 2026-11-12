@@ -60,16 +60,22 @@ export type TicketHistoryItem = {
 }
 
 // stessa conversione usata dal retail (parseTicketTime)
+// Il backend manda l'orario del ticket in UTC, come
+// [anno, mese (0-11), giorno, ora, minuti, secondi]: va letto come UTC e poi
+// mostrato nel fuso del dispositivo (toLocaleTimeString), altrimenti in Italia
+// risulta indietro di un'ora (due con l'ora legale).
 function parseTicketTime(time: unknown): Date {
   if (!Array.isArray(time)) return new Date(NaN)
   const [year, month, day, hour, min, sec] = time
   return new Date(
-    parseInt(String(year)),
-    Number(month),
-    parseInt(String(day)),
-    parseInt(String(hour)),
-    parseInt(String(min)),
-    parseInt(String(sec)),
+    Date.UTC(
+      parseInt(String(year)),
+      Number(month),
+      parseInt(String(day)),
+      parseInt(String(hour)),
+      parseInt(String(min)),
+      parseInt(String(sec)) || 0,
+    ),
   )
 }
 

@@ -102,6 +102,8 @@ export type UpcomingEvent = {
 
 export enum Discipline {
   DOGS = 'DOGS',
+  /** cani a 8 partenti (canale dogs8, under/over 4.5) */
+  DOGS8 = 'DOGS8',
   HORSES = 'HORSES',
   FOOTBALL = 'FOOTBALL',
 }
@@ -227,6 +229,9 @@ export type SystemGroup = {
   stake: number
   minWin: number
   maxWin: number
+
+  minWinAssignedCombinations?: BetEntry[][]
+  maxWinAssignedCombinations?: BetEntry[][]
 }
 
 export type MatchStatistics = {

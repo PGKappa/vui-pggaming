@@ -25,10 +25,12 @@ const RACE_MARKET_LABELS: Record<string, string> = {
   'Box Trifecta': 'boxed_trifecta',
 }
 
-const translateMarket = (market: string) => {
+// soglia under/over: 4.5 per i cani a 8, 3.5 per le corse a 6
+const translateMarket = (market: string, discipline: Discipline) => {
   const key = RACE_MARKET_LABELS[market]
   if (!key) return market
-  return market === 'Under/Over' ? `${t(key)} 3.5` : t(key)
+  if (market !== 'Under/Over') return t(key)
+  return `${t(key)} ${discipline === Discipline.DOGS8 ? '4.5' : '3.5'}`
 }
 
 const translateOutcome = (outcome: string) =>
@@ -49,6 +51,7 @@ export default function EventBets(props: {
   const getCategory = () => {
     const discipline = eventBets[0]?.bet?.discipline
     if (discipline === 'DOGS') return t('dog_racing')
+    if (discipline === 'DOGS8') return t('dog8_racing')
     if (discipline === 'HORSES') return t('horse_racing')
 
     if (eventBets[0]?.bet?.event?.name) {
@@ -99,7 +102,15 @@ export default function EventBets(props: {
           </span>
           <div className="mr-1 flex items-center space-x-2">
             <span className="text-[15px] font-bold tabular-nums">
-              {format(firstBet.event.startingAt, 'HH:mm')}
+              {/* le corse partono al minuto esatto: l'orario calcolato da
+                  `since` può cadere qualche istante prima (12:23:59), quindi
+                  si arrotonda al minuto più vicino invece di troncare */}
+              {format(
+                Math.round(
+                  new Date(firstBet.event.startingAt).getTime() / 60000,
+                ) * 60000,
+                'HH:mm',
+              )}
             </span>
             <Badge className="mr-[4px] h-[27px] w-[61px] items-center justify-center rounded-sm bg-card-header text-[14px] tabular-nums text-card-header-foreground hover:bg-card-header">
               {timeToEventStart}
@@ -130,7 +141,7 @@ export default function EventBets(props: {
         {eventBets.map((betEntry) => (
           <div key={betEntry.id} className="flex items-center text-sm">
             <span className="mr-2 min-w-0 flex-1 text-[12px] capitalize leading-tight">
-              {translateMarket(betEntry.market)}
+              {translateMarket(betEntry.market, betEntry.bet.discipline)}
             </span>
             <span className="mr-2 max-w-[55%] shrink-0 text-left text-[13px] font-normal leading-tight">
               {translateOutcome(betEntry.bet.option.outcome)}
