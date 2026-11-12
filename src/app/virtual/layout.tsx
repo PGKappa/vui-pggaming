@@ -5,7 +5,7 @@ import { Toaster } from '@/virtual-components/ui/sonner'
 import BetsContextProvider from '@/virtual-contexts/bets-context'
 import RootContextProvider from '@/virtual-contexts/root-context'
 import SkinProvider, { SkinContext } from '@/virtual-contexts/skin-context'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Geist, Geist_Mono, Inter } from 'next/font/google'
 import { useContext } from 'react'
 import { useTranslation } from 'react-i18next'
 import '../globals.css'
@@ -21,6 +21,12 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 })
 
+// font della cassa retail, usato dalla schedina per essere identica
+const inter = Inter({
+  variable: '--font-inter',
+  subsets: ['latin'],
+})
+
 const metadata = {
   title: 'PG Gaming',
   description: 'Gaming platform',
@@ -30,7 +36,7 @@ function AppContent({ children }: { children: React.ReactNode }) {
   const [skin] = useContext(SkinContext)
   return (
     <body
-      className={`${geistSans.variable} ${geistMono.variable} ${skin} flex h-screen flex-col antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} ${skin} flex h-screen flex-col antialiased`}
     >
       <main className="flex-1">
         {/* la navbar sta dentro il provider per leggere i prossimi eventi

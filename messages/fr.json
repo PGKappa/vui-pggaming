@@ -206,5 +206,10 @@
   "totals": "Totaux",
   "unpaid": "Non payé",
   "real_greyhounds": "Courses de lévriers",
-  "real_horses": "Courses de chevaux"
+  "real_horses": "Courses de chevaux",
+  "divide/add_amount": "Répartir / Ajouter le montant",
+  "enter_stake_amount": "Saisir le montant de la mise",
+  "remove_all_bets": "Tout supprimer",
+  "ok": "OK",
+  "ticket_detail_title": "Ticket"
 }

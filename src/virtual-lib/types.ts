@@ -213,6 +213,8 @@ export type Bet = {
   competitors: string
   option: Selection
   track?: string
+  /** nome del corridore, mostrato in schedina accanto al numero */
+  competitorName?: string
 }
 
 export type BetEntry = {

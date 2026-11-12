@@ -75,7 +75,7 @@ export default function Home() {
 
   return (
     <>
-      <div className="mx-auto mb-10 grid w-full max-w-[1920px] grid-cols-1 justify-center gap-3 bg-columnL-background p-2 text-columnL-foreground sm:p-3 lg:mb-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(360px,1fr)]">
+      <div className="mx-auto mb-10 grid w-full max-w-[1920px] grid-cols-1 justify-center gap-3 bg-columnL-background p-2 text-columnL-foreground sm:p-3 lg:mb-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_400px]">
         {/* First column - top content */}
         <div className="flex min-w-0 flex-col items-center gap-3">
           <div className="flex w-full flex-col gap-3">

@@ -1,3 +1,4 @@
+import useMediaQuery from '@/virtual-lib/use-media-query'
 import { BetsContext } from '@/virtual-contexts/bets-context'
 import { Discipline, UpcomingEvent, UpcomingRace } from '@/virtual-lib/types'
 import {
@@ -37,6 +38,7 @@ export default function UpcomingRaceCard({
   const isDogs8 = race.discipline === Discipline.DOGS8
   const trackSize = isDogs8 ? 8 : 6
   const underOverLine = isDogs8 ? '4.5' : '3.5'
+  const isCompact = useMediaQuery('(max-width: 767px)')
   const [raceInfo, setRaceInfo] = useState<UpcomingRace>()
   const [activeTab, setActiveTab] = useState<TabType>('main')
 
@@ -331,8 +333,10 @@ export default function UpcomingRaceCard({
     setDisorderSelection([])
   }
 
-  const baseColumns =
-    'minmax(170px, 1.3fr) 1px minmax(150px, 1fr) 1px minmax(180px, 1.2fr) 1px'
+  // mobile: solo partenti + quote, senza performance e storico
+  const baseColumns = isCompact
+    ? 'minmax(0, 1.4fr) 1px'
+    : 'minmax(170px, 1.3fr) 1px minmax(150px, 1fr) 1px minmax(180px, 1.2fr) 1px'
   const gridTemplateColumns =
     activeTab === 'main'
       ? `${baseColumns} 1fr 1px 1fr 1px 1fr`
@@ -353,15 +357,19 @@ export default function UpcomingRaceCard({
         </div>
         <div className="h-full bg-white/15" />
 
-        <div className="text-center font-bold">
-          {t('performance').toUpperCase()}
-        </div>
-        <div className="h-full bg-white/15" />
+        {!isCompact && (
+          <>
+            <div className="text-center font-bold">
+              {t('performance').toUpperCase()}
+            </div>
+            <div className="h-full bg-white/15" />
 
-        <div className="text-center font-bold">
-          {t('history').toUpperCase()}
-        </div>
-        <div className="h-full bg-white/15" />
+            <div className="text-center font-bold">
+              {t('history').toUpperCase()}
+            </div>
+            <div className="h-full bg-white/15" />
+          </>
+        )}
 
         {activeTab === 'main' && (
           <>
@@ -426,6 +434,7 @@ export default function UpcomingRaceCard({
                   startingAt: race.time,
                 },
                 competitors: racer.number.toString(),
+                competitorName: racer.name,
                 option: {
                   outcome: racer.number.toString(),
                   decPrice: parseFloat(
@@ -451,6 +460,7 @@ export default function UpcomingRaceCard({
                   startingAt: race.time,
                 },
                 competitors: racer.number.toString(),
+                competitorName: racer.name,
                 option: {
                   outcome: racer.number.toString(),
                   decPrice: parseFloat(
@@ -477,6 +487,7 @@ export default function UpcomingRaceCard({
                   startingAt: race.time,
                 },
                 competitors: racer.number.toString(),
+                competitorName: racer.name,
                 option: {
                   outcome: racer.number.toString(),
                   decPrice: parseFloat(
@@ -657,7 +668,7 @@ export default function UpcomingRaceCard({
     }
 
     return (
-      <div className="mt-3 w-full border-t border-border">
+      <div className="mt-3 w-full border-b border-border">
         <div className="grid grid-cols-1 md:grid-cols-2 md:divide-x md:divide-border">
           {/* Even/Odd Market */}
           <div>
@@ -780,7 +791,7 @@ export default function UpcomingRaceCard({
   return (
     <>
       <Card className="w-full overflow-hidden shadow-sm">
-        <CardHeader className="flex h-14 flex-row items-center justify-between space-y-0 border-b border-white/10 px-3 py-0">
+        <CardHeader className="flex h-14 flex-row items-center justify-between space-y-0 px-3 py-0">
           <div className="flex items-center gap-2">
             {Object.entries(tabConfig).map(([key, config]) => (
               <Button
@@ -800,17 +811,15 @@ export default function UpcomingRaceCard({
               ultimi risultati (int_event_id = ext_event_id) */}
           <div className="flex shrink-0 items-center gap-2 text-card-header-foreground">
             <span className="text-xs font-semibold uppercase opacity-75">
-              ID
+              ID -
             </span>
-            <span className="rounded-sm bg-white px-2 py-0.5 text-lg font-bold tabular-nums text-card-foreground">
-              {race.id}
-            </span>
+            <span className="text-lg font-bold tabular-nums">{race.id}</span>
           </div>
         </CardHeader>
 
         <CardContent>
           <div className="overflow-x-auto">
-            <div className="min-w-[800px]">
+            <div className={isCompact ? undefined : 'min-w-[800px]'}>
               {renderTableHeader()}
 
               <div>
@@ -826,8 +835,8 @@ export default function UpcomingRaceCard({
                       }}
                     >
                       {/* Informazioni sul corridore */}
-                      <div className="flex items-center px-3 py-2">
-                        <div className="flex min-w-0 items-center gap-3">
+                      <div className="flex min-w-0 items-center px-2 py-2 sm:px-3">
+                        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
                           <div
                             className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm text-xl font-bold"
                             style={
@@ -839,7 +848,7 @@ export default function UpcomingRaceCard({
                           >
                             {racer.number}
                           </div>
-                          <div>
+                          <div className="min-w-0">
                             <div className="truncate font-semibold">
                               {racer.name}
                             </div>
@@ -849,29 +858,33 @@ export default function UpcomingRaceCard({
 
                       <div className="h-full bg-border" />
 
-                      {/* Performance */}
-                      <div className="flex items-center justify-center px-4 py-2">
-                        <div className="flex w-full max-w-[180px] flex-col items-center gap-1">
-                          <span className="text-sm font-semibold tabular-nums">
-                            {racer.performance}%
-                          </span>
-                          <Progress
-                            value={racer.performance}
-                            className="h-2 w-full bg-border [&>div]:bg-tertiary"
-                          />
-                        </div>
-                      </div>
+                      {!isCompact && (
+                        <>
+                          {/* Performance */}
+                          <div className="flex items-center justify-center px-4 py-2">
+                            <div className="flex w-full max-w-[180px] flex-col items-center gap-1">
+                              <span className="text-sm font-semibold tabular-nums">
+                                {racer.performance}%
+                              </span>
+                              <Progress
+                                value={racer.performance}
+                                className="h-2 w-full bg-border [&>div]:bg-tertiary"
+                              />
+                            </div>
+                          </div>
 
-                      <div className="h-full bg-border" />
+                          <div className="h-full bg-border" />
 
-                      {/* Storico */}
-                      <div className="flex items-center justify-center">
-                        <div className="flex items-center justify-center gap-1.5">
-                          <MedalsHistory history={racer.history} />
-                        </div>
-                      </div>
+                          {/* Storico */}
+                          <div className="flex items-center justify-center">
+                            <div className="flex items-center justify-center gap-1.5">
+                              <MedalsHistory history={racer.history} />
+                            </div>
+                          </div>
 
-                      <div className="h-full bg-border" />
+                          <div className="h-full bg-border" />
+                        </>
+                      )}
 
                       {renderTabSpecificCells(racer)}
                     </div>

@@ -237,5 +237,10 @@
   "totals": "Totale",
   "unpaid": "Non Pagato",
   "real_greyhounds": "Levrieri Reali",
-  "real_horses": "Cavalli Reali"
+  "real_horses": "Cavalli Reali",
+  "divide/add_amount": "Dividi / Aggiungi Importo",
+  "enter_stake_amount": "Inserisci Importo Puntata",
+  "remove_all_bets": "Elimina Tutto",
+  "ok": "OK",
+  "ticket_detail_title": "Ticket"
 }

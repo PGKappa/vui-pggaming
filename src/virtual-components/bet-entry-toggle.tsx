@@ -53,6 +53,7 @@ export default function BetEntryToggle(props: {
             discipline: props.bet.discipline,
             competitors: props.bet.competitors || '',
             option: props.bet.option,
+            competitorName: props.bet.competitorName,
           })
         }
       }}

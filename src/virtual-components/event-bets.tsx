@@ -130,8 +130,12 @@ export default function EventBets(props: {
           </div>
         ) : (
           <div className="ml-[3px] flex items-center pb-[4px]">
-            <span className="text-[13px] font-bold text-tertiary">
-              ID {firstBet.event.number}
+            {/* circuito (6 o 8 corridori) - ID corsa, come in cassa */}
+            <span className="text-[13px] font-normal uppercase">
+              <span className="text-black">
+                {t('track')} {firstBet.discipline === Discipline.DOGS8 ? 8 : 6}
+              </span>{' '}
+              <span className="text-tertiary">- ID {firstBet.event.number}</span>
             </span>
           </div>
         )}
@@ -140,15 +144,23 @@ export default function EventBets(props: {
       <div className="-space-y-[8px] border border-t-0 border-betSlip-foreground bg-white pl-[7px] pr-2 pt-[2px] tabular-nums">
         {eventBets.map((betEntry) => (
           <div key={betEntry.id} className="flex items-center text-sm">
-            <span className="mr-2 min-w-0 flex-1 text-[12px] capitalize leading-tight">
-              {translateMarket(betEntry.market, betEntry.bet.discipline)}
-            </span>
-            <span className="mr-2 max-w-[55%] shrink-0 text-left text-[13px] font-normal leading-tight">
-              {translateOutcome(betEntry.bet.option.outcome)}
-            </span>
-            <span className="relative right-1 w-[48px] shrink-0 text-right text-[13px] font-semibold">
-              {betEntry.bet.option.decPrice.toFixed(2)}
-            </span>
+            {/* mercato | corridore | quota in tre spazi uguali, corridore al centro */}
+            <div className="grid min-w-0 flex-1 grid-cols-3 items-center gap-2">
+              <span className="min-w-0 truncate text-[12px] capitalize leading-tight">
+                {translateMarket(betEntry.market, betEntry.bet.discipline)}
+              </span>
+              <span
+                className="min-w-0 truncate text-center text-[13px] font-normal leading-tight"
+                title={betEntry.bet.competitorName}
+              >
+                {translateOutcome(betEntry.bet.option.outcome)}
+                {betEntry.bet.competitorName &&
+                  ` ${betEntry.bet.competitorName}`}
+              </span>
+              <span className="relative right-1 text-right text-[13px] font-semibold">
+                {betEntry.bet.option.decPrice.toFixed(2)}
+              </span>
+            </div>
             <Button
               variant="ghost"
               size="icon"

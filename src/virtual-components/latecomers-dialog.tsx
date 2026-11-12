@@ -74,10 +74,10 @@ export default function LatecomersDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-xl bg-accent p-0">
+      <DialogContent className="max-w-xl border-0 bg-accent p-0">
         {/* Header */}
         <DialogHeader className="flex h-14 flex-row items-center justify-center bg-accent px-6 text-white">
-          <DialogTitle className="text-center text-lg font-bold text-white">
+          <DialogTitle className="text-center text-lg font-bold uppercase text-white">
             {t('latecomers')}
           </DialogTitle>
         </DialogHeader>
@@ -86,7 +86,7 @@ export default function LatecomersDialog({
         <div className="bg-white">
           {latecomersData.length > 0 ? (
             <Table>
-              <TableHeader className="h-12 bg-gray-200">
+              <TableHeader className="h-12 bg-gray-200 uppercase">
                 <TableRow>
                   <TableHead className="w-1/3 border-r border-gray-300 text-center text-md font-bold text-black">
                     {t('market')}

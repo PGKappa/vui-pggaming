@@ -47,7 +47,7 @@ function NextEventTimer({ discipline }: { discipline: Discipline }) {
   if (!timeLeft) return null
 
   return (
-    <span className="min-w-[56px] rounded-sm bg-white px-2 py-0.5 text-center text-sm font-bold tabular-nums text-black">
+    <span className="rounded-sm bg-white px-1 text-center text-[10px] font-bold tabular-nums leading-tight text-black md:min-w-[56px] md:px-2 md:py-0.5 md:text-sm">
       {timeLeft}
     </span>
   )
@@ -77,14 +77,15 @@ function NavbarContent() {
 
   const tabClass = (path: string) =>
     cn(
-      'flex h-11 flex-1 flex-row items-center justify-center gap-2 rounded-sm px-3 text-sm font-semibold uppercase tracking-wide transition-colors',
+      // mobile: nome su due righe piccole e timer sotto, senza icona
+      'flex h-11 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 rounded-sm px-1 text-center text-[10px] font-semibold uppercase leading-tight transition-colors md:flex-row md:gap-2 md:px-3 md:text-sm md:tracking-wide',
       isActive(path)
         ? 'bg-tertiary text-tertiary-foreground shadow-sm'
         : 'text-navbarBg-foreground/85 hover:bg-white/10 hover:text-navbarBg-foreground',
     )
 
   return (
-    <nav className="flex w-full flex-row gap-2 bg-navbarBg p-2">
+    <nav className="flex w-full flex-row gap-1 bg-navbarBg p-2 md:gap-2">
       <Link
         href={`/virtual/dogs${queryString}`}
         className={tabClass('/virtual/dogs')}
@@ -95,7 +96,7 @@ function NavbarContent() {
           alt="Dogs"
           width={60}
           height={33}
-          className="size-7 object-contain"
+          className="hidden size-7 object-contain md:block"
           priority
         />
         <span>{t('dog6_racing')}</span>
@@ -115,7 +116,7 @@ function NavbarContent() {
           alt="Dogs 8"
           width={60}
           height={33}
-          className="size-7 object-contain"
+          className="hidden size-7 object-contain md:block"
         />
         <span>{t('dog8_racing')}</span>
         {/* il timer serve solo sulle discipline non selezionate */}
@@ -134,7 +135,7 @@ function NavbarContent() {
           alt="Horses"
           width={60}
           height={36}
-          className="size-7 object-contain"
+          className="hidden size-7 object-contain md:block"
           priority
         />
         <span>{t('horse6_racing')}</span>
@@ -154,7 +155,7 @@ function NavbarContent() {
           alt="Calcio"
           width={42}
           height={42}
-          className="size-7 object-contain brightness-0 invert"
+          className="hidden size-7 object-contain brightness-0 invert md:block"
         />
         <span>{t('football')}</span>
         {/* il timer serve solo sulle discipline non selezionate */}

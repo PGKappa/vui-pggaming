@@ -13,6 +13,7 @@ import {
   type TicketListSource,
 } from '@/retail-lib/ticket-list-source'
 import { RootContext } from '@/virtual-contexts/root-context'
+import TicketDetailsDialog from '@/virtual-components/ticket-details-dialog'
 import { fetchStoredTicketList } from '@/virtual-lib/ticket-history'
 import { createPGVirtualAPICall, getOperatorFromUrl } from '@/virtual-lib/utils'
 import { useRouter } from 'next/navigation'
@@ -47,6 +48,8 @@ export default function MyBetsPage() {
     () => ({
       readOnly: true,
       utcTimes: true,
+      // dettaglio con la grafica del pannello admin (pgPlatformAdmin)
+      DetailDialog: TicketDetailsDialog,
       fetchList: async (request) =>
         initCode
           ? fetchStoredTicketList(initCode, request, async (ticketId) => {

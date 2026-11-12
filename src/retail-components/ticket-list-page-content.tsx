@@ -27,9 +27,10 @@ import { cn } from '@/retail-lib/utils'
 import { ArrowLeft, ChevronDown } from 'lucide-react'
 import { format } from 'date-fns'
 import { it } from 'date-fns/locale'
-import { useState, useRef, useEffect } from 'react'
+import { useContext, useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import TicketCheckDialog from '@/retail-components/ticket-check-dialog'
+import { TicketListSourceContext } from '@/retail-lib/ticket-list-source'
 import { type DateRange } from 'react-day-picker'
 
 interface TicketListPageContentProps {
@@ -49,6 +50,9 @@ export default function TicketListPageContent({
 }: TicketListPageContentProps) {
   const { t } = useTranslation()
   const sideBorder = fullWidth ? undefined : '1px solid white'
+  // il web usa il proprio dettaglio ticket; la cassa quello retail
+  const DetailDialog =
+    useContext(TicketListSourceContext).DetailDialog ?? TicketCheckDialog
   // web: la pagina è a tutta larghezza, quindi filtri e testi della tabella
   // scalano a blocchi di risoluzione (in cassa restano le misure a 1920)
   const webFilterWidth =
@@ -209,24 +213,38 @@ export default function TicketListPageContent({
 
   const fillerCount = Math.max(0, parseInt(pageSize) - items.length)
 
+  // calendario: rosso in cassa, blu (colore dei tasti web) sul web
+  const pick = (retail: string, web: string) => (fullWidth ? web : retail)
   const calendarClassNames = {
     months: 'flex flex-row space-x-4 w-full',
     month: 'space-y-4 flex-1',
     head_cell: 'text-gray-600 flex-1 font-semibold text-[0.8rem] text-center',
     cell: 'relative p-0 text-center text-sm text-gray-800 flex-1 focus-within:relative focus-within:z-20',
     day: 'h-8 w-full p-0 font-normal text-gray-800 bg-white border-0 aria-selected:opacity-100 hover:bg-gray-100 rounded-md',
-    day_selected:
+    day_selected: pick(
       'bg-red-700 text-white hover:bg-red-800 focus:bg-red-700 focus:text-white rounded-md',
+      'bg-[hsl(212,58%,51%)] text-white hover:bg-[hsl(212,58%,45%)] focus:bg-[hsl(212,58%,51%)] focus:text-white rounded-md',
+    ),
     day_today: dateFrom
       ? ''
-      : 'border border-red-700 font-bold text-red-700 rounded-md',
+      : pick(
+          'border border-red-700 font-bold text-red-700 rounded-md',
+          'border border-[hsl(212,58%,51%)] font-bold text-[hsl(212,58%,51%)] rounded-md',
+        ),
     day_outside: 'text-gray-300 opacity-50',
     day_disabled: 'text-gray-300 opacity-30',
-    day_range_start:
+    day_range_start: pick(
       '!bg-red-700 !text-white hover:!bg-red-800 rounded-l-md rounded-r-none',
-    day_range_end:
+      '!bg-[hsl(212,58%,51%)] !text-white hover:!bg-[hsl(212,58%,45%)] rounded-l-md rounded-r-none',
+    ),
+    day_range_end: pick(
       '!bg-red-700 !text-white hover:!bg-red-800 rounded-r-md rounded-l-none',
-    day_range_middle: '!bg-red-100 !text-black rounded-none',
+      '!bg-[hsl(212,58%,51%)] !text-white hover:!bg-[hsl(212,58%,45%)] rounded-r-md rounded-l-none',
+    ),
+    day_range_middle: pick(
+      '!bg-red-100 !text-black rounded-none',
+      '!bg-[hsl(212,58%,92%)] !text-black rounded-none',
+    ),
     caption_label: 'text-sm font-semibold text-gray-800',
     nav_button:
       'h-7 w-7 bg-transparent p-0 opacity-70 hover:opacity-100 border border-gray-300 rounded flex items-center justify-center',
@@ -250,7 +268,10 @@ export default function TicketListPageContent({
               className={cn(
                 'flex-1 border-b-[4px] py-2 text-sm font-semibold uppercase transition-colors',
                 calendarMode === 'single'
-                  ? 'border-b-red-700 text-red-700'
+                  ? pick(
+                      'border-b-red-700 text-red-700',
+                      'border-b-[hsl(212,58%,51%)] text-[hsl(212,58%,51%)]',
+                    )
                   : 'border-b-transparent text-gray-600 hover:bg-gray-100',
               )}
               onClick={() => handleModeSwitch('single')}
@@ -261,7 +282,10 @@ export default function TicketListPageContent({
               className={cn(
                 'flex-1 border-b-[4px] py-2 text-sm font-semibold uppercase transition-colors',
                 calendarMode === 'range'
-                  ? 'border-b-red-700 text-red-700'
+                  ? pick(
+                      'border-b-red-700 text-red-700',
+                      'border-b-[hsl(212,58%,51%)] text-[hsl(212,58%,51%)]',
+                    )
                   : 'border-b-transparent text-gray-600 hover:bg-gray-100',
               )}
               onClick={() => handleModeSwitch('range')}
@@ -910,7 +934,7 @@ export default function TicketListPageContent({
         </div>
       </div>
 
-      <TicketCheckDialog
+      <DetailDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         ticketId={selectedTicketId}

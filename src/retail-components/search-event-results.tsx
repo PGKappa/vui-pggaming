@@ -1,6 +1,6 @@
 import { RootContext } from '@/retail-contexts/root-context'
 import { Discipline, EventResult, RaceResult } from '@/retail-lib/types'
-import { getRacerColors, createPGVirtualAPICall } from '@/retail-lib/utils'
+import { cn, getRacerColors, createPGVirtualAPICall } from '@/retail-lib/utils'
 import { format } from 'date-fns'
 import { t } from 'i18next'
 import Image from 'next/image'
@@ -626,12 +626,18 @@ export default function SearchEventResults({
     [t],
   )
 
+  // web (pagina aperta con la freccia indietro): proporzioni proprie, la cassa
+  // resta com'è. Disciplina, data e fascia uguali, cerca e cancella poco più piccoli
+  const isWeb = !!onBack
+
   return (
     <div className="flex h-full flex-col space-y-1">
       <div
-        className={`relative flex h-16 w-full min-w-0 flex-nowrap items-center space-x-2 overflow-hidden bg-accent px-[24px] min-[1400px]:px-[60px] min-[1600px]:px-[100px] min-[1750px]:px-[130px] min-[1920px]:px-[167px] ${
-          onBack ? 'pl-14' : ''
-        }`}
+        className={cn(
+          'relative flex h-16 w-full min-w-0 flex-nowrap items-center space-x-2 overflow-hidden bg-accent px-[24px] min-[1400px]:px-[60px] min-[1600px]:px-[100px] min-[1750px]:px-[130px] min-[1920px]:px-[167px]',
+          isWeb &&
+            'gap-3 space-x-0 pl-16 pr-6 min-[1400px]:px-0 min-[1400px]:pl-16 min-[1400px]:pr-6 min-[1600px]:px-0 min-[1600px]:pl-16 min-[1600px]:pr-6 min-[1750px]:px-0 min-[1750px]:pl-16 min-[1750px]:pr-6 min-[1920px]:px-0 min-[1920px]:pl-16 min-[1920px]:pr-6',
+        )}
       >
         {onBack && (
           <button
@@ -645,7 +651,12 @@ export default function SearchEventResults({
           </button>
         )}
         {/* DISCIPLINA — larghezza fissa = "CARRERAS DE CABALLOS 6" */}
-        <div className="mr-1 inline-grid shrink-0">
+        <div
+          className={cn(
+            'mr-1 inline-grid shrink-0',
+            isWeb && 'mr-0 min-w-0 flex-1 shrink',
+          )}
+        >
           <span
             className="invisible col-start-1 row-start-1 whitespace-nowrap pl-[16px] pr-8 text-[14px] tabular-nums min-[1400px]:text-[16px]"
             aria-hidden
@@ -663,7 +674,12 @@ export default function SearchEventResults({
                 )
               }}
             >
-              <SelectTrigger className="h-[46px] w-full min-w-0 border-none bg-background pl-[16px] pr-[5px] text-[16px] text-foreground tabular-nums max-[1399px]:text-[14px] min-[1400px]:text-[16px]">
+              <SelectTrigger
+                className={cn(
+                  'h-[46px] w-full min-w-0 border-none bg-background pl-[16px] pr-[5px] text-[16px] tabular-nums text-foreground max-[1399px]:text-[14px] min-[1400px]:text-[16px]',
+                  isWeb && 'h-[42px]',
+                )}
+              >
                 <SelectValue placeholder={t('sport')} />
               </SelectTrigger>
               <SelectContent className="bg-white p-0">
@@ -682,7 +698,12 @@ export default function SearchEventResults({
         </div>
 
         {/* LAST 10 GAMES */}
-        <div className="ml-1.5 flex shrink-0 flex-row items-center max-[1399px]:ml-1">
+        <div
+          className={cn(
+            'ml-1.5 flex shrink-0 flex-row items-center max-[1399px]:ml-1',
+            isWeb && 'ml-0 max-[1399px]:ml-0',
+          )}
+        >
           <Checkbox
             id="last10"
             className="h-6 w-6 border-0 bg-background text-foreground"
@@ -704,7 +725,12 @@ export default function SearchEventResults({
           onValueChange={(value) => setSelectedDate(value)}
           disabled={lastTenGames}
         >
-          <SelectTrigger className="h-[46px] min-w-0 flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground tabular-nums disabled:opacity-95 max-[1399px]:pl-3 max-[1399px]:text-[14px]">
+          <SelectTrigger
+            className={cn(
+              'h-[46px] min-w-0 flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] tabular-nums text-foreground disabled:opacity-95 max-[1399px]:pl-3 max-[1399px]:text-[14px]',
+              isWeb && 'h-[42px]',
+            )}
+          >
             <SelectValue placeholder={t('date')} />
           </SelectTrigger>
           <SelectContent className="bg-white p-0">
@@ -725,7 +751,12 @@ export default function SearchEventResults({
           onValueChange={setSelectedTimeSlot}
           disabled={lastTenGames}
         >
-          <SelectTrigger className="h-[46px] min-w-0 flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] text-foreground tabular-nums disabled:opacity-95 max-[1399px]:left-0 max-[1399px]:pl-3 max-[1399px]:text-[14px] min-[1400px]:relative min-[1400px]:left-[10px]">
+          <SelectTrigger
+            className={cn(
+              'h-[46px] min-w-0 flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] tabular-nums text-foreground disabled:opacity-95 max-[1399px]:left-0 max-[1399px]:pl-3 max-[1399px]:text-[14px] min-[1400px]:relative min-[1400px]:left-[10px]',
+              isWeb && 'h-[42px] min-[1400px]:left-0',
+            )}
+          >
             <SelectValue placeholder={t('time_slot')} />
           </SelectTrigger>
           <SelectContent className="bg-white p-0">
@@ -742,7 +773,11 @@ export default function SearchEventResults({
 
         {/* CERCA */}
         <Button
-          className="h-[46px] min-w-0 flex-1 bg-searchResButton text-[16px] font-bold text-bet-foreground hover:opacity-90 disabled:opacity-85 max-[1399px]:text-[14px] min-[1400px]:relative min-[1400px]:left-[26px] min-[1400px]:ml-2 min-[1400px]:mr-4"
+          className={cn(
+            'h-[46px] min-w-0 flex-1 bg-searchResButton text-[16px] font-bold text-bet-foreground hover:opacity-90 disabled:opacity-85 max-[1399px]:text-[14px] min-[1400px]:relative min-[1400px]:left-[26px] min-[1400px]:ml-2 min-[1400px]:mr-4',
+            isWeb &&
+              'h-[42px] flex-[0.75] min-[1400px]:left-0 min-[1400px]:ml-0 min-[1400px]:mr-0',
+          )}
           disabled={selectedDiscipline === 'NONE'}
           onClick={handleSearch}
         >
@@ -751,7 +786,10 @@ export default function SearchEventResults({
 
         {/* RESET */}
         <Button
-          className="h-[46px] min-w-0 flex-1 bg-searchResButton text-[15px] text-tertiary-foreground max-[1399px]:text-[14px] min-[1400px]:relative min-[1400px]:left-[42px]"
+          className={cn(
+            'h-[46px] min-w-0 flex-1 bg-searchResButton text-[15px] text-tertiary-foreground max-[1399px]:text-[14px] min-[1400px]:relative min-[1400px]:left-[42px]',
+            isWeb && 'h-[42px] flex-[0.75] min-[1400px]:left-0',
+          )}
           disabled={!selectedDate && !selectedDiscipline && !selectedTimeSlot}
           onClick={handleReset}
         >
@@ -759,7 +797,12 @@ export default function SearchEventResults({
         </Button>
       </div>
 
-      <div className="relative top-1 h-full overflow-auto pb-2">
+      <div
+        className={cn(
+          'relative top-1 h-full overflow-auto pb-2',
+          isWeb && 'thin-scrollbar',
+        )}
+      >
         {confirmedDiscipline !== 'NONE' ? (
           isLoading ||
           (confirmedLastTenGames && rootContext.isLoadingEvents) ? (
@@ -851,7 +894,7 @@ export default function SearchEventResults({
                         </div>
                       </AccordionTrigger>
                       <AccordionContent>
-                        <EventResultDetails eventResult={eventResult} />
+                        <EventResultDetails eventResult={eventResult} isWeb={isWeb} />
                       </AccordionContent>
                     </AccordionItem>
                   )
@@ -875,7 +918,13 @@ export default function SearchEventResults({
   )
 }
 
-function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
+function EventResultDetails({
+  eventResult,
+  isWeb = false,
+}: {
+  eventResult: EventResult
+  isWeb?: boolean
+}) {
   const rootContext = useContext(RootContext)
   const [detailedResult, setDetailedResult] = useState<any>(null)
   const [showReplay, setShowReplay] = useState(false)
@@ -1527,7 +1576,14 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                   </div>
                 </div>
                 <div className="flex items-center justify-center">
-                  {raceResult.odds.evenodd.even && (
+                  {isWeb && raceResult.odds.evenodd.even && (
+                    // web: esito a sinistra e quota a destra, 8px dai bordi
+                    <div className="flex w-full items-center justify-between px-2 py-2 text-[16px] font-semibold">
+                      <span>{t('even').toUpperCase()}</span>
+                      <span>{raceResult.odds.evenodd.even}</span>
+                    </div>
+                  )}
+                  {!isWeb && raceResult.odds.evenodd.even && (
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
                         <span className="relative left-[6px] mr-[644px]">
@@ -1539,7 +1595,14 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                       </div>
                     </div>
                   )}
-                  {raceResult.odds.evenodd.odd && (
+                  {isWeb && raceResult.odds.evenodd.odd && (
+                    // web: esito a sinistra e quota a destra, 8px dai bordi
+                    <div className="flex w-full items-center justify-between px-2 py-2 text-[16px] font-semibold">
+                      <span>{t('odd').toUpperCase()}</span>
+                      <span>{raceResult.odds.evenodd.odd}</span>
+                    </div>
+                  )}
+                  {!isWeb && raceResult.odds.evenodd.odd && (
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
                         <span className="relative right-[5px] mr-[586px]">
@@ -1562,7 +1625,14 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                   </div>
                 </div>
                 <div className="flex items-center justify-center">
-                  {raceResult.odds.underover.under && (
+                  {isWeb && raceResult.odds.underover.under && (
+                    // web: esito a sinistra e quota a destra, 8px dai bordi
+                    <div className="flex w-full items-center justify-between px-2 py-2 text-[16px] font-semibold">
+                      <span>{t('under_full').toUpperCase()}</span>
+                      <span>{raceResult.odds.underover.under}</span>
+                    </div>
+                  )}
+                  {!isWeb && raceResult.odds.underover.under && (
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
                         <span className="relative left-[2px] mr-[591px]">
@@ -1574,7 +1644,14 @@ function EventResultDetails({ eventResult }: { eventResult: EventResult }) {
                       </div>
                     </div>
                   )}
-                  {raceResult.odds.underover.over && (
+                  {isWeb && raceResult.odds.underover.over && (
+                    // web: esito a sinistra e quota a destra, 8px dai bordi
+                    <div className="flex w-full items-center justify-between px-2 py-2 text-[16px] font-semibold">
+                      <span>{t('over_full').toUpperCase()}</span>
+                      <span>{raceResult.odds.underover.over}</span>
+                    </div>
+                  )}
+                  {!isWeb && raceResult.odds.underover.over && (
                     <div className="text-center">
                       <div className="py-2 text-[16px] font-semibold">
                         <span className="relative left-1 mr-[635px]">

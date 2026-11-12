@@ -4,7 +4,7 @@
 // di default: /api/ticket/list, pagamento attivo, orari mostrati così come
 // arrivano). Il web la imposta perché /api/ticket/list è riservato al cassiere
 // ("Level error" con il codice giocatore).
-import { createContext } from 'react'
+import { createContext, type ComponentType } from 'react'
 import type { TicketListResponse } from './types'
 
 export type TicketListRequest = {
@@ -23,6 +23,14 @@ export type TicketListSource = {
   readOnly?: boolean
   /** l'orario del ticket arriva in UTC: va mostrato nel fuso del dispositivo */
   utcTimes?: boolean
+  /** dettaglio ticket alternativo a quello della cassa (DETTAGLI) */
+  DetailDialog?: ComponentType<{
+    open: boolean
+    onOpenChange: (open: boolean) => void
+    ticketId: number | null
+    ticketCandidates?: Array<string | number>
+    terminalId?: string
+  }>
 }
 
 export const TicketListSourceContext = createContext<TicketListSource>({})

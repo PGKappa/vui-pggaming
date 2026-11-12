@@ -215,5 +215,10 @@
   "totals": "Totales",
   "unpaid": "No Pagado",
   "real_greyhounds": "Carreras de Galgos",
-  "real_horses": "Carreras de Caballos"
+  "real_horses": "Carreras de Caballos",
+  "divide/add_amount": "Dividir / Añadir Importe",
+  "enter_stake_amount": "Introducir Importe de Apuesta",
+  "remove_all_bets": "Eliminar Todo",
+  "ok": "OK",
+  "ticket_detail_title": "Ticket"
 }

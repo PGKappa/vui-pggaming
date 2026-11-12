@@ -236,5 +236,10 @@
   "totals": "Totals",
   "unpaid": "Unpaid",
   "real_greyhounds": "Dog Racing",
-  "real_horses": "Horse Racing"
+  "real_horses": "Horse Racing",
+  "divide/add_amount": "Divide / Add Amount",
+  "enter_stake_amount": "Enter Stake Amount",
+  "remove_all_bets": "Remove All Bets",
+  "ok": "OK",
+  "ticket_detail_title": "Ticket"
 }

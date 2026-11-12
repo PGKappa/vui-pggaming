@@ -145,6 +145,12 @@ function matchesPayment(status: number, filter: number): boolean {
  * questo browser (il cui dettaglio è accessibile anche al giocatore).
  * Gli orari sono convertiti da UTC all'ora locale, come li mostra la lista.
  */
+/**
+ * Dettagli ticket già scaricati per la Lista ticket (stessa risposta di
+ * /api/ticket/{id}): il dettaglio li mostra subito, senza attendere la rete.
+ */
+export const ticketDetailCache = new Map<number, any>()
+
 export async function fetchStoredTicketList(
   initCode: string,
   request: {
@@ -165,7 +171,11 @@ export async function fetchStoredTicketList(
     getStoredTicketIds(initCode).map(async (id) => {
       try {
         const data = await fetchTicket(id)
-        return data?.ret_code === 1024 ? data.info : undefined
+        if (data?.ret_code === 1024 && data.info) {
+          ticketDetailCache.set(Number(data.info.ticket_id ?? id), data.info)
+          return data.info
+        }
+        return undefined
       } catch {
         return undefined
       }

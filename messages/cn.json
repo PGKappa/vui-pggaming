@@ -150,5 +150,15 @@
   "unpaid": "未支付",
   "won": "中奖",
   "real_greyhounds": "Dog Racing",
-  "real_horses": "Horse Racing"
+  "real_horses": "Horse Racing",
+  "divide/add_amount": "分配/添加金额",
+  "enter_stake_amount": "输入投注金额",
+  "remove_all_bets": "删除所有投注",
+  "ok": "确定",
+  "ticket_detail_title": "投注单",
+  "double": "双重",
+  "triple": "三重",
+  "-ple": "重",
+  "combinations": "组合",
+  "total_combinations": "组合总数"
 }

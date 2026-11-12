@@ -275,15 +275,16 @@ export default function LiveMatchInfo(
           e i tasti stanno sopra gli ultimi risultati. Se i tasti non entrano
           nel terzo, la colonna destra si allarga quanto serve invece di
           sovrapporsi all'orario; sotto xl i tasti hanno testo più piccolo e
-          sotto 2xl si nasconde la scritta "Prossima corsa" */}
+          sotto 2xl si nasconde la scritta "Prossima corsa". Sotto lg (tablet e
+          mobile) va su due righe: titolo e orario, poi tasti e accordion */}
       <div
-        className={`flex h-12 w-full items-center gap-3 bg-card-header px-3 text-card-header-foreground shadow-sm ${
+        className={`flex min-h-12 w-full flex-wrap items-center gap-x-3 gap-y-2 bg-card-header px-3 py-2 text-card-header-foreground shadow-sm lg:h-12 lg:flex-nowrap lg:py-0 ${
           shouldShowLatecomersButton
             ? 'lg:grid lg:grid-cols-[minmax(0,2fr)_minmax(max-content,1fr)] lg:px-0'
             : ''
         }`}
       >
-        <div className="flex min-w-0 flex-1 items-center justify-between gap-3 lg:pl-3">
+        <div className="flex min-w-0 flex-1 basis-full items-center justify-between gap-3 lg:basis-auto lg:pl-3">
           <div className="flex min-w-0 flex-row items-center gap-3">
             {disciplineInfo.icon}
             <span className="truncate text-md font-bold uppercase tracking-wide">
@@ -302,14 +303,14 @@ export default function LiveMatchInfo(
         </div>
 
         {(shouldShowLatecomersButton || onToggleMedia) && (
-          <div className="flex shrink-0 items-center justify-end gap-3 lg:pr-3">
+          <div className="flex w-full shrink-0 items-center justify-end gap-3 lg:w-auto lg:pr-3">
             {/* i tre tasti hanno tutti la larghezza del più largo: colonne
                 uguali (1fr) in una griglia larga quanto il contenuto */}
             {shouldShowLatecomersButton && (
-              <div className="grid shrink-0 auto-cols-fr grid-flow-col gap-3">
+              <div className="grid flex-1 grid-cols-3 gap-2 lg:flex-none lg:auto-cols-fr lg:grid-flow-col lg:grid-cols-none lg:gap-3">
                 <button
                   type="button"
-                  className="flex h-9 items-center justify-center whitespace-nowrap rounded-sm border border-white/15 bg-secondary px-2 text-xs font-semibold uppercase text-secondary-foreground transition-colors hover:bg-tertiary hover:text-tertiary-foreground xl:px-3 xl:text-sm"
+                  className="flex h-9 items-center justify-center rounded-sm border border-white/15 bg-secondary px-1 text-center text-[11px] font-semibold uppercase leading-tight text-secondary-foreground transition-colors hover:bg-tertiary hover:text-tertiary-foreground sm:px-2 sm:text-xs lg:whitespace-nowrap xl:px-3 xl:text-sm"
                   onClick={() => setIsLatecomersOpen(true)}
                   title={t('latecomers')}
                 >
@@ -318,7 +319,7 @@ export default function LiveMatchInfo(
 
                 <button
                   type="button"
-                  className="flex h-9 items-center justify-center whitespace-nowrap rounded-sm border border-white/15 bg-secondary px-2 text-xs font-semibold uppercase text-secondary-foreground transition-colors hover:bg-tertiary hover:text-tertiary-foreground xl:px-3 xl:text-sm"
+                  className="flex h-9 items-center justify-center rounded-sm border border-white/15 bg-secondary px-1 text-center text-[11px] font-semibold uppercase leading-tight text-secondary-foreground transition-colors hover:bg-tertiary hover:text-tertiary-foreground sm:px-2 sm:text-xs lg:whitespace-nowrap xl:px-3 xl:text-sm"
                   onClick={openSearchResults}
                   title={t('search_results')}
                 >
@@ -327,7 +328,7 @@ export default function LiveMatchInfo(
 
                 <button
                   type="button"
-                  className="flex h-9 items-center justify-center whitespace-nowrap rounded-sm border border-white/15 bg-secondary px-2 text-xs font-semibold uppercase text-secondary-foreground transition-colors hover:bg-tertiary hover:text-tertiary-foreground xl:px-3 xl:text-sm"
+                  className="flex h-9 items-center justify-center rounded-sm border border-white/15 bg-secondary px-1 text-center text-[11px] font-semibold uppercase leading-tight text-secondary-foreground transition-colors hover:bg-tertiary hover:text-tertiary-foreground sm:px-2 sm:text-xs lg:whitespace-nowrap xl:px-3 xl:text-sm"
                   onClick={() => setIsInfoOpen(true)}
                   title={t('game_rules')}
                 >

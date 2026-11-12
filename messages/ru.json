@@ -163,5 +163,15 @@
   "unpaid": "Не оплачен",
   "won": "Выиграл",
   "real_greyhounds": "Собачьи бега",
-  "real_horses": "Конные скачки"
+  "real_horses": "Конные скачки",
+  "divide/add_amount": "Разделить/добавить сумму",
+  "enter_stake_amount": "Введите сумму ставки",
+  "remove_all_bets": "Удалить все",
+  "ok": "OK",
+  "ticket_detail_title": "Билет",
+  "double": "Двойная",
+  "triple": "Тройная",
+  "-ple": "-кратная",
+  "combinations": "Комбинации",
+  "total_combinations": "Всего комбинаций"
 }
