@@ -67,10 +67,10 @@ html.no-scrollbar body::-webkit-scrollbar-track,
   :root,
   .default {
     /* Web (virtual) default skin - allineato alla palette retail-default */
-    --background: 214 24% 94%;
+    --background: 0 0% 100%; /* fondo pagina web bianco */
     --foreground: 215 35% 13%;
 
-    --columnL-background: 214 24% 94%;
+    --columnL-background: 0 0% 100%;
     --columnL-foreground: 215 35% 13%;
 
     --card: 0 0% 100%;
