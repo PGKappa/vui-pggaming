@@ -1,5 +1,5 @@
 import { BetsContext } from '@/virtual-contexts/bets-context'
-import { BetEntry } from '@/virtual-lib/types'
+import { BetEntry, Discipline } from '@/virtual-lib/types'
 import useTimeLeft from '@/virtual-lib/use-time-left'
 import { format } from 'date-fns'
 import { t } from 'i18next'
@@ -10,6 +10,31 @@ import { Badge } from './ui/badge'
 import { Button } from './ui/button'
 import { Checkbox } from '@/virtual-components/ui/checkbox'
 import { usePathname } from 'next/navigation'
+
+// I mercati corse sono salvati con il nome interno (usato anche per il ticket):
+// qui li traduciamo solo per la visualizzazione.
+const RACE_MARKET_LABELS: Record<string, string> = {
+  Winner: 'winner',
+  Placed: 'place_2',
+  Show: 'show_3',
+  'Even/Odd': 'even_odd',
+  'Under/Over': 'under_over',
+  Exacta: 'exacta',
+  Quinella: 'quinella',
+  Trifecta: 'trifecta',
+  'Box Trifecta': 'boxed_trifecta',
+}
+
+// soglia under/over: 4.5 per i cani a 8, 3.5 per le corse a 6
+const translateMarket = (market: string, discipline: Discipline) => {
+  const key = RACE_MARKET_LABELS[market]
+  if (!key) return market
+  if (market !== 'Under/Over') return t(key)
+  return `${t(key)} ${discipline === Discipline.DOGS8 ? '4.5' : '3.5'}`
+}
+
+const translateOutcome = (outcome: string) =>
+  t(outcome, { nsSeparator: false, keySeparator: false })
 
 export default function EventBets(props: {
   betMode: 'SINGLE' | 'MULTIPLE' | 'SYSTEM'
@@ -24,6 +49,11 @@ export default function EventBets(props: {
   const timeToEventStart = useTimeLeft(eventBets[0].bet.event.startingAt)
 
   const getCategory = () => {
+    const discipline = eventBets[0]?.bet?.discipline
+    if (discipline === 'DOGS') return t('dog6_racing')
+    if (discipline === 'DOGS8') return t('dog8_racing')
+    if (discipline === 'HORSES') return t('horse6_racing')
+
     if (eventBets[0]?.bet?.event?.name) {
       return eventBets[0].bet.event.name
     }
@@ -34,71 +64,107 @@ export default function EventBets(props: {
     if (pathname.includes('/cani')) return t('dogs')
     return t('other')
   }
+  const firstBet = eventBets[0].bet
+
+  // Layout ricalcato sul blocco evento della betslip retail
   return (
     <li>
-      <div className="flex flex-col gap-1 border border-betSlip-foreground bg-primary-foreground p-1">
+      <div className="flex h-[89px] flex-col gap-0 border border-betSlip-foreground p-1">
         <div className="flex flex-row justify-between">
-          {betMode === 'SYSTEM' && (
-            <div className="flex flex-row items-center gap-2 pl-1">
+          <div className={betMode === 'SYSTEM' ? 'visible' : 'invisible'}>
+            <div className="flex flex-row items-center space-x-2 pl-1 pt-1">
               <Checkbox
                 checked={eventBets[0].fixed}
                 onCheckedChange={() => toggleEventBetsFixed(eventKey)}
               />
-              <span className="text-[12px]">{t('fixed')}</span>
+              <span className="text-[12px] font-semibold">{t('fixed')}</span>
             </div>
-          )}
-
-          {betMode !== 'SYSTEM' && (
-            <div className="flex flex-row items-center gap-2 pl-1"></div>
-          )}
-
+          </div>
           <Button
             variant="ghost"
-            className="group size-5 hover:text-tertiary-foreground"
+            className="size-7 bg-transparent hover:bg-transparent"
             size="icon"
             onClick={() => removeEventBets(eventKey)}
           >
             <Image
               src="/bin.svg"
               alt="Bin"
-              width={15}
-              height={15}
-              className="size-5 object-contain brightness-0 group-hover:brightness-0 group-hover:invert"
+              width={40}
+              height={20}
+              className="size-[17px] object-contain brightness-0"
             />
           </Button>
         </div>
 
-        <div className="flex items-center justify-between bg-primary-foreground">
-          <span className="text-[12px] font-semibold">{getCategory()}</span>
-
-          <div className="flex items-center gap-2">
-            <span className="text-[12px]">
-              {format(eventBets[0].bet.event.startingAt, 'HH:mm')}
+        <div className="mt-[1px] flex items-center justify-between">
+          <span className="ml-[3px] text-[15px] font-semibold uppercase">
+            {getCategory()}
+          </span>
+          <div className="mr-1 flex items-center space-x-2">
+            <span className="text-[15px] font-bold tabular-nums">
+              {/* le corse partono al minuto esatto: l'orario calcolato da
+                  `since` può cadere qualche istante prima (12:23:59), quindi
+                  si arrotonda al minuto più vicino invece di troncare */}
+              {format(
+                Math.round(
+                  new Date(firstBet.event.startingAt).getTime() / 60000,
+                ) * 60000,
+                'HH:mm',
+              )}
             </span>
-            <Badge className="h-6 w-14 rounded-sm text-sm">
+            <Badge className="mr-[4px] h-[27px] w-[61px] items-center justify-center rounded-sm bg-card-header text-[14px] tabular-nums text-card-header-foreground hover:bg-card-header">
               {timeToEventStart}
             </Badge>
           </div>
         </div>
 
-        <span className="text-[12px]">ID {eventBets[0].bet.event.number}</span>
+        {firstBet.discipline === Discipline.FOOTBALL ? (
+          <div className="ml-[3px] flex items-center gap-2 whitespace-nowrap pb-[4px]">
+            <span className="text-[13px] uppercase">
+              {firstBet.competitors}
+            </span>
+            <span className="text-[10px]">|</span>
+            <span className="text-[13px] font-bold text-tertiary">
+              {t('round').toUpperCase()} {firstBet.event.number}
+            </span>
+          </div>
+        ) : (
+          <div className="ml-[3px] flex items-center pb-[4px]">
+            {/* circuito (6 o 8 corridori) - ID corsa, come in cassa */}
+            <span className="text-[13px] font-normal uppercase">
+              <span className="text-black">
+                {t('track')} {firstBet.discipline === Discipline.DOGS8 ? 8 : 6}
+              </span>{' '}
+              <span className="text-tertiary">- ID {firstBet.event.number}</span>
+            </span>
+          </div>
+        )}
       </div>
 
-      <div className="border border-betSlip-foreground bg-primary-foreground p-1">
+      <div className="-space-y-[8px] border border-t-0 border-betSlip-foreground bg-white pl-[7px] pr-2 pt-[2px] tabular-nums">
         {eventBets.map((betEntry) => (
-          <div
-            key={betEntry.id}
-            className="flex items-center gap-10 text-[12px]"
-          >
-            <span className="flex-1 text-[12px]">{betEntry.market}</span>
-            <span className="text-[12px]">{betEntry.bet.option.outcome}</span>
-            <span className="text-[12px] font-bold">
-              {betEntry.bet.option.decPrice.toFixed(2)}
-            </span>
+          <div key={betEntry.id} className="flex items-center text-sm">
+            {/* mercato | corridore | quota in tre spazi uguali, corridore al centro */}
+            <div className="grid min-w-0 flex-1 grid-cols-3 items-center gap-2">
+              <span className="min-w-0 truncate text-[12px] capitalize leading-tight">
+                {translateMarket(betEntry.market, betEntry.bet.discipline)}
+              </span>
+              <span
+                className="min-w-0 truncate text-center text-[13px] font-normal leading-tight"
+                title={betEntry.bet.competitorName}
+              >
+                {translateOutcome(betEntry.bet.option.outcome)}
+                {betEntry.bet.competitorName &&
+                  ` ${betEntry.bet.competitorName}`}
+              </span>
+              <span className="relative right-1 text-right text-[13px] font-semibold">
+                {betEntry.bet.option.decPrice.toFixed(2)}
+              </span>
+            </div>
             <Button
               variant="ghost"
               size="icon"
-              className="size-5"
+              className="h-[40px] w-[24px] shrink-0 translate-x-[3px] translate-y-[-2px] bg-transparent hover:bg-transparent"
               onClick={() =>
                 removeBet(
                   betEntry.market,
@@ -108,7 +174,7 @@ export default function EventBets(props: {
                 )
               }
             >
-              <CircleXIcon className="size-4" />
+              <CircleXIcon className="mt-[1px] h-[17px] scale-[1.4]" />
             </Button>
           </div>
         ))}

@@ -24,23 +24,43 @@ import {
   formatCurrency,
 } from '@/retail-lib/use-ticket-list'
 import { cn } from '@/retail-lib/utils'
-import { ChevronDown } from 'lucide-react'
+import { ArrowLeft, ChevronDown, ChevronRight, RotateCw } from 'lucide-react'
 import { format } from 'date-fns'
 import { it } from 'date-fns/locale'
-import { useState, useRef, useEffect } from 'react'
+import { useContext, useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import TicketCheckDialog from '@/retail-components/ticket-check-dialog'
+import { TicketListSourceContext } from '@/retail-lib/ticket-list-source'
 import { type DateRange } from 'react-day-picker'
 
 interface TicketListPageContentProps {
   returnPath: string
   variant?: 'standard' | 'calcio'
+  /** se passato, mostra a sinistra del titolo una freccia per tornare indietro (web) */
+  onBack?: () => void
+  /** web: sotto la navbar del web (60px), senza il bordo bianco a sinistra
+   * che in cassa separa la pagina dalla colonna laterale */
+  fullWidth?: boolean
 }
 
 export default function TicketListPageContent({
   variant = 'standard',
+  onBack,
+  fullWidth = false,
 }: TicketListPageContentProps) {
   const { t } = useTranslation()
+  const sideBorder = fullWidth ? undefined : '1px solid white'
+  // il web usa il proprio dettaglio ticket; la cassa quello retail
+  const DetailDialog =
+    useContext(TicketListSourceContext).DetailDialog ?? TicketCheckDialog
+  // web: la pagina è a tutta larghezza, quindi filtri e testi della tabella
+  // scalano a blocchi di risoluzione (in cassa restano le misure a 1920)
+  // sotto lg (telefono) i filtri vanno su una griglia 2x2 a tutta larghezza
+  const webFilterWidth =
+    fullWidth && 'w-full lg:w-[180px] xl:w-[230px] 2xl:w-[286px]'
+  // web, sotto lg: al posto della tabella a 9 colonne una lista di schede
+  // (vedi sotto); tabella e legenda restano da lg in su
+  const webDesktopOnly = fullWidth && 'hidden lg:flex'
   const [calendarMode, setCalendarMode] = useState<'single' | 'range'>('range')
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false)
   const datePickerRef = useRef<HTMLDivElement>(null)
@@ -197,31 +217,48 @@ export default function TicketListPageContent({
 
   const fillerCount = Math.max(0, parseInt(pageSize) - items.length)
 
+  // calendario: rosso in cassa, blu (colore dei tasti web) sul web
+  const pick = (retail: string, web: string) => (fullWidth ? web : retail)
   const calendarClassNames = {
     months: 'flex flex-row space-x-4 w-full',
     month: 'space-y-4 flex-1',
     head_cell: 'text-gray-600 flex-1 font-semibold text-[0.8rem] text-center',
     cell: 'relative p-0 text-center text-sm text-gray-800 flex-1 focus-within:relative focus-within:z-20',
     day: 'h-8 w-full p-0 font-normal text-gray-800 bg-white border-0 aria-selected:opacity-100 hover:bg-gray-100 rounded-md',
-    day_selected:
+    day_selected: pick(
       'bg-red-700 text-white hover:bg-red-800 focus:bg-red-700 focus:text-white rounded-md',
+      'bg-[hsl(212,58%,51%)] text-white hover:bg-[hsl(212,58%,45%)] focus:bg-[hsl(212,58%,51%)] focus:text-white rounded-md',
+    ),
     day_today: dateFrom
       ? ''
-      : 'border border-red-700 font-bold text-red-700 rounded-md',
+      : pick(
+          'border border-red-700 font-bold text-red-700 rounded-md',
+          'border border-[hsl(212,58%,51%)] font-bold text-[hsl(212,58%,51%)] rounded-md',
+        ),
     day_outside: 'text-gray-300 opacity-50',
     day_disabled: 'text-gray-300 opacity-30',
-    day_range_start:
+    day_range_start: pick(
       '!bg-red-700 !text-white hover:!bg-red-800 rounded-l-md rounded-r-none',
-    day_range_end:
+      '!bg-[hsl(212,58%,51%)] !text-white hover:!bg-[hsl(212,58%,45%)] rounded-l-md rounded-r-none',
+    ),
+    day_range_end: pick(
       '!bg-red-700 !text-white hover:!bg-red-800 rounded-r-md rounded-l-none',
-    day_range_middle: '!bg-red-100 !text-black rounded-none',
+      '!bg-[hsl(212,58%,51%)] !text-white hover:!bg-[hsl(212,58%,45%)] rounded-r-md rounded-l-none',
+    ),
+    day_range_middle: pick(
+      '!bg-red-100 !text-black rounded-none',
+      '!bg-[hsl(212,58%,92%)] !text-black rounded-none',
+    ),
     caption_label: 'text-sm font-semibold text-gray-800',
     nav_button:
       'h-7 w-7 bg-transparent p-0 opacity-70 hover:opacity-100 border border-gray-300 rounded flex items-center justify-center',
   }
 
   const dateRangeButton = (extraClass: string) => (
-    <div className="relative" ref={datePickerRef}>
+    <div
+      className={cn('relative', fullWidth && 'w-full lg:w-auto')}
+      ref={datePickerRef}
+    >
       <Button
         variant="ticketFilter"
         className={cn(extraClass, 'justify-between pl-[15px] pr-[9px]')}
@@ -238,7 +275,10 @@ export default function TicketListPageContent({
               className={cn(
                 'flex-1 border-b-[4px] py-2 text-sm font-semibold uppercase transition-colors',
                 calendarMode === 'single'
-                  ? 'border-b-red-700 text-red-700'
+                  ? pick(
+                      'border-b-red-700 text-red-700',
+                      'border-b-[hsl(212,58%,51%)] text-[hsl(212,58%,51%)]',
+                    )
                   : 'border-b-transparent text-gray-600 hover:bg-gray-100',
               )}
               onClick={() => handleModeSwitch('single')}
@@ -249,7 +289,10 @@ export default function TicketListPageContent({
               className={cn(
                 'flex-1 border-b-[4px] py-2 text-sm font-semibold uppercase transition-colors',
                 calendarMode === 'range'
-                  ? 'border-b-red-700 text-red-700'
+                  ? pick(
+                      'border-b-red-700 text-red-700',
+                      'border-b-[hsl(212,58%,51%)] text-[hsl(212,58%,51%)]',
+                    )
                   : 'border-b-transparent text-gray-600 hover:bg-gray-100',
               )}
               onClick={() => handleModeSwitch('range')}
@@ -310,6 +353,7 @@ export default function TicketListPageContent({
       isCalcio
         ? 'bg-badge p-2 text-[16px]'
         : 'bg-accent p-1 text-[12px] lg:p-2 lg:text-[16px] uppercase',
+      fullWidth && 'leading-tight lg:text-[13px] xl:text-[15px] 2xl:text-[16px]',
       extra,
     )
 
@@ -344,6 +388,7 @@ export default function TicketListPageContent({
       isCalcio
         ? 'px-3 py-2 text-[14px]'
         : 'px-1 py-1 text-[9px] lg:px-3 lg:text-[17px] relative bottom-[1px]',
+      fullWidth && 'lg:text-[14px] xl:text-[16px] 2xl:text-[17px]',
       extra,
     )
 
@@ -351,7 +396,8 @@ export default function TicketListPageContent({
     <div
       className={cn(
         'fixed left-0 right-0 z-50 flex flex-col bg-accent text-accent-foreground',
-        isCalcio ? 'top-[60px]' : 'bottom-0 top-[64px]',
+        isCalcio || fullWidth ? 'top-[60px]' : 'top-[64px]',
+        !isCalcio && 'bottom-0',
       )}
     >
       {/* Header Bar */}
@@ -360,8 +406,19 @@ export default function TicketListPageContent({
           'relative flex items-center justify-center bg-secondary text-accent-foreground',
           isCalcio ? 'h-16' : 'h-10 shrink-0 lg:h-[56px]',
         )}
-        style={{ borderLeft: '1px solid white' }}
+        style={{ borderLeft: sideBorder }}
       >
+        {onBack && (
+          <button
+            type="button"
+            aria-label={t('back')}
+            title={t('back')}
+            onClick={onBack}
+            className="absolute left-2 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center text-accent-foreground transition-opacity hover:opacity-75"
+          >
+            <ArrowLeft className="size-6" />
+          </button>
+        )}
         <h2
           className={cn(
             'font-bold uppercase',
@@ -372,11 +429,23 @@ export default function TicketListPageContent({
         >
           {t('ticket_list')}
         </h2>
+        {/* web, telefono: "Ricarica" sta qui, i filtri occupano la riga sotto */}
+        {fullWidth && (
+          <button
+            type="button"
+            aria-label={t('reload')}
+            title={t('reload')}
+            onClick={fetchTickets}
+            className="absolute right-2 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center text-accent-foreground transition-opacity hover:opacity-75 lg:hidden"
+          >
+            <RotateCw className="size-5" />
+          </button>
+        )}
       </div>
 
       {/* Filter Bar */}
       {isCalcio ? (
-        <div className="flex flex-col items-center gap-4 px-4 pb-8 pt-10" style={{ borderLeft: '1px solid white' }}>
+        <div className="flex flex-col items-center gap-4 px-4 pb-8 pt-10" style={{ borderLeft: sideBorder }}>
           <div className="flex items-center gap-8">
             {/* Data - calcio */}
             <div className="mr-20 flex flex-row items-center gap-2 bg-badge text-background">
@@ -453,12 +522,27 @@ export default function TicketListPageContent({
           </div>
         </div>
       ) : (
-        <div className="flex h-[61px] shrink-0 justify-center bg-secondary pb-3 lg:pb-5" style={{ borderLeft: '1px solid white' }}>
-          <div className="relative left-[60px] flex flex-wrap items-center space-x-5 uppercase lg:bottom-[3px] lg:space-x-4">
+        <div
+          className={cn(
+            'flex h-[61px] shrink-0 justify-center bg-secondary pb-3 lg:pb-5',
+            fullWidth && 'h-auto px-2 pb-2 lg:h-[61px] lg:px-0 lg:pb-5',
+          )}
+          style={{ borderLeft: sideBorder }}
+        >
+          <div
+            className={cn(
+              'relative left-[60px] flex flex-wrap items-center space-x-5 uppercase lg:bottom-[3px] lg:space-x-4',
+              fullWidth &&
+                'left-0 grid w-full grid-cols-2 gap-2 space-x-0 lg:flex lg:w-auto lg:flex-nowrap lg:gap-0 lg:space-x-4',
+            )}
+          >
             {/* Data - standard */}
             <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
               {dateRangeButton(
-                'h-[38px] w-[149px] justify-center text-[15px] lg:h-[44px] lg:w-[286px] uppercase',
+                cn(
+                  'h-[38px] w-[149px] justify-center text-[15px] lg:h-[44px] lg:w-[286px] uppercase',
+                  webFilterWidth,
+                ),
               )}
             </div>
 
@@ -468,7 +552,12 @@ export default function TicketListPageContent({
                 value={discipline === 'all' ? '' : discipline}
                 onValueChange={(v) => setDiscipline(v || 'all')}
               >
-                <SelectTrigger className="h-[38px] w-[84px] bg-background pl-[15px] pr-[12px] text-[15px] uppercase text-foreground lg:h-[44px] lg:w-[286px]">
+                <SelectTrigger
+                  className={cn(
+                    'h-[38px] w-[84px] bg-background pl-[15px] pr-[12px] text-[15px] uppercase text-foreground lg:h-[44px] lg:w-[286px]',
+                    webFilterWidth,
+                  )}
+                >
                   <SelectValue placeholder={t('discipline')} />
                 </SelectTrigger>
                 <SelectContent className="bg-white p-0 text-[13px] uppercase">
@@ -488,7 +577,12 @@ export default function TicketListPageContent({
                 value={terminal === 'all' ? '' : terminal}
                 onValueChange={(v) => setTerminal(v || 'all')}
               >
-                <SelectTrigger className="h-[38px] w-[84px] bg-background pl-[15px] pr-[12px] text-[15px] uppercase text-foreground lg:h-[44px] lg:w-[286px]">
+                <SelectTrigger
+                  className={cn(
+                    'h-[38px] w-[84px] bg-background pl-[15px] pr-[12px] text-[15px] uppercase text-foreground lg:h-[44px] lg:w-[286px]',
+                    webFilterWidth,
+                  )}
+                >
                   <SelectValue placeholder={t('terminal')} />
                 </SelectTrigger>
                 <SelectContent className="bg-white p-0 text-[13px] uppercase">
@@ -508,7 +602,12 @@ export default function TicketListPageContent({
                 value={statusSelectValue === 'all' ? '' : statusSelectValue}
                 onValueChange={handleStatusChange}
               >
-                <SelectTrigger className="h-[38px] w-[79px] bg-background pl-[15px] pr-[12px] text-[15px] uppercase text-foreground lg:h-[44px] lg:w-[286px]">
+                <SelectTrigger
+                  className={cn(
+                    'h-[38px] w-[79px] bg-background pl-[15px] pr-[12px] text-[15px] uppercase text-foreground lg:h-[44px] lg:w-[286px]',
+                    webFilterWidth,
+                  )}
+                >
                   <SelectValue placeholder={t('status')} />
                 </SelectTrigger>
                 <SelectContent className="bg-white p-0 text-[13px] uppercase">
@@ -524,7 +623,10 @@ export default function TicketListPageContent({
             </div>
             <Button
               onClick={fetchTickets}
-              className="text-bold relative left-2 h-7 w-[60px] bg-tertiary text-[10px] uppercase text-tertiary-foreground lg:h-[42px] lg:w-[106px] lg:text-[15px]"
+              className={cn(
+                'text-bold relative left-2 h-7 w-[60px] bg-tertiary text-[10px] uppercase text-tertiary-foreground lg:h-[42px] lg:w-[106px] lg:text-[15px]',
+                fullWidth && 'hidden lg:inline-flex',
+              )}
             >
               {t('reload')}
             </Button>
@@ -540,7 +642,126 @@ export default function TicketListPageContent({
           di sincronizzare percentuali o pixel. La riga TOTALI è sticky bottom-0
           quindi rimane sempre visibile durante lo scroll.
           ──────────────────────────────────────────────────────────────────────── */}
-      <div className="flex flex-1 flex-col overflow-y-hidden bg-white text-black">
+      {fullWidth && (
+        <div className="flex min-h-0 flex-1 flex-col bg-white text-black lg:hidden">
+          <ul className="min-h-0 flex-1 divide-y divide-gray-200 overflow-y-auto">
+            {loading ? (
+              <li className="p-8 text-center text-gray-400">
+                {t('loading')}...
+              </li>
+            ) : items.length === 0 ? (
+              <li className="p-8 text-center text-gray-400">
+                {t('no_tickets_found')}
+              </li>
+            ) : (
+              items.map((item) => {
+                const date = parseTicketTime(item.time)
+                const statusInfo = getStatusDisplay(item.status)
+                const lostBalance = item.status === 4 || item.status === 6
+                return (
+                  <li key={item.ticket_id}>
+                    {/* tutta la scheda apre il dettaglio */}
+                    <button
+                      type="button"
+                      onClick={() => handleDetailsClick(item)}
+                      className="flex w-full items-center gap-3 px-3 py-3 text-left active:bg-gray-100"
+                    >
+                      <span
+                        className={cn(
+                          'w-1 self-stretch rounded-full',
+                          statusInfo.colorClass,
+                        )}
+                      />
+                      <span className="flex min-w-0 flex-1 flex-col gap-1">
+                        <span className="flex items-baseline justify-between gap-2">
+                          <span className="truncate text-[15px] font-bold">
+                            #{item.ticket_id}
+                          </span>
+                          <span className="shrink-0 text-[12px] tabular-nums text-gray-500">
+                            {format(date, 'dd/MM/yy HH:mm')}
+                          </span>
+                        </span>
+                        <span className="flex items-center justify-between gap-2 text-[12px] text-gray-600">
+                          <span className="truncate">
+                            {getDisciplineLabel(item.ticket_id)}
+                          </span>
+                          <span className="flex shrink-0 items-center gap-1.5 font-semibold uppercase">
+                            {t(statusInfo.translationKey)}
+                            <span
+                              className={cn(
+                                'size-2.5 rounded-sm',
+                                statusInfo.colorClass,
+                              )}
+                            />
+                          </span>
+                        </span>
+                        <span className="grid grid-cols-3 gap-2 text-[11px] uppercase text-gray-500">
+                          <span>
+                            {t('staked_amount')}
+                            <span className="block text-[14px] font-semibold normal-case tabular-nums text-black">
+                              {formatCurrency(item.amount, currencySymbol)}
+                            </span>
+                          </span>
+                          <span>
+                            {t('won')}
+                            <span className="block text-[14px] font-semibold normal-case tabular-nums text-black">
+                              {formatCurrency(item.amount_won, currencySymbol)}
+                            </span>
+                          </span>
+                          <span className="text-right">
+                            {t('balance')}
+                            <span
+                              className={cn(
+                                'block text-[14px] font-semibold normal-case tabular-nums text-black',
+                                lostBalance && 'text-ticket-lost',
+                              )}
+                            >
+                              {formatCurrency(
+                                Math.abs(getItemSaldo(item)),
+                                currencySymbol,
+                              )}
+                            </span>
+                          </span>
+                        </span>
+                      </span>
+                      <ChevronRight className="size-5 shrink-0 text-gray-400" />
+                    </button>
+                  </li>
+                )
+              })
+            )}
+          </ul>
+          {/* totali in una riga */}
+          <div className="grid shrink-0 grid-cols-[auto_1fr_1fr_1fr] items-center gap-2 bg-secondary px-3 py-2 text-[11px] uppercase text-white">
+            <span className="font-bold">{t('totals')}</span>
+            <span className="text-center">
+              {t('staked_amount')}
+              <span className="block text-[13px] font-semibold tabular-nums">
+                {formatCurrency(info?.grandtotal?.in ?? 0, currencySymbol)}
+              </span>
+            </span>
+            <span className="text-center">
+              {t('won')}
+              <span className="block text-[13px] font-semibold tabular-nums">
+                {formatCurrency(info?.grandtotal?.out ?? '0.00', currencySymbol)}
+              </span>
+            </span>
+            <span className="text-right">
+              {t('balance')}
+              <span className="block text-[13px] font-semibold tabular-nums">
+                {formatCurrency(netSaldo, currencySymbol)}
+              </span>
+            </span>
+          </div>
+        </div>
+      )}
+
+      <div
+        className={cn(
+          'flex flex-1 flex-col overflow-y-hidden bg-white text-black',
+          webDesktopOnly,
+        )}
+      >
         {/* Tabella dati — flex-1 per occupare lo spazio residuo quando ci sono poche righe */}
         <div className="flex-1" ref={tableWrapperRef}>
           <table
@@ -702,7 +923,7 @@ export default function TicketListPageContent({
 
         {/* Riga TOTALI — sticky bottom-0 nello stesso contenitore scroll.
             Stessa larghezza effettiva della tabella dati → colonne sempre allineate. */}
-        <div className="sticky bottom-0 shrink-0 bg-secondary uppercase text-white" style={{ borderLeft: '1px solid white' }}>
+        <div className="sticky bottom-0 shrink-0 bg-secondary uppercase text-white" style={{ borderLeft: sideBorder }}>
           <table className="w-full table-fixed border-collapse">
             <colgroup>
               <col style={{ width: '11.11%' }} />
@@ -753,8 +974,13 @@ export default function TicketListPageContent({
       </div>
 
       {/* Barra paginazione — fuori dal contenitore scroll, sempre in fondo alla pagina */}
-      <div className="relative h-[59px] shrink-0 bg-secondary" style={{ borderLeft: '1px solid white' }}>
-        <div className="relative top-[21px] ml-[24px] flex flex-row space-x-3">
+      <div className="relative h-[59px] shrink-0 bg-secondary" style={{ borderLeft: sideBorder }}>
+        <div
+          className={cn(
+            'relative top-[21px] ml-[24px] flex flex-row space-x-3',
+            webDesktopOnly,
+          )}
+        >
           <div className="flex items-center space-x-2">
             <span
               className={cn(
@@ -795,7 +1021,12 @@ export default function TicketListPageContent({
             <div className="h-4 w-4 rounded-sm bg-ticket-lost" />
           </div>
         </div>
-        <div className="absolute bottom-[7px] right-4 flex items-center space-x-3 bg-secondary px-2 py-1">
+        <div
+          className={cn(
+            'absolute bottom-[7px] right-4 flex items-center space-x-3 bg-secondary px-2 py-1',
+            fullWidth && 'max-lg:left-0 max-lg:right-0 max-lg:justify-center',
+          )}
+        >
           <Pagination className="w-auto">
             <PaginationContent>
               <PaginationItem>
@@ -861,7 +1092,7 @@ export default function TicketListPageContent({
         </div>
       </div>
 
-      <TicketCheckDialog
+      <DetailDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         ticketId={selectedTicketId}

@@ -41,22 +41,30 @@ export default function UpcomingRoundCard(props: {
   tomorrow.setDate(today.getDate() + 1)
 
   return (
-    <Card className="text-table-foreground border-b border-t border-card-foreground">
-      <CardHeader className="flex flex-row items-center justify-between px-6 md:pl-14">
-        <span>
+    <Card className="overflow-hidden text-table-foreground shadow-sm">
+      <CardHeader className="flex h-12 flex-row items-center justify-between space-y-0 px-3 py-0 md:px-4">
+        <span className="text-sm font-bold uppercase tracking-wide">
           {props.round.scheduleName} {t('round')} {props.round.scheduleId}
         </span>
-        <span>3:00</span>
+        <span className="rounded-sm bg-white px-2 py-0.5 text-sm font-bold tabular-nums text-card-header">
+          3:00
+        </span>
       </CardHeader>
       <CardContent className="px-0">
-        <Table>
-          <TableHeader className="bg-card-header">
-            <TableRow className="*:text-table-foreground border-card-foreground transition-none hover:bg-card-header">
-              <TableHead></TableHead>
-              <TableHead className="text-center">1</TableHead>
-              <TableHead className="text-center">X</TableHead>
-              <TableHead className="text-center">2</TableHead>
-              <TableHead></TableHead>
+        <Table className="table-fixed">
+          <TableHeader className="bg-secondary">
+            <TableRow className="border-0 transition-none hover:bg-secondary">
+              <TableHead className="h-8 w-auto" />
+              <TableHead className="h-8 w-[60px] text-center text-xs font-bold text-secondary-foreground sm:w-[18%]">
+                1
+              </TableHead>
+              <TableHead className="h-8 w-[60px] text-center text-xs font-bold text-secondary-foreground sm:w-[18%]">
+                X
+              </TableHead>
+              <TableHead className="h-8 w-[60px] text-center text-xs font-bold text-secondary-foreground sm:w-[18%]">
+                2
+              </TableHead>
+              <TableHead className="h-8 w-11 sm:w-14" />
             </TableRow>
           </TableHeader>
 
@@ -99,19 +107,30 @@ export default function UpcomingRoundCard(props: {
                   ) || []
 
                 return (
-                  <TableRow key={index} className="border-card-foreground">
-                    <TableCell className="flex w-full flex-row items-center gap-2 md:pl-14">
-                      <Badge variant="secondary" className="flex flex-col py-0">
-                        <span>{dayLabel}</span>
-                        <span>{formattedDate}</span>
-                      </Badge>
-                      <span className="font-bold">{teamNames}</span>
+                  <TableRow
+                    key={index}
+                    className="border-border transition-colors hover:bg-muted/60"
+                  >
+                    <TableCell className="px-2 py-2 sm:px-3 md:px-4">
+                      <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+                        <Badge
+                          variant="secondary"
+                          className="flex w-14 shrink-0 flex-col items-center rounded-sm px-1 py-0.5 text-[11px] leading-tight"
+                        >
+                          <span>{dayLabel}</span>
+                          <span className="tabular-nums">{formattedDate}</span>
+                        </Badge>
+                        <span className="truncate text-sm font-bold">
+                          {teamNames}
+                        </span>
+                      </div>
                     </TableCell>
 
                     {mainMarket ? (
                       marketOptions.map((option, i) => (
-                        <TableCell key={i}>
+                        <TableCell key={i} className="px-1 py-2 sm:px-2">
                           <BetEntryToggle
+                            className="mx-auto h-10 w-full max-w-[120px] px-0 text-[15px] font-semibold tabular-nums sm:text-[16px]"
                             marketName={mainMarket.name}
                             bet={{
                               event: {
@@ -128,15 +147,19 @@ export default function UpcomingRoundCard(props: {
                         </TableCell>
                       ))
                     ) : (
-                      <TableCell colSpan={3} className="text-center">
+                      <TableCell
+                        colSpan={3}
+                        className="text-center text-sm text-muted-foreground"
+                      >
                         {t('no_odds')}
                       </TableCell>
                     )}
 
-                    <TableCell className="text-right">
+                    <TableCell className="px-1 py-2 text-center sm:px-2">
                       <Button
                         variant="ghost"
                         size="icon"
+                        className="h-10 w-9 rounded-sm bg-tertiary sm:w-10 text-tertiary-foreground hover:bg-tertiary/90 hover:text-tertiary-foreground"
                         onClick={() =>
                           props.viewMatchBettingOptions({
                             round: {
@@ -151,7 +174,7 @@ export default function UpcomingRoundCard(props: {
                           })
                         }
                       >
-                        <PlusIcon />
+                        <PlusIcon className="size-5" />
                       </Button>
                     </TableCell>
                   </TableRow>

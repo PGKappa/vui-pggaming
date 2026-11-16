@@ -22,6 +22,8 @@ export default {
     './src/retail-components/**/*.{js,ts,jsx,tsx,mdx}',
     './src/retail-lib/**/*.{js,ts,jsx,tsx}',
     './src/retail-lib/layout-config.ts',
+    './src/virtual-components/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/virtual-lib/**/*.{js,ts,jsx,tsx}',
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {

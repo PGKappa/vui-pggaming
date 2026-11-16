@@ -86,11 +86,11 @@ export default function LiveRoundStatistics(props: {
       <CardContent>
         <Table>
           <TableHeader className="bg-card-header">
-            <TableRow className="*:text-table-foreground border-card-foreground transition-none hover:bg-card-header">
+            <TableRow className="border-card-foreground transition-none hover:bg-card-header">
               <TableHead></TableHead>
-              <TableHead className="text-center font-bold">1</TableHead>
-              <TableHead className="text-center font-bold">X</TableHead>
-              <TableHead className="text-center font-bold">2</TableHead>
+              <TableHead className="text-center font-bold text-card-header-foreground">1</TableHead>
+              <TableHead className="text-center font-bold text-card-header-foreground">X</TableHead>
+              <TableHead className="text-center font-bold text-card-header-foreground">2</TableHead>
               <TableHead></TableHead>
             </TableRow>
           </TableHeader>
@@ -149,7 +149,7 @@ export default function LiveRoundStatistics(props: {
                     <Button
                       variant="ghost"
                       size="icon-sm"
-                      className="hidden text-center lg:flex"
+                      className="hidden text-center hover:bg-transparent hover:text-current focus-visible:ring-0 lg:flex"
                       onClick={select}
                     >
                       <PlusIcon className="h-4 w-4" />

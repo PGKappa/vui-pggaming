@@ -1,7 +1,18 @@
 'use client'
 
+import { getBettingLimits } from '@/virtual-lib/betting-limits'
 import { Bet, BetEntry, Selection, SubmittedTicket } from '@/virtual-lib/types'
-import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
+import { RootContext } from '@/virtual-contexts/root-context'
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 
 export type BetMode = 'SINGLE' | 'MULTIPLE' | 'SYSTEM'
@@ -107,6 +118,11 @@ function getBetsContext(): BetsContextType {
 export default function BetsContextProvider(props: {
   children: React.ReactNode
 }) {
+  const { t } = useTranslation()
+  const tRef = useRef(t)
+  tRef.current = t
+  const rootContext = useContext(RootContext)
+  const { maxEvents, maxSelections } = getBettingLimits(rootContext?.cashierData)
   const initialBetsContext = getBetsContext()
   const [betsContext, setBetsContext] =
     useState<BetsContextType>(initialBetsContext)
@@ -135,16 +151,31 @@ export default function BetsContextProvider(props: {
     return eventsWithSingleBet.length >= 2
   }, [betsContext.betsByEvent])
 
-  // Determina la modalità di betting
+  // Determina la modalità di betting (stessa regola del retail):
+  // - più selezioni sullo stesso evento -> SYSTEM obbligatorio, anche con un
+  //   solo evento (le quote dello stesso evento non si moltiplicano)
+  // - 2+ eventi con una selezione ciascuno -> scelta dell'utente col toggle
   const betMode: BetMode = useMemo(() => {
     if (betsContext.betEntries.length <= 1) return 'SINGLE'
-    if (
-      Object.keys(betsContext.betsByEvent).length > 1 &&
-      Object.values(betsContext.betsByEvent).find((e) => e.length > 1)
-    )
-      return 'SYSTEM'
+    const hasEventWithMultipleBets = Object.values(
+      betsContext.betsByEvent,
+    ).some((group) => group.length > 1)
+    if (hasEventWithMultipleBets) return 'SYSTEM'
+    if (isSystemToggleEnabled && systemToggleMode === 'system') return 'SYSTEM'
     return 'MULTIPLE'
-  }, [betsContext.betEntries, betsContext.betsByEvent])
+  }, [
+    betsContext.betEntries,
+    betsContext.betsByEvent,
+    isSystemToggleEnabled,
+    systemToggleMode,
+  ])
+
+  // Se il toggle non è più disponibile si torna alla multipla
+  useEffect(() => {
+    if (!isSystemToggleEnabled && systemToggleMode === 'system') {
+      setSystemToggleMode('multiple')
+    }
+  }, [isSystemToggleEnabled, systemToggleMode])
 
   // Cleanup automatico di scommesse scadute ogni 5 secondi
   useEffect(() => {
@@ -160,8 +191,12 @@ export default function BetsContextProvider(props: {
           betEntries: activeBets,
           betsByEvent: getBetsByEvent(activeBets),
         }))
-        toast.info(
-          `Removed ${removedCount} expired bet${removedCount > 1 ? 's' : ''}`,
+        toast.warning(
+          removedCount > 1
+            ? tRef.current('event_started_removed_plural', {
+                count: removedCount,
+              })
+            : tRef.current('event_started_removed', { count: removedCount }),
         )
       }
     }
@@ -170,37 +205,32 @@ export default function BetsContextProvider(props: {
     return () => clearInterval(interval)
   }, [betsContext.betEntries])
 
-  // Controlli limiti per sistema
+  // Limiti di selezioni ed eventi da cashier_init, applicati sempre (come il
+  // retail): la modalità può diventare SYSTEM proprio con la nuova selezione
   const checkSystemLimits = useCallback(
     (newEntries: BetEntry[]): boolean => {
-      if (betMode !== 'SYSTEM') return true
+      const allEntries = [...betsContext.betEntries, ...newEntries]
 
-      const totalEntries = betsContext.betEntries.length + newEntries.length
-      if (totalEntries > 50) {
+      if (allEntries.length > maxSelections) {
         toast.error(
-          'Cannot add more bets: Maximum 50 bet entries allowed for system betting',
+          tRef.current('max_bet_entries_system', { max: maxSelections }),
         )
         return false
       }
 
-      const allEntries = [...betsContext.betEntries, ...newEntries]
       const eventsSet = new Set<string>()
       allEntries.forEach((entry) => {
-        const eventKey = entry.bet.event.number.toString()
-        eventsSet.add(eventKey)
+        eventsSet.add(`${entry.bet.discipline}_${entry.bet.event.number}`)
       })
-      const eventsNumber = eventsSet.size
 
-      if (eventsNumber > 15) {
-        toast.error(
-          'Cannot add more bets: Maximum 15 unique events allowed for system betting',
-        )
+      if (eventsSet.size > maxEvents) {
+        toast.error(tRef.current('max_events_system', { max: maxEvents }))
         return false
       }
 
       return true
     },
-    [betMode, betsContext.betEntries],
+    [betsContext.betEntries, maxEvents, maxSelections],
   )
 
   // Aggiungi scommessa
@@ -278,7 +308,7 @@ export default function BetsContextProvider(props: {
   const restoreLastSubmittedTicket = () => {
     const stored = localStorage.getItem('lastSubmittedTicket')
     if (!stored) {
-      toast.error('There is no last ticket to restore!')
+      toast.error(tRef.current('no_last_ticket'))
       return
     }
 
@@ -298,7 +328,26 @@ export default function BetsContextProvider(props: {
   // Aggiungi multiple scommesse
   const addBets = useCallback(
     (market: string, bets: Bet[]) => {
-      const newEntries = bets.map((bet, index) => ({
+      // scarta le giocate già presenti (stesso mercato, evento ed esito):
+      // "Seleziona tutto" non deve creare doppioni
+      const isSameBet = (entry: BetEntry, bet: Bet) =>
+        entry.market === market &&
+        entry.bet.discipline === bet.discipline &&
+        entry.bet.event.number === bet.event.number &&
+        entry.bet.option.outcome === bet.option.outcome
+      const freshBets = bets.filter(
+        (bet, index) =>
+          !betsContext.betEntries.some((entry) => isSameBet(entry, bet)) &&
+          bets.findIndex(
+            (other) =>
+              other.discipline === bet.discipline &&
+              other.event.number === bet.event.number &&
+              other.option.outcome === bet.option.outcome,
+          ) === index,
+      )
+      if (freshBets.length === 0) return
+
+      const newEntries = freshBets.map((bet, index) => ({
         id: betsContext.lastId + index + 1,
         bet,
         market,
@@ -316,7 +365,7 @@ export default function BetsContextProvider(props: {
         }
       })
     },
-    [betsContext.lastId, checkSystemLimits],
+    [betsContext.lastId, betsContext.betEntries, checkSystemLimits],
   )
 
   // Rimuovi multiple scommesse

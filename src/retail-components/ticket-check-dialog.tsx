@@ -24,6 +24,10 @@ import { useTranslation } from 'react-i18next'
 import { useCallback, useContext, useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { RootContext } from '@/retail-contexts/root-context'
+import {
+  TicketListSourceContext,
+  utcTicketTimeToLocal,
+} from '@/retail-lib/ticket-list-source'
 
 function getDetailStatus(status: number): {
   translationKey: string
@@ -138,6 +142,10 @@ export default function TicketCheckDialog({
 }) {
   const { t } = useTranslation()
   const rootContext = useContext(RootContext)
+  const ticketListSource = useContext(TicketListSourceContext)
+  // web: orario in UTC da mostrare in ora locale (la cassa lo mostra com'è)
+  const displayTime = (time: TicketDetailInfo['time']) =>
+    ticketListSource.utcTimes ? utcTicketTimeToLocal(time) : time
   const currencySymbol = rootContext?.getCurrencySymbol?.() || '€'
 
   const [ticketInfo, setTicketInfo] = useState<TicketDetailInfo | null>(null)
@@ -544,7 +552,7 @@ export default function TicketCheckDialog({
                         {t('date_hour', 'DATA E ORA')}
                       </div>
                       <div className="text-[19px] font-bold text-white">
-                        {formatTicketTime(ticketInfo.time)}
+                        {formatTicketTime(displayTime(ticketInfo.time))}
                       </div>
                     </div>
                     {terminalId && (
@@ -663,7 +671,7 @@ export default function TicketCheckDialog({
                             )
                               ? sel.startTime.split(' - ')
                               : [
-                                  formatTicketDate(ticketInfo.time),
+                                  formatTicketDate(displayTime(ticketInfo.time)),
                                   sel.startTime,
                                 ]
                             return (
@@ -1047,7 +1055,10 @@ export default function TicketCheckDialog({
                     {t('total_winning', 'TOTALE VINCITA')}{' '}
                     {fmt(ticketInfo.amount_won)}
                   </div>
-                  {statusInfo.isWinner && !statusInfo.isPaid && !cddXml && (
+                  {statusInfo.isWinner &&
+                    !statusInfo.isPaid &&
+                    !cddXml &&
+                    !ticketListSource.readOnly && (
                     <button
                       onClick={() => setShowPayConfirm(true)}
                       disabled={paying}
@@ -1060,7 +1071,10 @@ export default function TicketCheckDialog({
                       {paying ? '...' : t('pay', 'PAGA')}
                     </button>
                   )}
-                  {(!statusInfo.isWinner || statusInfo.isPaid || cddXml) && (
+                  {(!statusInfo.isWinner ||
+                    statusInfo.isPaid ||
+                    cddXml ||
+                    ticketListSource.readOnly) && (
                     <div className="mb-[35px] h-[46px]" />
                   )}
                   {/* Print button */}

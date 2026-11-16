@@ -1,7 +1,6 @@
 import { UpcomingRace } from '@/virtual-lib/types'
 import { getRacerColors } from '@/virtual-lib/utils'
 import { t } from 'i18next'
-import { Button } from './ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog'
 import {
   Table,
@@ -16,7 +15,7 @@ type LatecomersDialogProps = {
   isOpen: boolean
   onOpenChange: (open: boolean) => void
   raceInfo: UpcomingRace | undefined
-  discipline: 'DOGS' | 'HORSES'
+  discipline: 'DOGS' | 'DOGS8' | 'HORSES'
 }
 
 export default function LatecomersDialog({
@@ -75,25 +74,19 @@ export default function LatecomersDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-xl bg-red-600 p-0">
+      <DialogContent className="max-w-xl border-0 bg-accent p-0">
         {/* Header */}
         <DialogHeader className="flex h-14 flex-row items-center justify-center bg-accent px-6 text-white">
-          <DialogTitle className="text-center text-lg font-bold text-white">
+          <DialogTitle className="text-center text-lg font-bold uppercase text-white">
             {t('latecomers')}
           </DialogTitle>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => onOpenChange(false)}
-            className="h-8 w-8 text-white hover:bg-red-700"
-          ></Button>
         </DialogHeader>
 
         {/* Content */}
         <div className="bg-white">
           {latecomersData.length > 0 ? (
             <Table>
-              <TableHeader className="h-12 bg-gray-200">
+              <TableHeader className="h-12 bg-gray-200 uppercase">
                 <TableRow>
                   <TableHead className="w-1/3 border-r border-gray-300 text-center text-md font-bold text-black">
                     {t('market')}
@@ -113,7 +106,7 @@ export default function LatecomersDialog({
                       {item.market}
                     </TableCell>
                     <TableCell className="border-r border-gray-300 p-4">
-                      <div className="flex flex-wrap justify-start gap-2">
+                      <div className="ml-[15px] flex flex-wrap justify-start gap-4">
                         {formatRacers(item.racers)}
                       </div>
                     </TableCell>

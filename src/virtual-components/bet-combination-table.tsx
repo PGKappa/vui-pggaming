@@ -297,16 +297,20 @@ export default function BetCombinationsTable({
     }
   }
 
+  // Nome del mercato salvato nella giocata: sempre in inglese, come gli altri
+  // mercati del web. La schedina lo traduce solo a schermo (event-bets) e il
+  // ticket lo converte nel codice API (getAPIMarketName): un nome tradotto
+  // ("Accoppiata in Ordine", "Box. Trifecta") arriverebbe al backend così com'è.
   const getMarketName = () => {
     switch (marketType) {
       case 'exacta':
-        return `${t('exacta')}`
+        return 'Exacta'
       case 'quinella':
-        return `${t('quinella')}`
+        return 'Quinella'
       case 'trifecta':
-        return `${t('trifecta')}`
+        return 'Trifecta'
       case 'boxtrifecta':
-        return `${t('boxed_trifecta')}`
+        return 'Box Trifecta'
       default:
         return ''
     }
@@ -315,6 +319,7 @@ export default function BetCombinationsTable({
   const marketName = getMarketName()
 
   const allBetsSelected = useMemo(() => {
+    if (combinations.length === 0) return false
     return combinations.every((bet) =>
       betEntries.find(
         (entry) =>
@@ -378,19 +383,21 @@ export default function BetCombinationsTable({
 
   return (
     <Card className="mt-4">
-      <CardHeader className="flex h-12 flex-row items-center justify-between bg-card-header px-4 text-accent-foreground">
+      {/* telefono: titolo sopra, ordina / seleziona tutto / totale sotto a
+          tutta larghezza; da sm in su tutto su una riga */}
+      <CardHeader className="flex flex-col gap-2 bg-card-header px-3 py-2 text-accent-foreground max-sm:space-y-0 sm:h-12 sm:flex-row sm:items-center sm:justify-between sm:gap-0 sm:px-4">
         <CardTitle className="text-md text-white">{getTitle()}</CardTitle>
         <div className="flex gap-2">
           <Button
             variant="secondary"
-            className="h-8 w-32 px-3 text-xs font-bold text-white"
+            className="h-9 min-w-0 flex-1 px-2 text-xs font-bold text-white sm:h-8 sm:w-32 sm:flex-none sm:px-3"
             onClick={handleSortClick}
           >
             {getSortButtonText()}
           </Button>
           <Button
             variant="secondary"
-            className="h-8 w-32 px-3 text-xs font-bold"
+            className="h-9 min-w-0 flex-1 px-2 text-xs font-bold sm:h-8 sm:w-32 sm:flex-none sm:px-3"
             onClick={() => {
               if (allBetsSelected) {
                 removeBets(
@@ -410,20 +417,22 @@ export default function BetCombinationsTable({
               : `${t('select_all').toUpperCase()}`}
           </Button>
 
-          <div className="flex h-8 min-w-[48px] items-center justify-center rounded bg-accent-foreground px-3 text-accent">
+          <div className="flex h-9 min-w-[48px] shrink-0 items-center justify-center rounded bg-accent-foreground px-3 text-accent sm:h-8">
             <span className="text-xs font-bold">{combinations.length}</span>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="bg-muted-g p-4">
-        <div className="grid grid-cols-12 gap-2">
+      <CardContent className="bg-muted-g p-2 sm:p-4">
+        {/* 12 colonne fisse solo da lg: sotto, colonne larghe almeno 76px
+            (es. "1-2-3" e "147.40" su una riga ciascuno, tasti da dito) */}
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(76px,1fr))] gap-1.5 sm:gap-2 lg:grid-cols-12">
           {combinations.map((bet) => (
             <BetEntryToggle
               key={bet.option.outcome}
               marketName={marketName}
               bet={bet}
               variant="racecombination"
-              className="h-13 w-18 justify-center text-md"
+              className="h-13 w-18 justify-center text-md max-lg:h-14 max-lg:w-full max-lg:min-w-0 max-lg:whitespace-nowrap max-lg:px-1 max-lg:py-1.5 max-lg:text-[16px] max-lg:tabular-nums max-lg:leading-tight"
             />
           ))}
         </div>

@@ -22,7 +22,7 @@ export default function MedalsHistory(props: { history: number[] }) {
         return (
           <div
             key={idx}
-            className="flex h-6 w-6 items-center justify-center text-[20px] text-white"
+            className="flex h-6 w-6 items-center justify-center text-[18px] font-medium text-current"
           >
             X
           </div>
@@ -30,18 +30,16 @@ export default function MedalsHistory(props: { history: number[] }) {
     }
 
     return (
-      <div
-        key={idx}
-        className="relative flex h-6 w-6 items-center justify-center"
-      >
+      // immagine 39x49: il cerchio della coccarda è centrato al 34% dell'altezza
+      <div key={idx} className="relative h-[30px] w-6 shrink-0">
         <Image
           src={imageSrc}
           alt={alt}
-          width={64}
-          height={64}
-          className="absolute"
+          width={39}
+          height={49}
+          className="h-full w-full"
         />
-        <span className="relative inset-0 pb-[8px] text-[14px] font-bold text-black">
+        <span className="absolute inset-x-0 top-0 flex h-[22px] items-center justify-center text-[13px] font-bold leading-none text-black">
           {position}
         </span>
       </div>
