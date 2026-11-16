@@ -39,24 +39,40 @@ const debugLog = (section: string, message: string, data?: any) => {
 // alla rovescia con `since` e far comparire subito le nuove corse
 const RACING_REFRESH_MS = 45 * 1000
 
-// Canale di una disciplina riconosciuto da game_id o, in mancanza, dal nome
-// (stesse regole della cassa: i cani a 8 sono un'altra disciplina)
+// Canale di una disciplina riconosciuto da game_id o dal nome, con le stesse
+// identiche regole della cassa (retail-contexts/events-context.tsx).
+// NB: per i cani a 6 niente lookahead (?!8): "dogs8" passerebbe comunque.
 function findRacingChannel(
   channels: any[],
   discipline: 'DOGS' | 'DOGS8' | 'HORSES',
 ) {
-  const matches = (value: unknown) => {
-    if (typeof value !== 'string') return false
-    if (discipline === 'HORSES') return /horse|cavall/i.test(value)
-    const isDog = /dog|grey|levrier|cani/i.test(value)
-    return discipline === 'DOGS8'
-      ? isDog && /8/.test(value)
-      : isDog && !/8/.test(value)
+  const isString = (value: unknown): value is string =>
+    typeof value === 'string'
+  switch (discipline) {
+    case 'DOGS':
+      return channels.find(
+        (c) =>
+          (isString(c?.game_id) &&
+            /dog/i.test(c.game_id) &&
+            !/8/.test(c.game_id)) ||
+          (isString(c?.name) &&
+            /dog|grey/i.test(c.name) &&
+            !/8/.test(c.name) &&
+            !/8/.test(c.game_id || '')),
+      )
+    case 'DOGS8':
+      return channels.find(
+        (c) =>
+          (isString(c?.game_id) && /dogs?8/i.test(c.game_id)) ||
+          (isString(c?.name) && /dog.*8|grey.*8/i.test(c.name)),
+      )
+    case 'HORSES':
+      return channels.find(
+        (c) =>
+          (isString(c?.game_id) && /horse/i.test(c.game_id)) ||
+          (isString(c?.name) && /horse|cavall/i.test(c.name)),
+      )
   }
-  return (
-    channels.find((channel) => matches(channel?.game_id)) ??
-    channels.find((channel) => !channel?.game_id && matches(channel?.name))
-  )
 }
 
 // Orario di partenza: prima `since` (secondi mancanti, calcolati dal server:
@@ -110,6 +126,8 @@ export type RootContextType = {
   eventResults?: EventResult[]
   /** ultimi risultati delle corse, da prev_events di /api/event/list */
   previousResults?: Partial<Record<Discipline, PreviousChannelResult>>
+  /** id dei canali delle corse, da /api/event/list (dipendono dall'operatore) */
+  racingChannelIds?: Partial<Record<Discipline, number>>
   betsHistory: Ticket[]
   matchResult?: MatchResult[]
   getCurrencySymbol?: () => string
@@ -789,8 +807,8 @@ export default function RootContextProvider(props: {
     }
 
     // Corse (cani e cavalli): una sola chiamata a /api/event/list per entrambe
-    // le discipline. I canali si riconoscono da game_id (come la cassa); la
-    // posizione nell'array resta solo come riserva.
+    // le discipline. I canali si riconoscono da game_id/nome come la cassa;
+    // solo i cani a 6 ripiegano sul primo canale (come la cassa).
     const fetchRacingEvents = async (force = false) => {
       if (
         !force &&
@@ -823,7 +841,8 @@ export default function RootContextProvider(props: {
           },
           {
             discipline: Discipline.HORSES,
-            channel: findRacingChannel(channels, 'HORSES') ?? channels[1],
+            // come la cassa: nessuna posizione di riserva
+            channel: findRacingChannel(channels, 'HORSES'),
             name: 'Horse Race',
             eventsKey: CACHE_KEYS.HORSES_EVENTS,
             resultsKey: CACHE_KEYS.HORSES_PREV_RESULTS,
@@ -860,9 +879,18 @@ export default function RootContextProvider(props: {
           )
 
           const previous = sortPreviousResults(channel.prev_events)
+          const channelId = Number(channel.id)
 
           setRootContext((prev) => ({
             ...prev,
+            ...(Number.isFinite(channelId) && channelId > 0
+              ? {
+                  racingChannelIds: {
+                    ...prev.racingChannelIds,
+                    [item.discipline]: channelId,
+                  },
+                }
+              : {}),
             upcomingEvents: [
               ...(prev.upcomingEvents?.filter(
                 (event) => event.discipline !== item.discipline,

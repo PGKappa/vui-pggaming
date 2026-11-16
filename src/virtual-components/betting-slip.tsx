@@ -477,14 +477,17 @@ export default function BettingSlip() {
                 : firstEntry.bet.discipline === Discipline.DOGS8
                   ? 'dogs8'
                   : 'soccer'
+          // channelId: quello del canale in /api/event/list per l'operatore
+          // corrente (come la cassa); i valori fissi restano solo di riserva
           const channelId =
-            firstEntry.bet.discipline === Discipline.HORSES
+            rootContext?.racingChannelIds?.[firstEntry.bet.discipline] ??
+            (firstEntry.bet.discipline === Discipline.HORSES
               ? 3
               : firstEntry.bet.discipline === Discipline.DOGS
                 ? 4
                 : firstEntry.bet.discipline === Discipline.DOGS8
-                  ? 5 // id del canale dogs8 in /api/event/list
-                  : 1
+                  ? 5
+                  : 1)
 
           // palimpsestId: dall'evento della giocata, poi dall'evento nel
           // palinsesto caricato (id + disciplina), infine il default storico
