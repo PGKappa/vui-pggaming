@@ -173,5 +173,7 @@
   "triple": "Тройная",
   "-ple": "-кратная",
   "combinations": "Комбинации",
-  "total_combinations": "Всего комбинаций"
+  "total_combinations": "Всего комбинаций",
+  "mobile_tab_matches": "Матчи",
+  "mobile_tab_live": "В эфире"
 }

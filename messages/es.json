@@ -220,5 +220,7 @@
   "enter_stake_amount": "Introducir Importe de Apuesta",
   "remove_all_bets": "Eliminar Todo",
   "ok": "OK",
-  "ticket_detail_title": "Ticket"
+  "ticket_detail_title": "Ticket",
+  "mobile_tab_matches": "Partidos",
+  "mobile_tab_live": "En directo"
 }

@@ -24,7 +24,7 @@ import {
   formatCurrency,
 } from '@/retail-lib/use-ticket-list'
 import { cn } from '@/retail-lib/utils'
-import { ArrowLeft, ChevronDown } from 'lucide-react'
+import { ArrowLeft, ChevronDown, ChevronRight, RotateCw } from 'lucide-react'
 import { format } from 'date-fns'
 import { it } from 'date-fns/locale'
 import { useContext, useState, useRef, useEffect } from 'react'
@@ -55,8 +55,12 @@ export default function TicketListPageContent({
     useContext(TicketListSourceContext).DetailDialog ?? TicketCheckDialog
   // web: la pagina è a tutta larghezza, quindi filtri e testi della tabella
   // scalano a blocchi di risoluzione (in cassa restano le misure a 1920)
+  // sotto lg (telefono) i filtri vanno su una griglia 2x2 a tutta larghezza
   const webFilterWidth =
-    fullWidth && 'lg:w-[180px] xl:w-[230px] 2xl:w-[286px]'
+    fullWidth && 'w-full lg:w-[180px] xl:w-[230px] 2xl:w-[286px]'
+  // web, sotto lg: al posto della tabella a 9 colonne una lista di schede
+  // (vedi sotto); tabella e legenda restano da lg in su
+  const webDesktopOnly = fullWidth && 'hidden lg:flex'
   const [calendarMode, setCalendarMode] = useState<'single' | 'range'>('range')
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false)
   const datePickerRef = useRef<HTMLDivElement>(null)
@@ -251,7 +255,10 @@ export default function TicketListPageContent({
   }
 
   const dateRangeButton = (extraClass: string) => (
-    <div className="relative" ref={datePickerRef}>
+    <div
+      className={cn('relative', fullWidth && 'w-full lg:w-auto')}
+      ref={datePickerRef}
+    >
       <Button
         variant="ticketFilter"
         className={cn(extraClass, 'justify-between pl-[15px] pr-[9px]')}
@@ -422,6 +429,18 @@ export default function TicketListPageContent({
         >
           {t('ticket_list')}
         </h2>
+        {/* web, telefono: "Ricarica" sta qui, i filtri occupano la riga sotto */}
+        {fullWidth && (
+          <button
+            type="button"
+            aria-label={t('reload')}
+            title={t('reload')}
+            onClick={fetchTickets}
+            className="absolute right-2 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center text-accent-foreground transition-opacity hover:opacity-75 lg:hidden"
+          >
+            <RotateCw className="size-5" />
+          </button>
+        )}
       </div>
 
       {/* Filter Bar */}
@@ -503,11 +522,18 @@ export default function TicketListPageContent({
           </div>
         </div>
       ) : (
-        <div className="flex h-[61px] shrink-0 justify-center bg-secondary pb-3 lg:pb-5" style={{ borderLeft: sideBorder }}>
+        <div
+          className={cn(
+            'flex h-[61px] shrink-0 justify-center bg-secondary pb-3 lg:pb-5',
+            fullWidth && 'h-auto px-2 pb-2 lg:h-[61px] lg:px-0 lg:pb-5',
+          )}
+          style={{ borderLeft: sideBorder }}
+        >
           <div
             className={cn(
               'relative left-[60px] flex flex-wrap items-center space-x-5 uppercase lg:bottom-[3px] lg:space-x-4',
-              fullWidth && 'left-0 flex-nowrap',
+              fullWidth &&
+                'left-0 grid w-full grid-cols-2 gap-2 space-x-0 lg:flex lg:w-auto lg:flex-nowrap lg:gap-0 lg:space-x-4',
             )}
           >
             {/* Data - standard */}
@@ -597,7 +623,10 @@ export default function TicketListPageContent({
             </div>
             <Button
               onClick={fetchTickets}
-              className="text-bold relative left-2 h-7 w-[60px] bg-tertiary text-[10px] uppercase text-tertiary-foreground lg:h-[42px] lg:w-[106px] lg:text-[15px]"
+              className={cn(
+                'text-bold relative left-2 h-7 w-[60px] bg-tertiary text-[10px] uppercase text-tertiary-foreground lg:h-[42px] lg:w-[106px] lg:text-[15px]',
+                fullWidth && 'hidden lg:inline-flex',
+              )}
             >
               {t('reload')}
             </Button>
@@ -613,7 +642,126 @@ export default function TicketListPageContent({
           di sincronizzare percentuali o pixel. La riga TOTALI è sticky bottom-0
           quindi rimane sempre visibile durante lo scroll.
           ──────────────────────────────────────────────────────────────────────── */}
-      <div className="flex flex-1 flex-col overflow-y-hidden bg-white text-black">
+      {fullWidth && (
+        <div className="flex min-h-0 flex-1 flex-col bg-white text-black lg:hidden">
+          <ul className="min-h-0 flex-1 divide-y divide-gray-200 overflow-y-auto">
+            {loading ? (
+              <li className="p-8 text-center text-gray-400">
+                {t('loading')}...
+              </li>
+            ) : items.length === 0 ? (
+              <li className="p-8 text-center text-gray-400">
+                {t('no_tickets_found')}
+              </li>
+            ) : (
+              items.map((item) => {
+                const date = parseTicketTime(item.time)
+                const statusInfo = getStatusDisplay(item.status)
+                const lostBalance = item.status === 4 || item.status === 6
+                return (
+                  <li key={item.ticket_id}>
+                    {/* tutta la scheda apre il dettaglio */}
+                    <button
+                      type="button"
+                      onClick={() => handleDetailsClick(item)}
+                      className="flex w-full items-center gap-3 px-3 py-3 text-left active:bg-gray-100"
+                    >
+                      <span
+                        className={cn(
+                          'w-1 self-stretch rounded-full',
+                          statusInfo.colorClass,
+                        )}
+                      />
+                      <span className="flex min-w-0 flex-1 flex-col gap-1">
+                        <span className="flex items-baseline justify-between gap-2">
+                          <span className="truncate text-[15px] font-bold">
+                            #{item.ticket_id}
+                          </span>
+                          <span className="shrink-0 text-[12px] tabular-nums text-gray-500">
+                            {format(date, 'dd/MM/yy HH:mm')}
+                          </span>
+                        </span>
+                        <span className="flex items-center justify-between gap-2 text-[12px] text-gray-600">
+                          <span className="truncate">
+                            {getDisciplineLabel(item.ticket_id)}
+                          </span>
+                          <span className="flex shrink-0 items-center gap-1.5 font-semibold uppercase">
+                            {t(statusInfo.translationKey)}
+                            <span
+                              className={cn(
+                                'size-2.5 rounded-sm',
+                                statusInfo.colorClass,
+                              )}
+                            />
+                          </span>
+                        </span>
+                        <span className="grid grid-cols-3 gap-2 text-[11px] uppercase text-gray-500">
+                          <span>
+                            {t('staked_amount')}
+                            <span className="block text-[14px] font-semibold normal-case tabular-nums text-black">
+                              {formatCurrency(item.amount, currencySymbol)}
+                            </span>
+                          </span>
+                          <span>
+                            {t('won')}
+                            <span className="block text-[14px] font-semibold normal-case tabular-nums text-black">
+                              {formatCurrency(item.amount_won, currencySymbol)}
+                            </span>
+                          </span>
+                          <span className="text-right">
+                            {t('balance')}
+                            <span
+                              className={cn(
+                                'block text-[14px] font-semibold normal-case tabular-nums text-black',
+                                lostBalance && 'text-ticket-lost',
+                              )}
+                            >
+                              {formatCurrency(
+                                Math.abs(getItemSaldo(item)),
+                                currencySymbol,
+                              )}
+                            </span>
+                          </span>
+                        </span>
+                      </span>
+                      <ChevronRight className="size-5 shrink-0 text-gray-400" />
+                    </button>
+                  </li>
+                )
+              })
+            )}
+          </ul>
+          {/* totali in una riga */}
+          <div className="grid shrink-0 grid-cols-[auto_1fr_1fr_1fr] items-center gap-2 bg-secondary px-3 py-2 text-[11px] uppercase text-white">
+            <span className="font-bold">{t('totals')}</span>
+            <span className="text-center">
+              {t('staked_amount')}
+              <span className="block text-[13px] font-semibold tabular-nums">
+                {formatCurrency(info?.grandtotal?.in ?? 0, currencySymbol)}
+              </span>
+            </span>
+            <span className="text-center">
+              {t('won')}
+              <span className="block text-[13px] font-semibold tabular-nums">
+                {formatCurrency(info?.grandtotal?.out ?? '0.00', currencySymbol)}
+              </span>
+            </span>
+            <span className="text-right">
+              {t('balance')}
+              <span className="block text-[13px] font-semibold tabular-nums">
+                {formatCurrency(netSaldo, currencySymbol)}
+              </span>
+            </span>
+          </div>
+        </div>
+      )}
+
+      <div
+        className={cn(
+          'flex flex-1 flex-col overflow-y-hidden bg-white text-black',
+          webDesktopOnly,
+        )}
+      >
         {/* Tabella dati — flex-1 per occupare lo spazio residuo quando ci sono poche righe */}
         <div className="flex-1" ref={tableWrapperRef}>
           <table
@@ -827,7 +975,12 @@ export default function TicketListPageContent({
 
       {/* Barra paginazione — fuori dal contenitore scroll, sempre in fondo alla pagina */}
       <div className="relative h-[59px] shrink-0 bg-secondary" style={{ borderLeft: sideBorder }}>
-        <div className="relative top-[21px] ml-[24px] flex flex-row space-x-3">
+        <div
+          className={cn(
+            'relative top-[21px] ml-[24px] flex flex-row space-x-3',
+            webDesktopOnly,
+          )}
+        >
           <div className="flex items-center space-x-2">
             <span
               className={cn(
@@ -868,7 +1021,12 @@ export default function TicketListPageContent({
             <div className="h-4 w-4 rounded-sm bg-ticket-lost" />
           </div>
         </div>
-        <div className="absolute bottom-[7px] right-4 flex items-center space-x-3 bg-secondary px-2 py-1">
+        <div
+          className={cn(
+            'absolute bottom-[7px] right-4 flex items-center space-x-3 bg-secondary px-2 py-1',
+            fullWidth && 'max-lg:left-0 max-lg:right-0 max-lg:justify-center',
+          )}
+        >
           <Pagination className="w-auto">
             <PaginationContent>
               <PaginationItem>

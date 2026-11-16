@@ -337,8 +337,16 @@ export default function UpcomingRaceCard({
   const baseColumns = isCompact
     ? 'minmax(0, 1.4fr) 1px'
     : 'minmax(170px, 1.3fr) 1px minmax(150px, 1fr) 1px minmax(180px, 1.2fr) 1px'
-  const gridTemplateColumns =
-    activeTab === 'main'
+  // mobile, coppie e terzetti: i nomi non ci stanno accanto ai tasti
+  // 1°/2°/3°, resta solo il numero colorato del partente
+  const hideRacerNames = isCompact && activeTab !== 'main'
+  const gridTemplateColumns = isCompact
+    ? activeTab === 'main'
+      ? `${baseColumns} 1fr 1px 1fr 1px 1fr`
+      : activeTab === 'couples'
+        ? '52px 1px repeat(2, minmax(0, 1fr)) 1px minmax(0, 1.1fr)'
+        : '52px 1px repeat(3, minmax(0, 1fr)) 1px minmax(0, 1.1fr)'
+    : activeTab === 'main'
       ? `${baseColumns} 1fr 1px 1fr 1px 1fr`
       : activeTab === 'couples'
         ? `${baseColumns} 1fr 1fr 1px 1fr`
@@ -353,7 +361,8 @@ export default function UpcomingRaceCard({
         }}
       >
         <div className="text-center font-bold">
-          {t('starters').toUpperCase()}
+          {/* senza nomi la colonna è larga solo quanto il numero */}
+          {hideRacerNames ? '#' : t('starters').toUpperCase()}
         </div>
         <div className="h-full bg-white/15" />
 
@@ -507,7 +516,7 @@ export default function UpcomingRaceCard({
       return (
         <>
           <div
-            className={`flex h-12 cursor-pointer items-center justify-center px-2 text-center ${isAnyOrderMode ? 'bg-muted' : ''}`}
+            className={`flex h-12 cursor-pointer items-center justify-center px-1 text-center sm:px-2 ${isAnyOrderMode ? 'bg-muted' : ''}`}
             onClick={handleMarketTypeToggle}
           >
             <Toggle
@@ -525,7 +534,7 @@ export default function UpcomingRaceCard({
           </div>
 
           <div
-            className={`flex cursor-pointer items-center justify-center px-2 text-center ${isAnyOrderMode ? 'bg-muted' : ''}`}
+            className={`flex cursor-pointer items-center justify-center px-1 text-center sm:px-2 ${isAnyOrderMode ? 'bg-muted' : ''}`}
             onClick={handleMarketTypeToggle}
           >
             <Toggle
@@ -576,7 +585,7 @@ export default function UpcomingRaceCard({
       return (
         <>
           <div
-            className={`flex h-12 cursor-pointer items-center justify-center px-2 text-center ${isAnyOrderMode ? 'bg-muted' : ''}`}
+            className={`flex h-12 cursor-pointer items-center justify-center px-1 text-center sm:px-2 ${isAnyOrderMode ? 'bg-muted' : ''}`}
             onClick={handleMarketTypeToggle}
           >
             <Toggle
@@ -594,7 +603,7 @@ export default function UpcomingRaceCard({
           </div>
 
           <div
-            className={`flex cursor-pointer items-center justify-center px-2 text-center ${isAnyOrderMode ? 'bg-muted' : ''}`}
+            className={`flex cursor-pointer items-center justify-center px-1 text-center sm:px-2 ${isAnyOrderMode ? 'bg-muted' : ''}`}
             onClick={handleMarketTypeToggle}
           >
             <Toggle
@@ -612,7 +621,7 @@ export default function UpcomingRaceCard({
           </div>
 
           <div
-            className={`flex cursor-pointer items-center justify-center px-2 text-center ${isAnyOrderMode ? 'bg-muted' : ''}`}
+            className={`flex cursor-pointer items-center justify-center px-1 text-center sm:px-2 ${isAnyOrderMode ? 'bg-muted' : ''}`}
             onClick={handleMarketTypeToggle}
           >
             <Toggle
@@ -835,7 +844,9 @@ export default function UpcomingRaceCard({
                       }}
                     >
                       {/* Informazioni sul corridore */}
-                      <div className="flex min-w-0 items-center px-2 py-2 sm:px-3">
+                      <div
+                        className={`flex min-w-0 items-center px-2 py-2 sm:px-3 ${hideRacerNames ? 'justify-center' : ''}`}
+                      >
                         <div className="flex min-w-0 items-center gap-2 sm:gap-3">
                           <div
                             className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm text-xl font-bold"
@@ -848,11 +859,13 @@ export default function UpcomingRaceCard({
                           >
                             {racer.number}
                           </div>
-                          <div className="min-w-0">
-                            <div className="truncate font-semibold">
-                              {racer.name}
+                          {!hideRacerNames && (
+                            <div className="min-w-0">
+                              <div className="truncate font-semibold">
+                                {racer.name}
+                              </div>
                             </div>
-                          </div>
+                          )}
                         </div>
                       </div>
 

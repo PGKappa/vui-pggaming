@@ -241,5 +241,7 @@
   "enter_stake_amount": "Enter Stake Amount",
   "remove_all_bets": "Remove All Bets",
   "ok": "OK",
-  "ticket_detail_title": "Ticket"
+  "ticket_detail_title": "Ticket",
+  "mobile_tab_matches": "Matches",
+  "mobile_tab_live": "Live"
 }

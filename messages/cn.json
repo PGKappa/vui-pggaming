@@ -160,5 +160,7 @@
   "triple": "三重",
   "-ple": "重",
   "combinations": "组合",
-  "total_combinations": "组合总数"
+  "total_combinations": "组合总数",
+  "mobile_tab_matches": "比赛",
+  "mobile_tab_live": "直播"
 }

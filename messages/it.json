@@ -242,5 +242,7 @@
   "enter_stake_amount": "Inserisci Importo Puntata",
   "remove_all_bets": "Elimina Tutto",
   "ok": "OK",
-  "ticket_detail_title": "Ticket"
+  "ticket_detail_title": "Ticket",
+  "mobile_tab_matches": "Partite",
+  "mobile_tab_live": "In diretta"
 }

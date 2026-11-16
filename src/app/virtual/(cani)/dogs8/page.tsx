@@ -1,6 +1,8 @@
 'use client'
 import BettingSlip from '@/virtual-components/betting-slip'
-import BettingSlipSheet from '@/virtual-components/betting-slip-sheet'
+import MobileBottomBar, {
+  MOBILE_BAR_SPACE,
+} from '@/virtual-components/mobile-bottom-bar'
 import LiveMatchInfo from '@/virtual-components/live-match-info'
 import { UpcomingEventsCarousel } from '@/virtual-components/upcoming-events-carousel'
 import UpcomingRaceCard from '@/virtual-components/upcoming-race-card'
@@ -40,7 +42,9 @@ export default function Home() {
 
   return (
     <>
-      <div className="mx-auto mb-16 grid w-full max-w-[1920px] grid-cols-1 items-start gap-3 bg-columnL-background p-2 text-columnL-foreground sm:p-3 lg:mb-0 lg:grid-cols-[minmax(0,1fr)_400px]">
+      <div
+        className={`mx-auto ${MOBILE_BAR_SPACE} grid w-full max-w-[1920px] grid-cols-1 items-start gap-3 bg-columnL-background p-2 text-columnL-foreground sm:p-3 lg:grid-cols-[minmax(0,1fr)_400px]`}
+      >
         {/* First column - contenuto principale */}
         <div className="flex min-w-0 flex-col items-center gap-3">
           <div className="flex w-full flex-col gap-3">
@@ -93,9 +97,7 @@ export default function Home() {
           </div>
         </div>
       </div>
-      <div className="fixed bottom-0 flex w-full justify-center gap-2 lg:hidden">
-        <BettingSlipSheet />
-      </div>
+      <MobileBottomBar />
     </>
   )
 }

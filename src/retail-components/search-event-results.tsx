@@ -635,6 +635,9 @@ export default function SearchEventResults({
       <div
         className={cn(
           'relative flex h-16 w-full min-w-0 flex-nowrap items-center space-x-2 overflow-hidden bg-accent px-[24px] min-[1400px]:px-[60px] min-[1600px]:px-[100px] min-[1750px]:px-[130px] min-[1920px]:px-[167px]',
+          // telefono: disciplina | data, fascia | ultime 10, cerca, cancella
+          isWeb &&
+            'max-lg:grid max-lg:h-auto max-lg:grid-cols-6 max-lg:gap-2 max-lg:overflow-visible max-lg:py-2 max-lg:pl-2 max-lg:pr-2',
           isWeb &&
             'gap-3 space-x-0 pl-16 pr-6 min-[1400px]:px-0 min-[1400px]:pl-16 min-[1400px]:pr-6 min-[1600px]:px-0 min-[1600px]:pl-16 min-[1600px]:pr-6 min-[1750px]:px-0 min-[1750px]:pl-16 min-[1750px]:pr-6 min-[1920px]:px-0 min-[1920px]:pl-16 min-[1920px]:pr-6',
         )}
@@ -645,7 +648,7 @@ export default function SearchEventResults({
             aria-label={t('back')}
             title={t('back')}
             onClick={onBack}
-            className="absolute left-2 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center text-accent-foreground transition-opacity hover:opacity-75"
+            className="absolute left-2 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center text-accent-foreground transition-opacity hover:opacity-75 max-lg:top-[29px]"
           >
             <ArrowLeft className="size-6" />
           </button>
@@ -654,7 +657,8 @@ export default function SearchEventResults({
         <div
           className={cn(
             'mr-1 inline-grid shrink-0',
-            isWeb && 'mr-0 min-w-0 flex-1 shrink',
+            isWeb &&
+              'mr-0 min-w-0 flex-1 shrink max-lg:order-1 max-lg:col-span-6 max-lg:ml-12',
           )}
         >
           <span
@@ -701,7 +705,8 @@ export default function SearchEventResults({
         <div
           className={cn(
             'ml-1.5 flex shrink-0 flex-row items-center max-[1399px]:ml-1',
-            isWeb && 'ml-0 max-[1399px]:ml-0',
+            isWeb &&
+              'ml-0 max-[1399px]:ml-0 max-lg:order-4 max-lg:col-span-2',
           )}
         >
           <Checkbox
@@ -728,7 +733,7 @@ export default function SearchEventResults({
           <SelectTrigger
             className={cn(
               'h-[46px] min-w-0 flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] tabular-nums text-foreground disabled:opacity-95 max-[1399px]:pl-3 max-[1399px]:text-[14px]',
-              isWeb && 'h-[42px]',
+              isWeb && 'h-[42px] max-lg:order-2 max-lg:col-span-3',
             )}
           >
             <SelectValue placeholder={t('date')} />
@@ -754,7 +759,8 @@ export default function SearchEventResults({
           <SelectTrigger
             className={cn(
               'h-[46px] min-w-0 flex-1 border-none bg-background pl-[17px] pr-[5px] text-[16px] tabular-nums text-foreground disabled:opacity-95 max-[1399px]:left-0 max-[1399px]:pl-3 max-[1399px]:text-[14px] min-[1400px]:relative min-[1400px]:left-[10px]',
-              isWeb && 'h-[42px] min-[1400px]:left-0',
+              isWeb &&
+                'h-[42px] min-[1400px]:left-0 max-lg:order-3 max-lg:col-span-3',
             )}
           >
             <SelectValue placeholder={t('time_slot')} />
@@ -776,7 +782,7 @@ export default function SearchEventResults({
           className={cn(
             'h-[46px] min-w-0 flex-1 bg-searchResButton text-[16px] font-bold text-bet-foreground hover:opacity-90 disabled:opacity-85 max-[1399px]:text-[14px] min-[1400px]:relative min-[1400px]:left-[26px] min-[1400px]:ml-2 min-[1400px]:mr-4',
             isWeb &&
-              'h-[42px] flex-[0.75] min-[1400px]:left-0 min-[1400px]:ml-0 min-[1400px]:mr-0',
+              'h-[42px] flex-[0.75] min-[1400px]:left-0 min-[1400px]:ml-0 min-[1400px]:mr-0 max-lg:order-5 max-lg:col-span-2',
           )}
           disabled={selectedDiscipline === 'NONE'}
           onClick={handleSearch}
@@ -788,7 +794,8 @@ export default function SearchEventResults({
         <Button
           className={cn(
             'h-[46px] min-w-0 flex-1 bg-searchResButton text-[15px] text-tertiary-foreground max-[1399px]:text-[14px] min-[1400px]:relative min-[1400px]:left-[42px]',
-            isWeb && 'h-[42px] flex-[0.75] min-[1400px]:left-0',
+            isWeb &&
+              'h-[42px] flex-[0.75] min-[1400px]:left-0 max-lg:order-6 max-lg:col-span-2',
           )}
           disabled={!selectedDate && !selectedDiscipline && !selectedTimeSlot}
           onClick={handleReset}
@@ -829,9 +836,25 @@ export default function SearchEventResults({
                       className="gap-0"
                     >
                       <AccordionTrigger className="pointer-events-none border-b-0 bg-accent p-0 pl-2 text-base text-accent-foreground hover:no-underline [&[data-state=open]>svg]:-rotate-90">
-                        <div className="relative top-1.5 mb-[7px] flex h-[46px] w-full flex-row items-center justify-between space-x-4 pl-[9px] uppercase tabular-nums text-white">
-                          <div className="flex flex-row items-center space-x-4 pb-[5px] text-[16px] font-semibold">
-                            <span className="whitespace-nowrap text-[16px]">
+                        <div
+                          className={cn(
+                            'relative top-1.5 mb-[7px] flex h-[46px] w-full flex-row items-center justify-between space-x-4 pl-[9px] uppercase tabular-nums text-white',
+                            isWeb && 'max-lg:h-auto max-lg:min-h-[46px] max-lg:py-1',
+                          )}
+                        >
+                          <div
+                            className={cn(
+                              'flex flex-row items-center space-x-4 pb-[5px] text-[16px] font-semibold',
+                              isWeb &&
+                                'max-lg:flex-wrap max-lg:gap-y-0.5 max-lg:space-x-0 max-lg:pb-0 max-lg:text-[13px] max-lg:[&>span+span]:ml-3 max-lg:[&>span+span]:pl-3',
+                            )}
+                          >
+                            <span
+                              className={cn(
+                                'whitespace-nowrap text-[16px]',
+                                isWeb && 'max-lg:text-[13px]',
+                              )}
+                            >
                               {eventResult.discipline === 'DOGS'
                                 ? t('dog6_races_label')
                                 : eventResult.discipline === 'DOGS8'
@@ -1176,7 +1199,12 @@ function EventResultDetails({
             >
               <X className="h-5 w-5" />
             </button>
-            <div className="flex h-[660px] w-full items-center justify-center bg-black">
+            <div
+              className={cn(
+                'flex h-[660px] w-full items-center justify-center bg-black',
+                isWeb && 'max-lg:aspect-video max-lg:h-auto',
+              )}
+            >
               {loadingReplay ? (
                 <LoadingSpinner />
               ) : replayError ? (
@@ -1224,7 +1252,14 @@ function EventResultDetails({
                     {t('arrival_order').toUpperCase()}
                   </div>
                 </div>
-                <div className="mr-[40px] flex h-[79px] items-center justify-center space-x-[147px] p-4">
+                <div
+                  className={cn(
+                    'mr-[40px] flex h-[79px] items-center justify-center space-x-[147px] p-4',
+                    // telefono: i tre arrivati uno sotto l'altro
+                    isWeb &&
+                      'max-lg:mr-0 max-lg:h-auto max-lg:flex-col max-lg:items-start max-lg:gap-2 max-lg:space-x-0 max-lg:py-3',
+                  )}
+                >
                   {detailedResult.arrival
                     .slice(0, 3)
                     .map((competitor: any, index: number) => {
@@ -1266,7 +1301,12 @@ function EventResultDetails({
                           >
                             {competitor.number}
                           </div>
-                          <div className="relative right-[1px] max-w-0 pr-10 pt-[1px] text-[17px] font-semibold">
+                          <div
+                            className={cn(
+                              'relative right-[1px] max-w-0 pr-10 pt-[1px] text-[17px] font-semibold',
+                              isWeb && 'max-lg:max-w-none max-lg:pr-0',
+                            )}
+                          >
                             {competitor.name}
                           </div>
                         </div>
@@ -1396,7 +1436,13 @@ function EventResultDetails({
             )}
           </div>
 
-          <div className="grid grid-cols-4">
+          <div
+            className={cn(
+              'grid grid-cols-4',
+              // telefono: accoppiate e tris su due colonne
+              isWeb && 'max-lg:grid-cols-2',
+            )}
+          >
             {raceResult.odds.exacta && (
               <div className="relative bottom-2 border-b">
                 <div className="h-[45px] bg-secondary py-2 text-center">

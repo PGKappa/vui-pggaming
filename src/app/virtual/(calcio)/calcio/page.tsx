@@ -1,8 +1,10 @@
 'use client'
 import BettingSlip from '@/virtual-components/betting-slip'
-import BettingSlipSheet from '@/virtual-components/betting-slip-sheet'
 import Leaderboard from '@/virtual-components/leaderboard'
-import LeaderboardSheet from '@/virtual-components/leaderboard-sheet'
+import MobileBottomBar, {
+  MOBILE_BAR_SPACE,
+  MobileBarSheetItem,
+} from '@/virtual-components/mobile-bottom-bar'
 import LiveMatchInfo from '@/virtual-components/live-match-info'
 import LiveRoundScores from '@/virtual-components/live-round-scores'
 import LiveRoundStatistics, {
@@ -18,6 +20,8 @@ import VideoStreamCard from '@/virtual-components/video-stream-card'
 import { useSoccerStandings } from '@/retail-lib/soccer-standings'
 import { RootContext } from '@/virtual-contexts/root-context'
 import { Market, Discipline } from '@/virtual-lib/types'
+import { cn } from '@/virtual-lib/utils'
+import { useTranslation } from 'react-i18next'
 import {
   useContext,
   useEffect,
@@ -40,7 +44,15 @@ type MatchBetOptions = {
   groupId?: number
 }
 
+// Mobile (sotto lg): le tre colonne non stanno affiancate e in fila la pagina
+// diventa lunghissima, con le partite da giocare in fondo. Un selettore sotto
+// il video divide la pagina in due viste: "Partite" (quote e mercati) e
+// "In diretta" (punteggi, statistiche e risultato della giornata in corso).
+type MobileView = 'matches' | 'live'
+
 export default function Home() {
+  const { t } = useTranslation()
+  const [mobileView, setMobileView] = useState<MobileView>('matches')
   const { upcomingRounds, liveRound } = useContext(RootContext)
   // Stessa classifica della cassa, ancorata al campionato delle partite in
   // cartellone. Una sola connessione al feed per la pagina, passata ai due
@@ -67,6 +79,7 @@ export default function Home() {
   ) => {
     setMatchBetOptions(value)
     setSelectedMatch(undefined)
+    setMobileView('matches')
   }
 
   const highlightedTeams = useMemo(() => {
@@ -75,7 +88,9 @@ export default function Home() {
 
   return (
     <>
-      <div className="mx-auto mb-10 grid w-full max-w-[1920px] grid-cols-1 justify-center gap-3 bg-columnL-background p-2 text-columnL-foreground sm:p-3 lg:mb-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_400px]">
+      <div
+        className={`mx-auto ${MOBILE_BAR_SPACE} grid w-full max-w-[1920px] grid-cols-1 justify-center gap-3 bg-columnL-background p-2 text-columnL-foreground sm:p-3 lg:mb-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_400px]`}
+      >
         {/* First column - top content */}
         <div className="flex min-w-0 flex-col items-center gap-3">
           <div className="flex w-full flex-col gap-3">
@@ -86,8 +101,44 @@ export default function Home() {
             />
           </div>
           <MatchEndBadge discipline={Discipline.FOOTBALL} />
+
+          {/* selettore delle due viste, solo mobile */}
+          <div
+            role="tablist"
+            className="grid w-full grid-cols-2 gap-1 rounded-sm bg-card-header p-1 lg:hidden"
+          >
+            {(
+              [
+                ['matches', t('mobile_tab_matches')],
+                ['live', t('mobile_tab_live')],
+              ] as const
+            ).map(([view, label]) => (
+              <button
+                key={view}
+                type="button"
+                role="tab"
+                aria-selected={mobileView === view}
+                onClick={() => setMobileView(view)}
+                className={cn(
+                  'h-10 rounded-sm text-sm font-semibold uppercase transition-colors',
+                  mobileView === view
+                    ? 'bg-white text-card-header'
+                    : 'text-card-header-foreground/85',
+                )}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
           {matchBetOptions && (
-            <div ref={marketsRef} className="w-full scroll-mt-3">
+            <div
+              ref={marketsRef}
+              className={cn(
+                'w-full scroll-mt-3',
+                mobileView === 'live' && 'hidden lg:block',
+              )}
+            >
               <MatchBettingOptions
                 round={matchBetOptions.round}
                 teams={matchBetOptions.teams}
@@ -123,7 +174,12 @@ export default function Home() {
         </div>
 
         {/* Second column content - appears after first column but before upcoming rounds on mobile */}
-        <div className="min-w-0 space-y-3">
+        <div
+          className={cn(
+            'min-w-0 space-y-3',
+            mobileView === 'matches' && 'hidden lg:block',
+          )}
+        >
           <LiveRoundScores />
           {selectedMatch ? (
             <MatchStatisticsCard
@@ -148,7 +204,7 @@ export default function Home() {
 
         {/* Upcoming rounds - visible only on mobile, appears at the bottom */}
         <div className="block lg:hidden">
-          {upcomingRounds && !matchBetOptions && (
+          {upcomingRounds && !matchBetOptions && mobileView === 'matches' && (
             <ol className="w-full space-y-7">
               {upcomingRounds.map((round) => (
                 <li key={round.scheduleId}>
@@ -169,13 +225,16 @@ export default function Home() {
           </div>
         </div>
       </div>
-      <div className="fixed bottom-0 flex w-full justify-center gap-2 lg:hidden">
-        <LeaderboardSheet
-          highlightedTeams={highlightedTeams}
-          standings={standings}
-        />
-        <BettingSlipSheet />
-      </div>
+      <MobileBottomBar
+        extra={
+          <MobileBarSheetItem title={t('ranking')}>
+            <Leaderboard
+              highlightedTeams={highlightedTeams}
+              standings={standings}
+            />
+          </MobileBarSheetItem>
+        }
+      />
     </>
   )
 }
