@@ -287,7 +287,7 @@ export default function LiveMatchInfo(
         <div className="flex min-w-0 flex-1 basis-full items-center justify-between gap-3 lg:basis-auto lg:pl-3">
           <div className="flex min-w-0 flex-row items-center gap-3">
             {disciplineInfo.icon}
-            <span className="truncate text-md font-bold uppercase tracking-wide">
+            <span className="truncate text-xs font-bold uppercase tracking-wide">
               {disciplineInfo.name}
             </span>
           </div>

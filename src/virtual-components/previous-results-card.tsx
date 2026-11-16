@@ -2,7 +2,7 @@ import { PreviousChannelResult } from '@/virtual-lib/types'
 import { getRacerColors } from '@/virtual-lib/utils'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { useTranslation } from 'react-i18next'
-import { ChevronDown } from 'lucide-react'
+import { Minus, Plus } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
 type PreviousResultsCardProps = {
@@ -57,24 +57,26 @@ export default function PreviousResultsCard({
   return (
     <Card className="flex h-full flex-col overflow-hidden shadow-sm">
       <CardHeader className="h-12 shrink-0 justify-center space-y-0 p-0">
-        <button
-          type="button"
-          disabled={!canExpand}
-          aria-expanded={isOpen}
-          onClick={() => setExpanded((open) => !open)}
-          className="relative flex h-full w-full items-center justify-center px-3 disabled:cursor-default"
-        >
+        <div className="relative flex h-full w-full items-center justify-center px-3">
           <CardTitle className="text-center text-md font-bold uppercase tracking-wide">
             {t('latest_results')}
           </CardTitle>
           {canExpand && (
-            <ChevronDown
-              className={`absolute right-3 size-5 transition-transform ${
-                isOpen ? 'rotate-180' : ''
-              }`}
-            />
+            <button
+              type="button"
+              aria-expanded={isOpen}
+              aria-label={isOpen ? '-' : '+'}
+              onClick={() => setExpanded((open) => !open)}
+              className="absolute right-2 flex size-7 items-center justify-center"
+            >
+              {isOpen ? (
+                <Minus className="size-4" />
+              ) : (
+                <Plus className="size-4" />
+              )}
+            </button>
           )}
-        </button>
+        </div>
       </CardHeader>
       <CardContent className="flex min-h-0 flex-1 flex-col p-0">
         <div
