@@ -295,12 +295,11 @@ export default function BettingSlip() {
       ) * 100,
     ) / 100
 
-  // Pulsanti -/+ della singola/multipla: passo e minimo configurati (come il
-  // sistema). Da un importo fuori passo si va al multiplo vicino; sotto il
-  // minimo si torna a 0, da 0 si sale direttamente al minimo. Calcoli in
-  // centesimi per evitare errori di arrotondamento.
-  const stepSingleStake = (current: number, direction: 1 | -1) => {
-    const stepCents = Math.max(1, Math.round(minStakeIncrement * 100))
+  // Pulsanti -/+ degli importi: da un importo fuori passo si va al multiplo
+  // vicino; sotto il minimo si torna a 0, da 0 si sale direttamente al
+  // minimo. Calcoli in centesimi per evitare errori di arrotondamento.
+  const stepStake = (current: number, direction: 1 | -1, step: number) => {
+    const stepCents = Math.max(1, Math.round(step * 100))
     const minCents =
       Math.ceil(Math.round(minStake * 100) / stepCents) * stepCents
     const currentCents = Math.round(current * 100)
@@ -312,6 +311,23 @@ export default function BettingSlip() {
     else if (nextCents < minCents) nextCents = 0
     return Math.max(nextCents, 0) / 100
   }
+
+  // singola/multipla: passo della moneta (min_stake_increment_step)
+  const stepSingleStake = (current: number, direction: 1 | -1) =>
+    stepStake(current, direction, minStakeIncrement)
+
+  // combinazioni del sistema: i -/+ vanno a multipli della moneta (es. 0,50
+  // per l'euro) che siano anche multipli del passo del sistema, così ogni
+  // valore raggiunto con i pulsanti è valido per entrambi (es. 0,50 e 0,10 ->
+  // 0,50; 0,50 e 1 -> 1)
+  const systemGroupButtonStep = (() => {
+    const a = Math.max(1, Math.round(minStakeIncrement * 100))
+    const b = Math.max(1, Math.round(systemStakeIncrement * 100))
+    const gcd = (x: number, y: number): number => (y === 0 ? x : gcd(y, x % y))
+    return ((a / gcd(a, b)) * b) / 100
+  })()
+  const stepGroupStake = (current: number, direction: 1 | -1) =>
+    stepStake(current, direction, systemGroupButtonStep)
 
   // Importi non ammessi segnalati già durante l'inserimento (stessi controlli
   // della conferma): il campo diventa rosso e la vincita non viene mostrata
@@ -1359,11 +1375,7 @@ export default function BettingSlip() {
                                           onClick={() =>
                                             updateSystemGroupStake(
                                               group.name,
-                                              Math.max(
-                                                group.stake -
-                                                  systemStakeIncrement,
-                                                0,
-                                              ),
+                                              stepGroupStake(group.stake, -1),
                                             )
                                           }
                                         >
@@ -1397,8 +1409,7 @@ export default function BettingSlip() {
                                           onClick={() =>
                                             updateSystemGroupStake(
                                               group.name,
-                                              group.stake +
-                                                systemStakeIncrement,
+                                              stepGroupStake(group.stake, 1),
                                             )
                                           }
                                         >
