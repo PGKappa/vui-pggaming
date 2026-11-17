@@ -260,3 +260,67 @@ export function computeGroupWinRounded(group: SystemGroup): {
     maxWin: Math.round(maxWin * 100) / 100,
   }
 }
+
+/**
+ * Ripartisce l'importo di DIVIDI tra i gruppi selezionati rispettando passo e
+ * minimo per colonna: ogni gruppo riceve 0 oppure una puntata per colonna
+ * >= minimo e multipla del passo, il totale giocato non supera mai l'importo
+ * inserito e la parte che non si può distribuire viene restituita (mai
+ * aggiunta d'ufficio). Si parte da una quota uguale per tutte le colonne; il
+ * resto va, un passo alla volta, prima ai gruppi con meno combinazioni.
+ * Calcoli in centesimi per evitare errori di arrotondamento.
+ */
+export function distributeSystemStake(
+  groups: { name: string; combinations: number }[],
+  total: number,
+  step: number,
+  minStake: number,
+): { stakes: Record<string, number>; undistributed: number; minRequired: number } {
+  const totalCents = Math.round(total * 100)
+  const stepCents = Math.max(1, Math.round(step * 100))
+  // puntata minima per colonna: il primo multiplo del passo >= minimo
+  const minCents =
+    Math.max(1, Math.ceil(Math.round(minStake * 100) / stepCents)) * stepCents
+  const valid = groups.filter((group) => group.combinations > 0)
+  const totalCombinations = valid.reduce((sum, g) => sum + g.combinations, 0)
+
+  const stakeCents: Record<string, number> = {}
+  valid.forEach((group) => (stakeCents[group.name] = 0))
+
+  let remaining = totalCents
+  if (totalCombinations > 0) {
+    const base =
+      Math.floor(totalCents / totalCombinations / stepCents) * stepCents
+    if (base >= minCents) {
+      valid.forEach((group) => (stakeCents[group.name] = base))
+      remaining -= base * totalCombinations
+    }
+  }
+
+  const byPriority = [...valid].sort((a, b) => a.combinations - b.combinations)
+  let progress = true
+  while (progress) {
+    progress = false
+    for (const group of byPriority) {
+      const increment = stakeCents[group.name] === 0 ? minCents : stepCents
+      const cost = increment * group.combinations
+      if (cost <= remaining) {
+        stakeCents[group.name] += increment
+        remaining -= cost
+        progress = true
+      }
+    }
+  }
+
+  const stakes: Record<string, number> = {}
+  for (const [name, cents] of Object.entries(stakeCents)) {
+    stakes[name] = cents / 100
+  }
+  const cheapest = byPriority[0]
+  return {
+    stakes,
+    undistributed: remaining / 100,
+    // importo minimo per giocare almeno il gruppo con meno combinazioni
+    minRequired: cheapest ? (minCents * cheapest.combinations) / 100 : 0,
+  }
+}

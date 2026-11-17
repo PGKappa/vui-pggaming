@@ -162,5 +162,6 @@
   "combinations": "组合",
   "total_combinations": "组合总数",
   "mobile_tab_matches": "比赛",
-  "mobile_tab_live": "直播"
+  "mobile_tab_live": "直播",
+  "stake_not_distributed": "{{amount}} 无法按每注 {{increment}} 的步长分配：该金额未分配"
 }

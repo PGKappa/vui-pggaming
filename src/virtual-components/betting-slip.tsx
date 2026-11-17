@@ -11,6 +11,7 @@ import { getBettingLimits } from '@/virtual-lib/betting-limits'
 import {
   computeGroupWinRounded,
   computeSystemMinWin,
+  distributeSystemStake,
   generateSystemGroups,
 } from '@/virtual-lib/system-bets'
 import { BetEntry, Discipline, SubmittedTicket } from '@/virtual-lib/types'
@@ -705,55 +706,38 @@ export default function BettingSlip() {
       return
     }
 
-    // Come il retail: puntata per combinazione multipla del passo minimo del
-    // sistema, il resto va ai gruppi con meno combinazioni
-    const step = systemStakeIncrement
-    const totalCombinations = selectedGroupsList.reduce(
-      (sum, group) => sum + group.combinations.length,
-      0,
+    // puntate per colonna multiple del passo e >= minimo; l'importo non
+    // distribuibile viene segnalato, mai aggiunto d'ufficio
+    const { stakes, undistributed, minRequired } = distributeSystemStake(
+      selectedGroupsList.map((group) => ({
+        name: group.name,
+        combinations: group.combinations.length,
+      })),
+      systemDistributeStake,
+      systemStakeIncrement,
+      minStake,
     )
-    const baseStake =
-      Math.floor(systemDistributeStake / totalCombinations / step) * step
-    let remaining = systemDistributeStake - baseStake * totalCombinations
+    const formatAmount = (value: number) =>
+      `${value.toFixed(2)} ${currencySymbol}`
 
-    const stakes: Record<string, number> = {}
-    for (const group of selectedGroupsList) {
-      stakes[group.name] = baseStake
-    }
-
-    const groupsByPriority = [...selectedGroupsList].sort(
-      (a, b) => a.combinations.length - b.combinations.length,
-    )
-    for (let pass = 0; pass < 2 && remaining >= step; pass++) {
-      for (const group of groupsByPriority) {
-        if (remaining < step) break
-        const additional =
-          Math.floor(remaining / group.combinations.length / step) * step
-        if (additional >= step) {
-          stakes[group.name] += additional
-          remaining -= additional * group.combinations.length
-          remaining = Math.round(remaining / step) * step
-        }
-      }
-    }
-
-    const roundedStakes: Record<string, number> = {}
-    for (const [name, stake] of Object.entries(stakes)) {
-      roundedStakes[name] = roundCents(stake)
-    }
-    setSystemGroupStakes((prev) => ({ ...prev, ...roundedStakes }))
-
-    if (Object.values(roundedStakes).some((stake) => stake <= 0)) {
-      const difference = roundCents(
-        totalCombinations * minStake - systemDistributeStake,
+    if (Object.values(stakes).every((stake) => stake <= 0)) {
+      toast.error(
+        t('min_stake_per_combination_not_met', {
+          amount: formatAmount(roundCents(minRequired - systemDistributeStake)),
+        }),
       )
-      if (difference > 0) {
-        toast.error(
-          t('min_stake_per_combination_not_met', {
-            amount: `${currencySymbol}${difference}`,
-          }),
-        )
-      }
+      return
+    }
+
+    setSystemGroupStakes((prev) => ({ ...prev, ...stakes }))
+
+    if (undistributed > 0) {
+      toast.warning(
+        t('stake_not_distributed', {
+          amount: formatAmount(undistributed),
+          increment: systemStakeIncrement,
+        }),
+      )
     }
   }
 

@@ -222,5 +222,6 @@
   "ok": "OK",
   "ticket_detail_title": "Ticket",
   "mobile_tab_matches": "Partidos",
-  "mobile_tab_live": "En directo"
+  "mobile_tab_live": "En directo",
+  "stake_not_distributed": "{{amount}} no se pueden repartir con un paso de {{increment}} por columna: importe no asignado"
 }
