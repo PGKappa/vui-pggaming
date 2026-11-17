@@ -15,6 +15,18 @@ import { BetEntry, Discipline, SystemGroup } from './types'
 const underOverThreshold = (entry: BetEntry) =>
   entry.bet.discipline === Discipline.DOGS8 ? '4.5' : '3.5'
 
+// Partenti di una corsa virtual (cani a 8: 8, cani e cavalli: 6). Senza
+// questo dato il calcolo vincite simula solo 3 partenti quando non ci sono
+// numeri giocati (Under/Over, Pari/Dispari): l'Over non vincerebbe mai e
+// l'Under sempre.
+const fieldSizeOf = (entry: BetEntry) =>
+  entry.bet.discipline === Discipline.DOGS8 ? 8 : 6
+
+const fieldSizeByEventOf = (entries: BetEntry[]) =>
+  Object.fromEntries(
+    entries.map((entry) => [eventKeyOf(entry), fieldSizeOf(entry)]),
+  )
+
 /**
  * Gruppi del sistema calcolati con la stessa logica del retail: chiave evento
  * disciplina+numero, fisse, più selezioni sullo stesso evento (vincita min/max
@@ -33,7 +45,14 @@ export function generateSystemGroups(
 
   const retailEntries = entries.map(
     (entry) =>
-      ({ ...entry, market: toRetailMarket(entry) }) as unknown as RetailBetEntry,
+      ({
+        ...entry,
+        market: toRetailMarket(entry),
+        bet: {
+          ...entry.bet,
+          option: { ...entry.bet.option, outcome: toRetailOutcome(entry) },
+        },
+      }) as unknown as RetailBetEntry,
   )
 
   const toVirtual = (combos?: RetailBetEntry[][]): BetEntry[][] | undefined =>
@@ -43,22 +62,26 @@ export function generateSystemGroups(
 
   const eventMins = computeEventMinOutcomes(entries)
 
-  return generateRetailSystemGroups(retailEntries, limits).map(
-    (group: RetailSystemGroup) => {
-      const combinations = toVirtual(group.combinations) ?? []
-      return {
-        ...group,
-        combinations,
-        // vincita minima positiva del gruppo calcolata su tutte le corse
-        // insieme (il retail la calcola solo sulle combinazioni di una corsa)
-        minWinAssignedCombinations: minWinCombinations(
-          [{ stake: 1, combinations }],
-          eventMins,
-        )[0],
-        maxWinAssignedCombinations: toVirtual(group.maxWinAssignedCombinations),
-      }
+  return generateRetailSystemGroups(retailEntries, {
+    ...limits,
+    fieldSizeByEvent: {
+      ...fieldSizeByEventOf(entries),
+      ...limits?.fieldSizeByEvent,
     },
-  )
+  }).map((group: RetailSystemGroup) => {
+    const combinations = toVirtual(group.combinations) ?? []
+    return {
+      ...group,
+      combinations,
+      // vincita minima positiva del gruppo calcolata su tutte le corse
+      // insieme (il retail la calcola solo sulle combinazioni di una corsa)
+      minWinAssignedCombinations: minWinCombinations(
+        [{ stake: 1, combinations }],
+        eventMins,
+      )[0],
+      maxWinAssignedCombinations: toVirtual(group.maxWinAssignedCombinations),
+    }
+  })
 }
 
 const eventKeyOf = (entry: BetEntry) =>
@@ -68,6 +91,25 @@ const toRetailMarket = (entry: BetEntry) =>
   normalizeMarketName(entry.market) === 'underover'
     ? `${entry.market} ${underOverThreshold(entry)}`
     : entry.market
+
+// Pari/Dispari come "even"/"odd": il calcolo del retail riconosce il pari
+// cercando "pari" nel testo e quindi tratterebbe anche "Dispari" come pari
+const EVEN_ODD_OUTCOMES: Record<string, 'even' | 'odd'> = {
+  even: 'even',
+  pari: 'even',
+  par: 'even',
+  pair: 'even',
+  odd: 'odd',
+  dispari: 'odd',
+  impar: 'odd',
+  impair: 'odd',
+}
+
+const toRetailOutcome = (entry: BetEntry) => {
+  const outcome = entry.bet.option.outcome
+  if (normalizeMarketName(entry.market) !== 'even_odd') return outcome
+  return EVEN_ODD_OUTCOMES[outcome.toLowerCase().trim()] ?? outcome
+}
 
 /**
  * Esito minimo di ogni corsa: le selezioni che vincono nell'esito vincente
@@ -104,9 +146,10 @@ function computeEventMinOutcomes(
       eventEntries.map((entry) => ({
         odds: entry.bet.option.decPrice,
         market: toRetailMarket(entry),
-        outcome: entry.bet.option.outcome,
+        outcome: toRetailOutcome(entry),
         entry,
       })),
+      fieldSizeOf(eventEntries[0]),
     )
     result.set(key, {
       canLose: canLose || minAssigned.length === 0,
@@ -258,5 +301,73 @@ export function computeGroupWinRounded(group: SystemGroup): {
   return {
     minWin: Math.round(minWin * 100) / 100,
     maxWin: Math.round(maxWin * 100) / 100,
+  }
+}
+
+/**
+ * Ripartisce l'importo di DIVIDI tra i gruppi selezionati rispettando passo e
+ * minimo per colonna: ogni gruppo riceve 0 oppure una puntata per colonna
+ * >= minimo e multipla del passo, il totale giocato non supera mai l'importo
+ * inserito e la parte che non si può distribuire viene restituita (mai
+ * aggiunta d'ufficio). Si parte da una quota uguale per tutte le colonne; il
+ * resto va, un passo alla volta, prima ai gruppi con meno combinazioni.
+ * Calcoli in centesimi per evitare errori di arrotondamento.
+ */
+export function distributeSystemStake(
+  groups: { name: string; combinations: number }[],
+  total: number,
+  step: number,
+  minStake: number,
+): {
+  stakes: Record<string, number>
+  undistributed: number
+  minRequired: number
+} {
+  const totalCents = Math.round(total * 100)
+  const stepCents = Math.max(1, Math.round(step * 100))
+  // puntata minima per colonna: il primo multiplo del passo >= minimo
+  const minCents =
+    Math.max(1, Math.ceil(Math.round(minStake * 100) / stepCents)) * stepCents
+  const valid = groups.filter((group) => group.combinations > 0)
+  const totalCombinations = valid.reduce((sum, g) => sum + g.combinations, 0)
+
+  const stakeCents: Record<string, number> = {}
+  valid.forEach((group) => (stakeCents[group.name] = 0))
+
+  let remaining = totalCents
+  if (totalCombinations > 0) {
+    const base =
+      Math.floor(totalCents / totalCombinations / stepCents) * stepCents
+    if (base >= minCents) {
+      valid.forEach((group) => (stakeCents[group.name] = base))
+      remaining -= base * totalCombinations
+    }
+  }
+
+  const byPriority = [...valid].sort((a, b) => a.combinations - b.combinations)
+  let progress = true
+  while (progress) {
+    progress = false
+    for (const group of byPriority) {
+      const increment = stakeCents[group.name] === 0 ? minCents : stepCents
+      const cost = increment * group.combinations
+      if (cost <= remaining) {
+        stakeCents[group.name] += increment
+        remaining -= cost
+        progress = true
+      }
+    }
+  }
+
+  const stakes: Record<string, number> = {}
+  for (const [name, cents] of Object.entries(stakeCents)) {
+    stakes[name] = cents / 100
+  }
+  const cheapest = byPriority[0]
+  return {
+    stakes,
+    undistributed: remaining / 100,
+    // importo minimo per giocare almeno il gruppo con meno combinazioni
+    minRequired: cheapest ? (minCents * cheapest.combinations) / 100 : 0,
   }
 }

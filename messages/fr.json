@@ -213,5 +213,6 @@
   "ok": "OK",
   "ticket_detail_title": "Ticket",
   "mobile_tab_matches": "Matchs",
-  "mobile_tab_live": "En direct"
+  "mobile_tab_live": "En direct",
+  "stake_not_distributed": "{{amount}} ne peuvent pas être répartis avec un pas de {{increment}} par combinaison : montant non attribué"
 }

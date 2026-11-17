@@ -243,5 +243,6 @@
   "ok": "OK",
   "ticket_detail_title": "Ticket",
   "mobile_tab_matches": "Matches",
-  "mobile_tab_live": "Live"
+  "mobile_tab_live": "Live",
+  "stake_not_distributed": "{{amount}} cannot be distributed with a step of {{increment}} per combination: amount not assigned"
 }

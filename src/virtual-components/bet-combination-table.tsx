@@ -324,6 +324,7 @@ export default function BetCombinationsTable({
       betEntries.find(
         (entry) =>
           entry.market === marketName &&
+          entry.bet.discipline === bet.discipline &&
           entry.bet.event.number === bet.event.number &&
           entry.bet.competitors === bet.competitors &&
           entry.bet.option.outcome === bet.option.outcome,
@@ -405,6 +406,8 @@ export default function BetCombinationsTable({
                   combinations.map((bet) => ({
                     option: bet.option,
                     teams: bet.competitors,
+                    discipline: bet.discipline,
+                    eventNumber: bet.event.number,
                   })),
                 )
               } else {
@@ -432,7 +435,7 @@ export default function BetCombinationsTable({
               marketName={marketName}
               bet={bet}
               variant="racecombination"
-              className="h-[52px] w-18 justify-center gap-1 text-[14px] leading-tight max-lg:h-14 max-lg:w-full max-lg:min-w-0 max-lg:whitespace-nowrap max-lg:px-1 max-lg:py-1.5 max-lg:text-[14px] max-lg:tabular-nums"
+              className="w-18 h-[52px] justify-center gap-1 text-[14px] leading-tight max-lg:h-14 max-lg:w-full max-lg:min-w-0 max-lg:whitespace-nowrap max-lg:px-1 max-lg:py-1.5 max-lg:text-[14px] max-lg:tabular-nums"
             />
           ))}
         </div>

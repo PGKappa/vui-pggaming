@@ -40,6 +40,7 @@ export type BetsContextType = {
     option: Selection,
     teams: string,
     discipline: string,
+    eventNumber: number,
   ) => void
   removeEventBets: (eventId: string) => void
   toggleEventBetsFixed: (eventId: string) => void
@@ -48,7 +49,12 @@ export type BetsContextType = {
   addBets: (market: string, bet: Bet[]) => void
   removeBets: (
     market: string,
-    betIds: { option: Selection; teams: string }[],
+    betIds: {
+      option: Selection
+      teams: string
+      discipline: string
+      eventNumber: number
+    }[],
   ) => void
 }
 
@@ -122,7 +128,9 @@ export default function BetsContextProvider(props: {
   const tRef = useRef(t)
   tRef.current = t
   const rootContext = useContext(RootContext)
-  const { maxEvents, maxSelections } = getBettingLimits(rootContext?.cashierData)
+  const { maxEvents, maxSelections } = getBettingLimits(
+    rootContext?.cashierData,
+  )
   const initialBetsContext = getBetsContext()
   const [betsContext, setBetsContext] =
     useState<BetsContextType>(initialBetsContext)
@@ -250,12 +258,14 @@ export default function BetsContextProvider(props: {
     [betsContext.lastId, checkSystemLimits],
   )
 
-  // Rimuovi scommessa
+  // Rimuovi scommessa: solo quella della corsa indicata (stesso mercato e
+  // stesso numero su altre corse restano in schedina)
   const removeBet = (
     marketName: string,
     option: Selection,
     teams: string,
     discipline: string,
+    eventNumber: number,
   ) => {
     setBetsContext((prev) => ({
       ...prev,
@@ -264,7 +274,8 @@ export default function BetsContextProvider(props: {
           betEntry.market !== marketName ||
           betEntry.bet.competitors !== teams ||
           betEntry.bet.option.outcome !== option.outcome ||
-          betEntry.bet.discipline !== discipline,
+          betEntry.bet.discipline !== discipline ||
+          betEntry.bet.event.number !== eventNumber,
       ),
     }))
   }
@@ -371,7 +382,12 @@ export default function BetsContextProvider(props: {
   // Rimuovi multiple scommesse
   const removeBets = (
     market: string,
-    betIds: { option: Selection; teams: string }[],
+    betIds: {
+      option: Selection
+      teams: string
+      discipline: string
+      eventNumber: number
+    }[],
   ) => {
     setBetsContext((prev) => ({
       ...prev,
@@ -381,7 +397,9 @@ export default function BetsContextProvider(props: {
           !betIds.some(
             (id) =>
               betEntry.bet.option.outcome === id.option.outcome &&
-              betEntry.bet.competitors === id.teams,
+              betEntry.bet.competitors === id.teams &&
+              betEntry.bet.discipline === id.discipline &&
+              betEntry.bet.event.number === id.eventNumber,
           ),
       ),
     }))
