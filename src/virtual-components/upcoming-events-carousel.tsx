@@ -95,7 +95,7 @@ function UpcomingEventItem(props: {
     <CarouselItem className="pl-2" style={{ flexBasis: props.basis }}>
       <button
         type="button"
-        className={`flex h-14 w-full min-w-[150px] flex-row items-center justify-center gap-3 rounded-sm px-3 transition-colors ${
+        className={`flex h-14 w-full min-w-[150px] flex-col items-center justify-center gap-1.5 rounded-sm px-3 transition-colors ${
           isSelected
             ? 'bg-selectedEvent text-tertiary-foreground shadow-md'
             : 'bg-secondary text-secondary-foreground hover:bg-secondary/85'
@@ -104,11 +104,18 @@ function UpcomingEventItem(props: {
           props.setSelectedEvent(event)
         }}
       >
-        <span className="text-md font-bold tabular-nums">
-          {event.startTime}
+        <span className="flex items-center gap-3">
+          <span className="text-md font-bold leading-none tabular-nums">
+            {event.startTime}
+          </span>
+          <span className="min-w-[56px] rounded-sm bg-white px-2 py-0.5 text-center text-sm font-bold tabular-nums text-black">
+            {timeToEventStart}
+          </span>
         </span>
-        <span className="min-w-[56px] rounded-sm bg-white px-2 py-0.5 text-center text-sm font-bold tabular-nums text-black">
-          {timeToEventStart}
+        {/* stesso ID mostrato accanto ai tab Main/Couples/Triplets */}
+        <span className="text-[11px] leading-none tabular-nums">
+          <span className="opacity-75">ID -</span>{' '}
+          <span className="text-white">{event.id}</span>
         </span>
       </button>
     </CarouselItem>

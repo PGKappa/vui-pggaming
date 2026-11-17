@@ -422,17 +422,17 @@ export default function BetCombinationsTable({
           </div>
         </div>
       </CardHeader>
-      <CardContent className="bg-muted-g p-2 sm:p-4">
+      <CardContent className="bg-muted-g p-2">
         {/* 12 colonne fisse solo da lg: sotto, colonne larghe almeno 76px
             (es. "1-2-3" e "147.40" su una riga ciascuno, tasti da dito) */}
-        <div className="grid grid-cols-[repeat(auto-fill,minmax(76px,1fr))] gap-1.5 sm:gap-2 lg:grid-cols-12">
+        <div className="grid grid-cols-[repeat(auto-fill,minmax(76px,1fr))] gap-2 lg:grid-cols-12">
           {combinations.map((bet) => (
             <BetEntryToggle
               key={bet.option.outcome}
               marketName={marketName}
               bet={bet}
               variant="racecombination"
-              className="h-13 w-18 justify-center text-md max-lg:h-14 max-lg:w-full max-lg:min-w-0 max-lg:whitespace-nowrap max-lg:px-1 max-lg:py-1.5 max-lg:text-[16px] max-lg:tabular-nums max-lg:leading-tight"
+              className="h-[52px] w-18 justify-center gap-1 text-[14px] leading-tight max-lg:h-14 max-lg:w-full max-lg:min-w-0 max-lg:whitespace-nowrap max-lg:px-1 max-lg:py-1.5 max-lg:text-[14px] max-lg:tabular-nums"
             />
           ))}
         </div>

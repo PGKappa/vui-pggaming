@@ -10,6 +10,7 @@ import { distributeExactStake } from '@/retail-lib/system-bets'
 import { getBettingLimits } from '@/virtual-lib/betting-limits'
 import {
   computeGroupWinRounded,
+  computeSystemMinWin,
   generateSystemGroups,
 } from '@/virtual-lib/system-bets'
 import { BetEntry, Discipline, SubmittedTicket } from '@/virtual-lib/types'
@@ -145,6 +146,17 @@ export default function BettingSlip() {
   const [allGroupsSelected, setAllGroupsSelected] = useState(false)
   const [systemDistributeStake, setSystemDistributeStake] = useState(0)
 
+  // Schedina svuotata (cestino, "Rimuovi tutti", × sull'ultima selezione,
+  // invio): gli importi ripartono da zero sulla giocata successiva
+  useEffect(() => {
+    if (betEntries.length > 0) return
+    setGlobal(0)
+    setSystemGroupStakes({})
+    setSystemDistributeStake(0)
+    setSelectedGroups({})
+    setAllGroupsSelected(false)
+  }, [betEntries.length])
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     const funcName = params.get('print_function') || 'Bubble'
@@ -193,12 +205,9 @@ export default function BettingSlip() {
     (sum, group) => sum + group.combinations.length,
     0,
   )
-  const systemMinWin = (() => {
-    const mins = activeSystemGroups
-      .map((group) => computeGroupWinRounded(group).minWin)
-      .filter((value) => value > 0)
-    return mins.length > 0 ? Math.min(...mins) : 0
-  })()
+  // stesso esito delle corse per tutti i gruppi giocati: le vincite minime
+  // dei gruppi si sommano
+  const systemMinWin = computeSystemMinWin(activeSystemGroups, betEntries)
   const systemMaxWin =
     Math.round(
       activeSystemGroups.reduce(
@@ -892,7 +901,7 @@ export default function BettingSlip() {
               />
             </Button>
           </div>
-          <div className="flex h-full items-center justify-center border-l border-white/15 [&_button]:h-[52px] [&_button]:w-full [&_button]:rounded-none [&_button]:px-4 [&_button]:py-0 [&_button]:text-[13px] [&_button]:font-semibold [&_button]:uppercase [&_button]:text-card-header-foreground/85 hover:[&_button]:bg-white/10 hover:[&_button]:text-card-header-foreground">
+          <div className="flex h-full items-center justify-center border-l border-white/15 [&_button]:h-[52px] [&_button]:w-full [&_button]:rounded-none [&_button]:px-4 [&_button]:py-0 [&_button]:text-[14px] [&_button]:font-semibold [&_button]:uppercase [&_button]:text-card-header-foreground/85 hover:[&_button]:bg-white/10 hover:[&_button]:text-card-header-foreground">
             {/* apre la pagina Lista ticket (come la cassa), mantenendo i
                 parametri dell'URL (init_code, skin, operator...) */}
             <button
@@ -1476,7 +1485,7 @@ export default function BettingSlip() {
               variant="betNow"
               disabled={betEntries.length === 0 || isSubmitting}
               onClick={handleSubmitTicket}
-              className="h-12 w-full rounded-none text-[18px] font-bold"
+              className="h-12 w-full rounded-none text-[14px] font-bold"
             >
               {isSubmitting
                 ? t('submitting') || 'Submitting...'

@@ -350,7 +350,9 @@ export default function UpcomingRaceCard({
       ? `${baseColumns} 1fr 1px 1fr 1px 1fr`
       : activeTab === 'couples'
         ? `${baseColumns} 1fr 1fr 1px 1fr`
-        : `${baseColumns} 1fr 1fr 1fr 1px 1fr`
+        : // trifecta larga quanto exacta (2fr in 3 colonne): partenti,
+          // performance e storico restano larghi come in Couples
+          `${baseColumns} repeat(3, 0.6667fr) 1px 1fr`
 
   const renderTableHeader = () => {
     return (
@@ -453,7 +455,7 @@ export default function UpcomingRaceCard({
                 track: `${t('track')} ${trackSize}`,
               }}
               variant="racecard"
-              className="h-11 w-full max-w-[110px] text-md font-semibold tabular-nums"
+              className="h-11 w-full max-w-[110px] text-[14px] font-semibold tabular-nums"
             />
           </div>
           <div className="h-full bg-border" />
@@ -479,7 +481,7 @@ export default function UpcomingRaceCard({
                 track: `${t('track')} ${trackSize}`,
               }}
               variant="racecard"
-              className="h-11 w-full max-w-[110px] text-md font-semibold tabular-nums"
+              className="h-11 w-full max-w-[110px] text-[14px] font-semibold tabular-nums"
             />
           </div>
 
@@ -506,7 +508,7 @@ export default function UpcomingRaceCard({
                 track: `${t('track')} ${trackSize}`,
               }}
               variant="racecard"
-              className="h-11 w-full max-w-[110px] text-md font-semibold tabular-nums"
+              className="h-11 w-full max-w-[110px] text-[14px] font-semibold tabular-nums"
             />
           </div>
         </>
@@ -515,8 +517,11 @@ export default function UpcomingRaceCard({
     if (activeTab === 'couples') {
       return (
         <>
+          {/* tasti 1°/2° in un'unica cella con distanza fissa tra
+              loro, centrati nella colonna (come nel retail) */}
           <div
-            className={`flex h-12 cursor-pointer items-center justify-center px-1 text-center sm:px-2 ${isAnyOrderMode ? 'bg-muted' : ''}`}
+            className={`flex cursor-pointer items-center justify-center gap-2 px-1 py-1.5 sm:gap-24 ${isAnyOrderMode ? 'bg-muted' : ''}`}
+            style={{ gridColumn: 'span 2' }}
             onClick={handleMarketTypeToggle}
           >
             <Toggle
@@ -529,14 +534,8 @@ export default function UpcomingRaceCard({
                   : ''
               }`}
             >
-              <span className="text-md">1°</span>
+              <span className="text-[14px]">1°</span>
             </Toggle>
-          </div>
-
-          <div
-            className={`flex cursor-pointer items-center justify-center px-1 text-center sm:px-2 ${isAnyOrderMode ? 'bg-muted' : ''}`}
-            onClick={handleMarketTypeToggle}
-          >
             <Toggle
               pressed={position2Selection.includes(racer.number)}
               onPressedChange={() => togglePosition2Selection(racer.number)}
@@ -547,7 +546,7 @@ export default function UpcomingRaceCard({
                   : ''
               }`}
             >
-              <span className="text-md">2°</span>
+              <span className="text-[14px]">2°</span>
             </Toggle>
           </div>
 
@@ -584,57 +583,48 @@ export default function UpcomingRaceCard({
     if (activeTab === 'triplets') {
       return (
         <>
+          {/* tasti 1°/2°/3° in un'unica cella: da sm stessa distanza tra
+              i tasti e dai bordi della colonna */}
           <div
-            className={`flex h-12 cursor-pointer items-center justify-center px-1 text-center sm:px-2 ${isAnyOrderMode ? 'bg-muted' : ''}`}
+            className={`flex cursor-pointer items-center justify-center gap-2 px-1 py-1.5 sm:justify-evenly sm:gap-0 ${isAnyOrderMode ? 'bg-muted' : ''}`}
+            style={{ gridColumn: 'span 3' }}
             onClick={handleMarketTypeToggle}
           >
             <Toggle
               pressed={position1Selection.includes(racer.number)}
               onPressedChange={() => togglePosition1Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className={`h-11 w-full max-w-[90px] text-sm font-semibold ${
+              className={`h-11 w-full max-w-[90px] text-sm font-semibold sm:w-[90px] ${
                 position1Selection.includes(racer.number)
                   ? 'bg-bet text-bet-foreground'
                   : ''
               }`}
             >
-              <span className="text-md">1°</span>
+              <span className="text-[14px]">1°</span>
             </Toggle>
-          </div>
-
-          <div
-            className={`flex cursor-pointer items-center justify-center px-1 text-center sm:px-2 ${isAnyOrderMode ? 'bg-muted' : ''}`}
-            onClick={handleMarketTypeToggle}
-          >
             <Toggle
               pressed={position2Selection.includes(racer.number)}
               onPressedChange={() => togglePosition2Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className={`h-11 w-full max-w-[90px] text-sm font-semibold ${
+              className={`h-11 w-full max-w-[90px] text-sm font-semibold sm:w-[90px] ${
                 position2Selection.includes(racer.number)
                   ? 'bg-bet text-bet-foreground'
                   : ''
               }`}
             >
-              <span className="text-md">2°</span>
+              <span className="text-[14px]">2°</span>
             </Toggle>
-          </div>
-
-          <div
-            className={`flex cursor-pointer items-center justify-center px-1 text-center sm:px-2 ${isAnyOrderMode ? 'bg-muted' : ''}`}
-            onClick={handleMarketTypeToggle}
-          >
             <Toggle
               pressed={position3Selection.includes(racer.number)}
               onPressedChange={() => togglePosition3Selection(racer.number)}
               onClick={(e) => e.stopPropagation()}
-              className={`h-11 w-full max-w-[90px] text-sm font-semibold ${
+              className={`h-11 w-full max-w-[90px] text-sm font-semibold sm:w-[90px] ${
                 position3Selection.includes(racer.number)
                   ? 'bg-bet text-bet-foreground'
                   : ''
               }`}
             >
-              <span className="text-md">3°</span>
+              <span className="text-[14px]">3°</span>
             </Toggle>
           </div>
 
@@ -706,7 +696,7 @@ export default function UpcomingRaceCard({
                     track: `${t('track')} ${trackSize}`,
                   }}
                   variant="matchcard"
-                  className="h-11 w-full text-md"
+                  className="h-11 w-full text-[14px]"
                 />
               </div>
 
@@ -728,7 +718,7 @@ export default function UpcomingRaceCard({
                     track: `${t('track')} ${trackSize}`,
                   }}
                   variant="matchcard"
-                  className="h-11 w-full text-md"
+                  className="h-11 w-full text-[14px]"
                 />
               </div>
             </div>
@@ -763,7 +753,7 @@ export default function UpcomingRaceCard({
                     track: `${t('track')} ${trackSize}`,
                   }}
                   variant="matchcard"
-                  className="h-11 w-full text-md"
+                  className="h-11 w-full text-[14px]"
                 />
               </div>
 
@@ -787,7 +777,7 @@ export default function UpcomingRaceCard({
                     track: `${t('track')} ${trackSize}`,
                   }}
                   variant="matchcard"
-                  className="h-11 w-full text-md"
+                  className="h-11 w-full text-[14px]"
                 />
               </div>
             </div>
@@ -805,7 +795,7 @@ export default function UpcomingRaceCard({
             {Object.entries(tabConfig).map(([key, config]) => (
               <Button
                 key={key}
-                className={`h-10 min-w-[90px] rounded-sm px-3 text-sm font-semibold uppercase shadow-none sm:min-w-[120px] sm:px-4 ${
+                className={`h-10 min-w-[90px] rounded-sm px-3 text-md font-semibold uppercase shadow-none sm:min-w-[120px] sm:px-4 ${
                   activeTab === key
                     ? 'bg-white text-card-header hover:bg-white'
                     : 'border border-white/15 bg-secondary text-secondary-foreground hover:bg-tertiary'
@@ -818,11 +808,11 @@ export default function UpcomingRaceCard({
           </div>
           {/* ID della corsa selezionata, lo stesso mostrato nel video e negli
               ultimi risultati (int_event_id = ext_event_id) */}
-          <div className="flex shrink-0 items-center gap-2 text-card-header-foreground">
+          <div className="flex shrink-0 items-center gap-1 text-card-header-foreground">
             <span className="text-xs font-semibold uppercase opacity-75">
               ID -
             </span>
-            <span className="text-lg font-bold tabular-nums">{race.id}</span>
+            <span className="text-[13px] tabular-nums">{race.id}</span>
           </div>
         </CardHeader>
 
@@ -861,7 +851,7 @@ export default function UpcomingRaceCard({
                           </div>
                           {!hideRacerNames && (
                             <div className="min-w-0">
-                              <div className="truncate font-semibold">
+                              <div className="truncate text-[12px] font-semibold">
                                 {racer.name}
                               </div>
                             </div>
