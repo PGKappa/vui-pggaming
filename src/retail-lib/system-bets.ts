@@ -135,9 +135,22 @@ export function computeSameEventOddsRange<
 >(
   entries: T[],
   fieldSize?: number,
-): { minOdds: number; maxOddsSum: number; maxAssigned: T[]; minAssigned: T[] } {
+): {
+  minOdds: number
+  maxOddsSum: number
+  maxAssigned: T[]
+  minAssigned: T[]
+  /** true se esiste un esito in cui nessuna selezione dell'evento vince */
+  canLose: boolean
+} {
   if (entries.length === 0)
-    return { minOdds: 0, maxOddsSum: 0, maxAssigned: [], minAssigned: [] }
+    return {
+      minOdds: 0,
+      maxOddsSum: 0,
+      maxAssigned: [],
+      minAssigned: [],
+      canLose: true,
+    }
 
   const simulableEntries: { entry: T; normalized: string }[] = []
   const independentEntries: T[] = []
@@ -154,8 +167,11 @@ export function computeSameEventOddsRange<
   let maxAssigned: T[] = []
   let minOdds = 0
   let minAssigned: T[] = []
+  let simulableCanLose = true
+  let independentCanLose = true
 
   if (simulableEntries.length > 0) {
+    simulableCanLose = false
     const numbersInPlay = simulableEntries
       .flatMap(({ entry, normalized }) =>
         normalized === 'winner' ||
@@ -191,6 +207,7 @@ export function computeSameEventOddsRange<
         bestSum = sum
         bestWinners = winners
       }
+      if (sum === 0) simulableCanLose = true
       if (sum > 0 && sum < worstPositiveSum) {
         worstPositiveSum = sum
         worstPositiveWinners = winners
@@ -241,6 +258,9 @@ export function computeSameEventOddsRange<
         fieldSize !== undefined
           ? Math.max(0, fieldSize - groupEntries.length)
           : podiumSize
+      if (fieldSize !== undefined && uncovered < podiumSize) {
+        independentCanLose = false
+      }
       const forcedWinCount = Math.max(
         1,
         Math.min(groupEntries.length, podiumSize - uncovered),
@@ -257,7 +277,13 @@ export function computeSameEventOddsRange<
     }
   }
 
-  return { minOdds, maxOddsSum, maxAssigned, minAssigned }
+  return {
+    minOdds,
+    maxOddsSum,
+    maxAssigned,
+    minAssigned,
+    canLose: simulableCanLose && independentCanLose,
+  }
 }
 
 export function getCombinations(
