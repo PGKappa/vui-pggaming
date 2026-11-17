@@ -342,7 +342,7 @@ export default function LiveMatchInfo(
                 type="button"
                 aria-expanded={mediaOpen}
                 onClick={onToggleMedia}
-                className="flex size-9 shrink-0 items-center justify-center text-card-header-foreground transition-opacity hover:opacity-75"
+                className="flex size-9 shrink-0 items-center justify-center text-card-header-foreground transition-opacity hover:opacity-75 lg:-mr-2"
               >
                 <ChevronDown
                   className={`size-5 transition-transform ${
