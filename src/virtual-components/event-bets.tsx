@@ -135,7 +135,9 @@ export default function EventBets(props: {
               <span className="text-black">
                 {t('track')} {firstBet.discipline === Discipline.DOGS8 ? 8 : 6}
               </span>{' '}
-              <span className="text-tertiary">- ID {firstBet.event.number}</span>
+              <span className="text-tertiary">
+                - ID {firstBet.event.number}
+              </span>
             </span>
           </div>
         )}
@@ -171,6 +173,7 @@ export default function EventBets(props: {
                   betEntry.bet.option,
                   betEntry.bet.competitors,
                   betEntry.bet.discipline,
+                  betEntry.bet.event.number,
                 )
               }
             >

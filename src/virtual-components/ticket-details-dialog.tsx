@@ -330,6 +330,9 @@ function formatCurrencySymbolLeft(
   value: number,
   currency: string,
   locale: string,
+  // simbolo configurato in cassa: se presente sostituisce quello della valuta
+  // del ticket, così il dettaglio usa la stessa valuta di betslip e lista
+  symbolOverride?: string,
 ) {
   const safe = isNaN(value) ? 0 : value
   let parts: Intl.NumberFormatPart[]
@@ -343,7 +346,7 @@ function formatCurrencySymbolLeft(
       useGrouping: true,
     }).formatToParts(safe)
   } catch {
-    return `${currency} ${safe.toFixed(2)}`
+    return `${symbolOverride || currency} ${safe.toFixed(2)}`
   }
   const decimal = parts.find((p) => p.type === 'decimal')?.value ?? '.'
   const group = decimal === '.' ? undefined : '.'
@@ -358,7 +361,7 @@ function formatCurrencySymbolLeft(
     else if (part.type === 'literal' && part.value.trim() === '') continue
     else number += part.value
   }
-  return `${symbol} ${sign}${number}`
+  return `${symbolOverride || symbol} ${sign}${number}`
 }
 
 function binomial(n: number, k: number) {
@@ -524,9 +527,10 @@ export default function TicketDetailsDialog({
   ])
 
   const currency = info?.intl?.currency || 'EUR'
+  const currencySymbol = rootContext?.getCurrencySymbol?.()
   const fmt = (amount: number | string) => {
     const num = typeof amount === 'string' ? parseFloat(amount) : amount
-    return formatCurrencySymbolLeft(num, currency, locale)
+    return formatCurrencySymbolLeft(num, currency, locale, currencySymbol)
   }
 
   // orario del ticket in UTC: mostrato nel fuso del dispositivo

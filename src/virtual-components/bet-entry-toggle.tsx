@@ -42,6 +42,7 @@ export default function BetEntryToggle(props: {
             props.bet.option,
             props.bet.competitors,
             props.bet.discipline,
+            props.bet.event.number,
           )
         } else {
           addBet(props.marketName, {

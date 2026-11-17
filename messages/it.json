@@ -244,5 +244,6 @@
   "ok": "OK",
   "ticket_detail_title": "Ticket",
   "mobile_tab_matches": "Partite",
-  "mobile_tab_live": "In diretta"
+  "mobile_tab_live": "In diretta",
+  "stake_not_distributed": "{{amount}} non distribuibili con il passo di {{increment}} per colonna: importo non assegnato"
 }

@@ -175,5 +175,6 @@
   "combinations": "Комбинации",
   "total_combinations": "Всего комбинаций",
   "mobile_tab_matches": "Матчи",
-  "mobile_tab_live": "В эфире"
+  "mobile_tab_live": "В эфире",
+  "stake_not_distributed": "{{amount}} нельзя распределить с шагом {{increment}} на комбинацию: сумма не назначена"
 }
