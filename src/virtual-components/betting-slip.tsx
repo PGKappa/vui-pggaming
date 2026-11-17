@@ -117,18 +117,20 @@ export default function BettingSlip() {
   // template betslip (standard | noIncrement) come sul retail, da ?bet=
   const { template: betTemplate } = useBetTemplate()
 
+  // quota totale a precisione piena: arrotondata solo a video, così la
+  // vincita coincide con quella del ticket (es. 5,11 x 4,78 x 5 = 122,13 e
+  // non 24,43 x 5 = 122,15)
   const totalOdds =
     betEntries.length > 0
-      ? Math.round(
-          betEntries.reduce(
-            (total, betEntry) => total * betEntry.bet.option.decPrice,
-            1,
-          ) * 100,
-        ) / 100
+      ? betEntries.reduce(
+          (total, betEntry) => total * betEntry.bet.option.decPrice,
+          1,
+        )
       : 0
 
   const [global, setGlobal] = useState(0)
-  const potentialWinning = global * totalOdds
+  // vincita arrotondata al centesimo una sola volta, sul prodotto completo
+  const potentialWinning = Math.round(global * totalOdds * 100) / 100
   const { t } = useTranslation()
 
   const [systemGroupStakes, setSystemGroupStakes] = useState<
@@ -613,7 +615,7 @@ export default function BettingSlip() {
       const potentialWin =
         effectiveMode === 'SYSTEM'
           ? systemMaxWin
-          : Math.round(potentialWinning * 100) / 100
+          : potentialWinning
 
       // Salva il codice ticket per "Le mie scommesse"
       const ticketId = extractTicketId(result)
