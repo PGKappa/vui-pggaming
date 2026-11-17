@@ -19,6 +19,7 @@ import {
   BASE_API_URL,
   fetchCashierInit,
   fetchSoccerInit,
+  getCurrencySymbolFromCashier,
   getOperatorFromUrl,
   PGVIRTUAL_API_URL,
   withDerivedDoppiaChance,
@@ -517,22 +518,8 @@ export default function RootContextProvider(props: {
 
         const getCurrencyCode = () => cashierData.intl?.currency || 'EUR'
 
-        const getCurrencySymbol = () => {
-          const apiSymbol = cashierData.dict?.misc?.currency?.symbol
-          if (apiSymbol) return apiSymbol
-
-          const currencyCode = cashierData.intl?.currency || 'USD'
-          const currencyMap: Record<string, string> = {
-            USD: '$',
-            EUR: '€',
-            GBP: '£',
-            JPY: '¥',
-            CHF: 'CHF',
-            CAD: 'C$',
-            AUD: 'A$',
-          }
-          return currencyMap[currencyCode] || '$'
-        }
+        const getCurrencySymbol = () =>
+          getCurrencySymbolFromCashier(cashierData)
 
         const getChannels = (type: 'calcio' | 'dogs' | 'horses' = 'calcio') => {
           const channels: {
@@ -614,26 +601,8 @@ export default function RootContextProvider(props: {
           // Crea funzioni helper per accedere ai dati cashier
           const getCurrencyCode = () => cashierData.intl?.currency || 'EUR'
 
-          const getCurrencySymbol = () => {
-            // Prima prova a usare il simbolo dall'API cashier
-            const apiSymbol = cashierData.dict?.misc?.currency?.symbol
-            if (apiSymbol) {
-              return apiSymbol
-            }
-
-            // Fallback: usa il mapping basato sul currency code
-            const currencyCode = cashierData.intl?.currency || 'USD'
-            const currencyMap: Record<string, string> = {
-              USD: '$',
-              EUR: '€',
-              GBP: '£',
-              JPY: '¥',
-              CHF: 'CHF',
-              CAD: 'C$',
-              AUD: 'A$',
-            }
-            return currencyMap[currencyCode] || '$'
-          }
+          const getCurrencySymbol = () =>
+            getCurrencySymbolFromCashier(cashierData)
 
           const getChannels = (
             type: 'calcio' | 'dogs' | 'horses' = 'calcio',
@@ -775,7 +744,8 @@ export default function RootContextProvider(props: {
             ...firstSchedule,
             scheduleId: Number(groupId),
             scheduleName:
-              firstEvent.eventIdentity.scheduleType ?? firstSchedule.scheduleName,
+              firstEvent.eventIdentity.scheduleType ??
+              firstSchedule.scheduleName,
             mag_event: events.map((event) =>
               withDerivedDoppiaChance({
                 ...event,

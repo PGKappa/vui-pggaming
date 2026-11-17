@@ -59,6 +59,34 @@ export function createPGVirtualAPICall(
   })
 }
 
+/**
+ * Simbolo della valuta dell'operatore (cashier_init intl.currency), così a
+ * video si vede sempre la valuta con cui vengono registrati i ticket (es.
+ * EUR -> €, COP -> $, GBP -> £). Il simbolo testuale del dizionario
+ * (dict.misc.currency.symbol) si usa solo se il codice valuta manca o non è
+ * riconosciuto.
+ */
+export function getCurrencySymbolFromCashier(cashierData: any): string {
+  const code = String(cashierData?.intl?.currency ?? '')
+    .trim()
+    .toUpperCase()
+  if (code) {
+    try {
+      const symbol = new Intl.NumberFormat('en', {
+        style: 'currency',
+        currency: code,
+        currencyDisplay: 'narrowSymbol',
+      })
+        .formatToParts(0)
+        .find((part) => part.type === 'currency')?.value
+      if (symbol) return symbol
+    } catch {
+      /* codice valuta non valido */
+    }
+  }
+  return cashierData?.dict?.misc?.currency?.symbol || code || '€'
+}
+
 // Helper per l'inizializzazione cashier
 export async function fetchCashierInit(initCode: string): Promise<any> {
   const response = await fetch(API_URLS.CASHIER_INIT, {
