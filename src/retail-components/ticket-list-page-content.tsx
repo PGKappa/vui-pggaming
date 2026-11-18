@@ -215,7 +215,39 @@ export default function TicketListPageContent({
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [isDatePickerOpen])
 
-  const fillerCount = Math.max(0, parseInt(pageSize) - items.length)
+  // web: righe visibili nell'area della tabella (senza intestazione e
+  // totali), per non riempire con righe vuote oltre lo schermo
+  const scrollAreaRef = useRef<HTMLDivElement>(null)
+  const [visibleRows, setVisibleRows] = useState(0)
+  useEffect(() => {
+    if (!fullWidth) return
+    const measure = () => {
+      const area = scrollAreaRef.current
+      if (!area) return
+      const head = area.querySelector('thead') as HTMLElement | null
+      const totals = area.querySelector(
+        '[data-ticket-totals]',
+      ) as HTMLElement | null
+      const available =
+        area.clientHeight - (head?.offsetHeight ?? 0) - (totals?.offsetHeight ?? 0)
+      const row = rowHeight > 0 ? rowHeight : 48
+      setVisibleRows(Math.max(0, Math.floor(available / row)))
+    }
+    measure()
+    const obs = new ResizeObserver(measure)
+    if (scrollAreaRef.current) obs.observe(scrollAreaRef.current)
+    return () => obs.disconnect()
+  }, [fullWidth, rowHeight])
+
+  // cassa: righe vuote fino al numero per pagina. Web: solo fino a riempire
+  // lo spazio visibile, perché la tabella scorre (con 100 per pagina le
+  // righe oltre lo schermo restavano tagliate e non raggiungibili)
+  const fillerCount = Math.max(
+    0,
+    (fullWidth
+      ? Math.min(parseInt(pageSize), visibleRows)
+      : parseInt(pageSize)) - items.length,
+  )
 
   // calendario: rosso in cassa, blu (colore dei tasti web) sul web
   const pick = (retail: string, web: string) => (fullWidth ? web : retail)
@@ -757,8 +789,11 @@ export default function TicketListPageContent({
       )}
 
       <div
+        ref={scrollAreaRef}
         className={cn(
-          'flex flex-1 flex-col overflow-y-hidden bg-white text-black',
+          'flex flex-1 flex-col bg-white text-black',
+          // web: la tabella scorre (intestazione e totali restano fissi)
+          fullWidth ? 'min-h-0 overflow-y-auto' : 'overflow-y-hidden',
           webDesktopOnly,
         )}
       >
@@ -923,7 +958,7 @@ export default function TicketListPageContent({
 
         {/* Riga TOTALI — sticky bottom-0 nello stesso contenitore scroll.
             Stessa larghezza effettiva della tabella dati → colonne sempre allineate. */}
-        <div className="sticky bottom-0 shrink-0 bg-secondary uppercase text-white" style={{ borderLeft: sideBorder }}>
+        <div data-ticket-totals className="sticky bottom-0 shrink-0 bg-secondary uppercase text-white" style={{ borderLeft: sideBorder }}>
           <table className="w-full table-fixed border-collapse">
             <colgroup>
               <col style={{ width: '11.11%' }} />

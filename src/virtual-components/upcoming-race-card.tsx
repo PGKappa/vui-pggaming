@@ -7,7 +7,7 @@ import {
   PGVIRTUAL_API_URL,
 } from '@/virtual-lib/utils'
 import { t } from 'i18next'
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import BetCombinationsTable from './bet-combination-table'
 import BetEntryToggle from './bet-entry-toggle'
 import MedalsHistory from './medals-history'
@@ -71,10 +71,20 @@ export default function UpcomingRaceCard({
     clearSelections()
   }, [activeTab])
 
-  // useEffect per cambio automatico tab da FastBet (SENZA activeTab nelle dependencies)
+  // Cambio automatico del tab da FastBet: solo per le giocate APPENA
+  // aggiunte. Guardando tutta la schedina, qualsiasi modifica (es. aggiungere
+  // Under dai Principali) riportava al tab di un'Accoppiata o di un Trio già
+  // presente. All'apertura della corsa le giocate esistenti contano come già
+  // viste, così il tab resta quello scelto.
+  const seenEntryIds = useRef<Set<number> | null>(null)
   useEffect(() => {
+    const previous = seenEntryIds.current
+    seenEntryIds.current = new Set(betEntries.map((entry) => entry.id))
+    if (previous === null) return
+
     const raceEntries = betEntries.filter(
       (entry) =>
+        !previous.has(entry.id) &&
         entry.bet.discipline === race.discipline &&
         entry.bet.event.number === race.id,
     )

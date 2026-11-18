@@ -5,7 +5,8 @@
 // locale i codici dei ticket giocati da questo browser e ne carichiamo il
 // dettaglio aggiornato (importo, vincita, stato) dall'API.
 
-const MAX_TICKETS = 50
+// ticket ricordati per browser: bastano per una pagina da 100 della lista
+const MAX_TICKETS = 200
 
 const storageKey = (initCode: string) => `virtualTicketIds:${initCode}`
 
@@ -151,6 +152,42 @@ function matchesPayment(status: number, filter: number): boolean {
  */
 export const ticketDetailCache = new Map<number, any>()
 
+// Stati definitivi: annullato, rimborsato, perso, pagato (e perso "9" come
+// nel filtro della cassa). Un ticket in questi stati non cambia più, quindi
+// il suo dettaglio viene salvato in locale e non riscaricato a ogni
+// "Ricarica": si scaricano solo i ticket ancora aperti o vinti da pagare.
+const FINAL_STATUSES = new Set([2, 3, 5, 6, 9])
+
+const detailsKey = (initCode: string) => `virtualTicketDetails:${initCode}`
+
+function readStoredDetails(initCode: string): Record<string, any> {
+  try {
+    const raw = localStorage.getItem(detailsKey(initCode))
+    const parsed = raw ? JSON.parse(raw) : {}
+    return parsed && typeof parsed === 'object' ? parsed : {}
+  } catch {
+    return {}
+  }
+}
+
+function writeStoredDetails(
+  initCode: string,
+  ids: number[],
+  details: Record<string, any>,
+) {
+  // solo i ticket ancora nello storico e in stato definitivo
+  const kept: Record<string, any> = {}
+  for (const id of ids) {
+    const info = details[id]
+    if (info && FINAL_STATUSES.has(Number(info.status))) kept[id] = info
+  }
+  try {
+    localStorage.setItem(detailsKey(initCode), JSON.stringify(kept))
+  } catch {
+    // spazio esaurito o storage non disponibile: si riscaricano ogni volta
+  }
+}
+
 export async function fetchStoredTicketList(
   initCode: string,
   request: {
@@ -167,12 +204,20 @@ export async function fetchStoredTicketList(
     ? new Date(toDay.getFullYear(), toDay.getMonth(), toDay.getDate() + 1)
     : undefined
 
+  const ids = getStoredTicketIds(initCode)
+  const stored = readStoredDetails(initCode)
   const infos = await Promise.all(
-    getStoredTicketIds(initCode).map(async (id) => {
+    ids.map(async (id) => {
+      const saved = stored[id]
+      if (saved && FINAL_STATUSES.has(Number(saved.status))) {
+        ticketDetailCache.set(id, saved)
+        return saved
+      }
       try {
         const data = await fetchTicket(id)
         if (data?.ret_code === 1024 && data.info) {
           ticketDetailCache.set(Number(data.info.ticket_id ?? id), data.info)
+          stored[id] = data.info
           return data.info
         }
         return undefined
@@ -181,6 +226,7 @@ export async function fetchStoredTicketList(
       }
     }),
   )
+  writeStoredDetails(initCode, ids, stored)
 
   const items = infos
     .filter((info) => info?.ticket_id && Array.isArray(info.time))
