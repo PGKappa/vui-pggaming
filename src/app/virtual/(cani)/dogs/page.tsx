@@ -60,7 +60,9 @@ export default function Home() {
                     discipline={Discipline.DOGS}
                   />
                 </div>
-                <div className="relative h-[380px] lg:col-span-1 lg:h-auto">
+                {/* separatore verticale esattamente a metà dello spazio
+                    (gap-3 = 12px) tra video e ultimi risultati */}
+                <div className="relative h-[380px] lg:col-span-1 lg:h-auto lg:before:absolute lg:before:inset-y-0 lg:before:-left-[6.5px] lg:before:w-px lg:before:bg-gray-300 lg:before:content-['']">
                   <div className="h-full lg:absolute lg:inset-0">
                     <PreviousResultsCard
                       results={previousResults?.[Discipline.DOGS]}

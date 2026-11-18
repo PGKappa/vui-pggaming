@@ -6,7 +6,10 @@ import type {
   BetEntry as RetailBetEntry,
   SystemGroup as RetailSystemGroup,
 } from '@/retail-lib/types'
-import { normalizeMarketName } from '@/retail-lib/utils'
+import {
+  normalizeMarketName,
+  normalizeUnderOverValue,
+} from '@/retail-lib/utils'
 import { BetEntry, Discipline, SystemGroup } from './types'
 
 // Soglia under/over delle corse virtual: il mercato arriva come "Under/Over"
@@ -60,7 +63,13 @@ export function generateSystemGroups(
       combo.map((entry) => originalsById.get(entry.id) as BetEntry),
     )
 
-  const eventMins = computeEventMinOutcomes(entries)
+  const eventOutcomes = computeEventOutcomes(entries)
+  const eventMins = new Map(
+    [...eventOutcomes].map(([key, outcome]) => [key, outcome.min]),
+  )
+  const maxWinnerIds = new Set(
+    [...eventOutcomes.values()].flatMap((outcome) => [...outcome.maxIds]),
+  )
 
   return generateRetailSystemGroups(retailEntries, {
     ...limits,
@@ -79,7 +88,12 @@ export function generateSystemGroups(
         [{ stake: 1, combinations }],
         eventMins,
       )[0],
-      maxWinAssignedCombinations: toVirtual(group.maxWinAssignedCombinations),
+      // vincita massima: le combinazioni le cui selezioni vincono tutte
+      // nell'esito migliore di ogni corsa (con Accoppiata/Trio a girare,
+      // che il retail sommerebbe anche quando non possono vincere insieme)
+      maxWinAssignedCombinations: combinations.filter((combo) =>
+        combo.every((entry) => maxWinnerIds.has(entry.id)),
+      ),
     }
   })
 }
@@ -121,9 +135,13 @@ type EventMinOutcome = {
   odds: number
 }
 
-function computeEventMinOutcomes(
-  entries: BetEntry[],
-): Map<string, EventMinOutcome> {
+type EventOutcome = {
+  min: EventMinOutcome
+  /** selezioni che vincono nell'esito con la vincita più alta */
+  maxIds: Set<BetEntry['id']>
+}
+
+function computeEventOutcomes(entries: BetEntry[]): Map<string, EventOutcome> {
   const byEvent = new Map<string, BetEntry[]>()
   for (const entry of entries) {
     const key = eventKeyOf(entry)
@@ -131,18 +149,31 @@ function computeEventMinOutcomes(
     byEvent.get(key)!.push(entry)
   }
 
-  const result = new Map<string, EventMinOutcome>()
+  const result = new Map<string, EventOutcome>()
   for (const [key, eventEntries] of byEvent) {
     if (eventEntries.length === 1) {
       const entry = eventEntries[0]
       result.set(key, {
-        canLose: true,
-        winnerIds: new Set([entry.id]),
-        odds: entry.bet.option.decPrice,
+        min: {
+          canLose: true,
+          winnerIds: new Set([entry.id]),
+          odds: entry.bet.option.decPrice,
+        },
+        maxIds: new Set([entry.id]),
       })
       continue
     }
-    const { minAssigned, canLose } = computeSameEventOddsRange(
+
+    // corse: si simulano gli arrivi, così anche Accoppiata e Trio a girare
+    // vincono solo insieme agli esiti compatibili
+    const race = simulateRace(eventEntries)
+    if (race) {
+      result.set(key, race)
+      continue
+    }
+
+    // calcio (o mercato corse sconosciuto): stessa logica del retail
+    const { minAssigned, maxAssigned, canLose } = computeSameEventOddsRange(
       eventEntries.map((entry) => ({
         odds: entry.bet.option.decPrice,
         market: toRetailMarket(entry),
@@ -152,12 +183,121 @@ function computeEventMinOutcomes(
       fieldSizeOf(eventEntries[0]),
     )
     result.set(key, {
-      canLose: canLose || minAssigned.length === 0,
-      winnerIds: new Set(minAssigned.map((a) => a.entry.id)),
-      odds: minAssigned.reduce((sum, a) => sum + a.odds, 0),
+      min: {
+        canLose: canLose || minAssigned.length === 0,
+        winnerIds: new Set(minAssigned.map((a) => a.entry.id)),
+        odds: minAssigned.reduce((sum, a) => sum + a.odds, 0),
+      },
+      maxIds: new Set(maxAssigned.map((a) => a.entry.id)),
     })
   }
   return result
+}
+
+// numeri dei partenti di un esito ("1-2 ordine libero" -> [1, 2])
+const runnersOf = (outcome: string) =>
+  (outcome.match(/\d+/g) ?? []).map((n) => parseInt(n, 10))
+
+const sameRunners = (a: number[], b: number[]) =>
+  a.length === b.length && a.every((n) => b.includes(n))
+
+/**
+ * Funzione che dice se una selezione vince con un certo ordine d'arrivo (i
+ * primi tre), o null se il mercato non è un mercato corse conosciuto.
+ */
+function raceWinCheck(entry: BetEntry): ((finish: number[]) => boolean) | null {
+  const market = normalizeMarketName(entry.market)
+  const outcome = entry.bet.option.outcome
+  const runners = runnersOf(outcome)
+  switch (market) {
+    case 'winner':
+      return (finish) => finish[0] === runners[0]
+    case 'placed':
+      return (finish) => finish.slice(0, 2).includes(runners[0])
+    case 'show':
+      return (finish) => finish.slice(0, 3).includes(runners[0])
+    case 'exacta':
+      return (finish) => finish[0] === runners[0] && finish[1] === runners[1]
+    case 'quinella':
+      return (finish) => sameRunners(finish.slice(0, 2), runners)
+    case 'trifecta':
+      return (finish) =>
+        finish[0] === runners[0] &&
+        finish[1] === runners[1] &&
+        finish[2] === runners[2]
+    case 'boxed_trifecta':
+      return (finish) => sameRunners(finish.slice(0, 3), runners)
+    case 'even_odd': {
+      const side = toRetailOutcome(entry)
+      if (side !== 'even' && side !== 'odd') return null
+      return (finish) => (finish[0] % 2 === 0) === (side === 'even')
+    }
+    case 'underover': {
+      const side = normalizeUnderOverValue(outcome)
+      const threshold = parseFloat(underOverThreshold(entry))
+      if (side === 'under') return (finish) => finish[0] < threshold
+      if (side === 'over') return (finish) => finish[0] > threshold
+      return null
+    }
+    default:
+      return null
+  }
+}
+
+/**
+ * Esiti minimo e massimo di una corsa provando tutti gli ordini d'arrivo dei
+ * primi tre: in ogni arrivo vincono solo le selezioni compatibili, quindi
+ * due esiti che non possono uscire insieme (es. Accoppiata a girare 1-2 e
+ * Accoppiata in ordine 1-3) non si sommano mai. Null per il calcio o per un
+ * mercato che non si sa simulare.
+ */
+function simulateRace(eventEntries: BetEntry[]): EventOutcome | null {
+  if (eventEntries[0].bet.discipline === Discipline.FOOTBALL) return null
+  const checks = eventEntries.map(raceWinCheck)
+  if (checks.some((check) => check === null)) return null
+
+  const fieldSize = Math.max(
+    fieldSizeOf(eventEntries[0]),
+    ...eventEntries.flatMap((entry) => runnersOf(entry.bet.option.outcome)),
+  )
+
+  let best = { odds: -1, ids: new Set<BetEntry['id']>() }
+  let worst = { odds: Infinity, ids: new Set<BetEntry['id']>() }
+  let canLose = false
+  const finish: number[] = []
+  const visit = () => {
+    if (finish.length === 3) {
+      const ids = new Set<BetEntry['id']>()
+      let odds = 0
+      eventEntries.forEach((entry, index) => {
+        if (checks[index]!(finish)) {
+          ids.add(entry.id)
+          odds += entry.bet.option.decPrice
+        }
+      })
+      if (odds > best.odds) best = { odds, ids }
+      if (odds === 0) canLose = true
+      else if (odds < worst.odds) worst = { odds, ids }
+      return
+    }
+    for (let n = 1; n <= fieldSize; n++) {
+      if (finish.includes(n)) continue
+      finish.push(n)
+      visit()
+      finish.pop()
+    }
+  }
+  visit()
+
+  const hasWin = worst.odds !== Infinity
+  return {
+    min: {
+      canLose: canLose || !hasWin,
+      winnerIds: hasWin ? worst.ids : new Set(),
+      odds: hasWin ? worst.odds : 0,
+    },
+    maxIds: best.ids,
+  }
 }
 
 /**
@@ -248,7 +388,10 @@ export function computeSystemMinWin(
 ): number {
   const active = groups.filter((group) => group.stake > 0)
   if (active.length === 0) return 0
-  const winning = minWinCombinations(active, computeEventMinOutcomes(entries))
+  const eventMins = new Map(
+    [...computeEventOutcomes(entries)].map(([key, o]) => [key, o.min]),
+  )
+  const winning = minWinCombinations(active, eventMins)
   const total = active.reduce(
     (sum, group, index) =>
       sum +

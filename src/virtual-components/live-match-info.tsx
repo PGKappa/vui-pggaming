@@ -25,6 +25,8 @@ export default function LiveMatchInfo(
 ) {
   const { mediaOpen, onToggleMedia } = props
   const { liveRound, upcomingEvents, upcomingRounds } = useContext(RootContext)
+  // ID della prossima corsa, aggiornato insieme all'orario
+  const [nextEventId, setNextEventId] = useState<number | string | null>(null)
   const [nextEventStartTime, setNextEventStartTime] = useState<Date | null>(
     null,
   )
@@ -95,6 +97,7 @@ export default function LiveMatchInfo(
       const now = new Date()
 
       if (discipline === Discipline.FOOTBALL) {
+        setNextEventId(null)
         if (liveRound) {
           setNextEventStartTime(new Date(liveRound.startingAt))
           return
@@ -115,11 +118,13 @@ export default function LiveMatchInfo(
         const nextEvent = disciplineEvents?.[0] // Prende il primo evento futuro
         if (nextEvent) {
           setNextEventStartTime(new Date(nextEvent.time))
+          setNextEventId(nextEvent.id ?? null)
           return
         }
       }
 
       setNextEventStartTime(null)
+      setNextEventId(null)
     }
 
     updateNextEvent()
@@ -280,12 +285,20 @@ export default function LiveMatchInfo(
       <div
         className={`flex min-h-12 w-full flex-wrap items-center gap-x-3 gap-y-2 bg-card-header px-3 py-2 text-card-header-foreground shadow-sm lg:h-12 lg:flex-nowrap lg:py-0 ${
           shouldShowLatecomersButton
-            ? 'lg:grid lg:grid-cols-[minmax(0,2fr)_minmax(max-content,1fr)] lg:px-0'
+            ? 'lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(max-content,1fr)] lg:px-0'
             : ''
         }`}
       >
-        <div className="flex min-w-0 flex-1 basis-full items-center justify-between gap-3 lg:basis-auto lg:pl-3">
+        <div className="flex min-w-0 flex-1 basis-full items-center justify-between gap-3 lg:col-span-2 lg:basis-auto lg:pl-3">
           <div className="flex min-w-0 flex-row items-center gap-3">
+            {/* badge "Live" lampeggiante: la gara nel video è in diretta */}
+            <span
+              className="flex shrink-0 animate-pulse items-center gap-1.5 rounded-sm bg-red-600 px-2 py-0.5 text-[11px] font-bold uppercase leading-none tracking-wide text-white"
+              title={t('live')}
+            >
+              <span className="size-2 rounded-full bg-white" />
+              Live
+            </span>
             {disciplineInfo.icon}
             <span className="truncate text-xs font-bold uppercase tracking-wide">
               {disciplineInfo.name}
@@ -293,6 +306,15 @@ export default function LiveMatchInfo(
           </div>
 
           <div className="flex shrink-0 items-center gap-2">
+            {/* ID della prossima corsa, lo stesso del carosello e delle quote */}
+            {nextEventId !== null && (
+              // stesso font di "Prossima corsa"; numero in bianco pieno, "ID" e "-" attenuati come la scritta
+              <span className="text-xs font-semibold uppercase tabular-nums">
+                <span className="opacity-75">ID</span>{' '}
+                <span className="text-white">{nextEventId}</span>{' '}
+                <span className="ml-1 opacity-75">-</span>
+              </span>
+            )}
             <span className="hidden text-xs font-semibold uppercase opacity-75 2xl:inline">
               {t('next_race')}
             </span>
@@ -304,13 +326,14 @@ export default function LiveMatchInfo(
 
         {(shouldShowLatecomersButton || onToggleMedia) && (
           <div className="flex w-full shrink-0 items-center justify-end gap-3 lg:w-auto lg:pr-3">
-            {/* i tre tasti hanno tutti la larghezza del più largo: colonne
-                uguali (1fr) in una griglia larga quanto il contenuto */}
+            {/* i tre tasti hanno la stessa larghezza (1fr) e riempiono la
+                colonna: il primo parte dove inizia la tabella ultimi
+                risultati */}
             {shouldShowLatecomersButton && (
-              <div className="grid flex-1 grid-cols-3 gap-2 lg:flex-none lg:auto-cols-fr lg:grid-flow-col lg:grid-cols-none lg:gap-3">
+              <div className="grid flex-1 grid-cols-3 gap-2 lg:auto-cols-fr lg:grid-flow-col lg:grid-cols-none lg:gap-3">
                 <button
                   type="button"
-                  className="flex h-9 items-center justify-center rounded-sm border border-white/15 bg-secondary px-1 text-center text-[11px] font-semibold uppercase leading-tight text-secondary-foreground transition-colors hover:bg-tertiary hover:text-tertiary-foreground sm:px-2 sm:text-xs lg:whitespace-nowrap xl:px-3 xl:text-sm"
+                  className="flex h-9 items-center justify-center rounded-sm bg-secondary px-1 text-center text-[11px] font-semibold uppercase leading-tight text-secondary-foreground transition-opacity hover:opacity-85 sm:px-2 sm:text-xs lg:whitespace-nowrap xl:px-3 xl:text-sm"
                   onClick={() => setIsLatecomersOpen(true)}
                   title={t('latecomers')}
                 >
@@ -319,16 +342,16 @@ export default function LiveMatchInfo(
 
                 <button
                   type="button"
-                  className="flex h-9 items-center justify-center rounded-sm border border-white/15 bg-secondary px-1 text-center text-[11px] font-semibold uppercase leading-tight text-secondary-foreground transition-colors hover:bg-tertiary hover:text-tertiary-foreground sm:px-2 sm:text-xs lg:whitespace-nowrap xl:px-3 xl:text-sm"
+                  className="flex h-9 items-center justify-center rounded-sm bg-secondary px-1 text-center text-[11px] font-semibold uppercase leading-tight text-secondary-foreground transition-opacity hover:opacity-85 sm:px-2 sm:text-xs lg:whitespace-nowrap xl:px-3 xl:text-sm"
                   onClick={openSearchResults}
-                  title={t('search_results')}
+                  title={t('results')}
                 >
-                  <span>{t('search_results')}</span>
+                  <span>{t('results')}</span>
                 </button>
 
                 <button
                   type="button"
-                  className="flex h-9 items-center justify-center rounded-sm border border-white/15 bg-secondary px-1 text-center text-[11px] font-semibold uppercase leading-tight text-secondary-foreground transition-colors hover:bg-tertiary hover:text-tertiary-foreground sm:px-2 sm:text-xs lg:whitespace-nowrap xl:px-3 xl:text-sm"
+                  className="flex h-9 items-center justify-center rounded-sm bg-secondary px-1 text-center text-[11px] font-semibold uppercase leading-tight text-secondary-foreground transition-opacity hover:opacity-85 sm:px-2 sm:text-xs lg:whitespace-nowrap xl:px-3 xl:text-sm"
                   onClick={() => setIsInfoOpen(true)}
                   title={t('game_rules')}
                 >

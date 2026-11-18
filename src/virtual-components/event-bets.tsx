@@ -130,14 +130,12 @@ export default function EventBets(props: {
           </div>
         ) : (
           <div className="ml-[3px] flex items-center pb-[4px]">
-            {/* circuito (6 o 8 corridori) - ID corsa, come in cassa */}
+            {/* circuito (6 o 8 corridori) e ID corsa, come in cassa */}
             <span className="text-[13px] font-normal uppercase">
               <span className="text-black">
                 {t('track')} {firstBet.discipline === Discipline.DOGS8 ? 8 : 6}
               </span>{' '}
-              <span className="text-tertiary">
-                - ID {firstBet.event.number}
-              </span>
+              <span className="text-tertiary">ID {firstBet.event.number}</span>
             </span>
           </div>
         )}

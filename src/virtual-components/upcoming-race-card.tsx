@@ -795,10 +795,10 @@ export default function UpcomingRaceCard({
             {Object.entries(tabConfig).map(([key, config]) => (
               <Button
                 key={key}
-                className={`h-10 min-w-[90px] rounded-sm px-3 text-md font-semibold uppercase shadow-none sm:min-w-[120px] sm:px-4 ${
+                className={`h-10 min-w-[90px] rounded-sm px-3 text-md font-normal uppercase shadow-none sm:min-w-[120px] sm:px-4 ${
                   activeTab === key
-                    ? 'bg-white text-card-header hover:bg-white'
-                    : 'border border-white/15 bg-secondary text-secondary-foreground hover:bg-tertiary'
+                    ? 'bg-white text-card-header hover:bg-white hover:opacity-85'
+                    : 'border-0 bg-secondary text-secondary-foreground hover:bg-secondary hover:opacity-85'
                 }`}
                 onClick={() => handleTabChange(key as TabType)}
               >
@@ -809,10 +809,11 @@ export default function UpcomingRaceCard({
           {/* ID della corsa selezionata, lo stesso mostrato nel video e negli
               ultimi risultati (int_event_id = ext_event_id) */}
           <div className="flex shrink-0 items-center gap-1 text-card-header-foreground">
-            <span className="text-xs font-semibold uppercase opacity-75">
-              ID -
+            <span className="text-md font-semibold uppercase opacity-75">
+              ID
             </span>
-            <span className="text-[13px] tabular-nums">{race.id}</span>
+            {/* "ID" e numero a 16px */}
+            <span className="text-md tabular-nums">{race.id}</span>
           </div>
         </CardHeader>
 

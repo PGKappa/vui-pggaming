@@ -105,7 +105,7 @@ function UpcomingEventItem(props: {
         }}
       >
         <span className="flex items-center gap-3">
-          <span className="text-md font-bold leading-none tabular-nums">
+          <span className="text-md font-bold tabular-nums leading-none">
             {event.startTime}
           </span>
           <span className="min-w-[56px] rounded-sm bg-white px-2 py-0.5 text-center text-sm font-bold tabular-nums text-black">
@@ -113,8 +113,8 @@ function UpcomingEventItem(props: {
           </span>
         </span>
         {/* stesso ID mostrato accanto ai tab Main/Couples/Triplets */}
-        <span className="text-[11px] leading-none tabular-nums">
-          <span className="opacity-75">ID -</span>{' '}
+        <span className="text-[11px] tabular-nums leading-none">
+          <span className="opacity-75">ID</span>{' '}
           <span className="text-white">{event.id}</span>
         </span>
       </button>
