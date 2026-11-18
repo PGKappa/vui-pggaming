@@ -13,6 +13,7 @@ import {
   computeSystemMinWin,
   distributeSystemStake,
   generateSystemGroups,
+  winHalfUp,
 } from '@/virtual-lib/system-bets'
 import { BetEntry, Discipline, SubmittedTicket } from '@/virtual-lib/types'
 import { extractTicketId, storeTicketId } from '@/virtual-lib/ticket-history'
@@ -205,8 +206,12 @@ export default function BettingSlip() {
       : 0
 
   const [global, setGlobal] = useState(0)
-  // vincita arrotondata al centesimo una sola volta, sul prodotto completo
-  const potentialWinning = Math.round(global * totalOdds * 100) / 100
+  // vincita arrotondata al centesimo una sola volta, sul prodotto completo,
+  // con criterio HALF_UP calcolato su interi (vedi winHalfUp)
+  const potentialWinning = winHalfUp(
+    betEntries.map((betEntry) => betEntry.bet.option.decPrice),
+    global,
+  )
   const { t } = useTranslation()
 
   const [systemGroupStakes, setSystemGroupStakes] = useState<
@@ -276,6 +281,10 @@ export default function BettingSlip() {
   // scrive resta com'è; altrimenti mostra il totale giocato dai gruppi
   const [systemTotalStake, setSystemTotalStake] = useState(0)
   const isEditingSystemTotal = useRef(false)
+  // errore del campo IMPORTO (importo che non copre il minimo di tutte le
+  // colonne spuntate): resta finché si scrive, uscendo dal campo si torna
+  // al totale effettivamente giocato
+  const [systemTotalError, setSystemTotalError] = useState<string | null>(null)
   useEffect(() => {
     if (!isEditingSystemTotal.current) setSystemTotalStake(systemTotalPlayed)
   }, [systemTotalPlayed])
@@ -343,15 +352,18 @@ export default function BettingSlip() {
     stake <= 0
       ? null
       : Math.round(stake * 100) < Math.round(minStake * 100)
-        ? t('min_stake_error', { min: minStake })
+        ? t('min_stake_per_column', {
+            min: `${minStake.toFixed(2)} ${currencySymbol}`,
+          })
         : !betTemplate.exactStakeDistribution &&
             !isMultipleOf(stake, systemStakeIncrement)
           ? t('stake_increment_error', { increment: systemStakeIncrement })
           : null
-  const systemStakeError =
+  const groupsStakeError =
     activeSystemGroups
       .map((group) => groupStakeError(group.stake))
       .find((error) => error !== null) ?? null
+  const systemStakeError = systemTotalError ?? groupsStakeError
   const groupWin = (group: (typeof systemGroups)[number]) =>
     groupStakeError(group.stake)
       ? { minWin: 0, maxWin: 0 }
@@ -573,6 +585,21 @@ export default function BettingSlip() {
               }
 
               let cleanOutcome = entry.bet.option.outcome
+
+              // Accoppiata e Trio a girare: nella schedina l'esito è "1-2
+              // ordine libero" (tradotto), ma il backend vuole solo i numeri
+              // in ordine crescente come il retail ("1-2", "1-2-3"); con il
+              // testo la quota non viene trovata e la giocata è rifiutata
+              // come "Evento iniziato"
+              if (
+                apiMarketName === 'quinella' ||
+                apiMarketName === 'boxedtrifecta'
+              ) {
+                cleanOutcome = (cleanOutcome.match(/\d+/g) ?? [])
+                  .map((n) => parseInt(n, 10))
+                  .sort((a, b) => a - b)
+                  .join('-')
+              }
 
               // Normalizza outcome per Even/Odd e Under/Over in inglese lowercase
               if (
@@ -805,14 +832,45 @@ export default function BettingSlip() {
     }))
   }
 
+  const formatAmount = (value: number) =>
+    `${value.toFixed(2)} ${currencySymbol}`
+
+  // Messaggio di errore se l'importo non basta per dare il minimo a tutte le
+  // colonne dei gruppi indicati (DIVIDI e campo IMPORTO), altrimenti null.
+  // Senza template a importo esatto il minimo per colonna è il primo
+  // multiplo del passo del sistema >= minimo
+  const selectedColumnsMinError = (
+    groups: { combinations: unknown[] }[],
+    amount: number,
+  ) => {
+    const columns = groups.reduce(
+      (sum, group) => sum + group.combinations.length,
+      0,
+    )
+    const stepCents = Math.max(1, Math.round(systemStakeIncrement * 100))
+    const minColumnCents = betTemplate.exactStakeDistribution
+      ? Math.round(minStake * 100)
+      : Math.ceil(Math.round(minStake * 100) / stepCents) * stepCents
+    const requiredCents = minColumnCents * columns
+    if (Math.round(amount * 100) >= requiredCents) return null
+    return t('min_stake_selected_columns', {
+      min: formatAmount(minColumnCents / 100),
+      columns,
+      total: formatAmount(requiredCents / 100),
+    })
+  }
+  // minimo per colonna: stesso testo di DIVIDI, AGGIUNGI e dei campi colonna
+  const minStakePerColumnText = () =>
+    t('min_stake_per_column', { min: formatAmount(minStake) })
+
   // Funzione per dividere lo stake tra i gruppi selezionati
   const handleDistributeStake = () => {
     if (systemDistributeStake <= 0) {
       toast.error(t('enter_valid_amount'))
       return
     }
-    if (systemDistributeStake < minStake) {
-      toast.error(t('min_stake_error', { min: minStake }))
+    if (Math.round(systemDistributeStake * 100) < Math.round(minStake * 100)) {
+      toast.error(minStakePerColumnText())
       return
     }
 
@@ -821,6 +879,19 @@ export default function BettingSlip() {
     )
     if (selectedGroupsList.length === 0) {
       toast.error(t('select_at_least_one_group'))
+      return
+    }
+
+    // ogni colonna spuntata deve ricevere almeno il minimo: se l'importo non
+    // basta l'operazione viene bloccata (importi precedenti invariati) e si
+    // indica il totale necessario, invece di azzerare in silenzio alcune
+    // combinazioni lasciandole spuntate
+    const columnsError = selectedColumnsMinError(
+      selectedGroupsList,
+      systemDistributeStake,
+    )
+    if (columnsError) {
+      toast.error(columnsError)
       return
     }
 
@@ -849,12 +920,10 @@ export default function BettingSlip() {
       systemStakeIncrement,
       minStake,
     )
-    const formatAmount = (value: number) =>
-      `${value.toFixed(2)} ${currencySymbol}`
-
     if (Object.values(stakes).every((stake) => stake <= 0)) {
       toast.error(
-        t('min_stake_per_combination_not_met', {
+        t('min_stake_per_column_increase', {
+          min: formatAmount(minStake),
           amount: formatAmount(roundCents(minRequired - systemDistributeStake)),
         }),
       )
@@ -877,6 +946,7 @@ export default function BettingSlip() {
   // dei gruppi selezionati, oppure sul gruppo più grande (come il retail)
   const handleSystemTotalInput = (value: number) => {
     setSystemTotalStake(Math.max(value, 0))
+    setSystemTotalError(null)
     if (!(value > 0) || systemGroups.length === 0) {
       setSystemGroupStakes({})
       return
@@ -890,6 +960,14 @@ export default function BettingSlip() {
       targetGroups = [largest]
       setSelectedGroups({ [largest.name]: true })
       setAllGroupsSelected(systemGroups.length === 1)
+    }
+
+    // come DIVIDI: se l'importo non copre il minimo di tutte le colonne
+    // spuntate gli importi non cambiano e il campo mostra l'errore in rosso
+    const columnsError = selectedColumnsMinError(targetGroups, value)
+    if (columnsError) {
+      setSystemTotalError(columnsError)
+      return
     }
 
     // stessa ripartizione di DIVIDI: puntate per colonna multiple del passo
@@ -911,10 +989,29 @@ export default function BettingSlip() {
     setSystemGroupStakes({ ...stakes, ...targetStakes })
   }
 
-  // Funzione per aggiungere stake a tutti i gruppi selezionati
+  // Funzione per aggiungere stake a tutti i gruppi selezionati. Stessi
+  // controlli di DIVIDI prima di toccare la schedina: con un importo non
+  // valido l'operazione viene bloccata e gli importi precedenti restano
   const handleAddStakeToAll = () => {
     if (systemDistributeStake <= 0) {
       toast.error(t('enter_valid_amount'))
+      return
+    }
+    if (!systemGroups.some((group) => selectedGroups[group.name])) {
+      toast.error(t('select_at_least_one_group'))
+      return
+    }
+    if (Math.round(systemDistributeStake * 100) < Math.round(minStake * 100)) {
+      toast.error(minStakePerColumnText())
+      return
+    }
+    if (
+      !betTemplate.exactStakeDistribution &&
+      !isMultipleOf(systemDistributeStake, systemStakeIncrement)
+    ) {
+      toast.error(
+        t('stake_increment_error', { increment: systemStakeIncrement }),
+      )
       return
     }
 
@@ -1522,7 +1619,9 @@ export default function BettingSlip() {
                     onBlur={() => {
                       isEditingSystemTotal.current = false
                       setSystemTotalStake(systemTotalPlayed)
+                      setSystemTotalError(null)
                     }}
+                    invalid={systemTotalError !== null}
                     className="h-8 w-[220px] rounded-none border bg-white pl-6 pr-6 text-center text-[16px] tabular-nums shadow-none focus-visible:ring-0"
                     overlayClassName="text-[16px] tabular-nums"
                   />

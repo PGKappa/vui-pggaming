@@ -214,5 +214,8 @@
   "ticket_detail_title": "Ticket",
   "mobile_tab_matches": "Matchs",
   "mobile_tab_live": "En direct",
-  "stake_not_distributed": "{{amount}} ne peuvent pas être répartis avec un pas de {{increment}} par combinaison : montant non attribué"
+  "stake_not_distributed": "{{amount}} ne peuvent pas être répartis avec un pas de {{increment}} par combinaison : montant non attribué",
+  "min_stake_per_column": "Mise minimale par combinaison : {{min}}",
+  "min_stake_per_column_increase": "Mise minimale par combinaison : {{min}}. Augmentez de {{amount}} pour continuer",
+  "min_stake_selected_columns": "Mise minimale par combinaison : {{min}}. Pour {{columns}} combinaisons, il faut au moins {{total}}"
 }

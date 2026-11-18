@@ -244,5 +244,8 @@
   "ticket_detail_title": "Ticket",
   "mobile_tab_matches": "Matches",
   "mobile_tab_live": "Live",
-  "stake_not_distributed": "{{amount}} cannot be distributed with a step of {{increment}} per combination: amount not assigned"
+  "stake_not_distributed": "{{amount}} cannot be distributed with a step of {{increment}} per combination: amount not assigned",
+  "min_stake_per_column": "Minimum stake per combination: {{min}}",
+  "min_stake_per_column_increase": "Minimum stake per combination: {{min}}. Increase by {{amount}} to continue",
+  "min_stake_selected_columns": "Minimum stake per combination: {{min}}. {{columns}} combinations require at least {{total}}"
 }

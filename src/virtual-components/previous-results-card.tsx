@@ -58,7 +58,7 @@ export default function PreviousResultsCard({
     <Card className="flex h-full flex-col overflow-hidden shadow-sm">
       <CardHeader className="h-12 shrink-0 justify-center space-y-0 p-0">
         <div className="relative flex h-full w-full items-center justify-center px-3">
-          <CardTitle className="text-center text-md font-bold uppercase tracking-wide">
+          <CardTitle className="text-center text-md font-normal uppercase tracking-wide">
             {t('latest_results')}
           </CardTitle>
           {canExpand && (

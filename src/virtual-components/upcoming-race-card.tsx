@@ -7,7 +7,7 @@ import {
   PGVIRTUAL_API_URL,
 } from '@/virtual-lib/utils'
 import { t } from 'i18next'
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import BetCombinationsTable from './bet-combination-table'
 import BetEntryToggle from './bet-entry-toggle'
 import MedalsHistory from './medals-history'
@@ -71,10 +71,20 @@ export default function UpcomingRaceCard({
     clearSelections()
   }, [activeTab])
 
-  // useEffect per cambio automatico tab da FastBet (SENZA activeTab nelle dependencies)
+  // Cambio automatico del tab da FastBet: solo per le giocate APPENA
+  // aggiunte. Guardando tutta la schedina, qualsiasi modifica (es. aggiungere
+  // Under dai Principali) riportava al tab di un'Accoppiata o di un Trio già
+  // presente. All'apertura della corsa le giocate esistenti contano come già
+  // viste, così il tab resta quello scelto.
+  const seenEntryIds = useRef<Set<number> | null>(null)
   useEffect(() => {
+    const previous = seenEntryIds.current
+    seenEntryIds.current = new Set(betEntries.map((entry) => entry.id))
+    if (previous === null) return
+
     const raceEntries = betEntries.filter(
       (entry) =>
+        !previous.has(entry.id) &&
         entry.bet.discipline === race.discipline &&
         entry.bet.event.number === race.id,
     )
@@ -795,10 +805,10 @@ export default function UpcomingRaceCard({
             {Object.entries(tabConfig).map(([key, config]) => (
               <Button
                 key={key}
-                className={`h-10 min-w-[90px] rounded-sm px-3 text-md font-semibold uppercase shadow-none sm:min-w-[120px] sm:px-4 ${
+                className={`h-10 min-w-[90px] rounded-sm px-3 text-md font-normal uppercase shadow-none sm:min-w-[120px] sm:px-4 ${
                   activeTab === key
-                    ? 'bg-white text-card-header hover:bg-white'
-                    : 'border border-white/15 bg-secondary text-secondary-foreground hover:bg-tertiary'
+                    ? 'bg-white text-card-header hover:bg-white hover:opacity-85'
+                    : 'border-0 bg-secondary text-secondary-foreground hover:bg-secondary hover:opacity-85'
                 }`}
                 onClick={() => handleTabChange(key as TabType)}
               >
@@ -809,10 +819,11 @@ export default function UpcomingRaceCard({
           {/* ID della corsa selezionata, lo stesso mostrato nel video e negli
               ultimi risultati (int_event_id = ext_event_id) */}
           <div className="flex shrink-0 items-center gap-1 text-card-header-foreground">
-            <span className="text-xs font-semibold uppercase opacity-75">
-              ID -
+            <span className="text-md font-semibold uppercase opacity-75">
+              ID
             </span>
-            <span className="text-[13px] tabular-nums">{race.id}</span>
+            {/* "ID" e numero a 16px */}
+            <span className="text-md tabular-nums">{race.id}</span>
           </div>
         </CardHeader>
 
