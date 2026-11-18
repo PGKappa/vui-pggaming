@@ -88,8 +88,29 @@ export function getCurrencySymbolFromCashier(cashierData: any): string {
 }
 
 // Helper per l'inizializzazione cashier
+// Oltre questo tempo la chiamata viene interrotta e ritentata: senza limite
+// una risposta bloccata lasciava la pagina sullo spinner indefinitamente
+const CASHIER_INIT_TIMEOUT_MS = 10 * 1000
+
 export async function fetchCashierInit(initCode: string): Promise<any> {
+  const controller = new AbortController()
+  const timeoutId = setTimeout(
+    () => controller.abort(),
+    CASHIER_INIT_TIMEOUT_MS,
+  )
+  try {
+    return await requestCashierInit(initCode, controller.signal)
+  } finally {
+    clearTimeout(timeoutId)
+  }
+}
+
+async function requestCashierInit(
+  initCode: string,
+  signal: AbortSignal,
+): Promise<any> {
   const response = await fetch(API_URLS.CASHIER_INIT, {
+    signal,
     method: 'POST',
     headers: {
       accept: 'application/json',
