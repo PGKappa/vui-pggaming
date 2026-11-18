@@ -176,5 +176,8 @@
   "total_combinations": "Всего комбинаций",
   "mobile_tab_matches": "Матчи",
   "mobile_tab_live": "В эфире",
-  "stake_not_distributed": "{{amount}} нельзя распределить с шагом {{increment}} на комбинацию: сумма не назначена"
+  "stake_not_distributed": "{{amount}} нельзя распределить с шагом {{increment}} на комбинацию: сумма не назначена",
+  "min_stake_per_column": "Минимальная ставка на комбинацию: {{min}}",
+  "min_stake_per_column_increase": "Минимальная ставка на комбинацию: {{min}}. Увеличьте на {{amount}}, чтобы продолжить",
+  "min_stake_selected_columns": "Минимальная ставка на комбинацию: {{min}}. Для {{columns}} комбинаций нужно не менее {{total}}"
 }

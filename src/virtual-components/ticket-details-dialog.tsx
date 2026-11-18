@@ -14,6 +14,7 @@ import type {
 import { utcTicketTimeToLocal } from '@/retail-lib/ticket-list-source'
 import { createPGVirtualAPICall } from '@/retail-lib/utils'
 import { ticketDetailCache } from '@/virtual-lib/ticket-history'
+import { computeTicketSystem } from '@/virtual-lib/ticket-system'
 import useMediaQuery from '@/virtual-lib/use-media-query'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { X } from 'lucide-react'
@@ -364,61 +365,6 @@ function formatCurrencySymbolLeft(
   return `${symbolOverride || symbol} ${sign}${number}`
 }
 
-function binomial(n: number, k: number) {
-  if (k < 0 || k > n) return 0
-  let result = 1
-  for (let i = 1; i <= k; i++) result = (result * (n - k + i)) / i
-  return Math.round(result)
-}
-
-function combinationOddsSum(odds: number[], k: number): number {
-  let total = 0
-  const walk = (start: number, product: number, depth: number) => {
-    if (depth === k) {
-      total += product
-      return
-    }
-    for (let i = start; i < odds.length; i++) {
-      walk(i + 1, product * odds[i], depth + 1)
-    }
-  }
-  walk(0, 1, 0)
-  return total
-}
-
-function computeMinMaxWin(info: TicketDetailInfo) {
-  const amount = parseFloat(String(info.amount)) || 0
-  const systemKeys = Object.keys(info.system ?? {})
-  const odds = info.selections.map((sel) => {
-    for (const market of sel.markets) {
-      for (const s of market.selections) {
-        const o = parseFloat(s.odds)
-        if (o > 0) return o
-      }
-    }
-    return 1
-  })
-  if (odds.length === 0) return { minWin: 0, maxWin: 0 }
-  if (systemKeys.length === 0) {
-    const product = odds.reduce((a, b) => a * b, 1)
-    return { minWin: product * amount, maxWin: product * amount }
-  }
-  const sorted = [...odds].sort((a, b) => a - b)
-  let minWin = Infinity
-  let maxWin = 0
-  for (const key of systemKeys) {
-    const size = parseInt(key)
-    const stake = parseFloat(info.system[key]) || 0
-    if (isNaN(size) || size < 1 || size > odds.length) continue
-    minWin = Math.min(
-      minWin,
-      sorted.slice(0, size).reduce((a, b) => a * b, 1) * stake,
-    )
-    maxWin += combinationOddsSum(odds, size) * stake
-  }
-  return { minWin: minWin === Infinity ? 0 : minWin, maxWin }
-}
-
 // numero di corridori: canale 5 = levrieri a 8, altrimenti dal circuito
 function racersOf(sel: TicketDetailSelection) {
   if (sel.channelId === 5) return '8'
@@ -546,11 +492,14 @@ export default function TicketDetailsDialog({
       )
     : null
   const status = info ? resolveStatus(info.status, texts) : null
-  const { minWin, maxWin } = info
-    ? computeMinMaxWin(info)
-    : { minWin: 0, maxWin: 0 }
   const systemKeys = Object.keys(info?.system ?? {})
   const isSystemTicket = info?.betType === '2' || systemKeys.length > 1
+  // colonne, importi per colonna e vincite con gli stessi calcoli della
+  // schedina (fisse, più mercati sulla stessa corsa, HALF_UP per colonna)
+  const ticketSystem = info
+    ? computeTicketSystem(info, isSystemTicket)
+    : { groups: [], minWin: 0, maxWin: 0 }
+  const { minWin, maxWin } = ticketSystem
   const eventsCount = info
     ? new Set(info.selections.map((sel) => sel.eventId)).size
     : 0
@@ -560,19 +509,7 @@ export default function TicketDetailsDialog({
       ? 'MULTIPLE'
       : 'SINGLE'
 
-  const systemGroups = isSystemTicket
-    ? systemKeys
-        .map((key) => {
-          const size = parseInt(key)
-          return {
-            size,
-            stake: parseFloat(info!.system[key]) || 0,
-            totalCombinations: binomial(eventsCount, size),
-          }
-        })
-        .filter((group) => group.size > 0)
-        .sort((a, b) => a.size - b.size)
-    : []
+  const systemGroups = isSystemTicket ? ticketSystem.groups : []
 
   const eventName = (sel: TicketDetailSelection) =>
     sel.channelId === 3
@@ -1057,7 +994,7 @@ export default function TicketDetailsDialog({
                               textAlign: 'left',
                             }}
                           >
-                            {group.totalCombinations}{' '}
+                            {group.combinations}{' '}
                             {texts.combinationSize[group.size] ?? group.size}
                           </div>
                           <div
@@ -1078,7 +1015,7 @@ export default function TicketDetailsDialog({
                               textAlign: 'right',
                             }}
                           >
-                            TOT. {fmt(group.stake * group.totalCombinations)}
+                            TOT. {fmt(group.total)}
                           </div>
                         </div>
                       ))}
@@ -1113,7 +1050,7 @@ export default function TicketDetailsDialog({
                           }}
                         >
                           {systemGroups.reduce(
-                            (sum, group) => sum + group.totalCombinations,
+                            (sum, group) => sum + group.combinations,
                             0,
                           )}
                         </span>

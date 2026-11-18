@@ -371,12 +371,36 @@ function minWinCombinations(
   )
 }
 
+/**
+ * Vincita di una colonna (puntata x prodotto delle quote) arrotondata al
+ * centesimo con criterio HALF_UP. Il calcolo è fatto su interi: in virgola
+ * mobile 3,35 x 0,70 vale 2,34499... e diventerebbe 2,34 invece di 2,35.
+ */
+const ODDS_SCALE = 10_000
+// l'importo per colonna può avere frazioni di centesimo (template a importo
+// esatto: 1,00 su 3 colonne = 0,3333...): si tiene al milionesimo
+const STAKE_SCALE = 1_000_000
+export function winHalfUp(odds: number[], stake: number): number {
+  const stakeScaled = Math.round(stake * STAKE_SCALE)
+  if (stakeScaled <= 0) return 0
+  let numerator = BigInt(stakeScaled)
+  // risultato in centesimi: importo / STAKE_SCALE * 100
+  let denominator = BigInt(STAKE_SCALE / 100)
+  for (const value of odds) {
+    numerator *= BigInt(Math.round(value * ODDS_SCALE))
+    denominator *= BigInt(ODDS_SCALE)
+  }
+  // centesimi arrotondati per eccesso da ,5 in su
+  const two = BigInt(2)
+  const cents = (two * numerator + denominator) / (two * denominator)
+  return Number(cents) / 100
+}
+
 const comboWinRounded = (combo: BetEntry[], stake: number) =>
-  Math.round(
-    combo.reduce((acc, entry) => acc * entry.bet.option.decPrice, 1) *
-      stake *
-      100,
-  ) / 100
+  winHalfUp(
+    combo.map((entry) => entry.bet.option.decPrice),
+    stake,
+  )
 
 /**
  * Vincita minima positiva dell'intero sistema: lo stesso esito delle corse
@@ -406,7 +430,7 @@ export function computeSystemMinWin(
 
 /**
  * Vincita minima e massima di un gruppo, con ogni combinazione arrotondata al
- * centesimo (come il retail).
+ * centesimo HALF_UP.
  */
 export function computeGroupWinRounded(group: SystemGroup): {
   minWin: number
@@ -416,13 +440,7 @@ export function computeGroupWinRounded(group: SystemGroup): {
     return { minWin: 0, maxWin: 0 }
   }
 
-  const comboWin = (combo: BetEntry[]) => {
-    const odds = combo.reduce(
-      (acc, entry) => acc * entry.bet.option.decPrice,
-      1,
-    )
-    return Math.round(odds * group.stake * 100) / 100
-  }
+  const comboWin = (combo: BetEntry[]) => comboWinRounded(combo, group.stake)
 
   const maxCombos = group.maxWinAssignedCombinations ?? group.combinations
   const maxWin = maxCombos.reduce((acc, combo) => acc + comboWin(combo), 0)

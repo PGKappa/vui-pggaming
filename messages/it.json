@@ -245,5 +245,8 @@
   "ticket_detail_title": "Ticket",
   "mobile_tab_matches": "Partite",
   "mobile_tab_live": "In diretta",
-  "stake_not_distributed": "{{amount}} non distribuibili con il passo di {{increment}} per colonna: importo non assegnato"
+  "stake_not_distributed": "{{amount}} non distribuibili con il passo di {{increment}} per colonna: importo non assegnato",
+  "min_stake_per_column": "Importo minimo per colonna: {{min}}",
+  "min_stake_per_column_increase": "Importo minimo per colonna: {{min}}. Aumentare di {{amount}} per continuare",
+  "min_stake_selected_columns": "Importo minimo per colonna: {{min}}. Per {{columns}} colonne servono almeno {{total}}"
 }
