@@ -210,7 +210,7 @@ export default function LiveMatchInfo(
         return {
           icon: (
             <Image
-              src="/dog.png"
+              src="/virtual-icons/dog.png"
               alt="Dogs"
               width={64}
               height={64}
@@ -223,7 +223,7 @@ export default function LiveMatchInfo(
         return {
           icon: (
             <Image
-              src="/dog.png"
+              src="/virtual-icons/dog.png"
               alt="Dogs 8"
               width={64}
               height={64}
@@ -236,7 +236,7 @@ export default function LiveMatchInfo(
         return {
           icon: (
             <Image
-              src="/horse.png"
+              src="/virtual-icons/horse.png"
               alt="Horses"
               width={64}
               height={64}
@@ -249,7 +249,7 @@ export default function LiveMatchInfo(
         return {
           icon: (
             <Image
-              src="/soccer.png"
+              src="/virtual-icons/soccer.png"
               alt="Football"
               width={64}
               height={64}

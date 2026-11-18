@@ -92,7 +92,7 @@ function NavbarContent() {
         prefetch={false}
       >
         <Image
-          src="/dog.png"
+          src="/virtual-icons/dog.png"
           alt="Dogs"
           width={60}
           height={33}
@@ -112,7 +112,7 @@ function NavbarContent() {
         prefetch={false}
       >
         <Image
-          src="/dog.png"
+          src="/virtual-icons/dog.png"
           alt="Dogs 8"
           width={60}
           height={33}
@@ -131,7 +131,7 @@ function NavbarContent() {
         prefetch={false}
       >
         <Image
-          src="/horse.png"
+          src="/virtual-icons/horse.png"
           alt="Horses"
           width={60}
           height={36}
@@ -151,7 +151,7 @@ function NavbarContent() {
         prefetch={false}
       >
         <Image
-          src="/soccer.png"
+          src="/virtual-icons/soccer.png"
           alt="Calcio"
           width={42}
           height={42}

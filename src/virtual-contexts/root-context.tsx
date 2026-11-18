@@ -170,7 +170,6 @@ export default function RootContextProvider(props: {
     useState<RootContextType>(defaultRootContext)
   const { i18n } = useTranslation()
   const [isLoading, setIsLoading] = useState(true)
-  const [isCashierReady, setIsCashierReady] = useState(false)
   const processedRoundIdRef = useRef<number | undefined>(undefined)
 
   // Cache keys for localStorage
@@ -208,13 +207,15 @@ export default function RootContextProvider(props: {
 
   // Funzioni specifiche per il caching cashier
   const saveCashierToCache = useCallback(
-    (initCode: string, cashierData: any, contextData: any) => {
+    (initCode: string, contextData: any) => {
       if (typeof window === 'undefined') return
 
       try {
+        // cashierData è già dentro contextData: salvarlo due volte
+        // raddoppiava la dimensione (dizionario incluso) e poteva superare
+        // lo spazio del localStorage, lasciando la cache sempre vuota
         const cacheData = {
           initCode,
-          cashierData,
           contextData,
           timestamp: Date.now(),
         }
@@ -449,14 +450,12 @@ export default function RootContextProvider(props: {
       const storedInitCode = localStorage.getItem('initCode')
       if (storedInitCode && storedInitCode !== initCode) {
         localStorage.removeItem('betsContext')
-        setIsCashierReady(false)
       }
 
       localStorage.setItem('initCode', initCode)
     } else {
       localStorage.removeItem('initCode')
       setIsLoading(false)
-      setIsCashierReady(false)
     }
 
     setInitCode(initCode)
@@ -578,7 +577,6 @@ export default function RootContextProvider(props: {
         }))
 
         setIsLoading(false)
-        setIsCashierReady(true)
         return
       }
 
@@ -667,10 +665,9 @@ export default function RootContextProvider(props: {
           }))
 
           // Salva i dati cashier in cache
-          saveCashierToCache(initCode, cashierData, contextData)
+          saveCashierToCache(initCode, contextData)
 
           setIsLoading(false)
-          setIsCashierReady(true)
         } else {
           setInitCode(undefined)
           throw new Error('Could not fetch User Data!')
@@ -701,8 +698,9 @@ export default function RootContextProvider(props: {
   }, [i18n, initCode, loadCashierFromCache, saveCashierToCache])
 
   useEffect(() => {
-    // Aspetta che sia initCode che cashier siano pronti prima di caricare gli eventi
-    if (!initCode || !isCashierReady) return
+    // Gli eventi servono solo dell'init_code: si caricano insieme alla cassa,
+    // non dopo, così all'avvio non si sommano i tempi delle due chiamate
+    if (!initCode) return
 
     const fetchUpcomingRounds = async () => {
       // Controlla cache prima di fare la chiamata
@@ -905,7 +903,6 @@ export default function RootContextProvider(props: {
     }
   }, [
     initCode,
-    isCashierReady,
     apiRequest,
     pgVirtualFetch,
     isCacheValid,
