@@ -811,6 +811,8 @@ export default function BettingSlip() {
 
       // Svuota la betting slip
       removeAllBets()
+      // spegne i filtri di Accoppiate e Trio (upcoming-race-card)
+      window.dispatchEvent(new Event('virtual:ticket-placed'))
       setGlobal(0)
       setSystemGroupStakes({})
       setSystemDistributeStake(0)
@@ -1119,7 +1121,7 @@ export default function BettingSlip() {
               />
             </Button>
           </div>
-          <div className="flex h-full items-center justify-center border-l border-white/15 [&_button]:h-[52px] [&_button]:w-full [&_button]:rounded-none [&_button]:px-4 [&_button]:py-0 [&_button]:text-[14px] [&_button]:font-semibold [&_button]:uppercase [&_button]:text-card-header-foreground/85 hover:[&_button]:bg-white/10 hover:[&_button]:text-card-header-foreground">
+          <div className="flex h-full items-center justify-center border-l border-white/15 [&_button]:h-[52px] [&_button]:w-full [&_button]:rounded-none [&_button]:bg-white/[0.06] [&_button]:px-4 [&_button]:py-0 [&_button]:text-[14px] [&_button]:font-semibold [&_button]:uppercase [&_button]:text-card-header-foreground/85 hover:[&_button]:bg-white/[0.12] hover:[&_button]:text-card-header-foreground">
             {/* apre la pagina Lista ticket (come la cassa), mantenendo i
                 parametri dell'URL (init_code, skin, operator...) */}
             <button

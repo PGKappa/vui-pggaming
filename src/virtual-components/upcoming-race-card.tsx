@@ -343,6 +343,14 @@ export default function UpcomingRaceCard({
     setDisorderSelection([])
   }
 
+  // dopo una giocata i filtri 1°/2°/3°/In qualsiasi ordine si spengono
+  useEffect(() => {
+    const onTicketPlaced = () => clearSelections()
+    window.addEventListener('virtual:ticket-placed', onTicketPlaced)
+    return () =>
+      window.removeEventListener('virtual:ticket-placed', onTicketPlaced)
+  }, [])
+
   // mobile: solo partenti + quote, senza performance e storico
   const baseColumns = isCompact
     ? 'minmax(0, 1.4fr) 1px'
