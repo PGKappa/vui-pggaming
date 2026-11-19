@@ -1,12 +1,17 @@
 'use client'
 
 import { RootContext } from '@/virtual-contexts/root-context'
+import {
+  EVENT_INFO_FRESH_MS,
+  fetchEventInfo,
+  getCachedEventInfo,
+} from '@/virtual-lib/event-info-cache'
 import { Discipline, UpcomingRace } from '@/virtual-lib/types'
-import { getOperatorFromUrl, PGVIRTUAL_API_URL } from '@/virtual-lib/utils'
+import { useClockEffect } from '@/virtual-lib/use-clock'
 import i18n, { t } from 'i18next'
 import Image from 'next/image'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import LatecomersDialog from './latecomers-dialog'
+import { LazyLatecomersDialog } from './lazy-components'
 import { ChevronDown } from 'lucide-react'
 import {
   Dialog,
@@ -90,8 +95,15 @@ export default function LiveMatchInfo(
     }
   }, [pathname])
 
-  // Aggiorna il prossimo evento periodicamente
-  useEffect(() => {
+  // Aggiorna il prossimo evento a ogni secondo (orologio condiviso); lo stato
+  // cambia solo quando cambia davvero, così il riquadro non si ridisegna a
+  // ogni secondo
+  const setStartTimeIfChanged = (time: Date | null) =>
+    setNextEventStartTime((prev) =>
+      prev?.getTime() === time?.getTime() ? prev : time,
+    )
+
+  useClockEffect(() => {
     const updateNextEvent = () => {
       const discipline = getCurrentDiscipline()
       const now = new Date()
@@ -99,12 +111,12 @@ export default function LiveMatchInfo(
       if (discipline === Discipline.FOOTBALL) {
         setNextEventId(null)
         if (liveRound) {
-          setNextEventStartTime(new Date(liveRound.startingAt))
+          setStartTimeIfChanged(new Date(liveRound.startingAt))
           return
         }
         const nextRound = upcomingRounds?.[0]
         if (nextRound?.mag_event?.[0]?.startTime) {
-          setNextEventStartTime(new Date(nextRound.mag_event[0].startTime))
+          setStartTimeIfChanged(new Date(nextRound.mag_event[0].startTime))
           return
         }
       } else {
@@ -117,21 +129,17 @@ export default function LiveMatchInfo(
 
         const nextEvent = disciplineEvents?.[0] // Prende il primo evento futuro
         if (nextEvent) {
-          setNextEventStartTime(new Date(nextEvent.time))
+          setStartTimeIfChanged(new Date(nextEvent.time))
           setNextEventId(nextEvent.id ?? null)
           return
         }
       }
 
-      setNextEventStartTime(null)
+      setStartTimeIfChanged(null)
       setNextEventId(null)
     }
 
     updateNextEvent()
-
-    const intervalId = setInterval(updateNextEvent, 1000)
-
-    return () => clearInterval(intervalId)
   }, [getCurrentDiscipline, liveRound, upcomingEvents, upcomingRounds])
 
   // Trova il prossimo evento per i latecomers
@@ -148,49 +156,33 @@ export default function LiveMatchInfo(
     return disciplineEvents?.[0] || null
   }, [getCurrentDiscipline, upcomingEvents])
 
-  // Carica i dettagli della corsa quando cambia nextEvent
+  // Carica i dettagli della corsa quando cambia nextEvent. Stessa cache della
+  // scheda della corsa: spesso è la stessa corsa e la chiamata non si ripete
   useEffect(() => {
-    const fetchEventInfo = async () => {
-      if (!nextEvent || nextEvent.discipline === Discipline.FOOTBALL) {
-        setRaceInfo(undefined)
-        return
-      }
+    if (!nextEvent || nextEvent.discipline === Discipline.FOOTBALL) {
+      setRaceInfo(undefined)
+      return
+    }
+    if (!getInitCode()) return
 
-      const initCode = getInitCode()
-      if (!initCode) return
+    let cancelled = false
+    const cached = getCachedEventInfo(nextEvent.extId, nextEvent.id)
+    if (cached) setRaceInfo(cached.data)
 
-      try {
-        const response = await fetch(
-          `${PGVIRTUAL_API_URL}/api/event/info/${nextEvent.extId}/${nextEvent.id}`,
-          {
-            headers: {
-              accept: 'application/json',
-              authorization: `Bearer ${initCode}`,
-              operator: getOperatorFromUrl('sc'),
-            },
-            method: 'GET',
-            mode: 'cors',
-            credentials: 'include',
-          },
-        )
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
-        }
-
-        const data = await response.json()
-        const upcomingRace: UpcomingRace = {
-          ...data.current,
-          id: parseInt(data.int_event_id),
-        }
-        setRaceInfo(upcomingRace)
-      } catch (error) {
-        console.error('Error fetching event info:', error)
-        setRaceInfo(undefined)
-      }
+    if (!cached || Date.now() - cached.fetchedAt >= EVENT_INFO_FRESH_MS) {
+      fetchEventInfo(nextEvent.extId, nextEvent.id)
+        .then((upcomingRace) => {
+          if (!cancelled) setRaceInfo(upcomingRace)
+        })
+        .catch((error) => {
+          console.error('Error fetching event info:', error)
+          if (!cancelled && !cached) setRaceInfo(undefined)
+        })
     }
 
-    fetchEventInfo()
+    return () => {
+      cancelled = true
+    }
   }, [nextEvent])
 
   const shouldShowLatecomersButton = useMemo(() => {
@@ -394,7 +386,7 @@ export default function LiveMatchInfo(
         </DialogContent>
       </Dialog>
 
-      <LatecomersDialog
+      <LazyLatecomersDialog
         isOpen={isLatecomersOpen}
         onOpenChange={setIsLatecomersOpen}
         raceInfo={raceInfo}

@@ -4,7 +4,7 @@ import { cn, getRacerColors, createPGVirtualAPICall } from '@/retail-lib/utils'
 import { format } from 'date-fns'
 import { t } from 'i18next'
 import Image from 'next/image'
-import { ArrowLeft, X } from 'lucide-react'
+import { X } from 'lucide-react'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
@@ -626,7 +626,7 @@ export default function SearchEventResults({
     [t],
   )
 
-  // web (pagina aperta con la freccia indietro): proporzioni proprie, la cassa
+  // web (pagina aperta con la X di chiusura): proporzioni proprie, la cassa
   // resta com'è. Disciplina, data e fascia uguali, cerca e cancella poco più piccoli
   const isWeb = !!onBack
 
@@ -639,18 +639,18 @@ export default function SearchEventResults({
           isWeb &&
             'max-lg:grid max-lg:h-auto max-lg:grid-cols-6 max-lg:gap-2 max-lg:overflow-visible max-lg:py-2 max-lg:pl-2 max-lg:pr-2',
           isWeb &&
-            'gap-3 space-x-0 pl-16 pr-6 min-[1400px]:px-0 min-[1400px]:pl-16 min-[1400px]:pr-6 min-[1600px]:px-0 min-[1600px]:pl-16 min-[1600px]:pr-6 min-[1750px]:px-0 min-[1750px]:pl-16 min-[1750px]:pr-6 min-[1920px]:px-0 min-[1920px]:pl-16 min-[1920px]:pr-6',
+            'gap-3 space-x-0 pl-6 pr-16 min-[1400px]:px-0 min-[1400px]:pl-6 min-[1400px]:pr-16 min-[1600px]:px-0 min-[1600px]:pl-6 min-[1600px]:pr-16 min-[1750px]:px-0 min-[1750px]:pl-6 min-[1750px]:pr-16 min-[1920px]:px-0 min-[1920px]:pl-6 min-[1920px]:pr-16',
         )}
       >
         {onBack && (
           <button
             type="button"
-            aria-label={t('back')}
-            title={t('back')}
+            aria-label={t('close')}
+            title={t('close')}
             onClick={onBack}
-            className="absolute left-2 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center text-accent-foreground transition-opacity hover:opacity-75 max-lg:top-[29px]"
+            className="absolute right-2 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center text-accent-foreground transition-opacity hover:opacity-75 max-lg:top-[29px]"
           >
-            <ArrowLeft className="size-6" />
+            <X className="size-6" />
           </button>
         )}
         {/* DISCIPLINA — larghezza fissa = "CARRERAS DE CABALLOS 6" */}
@@ -658,7 +658,7 @@ export default function SearchEventResults({
           className={cn(
             'mr-1 inline-grid shrink-0',
             isWeb &&
-              'mr-0 min-w-0 flex-1 shrink max-lg:order-1 max-lg:col-span-6 max-lg:ml-12',
+              'mr-0 min-w-0 flex-1 shrink max-lg:order-1 max-lg:col-span-6 max-lg:mr-12',
           )}
         >
           <span

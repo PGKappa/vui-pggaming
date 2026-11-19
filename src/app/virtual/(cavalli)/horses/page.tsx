@@ -1,5 +1,5 @@
 'use client'
-import BettingSlip from '@/virtual-components/betting-slip'
+import { DesktopBettingSlip } from '@/virtual-components/lazy-components'
 import MobileBottomBar, {
   MOBILE_BAR_SPACE,
 } from '@/virtual-components/mobile-bottom-bar'
@@ -95,7 +95,7 @@ export default function Home() {
         {/* Second column - Betting slip */}
         <div className="hidden lg:block lg:h-[max(calc(100vh-84px),716px)] [@media(min-height:800px)]:lg:sticky [@media(min-height:800px)]:lg:top-3">
           <div className="h-full">
-            <BettingSlip />
+            <DesktopBettingSlip />
           </div>
         </div>
       </div>

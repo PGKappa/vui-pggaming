@@ -13,7 +13,7 @@ import {
 import type { TeamRanking as SoccerTeamRanking } from '@/retail-lib/types'
 import type { Market } from '@/virtual-lib/types'
 import { useTranslation } from 'react-i18next'
-import { ArrowLeft } from 'lucide-react'
+import { X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Button } from './ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
@@ -153,9 +153,11 @@ export default function MatchStatisticsCard({
               onClick={onBack}
               variant="ghost"
               size="icon"
-              className="absolute left-0 top-0 hover:bg-transparent hover:text-current focus-visible:ring-0"
+              aria-label={t('close')}
+              title={t('close')}
+              className="absolute right-0 top-0 hover:bg-transparent hover:text-current focus-visible:ring-0"
             >
-              <ArrowLeft className="h-5 w-5" />
+              <X className="h-5 w-5" />
             </Button>
           )}
           {t('statistics').toUpperCase()}

@@ -1,30 +1,25 @@
 'use client'
 
+import { preloadBettingSlip } from '@/virtual-components/lazy-components'
 import Navbar from '@/virtual-components/navbar'
 import { Toaster } from '@/virtual-components/ui/sonner'
 import BetsContextProvider from '@/virtual-contexts/bets-context'
 import RootContextProvider from '@/virtual-contexts/root-context'
 import SkinProvider, { SkinContext } from '@/virtual-contexts/skin-context'
-import { Geist, Geist_Mono, Inter } from 'next/font/google'
-import { useContext } from 'react'
+import { Inter } from 'next/font/google'
+import { useContext, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import '../globals.css'
 import '../../virtual-lib/i18n'
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
-})
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-})
-
-// font della cassa retail, usato dalla schedina per essere identica
+// font della cassa retail, usato dalla schedina per essere identica.
+// Geist e Geist Mono sono stati tolti: le loro variabili CSS non erano usate
+// da nessuna parte (il testo usa Arial, font-mono lo stack di sistema), ma
+// next/font li precaricava comunque a ogni apertura.
 const inter = Inter({
   variable: '--font-inter',
   subsets: ['latin'],
+  display: 'swap',
 })
 
 const metadata = {
@@ -34,17 +29,26 @@ const metadata = {
 
 function AppContent({ children }: { children: React.ReactNode }) {
   const [skin] = useContext(SkinContext)
+
+  // codice della schedina (caricato a parte) scaricato subito, in parallelo
+  // alla chiamata della cassa: quando la pagina è pronta lo è anche lei
+  useEffect(() => {
+    if (window.matchMedia('(min-width: 1024px)').matches) preloadBettingSlip()
+  }, [])
   return (
     <body
-      className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} ${skin} flex h-screen flex-col antialiased`}
+      className={`${inter.variable} ${skin} flex h-screen flex-col antialiased`}
     >
       <main className="flex-1">
         {/* la navbar sta dentro il provider per leggere i prossimi eventi
             (timer di inizio gara accanto a ogni disciplina) */}
-        <RootContextProvider>
-          <header className="mx-auto w-full max-w-[1920px]">
-            <Navbar />
-          </header>
+        <RootContextProvider
+          header={
+            <header className="mx-auto w-full max-w-[1920px]">
+              <Navbar />
+            </header>
+          }
+        >
           <BetsContextProvider>{children}</BetsContextProvider>
         </RootContextProvider>
       </main>

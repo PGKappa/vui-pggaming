@@ -1,11 +1,14 @@
 import useMediaQuery from '@/virtual-lib/use-media-query'
 import { BetsContext } from '@/virtual-contexts/bets-context'
-import { Discipline, UpcomingEvent, UpcomingRace } from '@/virtual-lib/types'
+import { RootContext } from '@/virtual-contexts/root-context'
 import {
-  getOperatorFromUrl,
-  getRacerColors,
-  PGVIRTUAL_API_URL,
-} from '@/virtual-lib/utils'
+  EVENT_INFO_FRESH_MS,
+  fetchEventInfo,
+  getCachedEventInfo,
+  prefetchEventInfo,
+} from '@/virtual-lib/event-info-cache'
+import { Discipline, UpcomingEvent, UpcomingRace } from '@/virtual-lib/types'
+import { getRacerColors } from '@/virtual-lib/utils'
 import { t } from 'i18next'
 import { useContext, useEffect, useRef, useState } from 'react'
 import BetCombinationsTable from './bet-combination-table'
@@ -50,6 +53,7 @@ export default function UpcomingRaceCard({
 
   // Aggiungi i contexts
   const { betEntries } = useContext(BetsContext)
+  const { upcomingEvents } = useContext(RootContext)
 
   // Get initCode from localStorage (virtual pattern)
   const getInitCode = () => localStorage.getItem('initCode')
@@ -166,44 +170,61 @@ export default function UpcomingRaceCard({
   }
 
   useEffect(() => {
-    const fetchEventInfo = async () => {
-      const initCode = getInitCode()
-      if (!initCode) return
+    if (!getInitCode()) return
 
+    // la risposta di una corsa non più selezionata non deve sovrascrivere
+    // quella attuale
+    let cancelled = false
+
+    // Corsa già vista o caricata in anticipo: si mostra subito, senza spinner
+    const cached = getCachedEventInfo(race.extId, race.id)
+    if (cached) {
+      setRaceInfo(cached.data)
+      setIsLoading(false)
+    } else {
       setIsLoading(true)
-      try {
-        const response = await fetch(
-          `${PGVIRTUAL_API_URL}/api/event/info/${race.extId}/${race.id}`,
-          {
-            headers: {
-              accept: 'application/json',
-              authorization: `Bearer ${initCode}`,
-              operator: getOperatorFromUrl('sc'),
-            },
-            method: 'GET',
-            mode: 'cors',
-            credentials: 'include',
-          },
-        )
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
-        }
-
-        const data = await response.json()
-        const upcomingRace: UpcomingRace = {
-          ...data.current,
-          id: parseInt(data.int_event_id),
-        }
-        setRaceInfo(upcomingRace)
-      } catch (error) {
-        console.error('Error fetching event info:', error)
-      } finally {
-        setIsLoading(false)
-      }
     }
 
-    fetchEventInfo()
+    // dato fresco: nessuna chiamata; altrimenti si aggiorna (in background se
+    // c'era già qualcosa a video)
+    const isFresh =
+      cached !== undefined &&
+      Date.now() - cached.fetchedAt < EVENT_INFO_FRESH_MS
+
+    const load = isFresh
+      ? Promise.resolve(cached.data)
+      : fetchEventInfo(race.extId, race.id).then((upcomingRace) => {
+          if (!cancelled) setRaceInfo(upcomingRace)
+          return upcomingRace
+        })
+
+    load
+      .catch((error) => {
+        console.error('Error fetching event info:', error)
+      })
+      .finally(() => {
+        if (cancelled) return
+        setIsLoading(false)
+        // corsa successiva della stessa disciplina caricata in anticipo: il
+        // passaggio automatico o un clic sul carosello sono immediati
+        const next = (upcomingEvents ?? [])
+          .filter(
+            (event) =>
+              event.discipline === race.discipline &&
+              new Date(event.time).getTime() > new Date(race.time).getTime(),
+          )
+          .sort(
+            (a, b) => new Date(a.time).getTime() - new Date(b.time).getTime(),
+          )[0]
+        if (next) prefetchEventInfo(next.extId, next.id)
+      })
+
+    return () => {
+      cancelled = true
+    }
+    // upcomingEvents serve solo per il prefetch: non deve far ripartire il
+    // caricamento a ogni aggiornamento del feed
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [race.id, race.extId])
 
   useEffect(() => {

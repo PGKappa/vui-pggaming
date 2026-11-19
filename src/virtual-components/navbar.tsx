@@ -5,7 +5,8 @@ import { t } from 'i18next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
-import { Suspense, useContext, useEffect, useState } from 'react'
+import { useNow } from '@/virtual-lib/use-clock'
+import { Suspense, useContext, useMemo } from 'react'
 
 // Conto alla rovescia (MM:SS) verso l'evento più vicino della disciplina,
 // nello stesso formato del carosello eventi (useTimeLeft)
@@ -18,31 +19,24 @@ function formatTimeLeft(ms: number) {
 
 function NextEventTimer({ discipline }: { discipline: Discipline }) {
   const { upcomingEvents, upcomingRounds } = useContext(RootContext)
-  const [timeLeft, setTimeLeft] = useState<string>()
+  const now = useNow()
 
-  useEffect(() => {
-    const update = () => {
-      const now = Date.now()
-      const times =
-        discipline === Discipline.FOOTBALL
-          ? (upcomingRounds ?? []).map((round) =>
-              new Date(round.mag_event?.[0]?.startTime ?? NaN).getTime(),
-            )
-          : (upcomingEvents ?? [])
-              .filter((event) => event.discipline === discipline)
-              .map((event) => new Date(event.time).getTime())
-      const next = Math.min(
-        ...times.filter((time) => Number.isFinite(time) && time > now),
-      )
-      setTimeLeft(
-        Number.isFinite(next) ? formatTimeLeft(next - now) : undefined,
-      )
-    }
-
-    update()
-    const intervalId = setInterval(update, 1000)
-    return () => clearInterval(intervalId)
+  // orari di partenza ordinati: ricalcolati solo quando cambia il feed, non
+  // a ogni secondo
+  const startTimes = useMemo(() => {
+    const times =
+      discipline === Discipline.FOOTBALL
+        ? (upcomingRounds ?? []).map((round) =>
+            new Date(round.mag_event?.[0]?.startTime ?? NaN).getTime(),
+          )
+        : (upcomingEvents ?? [])
+            .filter((event) => event.discipline === discipline)
+            .map((event) => new Date(event.time).getTime())
+    return times.filter((time) => Number.isFinite(time)).sort((a, b) => a - b)
   }, [discipline, upcomingEvents, upcomingRounds])
+
+  const next = startTimes.find((time) => time > now)
+  const timeLeft = next !== undefined ? formatTimeLeft(next - now) : undefined
 
   if (!timeLeft) return null
 

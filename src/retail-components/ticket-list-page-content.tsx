@@ -24,7 +24,7 @@ import {
   formatCurrency,
 } from '@/retail-lib/use-ticket-list'
 import { cn } from '@/retail-lib/utils'
-import { ArrowLeft, ChevronDown, ChevronRight, RotateCw } from 'lucide-react'
+import { ChevronDown, ChevronRight, RotateCw, X } from 'lucide-react'
 import { format } from 'date-fns'
 import { it } from 'date-fns/locale'
 import { useContext, useState, useRef, useEffect } from 'react'
@@ -443,12 +443,12 @@ export default function TicketListPageContent({
         {onBack && (
           <button
             type="button"
-            aria-label={t('back')}
-            title={t('back')}
+            aria-label={t('close')}
+            title={t('close')}
             onClick={onBack}
-            className="absolute left-2 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center text-accent-foreground transition-opacity hover:opacity-75"
+            className="absolute right-2 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center text-accent-foreground transition-opacity hover:opacity-75"
           >
-            <ArrowLeft className="size-6" />
+            <X className="size-6" />
           </button>
         )}
         <h2
@@ -461,14 +461,15 @@ export default function TicketListPageContent({
         >
           {t('ticket_list')}
         </h2>
-        {/* web, telefono: "Ricarica" sta qui, i filtri occupano la riga sotto */}
+        {/* web, telefono: "Ricarica" sta qui (a sinistra, a destra c'è la X di
+            chiusura), i filtri occupano la riga sotto */}
         {fullWidth && (
           <button
             type="button"
             aria-label={t('reload')}
             title={t('reload')}
             onClick={fetchTickets}
-            className="absolute right-2 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center text-accent-foreground transition-opacity hover:opacity-75 lg:hidden"
+            className="absolute left-2 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center text-accent-foreground transition-opacity hover:opacity-75 lg:hidden"
           >
             <RotateCw className="size-5" />
           </button>

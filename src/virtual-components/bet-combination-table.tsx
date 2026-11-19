@@ -33,11 +33,6 @@ export default function BetCombinationsTable({
     const allCombinations: Bet[] = []
     const raceData = race.data as UpcomingRace
 
-    console.log('Debug BetCombinationsTable:', {
-      marketType,
-      disorderSelection,
-    })
-
     if (marketType === 'exacta') {
       const pos1Options =
         position1Selection.length > 0
