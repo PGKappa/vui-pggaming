@@ -1,5 +1,6 @@
 'use client'
 
+import { useClockEffect } from '@/virtual-lib/use-clock'
 import { getBettingLimits } from '@/virtual-lib/betting-limits'
 import { Bet, BetEntry, Selection, SubmittedTicket } from '@/virtual-lib/types'
 import { RootContext } from '@/virtual-contexts/root-context'
@@ -131,9 +132,9 @@ export default function BetsContextProvider(props: {
   const { maxEvents, maxSelections } = getBettingLimits(
     rootContext?.cashierData,
   )
-  const initialBetsContext = getBetsContext()
+  // inizializzazione pigra: il localStorage si legge solo al primo render
   const [betsContext, setBetsContext] =
-    useState<BetsContextType>(initialBetsContext)
+    useState<BetsContextType>(getBetsContext)
 
   // Stato per il toggle Multiple/System
   const [systemToggleMode, setSystemToggleMode] = useState<
@@ -185,8 +186,9 @@ export default function BetsContextProvider(props: {
     }
   }, [isSystemToggleEnabled, systemToggleMode])
 
-  // Cleanup automatico di scommesse scadute ogni 5 secondi
-  useEffect(() => {
+  // Cleanup automatico di scommesse scadute, a ogni secondo dell'orologio
+  // condiviso (fermo con la scheda nascosta, rieseguito al ritorno)
+  useClockEffect(() => {
     const cleanupExpiredBets = () => {
       const activeBets = betsContext.betEntries.filter((entry) => {
         return getEventStatus(entry.bet.event) === 'active'
@@ -209,8 +211,7 @@ export default function BetsContextProvider(props: {
       }
     }
 
-    const interval = setInterval(cleanupExpiredBets, 1000)
-    return () => clearInterval(interval)
+    cleanupExpiredBets()
   }, [betsContext.betEntries])
 
   // Limiti di selezioni ed eventi da cashier_init, applicati sempre (come il

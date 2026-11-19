@@ -4,7 +4,8 @@ import { RootContext } from '@/virtual-contexts/root-context'
 import { Discipline } from '@/virtual-lib/types'
 import { cn, getTimeDistanceFromNow } from '@/virtual-lib/utils'
 import { t } from 'i18next'
-import { useContext, useEffect, useState } from 'react'
+import { useNow } from '@/virtual-lib/use-clock'
+import { useContext, useMemo } from 'react'
 
 export default function MatchEndBadge({
   discipline,
@@ -14,49 +15,30 @@ export default function MatchEndBadge({
   className?: string
 }) {
   const { upcomingRounds, upcomingEvents } = useContext(RootContext)
-  const [timeToNextRound, setTimeToNextRound] = useState('')
+  const now = useNow()
 
-  useEffect(() => {
-    const updateTimeToNextRound = () => {
-      let nextEventTime: Date | null = null
-      const now = new Date()
-
-      if (discipline === Discipline.FOOTBALL) {
-        if (
-          upcomingRounds &&
-          upcomingRounds.length > 0 &&
-          upcomingRounds[0].mag_event[0]
-        ) {
-          nextEventTime = new Date(upcomingRounds[0].mag_event[0].startTime)
-        }
-      } else {
-        const disciplineEvents = upcomingEvents
-          ?.filter((event) => event.discipline === discipline)
-          ?.filter((event) => new Date(event.time) > now) // FILTRA EVENTI PASSATI
-          ?.sort(
-            (a, b) => new Date(a.time).getTime() - new Date(b.time).getTime(),
-          ) // ORDINA PER TEMPO
-
-        if (disciplineEvents && disciplineEvents.length > 0) {
-          nextEventTime = new Date(disciplineEvents[0].time)
-        }
-      }
-
-      if (!nextEventTime) {
-        setTimeToNextRound('')
-        return
-      }
-
-      const formatted = getTimeDistanceFromNow(nextEventTime)
-      setTimeToNextRound(formatted)
+  // orari di partenza ordinati: ricalcolati solo quando cambia il feed
+  const startTimes = useMemo(() => {
+    if (discipline === Discipline.FOOTBALL) {
+      const startTime = upcomingRounds?.[0]?.mag_event?.[0]?.startTime
+      return startTime ? [new Date(startTime).getTime()] : []
     }
-
-    updateTimeToNextRound()
-
-    const intervalId = setInterval(updateTimeToNextRound, 1000)
-
-    return () => clearInterval(intervalId)
+    return (upcomingEvents ?? [])
+      .filter((event) => event.discipline === discipline)
+      .map((event) => new Date(event.time).getTime())
+      .sort((a, b) => a - b)
   }, [upcomingRounds, upcomingEvents, discipline])
+
+  // calcio: la prima giornata anche se già iniziata (come prima); corse: la
+  // prima non ancora partita
+  const nextEventTime =
+    discipline === Discipline.FOOTBALL
+      ? startTimes[0]
+      : startTimes.find((time) => time > now)
+  const timeToNextRound =
+    nextEventTime !== undefined
+      ? getTimeDistanceFromNow(new Date(nextEventTime))
+      : ''
 
   return (
     <Badge

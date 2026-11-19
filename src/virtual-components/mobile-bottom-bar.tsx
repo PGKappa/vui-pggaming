@@ -12,7 +12,7 @@ import { ChevronDown, ReceiptText, Trophy } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import BettingSlip from './betting-slip'
+import { BettingSlip } from './lazy-components'
 import {
   Sheet,
   SheetClose,
