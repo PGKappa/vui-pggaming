@@ -329,18 +329,20 @@ export default function BettingSlip() {
   const stepSingleStake = (current: number, direction: 1 | -1) =>
     stepStake(current, direction, minStakeIncrement)
 
-  // combinazioni del sistema: i -/+ vanno a multipli della moneta (es. 0,50
-  // per l'euro) che siano anche multipli del passo del sistema, così ogni
-  // valore raggiunto con i pulsanti è valido per entrambi (es. 0,50 e 0,10 ->
-  // 0,50; 0,50 e 1 -> 1)
-  const systemGroupButtonStep = (() => {
+  // Passo delle puntate per colonna del sistema: il backend le accetta solo se
+  // multiple sia della moneta (min_stake_increment_step, es. 0,50 per l'euro)
+  // sia del passo del sistema (min_stake_increment_step_sys, es. 0,10),
+  // altrimenti rifiuta la giocata con "Increment step stake error". Si usa il
+  // loro minimo comune multiplo (0,50 e 0,10 -> 0,50; 0,50 e 1 -> 1) per i
+  // -/+, DIVIDI, AGGIUNGI, il totale inserito a mano e tutti i controlli.
+  const systemColumnStep = (() => {
     const a = Math.max(1, Math.round(minStakeIncrement * 100))
     const b = Math.max(1, Math.round(systemStakeIncrement * 100))
     const gcd = (x: number, y: number): number => (y === 0 ? x : gcd(y, x % y))
     return ((a / gcd(a, b)) * b) / 100
   })()
   const stepGroupStake = (current: number, direction: 1 | -1) =>
-    stepStake(current, direction, systemGroupButtonStep)
+    stepStake(current, direction, systemColumnStep)
 
   // Importi non ammessi segnalati già durante l'inserimento (stessi controlli
   // della conferma): il campo diventa rosso e la vincita non viene mostrata
@@ -360,8 +362,8 @@ export default function BettingSlip() {
             min: `${minStake.toFixed(2)} ${currencySymbol}`,
           })
         : !betTemplate.exactStakeDistribution &&
-            !isMultipleOf(stake, systemStakeIncrement)
-          ? t('stake_increment_error', { increment: systemStakeIncrement })
+            !isMultipleOf(stake, systemColumnStep)
+          ? t('stake_increment_error', { increment: systemColumnStep })
           : null
   const groupsStakeError =
     activeSystemGroups
@@ -544,12 +546,10 @@ export default function BettingSlip() {
     if (
       !betTemplate.exactStakeDistribution &&
       activeSystemGroups.some(
-        (group) => !isMultipleOf(group.stake, systemStakeIncrement),
+        (group) => !isMultipleOf(group.stake, systemColumnStep),
       )
     ) {
-      toast.error(
-        t('stake_increment_error', { increment: systemStakeIncrement }),
-      )
+      toast.error(t('stake_increment_error', { increment: systemColumnStep }))
       return false
     }
     if (minBet > 0 && systemTotalPlayed < minBet) {
@@ -866,7 +866,7 @@ export default function BettingSlip() {
       (sum, group) => sum + group.combinations.length,
       0,
     )
-    const stepCents = Math.max(1, Math.round(systemStakeIncrement * 100))
+    const stepCents = Math.max(1, Math.round(systemColumnStep * 100))
     const minColumnCents = betTemplate.exactStakeDistribution
       ? Math.round(minStake * 100)
       : Math.ceil(Math.round(minStake * 100) / stepCents) * stepCents
@@ -936,7 +936,7 @@ export default function BettingSlip() {
         combinations: group.combinations.length,
       })),
       systemDistributeStake,
-      systemStakeIncrement,
+      systemColumnStep,
       minStake,
     )
     if (Object.values(stakes).every((stake) => stake <= 0)) {
@@ -955,7 +955,7 @@ export default function BettingSlip() {
       toast.warning(
         t('stake_not_distributed', {
           amount: formatAmount(undistributed),
-          increment: systemStakeIncrement,
+          increment: systemColumnStep,
         }),
       )
     }
@@ -998,7 +998,7 @@ export default function BettingSlip() {
         combinations: group.combinations.length,
       })),
       value,
-      systemStakeIncrement,
+      systemColumnStep,
       minStake,
     )
     const stakes: Record<string, number> = {}
@@ -1026,11 +1026,9 @@ export default function BettingSlip() {
     }
     if (
       !betTemplate.exactStakeDistribution &&
-      !isMultipleOf(systemDistributeStake, systemStakeIncrement)
+      !isMultipleOf(systemDistributeStake, systemColumnStep)
     ) {
-      toast.error(
-        t('stake_increment_error', { increment: systemStakeIncrement }),
-      )
+      toast.error(t('stake_increment_error', { increment: systemColumnStep }))
       return
     }
 
