@@ -70,8 +70,11 @@ export default function TicketListPageContent({
   const { t } = useTranslation()
   const sideBorder = fullWidth ? undefined : '1px solid white'
   // il web usa il proprio dettaglio ticket; la cassa quello retail
-  const DetailDialog =
-    useContext(TicketListSourceContext).DetailDialog ?? TicketCheckDialog
+  const listSource = useContext(TicketListSourceContext)
+  const DetailDialog = listSource.DetailDialog ?? TicketCheckDialog
+  // mouse/dito su DETTAGLI: il dettaglio comincia a scaricarsi subito
+  const prefetchDetail = (ticketId: number) =>
+    listSource.prefetchDetail?.(Number(ticketId))
   // web: la pagina è a tutta larghezza, quindi filtri e testi della tabella
   // scalano a blocchi di risoluzione (in cassa restano le misure a 1920)
   // sotto lg (telefono) i filtri vanno su una griglia 2x2 a tutta larghezza
@@ -743,6 +746,9 @@ export default function TicketListPageContent({
                     <button
                       type="button"
                       onClick={() => handleDetailsClick(item)}
+                      onPointerEnter={() => prefetchDetail(item.ticket_id)}
+                      onPointerDown={() => prefetchDetail(item.ticket_id)}
+                      onFocus={() => prefetchDetail(item.ticket_id)}
                       className="flex w-full items-center gap-3 px-3 py-3 text-left active:bg-gray-100"
                     >
                       <span
@@ -972,6 +978,11 @@ export default function TicketListPageContent({
                         <td className={tdClass()}>
                           <Button
                             onClick={() => handleDetailsClick(item)}
+                            onPointerEnter={() =>
+                              prefetchDetail(item.ticket_id)
+                            }
+                            onPointerDown={() => prefetchDetail(item.ticket_id)}
+                            onFocus={() => prefetchDetail(item.ticket_id)}
                             className={cn(
                               'bg-tertiary text-tertiary-foreground',
                               isCalcio

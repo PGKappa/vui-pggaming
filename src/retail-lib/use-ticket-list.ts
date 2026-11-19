@@ -211,8 +211,8 @@ export function useTicketList() {
   const requestIdRef = React.useRef(0)
 
   // reload: "Ricarica" premuto. Solo allora una sorgente alternativa (web)
-  // può riscaricare i ticket aperti per aggiornarne lo stato; all'apertura
-  // della lista nessun ticket viene scaricato.
+  // riscarica anche i ticket aperti per aggiornarne lo stato; all'apertura
+  // la lista si mostra subito da quello che ha già.
   const runSearch = useCallback(
     async (reload: boolean) => {
       if (!rootContext.initCode || !rootContext.operator) return
@@ -238,6 +238,9 @@ export function useTicketList() {
       setLoading(true)
       const requestId = ++requestIdRef.current
       const isCurrent = () => requestId === requestIdRef.current
+      // lista vuota ma ticket ancora in arrivo (web): resta il caricamento
+      // fino all'aggiornamento, invece di "nessun ticket trovato"
+      let waitingForUpdate = false
 
       try {
         const body = {
@@ -261,14 +264,15 @@ export function useTicketList() {
         const data: TicketListResponse = source.fetchList
           ? await source.fetchList(
               body,
-              reload
-                ? (updated) => {
-                    if (isCurrent() && updated.ret_code === 1024) {
-                      setAllItems(updated.items ?? [])
-                      setInfo(updated.info ?? null)
-                    }
-                  }
-                : undefined,
+              (updated) => {
+                if (!isCurrent()) return
+                if (updated.ret_code === 1024) {
+                  setAllItems(updated.items ?? [])
+                  setInfo(updated.info ?? null)
+                }
+                setLoading(false)
+              },
+              reload,
             )
           : await (
               await createPGVirtualAPICall(
@@ -282,6 +286,9 @@ export function useTicketList() {
         if (!isCurrent()) return
         if (data.ret_code === 1024) {
           const rawItems = data.items ?? []
+          waitingForUpdate =
+            rawItems.length === 0 &&
+            (data as { pending?: boolean }).pending === true
           const knownStatuses = new Set([1, 4, 5, 6, 9])
           const unknownStatuses = [
             ...new Set(rawItems.map((i) => i.status)),
@@ -315,7 +322,7 @@ export function useTicketList() {
         setAllItems([])
         setInfo(null)
       } finally {
-        if (isCurrent()) setLoading(false)
+        if (isCurrent() && !waitingForUpdate) setLoading(false)
       }
     },
     [rootContext.initCode, rootContext.operator, source],

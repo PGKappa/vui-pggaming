@@ -18,14 +18,20 @@ export type TicketListRequest = {
 
 export type TicketListSource = {
   /**
-   * sostituisce la chiamata a /api/ticket/list. `onUpdate` (solo con
-   * "Ricarica"): la lista è già a video, arrivano dati aggiornati (es. stato
-   * dei ticket aperti)
+   * sostituisce la chiamata a /api/ticket/list. `onUpdate`: la lista è già
+   * a video, arrivano dati aggiornati in background. `reload`: "Ricarica"
+   * premuto (si possono riscaricare anche i ticket aperti)
    */
   fetchList?: (
     request: TicketListRequest,
     onUpdate?: (response: TicketListResponse) => void,
+    reload?: boolean,
   ) => Promise<TicketListResponse>
+  /**
+   * comincia a scaricare il dettaglio del ticket (mouse su DETTAGLI): quando
+   * il dettaglio si apre la risposta è già in arrivo
+   */
+  prefetchDetail?: (ticketId: number) => void
   /** nasconde le azioni di cassa (pagamento del ticket) */
   readOnly?: boolean
   /** l'orario del ticket arriva in UTC: va mostrato nel fuso del dispositivo */

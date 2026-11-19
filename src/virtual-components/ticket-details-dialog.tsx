@@ -14,6 +14,7 @@ import type {
 import { utcTicketTimeToLocal } from '@/retail-lib/ticket-list-source'
 import { createPGVirtualAPICall } from '@/retail-lib/utils'
 import {
+  pendingTicketDetail,
   saveTicketSummary,
   ticketDetailCache,
 } from '@/virtual-lib/ticket-history'
@@ -441,6 +442,15 @@ export default function TicketDetailsDialog({
         ),
       )
       try {
+        // dettaglio già in download (mouse su DETTAGLI): si usa quello
+        const pending = pendingTicketDetail(ticketId)
+        const prefetched = pending
+          ? await pending.catch(() => undefined)
+          : undefined
+        if (prefetched) {
+          if (!cancelled) setInfo(prefetched)
+          return
+        }
         for (const id of ids) {
           const response = await createPGVirtualAPICall(
             `/api/ticket/${id}`,

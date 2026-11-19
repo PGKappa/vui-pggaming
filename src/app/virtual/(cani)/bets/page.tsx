@@ -14,7 +14,11 @@ import {
 } from '@/retail-lib/ticket-list-source'
 import { RootContext } from '@/virtual-contexts/root-context'
 import { LazyTicketDetailsDialog } from '@/virtual-components/lazy-components'
-import { fetchStoredTicketList } from '@/virtual-lib/ticket-history'
+import {
+  fetchStoredTicketList,
+  loadTicketDetail,
+  ticketDetailCache,
+} from '@/virtual-lib/ticket-history'
 import { createPGVirtualAPICall, getOperatorFromUrl } from '@/virtual-lib/utils'
 import { useRouter } from 'next/navigation'
 import { useContext, useMemo } from 'react'
@@ -44,30 +48,35 @@ export default function MyBetsPage() {
     [initCode, getCurrencySymbol],
   )
 
-  const source = useMemo<TicketListSource>(
-    () => ({
+  const source = useMemo<TicketListSource>(() => {
+    const fetchTicket = async (ticketId: number) => {
+      const response = await createPGVirtualAPICall(
+        `/api/ticket/${ticketId}`,
+        initCode ?? '',
+      )
+      return response.json()
+    }
+    return {
       readOnly: true,
       utcTimes: true,
       // dettaglio con la grafica del pannello admin (pgPlatformAdmin)
       DetailDialog: LazyTicketDetailsDialog,
-      fetchList: async (request, onUpdate) =>
+      fetchList: async (request, onUpdate, reload) =>
         initCode
           ? fetchStoredTicketList(
               initCode,
               request,
-              async (ticketId) => {
-                const response = await createPGVirtualAPICall(
-                  `/api/ticket/${ticketId}`,
-                  initCode,
-                )
-                return response.json()
-              },
+              fetchTicket,
               onUpdate as any,
+              reload,
             )
           : ({ ret_code: 0, description: '', items: [], info: null } as any),
-    }),
-    [initCode],
-  )
+      prefetchDetail: (ticketId) => {
+        if (!initCode || ticketDetailCache.has(ticketId)) return
+        loadTicketDetail(initCode, ticketId, fetchTicket).catch(() => {})
+      },
+    }
+  }, [initCode])
 
   return (
     // retail-default: stessi colori della lista ticket retail, solo qui

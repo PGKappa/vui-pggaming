@@ -242,15 +242,75 @@ const isFinal = (summary: TicketSummary) => FINAL_STATUSES.has(summary.status)
 const summaryTime = (summary: TicketSummary) =>
   parseTicketTime(summary.time).getTime()
 
+// Ticket il cui dettaglio non è stato trovato (codice errato, ticket di un
+// altro ambiente...): non si richiede a ogni apertura della lista, si
+// riprova solo dopo un po'.
+const MISSING_RETRY_MS = 10 * 60 * 1000
+const missingKey = (initCode: string) => `virtualTicketMissing:${initCode}`
+
+function readMissing(initCode: string): Record<string, number> {
+  try {
+    const raw = localStorage.getItem(missingKey(initCode))
+    const parsed = raw ? JSON.parse(raw) : {}
+    return parsed && typeof parsed === 'object' ? parsed : {}
+  } catch {
+    return {}
+  }
+}
+
+function writeMissing(initCode: string, missing: Record<string, number>) {
+  try {
+    localStorage.setItem(missingKey(initCode), JSON.stringify(missing))
+  } catch {
+    // storage non disponibile
+  }
+}
+
+// dettagli in download: aprire DETTAGLI mentre la lista lo sta già
+// scaricando (o dopo il passaggio del mouse) non rifà la chiamata
+const detailInFlight = new Map<number, Promise<any>>()
+
+/** download del dettaglio già in corso (lista, passaggio del mouse...) */
+export function pendingTicketDetail(
+  ticketId: number,
+): Promise<any> | undefined {
+  return detailInFlight.get(ticketId)
+}
+
+/**
+ * Dettaglio di un ticket (info di /api/ticket/{id}), una sola chiamata per
+ * volta per ticket. Aggiorna la cache in memoria e il riassunto della lista.
+ */
+export function loadTicketDetail(
+  initCode: string,
+  ticketId: number,
+  fetchTicket: (ticketId: number) => Promise<any>,
+): Promise<any> {
+  const pending = detailInFlight.get(ticketId)
+  if (pending) return pending
+  const request = fetchTicket(ticketId)
+    .then((data) => {
+      if (data?.ret_code === 1024 && data.info) {
+        ticketDetailCache.set(ticketId, data.info)
+        saveTicketSummary(initCode, data.info)
+        return data.info
+      }
+      return undefined
+    })
+    .finally(() => detailInFlight.delete(ticketId))
+  detailInFlight.set(ticketId, request)
+  return request
+}
+
 /**
  * Risposta nel formato di /api/ticket/list costruita dai ticket giocati da
- * questo browser, a partire dai riassunti salvati in locale: nessuna chiamata
- * per i ticket già noti. Si scaricano solo:
- * - i ticket mai visti (giocati prima di questo aggiornamento), una volta;
- * - solo con `onUpdate` ("Ricarica"), in background, i ticket ancora aperti
- *   del periodo cercato, per aggiornarne lo stato: la lista è già a video e
- *   `onUpdate` la ridisegna. All'apertura della lista non si scarica nulla:
- *   il dettaglio di un ticket si scarica quando lo si apre.
+ * questo browser, a partire dai riassunti salvati in locale: si risponde
+ * subito, senza nessuna chiamata. In background, poi `onUpdate` ridisegna:
+ * - i ticket senza riassunto (giocati prima di questo aggiornamento, o il cui
+ *   riassunto non si è potuto salvare), scaricati una volta;
+ * - solo con `refreshOpen` ("Ricarica"), i ticket ancora aperti del periodo
+ *   cercato, per aggiornarne lo stato.
+ * Il dettaglio di un ticket si scarica quando lo si apre.
  * Gli orari sono convertiti da UTC all'ora locale, come li mostra la lista.
  */
 export async function fetchStoredTicketList(
@@ -263,6 +323,7 @@ export async function fetchStoredTicketList(
   },
   fetchTicket: (ticketId: number) => Promise<any>,
   onUpdate?: (response: ReturnType<typeof buildListResponse>) => void,
+  refreshOpen = false,
 ) {
   const from = parseDayParam(request.dateStart)
   const toDay = parseDayParam(request.dateEnd)
@@ -279,51 +340,54 @@ export async function fetchStoredTicketList(
 
   const ids = getStoredTicketIds(initCode)
   const summaries = readSummaries(initCode)
+  const missing = readMissing(initCode)
+  const now = Date.now()
 
-  const download = async (id: number) => {
-    try {
-      const data = await fetchTicket(id)
-      if (data?.ret_code === 1024 && data.info) {
-        ticketDetailCache.set(Number(data.info.ticket_id ?? id), data.info)
-        const summary = toTicketSummary(data.info)
-        if (summary) summaries[id] = summary
-      }
-    } catch {
-      // rete non disponibile: il ticket resta con i dati che aveva
-    }
-  }
-
-  // ticket senza riassunto: unica attesa, succede solo la prima volta
-  const unknown = ids.filter((id) => !summaries[id])
-  if (unknown.length) {
-    await Promise.all(unknown.map(download))
-    writeSummaries(initCode, summaries)
-  }
-
-  const build = () =>
-    buildListResponse(
-      ids.map((id) => summaries[id]).filter(Boolean),
+  const build = () => {
+    const latest = readSummaries(initCode)
+    return buildListResponse(
+      ids.map((id) => latest[id] ?? summaries[id]).filter(Boolean),
       from,
       to,
       request,
     )
+  }
 
-  // ticket ancora aperti nel periodo: stato aggiornato senza bloccare la lista
-  const open = ids.filter(
+  // da scaricare in background: ticket senza riassunto (salvo quelli non
+  // trovati di recente) e, con "Ricarica", gli aperti del periodo
+  const unknown = ids.filter(
     (id) =>
-      summaries[id] &&
-      !unknown.includes(id) &&
-      !isFinal(summaries[id]) &&
-      inRange(summaries[id]),
+      !summaries[id] && !(missing[id] && now - missing[id] < MISSING_RETRY_MS),
   )
-  if (open.length && onUpdate) {
-    Promise.all(open.map(download)).then(() => {
-      writeSummaries(initCode, summaries)
+  const open = refreshOpen
+    ? ids.filter(
+        (id) =>
+          summaries[id] && !isFinal(summaries[id]) && inRange(summaries[id]),
+      )
+    : []
+  const toLoad = [...unknown, ...open]
+
+  if (toLoad.length && onUpdate) {
+    Promise.all(
+      toLoad.map((id) =>
+        loadTicketDetail(initCode, id, fetchTicket)
+          .then((info) => {
+            if (info) delete missing[id]
+            else if (unknown.includes(id)) missing[id] = Date.now()
+          })
+          .catch(() => {
+            // rete non disponibile: si riprova alla prossima apertura
+          }),
+      ),
+    ).then(() => {
+      writeMissing(initCode, missing)
       onUpdate(build())
     })
   }
 
-  return build()
+  // pending: arriveranno ticket mai visti (la lista può mostrare il
+  // caricamento invece di "nessun ticket")
+  return { ...build(), pending: unknown.length > 0 && !!onUpdate }
 }
 
 function buildListResponse(

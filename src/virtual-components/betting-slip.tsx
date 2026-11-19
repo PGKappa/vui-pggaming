@@ -18,7 +18,7 @@ import {
 import { BetEntry, Discipline, SubmittedTicket } from '@/virtual-lib/types'
 import {
   extractTicketId,
-  saveTicketSummary,
+  loadTicketDetail,
   storeTicketId,
 } from '@/virtual-lib/ticket-history'
 import { useBetTemplate } from '@/virtual-lib/use-bet-template'
@@ -786,15 +786,14 @@ export default function BettingSlip() {
         // riassunto per la Lista ticket (data, importi, stato, giochi): così
         // la lista si apre senza scaricare ogni ticket. In background, la
         // giocata è già confermata.
-        createPGVirtualAPICall(`/api/ticket/${ticketId}`, initCode)
-          .then((r) => r.json())
-          .then((data) => {
-            if (data?.ret_code === 1024 && data.info)
-              saveTicketSummary(initCode, data.info)
-          })
-          .catch(() => {
-            // la lista lo scaricherà alla prossima apertura
-          })
+        // il dettaglio resta anche in memoria: aprirlo dalla lista è immediato
+        loadTicketDetail(initCode, ticketId, (id) =>
+          createPGVirtualAPICall(`/api/ticket/${id}`, initCode).then((r) =>
+            r.json(),
+          ),
+        ).catch(() => {
+          // la lista lo scaricherà alla prossima apertura
+        })
       } else {
         console.warn('Ticket id non trovato nella risposta:', result)
       }
