@@ -3,6 +3,9 @@ import { getOperatorFromUrl, PGVIRTUAL_API_URL } from '@/virtual-lib/utils'
 
 // Dettagli delle corse (/api/event/info) tenuti in memoria: riaprire una corsa
 // già vista o passare alla successiva (già caricata in anticipo) è immediato.
+// Sono copiati anche in sessionStorage: ricaricando la pagina la corsa si
+// mostra subito e si aggiorna in background. Serve soprattutto appena parte
+// una corsa, quando il backend risponde anche dopo 10 secondi.
 
 // Oltre questa età il dato si mostra comunque, ma si riscarica in background
 export const EVENT_INFO_FRESH_MS = 30 * 1000
@@ -11,11 +14,43 @@ const EVENT_INFO_MAX_AGE_MS = 15 * 60 * 1000
 
 type CacheEntry = { data: UpcomingRace; fetchedAt: number }
 
-const cache = new Map<string, CacheEntry>()
+const STORAGE_KEY = 'virtualEventInfoCache'
+
+const cache = new Map<string, CacheEntry>(readStoredCache())
 const inFlight = new Map<string, Promise<UpcomingRace>>()
 
 const cacheKey = (extId: string | number | undefined, id: number) =>
   `${extId}/${id}`
+
+function readStoredCache(): [string, CacheEntry][] {
+  if (typeof window === 'undefined') return []
+  try {
+    const raw = sessionStorage.getItem(STORAGE_KEY)
+    const entries = raw ? JSON.parse(raw) : []
+    if (!Array.isArray(entries)) return []
+    const now = Date.now()
+    return entries.filter(
+      (entry): entry is [string, CacheEntry] =>
+        Array.isArray(entry) &&
+        typeof entry[0] === 'string' &&
+        typeof entry[1]?.fetchedAt === 'number' &&
+        now - entry[1].fetchedAt <= EVENT_INFO_MAX_AGE_MS,
+    )
+  } catch {
+    return []
+  }
+}
+
+function writeStoredCache() {
+  try {
+    sessionStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(Array.from(cache.entries())),
+    )
+  } catch {
+    // storage pieno o non disponibile: resta la cache in memoria
+  }
+}
 
 function pruneCache() {
   const now = Date.now()
@@ -70,6 +105,7 @@ export function fetchEventInfo(
       }
       pruneCache()
       cache.set(key, { data: upcomingRace, fetchedAt: Date.now() })
+      writeStoredCache()
       return upcomingRace
     })
     .finally(() => {

@@ -24,8 +24,14 @@ import {
   formatCurrency,
 } from '@/retail-lib/use-ticket-list'
 import { cn } from '@/retail-lib/utils'
-import { ChevronDown, ChevronRight, RotateCw, X } from 'lucide-react'
-import { format } from 'date-fns'
+import {
+  ChevronDown,
+  ChevronRight,
+  LoaderCircle,
+  RotateCw,
+  X,
+} from 'lucide-react'
+import { format, startOfToday } from 'date-fns'
 import { it } from 'date-fns/locale'
 import { useContext, useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -41,6 +47,19 @@ interface TicketListPageContentProps {
   /** web: sotto la navbar del web (60px), senza il bordo bianco a sinistra
    * che in cassa separa la pagina dalla colonna laterale */
   fullWidth?: boolean
+}
+
+/** cerchio che gira, mostrato mentre la lista cerca i ticket */
+function LoadingIndicator({ label }: { label: string }) {
+  return (
+    <span
+      role="status"
+      className="flex flex-col items-center justify-center gap-3 text-gray-400"
+    >
+      <LoaderCircle className="size-8 animate-spin text-tertiary" />
+      <span>{label}...</span>
+    </span>
+  )
 }
 
 export default function TicketListPageContent({
@@ -163,8 +182,9 @@ export default function TicketListPageContent({
 
   const handleModeSwitch = (mode: 'single' | 'range') => {
     setCalendarMode(mode)
-    setDateFrom(undefined)
-    setDateTo(undefined)
+    // si riparte da oggi, il filtro data di default
+    setDateFrom(startOfToday())
+    setDateTo(startOfToday())
   }
 
   const dateRangeLabel = () => {
@@ -229,7 +249,9 @@ export default function TicketListPageContent({
         '[data-ticket-totals]',
       ) as HTMLElement | null
       const available =
-        area.clientHeight - (head?.offsetHeight ?? 0) - (totals?.offsetHeight ?? 0)
+        area.clientHeight -
+        (head?.offsetHeight ?? 0) -
+        (totals?.offsetHeight ?? 0)
       const row = rowHeight > 0 ? rowHeight : 48
       setVisibleRows(Math.max(0, Math.floor(available / row)))
     }
@@ -385,7 +407,8 @@ export default function TicketListPageContent({
       isCalcio
         ? 'bg-badge p-2 text-[16px]'
         : 'bg-accent p-1 text-[12px] lg:p-2 lg:text-[16px] uppercase',
-      fullWidth && 'leading-tight lg:text-[13px] xl:text-[15px] 2xl:text-[16px]',
+      fullWidth &&
+        'leading-tight lg:text-[13px] xl:text-[15px] 2xl:text-[16px]',
       extra,
     )
 
@@ -471,14 +494,17 @@ export default function TicketListPageContent({
             onClick={fetchTickets}
             className="absolute left-2 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center text-accent-foreground transition-opacity hover:opacity-75 lg:hidden"
           >
-            <RotateCw className="size-5" />
+            <RotateCw className={cn('size-5', loading && 'animate-spin')} />
           </button>
         )}
       </div>
 
       {/* Filter Bar */}
       {isCalcio ? (
-        <div className="flex flex-col items-center gap-4 px-4 pb-8 pt-10" style={{ borderLeft: sideBorder }}>
+        <div
+          className="flex flex-col items-center gap-4 px-4 pb-8 pt-10"
+          style={{ borderLeft: sideBorder }}
+        >
           <div className="flex items-center gap-8">
             {/* Data - calcio */}
             <div className="mr-20 flex flex-row items-center gap-2 bg-badge text-background">
@@ -488,7 +514,7 @@ export default function TicketListPageContent({
             {/* Terminale - calcio */}
             <div className="mr-20 flex flex-row items-center gap-2 bg-badge text-background">
               <Select
-                value={terminal === 'all' ? '' : terminal}
+                value={terminal}
                 onValueChange={(v) => setTerminal(v || 'all')}
               >
                 <SelectTrigger className="h-[38px] w-[149px] bg-background pl-[15px] pr-[12px] text-[15px] text-foreground">
@@ -508,7 +534,7 @@ export default function TicketListPageContent({
             {/* Stato - calcio */}
             <div className="mr-20 flex flex-row items-center gap-2 bg-badge text-background">
               <Select
-                value={statusSelectValue === 'all' ? '' : statusSelectValue}
+                value={statusSelectValue}
                 onValueChange={handleStatusChange}
               >
                 <SelectTrigger className="h-[38px] w-[149px] bg-background pl-[15px] pr-[12px] text-[15px] text-foreground">
@@ -529,7 +555,7 @@ export default function TicketListPageContent({
             {/* Disciplina - calcio */}
             <div className="mr-20 flex flex-row items-center gap-2 bg-badge text-background">
               <Select
-                value={discipline === 'all' ? '' : discipline}
+                value={discipline}
                 onValueChange={(v) => setDiscipline(v || 'all')}
               >
                 <SelectTrigger className="h-[38px] w-[149px] bg-background pl-[15px] pr-[12px] text-[15px] text-foreground">
@@ -548,9 +574,20 @@ export default function TicketListPageContent({
 
             <Button
               onClick={fetchTickets}
-              className="text-bold w-[80px] bg-tertiary text-[14px] text-tertiary-foreground"
+              aria-busy={loading}
+              className={cn(
+                'text-bold w-[80px] bg-tertiary text-[14px] text-tertiary-foreground',
+                loading && 'opacity-70',
+              )}
             >
-              {t('reload')}
+              {loading ? (
+                <LoaderCircle
+                  aria-label={t('loading')}
+                  className="size-5 animate-spin"
+                />
+              ) : (
+                t('reload')
+              )}
             </Button>
           </div>
         </div>
@@ -582,7 +619,7 @@ export default function TicketListPageContent({
             {/* Disciplina - standard */}
             <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
               <Select
-                value={discipline === 'all' ? '' : discipline}
+                value={discipline}
                 onValueChange={(v) => setDiscipline(v || 'all')}
               >
                 <SelectTrigger
@@ -607,7 +644,7 @@ export default function TicketListPageContent({
             {/* Terminale - standard */}
             <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
               <Select
-                value={terminal === 'all' ? '' : terminal}
+                value={terminal}
                 onValueChange={(v) => setTerminal(v || 'all')}
               >
                 <SelectTrigger
@@ -632,7 +669,7 @@ export default function TicketListPageContent({
             {/* Stato - standard */}
             <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
               <Select
-                value={statusSelectValue === 'all' ? '' : statusSelectValue}
+                value={statusSelectValue}
                 onValueChange={handleStatusChange}
               >
                 <SelectTrigger
@@ -656,12 +693,21 @@ export default function TicketListPageContent({
             </div>
             <Button
               onClick={fetchTickets}
+              aria-busy={loading}
               className={cn(
                 'text-bold relative left-2 h-7 w-[60px] bg-tertiary text-[10px] uppercase text-tertiary-foreground lg:h-[42px] lg:w-[106px] lg:text-[15px]',
                 fullWidth && 'hidden lg:inline-flex',
+                loading && 'opacity-70',
               )}
             >
-              {t('reload')}
+              {loading ? (
+                <LoaderCircle
+                  aria-label={t('loading')}
+                  className="size-4 animate-spin lg:size-5"
+                />
+              ) : (
+                t('reload')
+              )}
             </Button>
           </div>
         </div>
@@ -677,10 +723,10 @@ export default function TicketListPageContent({
           ──────────────────────────────────────────────────────────────────────── */}
       {fullWidth && (
         <div className="flex min-h-0 flex-1 flex-col bg-white text-black lg:hidden">
-          <ul className="min-h-0 flex-1 divide-y divide-gray-200 overflow-y-auto">
+          <ul className="thin-scrollbar min-h-0 flex-1 divide-y divide-gray-200 overflow-y-auto">
             {loading ? (
-              <li className="p-8 text-center text-gray-400">
-                {t('loading')}...
+              <li className="p-8">
+                <LoadingIndicator label={t('loading')} />
               </li>
             ) : items.length === 0 ? (
               <li className="p-8 text-center text-gray-400">
@@ -776,7 +822,10 @@ export default function TicketListPageContent({
             <span className="text-center">
               {t('won')}
               <span className="block text-[13px] font-semibold tabular-nums">
-                {formatCurrency(info?.grandtotal?.out ?? '0.00', currencySymbol)}
+                {formatCurrency(
+                  info?.grandtotal?.out ?? '0.00',
+                  currencySymbol,
+                )}
               </span>
             </span>
             <span className="text-right">
@@ -794,7 +843,9 @@ export default function TicketListPageContent({
         className={cn(
           'flex flex-1 flex-col bg-white text-black',
           // web: la tabella scorre (intestazione e totali restano fissi)
-          fullWidth ? 'min-h-0 overflow-y-auto' : 'overflow-y-hidden',
+          fullWidth
+            ? 'thin-scrollbar min-h-0 overflow-y-auto'
+            : 'overflow-y-hidden',
           webDesktopOnly,
         )}
       >
@@ -838,8 +889,8 @@ export default function TicketListPageContent({
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={9} className="p-8 text-center text-gray-400">
-                    {t('loading')}...
+                  <td colSpan={9} className="p-8">
+                    <LoadingIndicator label={t('loading')} />
                   </td>
                 </tr>
               ) : items.length === 0 ? (
@@ -959,7 +1010,11 @@ export default function TicketListPageContent({
 
         {/* Riga TOTALI — sticky bottom-0 nello stesso contenitore scroll.
             Stessa larghezza effettiva della tabella dati → colonne sempre allineate. */}
-        <div data-ticket-totals className="sticky bottom-0 shrink-0 bg-secondary uppercase text-white" style={{ borderLeft: sideBorder }}>
+        <div
+          data-ticket-totals
+          className="sticky bottom-0 shrink-0 bg-secondary uppercase text-white"
+          style={{ borderLeft: sideBorder }}
+        >
           <table className="w-full table-fixed border-collapse">
             <colgroup>
               <col style={{ width: '11.11%' }} />
@@ -1010,7 +1065,10 @@ export default function TicketListPageContent({
       </div>
 
       {/* Barra paginazione — fuori dal contenitore scroll, sempre in fondo alla pagina */}
-      <div className="relative h-[59px] shrink-0 bg-secondary" style={{ borderLeft: sideBorder }}>
+      <div
+        className="relative h-[59px] shrink-0 bg-secondary"
+        style={{ borderLeft: sideBorder }}
+      >
         <div
           className={cn(
             'relative top-[21px] ml-[24px] flex flex-row space-x-3',

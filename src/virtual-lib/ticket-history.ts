@@ -142,52 +142,117 @@ function matchesPayment(status: number, filter: number): boolean {
 }
 
 /**
- * Risposta nel formato di /api/ticket/list costruita dai ticket giocati da
- * questo browser (il cui dettaglio è accessibile anche al giocatore).
- * Gli orari sono convertiti da UTC all'ora locale, come li mostra la lista.
- */
-/**
- * Dettagli ticket già scaricati per la Lista ticket (stessa risposta di
- * /api/ticket/{id}): il dettaglio li mostra subito, senza attendere la rete.
+ * Dettagli ticket già scaricati (stessa risposta di /api/ticket/{id}): il
+ * dettaglio li mostra subito e intanto si aggiorna dalla rete.
  */
 export const ticketDetailCache = new Map<number, any>()
 
 // Stati definitivi: annullato, rimborsato, perso, pagato (e perso "9" come
-// nel filtro della cassa). Un ticket in questi stati non cambia più, quindi
-// il suo dettaglio viene salvato in locale e non riscaricato a ogni
-// "Ricarica": si scaricano solo i ticket ancora aperti o vinti da pagare.
+// nel filtro della cassa). Un ticket in questi stati non cambia più.
 const FINAL_STATUSES = new Set([2, 3, 5, 6, 9])
 
-const detailsKey = (initCode: string) => `virtualTicketDetails:${initCode}`
+// ===== Riassunti dei ticket =====
+// La lista mostra solo dati di riepilogo (data, importi, stato, giochi): li
+// teniamo in locale, salvati alla giocata e aggiornati quando si apre il
+// dettaglio, così la lista si apre subito senza scaricare ogni ticket.
+// Il dettaglio completo si scarica solo quando si apre il ticket.
 
-function readStoredDetails(initCode: string): Record<string, any> {
+export type TicketSummary = {
+  ticket_id: number
+  /** [anno, mese 0-11, giorno, ora, min, sec] in UTC, come dal backend */
+  time: unknown[]
+  amount: string
+  amount_won: string
+  status: number
+  intl?: any
+  game_ids?: string[]
+}
+
+const summariesKey = (initCode: string) => `virtualTicketSummaries:${initCode}`
+// formato precedente: dettagli completi dei soli ticket in stato definitivo
+const legacyDetailsKey = (initCode: string) =>
+  `virtualTicketDetails:${initCode}`
+
+export function toTicketSummary(info: any): TicketSummary | undefined {
+  if (!info?.ticket_id || !Array.isArray(info.time)) return undefined
+  return {
+    ticket_id: Number(info.ticket_id),
+    time: info.time,
+    amount: String(info.amount ?? '0'),
+    amount_won: String(info.amount_won ?? '0'),
+    status: Number(info.status),
+    intl: info.intl,
+    game_ids: Array.isArray(info.selections)
+      ? info.selections.map((sel: any) => String(sel?.gameId ?? ''))
+      : undefined,
+  }
+}
+
+function readSummaries(initCode: string): Record<string, TicketSummary> {
   try {
-    const raw = localStorage.getItem(detailsKey(initCode))
-    const parsed = raw ? JSON.parse(raw) : {}
-    return parsed && typeof parsed === 'object' ? parsed : {}
+    const raw = localStorage.getItem(summariesKey(initCode))
+    if (raw) {
+      const parsed = JSON.parse(raw)
+      if (parsed && typeof parsed === 'object') return parsed
+    }
+    // primo avvio dopo l'aggiornamento: si recuperano i vecchi dettagli
+    const legacyRaw = localStorage.getItem(legacyDetailsKey(initCode))
+    const legacy = legacyRaw ? JSON.parse(legacyRaw) : {}
+    const migrated: Record<string, TicketSummary> = {}
+    if (legacy && typeof legacy === 'object') {
+      for (const [id, info] of Object.entries(legacy)) {
+        const summary = toTicketSummary(info)
+        if (summary) migrated[id] = summary
+      }
+    }
+    return migrated
   } catch {
     return {}
   }
 }
 
-function writeStoredDetails(
+function writeSummaries(
   initCode: string,
-  ids: number[],
-  details: Record<string, any>,
+  summaries: Record<string, TicketSummary>,
 ) {
-  // solo i ticket ancora nello storico e in stato definitivo
-  const kept: Record<string, any> = {}
-  for (const id of ids) {
-    const info = details[id]
-    if (info && FINAL_STATUSES.has(Number(info.status))) kept[id] = info
+  // solo i ticket ancora nello storico
+  const kept: Record<string, TicketSummary> = {}
+  for (const id of getStoredTicketIds(initCode)) {
+    if (summaries[id]) kept[id] = summaries[id]
   }
   try {
-    localStorage.setItem(detailsKey(initCode), JSON.stringify(kept))
+    localStorage.setItem(summariesKey(initCode), JSON.stringify(kept))
+    localStorage.removeItem(legacyDetailsKey(initCode))
   } catch {
-    // spazio esaurito o storage non disponibile: si riscaricano ogni volta
+    // storage non disponibile: la lista riscaricherà i ticket
   }
 }
 
+/** Salva il riassunto di un ticket dal suo dettaglio (/api/ticket/{id}). */
+export function saveTicketSummary(initCode: string, info: any) {
+  const summary = toTicketSummary(info)
+  if (!summary) return
+  const summaries = readSummaries(initCode)
+  summaries[summary.ticket_id] = summary
+  writeSummaries(initCode, summaries)
+}
+
+const isFinal = (summary: TicketSummary) => FINAL_STATUSES.has(summary.status)
+
+const summaryTime = (summary: TicketSummary) =>
+  parseTicketTime(summary.time).getTime()
+
+/**
+ * Risposta nel formato di /api/ticket/list costruita dai ticket giocati da
+ * questo browser, a partire dai riassunti salvati in locale: nessuna chiamata
+ * per i ticket già noti. Si scaricano solo:
+ * - i ticket mai visti (giocati prima di questo aggiornamento), una volta;
+ * - solo con `onUpdate` ("Ricarica"), in background, i ticket ancora aperti
+ *   del periodo cercato, per aggiornarne lo stato: la lista è già a video e
+ *   `onUpdate` la ridisegna. All'apertura della lista non si scarica nulla:
+ *   il dettaglio di un ticket si scarica quando lo si apre.
+ * Gli orari sono convertiti da UTC all'ora locale, come li mostra la lista.
+ */
 export async function fetchStoredTicketList(
   initCode: string,
   request: {
@@ -197,39 +262,77 @@ export async function fetchStoredTicketList(
     payment: number
   },
   fetchTicket: (ticketId: number) => Promise<any>,
+  onUpdate?: (response: ReturnType<typeof buildListResponse>) => void,
 ) {
   const from = parseDayParam(request.dateStart)
   const toDay = parseDayParam(request.dateEnd)
   const to = toDay
     ? new Date(toDay.getFullYear(), toDay.getMonth(), toDay.getDate() + 1)
     : undefined
+  const inRange = (summary: TicketSummary) => {
+    const time = summaryTime(summary)
+    return (
+      !Number.isFinite(time) ||
+      ((!from || time >= from.getTime()) && (!to || time < to.getTime()))
+    )
+  }
 
   const ids = getStoredTicketIds(initCode)
-  const stored = readStoredDetails(initCode)
-  const infos = await Promise.all(
-    ids.map(async (id) => {
-      const saved = stored[id]
-      if (saved && FINAL_STATUSES.has(Number(saved.status))) {
-        ticketDetailCache.set(id, saved)
-        return saved
-      }
-      try {
-        const data = await fetchTicket(id)
-        if (data?.ret_code === 1024 && data.info) {
-          ticketDetailCache.set(Number(data.info.ticket_id ?? id), data.info)
-          stored[id] = data.info
-          return data.info
-        }
-        return undefined
-      } catch {
-        return undefined
-      }
-    }),
-  )
-  writeStoredDetails(initCode, ids, stored)
+  const summaries = readSummaries(initCode)
 
-  const items = infos
-    .filter((info) => info?.ticket_id && Array.isArray(info.time))
+  const download = async (id: number) => {
+    try {
+      const data = await fetchTicket(id)
+      if (data?.ret_code === 1024 && data.info) {
+        ticketDetailCache.set(Number(data.info.ticket_id ?? id), data.info)
+        const summary = toTicketSummary(data.info)
+        if (summary) summaries[id] = summary
+      }
+    } catch {
+      // rete non disponibile: il ticket resta con i dati che aveva
+    }
+  }
+
+  // ticket senza riassunto: unica attesa, succede solo la prima volta
+  const unknown = ids.filter((id) => !summaries[id])
+  if (unknown.length) {
+    await Promise.all(unknown.map(download))
+    writeSummaries(initCode, summaries)
+  }
+
+  const build = () =>
+    buildListResponse(
+      ids.map((id) => summaries[id]).filter(Boolean),
+      from,
+      to,
+      request,
+    )
+
+  // ticket ancora aperti nel periodo: stato aggiornato senza bloccare la lista
+  const open = ids.filter(
+    (id) =>
+      summaries[id] &&
+      !unknown.includes(id) &&
+      !isFinal(summaries[id]) &&
+      inRange(summaries[id]),
+  )
+  if (open.length && onUpdate) {
+    Promise.all(open.map(download)).then(() => {
+      writeSummaries(initCode, summaries)
+      onUpdate(build())
+    })
+  }
+
+  return build()
+}
+
+function buildListResponse(
+  summaries: TicketSummary[],
+  from: Date | undefined,
+  to: Date | undefined,
+  request: { status: number; payment: number },
+) {
+  const items = summaries
     .map((info) => {
       const date = parseTicketTime(info.time)
       return {
@@ -248,11 +351,14 @@ export async function fetchStoredTicketList(
         // la lista cassa ha la colonna terminale: sul web è sempre "WEB"
         terminal_id: 'WEB',
         status: Number(info.status),
+        // disciplina dal riassunto, come game_ids della cassa
+        game_ids: info.game_ids,
         _date: date,
       }
     })
     .filter(
       (item) =>
+        !isNaN(item._date.getTime()) &&
         (!from || item._date >= from) &&
         (!to || item._date < to) &&
         matchesStatus(item.status, request.status) &&

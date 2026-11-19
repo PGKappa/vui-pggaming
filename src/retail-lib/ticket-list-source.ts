@@ -17,8 +17,15 @@ export type TicketListRequest = {
 }
 
 export type TicketListSource = {
-  /** sostituisce la chiamata a /api/ticket/list */
-  fetchList?: (request: TicketListRequest) => Promise<TicketListResponse>
+  /**
+   * sostituisce la chiamata a /api/ticket/list. `onUpdate` (solo con
+   * "Ricarica"): la lista è già a video, arrivano dati aggiornati (es. stato
+   * dei ticket aperti)
+   */
+  fetchList?: (
+    request: TicketListRequest,
+    onUpdate?: (response: TicketListResponse) => void,
+  ) => Promise<TicketListResponse>
   /** nasconde le azioni di cassa (pagamento del ticket) */
   readOnly?: boolean
   /** l'orario del ticket arriva in UTC: va mostrato nel fuso del dispositivo */

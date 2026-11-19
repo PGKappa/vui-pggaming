@@ -333,6 +333,10 @@ export type TicketListItem = {
   }
   terminal_id: string
   status: number
+  // gameId delle giocate del ticket: la disciplina si ricava da qui, senza
+  // scaricare il dettaglio di ogni ticket. Opzionale per i backend che non
+  // lo mandano ancora.
+  game_ids?: string[]
 }
 
 export type TicketListInfo = {

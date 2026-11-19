@@ -16,7 +16,11 @@ import {
   winHalfUp,
 } from '@/virtual-lib/system-bets'
 import { BetEntry, Discipline, SubmittedTicket } from '@/virtual-lib/types'
-import { extractTicketId, storeTicketId } from '@/virtual-lib/ticket-history'
+import {
+  extractTicketId,
+  saveTicketSummary,
+  storeTicketId,
+} from '@/virtual-lib/ticket-history'
 import { useBetTemplate } from '@/virtual-lib/use-bet-template'
 import { createPGVirtualAPICall } from '@/virtual-lib/utils'
 import {
@@ -777,7 +781,20 @@ export default function BettingSlip() {
       // Salva il codice ticket per "Le mie scommesse"
       const ticketId = extractTicketId(result)
       if (ticketId && rootContext?.initCode) {
-        storeTicketId(rootContext.initCode, ticketId)
+        const initCode = rootContext.initCode
+        storeTicketId(initCode, ticketId)
+        // riassunto per la Lista ticket (data, importi, stato, giochi): così
+        // la lista si apre senza scaricare ogni ticket. In background, la
+        // giocata è già confermata.
+        createPGVirtualAPICall(`/api/ticket/${ticketId}`, initCode)
+          .then((r) => r.json())
+          .then((data) => {
+            if (data?.ret_code === 1024 && data.info)
+              saveTicketSummary(initCode, data.info)
+          })
+          .catch(() => {
+            // la lista lo scaricherà alla prossima apertura
+          })
       } else {
         console.warn('Ticket id non trovato nella risposta:', result)
       }

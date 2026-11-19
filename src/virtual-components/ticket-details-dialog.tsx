@@ -13,7 +13,10 @@ import type {
 } from '@/retail-lib/types'
 import { utcTicketTimeToLocal } from '@/retail-lib/ticket-list-source'
 import { createPGVirtualAPICall } from '@/retail-lib/utils'
-import { ticketDetailCache } from '@/virtual-lib/ticket-history'
+import {
+  saveTicketSummary,
+  ticketDetailCache,
+} from '@/virtual-lib/ticket-history'
 import { computeTicketSystem } from '@/virtual-lib/ticket-system'
 import useMediaQuery from '@/virtual-lib/use-media-query'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
@@ -448,6 +451,8 @@ export default function TicketDetailsDialog({
           const data: TicketDetailResponse = await response.json()
           if (data.ret_code === 1024 && data.info) {
             ticketDetailCache.set(ticketId, data.info)
+            // la Lista ticket mostrerà lo stato aggiornato
+            saveTicketSummary(initCode, data.info)
             if (!cancelled) setInfo(data.info)
             return
           }

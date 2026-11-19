@@ -50,15 +50,20 @@ export default function MyBetsPage() {
       utcTimes: true,
       // dettaglio con la grafica del pannello admin (pgPlatformAdmin)
       DetailDialog: LazyTicketDetailsDialog,
-      fetchList: async (request) =>
+      fetchList: async (request, onUpdate) =>
         initCode
-          ? fetchStoredTicketList(initCode, request, async (ticketId) => {
-              const response = await createPGVirtualAPICall(
-                `/api/ticket/${ticketId}`,
-                initCode,
-              )
-              return response.json()
-            })
+          ? fetchStoredTicketList(
+              initCode,
+              request,
+              async (ticketId) => {
+                const response = await createPGVirtualAPICall(
+                  `/api/ticket/${ticketId}`,
+                  initCode,
+                )
+                return response.json()
+              },
+              onUpdate as any,
+            )
           : ({ ret_code: 0, description: '', items: [], info: null } as any),
     }),
     [initCode],
