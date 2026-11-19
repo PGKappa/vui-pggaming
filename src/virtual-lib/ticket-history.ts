@@ -166,6 +166,8 @@ export type TicketSummary = {
   status: number
   intl?: any
   game_ids?: string[]
+  /** quando è stato scaricato (ms): evita di riscaricarlo a ogni apertura */
+  checkedAt?: number
 }
 
 const summariesKey = (initCode: string) => `virtualTicketSummaries:${initCode}`
@@ -185,7 +187,22 @@ export function toTicketSummary(info: any): TicketSummary | undefined {
     game_ids: Array.isArray(info.selections)
       ? info.selections.map((sel: any) => String(sel?.gameId ?? ''))
       : undefined,
+    checkedAt: Date.now(),
   }
+}
+
+// all'apertura i ticket aperti di oggi già controllati da meno di così non
+// si riscaricano (aprire e chiudere la lista più volte di fila)
+const OPEN_TICKET_RECHECK_MS = 30 * 1000
+
+const isToday = (summary: TicketSummary) => {
+  const date = parseTicketTime(summary.time)
+  const today = new Date()
+  return (
+    date.getFullYear() === today.getFullYear() &&
+    date.getMonth() === today.getMonth() &&
+    date.getDate() === today.getDate()
+  )
 }
 
 function readSummaries(initCode: string): Record<string, TicketSummary> {
@@ -308,8 +325,9 @@ export function loadTicketDetail(
  * subito, senza nessuna chiamata. In background, poi `onUpdate` ridisegna:
  * - i ticket senza riassunto (giocati prima di questo aggiornamento, o il cui
  *   riassunto non si è potuto salvare), scaricati una volta;
- * - solo con `refreshOpen` ("Ricarica"), i ticket ancora aperti del periodo
- *   cercato, per aggiornarne lo stato.
+ * - i ticket ancora aperti, per aggiornarne lo stato: all'apertura quelli di
+ *   oggi (non controllati negli ultimi 30 secondi), con `refreshOpen`
+ *   ("Ricarica") tutti quelli del periodo cercato.
  * Il dettaglio di un ticket si scarica quando lo si apre.
  * Gli orari sono convertiti da UTC all'ora locale, come li mostra la lista.
  */
@@ -359,12 +377,17 @@ export async function fetchStoredTicketList(
     (id) =>
       !summaries[id] && !(missing[id] && now - missing[id] < MISSING_RETRY_MS),
   )
-  const open = refreshOpen
-    ? ids.filter(
-        (id) =>
-          summaries[id] && !isFinal(summaries[id]) && inRange(summaries[id]),
-      )
-    : []
+  // ticket ancora aperti da aggiornare: con "Ricarica" quelli del periodo
+  // cercato; all'apertura quelli di oggi, se non controllati da poco
+  const open = ids.filter((id) => {
+    const summary = summaries[id]
+    if (!summary || isFinal(summary)) return false
+    if (refreshOpen) return inRange(summary)
+    return (
+      isToday(summary) &&
+      !(summary.checkedAt && now - summary.checkedAt < OPEN_TICKET_RECHECK_MS)
+    )
+  })
   const toLoad = [...unknown, ...open]
 
   if (toLoad.length && onUpdate) {

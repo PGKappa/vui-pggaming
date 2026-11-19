@@ -210,9 +210,9 @@ export function useTicketList() {
   // precedente non sovrascrivono la lista
   const requestIdRef = React.useRef(0)
 
-  // reload: "Ricarica" premuto. Solo allora una sorgente alternativa (web)
-  // riscarica anche i ticket aperti per aggiornarne lo stato; all'apertura
-  // la lista si mostra subito da quello che ha già.
+  // reload: "Ricarica" premuto. Una sorgente alternativa (web) riscarica
+  // allora i ticket aperti di tutto il periodo; all'apertura la lista si
+  // mostra subito e si aggiornano in background solo quelli di oggi.
   const runSearch = useCallback(
     async (reload: boolean) => {
       if (!rootContext.initCode || !rootContext.operator) return
