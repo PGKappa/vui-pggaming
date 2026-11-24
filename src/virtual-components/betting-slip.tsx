@@ -6,7 +6,6 @@ import { Card, CardContent, CardFooter } from '@/virtual-components/ui/card'
 import { Separator } from '@/virtual-components/ui/separator'
 import { BetsContext } from '@/virtual-contexts/bets-context'
 import { RootContext } from '@/virtual-contexts/root-context'
-import { distributeExactStake } from '@/retail-lib/system-bets'
 import { getBettingLimits } from '@/virtual-lib/betting-limits'
 import {
   computeGroupWinRounded,
@@ -361,8 +360,7 @@ export default function BettingSlip() {
         ? t('min_stake_per_column', {
             min: `${minStake.toFixed(2)} ${currencySymbol}`,
           })
-        : !betTemplate.exactStakeDistribution &&
-            !isMultipleOf(stake, systemColumnStep)
+        : !isMultipleOf(stake, systemColumnStep)
           ? t('stake_increment_error', { increment: systemColumnStep })
           : null
   const groupsStakeError =
@@ -544,7 +542,6 @@ export default function BettingSlip() {
       return false
     }
     if (
-      !betTemplate.exactStakeDistribution &&
       activeSystemGroups.some(
         (group) => !isMultipleOf(group.stake, systemColumnStep),
       )
@@ -866,9 +863,8 @@ export default function BettingSlip() {
       0,
     )
     const stepCents = Math.max(1, Math.round(systemColumnStep * 100))
-    const minColumnCents = betTemplate.exactStakeDistribution
-      ? Math.round(minStake * 100)
-      : Math.ceil(Math.round(minStake * 100) / stepCents) * stepCents
+    const minColumnCents =
+      Math.ceil(Math.round(minStake * 100) / stepCents) * stepCents
     const requiredCents = minColumnCents * columns
     if (Math.round(amount * 100) >= requiredCents) return null
     return t('min_stake_selected_columns', {
@@ -913,21 +909,9 @@ export default function BettingSlip() {
       return
     }
 
-    if (betTemplate.exactStakeDistribution) {
-      // il totale viene ripartito al centesimo tra i gruppi, in proporzione
-      // alle combinazioni (stessa logica del retail)
-      const exactStakes = distributeExactStake(
-        selectedGroupsList.map((group) => ({
-          name: group.name,
-          combinations: group.combinations.length,
-        })),
-        systemDistributeStake,
-      )
-      setSystemGroupStakes((prev) => ({ ...prev, ...exactStakes }))
-      return
-    }
-
-    // puntate per colonna multiple del passo e >= minimo; l'importo non
+    // puntate per colonna multiple del passo accettato dal backend e
+    // >= minimo, con ogni template (anche noIncrement: ripartire al centesimo
+    // dava importi rifiutati con "Increment step stake error"); l'importo non
     // distribuibile viene segnalato, mai aggiunto d'ufficio
     const { stakes, undistributed, minRequired } = distributeSystemStake(
       selectedGroupsList.map((group) => ({
@@ -1023,10 +1007,7 @@ export default function BettingSlip() {
       toast.error(minStakePerColumnText())
       return
     }
-    if (
-      !betTemplate.exactStakeDistribution &&
-      !isMultipleOf(systemDistributeStake, systemColumnStep)
-    ) {
+    if (!isMultipleOf(systemDistributeStake, systemColumnStep)) {
       toast.error(t('stake_increment_error', { increment: systemColumnStep }))
       return
     }
