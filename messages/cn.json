@@ -163,7 +163,7 @@
   "total_combinations": "组合总数",
   "mobile_tab_matches": "比赛",
   "mobile_tab_live": "直播",
-  "stake_not_distributed": "{{amount}} 无法按每注 {{increment}} 的步长分配：该金额未分配",
+  "stake_not_distributed": "已分配 {{distributed}}（共 {{total}}）。未分配余额：{{amount}}，不足以按每注 {{increment}} 的步长增加所选组。",
   "min_stake_per_column": "每注最低金额：{{min}}",
   "min_stake_per_column_increase": "每注最低金额：{{min}}。请增加 {{amount}} 以继续",
   "min_stake_selected_columns": "每注最低金额：{{min}}。{{columns}} 注至少需要 {{total}}"

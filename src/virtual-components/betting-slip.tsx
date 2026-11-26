@@ -936,8 +936,12 @@ export default function BettingSlip() {
     if (undistributed > 0) {
       toast.warning(
         t('stake_not_distributed', {
+          distributed: formatAmount(
+            roundCents(systemDistributeStake - undistributed),
+          ),
+          total: formatAmount(systemDistributeStake),
           amount: formatAmount(undistributed),
-          increment: systemColumnStep,
+          increment: formatAmount(systemColumnStep),
         }),
       )
     }

@@ -223,7 +223,7 @@
   "ticket_detail_title": "Ticket",
   "mobile_tab_matches": "Partidos",
   "mobile_tab_live": "En directo",
-  "stake_not_distributed": "{{amount}} no se pueden repartir con un paso de {{increment}} por columna: importe no asignado",
+  "stake_not_distributed": "Repartidos {{distributed}} de {{total}}. Resto no asignado: {{amount}}, insuficiente para incrementar los grupos seleccionados con el paso previsto de {{increment}} por columna.",
   "min_stake_per_column": "Importe mínimo por columna: {{min}}",
   "min_stake_per_column_increase": "Importe mínimo por columna: {{min}}. Aumente {{amount}} para continuar",
   "min_stake_selected_columns": "Importe mínimo por columna: {{min}}. Para {{columns}} columnas se necesitan al menos {{total}}"
