@@ -317,7 +317,9 @@ export default function LiveMatchInfo(
         </div>
 
         {(shouldShowLatecomersButton || onToggleMedia) && (
-          <div className="flex w-full shrink-0 items-center justify-end gap-3 lg:w-auto lg:pr-3">
+          // lg: separatore grigio a tutta altezza tra orario e tasti (come
+          // quelli dell'intestazione della tabella quote), a metà del gap
+          <div className="flex w-full shrink-0 items-center justify-end gap-3 lg:relative lg:w-auto lg:self-stretch lg:pr-3 lg:before:absolute lg:before:inset-y-0 lg:before:-left-[6.5px] lg:before:w-px lg:before:bg-white/15 lg:before:content-['']">
             {/* i tre tasti hanno la stessa larghezza (1fr) e riempiono la
                 colonna: il primo parte dove inizia la tabella ultimi
                 risultati */}

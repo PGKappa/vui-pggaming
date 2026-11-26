@@ -8,7 +8,8 @@ import { Discipline } from '@/virtual-lib/types'
 
 const ReactPlayer = dynamic(() => import('react-player'), { ssr: false })
 
-// Dirette video (HLS net4media) per disciplina; il calcio è ancora quello di prova
+// Dirette video per disciplina: flussi HLS net4media, tranne i cani a 8 che
+// usano la pagina del viewer (in iframe); il calcio è ancora quello di prova
 const getDisciplineVideoUrl = (discipline: Discipline): string | undefined => {
   const videoUrls: Partial<Record<Discipline, string>> = {
     [Discipline.DOGS]:
@@ -22,6 +23,9 @@ const getDisciplineVideoUrl = (discipline: Discipline): string | undefined => {
   }
   return videoUrls[discipline]
 }
+
+// una pagina HTML (viewer) va in iframe, un flusso video nel player
+const isViewerPage = (url: string) => /\.html?(\?|#|$)/i.test(url)
 
 export default function VideoStreamCard(props: {
   streamUrl?: string | undefined
@@ -102,6 +106,13 @@ export default function VideoStreamCard(props: {
         <div className="flex h-full items-center justify-center">
           <Power className="size-16 text-white/20" />
         </div>
+      ) : videoUrl && isViewerPage(videoUrl) ? (
+        <iframe
+          src={videoUrl}
+          title="Video"
+          allow="autoplay; fullscreen"
+          className="size-full border-0"
+        />
       ) : videoUrl ? (
         <ReactPlayer
           playing={true}

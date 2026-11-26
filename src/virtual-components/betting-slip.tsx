@@ -24,7 +24,6 @@ import { useBetTemplate } from '@/virtual-lib/use-bet-template'
 import { createPGVirtualAPICall } from '@/virtual-lib/utils'
 import {
   ChevronDown,
-  CircleXIcon,
   CornerDownLeft,
   DivideIcon,
   MinusIcon,
@@ -1674,19 +1673,7 @@ export default function BettingSlip() {
         </CardFooter>
 
         <div className="shrink-0 bg-card">
-          <div className="flex items-center justify-end px-3 pt-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-7 gap-1.5 px-1 text-[13px] text-muted-foreground hover:bg-transparent hover:text-destructive"
-              onClick={removeAllBets}
-              disabled={betEntries.length === 0}
-            >
-              {t('remove_all')}
-              <CircleXIcon className="size-4" />
-            </Button>
-          </div>
-          <div className="w-full px-3 pb-3 pt-2">
+          <div className="w-full px-3 pb-3 pt-3">
             <Button
               variant="betNow"
               disabled={betEntries.length === 0 || isSubmitting}

@@ -41,7 +41,7 @@ function NextEventTimer({ discipline }: { discipline: Discipline }) {
   if (!timeLeft) return null
 
   return (
-    <span className="rounded-sm bg-white px-1 text-center text-[10px] font-bold tabular-nums leading-tight text-black md:min-w-[56px] md:px-2 md:py-0.5 md:text-sm">
+    <span className="bg-white px-1 py-0.5 text-center text-[10px] font-bold tabular-nums leading-tight text-black md:min-w-[56px] md:px-2 md:py-1 md:text-sm">
       {timeLeft}
     </span>
   )
@@ -167,25 +167,25 @@ export default function Navbar() {
       fallback={
         <nav className="flex w-full flex-row gap-2 bg-navbarBg p-2 text-navbarBg-foreground">
           <div className="flex h-11 w-full flex-row items-center justify-center gap-2 px-2">
-            <div className="h-5 w-10 animate-pulse rounded bg-white/20" />
+            <div className="h-5 w-10 animate-pulse bg-white/20" />
             <span className="text-sm font-semibold uppercase">
               {t('dog6_racing')}
             </span>
           </div>
           <div className="flex h-11 w-full flex-row items-center justify-center gap-2 px-2">
-            <div className="h-5 w-10 animate-pulse rounded bg-white/20" />
+            <div className="h-5 w-10 animate-pulse bg-white/20" />
             <span className="text-sm font-semibold uppercase">
               {t('dog8_racing')}
             </span>
           </div>
           <div className="flex h-11 w-full flex-row items-center justify-center gap-2 px-2">
-            <div className="h-6 w-10 animate-pulse rounded bg-white/20" />
+            <div className="h-6 w-10 animate-pulse bg-white/20" />
             <span className="text-sm font-semibold uppercase">
               {t('horse6_racing')}
             </span>
           </div>
           <div className="flex h-11 w-full flex-row items-center justify-center gap-2 px-2">
-            <div className="h-6 w-10 animate-pulse rounded bg-white/20" />
+            <div className="h-6 w-10 animate-pulse bg-white/20" />
             <span className="text-sm font-semibold uppercase">
               {t('football')}
             </span>

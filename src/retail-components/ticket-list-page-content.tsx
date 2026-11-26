@@ -82,6 +82,9 @@ export default function TicketListPageContent({
     fullWidth && 'w-full lg:w-[180px] xl:w-[230px] 2xl:w-[286px]'
   // web, sotto lg: al posto della tabella a 9 colonne una lista di schede
   // (vedi sotto); tabella e legenda restano da lg in su
+  // titolo sopra ogni filtro, come la lista ticket di stanleybet2026
+  const filterLabelClass =
+    'mb-[6px] pl-[15px] text-left text-[13px] font-bold uppercase text-accent-foreground lg:text-[16px]'
   const webDesktopOnly = fullWidth && 'hidden lg:flex'
   const [calendarMode, setCalendarMode] = useState<'single' | 'range'>('range')
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false)
@@ -514,25 +517,27 @@ export default function TicketListPageContent({
               {dateRangeButton('h-[38px] w-[209px] justify-center text-[15px]')}
             </div>
 
-            {/* Terminale - calcio */}
-            <div className="mr-20 flex flex-row items-center gap-2 bg-badge text-background">
-              <Select
-                value={terminal}
-                onValueChange={(v) => setTerminal(v || 'all')}
-              >
-                <SelectTrigger className="h-[38px] w-[149px] bg-background pl-[15px] pr-[12px] text-[15px] text-foreground">
-                  <SelectValue placeholder={t('terminal')} />
-                </SelectTrigger>
-                <SelectContent className="bg-white p-0 text-[13px] uppercase">
-                  <SelectItem value="all">{t('all')}</SelectItem>
-                  {availableTerminals.map((tid) => (
-                    <SelectItem key={tid} value={tid}>
-                      {tid}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            {/* Terminale - calcio (non nel virtual) */}
+            {!fullWidth && (
+              <div className="mr-20 flex flex-row items-center gap-2 bg-badge text-background">
+                <Select
+                  value={terminal}
+                  onValueChange={(v) => setTerminal(v || 'all')}
+                >
+                  <SelectTrigger className="h-[38px] w-[149px] bg-background pl-[15px] pr-[12px] text-[15px] text-foreground">
+                    <SelectValue placeholder={t('terminal')} />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white p-0 text-[13px] uppercase">
+                    <SelectItem value="all">{t('all')}</SelectItem>
+                    {availableTerminals.map((tid) => (
+                      <SelectItem key={tid} value={tid}>
+                        {tid}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             {/* Stato - calcio */}
             <div className="mr-20 flex flex-row items-center gap-2 bg-badge text-background">
@@ -597,102 +602,116 @@ export default function TicketListPageContent({
       ) : (
         <div
           className={cn(
-            'flex h-[61px] shrink-0 justify-center bg-secondary pb-3 lg:pb-5',
-            fullWidth && 'h-auto px-2 pb-2 lg:h-[61px] lg:px-0 lg:pb-5',
+            'flex h-[89px] shrink-0 justify-center bg-secondary pb-3 lg:h-[95px] lg:pb-5',
+            fullWidth && 'h-auto px-2 pb-2 lg:h-[95px] lg:px-0 lg:pb-5',
           )}
           style={{ borderLeft: sideBorder }}
         >
           <div
             className={cn(
-              'relative left-[60px] flex flex-wrap items-center space-x-5 uppercase lg:bottom-[3px] lg:space-x-4',
+              'relative left-[60px] flex flex-wrap items-end space-x-5 uppercase lg:bottom-[3px] lg:space-x-4',
               fullWidth &&
                 'left-0 grid w-full grid-cols-2 gap-2 space-x-0 lg:flex lg:w-auto lg:flex-nowrap lg:gap-0 lg:space-x-4',
             )}
           >
             {/* Data - standard */}
-            <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
-              {dateRangeButton(
-                cn(
-                  'h-[38px] w-[149px] justify-center text-[15px] lg:h-[44px] lg:w-[286px] uppercase',
-                  webFilterWidth,
-                ),
-              )}
+            <div className="flex flex-col">
+              <span className={filterLabelClass}>{t('date', 'DATA')}</span>
+              <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
+                {dateRangeButton(
+                  cn(
+                    'h-[38px] w-[149px] justify-center text-[15px] lg:h-[44px] lg:w-[286px] uppercase',
+                    webFilterWidth,
+                  ),
+                )}
+              </div>
             </div>
 
             {/* Disciplina - standard */}
-            <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
-              <Select
-                value={discipline}
-                onValueChange={(v) => setDiscipline(v || 'all')}
-              >
-                <SelectTrigger
-                  className={cn(
-                    'h-[38px] w-[84px] bg-background pl-[15px] pr-[12px] text-[15px] uppercase text-foreground lg:h-[44px] lg:w-[286px]',
-                    webFilterWidth,
-                  )}
+            <div className="flex flex-col">
+              <span className={filterLabelClass}>{t('discipline')}</span>
+              <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
+                <Select
+                  value={discipline}
+                  onValueChange={(v) => setDiscipline(v || 'all')}
                 >
-                  <SelectValue placeholder={t('discipline')} />
-                </SelectTrigger>
-                <SelectContent className="bg-white p-0 text-[13px] uppercase">
-                  <SelectItem value="all">{t('all')}</SelectItem>
-                  <SelectItem value="dogs">{t('dog_racing')}</SelectItem>
-                  <SelectItem value="horses">{t('horse_racing')}</SelectItem>
-                  <SelectItem value="real">
-                    {t('dog_racing')} / {t('horse_racing')}
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+                  <SelectTrigger
+                    className={cn(
+                      'h-[38px] w-[84px] bg-background pl-[15px] pr-[12px] text-[15px] uppercase text-foreground lg:h-[44px] lg:w-[286px]',
+                      webFilterWidth,
+                    )}
+                  >
+                    <SelectValue placeholder={t('discipline')} />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white p-0 text-[13px] uppercase">
+                    <SelectItem value="all">{t('all')}</SelectItem>
+                    <SelectItem value="dogs">{t('dog_racing')}</SelectItem>
+                    <SelectItem value="horses">{t('horse_racing')}</SelectItem>
+                    <SelectItem value="real">
+                      {t('dog_racing')} / {t('horse_racing')}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
-            {/* Terminale - standard */}
-            <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
-              <Select
-                value={terminal}
-                onValueChange={(v) => setTerminal(v || 'all')}
-              >
-                <SelectTrigger
-                  className={cn(
-                    'h-[38px] w-[84px] bg-background pl-[15px] pr-[12px] text-[15px] uppercase text-foreground lg:h-[44px] lg:w-[286px]',
-                    webFilterWidth,
-                  )}
-                >
-                  <SelectValue placeholder={t('terminal')} />
-                </SelectTrigger>
-                <SelectContent className="bg-white p-0 text-[13px] uppercase">
-                  <SelectItem value="all">{t('all')}</SelectItem>
-                  {availableTerminals.map((tid) => (
-                    <SelectItem key={tid} value={tid}>
-                      {tid}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            {/* Terminale - standard  (non nel virtual) */}
+            {!fullWidth && (
+              <div className="flex flex-col">
+                <span className={filterLabelClass}>{t('terminal')}</span>
+                <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
+                  <Select
+                    value={terminal}
+                    onValueChange={(v) => setTerminal(v || 'all')}
+                  >
+                    <SelectTrigger
+                      className={cn(
+                        'h-[38px] w-[84px] bg-background pl-[15px] pr-[12px] text-[15px] uppercase text-foreground lg:h-[44px] lg:w-[286px]',
+                        webFilterWidth,
+                      )}
+                    >
+                      <SelectValue placeholder={t('terminal')} />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white p-0 text-[13px] uppercase">
+                      <SelectItem value="all">{t('all')}</SelectItem>
+                      {availableTerminals.map((tid) => (
+                        <SelectItem key={tid} value={tid}>
+                          {tid}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            )}
 
             {/* Stato - standard */}
-            <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
-              <Select
-                value={statusSelectValue}
-                onValueChange={handleStatusChange}
-              >
-                <SelectTrigger
-                  className={cn(
-                    'h-[38px] w-[79px] bg-background pl-[15px] pr-[12px] text-[15px] uppercase text-foreground lg:h-[44px] lg:w-[286px]',
-                    webFilterWidth,
-                  )}
+            <div className="flex flex-col">
+              <span className={filterLabelClass}>{t('status')}</span>
+              <div className="flex flex-row items-center space-x-1 bg-accent text-background lg:space-x-2">
+                <Select
+                  value={statusSelectValue}
+                  onValueChange={handleStatusChange}
                 >
-                  <SelectValue placeholder={t('status')} />
-                </SelectTrigger>
-                <SelectContent className="bg-white p-0 text-[13px] uppercase">
-                  <SelectItem value="all">{t('all')}</SelectItem>
-                  <SelectItem value="active">{t('active')}</SelectItem>
-                  <SelectItem value="won">{t('won')}</SelectItem>
-                  <SelectItem value="lost">{t('lost')}</SelectItem>
-                  <SelectItem value="cancelled">{t('cancelled')}</SelectItem>
-                  <SelectItem value="paid">{t('paid')}</SelectItem>
-                  <SelectItem value="unpaid">{t('unpaid')}</SelectItem>
-                </SelectContent>
-              </Select>
+                  <SelectTrigger
+                    className={cn(
+                      'h-[38px] w-[79px] bg-background pl-[15px] pr-[12px] text-[15px] uppercase text-foreground lg:h-[44px] lg:w-[286px]',
+                      webFilterWidth,
+                    )}
+                  >
+                    <SelectValue placeholder={t('status')} />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white p-0 text-[13px] uppercase">
+                    <SelectItem value="all">{t('all')}</SelectItem>
+                    <SelectItem value="active">{t('active')}</SelectItem>
+                    <SelectItem value="won">{t('won')}</SelectItem>
+                    <SelectItem value="lost">{t('lost')}</SelectItem>
+                    <SelectItem value="cancelled">{t('cancelled')}</SelectItem>
+                    <SelectItem value="paid">{t('paid')}</SelectItem>
+                    <SelectItem value="unpaid">{t('unpaid')}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             <Button
               onClick={fetchTickets}
